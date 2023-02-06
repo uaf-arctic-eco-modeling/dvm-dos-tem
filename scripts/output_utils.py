@@ -240,8 +240,8 @@ def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
     - The file's variable name is the same as the variable name in the filename.
     - There is a units attribute.
 
-  Only able to return a ``pandas.DatetimeIndex`` for a transient (tr) and scenario
-  (sc) files.
+  Only able to return a ``pandas.DatetimeIndex`` for a transient (tr) and
+  scenario (sc) files.
 
 
   Parameters
@@ -490,7 +490,7 @@ def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stag
 
   for i, var in enumerate(vars2plot):
     ax = plt.subplot(gs[i,:])
-    data, units = stitch_stages(var, time_resolution, stages, folder)
+    data, units, dims = stitch_stages(var, time_resolution, stages, folder)
     print(data.shape)
     ax.plot(data[:,spatial_y, spatial_x], label=var)
     ax.set_ylabel = units
@@ -535,7 +535,7 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
 
   Returns `None`
   '''
-  data, units = stitch_stages(var, timestep, stages)
+  data, units, dims = stitch_stages(var, timestep, stages)
   print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
@@ -685,7 +685,7 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
   Returns `None`
   '''
 
-  data, units = stitch_stages(var, 'monthly', stages)
+  data, units, dims = stitch_stages(var, 'monthly', stages)
   print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
@@ -729,7 +729,7 @@ def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   Work in progress...
   '''
 
-  data, units = stitch_stages(var, timestep, stages)
+  data, units, dims = stitch_stages(var, timestep, stages)
   print("data size:", data.size)
   print(data.shape)
 
