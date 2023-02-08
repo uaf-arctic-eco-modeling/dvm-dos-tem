@@ -16,6 +16,7 @@
 
 import PyCall
 using DataFrames
+using DataStructures
 using CSV
 using Pkg
 using PyCall
@@ -36,31 +37,31 @@ function save_csv(paramkey,paramdist_min,paramdist_max,initial_guess,problemname
             df = DataFrame(parameters = paramkey,dist_min = paramdist_min, dist_max = paramdist_max, target_weights = obsweight, initialGuess = initial_guess)
         end
     end
-    df2=get_itr_results(problemname) 
+    df2=get_itr_results(problemname,paramkey) 
     final_results=hcat(df,df2)
-    # if isfile(problemname*".csv")
-    #     #if the problemname has already been used, we save a new file
-    #     print(problemname*".csv already exists. Saving a new file: "*problemname*"_2.csv...")
-    #     #append!(file,df)
-    #     #print(file)
-    #     CSV.write(problemname*"_2.csv", final_results)
-    # else
-    #     CSV.write(problemname*".csv", final_results)
-    #     print(problemname*".csv is saved.")
-    # end
     # final_results=round.(final_results[:,Not(:parameters)], digits=2)
     CSV.write(problemname*".csv", final_results)
     print(problemname*".csv is saved.")
 end
 
-function get_itr_results(problemname)
+function get_itr_results(problemname,paramkey)
     #read in final results file
     pushfirst!(PyVector(pyimport("sys")."path"), @__DIR__)
     multi_cal = pyimport("process_multi_cal")
     lines=multi_cal.read_results(problemname*".finalresults");
     #extract out final param results
     merged_params=multi_cal.create_dict_params(lines);
-    df2=permutedims(DataFrame(merged_params));
+    #Julia does not preserve order from python dict-use MADS paramkey to reorder julia dictionary correctly: 
+    orderdict_idx = Dict(x => i for (i,x) in enumerate(paramkey)) #idx of correct order
+    orderdict=OrderedDict([ name =>[] for name in paramkey])
+    for nn in 1:length(orderdict)
+        #find nn in vals of orderdict_idx, get associated key(param)
+        idx=findall(item -> item == nn, orderdict_idx.vals) # idx is type: 1-element Vector{Int64}
+        col_name = orderdict_idx.keys[idx[1]]
+        #take column of assoc key in merged_params, add to ordered dict in correct spot
+        orderdict[col_name]=merged_params[col_name]
+    end
+    df2=permutedims(DataFrame(orderdict));
     # set OF error as column headers
     err=multi_cal.read_error(problemname*".finalresults");
     rename!(df2, err, makeunique=true)
@@ -91,15 +92,7 @@ function save_model_csv(md,problemname,forward_predictions)
             df=hcat(df,df2,makeunique=true)
         end
     end
-    # if isfile(problemname*"_model.csv")
-    #     #if the problemname has already been used, we save a new file
-    #     print(problemname*".csv already exists. Saving a new file: "*problemname*"_2.csv...")
-    #     CSV.write(problemname*"_model_2.csv", df)
-    # else
-    #     CSV.write(problemname*"_model.csv", df)
-    #     print(problemname*"_model.csv is saved.")
-    # end
-    # df=round.(df[:,Not(:obs_id)], digits=2)
+    df=round.(df[:,Not(:obs_id)], digits=5) #round values
     CSV.write(problemname*"_model.csv", df)
     print(problemname*"_model.csv is saved.")
 end
