@@ -175,8 +175,8 @@ see :ref:`Note on Docker commands <two-ways-to-run-docker-commands>` and the
   :width: 600
   :alt: example output plot
 
-Interactive map of inputs
-===========================
+Interactive map of inputs using Bokeh
+=======================================
 
 The most robust example of using the web server and interactive browser plotting
 is in the ``io_view.py`` script.
@@ -215,11 +215,29 @@ Starting the server:
 
 .. code:: 
 
-    $ docker compose --workdir /work/scripts exec dvmdostem-mapping-support bokeh serve io_view.py --port 7003
+  $ docker compose exec dvmdostem-mapping-support bash
+
+  $ develop@0c903d0c11e8:/work$ bokeh serve scripts/io_view.py --port 7003
+  2023-02-08 01:29:58,134 Starting Bokeh server version 3.0.3 (running on Tornado 6.1)
+  2023-02-08 01:29:58,333 User authentication hooks NOT provided (default user enabled)
+  2023-02-08 01:29:58,336 Bokeh app running at: http://localhost:7003/io_view
+  2023-02-08 01:29:58,336 Starting Bokeh server with process id: 283
+  BokehDeprecationWarning: tile_providers module was deprecated in Bokeh 3.0.0 and will be removed, use add_tile directly instead.
+  Looking in the following folders for datasets to map:
+  []
+  feature_collection: <class 'dict'>
+  feature collecton bounds in wgs84:  [0. 0. 0. 0.]
+  feature collection bounds in web mercator:  [0. 0. 0. 0.]
+  2023-02-08 01:30:01,012 W-1005 (FIXED_SIZING_MODE): 'fixed' sizing mode requires width and height to be set: Row(id='p1111', ...)
+  2023-02-08 01:30:01,013 W-1005 (FIXED_SIZING_MODE): 'fixed' sizing mode requires width and height to be set: TextInput(id='p1062', ...)
+  ...
+  ... 
 
 Then in your browser:
 
-.. image:: 
+.. image:: ../images/examples_and_tutorials/plotting_discussion/io_view_example.png
+  :width: 800
+  :alt: example of Bokeh application
 
 
   
