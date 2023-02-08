@@ -352,13 +352,14 @@ simulations. Indicate how you formulated NEE.
       import bokeh.resources as bkr
       import bokeh.io as bkio
 
-      # This helps display inline in sphinx document
+      # This helps display inline in sphinx document,
+      # in other contexts you may not need this line.
       bkio.output_notebook(bkr.CDN, verbose=False, 
                            notebook_type='jupyter', hide_banner=True)
 
       p = bkp.figure(title="NEE", x_axis_type='datetime',
                      sizing_mode="stretch_width", max_width=500, height=150,
-                     toolbar_location='above', )
+                     toolbar_location='above')
 
       p.line(nee.index, nee, line_width=1)
 
@@ -424,21 +425,22 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
 
    a. What are the units of these fluxes?
 
-      .. collapse:: Example Python Solution
+      .. collapse:: Example Python Solution for Finding Units
          :class: working
 
          .. jupyter-execute:: 
 
+            print('{:>10} {:>12} {:>12}'.format('varible', 'tr', 'sc'))
             for v in ['GPP', 'RH', 'RM','RG',]:
                 trds = nc.Dataset(f'output/{v}_monthly_tr.nc')
                 scds = nc.Dataset(f'output/{v}_monthly_sc.nc')
                 tunits = trds.variables[v].units
                 sunits = scds.variables[v].units
-                print(f'{v} {tunits} {sunits}')
+                print(f'{v:>10} {tunits:>12} {sunits:>12}')
             
 
 
-.. collapse:: Example Python Solution
+.. collapse:: Example Python Solution for Computing Means
    :class: working
 
    .. jupyter-execute:: 
@@ -446,12 +448,12 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
       # Using the variables loaded above when we computed NEE
 
       for d in ['1990-1999','2040-2049','2090-2099']:
-         s, e = d.split('-')
-         mean = df[s:e].mean(axis=0)
-         long_string = ['{:.3f}'.format(i) for i in mean]
-         print(f"{d}  mean (each pft): {long_string}")
-         print(f"{d}  mean (across pfts): {mean.mean()}")
-         print()
+        s, e = d.split('-')
+        mean_gpp = gpp[s:e].mean(axis=0)
+        long_string = ['{:.3f}'.format(i) for i in mean_gpp]
+        print(f"{d}  mean (each pft): {long_string}")
+        print(f"{d}  mean (across pfts): {mean_gpp.mean()}")
+        print()
 
       for d in ['1990-1999','2040-2049','2090-2099']:
         s, e = d.split('-')
