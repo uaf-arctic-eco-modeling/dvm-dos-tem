@@ -355,13 +355,22 @@ assumes that you are using the following convention:
   ``https://github.com/<your user name>/dvm-dos-tem``.
 * The remote named ``upstream`` should generally point to
   ``https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem`` or
-  ``git@github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git`` if you will be contributing.
+  ``git@github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git`` if you will be
+  contributing.
 
-It is **strongly encouraged** that you go to the effort of making sure your
-current git branch is displayed in your terminal shell prompt. There are many
-examples floating around online of how to achieve this for all major operating
-systems and shells; one example `here
-<https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt>`_ 
+.. note:: 
+
+  If you plan to push changes you will need to setup ``ssh`` keys. The
+  directions for this are here:
+  https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh
+
+.. note:: 
+
+  It is **strongly encouraged** that you go to the effort of making sure your
+  current git branch is displayed in your terminal shell prompt. There are many
+  examples floating around online of how to achieve this for all major operating
+  systems and shells; one example `here
+  <https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt>`_ 
 
 
 *********************
@@ -375,10 +384,22 @@ WRITE THIS....
 Docker
 **********************
 
+As of 2023, Docker is the current reccomended virtualization tool for working
+with TEM. It is definitely still possible to use a traditional Virtual Machine,
+(i.e. with VirtualBox, perhaps managed by Vagrant), but all of our current
+documentation assumed you will be using Docker. Overall Docker offers some
+advatages in being able to standardize the internal layout of the virtual
+environment amongst users.
+
+The following slideshow attempts to explain some of the concepts.
+
 .. raw:: html
 
    <!-- shared from Tobey Carmans's Docker Diagram google drawing -->
    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSX3m0NGfLrNlOz_RccNyhRh11qwW1Lf0v5bQ1E5nA3RwCl_YHrWOx-S1cVA0AX6e3zZwBKnpyjD5kQ/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+
+
 
 *********************************
 Plotting and Graphical Outputs
