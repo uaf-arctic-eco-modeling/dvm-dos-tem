@@ -178,8 +178,51 @@ see :ref:`Note on Docker commands <two-ways-to-run-docker-commands>` and the
 Interactive map of inputs
 ===========================
 
-See Bokeh example here...
+The most robust example of using the web server and interactive browser plotting
+is in the ``io_view.py`` script.
 
+As the tooling has become more robust for this approach, it is becoming more
+attractive. Some of the advantages are:
+
+ - interactivity,
+ - rich javascript front-end tools,
+ - ubibiquity of web browsers, and
+ - decoupling of plot generation computing environment and display environment.
+ 
+The final point is particularly helpful in a Docker environmnt or when working
+on a remote computer via only the console. It is even possible, using an ``ssh
+tunnel`` to view pages that are generated on a computer behind a firewall that
+are not typically web-acessible.
+
+The concept is as follows:
+
+ - On the computing environment where you have the data and can generate plots,
+   start a web-server that is running your plotting application.
+ - From the computing environment where you have a web-browser, make requests to
+   the server application started above.
+
+Then access the web browser which should display the plots.
+
+The challengs to this approach mainly lie in debugging and understanding the
+source of errors when things don't work. Not only do you have the plotting code
+to think about, but you also must be cognizant of the networking and the
+web-server.
+
+Example:
+----------
+
+Starting the server:
+
+.. code:: 
+
+    $ docker compose --workdir /work/scripts exec dvmdostem-mapping-support bokeh serve io_view.py --port 7003
+
+Then in your browser:
+
+.. image:: 
+
+
+  
 Plot Driving Inputs
 ========================
 More info here...
