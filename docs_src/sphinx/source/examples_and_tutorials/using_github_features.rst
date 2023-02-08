@@ -165,16 +165,29 @@ code is included in the ``master`` branch.
 Issue tracker
 **********************
 
-Github also provides an Issue Tracker (bug tracker) database.
-  * making new issues - what info to include 
-  * curation of the issue list, tagging, labeling, deleting
-  * linking/cross referencing
+Github also provides an Issue Tracker (bug tracker) database. This database
+allows adding a variety of flags or labels to each issue and conveniently links
+to the Pull Request list. 
 
+From Github's `definition
+<https://docs.github.com/en/get-started/quickstart/github-glossary#issue>`_ :
 
+  Issues are suggested improvements, tasks or questions related to the
+  repository. Issues can be created by anyone (for public repositories), and are
+  moderated by repository collaborators. Each issue contains its own discussion
+  thread. You can also categorize an issue with labels and assign it to someone.
 
-* Setting up ``ssh`` keys
+We are using the Issue tracker and would like to get more of the discussion
+surrounding improvements, tasks and questions documented in the tracker. Advantages of using the Github tracker are:
 
-  * maybe move this to the prelude > version control > setup section.
+ * integrations with the rest of Github (cross referencing),
+ * visibility, and 
+ * archiving.
+
+For the Issue Tracker to be of the most use, it is important that the discussion
+be targeted to the issue at hand, use appropriate cross referencing, and rich
+with as many details (images, code, discussions of setup, etc) as necessary for
+other folks to be able to understand the context.
 
 
 ******************************
