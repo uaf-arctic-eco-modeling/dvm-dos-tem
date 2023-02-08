@@ -140,6 +140,20 @@ Off the Shelf Tools
  - ``panlopy`` https://www.giss.nasa.gov/tools/panoply/
  - Paraview ??
 
+
+***************************
+General Process
+***************************
+
+ - Difficult to write re-usable code, sometimes even for yourself...always
+   starts simple, then you end up 
+
+ * start in REPL
+ * move to notebook
+ * Factor code out to script
+ * go back to REPL, but using script/functions you just made
+
+
 ********************
 Example Plots
 ********************
@@ -208,10 +222,9 @@ source of errors when things don't work. Not only do you have the plotting code
 to think about, but you also must be cognizant of the networking and the
 web-server.
 
-Example:
-----------
 
-Starting the server:
+Starting the server
+--------------------
 
 .. code:: 
 
@@ -233,7 +246,18 @@ Starting the server:
   ...
   ... 
 
-Then in your browser:
+View in your browser
+----------------------
+
+This application is designed to plot ``dvmdostem`` input datasets on a map so
+that you can see where a given site is. This is useful for deciding what input
+set to use as well as double checking the input preparation process. There are
+some additional helper features:
+ 
+ * Input boxes where you can enter coordinates and display a mark on the map.
+ * Crosshairs and coordinate display in WGS84 and Web Mercator coordinate
+   systems.
+ * A table that shows the names of all the displayed input datasets.
 
 .. image:: ../images/examples_and_tutorials/plotting_discussion/io_view_example.png
   :width: 800
@@ -243,7 +267,22 @@ Then in your browser:
   
 Plot Driving Inputs
 ========================
-More info here...
+
+This plot shows the data for an input dataset, summarized over the spatial
+dimensions and for the full timeseries. In this example, the historic and
+projected timeseries are stitched together.
+
+.. code:: 
+
+  ./scripts/input_util.py climate-ts-plot \
+    --type spatial-temporal-summary \
+    --yx 0 0 --stitch \
+    ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_bonanzacreeklter_10x10
+
+
+.. image:: ../images/examples_and_tutorials/plotting_discussion/input_spatial_summary_timeseries.png
+  :width: 800
+  :alt: example of input_util spatial summary timeseries plot
 
 
 .. _ncview: https://cirrus.ucsd.edu/ncview/ 
