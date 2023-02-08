@@ -216,7 +216,7 @@ Computing Means
 **************************
 
 Compute the mean vegetation and soil carbon stocks for the following time
-ranges: [1990-2010], [2040-2050], [2090-2100].
+ranges: [1990-1999], [2040-2049], [2090-2099].
 
    a. What are the units of these stocks?
 
@@ -229,7 +229,7 @@ ranges: [1990-2010], [2040-2050], [2090-2100].
         TIMERES = 'yearly'
         PX_X = 0
         PX_Y = 0
-        time_ranges = ['1990-2010','2040-2050','2090-2100']
+        time_ranges = ['1990-1999','2040-2049','2090-2099']
 
         df, meta = load_trsc_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y,
                                        px_x=PX_X, fileprefix='output')
@@ -417,7 +417,7 @@ Computing Mean GPP
 ****************************
 
 Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
-following time ranges: [1990-2010], [2040-2050], [2090-2100].
+following time ranges: [1990-1999], [2040-2049], [2090-2099].
 
    a. What are the units of these fluxes?
 
@@ -448,7 +448,7 @@ following time ranges: [1990-2010], [2040-2050], [2090-2100].
       df, _ = load_trsc_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, 
                                   px_x=PX_X, fileprefix='output')
 
-      for d in ['1990-2010','2040-2050','2090-2100']:
+      for d in ['1990-1999','2040-2049','2090-2099']:
          s, e = d.split('-')
          mean = df[s:e].mean(axis=0)
          long_string = ['{:.3f}'.format(i) for i in mean]
