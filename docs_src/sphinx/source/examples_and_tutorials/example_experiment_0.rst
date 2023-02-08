@@ -308,10 +308,13 @@ simulations. Indicate how you formulated NEE.
 
   .. jupyter-execute::
 
-    rh, _ = load_trsc_dataframe('RH', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
-    rm, _ = load_trsc_dataframe('RM', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
-    rg, _ = load_trsc_dataframe('RG', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
-    gpp, _ = load_trsc_dataframe('GPP', timeres='monthly', px_y=0, px_x=0, fileprefix='output')
+    X = 0
+    Y = 0
+
+    rh, _ = load_trsc_dataframe('RH', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    rm, _ = load_trsc_dataframe('RM', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    rg, _ = load_trsc_dataframe('RG', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    gpp, _ = load_trsc_dataframe('GPP', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
 
     # GPP is output per PFT, so here we sum across PFTs to get
     # the ecosystem GPP.
@@ -412,9 +415,9 @@ simulations. Indicate how you formulated NEE.
 
 
 
-****************************
-Computing Mean GPP
-****************************
+**********************************
+Computing Mean GPP, RA, RH, NEE
+**********************************
 
 Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
 following time ranges: [1990-1999], [2040-2049], [2090-2099].
@@ -440,13 +443,7 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
 
    .. jupyter-execute:: 
 
-      VAR = 'GPP'
-      TIMERES = 'monthly'
-      PX_X = 0
-      PX_Y = 0
-
-      df, _ = load_trsc_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, 
-                                  px_x=PX_X, fileprefix='output')
+      # Using the variables loaded above when we computed NEE
 
       for d in ['1990-1999','2040-2049','2090-2099']:
          s, e = d.split('-')
@@ -456,6 +453,16 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
          print(f"{d}  mean (across pfts): {mean.mean()}")
          print()
 
+      for d in ['1990-1999','2040-2049','2090-2099']:
+        s, e = d.split('-')
+        mean_rh = rh[s:e].mean().squeeze() # <- squeeze collapses DF to Series
+        ra = rm + rg
+        mean_ra = ra[s:e].mean().squeeze()
+        mean_nee = nee[s:e].mean()
+        print(f"{d}  mean rh: {mean_rh}")
+        print(f"{d}  mean ra: {mean_ra}")
+        print(f"{d}  mean nee: {mean_nee}")
+        print()
 
 
 *******************************************
