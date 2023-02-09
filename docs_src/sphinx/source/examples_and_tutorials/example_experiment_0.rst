@@ -211,9 +211,9 @@ information is used to set the number of transient and scenario years to run.
 
       iu.climate_ts_plot(argparse.Namespace(**args))
 
-**************************
-Computing Means
-**************************
+*****************************************
+Computing Mean Vegetation C and Soil C
+*****************************************
 
 Compute the mean vegetation and soil carbon stocks for the following time
 ranges: [1990-1999], [2040-2049], [2090-2099].
@@ -241,15 +241,7 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
         print()
 
 .. collapse:: Example NCO solution
-  :class: broken
-
-  .. warning::
-
-    Problems?
-
-      * decades don't match question
-      * store stock in single file step, error copying scenario files??
-      * commands after ``## <--ERROR! fail``
+  :class: working
 
   .. code::
 
@@ -261,8 +253,8 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
 
     ### Compute the decadal means of vegetation carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_tr.nc  synthesis/VEGC_1990_1999.nc
-    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2040_2059.nc
-    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2090_2099.nc
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2090_2099.nc
 
     ### Store all soil C stocks to a single file
     cp output/SHLWC_yearly_tr.nc synthesis/SOILC_yearly_tr.nc
@@ -270,8 +262,8 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
     ncks -A -h output/MINEC_yearly_tr.nc synthesis/SOILC_yearly_tr.nc
 
     cp output/SHLWC_yearly_sc.nc synthesis/SOILC_yearly_sc.nc
-    ncks -A -h ./output/DEEPC_yearly_tr.nc synthesis/SOILC_yearly_sc.nc ## <--ERROR!
-    ncks -A -h ./output/MINEC_yearly_tr.nc synthesis/SOILC_yearly_sc.nc ## <--ERROR! maybe tr needs to be sc??
+    ncks -A -h ./output/DEEPC_yearly_sc.nc synthesis/SOILC_yearly_sc.nc 
+    ncks -A -h ./output/MINEC_yearly_sc.nc synthesis/SOILC_yearly_sc.nc 
 
     ### Compute total soil carbon
     ncap2 -O -h -s'SOILC = SHLWC + DEEPC + MINEC' synthesis/SOILC_yearly_tr.nc synthesis/SOILC_yearly_tr.nc
@@ -279,8 +271,8 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
 
     ### Compute the decadal means of soil carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_tr.nc  synthesis/SOILC_1990_1999.nc
-    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2040_2059.nc
-    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2090_2099.nc
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2090_2099.nc
 
 
 ****************************
