@@ -475,6 +475,49 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
+// CMT31 // Boreal Bog
+0.8                // snwalbmax:
+0.4                // snwalbmin:
+-1.5e7             // psimax:
+0.08               // evapmin:
+0.04               // drainmax: changed from 0.04
+0.20               // rtdp4gdd: root depth for estimating growing degree day
+0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
+0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
+0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
+0.98               // porosity(m): porosity for moss layers
+0.95               // porosity(f): porosity for fibric layers
+0.8                // porosity(h): porosity for humic layers
+25000              // bulkden(m): bulk density for moss (g/m3)
+51000              // bulkden(f): bulk density for fibric (g/m3)
+176000             // bulkden(h): bulk density for humic (g/m3)
+0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
+0.28               // hksat(f): hydraulic conductivity at saturation for fibric
+0.002              // hksat(h): hydraulic conductivity at saturation for humic
+1.5                // nfactor(s): Summer nfactor
+1.0                // nfactor(w): Winter nfactor
+-1.0               // initsnwtem: initial snow temperature (oC)
+-9.1               // initts(0): initial soil temperature at 10 cm interval (oC)
+-7.9               // initts(1): initial soil temperature at 10 cm interval (oC)
+-6.8               // initts(2): initial soil temperature at 10 cm interval (oC)
+-5.9               // initts(3): initial soil temperature at 10 cm interval (oC)
+-5.0               // initts(4): initial soil temperature at 10 cm interval (oC)
+-4.4               // initts(5): initial soil temperature at 10 cm interval (oC)
+-3.8               // initts(6): initial soil temperature at 10 cm interval (oC)
+-3.4               // initts(7): initial soil temperature at 10 cm interval (oC)
+-3.2               // initts(8): initial soil temperature at 10 cm interval (oC)
+-3.1               // initts(9): initial soil temperature at 10 cm interval (oC)
+0.84               // initvwc(0): initial soil volume water content at every 10 cm interval
+0.91               // initvwc(1): initial soil volume water content at every 10 cm interval
+0.87               // initvwc(2): initial soil volume water content at every 10 cm interval
+0.85               // initvwc(3): initial soil volume water content at every 10 cm interval
+0.84               // initvwc(4): initial soil volume water content at every 10 cm interval
+0.85               // initvwc(5): initial soil volume water content at every 10 cm interval
+0.84               // initvwc(6): initial soil volume water content at every 10 cm interval
+0.93               // initvwc(7): initial soil volume water content at every 10 cm interval
+0.98               // initvwc(8): initial soil volume water content at every 10 cm interval
+0.89               // initvwc(9): initial soil volume water content at every 10 cm interval
+//===========================================================
 // CMT44 // Shrub Tundra Kougarok
 0.8                // snwalbmax:
 0.4                // snwalbmin:
