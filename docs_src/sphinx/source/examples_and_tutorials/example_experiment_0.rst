@@ -528,9 +528,9 @@ Plot Soil Temperatures
 *****************************
 
 Plot the soil temperature profile for [June-July-August] period for the same
-three years: 1990, 2040, 2090. The plot should show the mean summer temperature
-computed across each decade as lines, and the standard deviation across the mean
-as envelops.
+three ranges: [1990-2999], [2040-2049], [2090-2099]. The plot should show the
+mean summer temperature computed across each decade as lines, and the standard
+deviation across the mean as envelops.
 
 .. collapse:: Example Python Solution
    :class: broken
