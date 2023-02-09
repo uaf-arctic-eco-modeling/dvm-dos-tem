@@ -130,6 +130,10 @@ Python example solutions assume that these setup commands have been run. In
 other words if you are following along, copy the following code into your Python
 interperter and run it before continuing. 
 
+To read more about the data loading function that is imported from
+``output_utils.py`` please see the API documentation here
+:py:meth:`output_utils.load_trsc_dataframe`
+
 **If you are not working on the TEM Docker stack or have named your experiment
 differently, please adjust your paths accordingly.**
 
