@@ -361,6 +361,11 @@ simulations. Indicate how you formulated NEE.
 .. collapse:: NCO solution
   :class: partial
 
+  .. warning::
+
+    This code runs, but the values don't match the Python solution and the 
+    dates seem off in the final ``*.nc`` files. Needs further verification.
+
   .. code::
 
     ### Change into the experiment directory
@@ -372,7 +377,7 @@ simulations. Indicate how you formulated NEE.
     ### Sum up the GPP across PFTs
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_sc.nc synthesis/GPP_monthly_sc.nc
-    
+
     ### Append all the necessary fluxes into single files
     cp synthesis/GPP_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncks -A -h output/RM_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
@@ -382,12 +387,12 @@ simulations. Indicate how you formulated NEE.
     ncks -A -h output/RM_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     ncks -A -h output/RG_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     ncks -A -h output/RH_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
-    
+
     ### Compute monthly NEE
     ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
-    
-    ### Compute yearly sums of fluxes (this is a sum by group, i.e. years, 
+
+    ### Compute yearly sums of fluxes (this is a sum by group, i.e. years,
     ### so we'll need to indicate the --mro option in ncra)
     # make time dimension unlimited
     ncks -O -h --mk_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
@@ -395,16 +400,14 @@ simulations. Indicate how you formulated NEE.
     # compute the annual sums
     ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
     ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
-    # fix back the time dimension 
+    # fix back the time dimension
     ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
     ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
 
     ### Compute decadale averages of C fluxes
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_tr.nc synthesis/Cfluxes_1990_1999.nc
-    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2059.nc
-    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc   
-
-
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc
 
 
 
@@ -441,10 +444,7 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
 
       for d in ['1990-1999','2040-2049','2090-2099']:
         s, e = d.split('-')
-        mean_gpp = gpp[s:e].mean(axis=0)
-        long_string = ['{:.3f}'.format(i) for i in mean_gpp]
-        print(f"{d}  mean (each pft): {long_string}")
-        print(f"{d}  mean (across pfts): {mean_gpp.mean()}")
+        print(f"{d} ecosystem gpp mean: {gpp[s:e].sum(axis=1).mean()}")
         print()
 
       for d in ['1990-1999','2040-2049','2090-2099']:
@@ -453,9 +453,9 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
         ra = rm + rg
         mean_ra = ra[s:e].mean().squeeze()
         mean_nee = nee[s:e].mean()
-        print(f"{d}  mean rh: {mean_rh}")
-        print(f"{d}  mean ra: {mean_ra}")
-        print(f"{d}  mean nee: {mean_nee}")
+        print(f"{d} mean rh: {mean_rh}")
+        print(f"{d} mean ra: {mean_ra}")
+        print(f"{d} mean nee: {mean_nee}")
         print()
 
 
