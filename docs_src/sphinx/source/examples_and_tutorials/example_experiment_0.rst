@@ -443,18 +443,16 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
       # Using the variables loaded above when we computed NEE
 
       for d in ['1990-1999','2040-2049','2090-2099']:
-        s, e = d.split('-')
-        print(f"{d} ecosystem gpp mean: {gpp[s:e].sum(axis=1).mean()}")
-        print()
-
-      for d in ['1990-1999','2040-2049','2090-2099']:
-        s, e = d.split('-')
-        mean_rh = rh[s:e].mean().squeeze() # <- squeeze collapses DF to Series
+        start, end = d.split('-')
+        mean_gpp = gpp[start:end].sum(axis=1).mean()
         ra = rm + rg
-        mean_ra = ra[s:e].mean().squeeze()
-        mean_nee = nee[s:e].mean()
-        print(f"{d} mean rh: {mean_rh}")
-        print(f"{d} mean ra: {mean_ra}")
+        mean_ra = ra[start:end].mean().squeeze() # <- collapses DataFrame to Series
+        mean_rh = rh[start:end].mean().squeeze() # <- collapses DataFrame to Series
+        mean_nee = nee[start:end].mean()
+
+        print(f"{d} mean gpp: {mean_gpp}")
+        print(f"{d} mean ra:  {mean_ra}")
+        print(f"{d} mean rh:  {mean_rh}")
         print(f"{d} mean nee: {mean_nee}")
         print()
 
