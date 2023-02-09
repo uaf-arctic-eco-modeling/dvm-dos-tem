@@ -482,21 +482,6 @@ Plot the active layer depth from 1950 to 2100.
 
     plt.savefig('ALD_SAMPLE.png')
 
-.. collapse:: NCO Solution
-  :class: partial
-
-  .. code::
-
-    ### Concatenate historical and scenario time series of activee layer depth
-    # make time dimension unlimited in the ALD output files
-    ncks -O -h --mk_rec_dmn time -d x,0 -d y,0 ./output/ALD_yearly_tr.nc ./synthesis/ALD_yearly_tr.nc
-    ncks -O -h --mk_rec_dmn time -d x,0 -d y,0 ./output/ALD_yearly_sc.nc ./synthesis/ALD_yearly_sc.nc
-    # compute the annual sums
-    ncrcat -O -h ./synthesis/ALD_yearly_tr.nc ./synthesis/ALD_yearly_sc.nc ./synthesis/ALD_yearly_total.nc
-    # fix back the time dimension 
-    ncks -O -h --fix_rec_dmn time ./synthesis/ALD_yearly_total.nc ./synthesis/ALD_yearly_total.nc
-    # plot the time series
-
 
 ******************************
 Plot Seasonal Dynamic
