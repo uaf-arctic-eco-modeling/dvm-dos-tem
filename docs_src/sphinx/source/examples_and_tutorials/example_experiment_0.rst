@@ -487,8 +487,8 @@ Plot the active layer depth from 1950 to 2100.
 Plot Seasonal Dynamic
 ******************************
 
-Plot the seasonal dynamic of GPP for the same three time ranges: [1990-2010],
-[2040-2050], [2090-2100]. The plot should show the mean monthly GPP computed
+Plot the seasonal dynamic of GPP for the same three time ranges: [1990-1999],
+[2040-2049], [2090-2099]. The plot should show the mean monthly GPP computed
 across each decade as lines, and the standard deviation across the mean as
 envelopes.
 
@@ -505,7 +505,7 @@ envelopes.
 
       fig, ax = plt.subplots(1,1)
 
-      for time_period in ['1990-2010','2040-2050', '2090-2100']:
+      for time_period in ['1990-1999','2040-2049', '2090-2099']:
         startyr, endyr = time_period.split('-')
 
         # The result is a pandas.Series
