@@ -20,6 +20,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "cohortconst.h" // needed for NUM_PFT
+#include "TEMLogger.h"
 
 #ifdef WITHMPI
 #include <mpi.h>
@@ -27,6 +28,8 @@
 #else
 #include <netcdf.h>
 #endif
+
+extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
 
@@ -263,8 +266,7 @@ namespace temutil {
     std::stringstream s(l.front());
 
     if ( !(s >> data) ) {
-      //BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in this line to numeric value: " << l.front();
-      std::cout << "Problem...\n";
+        BOOST_LOG_SEV(glg, fatal) << "ERROR in pfll2data! Problem converting parameter in this line to numeric value: " << l.front();
       data = -999999.0;
     }
 
@@ -284,8 +286,7 @@ namespace temutil {
     for(int i = 0; i < NUM_PFT; i++) {
 
       if ( !(s >> data[i]) ) {
-        //BOOST_LOG_SEV(glg, err) << "ERROR! Problem converting parameter in column "<<i<<"of this line to numeric value: " << l.front();
-        std::cout << "Problem...\n";
+        BOOST_LOG_SEV(glg, fatal) << "ERROR in pfll2data_pft! Problem converting parameter in column " << i << " of this line to numeric value: " << l.front();
         data[i] = -99999.0;
       }
     }
