@@ -269,6 +269,7 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+    self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
     self.sampling_method = sampling_method
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
@@ -773,8 +774,9 @@ class SensitivityDriver(object):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
-    opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
-    cmdline = program + ' ' + opt_str
+    #opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+    opt_str =  '-l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+    cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(
         cmdline,             # The program + options 
