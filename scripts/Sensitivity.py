@@ -255,7 +255,7 @@ class SensitivityDriver(object):
       3  59.671967  2.042034  0.000171
       4  57.711999  1.968631  0.000155
   '''
-  def __init__(self, work_dir=None, sampling_method=None, clean=False):
+  def __init__(self, work_dir=None, sampling_method=None, clean=False,opt_run_setup=None):
     '''Create a SensitivityDriver object.'''
 
     self.__seedpath = None
@@ -269,6 +269,7 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+    self.opt_run_setup = opt_run_setup
     self.sampling_method = sampling_method
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
@@ -620,7 +621,7 @@ class SensitivityDriver(object):
     for output_spec in self.outputs:
       outspec_utils.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
-        '--on', output_spec['name'], 'month', 'pft'
+        '--on', output_spec['name'], 'month'
       ])
 
     # Make sure CMTNUM output is on
@@ -773,8 +774,8 @@ class SensitivityDriver(object):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
-    opt_str = '-p 5 -e 5 -s 5 -t 5 -n 5 -l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
-    cmdline = program + ' ' + opt_str
+    opt_str = '-l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+    cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(
         cmdline,             # The program + options 
