@@ -520,6 +520,41 @@ Keeping your repo up to date with ``upstream``
 
 See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
 
+.. note::
+
+  A common issue that comes up when you have multiple branches that you are
+  working on is that you checkout a different branch and try to run something in
+  your docker container and it fails because a library is not installed. For
+  example:
+
+  .. code::
+
+    docker compose exec dvmdostem-dev bokeh serve scripts/bk_timeslider.py --port 7001
+    2023-02-09 23:16:41,834 Starting Bokeh server version 2.4.2 (running on Tornado 6.2)
+    2023-02-09 23:16:41,835 User authentication hooks NOT provided (default user enabled)
+    2023-02-09 23:16:41,838 Bokeh app running at: http://localhost:7001/bk_timeslider
+    2023-02-09 23:16:41,838 Starting Bokeh server with process id: 5351
+    2023-02-09 23:16:48,986 Error running application handler <bokeh.application.handlers.script.ScriptHandler object at 0x7fdd8517b910>: No module named 'xarray'
+    File 'bk_timeslider.py', line 7, in <module>:
+    import xarray as xr Traceback (most recent call last):
+      File "/home/develop/.pyenv/versions/3.8.6/lib/python3.8/site-packages/bokeh/application/handlers/code_runner.py", line 231, in run
+        exec(self._code, module.__dict__)
+      File "/work/scripts/bk_timeslider.py", line 7, in <module>
+        import xarray as xr
+    ModuleNotFoundError: No module named 'xarray'
+
+  This happens when one of the branches introduces a library requirement that is
+  not yet in the upstream codebase. Ideally the library has been added to the
+  requirements file, but this is an easy step to forget. If the library is in
+  the requirements file, then all you usually need to do is ask pip to install
+  everything again:
+
+  .. code::
+
+    develop@a2d3e3cb5a55:/work$ pip install --upgrade -r requirements_general_dev.txt
+
+  If the offending library is not yet in the requirements file, then it is
+  usually a good idea to add it and make a commit first. 
 
 *******************************
 Testing and Deployment
