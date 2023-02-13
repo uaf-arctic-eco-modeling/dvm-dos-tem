@@ -228,15 +228,21 @@ cloned copy of the repo, and a “clean” working state:</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>Checkout the branch you are interested in previewing. For example someone
-else has pushed to the <code class="docutils literal notranslate"><span class="pre">upstream/update-docs</span></code> branch and you’d like to see
-what they have written or how it all looks: <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">update</span> <span class="pre">&amp;&amp;</span> <span class="pre">git</span>
-<span class="pre">checkout</span> <span class="pre">update-docs</span></code>.</p></li>
+else has pushed to the <code class="docutils literal notranslate"><span class="pre">upstream/&lt;BRANCH-NAME&gt;</span></code> branch and you’d like to
+see what they have written or how it all looks: <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">git</span> <span class="pre">remote</span> <span class="pre">update</span> <span class="pre">&amp;&amp;</span> <span class="pre">git</span>
+<span class="pre">checkout</span> <span class="pre">&lt;BRANCH-NAME&gt;</span></code>.</p></li>
 <li><p>Clean the existing docs and build them: <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">cd</span> <span class="pre">docs_src/sphinx</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">clean</span>
 <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">html</span></code></p></li>
 <li><p>Preview the results in your browser
 (<code class="docutils literal notranslate"><span class="pre">file:///path/to/your/repo/docs_src/sphinx/build/html</span></code>).</p></li>
 </ol>
 </div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is generally easiest to run the documentation build using the
+<code class="docutils literal notranslate"><span class="pre">dvmdostem-dev</span></code> Docker container so that the build environment (Sphinx
+version, etc) match the environment used to publish.</p>
+</div>
 </section>
 <section id="editing">
 <h4>Editing<a class="headerlink" href="#editing" title="Permalink to this heading"></a></h4>
@@ -262,12 +268,12 @@ like the general coding or programing process:</p>
 <p>To make a Pull Request, you must push your commits to Github (either your fork)
 or the <code class="docutils literal notranslate"><span class="pre">uaf-arctic-eco-modeling/dvm-dos-tem</span></code>, depending on your choice of
 workflow and your status as a collaborator.</p>
-<p>Publishing (updating the live website at github.io) is reserved for the
-maintainers, <code class="docutils literal notranslate"><span class="pre">tcarman2</span></code> and <code class="docutils literal notranslate"><span class="pre">rarutter</span></code>.</p>
 </section>
 </section>
 <section id="publishing">
 <h3><span class="section-number">3.3.2. </span>Publishing<a class="headerlink" href="#publishing" title="Permalink to this heading"></a></h3>
+<p>Publishing (updating the live website at github.io) is reserved for the
+maintainers, <code class="docutils literal notranslate"><span class="pre">tcarman2</span></code> and <code class="docutils literal notranslate"><span class="pre">rarutter</span></code>.</p>
 <p>In the current implementation with Sphinx (used to format this document), we
 have a <code class="docutils literal notranslate"><span class="pre">docs_src</span></code> folder within which is a subdirectory for each documentation
 tool (presently Doxygen and Sphinx). Each tool is setup to put its outputs in
@@ -583,6 +589,38 @@ that release is visible here: <a class="reference external" href="https://github
 <section id="keeping-your-repo-up-to-date-with-upstream">
 <h3><span class="section-number">3.4.5. </span>Keeping your repo up to date with <code class="docutils literal notranslate"><span class="pre">upstream</span></code><a class="headerlink" href="#keeping-your-repo-up-to-date-with-upstream" title="Permalink to this heading"></a></h3>
 <p>See the <a class="reference internal" href="command_cheat_sheet.html#staying-udpated"><span class="std std-ref">“Command Cheat Sheet”</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A common issue that comes up when you have multiple branches that you are
+working on is that you checkout a different branch and try to run something in
+your docker container and it fails because a library is not installed. For
+example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">compose</span> <span class="n">exec</span> <span class="n">dvmdostem</span><span class="o">-</span><span class="n">dev</span> <span class="n">bokeh</span> <span class="n">serve</span> <span class="n">scripts</span><span class="o">/</span><span class="n">bk_timeslider</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">port</span> <span class="mi">7001</span>
+<span class="mi">2023</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">09</span> <span class="mi">23</span><span class="p">:</span><span class="mi">16</span><span class="p">:</span><span class="mi">41</span><span class="p">,</span><span class="mi">834</span> <span class="n">Starting</span> <span class="n">Bokeh</span> <span class="n">server</span> <span class="n">version</span> <span class="mf">2.4.2</span> <span class="p">(</span><span class="n">running</span> <span class="n">on</span> <span class="n">Tornado</span> <span class="mf">6.2</span><span class="p">)</span>
+<span class="mi">2023</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">09</span> <span class="mi">23</span><span class="p">:</span><span class="mi">16</span><span class="p">:</span><span class="mi">41</span><span class="p">,</span><span class="mi">835</span> <span class="n">User</span> <span class="n">authentication</span> <span class="n">hooks</span> <span class="n">NOT</span> <span class="n">provided</span> <span class="p">(</span><span class="n">default</span> <span class="n">user</span> <span class="n">enabled</span><span class="p">)</span>
+<span class="mi">2023</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">09</span> <span class="mi">23</span><span class="p">:</span><span class="mi">16</span><span class="p">:</span><span class="mi">41</span><span class="p">,</span><span class="mi">838</span> <span class="n">Bokeh</span> <span class="n">app</span> <span class="n">running</span> <span class="n">at</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">7001</span><span class="o">/</span><span class="n">bk_timeslider</span>
+<span class="mi">2023</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">09</span> <span class="mi">23</span><span class="p">:</span><span class="mi">16</span><span class="p">:</span><span class="mi">41</span><span class="p">,</span><span class="mi">838</span> <span class="n">Starting</span> <span class="n">Bokeh</span> <span class="n">server</span> <span class="k">with</span> <span class="n">process</span> <span class="nb">id</span><span class="p">:</span> <span class="mi">5351</span>
+<span class="mi">2023</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">09</span> <span class="mi">23</span><span class="p">:</span><span class="mi">16</span><span class="p">:</span><span class="mi">48</span><span class="p">,</span><span class="mi">986</span> <span class="n">Error</span> <span class="n">running</span> <span class="n">application</span> <span class="n">handler</span> <span class="o">&lt;</span><span class="n">bokeh</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">ScriptHandler</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7fdd8517b910</span><span class="o">&gt;</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">&#39;xarray&#39;</span>
+<span class="n">File</span> <span class="s1">&#39;bk_timeslider.py&#39;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">7</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">:</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span> <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/site-packages/bokeh/application/handlers/code_runner.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">231</span><span class="p">,</span> <span class="ow">in</span> <span class="n">run</span>
+    <span class="n">exec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_code</span><span class="p">,</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;/work/scripts/bk_timeslider.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">7</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">&#39;xarray&#39;</span>
+</pre></div>
+</div>
+<p>This happens when one of the branches introduces a library requirement that is
+not yet in the upstream codebase. Ideally the library has been added to the
+requirements file, but this is an easy step to forget. If the library is in
+the requirements file, then all you usually need to do is ask pip to install
+everything again:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@a2d3e3cb5a55:/work$ pip install --upgrade -r requirements_general_dev.txt
+</pre></div>
+</div>
+<p>If the offending library is not yet in the requirements file, then it is
+usually a good idea to add it and make a commit first.</p>
+</div>
 </section>
 </section>
 <section id="testing-and-deployment">

@@ -69,10 +69,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#off-the-shelf-tools">5.1.2. Off the Shelf Tools</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#example-plots">5.2. Example Plots</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#basic-1-pixel-timeseries">5.2.1. Basic 1 pixel timeseries</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#interactive-map-of-inputs">5.2.2. Interactive map of inputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#plot-driving-inputs">5.2.3. Plot Driving Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-process">5.2. General Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-plots">5.3. Example Plots</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-1-pixel-timeseries">5.3.1. Basic 1 pixel timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interactive-map-of-inputs-using-bokeh">5.3.2. Interactive map of inputs using Bokeh</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#starting-the-server">Starting the server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#view-in-your-browser">View in your browser</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#plot-driving-inputs">5.3.3. Plot Driving Inputs</a></li>
 </ul>
 </li>
 </ul>
@@ -235,12 +240,27 @@ environment you need (but you will have to maintain it as well).</p>
 </div></blockquote>
 </section>
 </section>
+<section id="general-process">
+<h2><span class="section-number">5.2. </span>General Process<a class="headerlink" href="#general-process" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Difficult to write re-usable code, sometimes even for yourself…always
+starts simple, then you end up</p></li>
+</ul>
+<ul class="simple">
+<li><p>start in REPL</p></li>
+<li><p>move to notebook</p></li>
+<li><p>Factor code out to script</p></li>
+<li><p>go back to REPL, but using script/functions you just made</p></li>
+</ul>
+</div></blockquote>
+</section>
 <section id="example-plots">
-<h2><span class="section-number">5.2. </span>Example Plots<a class="headerlink" href="#example-plots" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">5.3. </span>Example Plots<a class="headerlink" href="#example-plots" title="Permalink to this heading"></a></h2>
 <p>Following are bunch of examples showing how you might plot and interact with
 <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> related data.</p>
 <section id="basic-1-pixel-timeseries">
-<h3><span class="section-number">5.2.1. </span>Basic 1 pixel timeseries<a class="headerlink" href="#basic-1-pixel-timeseries" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">5.3.1. </span>Basic 1 pixel timeseries<a class="headerlink" href="#basic-1-pixel-timeseries" title="Permalink to this heading"></a></h3>
 <p>One of the easiest things we might want to look at is a time series plot of GPP
 for a single pixel in a run. This can easily be done with <code class="docutils literal notranslate"><span class="pre">ncview</span></code>, but you
 will almost certainly encounter the problems described in the note about Docker
@@ -258,13 +278,89 @@ see <a class="reference internal" href="basic_model_run.html#two-ways-to-run-doc
 <a class="reference internal" href="../prelude.html#docker"><span class="std std-ref">Prelude - Docker</span></a> sections.</p>
 <a class="reference internal image-reference" href="../_images/plot_output_var_example.png"><img alt="example output plot" src="../_images/plot_output_var_example.png" style="width: 600px;" /></a>
 </section>
-<section id="interactive-map-of-inputs">
-<h3><span class="section-number">5.2.2. </span>Interactive map of inputs<a class="headerlink" href="#interactive-map-of-inputs" title="Permalink to this heading"></a></h3>
-<p>See Bokeh example here…</p>
+<section id="interactive-map-of-inputs-using-bokeh">
+<h3><span class="section-number">5.3.2. </span>Interactive map of inputs using Bokeh<a class="headerlink" href="#interactive-map-of-inputs-using-bokeh" title="Permalink to this heading"></a></h3>
+<p>The most robust example of using the web server and interactive browser plotting
+is in the <code class="docutils literal notranslate"><span class="pre">io_view.py</span></code> script.</p>
+<p>As the tooling has become more robust for this approach, it is becoming more
+attractive. Some of the advantages are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>interactivity,</p></li>
+<li><p>rich javascript front-end tools,</p></li>
+<li><p>ubibiquity of web browsers, and</p></li>
+<li><p>decoupling of plot generation computing environment and display environment.</p></li>
+</ul>
+</div></blockquote>
+<p>The final point is particularly helpful in a Docker environmnt or when working
+on a remote computer via only the console. It is even possible, using an <code class="docutils literal notranslate"><span class="pre">ssh</span>
+<span class="pre">tunnel</span></code> to view pages that are generated on a computer behind a firewall that
+are not typically web-acessible.</p>
+<p>The concept is as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>On the computing environment where you have the data and can generate plots,
+start a web-server that is running your plotting application.</p></li>
+<li><p>From the computing environment where you have a web-browser, make requests to
+the server application started above.</p></li>
+</ul>
+</div></blockquote>
+<p>Then access the web browser which should display the plots.</p>
+<p>The challengs to this approach mainly lie in debugging and understanding the
+source of errors when things don’t work. Not only do you have the plotting code
+to think about, but you also must be cognizant of the networking and the
+web-server.</p>
+<section id="starting-the-server">
+<h4>Starting the server<a class="headerlink" href="#starting-the-server" title="Permalink to this heading"></a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker compose exec dvmdostem-mapping-support bash
+
+$ develop@0c903d0c11e8:/work$ bokeh serve scripts/io_view.py --port 7003
+2023-02-08 01:29:58,134 Starting Bokeh server version 3.0.3 (running on Tornado 6.1)
+2023-02-08 01:29:58,333 User authentication hooks NOT provided (default user enabled)
+2023-02-08 01:29:58,336 Bokeh app running at: http://localhost:7003/io_view
+2023-02-08 01:29:58,336 Starting Bokeh server with process id: 283
+BokehDeprecationWarning: tile_providers module was deprecated in Bokeh 3.0.0 and will be removed, use add_tile directly instead.
+Looking in the following folders for datasets to map:
+[]
+feature_collection: &lt;class &#39;dict&#39;&gt;
+feature collecton bounds in wgs84:  [0. 0. 0. 0.]
+feature collection bounds in web mercator:  [0. 0. 0. 0.]
+2023-02-08 01:30:01,012 W-1005 (FIXED_SIZING_MODE): &#39;fixed&#39; sizing mode requires width and height to be set: Row(id=&#39;p1111&#39;, ...)
+2023-02-08 01:30:01,013 W-1005 (FIXED_SIZING_MODE): &#39;fixed&#39; sizing mode requires width and height to be set: TextInput(id=&#39;p1062&#39;, ...)
+...
+...
+</pre></div>
+</div>
+</section>
+<section id="view-in-your-browser">
+<h4>View in your browser<a class="headerlink" href="#view-in-your-browser" title="Permalink to this heading"></a></h4>
+<p>This application is designed to plot <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> input datasets on a map so
+that you can see where a given site is. This is useful for deciding what input
+set to use as well as double checking the input preparation process. There are
+some additional helper features:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Input boxes where you can enter coordinates and display a mark on the map.</p></li>
+<li><p>Crosshairs and coordinate display in WGS84 and Web Mercator coordinate
+systems.</p></li>
+<li><p>A table that shows the names of all the displayed input datasets.</p></li>
+</ul>
+</div></blockquote>
+<a class="reference internal image-reference" href="../_images/io_view_example.png"><img alt="example of Bokeh application" src="../_images/io_view_example.png" style="width: 800px;" /></a>
+</section>
 </section>
 <section id="plot-driving-inputs">
-<h3><span class="section-number">5.2.3. </span>Plot Driving Inputs<a class="headerlink" href="#plot-driving-inputs" title="Permalink to this heading"></a></h3>
-<p>More info here…</p>
+<h3><span class="section-number">5.3.3. </span>Plot Driving Inputs<a class="headerlink" href="#plot-driving-inputs" title="Permalink to this heading"></a></h3>
+<p>This plot shows the data for an input dataset, summarized over the spatial
+dimensions and for the full timeseries. In this example, the historic and
+projected timeseries are stitched together.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">input_util</span><span class="o">.</span><span class="n">py</span> <span class="n">climate</span><span class="o">-</span><span class="n">ts</span><span class="o">-</span><span class="n">plot</span> \
+  <span class="o">--</span><span class="nb">type</span> <span class="n">spatial</span><span class="o">-</span><span class="n">temporal</span><span class="o">-</span><span class="n">summary</span> \
+  <span class="o">--</span><span class="n">yx</span> <span class="mi">0</span> <span class="mi">0</span> <span class="o">--</span><span class="n">stitch</span> \
+  <span class="o">../</span><span class="n">dvmdostem</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="n">catalog</span><span class="o">/</span><span class="n">cru</span><span class="o">-</span><span class="n">ts40_ar5_rcp85_ncar</span><span class="o">-</span><span class="n">ccsm4_bonanzacreeklter_10x10</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/input_spatial_summary_timeseries.png"><img alt="example of input_util spatial summary timeseries plot" src="../_images/input_spatial_summary_timeseries.png" style="width: 800px;" /></a>
 </section>
 </section>
 </section>

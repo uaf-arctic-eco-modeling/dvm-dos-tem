@@ -140,6 +140,20 @@ Off the Shelf Tools
  - ``panlopy`` https://www.giss.nasa.gov/tools/panoply/
  - Paraview ??
 
+
+***************************
+General Process
+***************************
+
+ - Difficult to write re-usable code, sometimes even for yourself...always
+   starts simple, then you end up 
+
+ * start in REPL
+ * move to notebook
+ * Factor code out to script
+ * go back to REPL, but using script/functions you just made
+
+
 ********************
 Example Plots
 ********************
@@ -175,14 +189,100 @@ see :ref:`Note on Docker commands <two-ways-to-run-docker-commands>` and the
   :width: 600
   :alt: example output plot
 
-Interactive map of inputs
-===========================
+Interactive map of inputs using Bokeh
+=======================================
 
-See Bokeh example here...
+The most robust example of using the web server and interactive browser plotting
+is in the ``io_view.py`` script.
 
+As the tooling has become more robust for this approach, it is becoming more
+attractive. Some of the advantages are:
+
+ - interactivity,
+ - rich javascript front-end tools,
+ - ubibiquity of web browsers, and
+ - decoupling of plot generation computing environment and display environment.
+ 
+The final point is particularly helpful in a Docker environmnt or when working
+on a remote computer via only the console. It is even possible, using an ``ssh
+tunnel`` to view pages that are generated on a computer behind a firewall that
+are not typically web-acessible.
+
+The concept is as follows:
+
+ - On the computing environment where you have the data and can generate plots,
+   start a web-server that is running your plotting application.
+ - From the computing environment where you have a web-browser, make requests to
+   the server application started above.
+
+Then access the web browser which should display the plots.
+
+The challengs to this approach mainly lie in debugging and understanding the
+source of errors when things don't work. Not only do you have the plotting code
+to think about, but you also must be cognizant of the networking and the
+web-server.
+
+
+Starting the server
+--------------------
+
+.. code:: 
+
+  $ docker compose exec dvmdostem-mapping-support bash
+
+  $ develop@0c903d0c11e8:/work$ bokeh serve scripts/io_view.py --port 7003
+  2023-02-08 01:29:58,134 Starting Bokeh server version 3.0.3 (running on Tornado 6.1)
+  2023-02-08 01:29:58,333 User authentication hooks NOT provided (default user enabled)
+  2023-02-08 01:29:58,336 Bokeh app running at: http://localhost:7003/io_view
+  2023-02-08 01:29:58,336 Starting Bokeh server with process id: 283
+  BokehDeprecationWarning: tile_providers module was deprecated in Bokeh 3.0.0 and will be removed, use add_tile directly instead.
+  Looking in the following folders for datasets to map:
+  []
+  feature_collection: <class 'dict'>
+  feature collecton bounds in wgs84:  [0. 0. 0. 0.]
+  feature collection bounds in web mercator:  [0. 0. 0. 0.]
+  2023-02-08 01:30:01,012 W-1005 (FIXED_SIZING_MODE): 'fixed' sizing mode requires width and height to be set: Row(id='p1111', ...)
+  2023-02-08 01:30:01,013 W-1005 (FIXED_SIZING_MODE): 'fixed' sizing mode requires width and height to be set: TextInput(id='p1062', ...)
+  ...
+  ... 
+
+View in your browser
+----------------------
+
+This application is designed to plot ``dvmdostem`` input datasets on a map so
+that you can see where a given site is. This is useful for deciding what input
+set to use as well as double checking the input preparation process. There are
+some additional helper features:
+ 
+ * Input boxes where you can enter coordinates and display a mark on the map.
+ * Crosshairs and coordinate display in WGS84 and Web Mercator coordinate
+   systems.
+ * A table that shows the names of all the displayed input datasets.
+
+.. image:: ../images/examples_and_tutorials/plotting_discussion/io_view_example.png
+  :width: 800
+  :alt: example of Bokeh application
+
+
+  
 Plot Driving Inputs
 ========================
-More info here...
+
+This plot shows the data for an input dataset, summarized over the spatial
+dimensions and for the full timeseries. In this example, the historic and
+projected timeseries are stitched together.
+
+.. code:: 
+
+  ./scripts/input_util.py climate-ts-plot \
+    --type spatial-temporal-summary \
+    --yx 0 0 --stitch \
+    ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_bonanzacreeklter_10x10
+
+
+.. image:: ../images/examples_and_tutorials/plotting_discussion/input_spatial_summary_timeseries.png
+  :width: 800
+  :alt: example of input_util spatial summary timeseries plot
 
 
 .. _ncview: https://cirrus.ucsd.edu/ncview/ 

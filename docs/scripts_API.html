@@ -111,11 +111,442 @@
 <section id="sensitivity-analysis-tools">
 <h2>Sensitivity Analysis Tools<a class="headerlink" href="#sensitivity-analysis-tools" title="Permalink to this heading"></a></h2>
 <p>These are tools and APIs for carrying out Sensitivity Analysis.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Leaving this out for the time-being. The docstrings will be fixed in the
-<code class="docutils literal notranslate"><span class="pre">Sensitivity-multi-pft</span></code> branch.</p>
+<span class="target" id="module-Sensitivity"></span><dl class="py class">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">SensitivityDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver" title="Permalink to this definition"></a></dt>
+<dd><p>Sensitivity Analysis Driver class.</p>
+<p>Driver class for conducting <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> SensitivityAnalysis. Methods for
+cleaning, setup, running model, collecting outputs.</p>
+<p>Basic overview of use is like this:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Instantiate driver object.</p></li>
+<li><p>Setup/design the experiment (working directory, seed path, parameters to
+use, number of samples, etc)</p></li>
+<li><p>Use driver object to setup the run folders.</p></li>
+<li><p>Use driver object to carry out model runs.</p></li>
+<li><p>Use driver object to summarize/collect outputs.</p></li>
+<li><p>Use driver object to make plots, do analysis.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>work_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – The working directory path of the driver object.</p></li>
+<li><p><strong>sampling_method</strong> (<em>{ None</em><em>, </em><em>'lhc'</em><em>, </em><em>'uniform' }</em>) – Method that should be used to draw samples from the specified ranges in
+order to construct the sample matrix. <cite>lhc</cite> will use the Latin Hyper Cube
+sampling method and <cite>uniform</cite> will draw from a uniform distribution. The
+default <cite>None</cite> is simply a placeholder.</p></li>
+<li><p><strong>clean</strong> (<em>bool</em><em>, </em><em>default=False</em>) – CAREFUL! - this will forecfully remove the entrire tree rooted at
+<cite>work_dir</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Instantiate object, sets pixel, outputs, working directory, site selection
+(input data path)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span> <span class="o">=</span> <span class="n">SensitivityDriver</span><span class="p">()</span>
+</pre></div>
 </div>
+<p>Set the working directory for the driver (using something temporary for this
+test case).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;/tmp/Sensitivity-inline-test&#39;</span>
+</pre></div>
+</div>
+<p>Show info about the driver object:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span><span class="o">.</span><span class="n">design_experiment</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmax&#39;</span><span class="p">,</span><span class="s1">&#39;rhq10&#39;</span><span class="p">,</span><span class="s1">&#39;nfall(1)&#39;</span><span class="p">],</span> <span class="n">pftnums</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span><span class="o">.</span><span class="n">sample_matrix</span>
+<span class="go">        cmax     rhq10  nfall(1)</span>
+<span class="go">0  63.536594  1.919504  0.000162</span>
+<span class="go">1  62.528847  2.161819  0.000159</span>
+<span class="go">2  67.606747  1.834203  0.000145</span>
+<span class="go">3  59.671967  2.042034  0.000171</span>
+<span class="go">4  57.711999  1.968631  0.000155</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Remove the entire tree at <cite>self.work_dir</cite>.</p>
+<p>This function is NOT CAREFUL, so be careful using it!</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.cmtnum">
+<span class="sig-name descname"><span class="pre">cmtnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.cmtnum" title="Permalink to this definition"></a></dt>
+<dd><p>Enforces that there is only one cmtnum specified
+amongst all the param specifications in <cite>self.params</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>cmtnum</strong> – The cmtnum specified, or None if cmt not set.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int or None</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError - if there in valid specification of</strong> – </p></li>
+<li><p><strong>cmtnum in the params list.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.core_setup">
+<span class="sig-name descname"><span class="pre">core_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.core_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Sets up a sample run folder for the given <code class="docutils literal notranslate"><span class="pre">idx</span></code> and <code class="docutils literal notranslate"><span class="pre">row</span></code>.</p>
+<p>The following things are assumed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>you have called set_working_directory()</p></li>
+<li><p>you have called set_seed_path()</p></li>
+<li><p>you have called designe experiment - OR you at least have:</p></li>
+<li><p>you have a sample_matrix</p></li>
+<li><p>you have a list of param specs</p></li>
+</ul>
+</div></blockquote>
+<p>Do all the work to setup and configure a model run.
+Uses the <cite>row</cite> parameter (one row of the sample matrix) to
+set the parameter values for the run.</p>
+<p>Currently relies on command line API for various <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+helper scripts. Would be nice to transition to using a Python
+API for all these helper scripts (modules).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>dict</em>) – One row of the sample matrix, in dict form. So like this:
+<cite>{‘cmax’: 108.2, ‘rhq10’: 34.24}</cite> with one key for each parameter name.</p></li>
+<li><p><strong>idx</strong> (<em>int</em>) – The row index of the <cite>sample_matrix</cite> being worked on. Gets
+used to set the run specific folder name, i.e. sample_000001.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.design_experiment">
+<span class="sig-name descname"><span class="pre">design_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lhc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.design_experiment" title="Permalink to this definition"></a></dt>
+<dd><p>Builds bounds based on initial values found in dvmdostem parameter files
+(cmt_*.txt files) and the <cite>percent_diffs</cite> array. The <cite>percent_diffs</cite> array
+gets used to figure out how far the bounds should be from the initial value.
+Defaults to initial value +/-10%.</p>
+<p>Sets instance values for <cite>self.params</cite> and <cite>self.sample_matrix</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Nsamples</strong> (<em>int</em>) – How many samples to draw. One sample equates to one run to be done with
+the parameter values in the sample.</p></li>
+<li><p><strong>cmtnum</strong> (<em>int</em>) – Which community type number to use for initial parameter values, for doing
+runs and analyzing outputs.</p></li>
+<li><p><strong>params</strong> (<em>list of strings</em>) – List of parameter names to use in the experiment. Each name must be in one
+of the dvmdostem parameter files (cmt_*.txt).</p></li>
+<li><p><strong>pftnums</strong> (<em>list</em><em>, </em><em>same length as params list</em>) – <p>Each item in the items may be one of:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>int</p></li>
+<li><p>the string ‘all’</p></li>
+<li><p>list of ints</p></li>
+<li><p>None</p></li>
+</ol>
+</div></blockquote>
+<p>If the list item is an int, then that is the PFT number to be used for the
+corresponding parameter. If the list item is the string ‘all’ then ALL 10
+PFTs are enabled for this parameter. If the list item is a list of ints,
+then the corresponding parameter will be setup for each PFT in the list.
+If the list item is None, then the parameter is assumed to be a soil
+parameter and no PFT info is set or needed.</p>
+</p></li>
+<li><p><strong>percent_diffs</strong> (<em>list of floats</em>) – List values, one for each parameter in <cite>params</cite>. The value is used to the
+bounds with respect to the intial parameter value. I.e. passing a value in
+the percent_diff array of .3 would mean that bounds should be +/-30% of
+the initial value of the parameter.</p></li>
+<li><p><strong>sampling_method</strong> (<em>str</em>) – A string indicating which sampling method to use for getting values for
+the sample matrix. Currently the options are ‘lhc’ or ‘uniform’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis">
+<span class="sig-name descname"><span class="pre">extract_data_for_sensitivity_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posthoc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a csv file in each run directory that summarizes the run’s
+parameters and outut. The csv file will look something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p_cmax</span><span class="p">,</span>  <span class="n">p_rhq10</span><span class="p">,</span>   <span class="n">p_micbnup</span><span class="p">,</span>   <span class="n">o_GPP</span><span class="p">,</span>  <span class="n">o_VEGC</span>
+<span class="mf">1.215</span><span class="p">,</span>   <span class="mf">2.108</span><span class="p">,</span>     <span class="mf">0.432</span><span class="p">,</span>       <span class="mf">0.533</span><span class="p">,</span>  <span class="mf">5.112</span>
+</pre></div>
+</div>
+<p>with one column for each parameter and one column for each output.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">each</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">sensitivity</span> <span class="n">matrix</span> <span class="p">(</span><span class="ow">and</span> <span class="n">corresponding</span> <span class="n">run</span> <span class="n">folder</span><span class="p">),</span>
+  <span class="n">For</span> <span class="n">each</span> <span class="n">variable</span> <span class="n">specified</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">opens</span> <span class="n">the</span> <span class="n">NetCDF</span> <span class="n">files</span> <span class="n">that</span> <span class="n">were</span> <span class="n">output</span> <span class="kn">from</span> <span class="nn">dvmdostem</span>
+      <span class="o">-</span> <span class="n">grabs</span> <span class="n">the</span> <span class="n">last</span> <span class="n">datapoint</span>
+      <span class="o">-</span> <span class="n">writes</span> <span class="n">it</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sensitivity</span><span class="o">.</span><span class="n">csv</span> <span class="n">file</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posthoc</strong> (<em>bool</em><em> (</em><em>Not implemented yet</em><em>)</em>) – Flag for controlling whether this step should be run after the model run
+or as part of the model run</p></li>
+<li><p><strong>multi</strong> (<em>bool</em><em> (</em><em>Not implemented yet</em><em>)</em>) – Flag for if the runs are done all in one directory or each in its own
+directory. If all runs are done in one directory then paralleization is
+harder and this step of collating the output data must be done at the end
+of the run before the next run overwrites it.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis">
+<span class="sig-name descname"><span class="pre">first_steps_sensitivity_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis" title="Permalink to this definition"></a></dt>
+<dd><p>Grab the summarized sensitivity csvs and glue them
+together, then make correlation matrix. When glued together,
+the data will look like this, with one row for each sample,
+and one column for each parameter followed by one column for
+each output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p_cmax</span><span class="p">,</span>  <span class="n">p_rhq10</span><span class="p">,</span>   <span class="n">p_micbnup</span><span class="p">,</span>   <span class="n">o_GPP</span><span class="p">,</span>  <span class="n">o_VEGC</span>
+<span class="mf">1.215</span><span class="p">,</span>   <span class="mf">2.108</span><span class="p">,</span>     <span class="mf">0.432</span><span class="p">,</span>       <span class="mf">0.533</span><span class="p">,</span>  <span class="mf">5.112</span>
+<span class="mf">1.315</span><span class="p">,</span>   <span class="mf">3.208</span><span class="p">,</span>     <span class="mf">0.632</span><span class="p">,</span>       <span class="mf">0.721</span><span class="p">,</span>  <span class="mf">8.325</span>
+<span class="mf">1.295</span><span class="p">,</span>   <span class="mf">1.949</span><span class="p">,</span>     <span class="mf">0.468</span><span class="p">,</span>       <span class="mf">0.560</span><span class="p">,</span>  <span class="mf">5.201</span>
+<span class="mf">1.189</span><span class="p">,</span>   <span class="mf">2.076</span><span class="p">,</span>     <span class="mf">0.420</span><span class="p">,</span>       <span class="mf">0.592</span><span class="p">,</span>  <span class="mf">5.310</span>
+<span class="mf">1.138</span><span class="p">,</span>   <span class="mf">2.035</span><span class="p">,</span>     <span class="mf">0.441</span><span class="p">,</span>       <span class="mf">0.537</span><span class="p">,</span>  <span class="mf">5.132</span>
+<span class="mf">1.156</span><span class="p">,</span>   <span class="mf">1.911</span><span class="p">,</span>     <span class="mf">0.433</span><span class="p">,</span>       <span class="mf">0.557</span><span class="p">,</span>  <span class="mf">5.192</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.get_initial_params_dir">
+<span class="sig-name descname"><span class="pre">get_initial_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.get_initial_params_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Read only accessor to private member variable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.get_sensitivity_csvs">
+<span class="sig-name descname"><span class="pre">get_sensitivity_csvs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.get_sensitivity_csvs" title="Permalink to this definition"></a></dt>
+<dd><p>Looks for all the sensitivity.csv files that are present in
+the run directories. The sensitivity.csv files are created
+using the extract_data_for_sensitivity_analysis(..) funciton.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>file_list</strong> – list of paths to sensitivity.csv files, one for each file run folder</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.info" title="Permalink to this definition"></a></dt>
+<dd><p>Print some summary info about the SensitivityDriver object.</p>
+<p>Not sure how to best handle the summary of outputs yet. Maybe
+a separate method. The problem is that existing outputs may
+be leftover from prior runs and thus may not match the existing
+params and sample_matrix data. But I don’t want to be too
+aggressive in cleaning up old outputs incase they are expensive
+to re-create.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.load_experiment">
+<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_props_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.load_experiment" title="Permalink to this definition"></a></dt>
+<dd><p>Load parameter properties and sample matrix from files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.make_cool_plot_2">
+<span class="sig-name descname"><span class="pre">make_cool_plot_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.make_cool_plot_2" title="Permalink to this definition"></a></dt>
+<dd><p>stitches all run stages together and plots one
+line for each sample run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.plot_sensitivity_matrix">
+<span class="sig-name descname"><span class="pre">plot_sensitivity_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.plot_sensitivity_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Make a quick plot showing the properties of the sensitivity matrix.</p>
+<dl class="simple">
+<dt>One row for each parameter:</dt><dd><p>Left column is sample values with bounds marked in red.
+Middle column is histogram of sample values.
+Right column is boxplot of sample values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.run_all_samples">
+<span class="sig-name descname"><span class="pre">run_all_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.run_all_samples" title="Permalink to this definition"></a></dt>
+<dd><p>Starts run in each Sample Specific Run Folder.</p>
+<p>Wrapper around <cite>run_model(..)</cite> that allows for parallelization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.run_model">
+<span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rundirectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.run_model" title="Permalink to this definition"></a></dt>
+<dd><p>Run the model.</p>
+<p>Assumes everything is setup in a “Sample Specific Run Folder”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.save_experiment">
+<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.save_experiment" title="Permalink to this definition"></a></dt>
+<dd><p>Write the parameter properties and sensitivity matrix to files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.set_work_dir">
+<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.set_work_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the working directory for the object. Assumes that the working
+directory will have an <code class="docutils literal notranslate"><span class="pre">initial_params_rundir</span></code> directory that will have
+the initial parameter values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.setup_multi">
+<span class="sig-name descname"><span class="pre">setup_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.setup_multi" title="Permalink to this definition"></a></dt>
+<dd><p>Makes one run directory for each row in sample matrix.</p>
+<p>This is essentially a wrapper around <cite>core_setup(..)</cite>
+that allows for parallelization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Sensitivity.generate_lhc">
+<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">generate_lhc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_props</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.generate_lhc" title="Permalink to this definition"></a></dt>
+<dd><p>Generate sample matrix using Latin Hyper Cube method.</p>
+<p>Sample matrix will have one row for each “sample” of the
+parameters. There will be one column for each parameter in
+the <cite>param_props</cite> list.</p>
+<dl>
+<dt>For example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">generate_lhc</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="p">[</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;rhq10&quot;</span><span class="p">,</span> <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;cmax&quot;</span><span class="p">,</span> <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">]}</span> <span class="p">])</span>
+<span class="go">      rhq10       cmax</span>
+<span class="go">0  0.419637  10.949468</span>
+<span class="go">1  4.162081  13.456290</span>
+<span class="go">2  2.168131  18.698548</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – number of samples (rows) to create</p></li>
+<li><p><strong>param_props</strong> (<em>list of dicts</em>) – Each item in <cite>param_props</cite> list will be a dictionary
+with at least the following:
+&gt;&gt;&gt; param_props = {
+…   ‘name’: ‘cmax’,               # name in dvmdostem parameter file (cmt_*.txt)
+…   ‘bounds’: [100.1, 105.1],     # the min and max values the parameter can have
+… }</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – There will be one column for each parameter in the
+<cite>param_props</cite> list and N rows (samples).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame, shape (N, len(param_props))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Sensitivity.generate_uniform">
+<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">generate_uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_props</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.generate_uniform" title="Permalink to this definition"></a></dt>
+<dd><p>Generate sample matrix using uniform method.</p>
+<p>Sample matrix will have one row for each “sample” of the
+parameters. There will be one column for each parameter in
+the <cite>param_props</cite> list.</p>
+<dl>
+<dt>For example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">generate_uniform</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="p">[</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;rhq10&quot;</span><span class="p">,</span> <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;cmax&quot;</span><span class="p">,</span> <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">]}</span> <span class="p">])</span>
+<span class="go">      rhq10       cmax</span>
+<span class="go">0  2.513395  10.514788</span>
+<span class="go">1  1.393232  19.082659</span>
+<span class="go">2  1.197809  11.448949</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>N</strong> (<em>int</em>) – number of samples (rows) to create</p></li>
+<li><p><strong>param_props</strong> (<em>list of dicts</em>) – Each item in <cite>param_props</cite> list will be a dictionary
+with at least the following:
+&gt;&gt;&gt; param_props = {
+…   ‘name’: ‘rhq10’,        # name in dvmdostem parameter file (cmt_*.txt)
+…   ‘bounds’: [5.2, 6.4],   # the min and max values the parameter can have
+… }</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df</strong> – There will be one column for each parameter in the
+<cite>param_props</cite> list and N rows (samples).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame, shape (N, len(param_props))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Sensitivity.log_wrapper">
+<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">log_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.log_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Likely will abandon or repurpose this function.
+Not super helpful as a log printer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Sensitivity.params_from_seed">
+<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">params_from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seedpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.params_from_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Builds a list of “param specifications” from the data in the <cite>seedpath</cite> and
+for params specified in <cite>params</cite> for the pfts specified in <cite>pftnums</cite> and the
+Community specified in <cite>cmtnum</cite>. Sets bounds based on the intial values
+found in the <cite>seedpath</cite> and according to the percent_diffs.</p>
+</dd></dl>
+
 </section>
 <section id="general-utilities">
 <h2>General Utilities<a class="headerlink" href="#general-utilities" title="Permalink to this heading"></a></h2>
@@ -1166,6 +1597,14 @@ dimension before the distributions are calculated.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="output_utils.build_full_datetimeindex">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">build_full_datetimeindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.build_full_datetimeindex" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a <code class="docutils literal notranslate"><span class="pre">pandas.DatetimeIndex</span></code> covering the range of the two
+input datasets. Assumes that the two input datasets are consecutive
+monotonic, and not missing any points.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="output_utils.check_files">
 <span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">check_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.check_files" title="Permalink to this definition"></a></dt>
 <dd><p>A work in progress for verifying assumptions about input files, <cite>fnames</cite>.</p>
@@ -1177,6 +1616,44 @@ dimension before the distributions are calculated.</p>
 <dt class="sig sig-object py" id="output_utils.get_last_n_eq">
 <span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">get_last_n_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yearly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.get_last_n_eq" title="Permalink to this definition"></a></dt>
 <dd><p>Work in progress for getting the last few year of equlibrium stage for calibration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.get_start_end">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">get_start_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timevar</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.get_start_end" title="Permalink to this definition"></a></dt>
+<dd><p>Returns CF Times. use .strftime() to convert to python datetimes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="output_utils.load_trsc_dataframe">
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">load_trsc_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.load_trsc_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Builds a pandas.DataFrame for the requested output variable with the
+transient and scenario data merged together and a complete
+DatetimeIndex.</p>
+<p>This function does not handle by-compartment files yet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var</strong> (<em>str</em>) – The variable of interest. Must be a dvmdostem output variable, i.e.
+GPP.</p></li>
+<li><p><strong>timeres</strong> (<em>str</em>) – String of either ‘monthly’ or ‘yearly’ that will be used to find
+and open the appropriate files as well as set the DatetimeIndex.</p></li>
+<li><p><strong>px_y</strong> (<em>int</em>) – Index of the pixel to work with, latitude dimension.</p></li>
+<li><p><strong>px_x</strong> (<em>int</em>) – Index of pixel to work with, longitude dimension.</p></li>
+<li><p><strong>fileprefix</strong> (<em>str</em>) – The path, absolute or relative, where the function will look for files.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – A DataFrame with data for the requested <code class="docutils literal notranslate"><span class="pre">var</span></code> from transient and
+scenario output files. The DataFrame should have a complete
+DatetimeIndex.</p></li>
+<li><p><strong>meta</strong> (<em>dict</em>) – A small dictionary containing metadata about the datasets in the
+dataframe. Namely, the units.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1371,28 +1848,49 @@ and units is a string that is extracted from the attributs of the netcdf file.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="output_utils.stitch_stages">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">stitch_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.stitch_stages" title="Permalink to this definition"></a></dt>
-<dd><p>Expects <cite>var</cite> to be one the dvmdostem output variable names. <cite>timestep</cite> must
-be one of “yearly” or “monthly”, and stages is a (ordered) list containing
-one or more of “pr”,”eq”,”sp”,”tr”,”sc”. <cite>fileprefix</cite> is an optional path
-that will be pre-pended to the filenames for opening files in a different
-directory.</p>
-<p>Outputs from dvmdostem assume one variable per file and the following
+<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">stitch_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_dti</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.stitch_stages" title="Permalink to this definition"></a></dt>
+<dd><p>Glues files together along the time axis.</p>
+<p>Outputs from <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> assume one variable per file and the following
 file-naming pattern:</p>
 <blockquote>
-<div><p><cite>var`_`timestep`_`stage</cite>.nc</p>
+<div><p><code class="docutils literal notranslate"><span class="pre">var_timestep_stage.nc</span></code></p>
 </div></blockquote>
-<dl class="simple">
-<dt>This function makes the following additional assumptions about the files:</dt><dd><ul class="simple">
+<p>This function makes the following additional assumptions about the files:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>All files for different timesteps have the same dimensions</p></li>
 <li><p>The file’s variable name is the same as the variable name in the filename.</p></li>
-<li><p>There is a units attribute?</p></li>
+<li><p>There is a units attribute.</p></li>
+</ul>
+</div></blockquote>
+<p>Only able to return a <code class="docutils literal notranslate"><span class="pre">pandas.DatetimeIndex</span></code> for a transient (tr) and
+scenario (sc) files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var</strong> (<em>str</em>) – An uppercase string matching one of the dvmdostem output names.</p></li>
+<li><p><strong>timestep</strong> (<em>str</em>) – Must be one of ‘yearly’ or ‘monthly’, and match the files present in
+<code class="docutils literal notranslate"><span class="pre">fileprefix</span></code> for the <code class="docutils literal notranslate"><span class="pre">var</span></code>.</p></li>
+<li><p><strong>stages</strong> (<em>list of strings</em>) – Ordered list of strings for the stages to stitch together, i.e. for all
+stages, in normal order: <code class="docutils literal notranslate"><span class="pre">['pr','eq','sp','tr','sc']</span></code>.</p></li>
+<li><p><strong>fileprefix</strong> (<em>str</em>) – A path that will be pre-pended to the filenames for opening files in a
+different directory.</p></li>
+<li><p><strong>with_dti</strong> (<em>bool</em>) – Whether or not a full pandas.DatetimeIndex should be retured.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>data</strong> (<em>np.array</em>) – A multi-dimensonal numpy array that is the concatenatio of the input arrays
+along the time axis.</p></li>
+<li><p><strong>units_str</strong> (<em>str</em>) – The units of the variable in question, read from the attributes of the
+netCDF files.</p></li>
+<li><p><strong>dims</strong> (<em>tuple</em>) – A list of strings naming the dimensions of the <code class="docutils literal notranslate"><span class="pre">data</span></code> array.</p></li>
+<li><p><strong>dti</strong> (<em>(optional) pandas.DatetimeIndex</em>) – The DatetimeIndex should span the time axis (first axis) of the <code class="docutils literal notranslate"><span class="pre">data</span></code>
+array.</p></li>
+</ul>
+</p>
+</dd>
 </dl>
-<p>Returns a tuple (<cite>data</cite>, <cite>units</cite>), where <cite>data</cite> is a multi-dimensional numpy
-array that is the concatenation of the input arrays along the time axis and
-<cite>units</cite> is the unit string that is found in the input netcdf files.</p>
 </dd></dl>
 
 <dl class="py function">

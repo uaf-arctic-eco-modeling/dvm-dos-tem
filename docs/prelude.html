@@ -448,12 +448,22 @@ codebase, so the URL will look something like:
 <code class="docutils literal notranslate"><span class="pre">https://github.com/&lt;your</span> <span class="pre">user</span> <span class="pre">name&gt;/dvm-dos-tem</span></code>.</p></li>
 <li><p>The remote named <code class="docutils literal notranslate"><span class="pre">upstream</span></code> should generally point to
 <code class="docutils literal notranslate"><span class="pre">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem</span></code> or
-<code class="docutils literal notranslate"><span class="pre">git&#64;github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git</span></code> if you will be contributing.</p></li>
+<code class="docutils literal notranslate"><span class="pre">git&#64;github.com:uaf-arctic-eco-modeling/dvm-dos-tem.git</span></code> if you will be
+contributing.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you plan to push changes you will need to setup <code class="docutils literal notranslate"><span class="pre">ssh</span></code> keys. The
+directions for this are here:
+<a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh">https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>It is <strong>strongly encouraged</strong> that you go to the effort of making sure your
 current git branch is displayed in your terminal shell prompt. There are many
 examples floating around online of how to achieve this for all major operating
 systems and shells; one example <a class="reference external" href="https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt">here</a></p>
+</div>
 </section>
 </section>
 <section id="documentation-types">
@@ -462,6 +472,13 @@ systems and shells; one example <a class="reference external" href="https://stac
 </section>
 <section id="docker">
 <h2><span class="section-number">1.4. </span>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h2>
+<p>As of 2023, Docker is the current reccomended virtualization tool for working
+with TEM. It is definitely still possible to use a traditional Virtual Machine,
+(i.e. with VirtualBox, perhaps managed by Vagrant), but all of our current
+documentation assumed you will be using Docker. Overall Docker offers some
+advatages in being able to standardize the internal layout of the virtual
+environment amongst users.</p>
+<p>The following slideshow attempts to explain some of the concepts.</p>
 <!-- shared from Tobey Carmans's Docker Diagram google drawing -->
 <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSX3m0NGfLrNlOz_RccNyhRh11qwW1Lf0v5bQ1E5nA3RwCl_YHrWOx-S1cVA0AX6e3zZwBKnpyjD5kQ/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe></section>
 <section id="plotting-and-graphical-outputs">

@@ -128,7 +128,14 @@ the common setup here and not need to repeat these lines in each example. The
 paths assume that these examples will be run on the TEM Docker stack. Subsequent
 Python example solutions assume that these setup commands have been run. In
 other words if you are following along, copy the following code into your Python
-interperter and run it before continuing.
+interperter and run it before continuing. 
+
+To read more about the data loading function that is imported from
+``output_utils.py`` please see the API documentation here
+:py:meth:`output_utils.load_trsc_dataframe`
+
+**If you are not working on the TEM Docker stack or have named your experiment
+differently, please adjust your paths accordingly.**
 
 .. collapse:: Common Python setup
    :class: working
@@ -136,105 +143,21 @@ interperter and run it before continuing.
    .. jupyter-execute::
 
       import sys
+      import os
+
+      import netCDF4 as nc
+      import pandas as pd
+      import matplotlib.pyplot as plt
+
+      # This allows us to import tools from the dvm-dos-tem/scripts directory
       sys.path.insert(0, '/work/scripts')
 
-      import os
+      from output_utils import load_trsc_dataframe
+
+      # This lets us work with shorter paths relative to the experiment 
+      # directory
       os.chdir('/data/workflows/exp0_jan26_test')
 
-      import pandas as pd
-      import netCDF4 as nc
-      
-      def get_start_end(timevar):
-        '''Returns CF Times. use .strftime() to convert to python datetimes'''
-        start = nc.num2date(timevar[0], timevar.units, timevar.calendar)
-        end = nc.num2date(timevar[-1], timevar.units, timevar.calendar)
-        return start, end
-      
-      
-      def load_trsc(var, timeres):
-        '''Returns ``netCDF4.Dataset`` s in a tuple. 
-        First item is historic, second item is projected.
-        '''
-        trds = nc.Dataset(f'output/{var}_{timeres}_tr.nc')
-        scds = nc.Dataset(f'output/{var}_{timeres}_sc.nc')
-        return (trds, scds)
-      
-      def build_full_datetimeindex(hds, pds):
-        '''Returns a ``pandas.DatetimeIndex`` covering the range of the two
-        input datasets. Assumes that the two input datasets are consecutive
-        monotonic, and not missing any points.'''
-        
-        h_start, h_end = get_start_end(hds.variables['time'])
-        p_start, p_end = get_start_end(pds.variables['time'])
-      
-        begin = sorted([h_start, h_end, p_start, p_end])[0]
-        end = sorted([h_start, h_end, p_start, p_end])[-1]
-      
-        dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), end=end.strftime(), freq='AS-JAN'))
-      
-        return dti
-      
-      def build_full_dataframe(var=None, timeres=None, px_y=None, px_x=None):
-        '''Not sure how this should work for PFT and LAYER files???'''
-      
-        if timeres == 'yearly':
-          freq = 'AS-JAN'
-        elif timeres == 'monthly':
-          freq = 'MS'
-        else:
-          raise RuntimeError("Invalid time resolution")
-      
-        hds, pds = load_trsc(var, timeres)
-      
-        timeslice = slice(0, None, 1)
-        yslice = slice(px_y, px_y+1, 1)
-        xslice = slice(px_x, px_x+1, 1)
-        pftslice = None
-        layerslice = None
-      
-      
-        if 'pft' in hds.variables[var].dimensions and 'pft' in pds.variables[var].dimensions:
-          pftslice = slice(0, None, 1)
-        elif 'layer' in hds.variables[var].dimensions and 'layer' in pds.variables[var].dimensions:
-          layerslice = slice(0, None, 1)
-      
-        if pftslice is not None:
-          slice_tuple = (timeslice, pftslice, yslice, xslice)
-          h_reshape = (hds.dimensions['time'].size, hds.dimensions['pft'].size, )
-          p_reshape = (pds.dimensions['time'].size, pds.dimensions['pft'].size, )
-        elif layerslice is not None:
-          slice_tuple = (timeslice, layerslice, yslice, xslice)
-          h_reshape = (hds.dimensions['time'].size, hds.dimensions['layer'].size, )
-          p_reshape = (pds.dimensions['time'].size, pds.dimensions['layer'].size, )
-        else:
-          slice_tuple = (timeslice, yslice, xslice)
-          #from IPython import embed; embed()
-          #print(hds.dimensions['time'].size, pds.dimensions['time'].size)
-          h_reshape = (hds.dimensions['time'].size, )
-          p_reshape = (pds.dimensions['time'].size, )
-      
-        #print(f"USING SLICETUPLE {slice_tuple}")
-        #print(f"USING freq={freq}")
-        #print(hds.variables[var].shape)
-      
-        hs, he = get_start_end(hds.variables['time'])
-        hdti = pd.DatetimeIndex(pd.date_range(start=hs.strftime(), end=he.strftime(), freq=freq,))
-        h_df = pd.DataFrame(hds.variables[var][slice_tuple].reshape( h_reshape ), index=hdti)
-      
-        ps, pe = get_start_end(pds.variables['time'])
-        pdti = pd.DatetimeIndex(pd.date_range(start=ps.strftime(), end=pe.strftime(), freq=freq,))
-        p_df = pd.DataFrame(pds.variables[var][slice_tuple].reshape( p_reshape ), index=pdti)
-      
-        df = pd.concat([h_df, p_df])
-      
-        meta = dict(
-          hds_units=hds.variables[var].units, 
-          pds_units=pds.variables[var].units, 
-          h_start=hs, h_end=he,
-          p_start=ps, p_end=pe
-        )
-      
-        return df, meta
 
 
 
@@ -274,12 +197,17 @@ information is used to set the number of transient and scenario years to run.
    utility scripts. While the graphical view is nice it makes it difficult to 
    figure out the exact start and end years.
 
+   Also notice that this technique allows us to interact with the command line
+   interface of the ``input_util.py`` script directly from a Python interperter.
+   Neat!
+
    .. jupyter-execute::
 
       import input_util as iu
       import argparse
 
-      args = {'command': 'climate-ts-plot',
+      args = {
+        'command': 'climate-ts-plot',
         'input_folder': '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/',
         'stitch': False,
         'type': 'spatial-temporal-summary',
@@ -287,12 +215,12 @@ information is used to set the number of transient and scenario years to run.
 
       iu.climate_ts_plot(argparse.Namespace(**args))
 
-**************************
-Computing Means
-**************************
+*****************************************
+Computing Mean Vegetation C and Soil C
+*****************************************
 
-Compute the mean vegetation and soil carbon stocks for the following decades:
-[1990-2010], [2040-2050], [2090-2100].
+Compute the mean vegetation and soil carbon stocks for the following time
+ranges: [1990-1999], [2040-2049], [2090-2099].
 
    a. What are the units of these stocks?
 
@@ -305,26 +233,19 @@ Compute the mean vegetation and soil carbon stocks for the following decades:
         TIMERES = 'yearly'
         PX_X = 0
         PX_Y = 0
-        decades = ['1990-2010','2040-2050','2090-2100']
+        time_ranges = ['1990-1999','2040-2049','2090-2099']
 
-        df, meta = build_full_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, px_x=PX_X)
+        df, meta = load_trsc_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y,
+                                       px_x=PX_X, fileprefix='output')
         print(meta)
-        for d in decades:
+        for d in time_ranges:
            s, e = d.split('-')
            mean = df[s:e].mean()[0]
            print(f'{d}  {VAR}  mean: {mean}')
         print()
 
 .. collapse:: Example NCO solution
-  :class: broken
-
-  .. warning::
-
-    Problems?
-
-      * decades don't match Question
-      * store stock in single file step, error copying scenario files??
-      * commands after ``## <--ERROR! fail``
+  :class: working
 
   .. code::
 
@@ -336,8 +257,8 @@ Compute the mean vegetation and soil carbon stocks for the following decades:
 
     ### Compute the decadal means of vegetation carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_tr.nc  synthesis/VEGC_1990_1999.nc
-    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2040_2059.nc
-    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2090_2099.nc
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_sc.nc  synthesis/VEGC_2090_2099.nc
 
     ### Store all soil C stocks to a single file
     cp output/SHLWC_yearly_tr.nc synthesis/SOILC_yearly_tr.nc
@@ -345,8 +266,8 @@ Compute the mean vegetation and soil carbon stocks for the following decades:
     ncks -A -h output/MINEC_yearly_tr.nc synthesis/SOILC_yearly_tr.nc
 
     cp output/SHLWC_yearly_sc.nc synthesis/SOILC_yearly_sc.nc
-    ncks -A -h ./output/DEEPC_yearly_tr.nc synthesis/SOILC_yearly_sc.nc ## <--ERROR!
-    ncks -A -h ./output/MINEC_yearly_tr.nc synthesis/SOILC_yearly_sc.nc ## <--ERROR! maybe tr needs to be sc??
+    ncks -A -h ./output/DEEPC_yearly_sc.nc synthesis/SOILC_yearly_sc.nc 
+    ncks -A -h ./output/MINEC_yearly_sc.nc synthesis/SOILC_yearly_sc.nc 
 
     ### Compute total soil carbon
     ncap2 -O -h -s'SOILC = SHLWC + DEEPC + MINEC' synthesis/SOILC_yearly_tr.nc synthesis/SOILC_yearly_tr.nc
@@ -354,8 +275,8 @@ Compute the mean vegetation and soil carbon stocks for the following decades:
 
     ### Compute the decadal means of soil carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_tr.nc  synthesis/SOILC_1990_1999.nc
-    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2040_2059.nc
-    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2090_2099.nc
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v SHLWC,DEEPC,MINEC,SOILC synthesis/SOILC_yearly_sc.nc  synthesis/SOILC_2090_2099.nc
 
 
 ****************************
@@ -383,10 +304,13 @@ simulations. Indicate how you formulated NEE.
 
   .. jupyter-execute::
 
-    rh, _ = build_full_dataframe('RH', timeres='monthly', px_y=0, px_x=0)
-    rm, _ = build_full_dataframe('RM', timeres='monthly', px_y=0, px_x=0)
-    rg, _ = build_full_dataframe('RG', timeres='monthly', px_y=0, px_x=0)
-    gpp, _ = build_full_dataframe('GPP', timeres='monthly', px_y=0, px_x=0)
+    X = 0
+    Y = 0
+
+    rh, _ = load_trsc_dataframe('RH', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    rm, _ = load_trsc_dataframe('RM', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    rg, _ = load_trsc_dataframe('RG', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    gpp, _ = load_trsc_dataframe('GPP', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
 
     # GPP is output per PFT, so here we sum across PFTs to get
     # the ecosystem GPP.
@@ -401,8 +325,6 @@ simulations. Indicate how you formulated NEE.
 
     .. jupyter-execute::
 
-      import matplotlib.pyplot as plt
-
       fig, axes = plt.subplots(2,1)
 
       axes[0].plot(nee, color='black', label='NEE')
@@ -413,19 +335,27 @@ simulations. Indicate how you formulated NEE.
 
   .. collapse:: bokeh
 
+    .. note:: 
+
+      This does not display properly in all web browsers. Safari in particular
+      seems to have issues. It should work fine if you run the code on your own
+      machine, but for some reason when embedded in the Sphinx documentation, it
+      doesn't behave. 
+
     .. jupyter-execute::
 
       import bokeh.plotting as bkp
       import bokeh.resources as bkr
       import bokeh.io as bkio
 
-      # This helps display inline in sphinx document
+      # This helps display inline in sphinx document,
+      # in other contexts you may not need this line.
       bkio.output_notebook(bkr.CDN, verbose=False, 
                            notebook_type='jupyter', hide_banner=True)
 
       p = bkp.figure(title="NEE", x_axis_type='datetime',
                      sizing_mode="stretch_width", max_width=500, height=150,
-                     toolbar_location='above', )
+                     toolbar_location='above')
 
       p.line(nee.index, nee, line_width=1)
 
@@ -434,6 +364,11 @@ simulations. Indicate how you formulated NEE.
 
 .. collapse:: NCO solution
   :class: partial
+
+  .. warning::
+
+    This code runs, but the values don't match the Python solution and the 
+    dates seem off in the final ``*.nc`` files. Needs further verification.
 
   .. code::
 
@@ -446,7 +381,7 @@ simulations. Indicate how you formulated NEE.
     ### Sum up the GPP across PFTs
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_sc.nc synthesis/GPP_monthly_sc.nc
-    
+
     ### Append all the necessary fluxes into single files
     cp synthesis/GPP_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncks -A -h output/RM_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
@@ -456,12 +391,12 @@ simulations. Indicate how you formulated NEE.
     ncks -A -h output/RM_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     ncks -A -h output/RG_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     ncks -A -h output/RH_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
-    
+
     ### Compute monthly NEE
     ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
-    
-    ### Compute yearly sums of fluxes (this is a sum by group, i.e. years, 
+
+    ### Compute yearly sums of fluxes (this is a sum by group, i.e. years,
     ### so we'll need to indicate the --mro option in ncra)
     # make time dimension unlimited
     ncks -O -h --mk_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
@@ -469,139 +404,61 @@ simulations. Indicate how you formulated NEE.
     # compute the annual sums
     ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
     ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
-    # fix back the time dimension 
+    # fix back the time dimension
     ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
     ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
 
     ### Compute decadale averages of C fluxes
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_tr.nc synthesis/Cfluxes_1990_1999.nc
-    ncwa -O -d time,35,44 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2059.nc
-    ncwa -O -d time,75,84 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc   
-
-.. collapse:: Python solution 2 (does not use common setup)
-  :class: partial
-
-  .. code::
-
-    import xarray as xr
-    import pandas as pd
-    import glob, os
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import scipy.stats as stats
-    from statsmodels.stats.multicomp import pairwise_tukeyhsd
-
-    # Path to the output directory
-    ODir = '/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem_workflows/exp0_jan26_test/output'
-
-    #list the starting years of the decades over which to compute the means
-    declist = [1940,1990,2040, 2090]
-
-    ###### COMPUTING NEE ######
-    ###########################
-
-    #Loop through all the modes and variables of interest
-    data_mode = pd.DataFrame()
-    for mode in ['tr', 'sc']:
-      print(mode)
-      for VAR in ['GPP','RM','RG','RH']:
-        print(VAR)
-        # Check the output of the selected mode/variable exists
-        if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
-          filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          # Read the dataset
-          ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          data = ds.to_dataframe()
-          data.reset_index(inplace=True)
-          # Select pixel of iinterest
-          data = data.rename(columns={VAR: 'value'})
-          # Sum the fluxes by secondary dimensions
-          if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
-            data = data.groupby(['time','x','y'])[['value']].agg(['sum'])
-            data.reset_index(inplace=True)
-            data.columns = ['time', 'x', 'y','value']
-          # Format the time/date dimension
-          data['time'] = data['time'].astype('|S80')
-          data['time'] = data['time'].astype('|datetime64[ns]')
-          data['year'] = data['time'].dt.year
-          # Check the outputs are monthly or yearly
-          if 'monthly' in filename:
-            print('Monthly outputs')
-            data['month'] = data['time'].dt.month
-            data = data.groupby(['year','x','y'])[['value']].agg(['sum'])
-            data.reset_index(inplace=True)
-            data.columns = ['year','x','y','value']
-          # Add necessary information
-          data['variable'] = VAR
-          data['mode'] = mode
-        data_mode = data_mode.append(data)
-
-    # Reshape the dataset
-    final = data_mode.pivot(index=['mode','year','x','y'], columns = 'variable',values = 'value') 
-    final.reset_index(inplace=True)
-
-    # Compute NEE
-    final['Reco'] = final['RH'] + final['RG'] + final['RM']
-    final['NEE'] = final['RH'] + final['RG'] + final['RM'] - final['GPP'] 
-    final.reset_index(inplace=True)
-
-    # Compute the decadal averages
-    decade = pd.DataFrame()
-    for i in declist:
-      print(i)
-      dec = final[(final['year'] >= i) & (final['year'] < i+10)].groupby(['x','y'])[['GPP','Reco','NEE']].agg(['mean'])
-      dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
-      dec.reset_index(inplace=True)
-      decade = decade.append(dec)
-
-    decade
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc
 
 
 
-****************************
-Computing Mean GPP
-****************************
+**********************************
+Computing Mean GPP, RA, RH, NEE
+**********************************
 
 Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
-following decades: [1990-2010], [2040-2050], [2090-2100].
+following time ranges: [1990-1999], [2040-2049], [2090-2099].
 
    a. What are the units of these fluxes?
 
-      .. collapse:: Example Python Solution
+      .. collapse:: Example Python Solution for Finding Units
          :class: working
 
          .. jupyter-execute:: 
 
+            print('{:>10} {:>12} {:>12}'.format('varible', 'tr', 'sc'))
             for v in ['GPP', 'RH', 'RM','RG',]:
                 trds = nc.Dataset(f'output/{v}_monthly_tr.nc')
                 scds = nc.Dataset(f'output/{v}_monthly_sc.nc')
                 tunits = trds.variables[v].units
                 sunits = scds.variables[v].units
-                print(f'{v} {tunits} {sunits}')
+                print(f'{v:>10} {tunits:>12} {sunits:>12}')
             
 
 
-.. collapse:: Example Python Solution
+.. collapse:: Example Python Solution for Computing Means
    :class: working
 
    .. jupyter-execute:: 
 
-      VAR = 'GPP'
-      TIMERES = 'monthly'
-      PX_X = 0
-      PX_Y = 0
+      # Using the variables loaded above when we computed NEE
 
-      df, _ = build_full_dataframe(var=VAR, timeres=TIMERES, px_y=PX_Y, px_x=PX_X)
+      for d in ['1990-1999','2040-2049','2090-2099']:
+        start, end = d.split('-')
+        mean_gpp = gpp[start:end].sum(axis=1).mean()
+        ra = rm + rg
+        mean_ra = ra[start:end].mean().squeeze() # <- collapses DataFrame to Series
+        mean_rh = rh[start:end].mean().squeeze() # <- collapses DataFrame to Series
+        mean_nee = nee[start:end].mean()
 
-      for d in ['1990-2010','2040-2050','2090-2100']:
-         s, e = d.split('-')
-         mean = df[s:e].mean(axis=0)
-         long_string = ['{:.3f}'.format(i) for i in mean]
-         print(f"{d}  mean (each pft): {long_string}")
-         print(f"{d}  mean (across pfts): {mean.mean()}")
-         print()
-
+        print(f"{d} mean gpp: {mean_gpp}")
+        print(f"{d} mean ra:  {mean_ra}")
+        print(f"{d} mean rh:  {mean_rh}")
+        print(f"{d} mean nee: {mean_nee}")
+        print()
 
 
 *******************************************
@@ -616,163 +473,68 @@ Plot the active layer depth from 1950 to 2100.
 
    .. jupyter-execute:: 
 
-    import matplotlib.pyplot as plt
-
-    df, meta = build_full_dataframe(var='ALD', timeres='yearly', px_y=0, px_x=0)
+    df, meta = load_trsc_dataframe(var='ALD', timeres='yearly', 
+                                   px_y=0, px_x=0, fileprefix='output')
 
     fig, ax = plt.subplots(1,1)
 
     ax.plot(df.loc['1950':'2100'].index, df.loc['1950':'2100'][0], label='ALD')
-    ax.axvline(meta['h_end'], linestyle='dotted', color='red')
+    ax.axvline(df.index[115], linestyle='dotted', color='red')
 
     ax.set_xlabel('year')
-    ax.set_ylabel('ALD ({})'.format(meta['hds_units']))
+    ax.set_ylabel('ALD ({})'.format(meta['var_units']))
 
     plt.savefig('ALD_SAMPLE.png')
-
-.. collapse:: NCO Solution
-  :class: partial
-
-  .. code::
-
-    ### Concatenate historical and scenario time series of activee layer depth
-    # make time dimension unlimited in the ALD output files
-    ncks -O -h --mk_rec_dmn time -d x,0 -d y,0 ./output/ALD_yearly_tr.nc ./synthesis/ALD_yearly_tr.nc
-    ncks -O -h --mk_rec_dmn time -d x,0 -d y,0 ./output/ALD_yearly_sc.nc ./synthesis/ALD_yearly_sc.nc
-    # compute the annual sums
-    ncrcat -O -h ./synthesis/ALD_yearly_tr.nc ./synthesis/ALD_yearly_sc.nc ./synthesis/ALD_yearly_total.nc
-    # fix back the time dimension 
-    ncks -O -h --fix_rec_dmn time ./synthesis/ALD_yearly_total.nc ./synthesis/ALD_yearly_total.nc
-    # plot the time series
 
 
 ******************************
 Plot Seasonal Dynamic
 ******************************
 
-Plot the seasonal dynamic of GPP for the same three decades: [1990-2010],
-[2040-2050], [2090-2100]. The plot should show the mean monthly GPP computed
+Plot the seasonal dynamic of GPP for the same three time ranges: [1990-1999],
+[2040-2049], [2090-2099]. The plot should show the mean monthly GPP computed
 across each decade as lines, and the standard deviation across the mean as
 envelopes.
 
 .. collapse:: Example Python Solution
-   :class: broken
+   :class: working
 
    .. jupyter-execute::
 
-      df, meta = build_full_dataframe(var='GPP', timeres='monthly', px_y=0, px_x=0)
-      
-      july = df['1901-7'::12]
-      fig, ax = plt.subplots()
-      for i, pft in enumerate(july.columns):
-        ax.boxplot(july[pft], positions=[i+1], notch=True)
-      plt.title("July")
-      ax.set_ylabel('GPP ({})'.format(meta['hds_units']))
-      ax.set_xlabel('PFT')
+      df, meta = load_trsc_dataframe(var='GPP', timeres='monthly',
+                                     px_y=0, px_x=0, fileprefix='output')
 
-      # This works too...
-      df.plot(kind='box')
+      # sum across PFTs...
+      ecosystem_sum = df.sum(axis=1)
 
-      # Or this
-      df['1901-08'::12].plot(kind='box')
-
-      # Gets the monthlies 
-      #for m in range(0,12):
-      #  print(df[m::12])
-      #  print()
-
-      # Make timeseries plot
-      plt.close()
       fig, ax = plt.subplots(1,1)
-      ax.plot(df['1940':'1950'][0])
-      plt.savefig('GPP_SAMPLE.png')   
 
-      # Make timeseries of July GPP values
-      plt.close()
-      fig, ax = plt.subplots(1,1)
-      ax.plot(df[6::12][0])
-      plt.savefig('SAMPLE.png')  
+      for time_period in ['1990-1999','2040-2049', '2090-2099']:
+        startyr, endyr = time_period.split('-')
 
-      # Or this:, gives julys for a decade
-      df[6::12]['1940':'1950']
+        # The result is a pandas.Series
+        range_series = ecosystem_sum[startyr:endyr]
 
-.. collapse:: Python solution 2 (does not use common setup)
-  :class: broken
+        mean = range_series.groupby(range_series.index.month).mean()
+        std =  range_series.groupby(range_series.index.month).std()
 
-  .. code::
+        ax.plot(mean, linewidth=1, label=time_period)
+        ax.fill_between(mean.index, mean - std, mean + std, alpha=0.2)
+        ax.set_ylabel('GPP ({})'.format(meta['var_units']))
+        ax.legend()
 
-    ###### SEASONAL PLOT OF GPP ######
-    ##################################
+      ax.set_xticks(range(1,13), 'J,F,M,A,M,J,J,A,S,O,N,D'.split(','))
 
-
-    # Compute mean monthly GPP by decades
-    final = pd.DataFrame()
-    for VAR in ['GPP']:
-      print(VAR)
-      ttl = pd.DataFrame()
-      for mode in ['tr', 'sc']:
-        print(mode)
-        # Check the output of the selected mode/variable exists
-        if (len(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')) > 0):
-          filename = os.path.basename(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-          # Check the outputs are monthly 
-          if 'monthly' in filename:
-            # Read the dataset
-            ds = xr.open_dataset(glob.glob(ODir + '/' + VAR + '*' + mode + '.nc')[0])
-            data = ds.to_dataframe()
-            data.reset_index(inplace=True)
-            # Select pixel of iinterest
-            data = data.rename(columns={VAR: 'value'})
-            # Format the time/date dimension
-            data['time'] = data['time'].astype('|S80')
-            data['time'] = data['time'].astype('|datetime64[ns]')
-            data['year'] = data['time'].dt.year
-            data['month'] = data['time'].dt.month
-            # Sum the fluxes by secondary dimensions
-            if (('pft' in data.columns) | ('pftpart' in data.columns) | ('layer' in data.columns)):
-              data = data.groupby(['year','month','x','y'])[['value']].agg(['sum'])
-              data.reset_index(inplace=True)
-              data.columns = ['year','month', 'x', 'y','value']
-            ttl = ttl.append(data)
-      decade = pd.DataFrame()
-      # Compute the monthly averages by decade
-      for i in declist:
-        dec = ttl[(ttl['year'] >= i) & (ttl['year'] < i+10)].groupby(['x','y','month'])[['value']].agg(['mean','std'])
-        dec.reset_index(inplace=True)
-        dec.columns = ['x','y','month','mean','std']
-        dec['decade'] = '[' + str(i) + '-' + str(i+9) +']'
-        dec['variable'] = VAR
-        decade = decade.append(dec)
-      final = decade.append(decade)
-
-    # Plotting the data
-    plot = final[(final['x']==0) & (final['y']==0)]
-
-    plt.plot(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean'], alpha=0.5, c='blue', label='[1940-1949]')
-    plt.fill_between(plot[plot['decade']=='[1940-1949]']['month'], plot[plot['decade']=='[1940-1949]']['mean']-plot[plot['decade']=='[1940-1949]']['std'], plot[plot['decade']=='[1940-1949]']['mean']+plot[plot['decade']=='[1940-1949]']['std'], alpha=0.2,color='blue',linewidth=0.0)
-
-    plt.plot(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean'], alpha=0.5, c='cyan', label='[1990-1999]')
-    plt.fill_between(plot[plot['decade']=='[1990-1999]']['month'], plot[plot['decade']=='[1990-1999]']['mean']-plot[plot['decade']=='[1990-1999]']['std'], plot[plot['decade']=='[1990-1999]']['mean']+plot[plot['decade']=='[1990-1999]']['std'], alpha=0.2,color='cyan',linewidth=0.0)
-
-    plt.plot(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean'], alpha=0.5, c='orange', label='[2040-2049]')
-    plt.fill_between(plot[plot['decade']=='[2040-2049]']['month'], plot[plot['decade']=='[2040-2049]']['mean']-plot[plot['decade']=='[2040-2049]']['std'], plot[plot['decade']=='[2040-2049]']['mean']+plot[plot['decade']=='[2040-2049]']['std'], alpha=0.2,color='orange',linewidth=0.0)
-
-    plt.plot(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean'], alpha=0.5, c='red', label='[2090-2099]')
-    plt.fill_between(plot[plot['decade']=='[2090-2099]']['month'], plot[plot['decade']=='[2090-2099]']['mean']-plot[plot['decade']=='[2090-2099]']['std'], plot[plot['decade']=='[2090-2099]']['mean']+plot[plot['decade']=='[2090-2099]']['std'], alpha=0.2,color='red',linewidth=0.0)
-
-    plt.xlabel('Month')
-    plt.ylabel('GPP (g/m2/y)')
-    plt.legend()
-    plt.show()
+      plt.show()
 
 *****************************
 Plot Soil Temperatures
 *****************************
 
 Plot the soil temperature profile for [June-July-August] period for the same
-three years: 1990, 2040, 2090. The plot should show the mean summer temperature
-computed across each decade as lines, and the standard deviation across the mean
-as envelops.
+three ranges: [1990-2999], [2040-2049], [2090-2099]. The plot should show the
+mean summer temperature computed across each decade as lines, and the standard
+deviation across the mean as envelops.
 
 .. collapse:: Example Python Solution
    :class: broken

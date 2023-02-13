@@ -65,7 +65,16 @@
 <li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Using Github’s Features</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Using Github’s Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#repository-hosting-organizations">7.1. Repository Hosting, Organizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-browsing">7.2. Code Browsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#releases">7.3. Releases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">7.4. Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pull-requests">7.5. Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#issue-tracker">7.6. Issue tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tools-we-have-not-used-yet">7.7. Tools we have not used (yet)</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
@@ -98,39 +107,173 @@
              
   <section id="using-github-s-features">
 <h1><span class="section-number">7. </span>Using Github’s Features<a class="headerlink" href="#using-github-s-features" title="Permalink to this heading"></a></h1>
+<p>Github has grown into a multi-featured platform with offerings for many aspects
+of the software development process. This mini guide will describe some of the
+features that the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project is using.</p>
+<p>Comprehensive Github documentation: <a class="reference external" href="https://docs.github.com">https://docs.github.com</a></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Github’s front-end web interface is constantly changing so your screens may
+look different from any images shown here.</p>
+</div>
+<section id="repository-hosting-organizations">
+<h2><span class="section-number">7.1. </span>Repository Hosting, Organizations<a class="headerlink" href="#repository-hosting-organizations" title="Permalink to this heading"></a></h2>
+<p>Code hosting was the original core offering from Github. They store a Git repo
+in the cloud and manage access to it. Most of the other tools are built around
+this core service. One of the tools is the ability to create organizations, or
+teams of people who can own repositories.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> repository is hosted under the <code class="docutils literal notranslate"><span class="pre">uaf-arctic-eco-modelling</span></code>
+organization. The organization is owned by Tobey Carman, Ruth Rutter, Helene
+Genet and Eugenie Euskirchen and mirrors the working group at Univeristy of
+Alaska Fairbanks that has been driving the primary TEM development for the last
+10 years or so.</p>
+</section>
+<section id="code-browsing">
+<h2><span class="section-number">7.2. </span>Code Browsing<a class="headerlink" href="#code-browsing" title="Permalink to this heading"></a></h2>
+<p>The website is very convenient for browsing the code in its current form and at
+other points in the history of the project.  Notice that the landing page
+usually shows you the list of files in the project as well as a way to switch
+branches. The default branch is usually <code class="docutils literal notranslate"><span class="pre">master</span></code> or <code class="docutils literal notranslate"><span class="pre">main</span></code>. If you scroll
+down you can see the project’s README.md file.</p>
+<p>As you change branches and click on particular commits, notice that the URL
+changes in the browser window. The URL can indicate that you are looking at a
+general location (such as a branch) or a specific commit. Pay attention to this
+if you are trying to direct someone to a particlar place in the code/history.</p>
+</section>
+<section id="releases">
+<h2><span class="section-number">7.3. </span>Releases<a class="headerlink" href="#releases" title="Permalink to this heading"></a></h2>
+<p>We are using Github’s “Releases” feature primarily to facilitate DOI creation
+and make it easier to cite the project. This works through a webhook that sends
+a notification to <a class="reference external" href="https://zenodo.org">https://zenodo.org</a> which is an organization that can mint DOI
+numbers. When Zenodo recieves a notifcation that a new Github Release has been
+created, Zenodo takes a snapshot of the repository, archives the state of the
+code at that release (on Zenodo.org) and creates a DOI number which allows
+people to cite to the exact version of the code, in perpetuity.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We do not have an explicit method or workflow for creating DOIs from a commit
+that is not tagged as a Github Release.</p>
+</div>
+<p>You can navigate to a list of the Releases and download the code for that
+release.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Downloading the <code class="docutils literal notranslate"><span class="pre">.zip</span></code> file for a particular release is not the same as
+checking out that release in a repository. When you download the files you
+do not get any of the project history, your directory will not be under
+version control and you won’t have access to any of the other project history
+(other branches) from within the downloaded directory.</p>
+</div>
+</section>
+<section id="documentation">
+<h2><span class="section-number">7.4. </span>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
+<p>Github has several major features that the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project is using to
+help with documentation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Rendering <code class="docutils literal notranslate"><span class="pre">*.md</span></code> (Markdown) and <code class="docutils literal notranslate"><span class="pre">*.rst</span></code> (ReStructuredText) files on the
+website as nicely formatted <code class="docutils literal notranslate"><span class="pre">html</span></code>.</p></li>
+<li><p>Hosting a wiki.</p></li>
+<li><p>Publishing web pages on <code class="docutils literal notranslate"><span class="pre">github.io</span></code>.</p></li>
+</ul>
+</div></blockquote>
+<p>Notice that the README text you see at the bottom of the landing page for a
+repository is the formatted version of the <code class="docutils literal notranslate"><span class="pre">README.md</span></code> file in the root of the
+repository. This is helpful for any other <code class="docutils literal notranslate"><span class="pre">*.md</span></code> files in the project as well.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Avoid the temptation to edit files directly on Github. The web interface
+provides buttons and a text editor that allow you to edit files directly on
+the website. This is dangerous because it subverts the <a class="reference internal" href="../prelude.html#core-development-process-loop"><span class="std std-ref">Core Development
+Process Loop</span></a> by skipping the compile,
+run check steps! It is very easy to introduce bugs by skipping these steps!</p>
+</div>
+<p>We were using the wiki that is included with a Github repo for several years,
+but as of 2022 we’ve moved most of the content to a <code class="docutils literal notranslate"><span class="pre">github.io</span></code> website built
+with Sphinx. The wiki content will be phased out over the next year or so.</p>
+<p>Github provides a service whereby pushing to a particular branch makes a website
+available at <code class="docutils literal notranslate"><span class="pre">https://&lt;orgname&gt;.github.io/&lt;repo-name&gt;</span></code>. In our case we are
+using the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch and we are pushing a complete website built with
+the Sphinx documentation tool. The source code of the website is stored in the
+<code class="docutils literal notranslate"><span class="pre">docs_src/sphinx</span></code> directory. The build process reads the source files and
+generates <code class="docutils literal notranslate"><span class="pre">html</span></code>, which is then pushed to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch. Github
+handles the hosting and serving of these files as well as the domain name
+resolution, making the files publicly viewable.</p>
+</section>
+<section id="pull-requests">
+<h2><span class="section-number">7.5. </span>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading"></a></h2>
+<p>We are using the “Pull Request” (PR) feature as a way to manage and organize the
+addition or modification of the project’s code. From <a class="reference external" href="https://docs.github.com/en/get-started/quickstart/github-glossary#pull-request">Github</a>
+:</p>
+<blockquote>
+<div><p>“Pull requests are proposed changes to a repository submitted by a user and
+accepted or rejected by a repository’s collaborators. Like issues, pull requests
+each have their own discussion forum.”</p>
+</div></blockquote>
+<p>It is possible to work without pull requests (i.e. working on a shared branch)
+but the Pull Request concept and workflow gives several advantages:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>visibility</p></li>
+<li><p>code review</p></li>
+<li><p>access control</p></li>
+<li><p>history organization</p></li>
+</ul>
+</div></blockquote>
+<p>Using the Pull Request features of Github allows discussion about the proposed
+modifications to take place next to the changes themselves. Each Pull Request
+has a discussion thread attached to it and users can put in images, code
+snippets and link to other areas of Github’s ecosystem (Issues, other PRs,
+etc.). THis allows for code review to take place by one or more people in a way
+that is transparent and visible to the group.</p>
+<p>Pull Requests also provide a way for users that don’t have write access to a
+repository to get their changes merged into the main repo. The user with out
+write access makes changes and pushes them to their personal fork. The Pull
+Request is from the user’s personal fork to the main repo and a maintainer of
+the main repo can merge the request.</p>
+<p>For organization of the code base history we are performing all substantive work
+on topic branches and merging the branches into <code class="docutils literal notranslate"><span class="pre">master</span></code> using Github’s Pull
+Requests. The result of this is that the commits to <code class="docutils literal notranslate"><span class="pre">master</span></code> are all merge
+commits and the message should summarize the changes from the topic branch. This
+provides a level of organization that allows users to easily see and trust what
+code is included in the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch.</p>
+</section>
+<section id="issue-tracker">
+<h2><span class="section-number">7.6. </span>Issue tracker<a class="headerlink" href="#issue-tracker" title="Permalink to this heading"></a></h2>
+<p>Github also provides an Issue Tracker (bug tracker) database. This database
+allows adding a variety of flags or labels to each issue and conveniently links
+to the Pull Request list.</p>
+<p>From Github’s <a class="reference external" href="https://docs.github.com/en/get-started/quickstart/github-glossary#issue">definition</a> :</p>
+<blockquote>
+<div><p>Issues are suggested improvements, tasks or questions related to the
+repository. Issues can be created by anyone (for public repositories), and are
+moderated by repository collaborators. Each issue contains its own discussion
+thread. You can also categorize an issue with labels and assign it to someone.</p>
+</div></blockquote>
+<p>We are using the Issue tracker and would like to get more of the discussion
+surrounding improvements, tasks and questions documented in the tracker. Advantages of using the Github tracker are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>integrations with the rest of Github (cross referencing),</p></li>
+<li><p>visibility, and</p></li>
+<li><p>archiving.</p></li>
+</ul>
+</div></blockquote>
+<p>For the Issue Tracker to be of the most use, it is important that the discussion
+be targeted to the issue at hand, use appropriate cross referencing, and rich
+with as many details (images, code, discussions of setup, etc) as necessary for
+other folks to be able to understand the context.</p>
+</section>
+<section id="tools-we-have-not-used-yet">
+<h2><span class="section-number">7.7. </span>Tools we have not used (yet)<a class="headerlink" href="#tools-we-have-not-used-yet" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>Code Browsing</p>
-<ul>
-<li><p>current</p></li>
-<li><p>history</p></li>
+<li><p>“Discussions”
+* we’ve been using slack</p></li>
+<li><p>Container registry</p></li>
+<li><p>Github Actions</p></li>
+<li><p>Github CLI</p></li>
 </ul>
-</li>
-<li><p>Releases</p></li>
-<li><p>Documentation hosting, wiki</p></li>
-<li><p>“Discussions”</p>
-<ul>
-<li><p>we’ve been using slack</p></li>
-</ul>
-</li>
-<li><p>Pull requests</p>
-<ul>
-<li><p>adding reviewers</p></li>
-</ul>
-</li>
-<li><p>Issue tracker</p>
-<ul>
-<li><p>making new issues - what info to include</p></li>
-<li><p>curation of the issue list, tagging, labeling, deleting</p></li>
-<li><p>linking/cross referencing</p></li>
-</ul>
-</li>
-<li><p>Preview of formatted files</p></li>
-<li><p>Setting up <code class="docutils literal notranslate"><span class="pre">ssh</span></code> keys</p>
-<ul>
-<li><p>maybe move this to the prelude &gt; version control &gt; setup section.</p></li>
-</ul>
-</li>
-</ul>
+</section>
 </section>
 
 
