@@ -123,15 +123,21 @@ else) in your local environment. Assuming you have a development environment, a
 cloned copy of the repo, and a "clean" working state:
 
  1. Checkout the branch you are interested in previewing. For example someone
-    else has pushed to the ``upstream/update-docs`` branch and you'd like to see
-    what they have written or how it all looks: ``$ git remote update && git
-    checkout update-docs``.
+    else has pushed to the ``upstream/<BRANCH-NAME>`` branch and you'd like to
+    see what they have written or how it all looks: ``$ git remote update && git
+    checkout <BRANCH-NAME>``.
   
  2. Clean the existing docs and build them: ``$ cd docs_src/sphinx && make clean
     && make html``
 
  3. Preview the results in your browser
     (``file:///path/to/your/repo/docs_src/sphinx/build/html``).
+
+.. note:: 
+
+  It is generally easiest to run the documentation build using the
+  ``dvmdostem-dev`` Docker container so that the build environment (Sphinx
+  version, etc) match the environment used to publish.
 
 
 Editing
