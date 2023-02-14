@@ -165,7 +165,7 @@
 0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
 930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
 4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
-75          75          75           75           75           75           75           75           75           75               // ppfd50::
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
