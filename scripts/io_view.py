@@ -298,6 +298,10 @@ geosource = bkm.sources.GeoJSONDataSource(geojson=geodf.to_json())
 area_patches = map_figure.patches('xs','ys', source=geosource, fill_color='red', line_color='gray', line_width=0.25, fill_alpha=.3)
 
 taptool = bkm.TapTool(renderers = [area_patches])
+hovertool = bkm.HoverTool(renderers = [area_patches],
+                          tooltips = [
+                            ('Site','@name')
+                          ])
 columns = [
   bkm.TableColumn(field="name", title="Name"),
   #bkm.TableColumn(field="", title=""),
@@ -307,7 +311,7 @@ data_table = bkm.DataTable(source=data_table_source, columns=columns, width=600)
 # The above works, but we need to somehow synchronize the geosource and the non-
 # geo version of the dataframe...
 
-map_figure.add_tools(taptool)
+map_figure.add_tools(taptool, hovertool)
 
 ## Event callbacks ##
 def update_cursor_printout(event):
@@ -320,7 +324,12 @@ def tapselect_handler(attr, old, new):
   # value of new seems to be the indices in the data source that are selected.
   print("attr:{}   old:{}    new:{}".format(attr, old, new))
   print("Somewhere to stop!")
-  print(area_patches.data_source)
+
+  #data_table_source.selected.indices = new
+
+  for i in data_table_source.data['name'][new]:
+    print(i)
+
 
 # Register callbacks
 map_figure.on_event(bke.MouseMove, update_cursor_printout)
