@@ -528,6 +528,37 @@ See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
 
 .. note::
 
+  A common developer issue is that you may have installed custom libraries that
+  are not available yet inside the dvmdostem Docker image. When you shutdown
+  your Docker containers, then any custom libraries you have installed will be
+  lost. When you start your containers again, you will have to re-install these
+  libraries. This can be somewhat tedious. One solution for this is that you
+  keep a custom requirements file and ask pip to install packages from that when
+  you start up your Docker containers. For example if you need the Python
+  package ``BeautifulSoup``, and ``PyDemux`` (don't ask why) you might make a
+  file in your repository ``requirements_custom.txt`` with the following lines:
+
+  .. code::
+
+    BeautifulSoup==4.8.1
+    PyDemux=1.0
+
+  And then when you start up your Docker container, you can run the following to
+  install your custom pacakges:
+
+  .. code::
+
+    develop@263004fd19aa:/work$ pip install -r requirements_custom.txt
+
+  Your ``requirements_custom.txt`` should not be tracked with Git. If you have
+  further customizations beyond this there is likely a way to inject your
+  specific environment needs into the Docker container using custom ``.bashrc``
+  files or the docker compose ``.env`` file or some combination thereof.
+
+
+
+.. note::
+
   A common issue that comes up when you have multiple branches that you are
   working on is that you checkout a different branch and try to run something in
   your docker container and it fails because a library is not installed. For
