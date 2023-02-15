@@ -105,8 +105,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li><span class="section-number">2. </span>Basic Model Setup and Run</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2. </span>Basic Model Setup and Run</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/examples_and_tutorials/basic_model_run.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -261,20 +261,20 @@ operating system; you should be able to get started here
 you should be able to get started here <a class="reference external" href="https://docs.docker.com">https://docs.docker.com</a>. When
 you are done, you should be able to open a terminal and run <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span>
 <span class="pre">info</span></code> and <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span> <span class="pre">--version</span></code> and get something like this:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker info
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>info
 Client:
-Context:    default
-Debug Mode: <span class="nb">false</span>
+Context:<span class="w">    </span>default
+Debug<span class="w"> </span>Mode:<span class="w"> </span><span class="nb">false</span>
 Plugins:
-  buildx: Docker Buildx <span class="o">(</span>Docker Inc., v0.7.1<span class="o">)</span>
-  compose: Docker Compose <span class="o">(</span>Docker Inc., v2.2.1<span class="o">)</span>
-  scan: Docker Scan <span class="o">(</span>Docker Inc., v0.14.0<span class="o">)</span>
+<span class="w">  </span>buildx:<span class="w"> </span>Docker<span class="w"> </span>Buildx<span class="w"> </span><span class="o">(</span>Docker<span class="w"> </span>Inc.,<span class="w"> </span>v0.7.1<span class="o">)</span>
+<span class="w">  </span>compose:<span class="w"> </span>Docker<span class="w"> </span>Compose<span class="w"> </span><span class="o">(</span>Docker<span class="w"> </span>Inc.,<span class="w"> </span>v2.2.1<span class="o">)</span>
+<span class="w">  </span>scan:<span class="w"> </span>Docker<span class="w"> </span>Scan<span class="w"> </span><span class="o">(</span>Docker<span class="w"> </span>Inc.,<span class="w"> </span>v0.14.0<span class="o">)</span>
 Server:
-Containers: <span class="m">4</span>
-...much more info below...
+Containers:<span class="w"> </span><span class="m">4</span>
+...much<span class="w"> </span>more<span class="w"> </span>info<span class="w"> </span>below...
 
-$ docker --version
-Docker version <span class="m">20</span>.10.11, build dea9396
+$<span class="w"> </span>docker<span class="w"> </span>--version
+Docker<span class="w"> </span>version<span class="w"> </span><span class="m">20</span>.10.11,<span class="w"> </span>build<span class="w"> </span>dea9396
 </pre></div>
 </div>
 </li>
@@ -462,7 +462,7 @@ a location on your computer and have set the <code class="docutils literal notra
 variable to this location.</p>
 </div>
 <p>To launch the containers, use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose up -d
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </pre></div>
 </div>
 <p>You should get something like the following, and then running <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span> <span class="pre">ps</span></code>
@@ -472,7 +472,7 @@ They exit immediately, and that is OK.</p>
 <a class="reference internal image-reference" href="../_images/docker_containers.png"><img alt="docker containers" src="../_images/docker_containers.png" style="width: 600px;" /></a>
 <p>With a running container, the most basic thing you can do is log in and poke
 around. Try this now by running:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev bash
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>bash
 </pre></div>
 </div>
 <p>Which will give you a bash shell inside your container, looking something like
@@ -488,23 +488,23 @@ workflow directory are mapped (linked) to the appropriate directories on your
 host machine.</p>
 <p>The last step before we can start setting up our model run is to compile the
 dvmdostem source code. To do this, run the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev make
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>make
 
- ... lots and lots of output ...
+<span class="w"> </span>...<span class="w"> </span>lots<span class="w"> </span>and<span class="w"> </span>lots<span class="w"> </span>of<span class="w"> </span>output<span class="w"> </span>...
 
-g++  -o dvmdostem -I/usr/include/jsoncpp obj/ArgHandler.o obj/TEMLogger.o
-obj/CalController.o obj/TEMUtilityFunctions.o obj/Climate.o
-obj/OutputEstimate.o obj/Runner.o obj/BgcData.o obj/CohortData.o obj/EnvData.o
-obj/EnvDataDly.o obj/FireData.o obj/RestartData.o obj/WildFire.o
-obj/DoubleLinkedList.o obj/Ground.o obj/MineralInfo.o obj/Moss.o obj/Organic.o
-obj/Snow.o obj/SoilParent.o obj/Vegetation.o obj/CohortLookup.o obj/Cohort.o
-obj/Integrator.o obj/ModelData.o obj/Richards.o obj/Snow_Env.o obj/Soil_Bgc.o
-obj/Soil_Env.o obj/SoilParent_Env.o obj/Stefan.o obj/CrankNicholson.o
-obj/tbc-debug-util.o obj/Vegetation_Bgc.o obj/Vegetation_Env.o obj/Layer.o
-obj/MineralLayer.o obj/MossLayer.o obj/OrganicLayer.o obj/ParentLayer.o
-obj/SnowLayer.o obj/SoilLayer.o obj/TemperatureUpdator.o obj/TEM.o -I/usr/lib
--lnetcdf -lboost_system -lboost_filesystem -lboost_program_options
--lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline -llapacke
+g++<span class="w">  </span>-o<span class="w"> </span>dvmdostem<span class="w"> </span>-I/usr/include/jsoncpp<span class="w"> </span>obj/ArgHandler.o<span class="w"> </span>obj/TEMLogger.o
+obj/CalController.o<span class="w"> </span>obj/TEMUtilityFunctions.o<span class="w"> </span>obj/Climate.o
+obj/OutputEstimate.o<span class="w"> </span>obj/Runner.o<span class="w"> </span>obj/BgcData.o<span class="w"> </span>obj/CohortData.o<span class="w"> </span>obj/EnvData.o
+obj/EnvDataDly.o<span class="w"> </span>obj/FireData.o<span class="w"> </span>obj/RestartData.o<span class="w"> </span>obj/WildFire.o
+obj/DoubleLinkedList.o<span class="w"> </span>obj/Ground.o<span class="w"> </span>obj/MineralInfo.o<span class="w"> </span>obj/Moss.o<span class="w"> </span>obj/Organic.o
+obj/Snow.o<span class="w"> </span>obj/SoilParent.o<span class="w"> </span>obj/Vegetation.o<span class="w"> </span>obj/CohortLookup.o<span class="w"> </span>obj/Cohort.o
+obj/Integrator.o<span class="w"> </span>obj/ModelData.o<span class="w"> </span>obj/Richards.o<span class="w"> </span>obj/Snow_Env.o<span class="w"> </span>obj/Soil_Bgc.o
+obj/Soil_Env.o<span class="w"> </span>obj/SoilParent_Env.o<span class="w"> </span>obj/Stefan.o<span class="w"> </span>obj/CrankNicholson.o
+obj/tbc-debug-util.o<span class="w"> </span>obj/Vegetation_Bgc.o<span class="w"> </span>obj/Vegetation_Env.o<span class="w"> </span>obj/Layer.o
+obj/MineralLayer.o<span class="w"> </span>obj/MossLayer.o<span class="w"> </span>obj/OrganicLayer.o<span class="w"> </span>obj/ParentLayer.o
+obj/SnowLayer.o<span class="w"> </span>obj/SoilLayer.o<span class="w"> </span>obj/TemperatureUpdator.o<span class="w"> </span>obj/TEM.o<span class="w"> </span>-I/usr/lib
+-lnetcdf<span class="w"> </span>-lboost_system<span class="w"> </span>-lboost_filesystem<span class="w"> </span>-lboost_program_options
+-lboost_thread<span class="w"> </span>-lboost_log<span class="w"> </span>-ljsoncpp<span class="w"> </span>-lpthread<span class="w"> </span>-lreadline<span class="w"> </span>-llapacke
 </pre></div>
 </div>
 <p>which will use the environment and tools inside the container to compile the C++
@@ -547,10 +547,10 @@ Eval Print Loop; REPL). With this shell running inside the container you
 can execute any sort of program that is installed in the container; when
 the program exits, you are returned to your shell prompt inside the
 container.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev bash
-develop@ef7aad33441c:/work$ ls /data
-input-catalog  workflows
-develop@ef7aad33441c:/work$ <span class="nb">exit</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>bash
+develop@ef7aad33441c:/work$<span class="w"> </span>ls<span class="w"> </span>/data
+input-catalog<span class="w">  </span>workflows
+develop@ef7aad33441c:/work$<span class="w"> </span><span class="nb">exit</span>
 <span class="nb">exit</span>
 $
 </pre></div>
@@ -560,7 +560,7 @@ $
 an already running docker container (using <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span></code> or <code class="docutils literal notranslate"><span class="pre">docker</span>
 <span class="pre">compose</span> <span class="pre">exec</span></code>) and when the command is finished, you are returned to the
 shell on your host computer.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev <span class="nb">pwd</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span><span class="nb">pwd</span>
 /work
 $
 </pre></div>
@@ -581,12 +581,12 @@ folder and make some adjustments to the configuration file for the run.</p>
 <p>Using the one-off command style, run the script. For this case we just
 arbitrarily select a dataset from your input catalog. Don’t worry if you have a
 different dataset from the example shown here.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev scripts/setup_working_directory.py <span class="se">\</span>
-/data/workflows/basic_model_run <span class="se">\</span>
---input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>scripts/setup_working_directory.py<span class="w"> </span><span class="se">\</span>
+/data/workflows/basic_model_run<span class="w"> </span><span class="se">\</span>
+--input-data-path<span class="w"> </span>/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
 Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False,
 <span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>,
-<span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>, <span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
+<span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>,<span class="w"> </span><span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
 </pre></div>
 </div>
 <p>which will create a new folder (named <code class="docutils literal notranslate"><span class="pre">basic_model_run</span></code>) inside your workflows
@@ -601,8 +601,8 @@ various dvmdostem scripts? All of our scripts are essentially rough-draft, so
 we just haven’t had time to refine the information that is printed out to the
 console. So when you see stuff like</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>...
-Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False, <span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>,
-<span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>, <span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
+Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False,<span class="w"> </span><span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>,
+<span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>,<span class="w"> </span><span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
 </pre></div>
 </div>
 <p>Sometimes it is useful and sometimes it isn’t. In most cases it is simply
@@ -611,20 +611,20 @@ leftover from whatever was needed when the script was developed.</p>
 <div class="admonition note" id="script-errors">
 <p class="admonition-title">Note</p>
 <p>What happens when you get something like this:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev scripts/setup_working_directory.py <span class="se">\</span>
-/data/workflows/basic_model_run --input-data-path <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>scripts/setup_working_directory.py<span class="w"> </span><span class="se">\</span>
+/data/workflows/basic_model_run<span class="w"> </span>--input-data-path<span class="w"> </span><span class="se">\</span>
 /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
-Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False, <span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>, <span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>, <span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
-Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
-  File <span class="s2">&quot;scripts/setup_working_directory.py&quot;</span>, line <span class="m">82</span>, <span class="k">in</span> &lt;module&gt;
-    shutil.copytree<span class="o">(</span>os.path.join<span class="o">(</span>ddt_dir, <span class="s1">&#39;config&#39;</span><span class="o">)</span>, os.path.join<span class="o">(</span>args.new_directory, <span class="s1">&#39;config&#39;</span><span class="o">))</span>
-  File <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/shutil.py&quot;</span>, line <span class="m">554</span>, <span class="k">in</span> copytree
-    <span class="k">return</span> _copytree<span class="o">(</span><span class="nv">entries</span><span class="o">=</span>entries, <span class="nv">src</span><span class="o">=</span>src, <span class="nv">dst</span><span class="o">=</span>dst, <span class="nv">symlinks</span><span class="o">=</span>symlinks,
-  File <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/shutil.py&quot;</span>, line <span class="m">455</span>, <span class="k">in</span> _copytree
-    os.makedirs<span class="o">(</span>dst, <span class="nv">exist_ok</span><span class="o">=</span>dirs_exist_ok<span class="o">)</span>
-  File <span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/os.py&quot;</span>, line <span class="m">223</span>, <span class="k">in</span> makedirs
-    mkdir<span class="o">(</span>name, mode<span class="o">)</span>
-FileExistsError: <span class="o">[</span>Errno <span class="m">17</span><span class="o">]</span> File exists: <span class="s1">&#39;/data/workflows/basic_model_run/config&#39;</span>
+Namespace<span class="o">(</span><span class="nv">copy_inputs</span><span class="o">=</span>False,<span class="w"> </span><span class="nv">input_data_path</span><span class="o">=</span><span class="s1">&#39;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10&#39;</span>,<span class="w"> </span><span class="nv">new_directory</span><span class="o">=</span><span class="s1">&#39;/data/workflows/basic_model_run&#39;</span>,<span class="w"> </span><span class="nv">no_cal_targets</span><span class="o">=</span>False<span class="o">)</span>
+Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;scripts/setup_working_directory.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">82</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>&lt;module&gt;
+<span class="w">    </span>shutil.copytree<span class="o">(</span>os.path.join<span class="o">(</span>ddt_dir,<span class="w"> </span><span class="s1">&#39;config&#39;</span><span class="o">)</span>,<span class="w"> </span>os.path.join<span class="o">(</span>args.new_directory,<span class="w"> </span><span class="s1">&#39;config&#39;</span><span class="o">))</span>
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/shutil.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">554</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>copytree
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>_copytree<span class="o">(</span><span class="nv">entries</span><span class="o">=</span>entries,<span class="w"> </span><span class="nv">src</span><span class="o">=</span>src,<span class="w"> </span><span class="nv">dst</span><span class="o">=</span>dst,<span class="w"> </span><span class="nv">symlinks</span><span class="o">=</span>symlinks,
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/shutil.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">455</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_copytree
+<span class="w">    </span>os.makedirs<span class="o">(</span>dst,<span class="w"> </span><span class="nv">exist_ok</span><span class="o">=</span>dirs_exist_ok<span class="o">)</span>
+<span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/develop/.pyenv/versions/3.8.6/lib/python3.8/os.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">223</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>makedirs
+<span class="w">    </span>mkdir<span class="o">(</span>name,<span class="w"> </span>mode<span class="o">)</span>
+FileExistsError:<span class="w"> </span><span class="o">[</span>Errno<span class="w"> </span><span class="m">17</span><span class="o">]</span><span class="w"> </span>File<span class="w"> </span>exists:<span class="w"> </span><span class="s1">&#39;/data/workflows/basic_model_run/config&#39;</span>
 </pre></div>
 </div>
 <p>In this case the error has to do with the directory you are trying to create
@@ -641,13 +641,13 @@ directory and run the <code class="docutils literal notranslate"><span class="pr
 directory name.</p>
 </div>
 <p>Let’s look around in the directory you just created.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker compose <span class="nb">exec</span> dvmdostem-dev bash
-develop@ef7aad33441c:/work$ <span class="nb">cd</span> /data/workflows/basic_model_run/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>bash
+develop@ef7aad33441c:/work$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/data/workflows/basic_model_run/
 
 
 <span class="c1"># Check the files that should have been created with the setup script</span>
-develop@ef7aad33441c:/data/workflows/basic_model_run$ ls
-calibration  config  output  parameters  run-mask.nc
+develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>ls
+calibration<span class="w">  </span>config<span class="w">  </span>output<span class="w">  </span>parameters<span class="w">  </span>run-mask.nc
 </pre></div>
 </div>
 <p>The idea is that each run will exist in its own self-contained directory with
@@ -680,12 +680,12 @@ they wish by using the <code class="docutils literal notranslate"><span class="p
 pre-run). For more information on what “run stages” are, see <a class="reference internal" href="../model_overview.html#temporal"><span class="std std-ref">here</span></a>. So open the <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> file and
 make sure that the following are all set to 1. You can do this with an editor on
 your host machine or using <code class="docutils literal notranslate"><span class="pre">vim</span></code> from inside the container:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="s2">&quot;IO&quot;</span>: <span class="o">{</span>
-  ...
-  <span class="s2">&quot;output_nc_eq&quot;</span>: <span class="m">1</span>,
-  <span class="s2">&quot;output_nc_sp&quot;</span>: <span class="m">1</span>,
-  <span class="s2">&quot;output_nc_tr&quot;</span>: <span class="m">1</span>,
-  <span class="s2">&quot;output_nc_sc&quot;</span>: <span class="m">1</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="s2">&quot;IO&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>...
+<span class="w">  </span><span class="s2">&quot;output_nc_eq&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">  </span><span class="s2">&quot;output_nc_sp&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">  </span><span class="s2">&quot;output_nc_tr&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">  </span><span class="s2">&quot;output_nc_sc&quot;</span>:<span class="w"> </span><span class="m">1</span>
 ...
 <span class="o">}</span>
 </pre></div>
@@ -697,16 +697,16 @@ your host machine or using <code class="docutils literal notranslate"><span clas
 can use the <code class="docutils literal notranslate"><span class="pre">--show</span></code> option to see what the mask looks like before and after
 adjusting it. We’ll turn on 2 pixels here, just for fun:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure all pixels are OFF (set to 0)</span>
-$ docker compose <span class="nb">exec</span> dvmdostem-dev runmask-util.py --reset /data/workflows/basic_model_run/run-mask.nc
-Setting all pixels <span class="k">in</span> runmask to <span class="s1">&#39;0&#39;</span> <span class="o">(</span>OFF<span class="o">)</span>.
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask-util.py<span class="w"> </span>--reset<span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
+Setting<span class="w"> </span>all<span class="w"> </span>pixels<span class="w"> </span><span class="k">in</span><span class="w"> </span>runmask<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="w"> </span><span class="o">(</span>OFF<span class="o">)</span>.
 
 <span class="c1"># Then turn one pixel.</span>
-$ docker compose <span class="nb">exec</span> dvmdostem-dev runmask-util.py --yx <span class="m">0</span> <span class="m">0</span> /data/workflows/basic_model_run/run-mask.nc
-Turning pixel<span class="o">(</span>y,x<span class="o">)</span> <span class="o">(</span><span class="m">0</span>,0<span class="o">)</span> to <span class="s1">&#39;1&#39;</span>, <span class="o">(</span>ON<span class="o">)</span>.
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask-util.py<span class="w"> </span>--yx<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
+Turning<span class="w"> </span>pixel<span class="o">(</span>y,x<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="m">0</span>,0<span class="o">)</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;1&#39;</span>,<span class="w"> </span><span class="o">(</span>ON<span class="o">)</span>.
 
 <span class="c1"># And another pixel</span>
-$ docker compose <span class="nb">exec</span> dvmdostem-dev runmask-util.py --yx <span class="m">1</span> <span class="m">1</span> /data/workflows/basic_model_run/run-mask.nc
-Turning pixel<span class="o">(</span>y,x<span class="o">)</span> <span class="o">(</span><span class="m">1</span>,1<span class="o">)</span> to <span class="s1">&#39;1&#39;</span>, <span class="o">(</span>ON<span class="o">)</span>.
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask-util.py<span class="w"> </span>--yx<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
+Turning<span class="w"> </span>pixel<span class="o">(</span>y,x<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="m">1</span>,1<span class="o">)</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;1&#39;</span>,<span class="w"> </span><span class="o">(</span>ON<span class="o">)</span>.
 </pre></div>
 </div>
 <p>Note that you don’t want to pass <code class="docutils literal notranslate"><span class="pre">--reset</span></code> to the second call, or it will
@@ -726,20 +726,20 @@ narrow screen because the lines wrap, which is why the following looks so bad.
 On your computer you can make the font smaller or your terminal wider to have
 the output be readable.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get a shell on the container</span>
-$ docker compose <span class="nb">exec</span> dvmdostem-dev bash
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>bash
 
 <span class="c1"># Change into our working directory for this experiment</span>
-develop@ef7aad33441c:/work$ <span class="nb">cd</span> /data/workflows/basic_model_run/
+develop@ef7aad33441c:/work$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/data/workflows/basic_model_run/
 
 <span class="c1"># Turn on RH</span>
-develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on RH y layer
-                Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
-                  RH            g/m2/time            y                   invalid      invalid      invalid            l       double     Heterotrophic respiration
+develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>outspec_utils.py<span class="w"> </span>config/output_spec.csv<span class="w"> </span>--on<span class="w"> </span>RH<span class="w"> </span>y<span class="w"> </span>layer
+<span class="w">                </span>Name<span class="w">                </span>Units<span class="w">       </span>Yearly<span class="w">      </span>Monthly<span class="w">        </span>Daily<span class="w">          </span>PFT<span class="w"> </span>Compartments<span class="w">       </span>Layers<span class="w">    </span>Data<span class="w"> </span>Type<span class="w">     </span>Description
+<span class="w">                  </span>RH<span class="w">            </span>g/m2/time<span class="w">            </span>y<span class="w">                   </span>invalid<span class="w">      </span>invalid<span class="w">      </span>invalid<span class="w">            </span>l<span class="w">       </span>double<span class="w">     </span>Heterotrophic<span class="w"> </span>respiration
 
 <span class="c1"># Turn on VEGC</span>
-develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on VEGC m pft
-                Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
-                VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
+develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>outspec_utils.py<span class="w"> </span>config/output_spec.csv<span class="w"> </span>--on<span class="w"> </span>VEGC<span class="w"> </span>m<span class="w"> </span>pft
+<span class="w">                </span>Name<span class="w">                </span>Units<span class="w">       </span>Yearly<span class="w">      </span>Monthly<span class="w">        </span>Daily<span class="w">          </span>PFT<span class="w"> </span>Compartments<span class="w">       </span>Layers<span class="w">    </span>Data<span class="w"> </span>Type<span class="w">     </span>Description
+<span class="w">                </span>VEGC<span class="w">                 </span>g/m2<span class="w">            </span>y<span class="w">            </span>m<span class="w">      </span>invalid<span class="w">            </span>p<span class="w">                   </span>invalid<span class="w">       </span>double<span class="w">     </span>Total<span class="w"> </span>veg.<span class="w"> </span>biomass<span class="w"> </span>C
 </pre></div>
 </div>
 <div class="admonition warning" id="outspec-utils">
@@ -843,55 +843,55 @@ appropriate for your particular use-case.</p>
 </div>
 <p>Launch the model with the following command, note that the majority of the
 console output has been omitted for clarity:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> --workdir /data/workflows/basic_model_run/ dvmdostem-dev dvmdostem -l err -f /data/workflows/basic_model_run/config/config.js -p <span class="m">50</span> -e <span class="m">100</span> -s <span class="m">25</span> -t <span class="m">115</span> -n <span class="m">85</span>
-Setting up logging...
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[]</span> Looks like CMTNUM output is NOT enabled. Strongly recommended to <span class="nb">enable</span> this output! Use outspec_utils.py to turn on the CMTNUM output!
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">0</span>
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">1</span>
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">2</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--workdir<span class="w"> </span>/data/workflows/basic_model_run/<span class="w"> </span>dvmdostem-dev<span class="w"> </span>dvmdostem<span class="w"> </span>-l<span class="w"> </span>err<span class="w"> </span>-f<span class="w"> </span>/data/workflows/basic_model_run/config/config.js<span class="w"> </span>-p<span class="w"> </span><span class="m">50</span><span class="w"> </span>-e<span class="w"> </span><span class="m">100</span><span class="w"> </span>-s<span class="w"> </span><span class="m">25</span><span class="w"> </span>-t<span class="w"> </span><span class="m">115</span><span class="w"> </span>-n<span class="w"> </span><span class="m">85</span>
+Setting<span class="w"> </span>up<span class="w"> </span>logging...
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Looks<span class="w"> </span>like<span class="w"> </span>CMTNUM<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>NOT<span class="w"> </span>enabled.<span class="w"> </span>Strongly<span class="w"> </span>recommended<span class="w"> </span>to<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>this<span class="w"> </span>output!<span class="w"> </span>Use<span class="w"> </span>outspec_utils.py<span class="w"> </span>to<span class="w"> </span>turn<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>CMTNUM<span class="w"> </span>output!
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">0</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">1</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">2</span>
 ...
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">49</span>
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[</span>EQ<span class="o">]</span> Equilibrium Initial Year Count: <span class="m">100</span>
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[</span>EQ<span class="o">]</span> Running Equilibrium, <span class="m">100</span> years.
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>EQ-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">0</span>
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>EQ-&gt;Y<span class="o">]</span> y: <span class="m">0</span> x: <span class="m">0</span> Year: <span class="m">1</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">49</span>
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[</span>EQ<span class="o">]</span><span class="w"> </span>Equilibrium<span class="w"> </span>Initial<span class="w"> </span>Year<span class="w"> </span>Count:<span class="w"> </span><span class="m">100</span>
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[</span>EQ<span class="o">]</span><span class="w"> </span>Running<span class="w"> </span>Equilibrium,<span class="w"> </span><span class="m">100</span><span class="w"> </span>years.
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>EQ-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">0</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>EQ-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">1</span>
 ...
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>SC-&gt;Y<span class="o">]</span> y: <span class="m">1</span> x: <span class="m">1</span> Year: <span class="m">82</span>
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>SC-&gt;Y<span class="o">]</span> y: <span class="m">1</span> x: <span class="m">1</span> Year: <span class="m">83</span>
-<span class="o">[</span>err<span class="o">]</span> <span class="o">[</span>SC-&gt;Y<span class="o">]</span> y: <span class="m">1</span> x: <span class="m">1</span> Year: <span class="m">84</span>
-cell <span class="m">1</span>, <span class="m">1</span> complete.35
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">1</span>, <span class="m">2</span><span class="o">)</span>
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">1</span>, <span class="m">3</span><span class="o">)</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>SC-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">1</span><span class="w"> </span>x:<span class="w"> </span><span class="m">1</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">82</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>SC-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">1</span><span class="w"> </span>x:<span class="w"> </span><span class="m">1</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">83</span>
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>SC-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">1</span><span class="w"> </span>x:<span class="w"> </span><span class="m">1</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">84</span>
+cell<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span><span class="w"> </span>complete.35
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Skipping<span class="w"> </span>cell<span class="w"> </span><span class="o">(</span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span><span class="o">)</span>
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Skipping<span class="w"> </span>cell<span class="w"> </span><span class="o">(</span><span class="m">1</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span>
 ...
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">9</span>, <span class="m">7</span><span class="o">)</span>
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">9</span>, <span class="m">8</span><span class="o">)</span>
-<span class="o">[</span>fatal<span class="o">]</span> <span class="o">[]</span> Skipping cell <span class="o">(</span><span class="m">9</span>, <span class="m">9</span><span class="o">)</span>
-Total Seconds: <span class="m">70</span>
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Skipping<span class="w"> </span>cell<span class="w"> </span><span class="o">(</span><span class="m">9</span>,<span class="w"> </span><span class="m">7</span><span class="o">)</span>
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Skipping<span class="w"> </span>cell<span class="w"> </span><span class="o">(</span><span class="m">9</span>,<span class="w"> </span><span class="m">8</span><span class="o">)</span>
+<span class="o">[</span>fatal<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Skipping<span class="w"> </span>cell<span class="w"> </span><span class="o">(</span><span class="m">9</span>,<span class="w"> </span><span class="m">9</span><span class="o">)</span>
+Total<span class="w"> </span>Seconds:<span class="w"> </span><span class="m">70</span>
 </pre></div>
 </div>
 <p>With a quick glance at the console output, it looks like the run completed
 without problems. We can further verify this by looking at the run-status.nc
 file in the output folder, for example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev ncdump /data/workflows/basic_model_run/output/run_status.nc
-netcdf run_status <span class="o">{</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>ncdump<span class="w"> </span>/data/workflows/basic_model_run/output/run_status.nc
+netcdf<span class="w"> </span>run_status<span class="w"> </span><span class="o">{</span>
 dimensions:
-  <span class="nv">Y</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
-  <span class="nv">X</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
+<span class="w">  </span><span class="nv">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="p">;</span>
+<span class="w">  </span><span class="nv">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="p">;</span>
 variables:
-  int run_status<span class="o">(</span>Y, X<span class="o">)</span> <span class="p">;</span>
+<span class="w">  </span>int<span class="w"> </span>run_status<span class="o">(</span>Y,<span class="w"> </span>X<span class="o">)</span><span class="w"> </span><span class="p">;</span>
 data:
 
-<span class="nv">run_status</span> <span class="o">=</span>
-  <span class="m">100</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">100</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>,
-  <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span>, <span class="m">0</span> <span class="p">;</span>
+<span class="nv">run_status</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="m">100</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">100</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,
+<span class="w">  </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -908,53 +908,53 @@ line option, we need to investigate the vegetation.nc input file, and
 specifically for the two pixels we have enabled (0,0) and (1,1). The path to
 the file is in the <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> file. We can use grep to find this
 line:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev grep vegetation.nc /data/workflows/basic_model_run/config/config.js
-  <span class="s2">&quot;veg_class_file&quot;</span>: <span class="s2">&quot;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc&quot;</span>,
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>grep<span class="w"> </span>vegetation.nc<span class="w"> </span>/data/workflows/basic_model_run/config/config.js
+<span class="w">  </span><span class="s2">&quot;veg_class_file&quot;</span>:<span class="w"> </span><span class="s2">&quot;/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc&quot;</span>,
 </pre></div>
 </div>
 <p>From here there are many ways we could go, but for this example we will use
 the command line ncks (netcdf kitchen sink) tool to print out the variable
 from the file:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker compose <span class="nb">exec</span> dvmdostem-dev ncks -v veg_class <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>ncks<span class="w"> </span>-v<span class="w"> </span>veg_class<span class="w"> </span><span class="se">\</span>
 /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc
-netcdf vegetation <span class="o">{</span>
-  dimensions:
-    <span class="nv">X</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
-    <span class="nv">Y</span> <span class="o">=</span> <span class="m">10</span> <span class="p">;</span>
+netcdf<span class="w"> </span>vegetation<span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>dimensions:
+<span class="w">    </span><span class="nv">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="p">;</span>
+<span class="w">    </span><span class="nv">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="p">;</span>
 
-  variables:
-    char albers_conical_equal_area <span class="p">;</span>
-      albers_conical_equal_area:grid_mapping_name <span class="o">=</span> <span class="s2">&quot;albers_conical_equal_area&quot;</span> <span class="p">;</span>
-      albers_conical_equal_area:false_easting <span class="o">=</span> <span class="m">0</span>. <span class="p">;</span>
-      albers_conical_equal_area:false_northing <span class="o">=</span> <span class="m">0</span>. <span class="p">;</span>
-      albers_conical_equal_area:latitude_of_projection_origin <span class="o">=</span> <span class="m">50</span>. <span class="p">;</span>
-      albers_conical_equal_area:longitude_of_central_meridian <span class="o">=</span> -154. <span class="p">;</span>
-      albers_conical_equal_area:standard_parallel <span class="o">=</span> <span class="m">55</span>., <span class="m">65</span>. <span class="p">;</span>
-      albers_conical_equal_area:longitude_of_prime_meridian <span class="o">=</span> <span class="m">0</span>. <span class="p">;</span>
-      albers_conical_equal_area:semi_major_axis <span class="o">=</span> <span class="m">6378137</span>. <span class="p">;</span>
-      albers_conical_equal_area:inverse_flattening <span class="o">=</span> <span class="m">298</span>.257222101 <span class="p">;</span>
-      albers_conical_equal_area:spatial_ref <span class="o">=</span> <span class="s2">&quot;PROJCS[\&quot;NAD83 / Alaska Albers\&quot;,GEOGCS[\&quot;NAD83\&quot;,DATUM[\&quot;North_American_Datum_1983\&quot;,SPHEROID[\&quot;GRS 1980\&quot;,6378137,298.2572221010002,AUTHORITY[\&quot;EPSG\&quot;,\&quot;7019\&quot;]],AUTHORITY[\&quot;EPSG\&quot;,\&quot;6269\&quot;]],PRIMEM[\&quot;Greenwich\&quot;,0],UNIT[\&quot;degree\&quot;,0.0174532925199433],AUTHORITY[\&quot;EPSG\&quot;,\&quot;4269\&quot;]],PROJECTION[\&quot;Albers_Conic_Equal_Area\&quot;],PARAMETER[\&quot;standard_parallel_1\&quot;,55],PARAMETER[\&quot;standard_parallel_2\&quot;,65],PARAMETER[\&quot;latitude_of_center\&quot;,50],PARAMETER[\&quot;longitude_of_center\&quot;,-154],PARAMETER[\&quot;false_easting\&quot;,0],PARAMETER[\&quot;false_northing\&quot;,0],UNIT[\&quot;metre\&quot;,1,AUTHORITY[\&quot;EPSG\&quot;,\&quot;9001\&quot;]],AUTHORITY[\&quot;EPSG\&quot;,\&quot;3338\&quot;]]&quot;</span> <span class="p">;</span>
-      albers_conical_equal_area:GeoTransform <span class="o">=</span> <span class="s2">&quot;-613280.1453076596 1000.050170338725 0 1346667.58012239 0 -999.7969847651308 &quot;</span> <span class="p">;</span>
+<span class="w">  </span>variables:
+<span class="w">    </span>char<span class="w"> </span>albers_conical_equal_area<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:grid_mapping_name<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;albers_conical_equal_area&quot;</span><span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:false_easting<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:false_northing<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:latitude_of_projection_origin<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">50</span>.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:longitude_of_central_meridian<span class="w"> </span><span class="o">=</span><span class="w"> </span>-154.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:standard_parallel<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">55</span>.,<span class="w"> </span><span class="m">65</span>.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:longitude_of_prime_meridian<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:semi_major_axis<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">6378137</span>.<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:inverse_flattening<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">298</span>.257222101<span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:spatial_ref<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;PROJCS[\&quot;NAD83 / Alaska Albers\&quot;,GEOGCS[\&quot;NAD83\&quot;,DATUM[\&quot;North_American_Datum_1983\&quot;,SPHEROID[\&quot;GRS 1980\&quot;,6378137,298.2572221010002,AUTHORITY[\&quot;EPSG\&quot;,\&quot;7019\&quot;]],AUTHORITY[\&quot;EPSG\&quot;,\&quot;6269\&quot;]],PRIMEM[\&quot;Greenwich\&quot;,0],UNIT[\&quot;degree\&quot;,0.0174532925199433],AUTHORITY[\&quot;EPSG\&quot;,\&quot;4269\&quot;]],PROJECTION[\&quot;Albers_Conic_Equal_Area\&quot;],PARAMETER[\&quot;standard_parallel_1\&quot;,55],PARAMETER[\&quot;standard_parallel_2\&quot;,65],PARAMETER[\&quot;latitude_of_center\&quot;,50],PARAMETER[\&quot;longitude_of_center\&quot;,-154],PARAMETER[\&quot;false_easting\&quot;,0],PARAMETER[\&quot;false_northing\&quot;,0],UNIT[\&quot;metre\&quot;,1,AUTHORITY[\&quot;EPSG\&quot;,\&quot;9001\&quot;]],AUTHORITY[\&quot;EPSG\&quot;,\&quot;3338\&quot;]]&quot;</span><span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>albers_conical_equal_area:GeoTransform<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;-613280.1453076596 1000.050170338725 0 1346667.58012239 0 -999.7969847651308 &quot;</span><span class="w"> </span><span class="p">;</span>
 
-    int veg_class<span class="o">(</span>Y,X<span class="o">)</span> <span class="p">;</span>
-      veg_class:grid_mapping <span class="o">=</span> <span class="s2">&quot;albers_conical_equal_area&quot;</span> <span class="p">;</span>
+<span class="w">    </span>int<span class="w"> </span>veg_class<span class="o">(</span>Y,X<span class="o">)</span><span class="w"> </span><span class="p">;</span>
+<span class="w">      </span>veg_class:grid_mapping<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;albers_conical_equal_area&quot;</span><span class="w"> </span><span class="p">;</span>
 
-  data:
-    <span class="nv">albers_conical_equal_area</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="p">;</span>
+<span class="w">  </span>data:
+<span class="w">    </span><span class="nv">albers_conical_equal_area</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">;</span>
 
-    <span class="nv">veg_class</span> <span class="o">=</span>
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">0</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>,
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">4</span>,
-    <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">0</span>, <span class="m">4</span>,
-    <span class="m">6</span>, <span class="m">4</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
-    <span class="m">6</span>, <span class="m">6</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>,
-    <span class="m">6</span>, <span class="m">6</span>, <span class="m">6</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span>, <span class="m">4</span> <span class="p">;</span>
+<span class="w">    </span><span class="nv">veg_class</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">6</span>,
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">6</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">6</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,
+<span class="w">    </span><span class="m">6</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">6</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span>,<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="p">;</span>
 
-<span class="o">}</span> // group /
+<span class="o">}</span><span class="w"> </span>//<span class="w"> </span>group<span class="w"> </span>/
 </pre></div>
 </div>
 <p>This output is a little bit ugly to read, mostly due to the metadata that

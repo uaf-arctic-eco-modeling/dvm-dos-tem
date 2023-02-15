@@ -115,8 +115,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li><span class="section-number">3. </span>Dev Info</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3. </span>Dev Info</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/software_development_info.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -205,15 +205,15 @@ from it towards a more robust, fully featured platform that integrates better
 with CI/CD tooling. Github Wiki might be a good place to keep certain
 tutorial-like information.</p>
 <p>To build the Sphinx documentation (this document) locally, then do the following:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs_src/sphinx
-$ make clean <span class="o">&amp;&amp;</span> make html
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>docs_src/sphinx
+$<span class="w"> </span>make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/build/html</span></code> directory and can
 be viewed locally with a web browser.</p>
 <p>To build the Doxygen documentation locally, then do the following:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs_src/doxygen
-$ doxygen
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>docs_src/doxygen
+$<span class="w"> </span>doxygen
 </pre></div>
 </div>
 <p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/doxygen/doxygen_build</span></code> directory and
@@ -474,18 +474,18 @@ rebase is that the default merge messages can:</p>
 <p>For instance if you have a long-running branch with a large feature you are
 working on and you need to get updates from upstream, if you choose to merge
 into your “long-running-branch”:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ git checkout long-running-branch
-<span class="o">(</span>long-running-branch<span class="o">)</span>$ git pull upstream master
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>long-running-branch
+<span class="o">(</span>long-running-branch<span class="o">)</span>$<span class="w"> </span>git<span class="w"> </span>pull<span class="w"> </span>upstream<span class="w"> </span>master
 </pre></div>
 </div>
 <p>Then you will get a merge message by default that starts with something like this:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Merge branch <span class="s1">&#39;master&#39;</span> from github.com:uaf-arctic-eco-modeling/dvm-dos-tem into <span class="s1">&#39;long-running-branch&#39;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Merge<span class="w"> </span>branch<span class="w"> </span><span class="s1">&#39;master&#39;</span><span class="w"> </span>from<span class="w"> </span>github.com:uaf-arctic-eco-modeling/dvm-dos-tem<span class="w"> </span>into<span class="w"> </span><span class="s1">&#39;long-running-branch&#39;</span>
 </pre></div>
 </div>
 <p>All well and good, but later, once you work has evolved, you may decide to
 change the name of long-running-branch to something more relevant:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>long-running-branch<span class="o">)</span>$ git checkout -b more-descriptive-name
-<span class="o">(</span>more-descriptive-name<span class="o">)</span>$ git branch -D long-running-branch
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>long-running-branch<span class="o">)</span>$<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>more-descriptive-name
+<span class="o">(</span>more-descriptive-name<span class="o">)</span>$<span class="w"> </span>git<span class="w"> </span>branch<span class="w"> </span>-D<span class="w"> </span>long-running-branch
 </pre></div>
 </div>
 <p>While renaming the branch is not a problem in and of itself, the merge commit
@@ -591,6 +591,31 @@ that release is visible here: <a class="reference external" href="https://github
 <p>See the <a class="reference internal" href="command_cheat_sheet.html#staying-udpated"><span class="std std-ref">“Command Cheat Sheet”</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
+<p>A common developer issue is that you may have installed custom libraries that
+are not available yet inside the dvmdostem Docker image. When you shutdown
+your Docker containers, then any custom libraries you have installed will be
+lost. When you start your containers again, you will have to re-install these
+libraries. This can be somewhat tedious. One solution for this is that you
+keep a custom requirements file and ask pip to install packages from that when
+you start up your Docker containers. For example if you need the Python
+package <code class="docutils literal notranslate"><span class="pre">BeautifulSoup</span></code>, and <code class="docutils literal notranslate"><span class="pre">PyDemux</span></code> (don’t ask why) you might make a
+file in your repository <code class="docutils literal notranslate"><span class="pre">requirements_custom.txt</span></code> with the following lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BeautifulSoup</span><span class="o">==</span><span class="mf">4.8.1</span>
+<span class="n">PyDemux</span><span class="o">=</span><span class="mf">1.0</span>
+</pre></div>
+</div>
+<p>And then when you start up your Docker container, you can run the following to
+install your custom pacakges:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@263004fd19aa:/work$ pip install -r requirements_custom.txt
+</pre></div>
+</div>
+<p>Your <code class="docutils literal notranslate"><span class="pre">requirements_custom.txt</span></code> should not be tracked with Git. If you have
+further customizations beyond this there is likely a way to inject your
+specific environment needs into the Docker container using custom <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code>
+files or the docker compose <code class="docutils literal notranslate"><span class="pre">.env</span></code> file or some combination thereof.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>A common issue that comes up when you have multiple branches that you are
 working on is that you checkout a different branch and try to run something in
 your docker container and it fails because a library is not installed. For
@@ -664,13 +689,13 @@ that is executed by the <code class="docutils literal notranslate"><span class="
 <code class="docutils literal notranslate"><span class="pre">doctest</span></code> particulars are described here:
 <a class="reference external" href="https://docs.python.org/3/library/doctest.html#what-s-the-execution-context">https://docs.python.org/3/library/doctest.html#what-s-the-execution-context</a></p>
 <p>To run the tests that are in <code class="docutils literal notranslate"><span class="pre">__docstring__</span></code> s of a function or file:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> scripts
-$ python -m doctest param_util.py   <span class="c1"># &lt;-- script name!</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>scripts
+$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>param_util.py<span class="w">   </span><span class="c1"># &lt;-- script name!</span>
 </pre></div>
 </div>
 <p>To run the tests that are in an independent file:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> scripts
-$ python -m doctest doctests_param_util.md  <span class="c1"># &lt;-- test file name!</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>scripts
+$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>doctests_param_util.md<span class="w">  </span><span class="c1"># &lt;-- test file name!</span>
 </pre></div>
 </div>
 <p>In either case, if all the tests execute successfully, then the command exits
