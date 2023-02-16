@@ -19,7 +19,7 @@ function usage () {
   echo "              many plots are made in parallel."
   echo "  --numpfts   Change the number of pfts plotted. '3' will plot pfts 0,1,2".
   echo "  --outdir    The path to a directory in which to store the generated plots."
-  echo "  --tag       A pre-fix for the folder continaing the generated plots."
+  echo "  --tag       A pre-fix for the folder containing the generated plots."
   echo "              The folder will be created within the folder specified at the"
   echo "              path given for '--outdir'. The current git tag is good to use,"
   echo "              but the value you provide for "--tag" can be anything else you like."
