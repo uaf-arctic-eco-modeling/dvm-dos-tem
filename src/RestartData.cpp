@@ -1244,7 +1244,7 @@ void RestartData::create_empty_file(const std::string& fname,
 
   /* Create Attributes?? */
 
-  /* End Define Mode (not scrictly necessary for netcdf 4) */
+  /* End Define Mode (not strictly necessary for netcdf 4) */
   BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
   temutil::nc( nc_enddef(ncid) );
 
