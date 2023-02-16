@@ -169,7 +169,7 @@ float calculate_girr(const float lat, const int im) {
 std::vector<float> calculate_daily_prec(const int midx, const float mta, const float mprec) {
                                   
   // input are monthly precipitation, monthly temperature
-  // output are daily precpitation
+  // output are daily precipitation
   // this function is based on the code provided Qianlai on Feb. 19, 2007
   
   float RT, RS, R ;
