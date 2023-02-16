@@ -163,7 +163,7 @@ void CohortData::beginOfDay() {
 //   process is done
 void CohortData::endOfDay(const int & dinm) {
   // only 'snow' dimension changes at daily timestep
-  //   ('veg' updaates monthly, while 'soil' yearly)
+  //   ('veg' updates monthly, while 'soil' yearly)
   m_snow.thick += d_snow.thick/dinm;
   m_snow.dense += d_snow.dense/dinm;
   m_snow.extramass += d_snow.extramass/dinm;
