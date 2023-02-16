@@ -100,7 +100,7 @@ void Vegetation_Env::updateWaterBalance(const double & daylhr, double leaf_area_
     ed->d_a2v.sinter = getSnowInterception(ed->d_a2v.snfl, leaf_area_index);
     ed->d_v2g.rthfl = ed->d_a2v.rnfl- ed->d_a2v.rinter;
     ed->d_v2g.sthfl = ed->d_a2v.snfl -ed->d_a2v.sinter;
-    //evaportranspiration
+    //evapotranspiration
     //temperature and pressure correction factor for conductances
     double gcorr = 1.; //pow( (atmsd->ta +273.15)/293.15, 1.75); //* 101300/pa;
     double gl_st = 0.;
