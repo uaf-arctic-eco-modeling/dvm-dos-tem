@@ -6,7 +6,7 @@
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 //PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  
-1.00        1.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00        1.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
@@ -49,7 +49,7 @@
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/18/20 JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree  DecidShrub  DecidTree     Moss          PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
-1            1            1            1            0.0    0.0    0.0    0.0    0.0    0.0   // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1            1            1            1            0.0    0.0    0.0    0.0    0.0    0.0   // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            1            1            0            0      0      0      0      0      0     // ifwoody: woody plants (1) or not (0)
 0            1            1            0            0      0      0      0      0      0     // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            0            0      0      0      0      0      0     // ifperenial: perenial (1) or not (0)
@@ -92,7 +92,7 @@
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 //EverTree  DecidShrub  DecidTree     Moss          PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
-1            1            1            1            0.0    0.0    0.0    0.0    0.0    0.0   // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1            1            1            1            0.0    0.0    0.0    0.0    0.0    0.0   // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            1            1            0            0      0      0      0      0      0     // ifwoody: woody plants (1) or not (0)
 0            1            1            0            0      0      0      0      0      0     // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            0            0      0      0      0      0      0     // ifperenial: perenial (1) or not (0)
@@ -135,7 +135,7 @@
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // 7/7/20 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree  DecidShrub  DecidTree     Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9  // names: comments                  
-1            1            1            1           0.0    0.0    0.0    0.0    0.0    0.0  // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1            1            1            1           0.0    0.0    0.0    0.0    0.0    0.0  // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            1            1            0           0      0      0      0      0      0    // ifwoody: woody plants (1) or not (0)
 0            1            1            0           0      0      0      0      0      0    // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            0           0      0      0      0      0      0    // ifperenial: perenial (1) or not (0)
@@ -178,7 +178,7 @@
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
-1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            1            1            1            1            1            0            // ifperenial: perenial (1) or not (0)
@@ -221,7 +221,7 @@
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 //Betula    Decid       EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9         // pftnames:
-0.01        0.01        0.01         0.01         0.01         0.01         0.01         0.01         0.           0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+0.01        0.01        0.01         0.01         0.01         0.01         0.01         0.01         0.           0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1           1           1            0            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 1           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            1            1            1            1            0            0            // ifperenial: perenial (1) or not (0)
@@ -264,7 +264,7 @@
 //===========================================================
 // CMT06 // Wet Sedge Tundra  // Calibrated for Toolik area. (updated LAI for Decid 7-19-19 Joy)
 //Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
-1.00        1.00        1.00         1.00         1.00         1.00         1.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            0            0            1            0            0            0            // ifperenial: perenial (1) or not (0)
@@ -307,7 +307,7 @@
 //===========================================================
 // CMT07 // Heath Tundra  // (updated LAI 7-19-19 Joy)
 //Decid     EGreen      Forbs        Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9         // pftnames:
-1.00        1.00        1.00         1.00         1.00         1.00         0.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00        1.00        1.00         1.00         1.00         1.00         0.00         0.00         0.00         0.00         // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           1           1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            0            0            0            0            0            0            // ifperenial: perenial (1) or not (0)
@@ -350,7 +350,7 @@
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram        Feather      Lichen      Equisetum      PFT9         // pftnames:
-1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            1            1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 1            0            1            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            1            1            1            1            1            1            0            // ifperenial: perenial (1) or not (0)
@@ -393,7 +393,7 @@
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex        Ericoid      Feather      Lichen      OthMoss       Rubcha       Misc1        Misc2        Misc3        // names: comments
-1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            0            0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            0            0            // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            0            1            0            0            0            1            0            0            0            // ifwoody: woody plants (1) or not (0)
 0            0            0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            1            1            1            1            0            0            0            // ifperenial: perenial (1) or not (0)
@@ -436,7 +436,7 @@
 //===========================================================
 // CMT21 // EML Tussock Tundra
 //Betnan     Carex        Ericoid      Erivag       Feather     Lichen       OtherMoss    Rubcha      Sphagnum       PFT9         // pftnames:
-0.01         0.01         0.01         0.01         0.01         0.01         0.01        0.01         0.01          0            // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+0.01         0.01         0.01         0.01         0.01         0.01         0.01        0.01         0.01          0            // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            0            1            0            0            0            0            1            0            0            // ifwoody: woody plants (1) or not (0)
 1            0            0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            1            1            1            1            1            1            0            // ifperenial: perenial (1) or not (0)
@@ -479,7 +479,7 @@
 //===========================================================
 // CMT31 // Boreal Bog
 //Sphagnum  Sedge        DecShrub     EvrShrub     Forbs        Moss        PFT6         PFT7         PFT8        PFT9        // pftnames:
-1.00        1.00         1.00         1.00         1.00         1.00        0.00         0.00         0.00        0.00        // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00        1.00         1.00         1.00         1.00         1.00        0.00         0.00         0.00        0.00        // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 0           0            1            1            0            0           0               0            0           0        // ifwoody: woody plants (1) or not (0)
 0           0            1            0            0            0           0               0            0           0        // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1            1            1            1            1           0               0            0           0        // ifperenial: perenial (1) or not (0)
@@ -522,7 +522,7 @@
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // (LAI stuff updated 7-19-19 Joy)
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
-1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT does't exist
+1.00        1.00        1.00         1.00         1.00         1.00         1.00         1.00         1.00         0.           // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1           1           1            1            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
 0           0           0            0            0            0            0            0            0            0            // ifdeciwoody: deciduous woodland (1) or not (0)
 1           1           1            1            1            1            1            1            1            0            // ifperenial: perenial (1) or not (0)
