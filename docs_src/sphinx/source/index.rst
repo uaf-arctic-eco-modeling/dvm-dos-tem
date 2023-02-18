@@ -44,6 +44,7 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
    command_cheat_sheet
    common_acronyms
    calibration
+   references
 
 .. toctree::
     :maxdepth: 5
