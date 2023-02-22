@@ -354,6 +354,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         }
       }
       else if(ii==8){ // Layer
+        //This will trigger if the layer option has actually been
+        // specified by the user or if it is a variable only available
+        // by layer with the "forced" marker in the csv file.
         if(token.length()>0){
           new_spec.layer = true;
           new_spec.dim_count++;
@@ -373,19 +376,6 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         }
       }
     } // end looping over tokens (aka columns) in a line
-
-    //Ensure that the by-layer option is set for variables that exist only
-    // by layer (LAYERDZ, TLAYER, etc)
-    if(name.find("LAYER") != std::string::npos ||
-       name.find("PERCOLATION") != std::string::npos ||
-       name.find("ROOTWATERUPTAKE") != std::string::npos){
-
-      BOOST_LOG_SEV(glg, note)<<"Forcing the by-layer option for " << name;
-      if(new_spec.layer != true){
-        new_spec.layer = true;
-	new_spec.dim_count++;
-      }
-    }
 
     // Only create a file if a timestep is specified for the variable.
     // Otherwise, assume the user does not want that variable output.

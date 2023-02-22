@@ -104,7 +104,7 @@ def write_data_to_csv(data, fname):
 def check_layer_vars(data):
 
   def warn_layers_not_set(dd):
-    if all([x == 'invalid' or x == '' for x in [dd['Layers'],]]):
+    if all([x == '' for x in [dd['Layers'],]]):
       print("WARNING! output by Layers not set for {}".format(dd['Name']))
 
   for line in data:
