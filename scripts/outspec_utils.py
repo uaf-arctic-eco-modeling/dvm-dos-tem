@@ -22,6 +22,7 @@ import csv
 import sys
 import argparse
 import textwrap
+import os
 
 def print_line_dict(d, header=False):
   if header:
@@ -94,9 +95,9 @@ def csv_file_to_data_dict_list(fname):
   return data
 
 def write_data_to_csv(data, fname):
-    with open(fname, 'w') as csvfile:
+    with open(fname, 'w', newline='') as csvfile:
       fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder".split(",")
-      writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+      writer = csv.DictWriter(csvfile, fieldnames=fieldnames, lineterminator='\n')
       writer.writeheader()
       writer.writerows(data)
 
