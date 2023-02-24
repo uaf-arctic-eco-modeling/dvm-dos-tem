@@ -21,7 +21,19 @@ enabled.
                     Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
     0
 
-Looking at the original file however, there should be one or two enabled:
+Enable a single variable (AVLN, yearly, by layer) and write out again
+
+    >>> data2 = ou.toggle_on_variable(data2, "AVLN", 'yearly layer')
+    >>> ou.write_data_to_csv(data2, "/tmp/test-outspec_utils.csv")
+
+Check summary for that single variable
+
+    >>> ou.cmdline_entry(['--summary','/tmp/test-outspec_utils.csv'])
+                    Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
+                    AVLN                 g/m2            y                   invalid      invalid      invalid            l       double     Total soil available N
+    0
+
+Looking at the original file however, there should be only the default variable(s) enabled:
 
     >>> ou.cmdline_entry(['-s', '../config/output_spec.csv'])
                     Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
