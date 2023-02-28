@@ -364,6 +364,21 @@ class TEM_model:
 
         return [obs,out]
 
+    def run_TEM(self,x):
+    
+        for j in range(len(self.params)):
+            self.params[j]['val']=x[j]   
+        # update param files
+        self.clean()
+        self.setup(calib=True)
+        self.update_params()
+        self.run()
+
+        return self.get_calibration_outputs()
+
+    def get_targets(self):
+        return self.get_calibration_outputs(calib=True)
+
     def get_calibration_outputs(self,calib=False):
         #get_calibration_outputs("/data/workflows/qcal-demo/") 
         #self.work_dir = '/data/workflows/single_run'
@@ -408,7 +423,17 @@ class TEM_model:
         sys.path = [os.path.join(ref_targets_dir, 'calibration')]
         print("Loading calibration_targets from : {}".format(sys.path))
         import calibration_targets as ct
-        caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
+        #caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
+        caltargets = {}
+        for k, v in ct.calibration_targets.items():
+          if k == 'meta' and 'cmtnumber' not in v.keys():
+            pass # no need for the meta data here...
+          elif 'cmtnumber' in v.keys():
+            cmtid = "CMT{:02d}".format(v['cmtnumber'])
+            caltargets[cmtid] = v
+          else:
+            print("Warning: something is wrong with target block {}".format(k))
+
         del ct
         print("Resetting path...")
         sys.path = old_path
