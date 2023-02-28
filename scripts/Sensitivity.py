@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+# Author Tobey Carman
+# this version includes multiple pfts
+# EJ 05/11/22
+
+# uniform and lhc now part of sensitivity class
+# self.params dict has all required info on pfts and cmts
+# renamed cmtnum get_cmtnum
+# removed pftnum (do need them) 
+# self.params includes pftnum and cmtnum
+# info modified to display multiple pfts
+# removed all plotting functions from here
 
 import pathlib
 import numpy as np
@@ -6,7 +17,6 @@ import netCDF4 as nc
 import pandas as pd
 import multiprocessing
 import textwrap
-import matplotlib.pyplot as plt
 
 import lhsmdu
 import glob
@@ -36,6 +46,7 @@ def log_wrapper(message,tag=''):
   finally:
     print()
 
+<<<<<<< HEAD
 def generate_uniform(N, param_props):
   '''
   Generate sample matrix using uniform method.
@@ -200,6 +211,8 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
   
 
 
+=======
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 class SensitivityDriver(object):
   '''
   Sensitivity Analysis Driver class.
@@ -234,6 +247,7 @@ class SensitivityDriver(object):
 
   Examples
   --------
+<<<<<<< HEAD
   Instantiate object, sets pixel, outputs, working directory, site selection
   (input data path)
 
@@ -245,6 +259,24 @@ class SensitivityDriver(object):
       >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
 
   Show info about the driver object:
+=======
+  Instantiate object, sets pixel, outputs, working directory, 
+  site selection (input data path)
+  >>> driver = SensitivityDriver()
+  >>> driver.work_dir = '/tmp/tests-Sensitivity'
+
+  Show info about the driver object:
+  >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
+  >>> driver.sample_matrix
+          cmax     rhq10  nfall(1)
+  0  63.536594  1.919504  0.000162
+  1  62.528847  2.161819  0.000159
+  2  67.606747  1.834203  0.000145
+  3  59.671967  2.042034  0.000171
+  4  57.711999  1.968631  0.000155
+  >>> driver.generate_uniform(3)
+  >>> driver.generate_lhc(3)
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
       >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
       >>> driver.sample_matrix
@@ -269,8 +301,16 @@ class SensitivityDriver(object):
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
+<<<<<<< HEAD
     self.opt_run_setup = opt_run_setup
+=======
+    self.pftnums={}
+    self.cmtnum={}
+    self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
+    self.params = {}
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
     self.sampling_method = sampling_method
+
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
         os.mkdir(self.work_dir)
@@ -296,6 +336,100 @@ class SensitivityDriver(object):
   def get_initial_params_dir(self):
     '''Read only accessor to private member variable.'''
     return self.__initial_params_rundir
+
+  def generate_uniform(self, N, seed=''):
+    '''
+    Generate sample matrix using uniform method.
+
+    Sample matrix will have one row for each "sample" of the
+    parameters. There will be one column for each parameter in
+    the `param_props` list.
+
+    Parameters
+    ----------
+    N : int
+      number of samples (rows) to create
+
+    params : list of dicts
+      Each item in `param_props` list will be a dictionary
+      with at least the following:
+      >>> params = {
+      ...   'name': 'rhq10',        # name in dvmdostem parameter file (cmt_*.txt)
+      ...   'bounds': [5.2, 6.4],   # the min and max values the parameter can have
+      ... }
+
+    Returns
+    -------
+    sample_matrix : pandas.DataFrame, shape (N, len(params))
+      There will be one column for each parameter in the
+      `param_props` list and N rows (samples).
+    '''
+    #print(param_props)
+    if seed!='':
+      np.random.seed(seed)
+    self.sampling_method = 'uniform'
+    l = np.random.uniform(size=(N, len(self.params)))
+
+    # Generate bounds, based on specification in params list
+    lows = np.array([p['bounds'][0] for p in self.params])
+    highs = np.array([p['bounds'][1] for p in self.params])
+
+    # Figure out the spread, or difference between bounds
+    spreads = highs - lows
+
+    sm = l * spreads + lows
+    
+    self.sample_matrix = pd.DataFrame(sm, columns=[p['name'] for p in self.params])
+
+  def generate_lhc(self, N):
+    '''
+    Generate sample matrix using Latin Hyper Cube method.
+
+    Sample matrix will have one row for each "sample" of the
+    parameters. There will be one column for each parameter in
+    the `param_props` list.
+
+    Parameters
+    ----------
+    N : int
+      number of samples (rows) to create
+
+    params : list of dicts
+      Each item in `param_props` list will be a dictionary
+      with at least the following:
+      >>> params = {
+      ...   'name': 'cmax',               # name in dvmdostem parameter file (cmt_*.txt)
+      ...   'bounds': [100.1, 105.1],     # the min and max values the parameter can have
+      ... }
+
+    Returns
+    -------
+    sample_matrix : pandas.DataFrame, shape (N, len(params))
+      There will be one column for each parameter in the
+      `param_props` list and N rows (samples).
+    '''
+
+    self.sampling_method = 'lhc'
+    # Generate bounds, based on specification in params list
+    lo_bounds = np.array([p['bounds'][0] for p in self.params])
+    hi_bounds = np.array([p['bounds'][1] for p in self.params])
+
+    # Figure out the spread, or difference between bounds
+    spreads = hi_bounds - lo_bounds
+
+    # create M by N sampling matrix
+    l = lhsmdu.sample(len(self.params), N)
+    
+    # transpose the matrix
+    l = lhsmdu.resample().T
+
+    # ??
+    mat_diff = np.diag(spreads)
+
+    # ??
+    sample_matrix = l * mat_diff + lo_bounds
+
+    self.sample_matrix = pd.DataFrame(sample_matrix, columns=[p['name'] for p in self.params])
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
@@ -363,22 +497,27 @@ class SensitivityDriver(object):
         pftnums=pftnums, percent_diffs=percent_diffs, cmtnum=cmtnum)
 
     if self.sampling_method == 'lhc':
-      self.sample_matrix = generate_lhc(Nsamples, self.params)
+      self.generate_lhc(Nsamples)
     elif sampling_method == 'uniform':
+<<<<<<< HEAD
       self.sample_matrix = self.generate_uniform(Nsamples, self.params)
     else:
       raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
+=======
+      self.generate_uniform(Nsamples)
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
   def save_experiment(self, name=''):
     '''Write the parameter properties and sensitivity matrix to files.'''
-    if name == '':
-      sm_fname = os.path.join(self.work_dir, 'sample_matrix.csv')
-      pp_fname = os.path.join(self.work_dir, 'param_props.csv')
-      info_fname = os.path.join(self.work_dir, 'info.txt')
-    else:
-      sm_fname = "{}_sample_matrix.csv".format(name) 
-      pp_fname = '{}_param_props.csv'.format(name)
-      info_fname = '{}_info.txt'.format(name)
+    if self.work_dir!='':
+        if name == '':
+          sm_fname = os.path.join(self.work_dir, 'sample_matrix.csv')
+          pp_fname = os.path.join(self.work_dir, 'param_props.csv')
+          info_fname = os.path.join(self.work_dir, 'info.txt')
+        else:
+          sm_fname = os.path.join(self.work_dir,'{}_sample_matrix.csv'.format(name)) 
+          pp_fname = os.path.join(self.work_dir,'{}_param_props.csv'.format(name))
+          info_fname = os.path.join(self.work_dir,'{}_info.txt'.format(name))
 
     for p in [sm_fname, pp_fname, info_fname]:
       if not os.path.exists(os.path.dirname(p)):
@@ -460,6 +599,7 @@ class SensitivityDriver(object):
     -------
     None
     '''
+<<<<<<< HEAD
 
     def lookup_pft_verbose_name(row):
       if row.pftnum >= 0 and row.pftnum < 10:
@@ -470,6 +610,19 @@ class SensitivityDriver(object):
       else:
         pft_verbose_name = None
       return pft_verbose_name
+=======
+    pft_verbose_name=[]
+    try:
+        pftnums=set([p['pftnum'] for p in self.params])
+        pftnums.discard(None)
+        for pft in pftnums:
+            pft_verbose_name.append( pu.get_pft_verbose_name(
+            cmtnum=self.params[0]['cmtnum'], pftnum=pft, 
+            lookup_path=self.get_initial_params_dir()
+            ))
+    except (AttributeError, ValueError) as e:
+      pft_verbose_name = ''
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
     # Not all class attributes might be initialized, so if an 
     # attribute is not set, then print empty string.
@@ -501,9 +654,14 @@ class SensitivityDriver(object):
       sampling_method: {sampmeth}
 
       '''.format(
+<<<<<<< HEAD
         workdir=self.work_dir, site=self.site, 
         pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum(),
         sampmeth=self.sampling_method))
+=======
+        self.work_dir, self.site, self.PXy, self.PXx, self.get_cmtnum(),
+        pftnums, pft_verbose_name, self.sampling_method))
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
     info_str += textwrap.dedent('''\
       --- Parameters ---
@@ -523,8 +681,6 @@ class SensitivityDriver(object):
       found {} existing sensitivity csv files.
 
       '''.format(len(self.get_sensitivity_csvs())))
-
-
 
     return info_str
 
@@ -619,10 +775,21 @@ class SensitivityDriver(object):
 
     # Enable outputs as specified
     for output_spec in self.outputs:
-      outspec_utils.cmdline_entry([
+      if output_spec['type']=='layer':
+        outspec_utils.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
+        '--on', output_spec['name'], 'month', 'layer' 
+        ])
+      else:
+        outspec_utils.cmdline_entry([
+        '{}/config/output_spec.csv'.format(sample_specific_folder),
+<<<<<<< HEAD
         '--on', output_spec['name'], 'month'
       ])
+=======
+        '--on', output_spec['name'], 'month', 'pft'
+        ])
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
     # Make sure CMTNUM output is on
     outspec_utils.cmdline_entry([
@@ -643,6 +810,7 @@ class SensitivityDriver(object):
       json.dump(config, f, indent=2)
 
     # modify parameters according to sample_matrix (param values)
+<<<<<<< HEAD
 
     # row is something like {'cmax_pft1':2344, 'cmax_pft2':2344, 'rhq10':45} 
     # 
@@ -678,6 +846,29 @@ class SensitivityDriver(object):
 
 
 
+=======
+    # and the  param_spec (cmtnum, pftnum)
+    # Iterating over sample_matrix, which is a pandas.DataFrame, we use
+    # itertuples() which coughs up a named tuple. So here we get the
+    # name, and the sample value out of the named tuple for use in 
+    # calling param_utils update function.
+    if initial:
+      for pname, pval in row.items():
+        #for pname, pval in zip(row._fields[1:], row[1:]):
+        pdict = list(filter(lambda x: x['name'] == pname, self.params))[0]
+        pu.update_inplace(
+            pval, os.path.join(sample_specific_folder, 'parameters'), 
+            pname, pdict['cmtnum'], pdict['pftnum']
+        )
+    else:
+      for pval,j in zip(row,range(len(row))):
+        pu.update_inplace(
+            pval, os.path.join(sample_specific_folder, 'parameters'), 
+            self.params[j]['name'],
+            self.params[j]['cmtnum'],
+            self.params[j]['pftnum']
+        )
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
   def setup_multi(self, force=False):
     '''
@@ -705,16 +896,15 @@ class SensitivityDriver(object):
     self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
 
     # Make the individial sample directories
-    args = list(zip(self.sample_matrix.to_dict(orient='records'),
-               range(0,len(self.sample_matrix)), 
-               np.zeros(len(self.sample_matrix), dtype=bool)))
+    #args = zip(self.sample_matrix.values,range(0,len(self.sample_matrix)))
+    args = list(zip(self.sample_matrix.values,
+           range(0,len(self.sample_matrix)), 
+           np.zeros(len(self.sample_matrix), dtype=bool)))
 
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.starmap(self.core_setup, args)
 
-
-
-  def cmtnum(self):
+  def get_cmtnum(self):
     '''
     Enforces that there is only one cmtnum specified
     amongst all the param specifications in `self.params`.
@@ -729,6 +919,7 @@ class SensitivityDriver(object):
     RuntimeError - if there in valid specification of
     cmtnum in the params list.
     '''
+<<<<<<< HEAD
     try:
       c = set([x['cmtnum'] for x in self.params])
       if not (len(c) == 1):
@@ -741,6 +932,23 @@ class SensitivityDriver(object):
     
     return c
   
+=======
+    if self.params:
+      try:
+        c = set([x['cmtnum'] for x in self.params])
+        if not (len(c) == 1):
+          raise RuntimeError("Problem with cmt specification in param_spec!")
+        c = c.pop()
+      except AttributeError:
+        c = None
+      except KeyError:
+        c = None
+      
+      return c
+    else:
+      print('parameters not assigned!')
+
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
   def _ssrf_name(self, idx):
     '''generate the Sample Specific Run Folder name.'''
     return os.path.join(self.work_dir, 'sample_{:09d}'.format(idx))
@@ -774,7 +982,11 @@ class SensitivityDriver(object):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
+<<<<<<< HEAD
     opt_str = '-l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+=======
+    opt_str = ' -l err --force-cmt {} --ctrl-file {}'.format(self.get_cmtnum(), ctrl_file)
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(
@@ -789,6 +1001,7 @@ class SensitivityDriver(object):
         print(completed_process.stdout)
         print(completed_process.stderr)
 
+<<<<<<< HEAD
   def first_steps_sensitivity_analysis(self):
     '''
     Grab the summarized sensitivity csvs and glue them
@@ -872,6 +1085,9 @@ class SensitivityDriver(object):
         axes[i].set_ylabel(o['name'])
     plt.show()
 
+=======
+  
+>>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
     Creates a csv file in each run directory that summarizes the run's
@@ -958,33 +1174,6 @@ class SensitivityDriver(object):
  
       with open(sensitivity_outfile, 'a') as f:
         f.write(pstr + ',' + ostr + '\n')
-
-  def plot_sensitivity_matrix(self):
-    '''
-    Make a quick plot showing the properties of the sensitivity matrix.
-    
-    One row for each parameter:
-      Left column is sample values with bounds marked in red.
-      Middle column is histogram of sample values.
-      Right column is boxplot of sample values
-
-    '''
-
-    # Elchin: please improve or comment on this plot. I am not sure
-    # what the standard, meaningful ways to visualize the sample matrix
-    # data are!
-
-    fig, axes = plt.subplots(len(self.params),3)
-
-    for i, (p, ax) in enumerate(zip(self.params, axes)):
-      ax[0].plot(self.sample_matrix.iloc[:, i], marker='.', linewidth=0)
-      ax[0].set_ylabel(p['name'])
-      ax[0].hlines(p['bounds'], 0, len(self.sample_matrix)-1, linestyles='dotted', colors='red')
-      ax[1].hist(self.sample_matrix.iloc[:, i], range=p['bounds'], orientation='horizontal', alpha=0.75, rwidth=0.8)
-      ax[2].boxplot(self.sample_matrix.iloc[:, i])
-      ax[2].set_ylim(ax[0].get_ylim())
-      
-    plt.tight_layout()
 
 if __name__ == '__main__':
   import doctest
