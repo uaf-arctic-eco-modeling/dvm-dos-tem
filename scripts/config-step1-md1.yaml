@@ -1,0 +1,15 @@
+calib_mode: GPPAllIgnoringNitrogen
+cmtnum: 1
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- cmax
+- cmax
+- cmax
+- cmax
+pftnums:
+- 0
+- 1
+- 2
+- 3
+site: /data/input-catalog/cru-ts40_ar5_rcp85_mri-cgcm3_MurphyDome_10x10
+work_dir: /data/workflows/STEP1-MD1
