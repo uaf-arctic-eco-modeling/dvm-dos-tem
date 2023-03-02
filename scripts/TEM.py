@@ -2,7 +2,8 @@ import os
 os.chdir('/work/scripts')
 #import os.path
 
-
+# -*- coding: utf-8 -*-
+import yaml
 import numpy as np                         # For the time array
 from scipy.integrate import odeint         # To integrate our equation
 import math
@@ -40,24 +41,37 @@ def log_wrapper(message,tag=''):
         print()
 
 class TEM_model:
-
-    def __init__(self): 
+    
+    def __init__(self,config_file=[]):
+        
+        if config_file==[]:
+            self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
+            self.work_dir = '/data/workflows/single_run' 
+            self.calib_mode=''
+            self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
+            self.cmtnum={}
+            self.pftnums={}
+            self.paramnames = {}  
+        else:
+            with open(config_file, 'r') as config_data:
+                config = yaml.safe_load(config_data)
+            self.site = config['site'] 
+            self.work_dir = config['work_dir']
+            self.calib_mode = config['calib_mode']
+            self.cmtnum = config['cmtnum']
+            self.pftnums = config['pftnums']
+            self.paramnames = config['params']
+        
+        self.params = {}
         self.param_dir = '/work/parameters'
-        self.work_dir = '/data/workflows/single_run'
-        self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
+        self.sampling_method = ''
         self.PXx = 0
         self.PXy = 0
         self.outputs = [
           { 'name': 'GPP', 'type': 'flux',},
           { 'name': 'VEGC','type': 'pool',},
         ]
-        self.pftnums={}
-        self.cmtnum={}
-        self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
-        self.sampling_method = ''
-        self.params = {}
-        self.calib_mode=''
-        
+       
         
     def collect_outputs(self):
         # Get the model output
@@ -168,11 +182,10 @@ class TEM_model:
         return
 
     def update_params(self):
-        DA_specific_folder = self.work_dir
         for j in range(len(self.params)):
             pu.update_inplace(
               self.params[j]['val'], 
-              os.path.join(DA_specific_folder, 'parameters'), 
+              os.path.join(self.work_dir, 'parameters'), 
               self.params[j]['name'],
               self.params[j]['cmtnum'],
               self.params[j]['pftnum']
