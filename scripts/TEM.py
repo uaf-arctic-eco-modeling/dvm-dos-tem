@@ -58,6 +58,7 @@ class TEM_model:
             self.site = config['site'] 
             self.work_dir = config['work_dir']
             self.calib_mode = config['calib_mode']
+            self.opt_run_setup = config['opt_run_setup']
             self.cmtnum = config['cmtnum']
             self.pftnums = config['pftnums']
             self.paramnames = config['params']
