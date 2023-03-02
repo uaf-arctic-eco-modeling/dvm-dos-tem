@@ -28,4 +28,10 @@ mads_paramkey:
 - cmax1
 - cmax2
 - cmax3
-mads_problemname: AC2-STEP1-MD1-EJ
+mads_obsweight:
+mads_paramlog:
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 1
+mads_paramrange: 'ON'
+mads_param_percent_variance: 10
+mads_problemname: AC3-STEP1-MD1-EJ
