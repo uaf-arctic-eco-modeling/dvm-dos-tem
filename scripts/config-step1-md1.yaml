@@ -13,3 +13,19 @@ pftnums:
 - 3
 site: /data/input-catalog/cru-ts40_ar5_rcp85_mri-cgcm3_MurphyDome_10x10
 work_dir: /data/workflows/STEP1-MD1
+mads_initial_guess:
+- 381.19
+- 113.93
+- 207.08
+- 93.31
+mads_paramdist:
+- Uniform(0.1, 500)
+- Uniform(0.1, 200)
+- Uniform(0.1, 300)
+- Uniform(0.1, 200)
+mads_paramkey:
+- cmax0
+- cmax1
+- cmax2
+- cmax3
+mads_problemname: AC2-STEP1-MD1-EJ
