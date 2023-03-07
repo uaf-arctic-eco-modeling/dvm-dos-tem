@@ -1,0 +1,193 @@
+# This file allows to configure TEM and MADS paramters for STEP1 of the calibration 
+# parameters: cmax
+# targets: GPP[1:4], Nitrogen unlimited mode
+# EJ 03/02/23
+calib_mode: NPPVEGCVEGN
+cmtnum: 1
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params: 
+- nmax 
+- nmax
+- nmax
+- nmax
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(1)
+- krb(1)
+- krb(1)
+- krb(2)
+- krb(2)
+- krb(2)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(1)
+- cfall(1)
+- cfall(1)
+- cfall(2)
+- cfall(2)
+- cfall(2)
+- nfall(0)
+- nfall(0)
+- nfall(0)
+- nfall(0)
+- nfall(1)
+- nfall(1)
+- nfall(1)
+- nfall(2)
+- nfall(2)
+- nfall(2)
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 0
+- 1
+- 2
+- 3
+- 0
+- 1
+- 2
+- 0
+- 1
+- 2
+- 0
+- 1
+- 2
+- 3
+- 0
+- 1
+- 2
+- 0
+- 1
+- 2
+- 0
+- 1
+- 2
+- 3
+- 0
+- 1
+- 2
+- 0
+- 1
+- 2
+site: /data/input-catalog/cru-ts40_ar5_rcp85_mri-cgcm3_MurphyDome_10x10
+work_dir: /data/workflows/STEP5-MD1-CR
+mads_initial_guess:
+- 2.95
+- 1.45
+- 1.07 
+- 2.1
+- -6.0
+- -3.45 
+- -2.95 
+- -4.65
+- -4.88
+- -5.15
+- -6.65
+- -8.2 
+- -6.2
+- -3.2
+- 0.0018
+- 0.065
+- 0.074
+- 0.014
+- 0.0045
+- 0.0033
+- 0.004    
+- 0.013
+- 0.0029 
+- 0.023
+- 0.011
+- 0.028
+- 0.028
+- 0.009 
+- 0.001
+- 0.001
+- 0.006 
+- 0.011
+- 0.008
+- 0.008
+mads_paramdist:
+- Uniform(1, 5)
+- Uniform(1, 5)
+- Uniform(1, 5)
+- Uniform(1, 5)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -0.1)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.2)
+- Uniform(0.00001, 0.09)
+- Uniform(0.00001, 0.09)
+- Uniform(0.00001, 0.09)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.09)
+- Uniform(1e-7, 0.09)
+- Uniform(1e-7, 0.09)
+mads_paramkey:
+- nmax0
+- nmax1
+- nmax2
+- nmax3
+- krb00
+- krb01
+- krb02
+- krb03
+- krb10
+- krb11
+- krb12
+- krb20
+- krb21
+- krb22
+- cfall00
+- cfall01
+- cfall02
+- cfall03
+- cfall10
+- cfall11
+- cfall12
+- cfall20
+- cfall21
+- cfall22
+- nfall00
+- nfall01
+- nfall02
+- nfall03
+- nfall10
+- nfall11
+- nfall12
+- nfall20
+- nfall21
+- nfall22
+mads_obsweight:
+mads_paramlog: 
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'OFF'
+mads_obs_percent_variance: 1
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'OFF'
+mads_param_percent_variance: 70
+mads_problemname: AC3-STEP5-MD1-CR-EJ

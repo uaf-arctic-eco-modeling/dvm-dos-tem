@@ -16,12 +16,12 @@ import sys,os
 sys.path.append(os.path.join('/work','scripts'))
 import TEM
 
-dvmdostem=TEM.TEM_model('config-step1-md1-1.yaml')
+dvmdostem=TEM.TEM_model('config-step3-md1.yaml')
 dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
 
 """
 
-mads_config = YAML.load_file("config-step1-md1-1.yaml")
+mads_config = YAML.load_file("config-step3-md1.yaml")
 
 function TEM_pycall(parameters::AbstractVector)
         predictions = PyCall.py"dvmdostem.run_TEM"(parameters)
@@ -35,7 +35,7 @@ obs=PyCall.py"dvmdostem.get_targets"()
 n_o=length(obs)
 obstime=1:n_o-6             #excluding soil carbon values
 targets=obs[1:n_o-6]        #grabbing only vegetation targets
-
+println(n_o-6)
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]
 if isnothing(obsweight)
@@ -49,10 +49,13 @@ n_p=length(initial_guess)
 paramlog=mads_config["mads_paramlog"]
 
 if isnothing(paramlog)
-    paramlog = falses(n_p) # for small parameter values (<10-3) this needs to trues
+    paramlog = [falses(4); falses(10); trues(10); trues(10)]
+    #paramlog = falses(n_p) # for small parameter values (<10-3) this needs to trues
 else
     println("Make sure that paramlog length match with IC length")
 end
+
+print(paramlog)
 
 #choose a range for parameter values
 paramdist = []
@@ -108,7 +111,7 @@ calib_random_results = Mads.calibraterandom(md, 10; seed=2021, all=true, tolOF=0
 calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 
 forward_predictions = Mads.forward(md, calib_random_estimates)
-Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="GPP",
+Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="GPP/NPP/VEGC/VEGN",
 		       filename=mads_config["mads_problemname"]*".png")
 
 
