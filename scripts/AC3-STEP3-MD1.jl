@@ -1,8 +1,8 @@
 # Autocalibration (AC) version 3.0
 # This version uses updated TEM.py  
-# STEP1 MD1
-# parameters: cmax
-# targets: (GPP) grabs all targets except last 6 elements correspoding to soil parameters 
+# STEP3 MD1
+# parameters: nmax,krb,cfall,nfall
+# targets: (NPP,VEGC,VEGN)
 
 import Mads
 #import Pkg; Pkg.add("YAML")
@@ -31,15 +31,14 @@ end
 initial_guess=mads_config["mads_initial_guess"]
 
 #y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
-obs=PyCall.py"dvmdostem.get_targets"()
-n_o=length(obs)
-obstime=1:n_o-6             #excluding soil carbon values
-targets=obs[1:n_o-6]        #grabbing only vegetation targets
-println(n_o-6)
+targets=PyCall.py"dvmdostem.get_targets(targets=True)"
+n_o=length(targets)
+println(n_o)
+
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]
 if isnothing(obsweight)
-    obsweight = ones(Int8, n_o-6)*100
+    obsweight = ones(Int8, n_o)*100
 else
     println("Make sure that weight length match with targets length")
 end
@@ -56,6 +55,7 @@ else
 end
 
 print(paramlog)
+print(length(paramlog))
 
 #choose a range for parameter values
 paramdist = []
@@ -111,7 +111,7 @@ calib_random_results = Mads.calibraterandom(md, 10; seed=2021, all=true, tolOF=0
 calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 
 forward_predictions = Mads.forward(md, calib_random_estimates)
-Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="GPP/NPP/VEGC/VEGN",
+Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="NPP/VEGC/VEGN",
 		       filename=mads_config["mads_problemname"]*".png")
 
 

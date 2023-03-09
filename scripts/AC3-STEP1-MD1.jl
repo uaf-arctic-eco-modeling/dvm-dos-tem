@@ -2,7 +2,7 @@
 # This version uses updated TEM.py  
 # STEP1 MD1
 # parameters: cmax
-# targets: (GPP) grabs all targets except last 6 elements correspoding to soil parameters 
+# targets: (GPP) 
 
 import Mads
 #import Pkg; Pkg.add("YAML")
@@ -16,12 +16,12 @@ import sys,os
 sys.path.append(os.path.join('/work','scripts'))
 import TEM
 
-dvmdostem=TEM.TEM_model('config-step1-md1-1.yaml')
+dvmdostem=TEM.TEM_model('config-step1-md1.yaml')
 dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
 
 """
 
-mads_config = YAML.load_file("config-step1-md1-1.yaml")
+mads_config = YAML.load_file("config-step1-md1.yaml")
 
 function TEM_pycall(parameters::AbstractVector)
         predictions = PyCall.py"dvmdostem.run_TEM"(parameters)
@@ -30,16 +30,15 @@ end
 
 initial_guess=mads_config["mads_initial_guess"]
 
-#y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
-obs=PyCall.py"dvmdostem.get_targets"()
-n_o=length(obs)
-obstime=1:n_o-6             #excluding soil carbon values
-targets=obs[1:n_o-6]        #grabbing only vegetation targets
+y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
+targets=PyCall.py"dvmdostem.get_targets(targets=True)"
+n_o=length(targets)
+obstime=1:n_o 
 
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]
 if isnothing(obsweight)
-    obsweight = ones(Int8, n_o-6)*100
+    obsweight = ones(Int8, n_o)*100
 else
     println("Make sure that weight length match with targets length")
 end

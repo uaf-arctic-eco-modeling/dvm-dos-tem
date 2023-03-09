@@ -1,8 +1,20 @@
-# This file allows to configure TEM and MADS paramters for STEP1 of the calibration 
-# parameters: cmax
-# targets: GPP[1:4], Nitrogen unlimited mode
+# This file configures TEM and MADS parameters for STEP2 of the calibration 
 # EJ 03/02/23
 calib_mode: NPPVEGC
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
 cmtnum: 1
 opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
 params:

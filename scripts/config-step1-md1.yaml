@@ -1,8 +1,20 @@
-# This file allows to configure TEM and MADS paramters for STEP1 of the calibration 
-# parameters: cmax
-# targets: GPP[1:4], Nitrogen unlimited mode
+# This file configures TEM and MADS parameters for STEP1 of the calibration 
 # EJ 03/02/23
 calib_mode: GPPAllIgnoringNitrogen
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+#- NPPAll
+#- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
 cmtnum: 1
 opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
 params:
@@ -35,9 +47,9 @@ mads_paramkey:
 mads_obsweight:
 mads_paramlog:
 # mads_obsrange (ON, OFF) sets ranges for observations
-mads_obsrange: 'OF'
+mads_obsrange: 'OFF'
 mads_obs_percent_variance: 1
 # mads_paramrange (ON, OFF) sets ranges for parameters
-mads_paramrange: 'ON'
+mads_paramrange: 'OFF'
 mads_param_percent_variance: 70
 mads_problemname: AC3-STEP1-MD1-R-EJ

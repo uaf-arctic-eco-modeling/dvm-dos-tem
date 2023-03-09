@@ -51,7 +51,9 @@ class TEM_model:
             self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
             self.cmtnum={}
             self.pftnums={}
-            self.paramnames = {}  
+            self.paramnames = {}
+            self.target_names = ['GPPAllIgnoringNitrogen']
+            
         else:
             with open(config_file, 'r') as config_data:
                 config = yaml.safe_load(config_data)
@@ -62,7 +64,25 @@ class TEM_model:
             self.cmtnum = config['cmtnum']
             self.pftnums = config['pftnums']
             self.paramnames = config['params']
+            self.target_names = config['target_names']
         
+        self.caltarget_to_ncname_map = [
+        ('GPPAllIgnoringNitrogen','INGPP'),
+        ('NPPAllIgnoringNitrogen','INNPP'),
+        #('GPPAll','GPP'),
+        ('NPPAll','NPP'),
+        #('Nuptake','NUPTAKE'), # ??? There are snuptake, lnuptake and innuptake... and TotNitrogentUptake is the sum of sn and ln...
+        ('VegCarbon','VEGC'),
+        ('VegStructuralNitrogen','VEGN'),
+        ('MossDeathC','MOSSDEATHC'),
+        ('CarbonShallow','SHLWC'),
+        ('CarbonDeep','DEEPC'),
+        ('CarbonMineralSum','MINEC'),
+        ('OrganicNitrogenSum','ORGN'),
+        ('AvailableNitrogenSum','AVLN'),
+        ]
+        
+        self.final_data = []
         self.params = {}
         self.param_dir = '/work/parameters'
         self.sampling_method = ''
@@ -72,19 +92,6 @@ class TEM_model:
           { 'name': 'GPP', 'type': 'flux',},
           { 'name': 'VEGC','type': 'pool',},
         ]
-       
-        
-    def collect_outputs(self):
-        # Get the model output
-        ds = nc.Dataset('{}/output/{}_monthly_tr.nc'.format(self.work_dir,self.outputs[0]['name']))
-        var_data = ds.variables[self.outputs[0]['name']][:]
-
-        # Here we grab only last 5 years of the GPP data
-        # in the future we might combine multiple outputs
-        output_data = var_data[-60:,self.get_cmtnum(),self.PXy,self.PXx]
-
-        return output_data
-
 
     def set_params(self, cmtnum, params, pftnums):
 
@@ -388,56 +395,74 @@ class TEM_model:
         self.update_params()
         self.run()
 
-        return self.get_calibration_outputs()
+        return self.get_targets()
 
-    def get_targets(self):
-        return self.get_calibration_outputs(calib=True)
+    def get_targets(self,targets=False):
+        # targets=False grab model outputs
+        # targets=True grab model observations
+        # fill the final_data list using targets from 
+        # calibration/calibration_targets.py
+        self.get_calibration_outputs()
+        # organize the ouput in the form of the dictionary 
+        # generates the flat list only for given target_names 
+        print ('Output variables:')
+        print ('Observations [True-ON], Modeled [False-OFF ]:',targets)
+        d=dict()
+        if len(self.target_names)>1:
+            for icase in self.target_names: #zip(ikeys,icase):
+                print (icase)
+                vals=[]
+                for item in self.final_data:
+                    if item['ctname']==icase:
+                        if targets:
+                            vals.append(item['truth'])
+                        else:
+                            vals.append(item['value'])
+                d[icase]= vals
+        elif len(self.target_names)==1:
+            icase=self.target_names[0]
+            vals=[]
+            for item in self.final_data:
+                if item['ctname']==icase:
+                    if targets:
+                        vals.append(item['truth'])
+                    else:
+                        vals.append(item['value'])
+            d[icase]= vals
+        else:
+            print('ERROR: The target_names list is empty')
 
-    def get_calibration_outputs(self,calib=False):
-        #get_calibration_outputs("/data/workflows/qcal-demo/") 
-        #self.work_dir = '/data/workflows/single_run'
+        out_list = [d[item] for item in d.keys()]
+        out_flat = [item for sublist in out_list for item in sublist]
+        
+        return out_flat
+
+    def get_calibration_outputs(self):
 
         output_directory_path=self.work_dir+"/output"
         ref_param_dir=self.work_dir+"/parameters"
         ref_targets={}
         ref_targets_dir="/work"
-
-        #Y = 0 #self.PXx
-        #X = 0
+        # averaging over last 10 year of the run
         last_N_yrs = 10
         
         nc_file=os.path.join(output_directory_path, 'CMTNUM_yearly_eq.nc')
+        # check if CMTNUM_yearly_eq.nc exists
         if not(os.path.exists(nc_file)):
             return ''
 
         with nc.Dataset(nc_file, 'r') as ds:
             data = ds.variables['CMTNUM'][-last_N_yrs:,self.PXy,self.PXx]
-
+ 
         assert(data.min() == data.max()) # should be the same CMT for the whole time frame
         cmtkey = 'CMT{:02d}'.format(data[0])
-
-        caltarget_to_ncname_map = [
-        ('GPPAllIgnoringNitrogen','INGPP'),
-        ('NPPAllIgnoringNitrogen','INNPP'),
-        #('GPPAll','GPP'),
-        ('NPPAll','NPP'),
-        #('Nuptake','NUPTAKE'), # ??? There are snuptake, lnuptake and innuptake... and TotNitrogentUptake is the sum of sn and ln...
-        ('VegCarbon','VEGC'),
-        ('VegStructuralNitrogen','VEGN'),
-        ('MossDeathC','MOSSDEATHC'),
-        ('CarbonShallow','SHLWC'),
-        ('CarbonDeep','DEEPC'),
-        ('CarbonMineralSum','MINEC'),
-        ('OrganicNitrogenSum','ORGN'),
-        ('AvailableNitrogenSum','AVLN'),
-        ]
 
         old_path = sys.path
         #print(old_path)
         sys.path = [os.path.join(ref_targets_dir, 'calibration')]
         print("Loading calibration_targets from : {}".format(sys.path))
+        # loading the calibration targets into ct and save them into caltargets dict
         import calibration_targets as ct
-        #caltargets = {'CMT{:02d}'.format(v['cmtnumber']):v for k, v in iter(ct.calibration_targets.items())}
         caltargets = {}
         for k, v in ct.calibration_targets.items():
           if k == 'meta' and 'cmtnumber' not in v.keys():
@@ -450,12 +475,13 @@ class TEM_model:
 
         del ct
         print("Resetting path...")
+        
         sys.path = old_path
-
         ref_targets = caltargets
-
-        final_data = []
-        for ctname, ncname in caltarget_to_ncname_map:
+        self.final_data = []
+        #load the correspoding nc file into the data variable
+        #save the targets from calibration_target and nc files into final_data dict list
+        for ctname, ncname in self.caltarget_to_ncname_map:
 
             data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path, n=last_N_yrs)
             dsizes, dnames = list(zip(*dims))
@@ -467,7 +493,7 @@ class TEM_model:
                 value = data[:,self.PXy,self.PXx].mean()
 
                 d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth)
-                final_data.append(d)
+                self.final_data.append(d)
 
             elif dnames == ('time','y','x','pft'):
               for pft in range(0,10):
@@ -477,7 +503,7 @@ class TEM_model:
                   value = data[:,pft,self.PXy,self.PXx].mean()
 
                   d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,pft=pft)
-                  final_data.append(d)
+                  self.final_data.append(d)
                 else:
                     pass
                   #print "  -> Failed" # contributor test! Ignoring pft:{}, caltarget:{}, output:{}".format(pft, ctname, ncname)
@@ -493,7 +519,7 @@ class TEM_model:
                     value = data[:,cmprt,pft,self.PXy,self.PXx].mean()
 
                     d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,pft=pft)
-                    final_data.append(d)
+                    self.final_data.append(d)
 
                   else:
                     pass
@@ -502,14 +528,7 @@ class TEM_model:
             else:
               raise RuntimeError("SOMETHING IS WRONG?")
 
-        if calib: # calib=truth get the truth otherwise output
-            out=[item['truth'] for item in final_data]
-        else:
-            out=[item['value'] for item in final_data]
-
-        return out
-
- 
+        return 
 
 #dvmdostem=TEM_model()
 # The setup is slighly different from the Sensitivity Analysis (SA).
