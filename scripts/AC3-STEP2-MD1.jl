@@ -31,8 +31,9 @@ end
 initial_guess=mads_config["mads_initial_guess"]
 
 y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
-targets=PyCall.py"dvmdostem.get_targets"(targets=True)
+targets=PyCall.py"dvmdostem.get_targets(targets=True)"
 n_o=length(targets)
+obstime=1:n_o
 
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]

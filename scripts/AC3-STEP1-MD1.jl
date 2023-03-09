@@ -5,7 +5,7 @@
 # targets: (GPP) 
 
 import Mads
-#import Pkg; Pkg.add("YAML")
+import Pkg; Pkg.add("YAML")
 import YAML
 import PyCall
 @show pwd()

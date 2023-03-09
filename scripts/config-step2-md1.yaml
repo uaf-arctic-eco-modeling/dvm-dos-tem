@@ -102,4 +102,4 @@ mads_obs_percent_variance: 1
 # mads_paramrange (ON, OFF) sets ranges for parameters
 mads_paramrange: 'OFF'
 mads_param_percent_variance: 70
-mads_problemname: AC3-STEP3-MD1-R-EJ
+mads_problemname: AC3-STEP3-MD1-R-EJ-new
