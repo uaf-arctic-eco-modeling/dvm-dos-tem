@@ -1,6 +1,6 @@
 # This file configures TEM and MADS parameters for STEP4 of the calibration 
 # EJ 03/02/23
-calib_mode: GPPAllIgnoringNitrogen
+calib_mode: SOILC
 # Calibration cases from the calibration/calibration_targets.py
 # The output will be selected based on this cases
 target_names: 
