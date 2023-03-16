@@ -406,11 +406,11 @@ class TEM_model:
         # organize the ouput in the form of the dictionary 
         # generates the flat list only for given target_names 
         print ('Output variables:')
-        print ('Observations [True-ON], Modeled [False-OFF ]:',targets)
+        print ('Observations [1-True], Modeled [0-False]:',targets)
         d=dict()
         if len(self.target_names)>1:
             for icase in self.target_names: #zip(ikeys,icase):
-                print (icase)
+                #print (icase)
                 vals=[]
                 for item in self.final_data:
                     if item['ctname']==icase:
@@ -431,7 +431,8 @@ class TEM_model:
             d[icase]= vals
         else:
             print('ERROR: The target_names list is empty')
-
+        
+        print(d.keys())
         out_list = [d[item] for item in d.keys()]
         out_flat = [item for sublist in out_list for item in sublist]
         

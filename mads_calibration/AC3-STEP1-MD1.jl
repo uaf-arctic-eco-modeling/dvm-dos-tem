@@ -16,22 +16,35 @@ import sys,os
 sys.path.append(os.path.join('/work','scripts'))
 import TEM
 
-dvmdostem=TEM.TEM_model('config-step1-md1.yaml')
-dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
+def get_cofig_file(config_file_name):
+    dvmdostem=TEM.TEM_model(config_file_name)
+    dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
+    return dvmdostem
 
 """
 
-mads_config = YAML.load_file("config-step1-md1.yaml")
+if ARGS==[]
+    println("ERROR: Missing config file")
+    println("syntax: julia AC3-STEP1-MD1.jl /work/mads_calibration/config-step1-md1.yaml")
+    exit()
+else
+    mads_config = YAML.load_file(ARGS[1])
+    println("Reading config file:")    
+    println(ARGS[1])
+end
+
+tem = PyCall.py"get_cofig_file"(ARGS[1])
 
 function TEM_pycall(parameters::AbstractVector)
-        predictions = PyCall.py"dvmdostem.run_TEM"(parameters)
+        predictions = tem.run_TEM(parameters)
         return predictions
 end
 
 initial_guess=mads_config["mads_initial_guess"]
 
-y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
-targets=PyCall.py"dvmdostem.get_targets(targets=True)"
+y_init=tem.run_TEM(initial_guess)
+targets=tem.get_targets(1)
+
 n_o=length(targets)
 obstime=1:n_o 
 
