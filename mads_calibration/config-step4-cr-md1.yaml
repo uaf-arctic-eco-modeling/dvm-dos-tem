@@ -1,6 +1,6 @@
 # This file configures TEM and MADS parameters for STEP4 of the calibration 
 # EJ 03/02/23
-calib_mode: SOILC
+calib_mode: VEGC
 # Calibration cases from the calibration/calibration_targets.py
 # The output will be selected based on this cases
 target_names: 
@@ -98,7 +98,7 @@ pftnums:
 - None
 - None
 site: /data/input-catalog/cru-ts40_ar5_rcp85_mri-cgcm3_MurphyDome_10x10
-work_dir: /data/workflows/STEP4-MD1-CR
+work_dir: /data/workflows/test-step4-cr
 mads_initial_guess:
 - 2.95
 - 1.45
@@ -221,11 +221,10 @@ mads_paramkey:
 - kdcsompr
 - kdcsomcr
 mads_obsweight:
-mads_paramlog:
 # mads_obsrange (ON, OFF) sets ranges for observations
 mads_obsrange: 'OFF'
 mads_obs_percent_variance: 1
 # mads_paramrange (ON, OFF) sets ranges for parameters
 mads_paramrange: 'OFF'
 mads_param_percent_variance: 70
-mads_problemname: AC3-STEP4-MD1-CR-EJ-new
+mads_problemname: STEP4-MD1-CR-EJ
