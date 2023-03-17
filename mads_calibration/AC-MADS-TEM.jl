@@ -13,7 +13,7 @@ import PyCall
 PyCall.py"""
 
 import sys,os
-sys.path.append(os.path.join('/work','scripts'))
+sys.path.append(os.path.join('/work','mads_calibration'))
 import TEM
 
 def get_cofig_file(config_file_name):
