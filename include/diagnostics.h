@@ -152,6 +152,7 @@ struct soidiag_env {
   double dfratio;
   double co2ch4;
   double oxid;
+  double ch4ebul; //Total ebullition
 
   // variables of summarized over soil horizons
   double tsave;    // all soil profile
