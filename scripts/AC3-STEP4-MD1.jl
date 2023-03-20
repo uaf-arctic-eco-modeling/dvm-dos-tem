@@ -1,11 +1,11 @@
 # Autocalibration (AC) version 3.0
 # This version uses updated TEM.py  
-# STEP1 MD1
-# parameters: cmax
-# targets: (GPP) 
+# STEP4 MD1
+# parameters: subsurface
+# targets: (SOILC)
 
 import Mads
-import Pkg; Pkg.add("YAML")
+#import Pkg; Pkg.add("YAML")
 import YAML
 import PyCall
 @show pwd()
@@ -16,12 +16,12 @@ import sys,os
 sys.path.append(os.path.join('/work','scripts'))
 import TEM
 
-dvmdostem=TEM.TEM_model('config-step1-md1.yaml')
+dvmdostem=TEM.TEM_model('config-step4-cr-md1.yaml')
 dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
 
 """
 
-mads_config = YAML.load_file("config-step1-md1.yaml")
+mads_config = YAML.load_file("config-step4-cr-md1.yaml")
 
 function TEM_pycall(parameters::AbstractVector)
         predictions = PyCall.py"dvmdostem.run_TEM"(parameters)
@@ -29,11 +29,11 @@ function TEM_pycall(parameters::AbstractVector)
 end
 
 initial_guess=mads_config["mads_initial_guess"]
-
 y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
 targets=PyCall.py"dvmdostem.get_targets(targets=True)"
 n_o=length(targets)
-obstime=1:n_o 
+println(n_o)
+obstime=1:n_o
 
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]
@@ -48,10 +48,18 @@ n_p=length(initial_guess)
 paramlog=mads_config["mads_paramlog"]
 
 if isnothing(paramlog)
-    paramlog = falses(n_p) # for small parameter values (<10-3) this needs to trues
+    if mads_config["mads_problemname"] == "AC3-STEP4-MD1-R-EJ-new"
+    	paramlog = [falses(4); falses(1)]
+    else
+    	paramlog = [falses(4); falses(10); trues(10); trues(10); falses(4); falses(1)]
+    end
+    #paramlog = falses(n_p) # for small parameter values (<10-3) this needs to trues
 else
     println("Make sure that paramlog length match with IC length")
 end
+
+#print(paramlog)
+#print(length(paramlog))
 
 #choose a range for parameter values
 paramdist = []
@@ -100,14 +108,14 @@ Mads.showobservations(md)
 #calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
 #Mads.plotmatches(md, calib_param, xtitle="# of observations", 
-#		      ytitle="GPP",filename=mads_config["mads_problemname"]*".png")
+#		      ytitle="SOILC",filename=mads_config["mads_problemname"]*".png")
 
-calib_random_results = Mads.calibraterandom(md, 10; seed=2021, all=true, tolOF=0.01, tolOFcount=4)
+calib_random_results = Mads.calibraterandom(md, 3; seed=2021, all=true, tolOF=0.01, tolOFcount=4)
 
-calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
+calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:3)...)
 
 forward_predictions = Mads.forward(md, calib_random_estimates)
-Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="GPP",
+Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="SOILC",
 		       filename=mads_config["mads_problemname"]*".png")
 
 

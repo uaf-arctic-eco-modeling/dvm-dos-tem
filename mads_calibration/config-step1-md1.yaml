@@ -28,7 +28,7 @@ pftnums:
 - 2
 - 3
 site: /data/input-catalog/cru-ts40_ar5_rcp85_mri-cgcm3_MurphyDome_10x10
-work_dir: /data/workflows/STEP1-MD1
+work_dir: /data/workflows/TEST-STEP1-MD1
 mads_initial_guess:
 - 381.19
 - 113.93
@@ -45,11 +45,10 @@ mads_paramkey:
 - cmax2
 - cmax3
 mads_obsweight:
-mads_paramlog:
 # mads_obsrange (ON, OFF) sets ranges for observations
 mads_obsrange: 'OFF'
 mads_obs_percent_variance: 1
 # mads_paramrange (ON, OFF) sets ranges for parameters
 mads_paramrange: 'OFF'
 mads_param_percent_variance: 70
-mads_problemname: AC3-STEP1-MD1-R-EJ-new
+mads_problemname: STEP1-MD1-R-EJ

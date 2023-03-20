@@ -1,11 +1,11 @@
 # Autocalibration (AC) version 3.0
 # This version uses updated TEM.py  
-# STEP1 MD1
-# parameters: cmax
-# targets: (GPP) 
+# STEP2 MD1
+# parameters: nmax,krb
+# targets: (NPP,VEGC)
 
 import Mads
-import Pkg; Pkg.add("YAML")
+#import Pkg; Pkg.add("YAML")
 import YAML
 import PyCall
 @show pwd()
@@ -16,12 +16,12 @@ import sys,os
 sys.path.append(os.path.join('/work','scripts'))
 import TEM
 
-dvmdostem=TEM.TEM_model('config-step1-md1.yaml')
+dvmdostem=TEM.TEM_model('config-step2-md1.yaml')
 dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
 
 """
 
-mads_config = YAML.load_file("config-step1-md1.yaml")
+mads_config = YAML.load_file("config-step2-md1.yaml")
 
 function TEM_pycall(parameters::AbstractVector)
         predictions = PyCall.py"dvmdostem.run_TEM"(parameters)
@@ -33,7 +33,7 @@ initial_guess=mads_config["mads_initial_guess"]
 y_init=PyCall.py"dvmdostem.run_TEM"(initial_guess)
 targets=PyCall.py"dvmdostem.get_targets(targets=True)"
 n_o=length(targets)
-obstime=1:n_o 
+obstime=1:n_o
 
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]
@@ -107,7 +107,7 @@ calib_random_results = Mads.calibraterandom(md, 10; seed=2021, all=true, tolOF=0
 calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 
 forward_predictions = Mads.forward(md, calib_random_estimates)
-Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="GPP",
+Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="NPP/VEGC",
 		       filename=mads_config["mads_problemname"]*".png")
 
 
