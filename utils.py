@@ -1,7 +1,6 @@
 import csv
 import os
 import numpy as np
-from sklearn.cluster import KMeans
 from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 import pandas as pd
@@ -71,7 +70,7 @@ def read_csv_errors(path, filenames):
       for row in reader:
         if r==1:
           r=r+1
-          vals=row[4:]
+          vals=row[5:]
       #remove 'OF:' left over from iteration files
       for nn in range(0,len(vals)):
         vals[nn]=vals[nn].replace("OF:", "")
@@ -100,7 +99,7 @@ def read_all_csv_errors(path, filenames):
           if r==1:
             r=r+1
             index = [i for i, col in enumerate(row) if 'OF' in col][0]
-          vals=row[index:]
+          vals=row[5:]
         #remove 'OF:' left over from iteration files
         for nn in range(0,len(vals)):
           vals[nn]=vals[nn].replace("OF:", "")
@@ -166,7 +165,7 @@ def read_all_csv(folder_path, filenames, type):
 
 #-------------------------------FUNCTIONS TO LOAD ITERATION FILES (output from MADS)----------------------------------------------
 
-def get_optimal_sets_of_params(path, filename):
+def get_optimal_sets_of_params(filename):
   """
   Reads optimal parameters from final results file 
   #can probably use for interation and initial files too
@@ -175,12 +174,10 @@ def get_optimal_sets_of_params(path, filename):
   filename (list): List of file name to be read
 
   Returns:
-  dictionary of params (keys) and optimal values found (values). 
-  Order matters, optimal paramaters of index 1 for each key belong to the same run
+  dictionary of params (keys) and optimal values found (values). Order matters, optimal paramaters of index 1 for each key belong to the same run
   """
-  file_path = os.path.join(path, filename)
   #we assume there are three lines per calibration - 0=OF, 1=lambda, 2=params
-  with open(file_path) as f:
+  with open(filename) as f:
       lines = f.readlines()
   #for multiple optimal sets, need to loop through them all, index starts at 0
   filelength = len(lines)
@@ -222,6 +219,30 @@ def merge_parameter(p1,p2):
   for same_key in set(p1) & set(p2):
     merge_param[same_key] = p1[same_key]+p2[same_key]
   return merge_param
+
+def get_error(filename):
+  """
+  read in error from final results file
+
+  Parameters: filename
+
+  Returns: list of error from all runs in the file
+  """
+  #again, assumes there are three lines - 0=OF, 1=lambda, 2=params
+  with open(filename) as f:
+    errors = f.readlines()
+  #for multiple optimal sets, need to loop through them all
+  filelength = len(errors)
+  num_sets = math.floor(filelength/3) #truncate in case there's an empty extra line at end of file
+  for nn in range(1,num_sets+1):
+    del errors[(nn)] #delete lambda line
+    del errors[(nn)] #delete params line
+  for nn in range(0,num_sets):
+    errors[nn]=errors[nn].replace("OF:", "") 
+    errors[nn]=errors[nn].replace(" ", "")
+    errors[nn]=errors[nn].replace("\"", "")
+    errors[nn]=errors[nn].replace("\n", "")
+  return errors
 
 def get_all_optimal_sets_of_params(path, filenames):
     """
@@ -266,34 +287,6 @@ def get_all_optimal_sets_of_params(path, filenames):
         for key, val in sub.items(): 
           params.setdefault(key, []).append(round(float(val),2))
     return params
-
-def get_error(path, filename):
-  """
-  read in error from final results file
-
-  Parameters: filename
-
-  Returns: list of error from all runs in the file
-  """
-  all_errors = []
-  for filename in filenames:
-    file_path = os.path.join(path, filename)
-    #again, assumes there are three lines - 0=OF, 1=lambda, 2=params
-    with open(file_path) as f:
-      errors = f.readlines()
-    #for multiple optimal sets, need to loop through them all
-    filelength = len(errors)
-    num_sets = math.floor(filelength/3) #truncate in case there's an empty extra line at end of file
-    for nn in range(1,num_sets+1):
-      del errors[(nn)] #delete lambda line
-      del errors[(nn)] #delete params line
-    for nn in range(0,num_sets):
-      errors[nn]=errors[nn].replace("OF:", "") 
-      errors[nn]=errors[nn].replace(" ", "")
-      errors[nn]=errors[nn].replace("\"", "")
-      errors[nn]=errors[nn].replace("\n", "")
-    all_errors=all_errors+errors
-  return all_errors
 
 #Identification of separate runs does not work well for all cases
 def load_sort_itr_err(path,filename):
@@ -351,93 +344,6 @@ def plot_histograms(params,nbins=10,x=16,y=8,r=2,c=4):
     s+=1
   return
 
-def get_err_clusters(float_err,n_clusters=4):
-  """
-  Use Kmeans to cluster errors, clusters in order of magnitude (0-smallest error, 3-largest)
-
-  Parameters: 
-  float_err - list of errors converted to floats
-  nclusters - number of error clusters, default is 4
-
-  Returns: 
-  y_kmeans - index of cluster each error belongs to (list)
-  centetrs - (array) center value of each error cluster
-  """
-  arr=np.array(float_err)
-  kmeans = KMeans(n_clusters)
-  kmeans.fit(arr.reshape(-1,1))
-  y_kmeans = kmeans.predict(arr.reshape(-1,1))
-  centers = kmeans.cluster_centers_
-  centers = sorted(centers) #do we need this line?
-  return y_kmeans, centers
-
-def cluster_param_data(params,y_kmeans):
-  """
-  Organize parameters values by kmeans clusters
-
-  Parameters: 
-  params - dictionary of optimal parameters
-  y_kmeans - index of cluster each error belongs to (list)
-
-  Returns: 
-  zeroes, twos, ones, threes - list of optimal parameters belonging to each respective error cluster
-  """
-  zeroes=[]
-  ones=[]
-  twos=[]
-  threes=[]
-  for v in range(len(params)):
-    if y_kmeans[v]==0:
-      zeroes.append(params[v])
-    elif y_kmeans[v]==1:
-      ones.append(params[v])
-    elif y_kmeans[v]==2:
-      twos.append(params[v])
-    elif y_kmeans[v]==3:
-      threes.append(params[v])
-  return zeroes, twos, ones, threes
-
-def plot_stacked_histograms(mparams,centers,y_kmeans,nbins=10,x=24,y=10,r=2,c=4,std=0):
-  """
-  plot the optimal values in a stacked histogram, where stacking color is determined by error cluster
-
-  Parameters: 
-  params - dictionary of optimal parameters
-  centetrs - (array) center value of each error cluster
-  y_kmeans - index of cluster each error belongs to (list)
-  nbins
-  x - width of fig
-  y - height of fig #default is y=5 for each row
-  r - number of rows
-  c - number of columns
-  std - standard deviation. If std of given histogram is less than this value, it will NOT be plotted
-
-  Returns: histogram
-  """
-  #plot the optimal values, colors stacked by error clusters
-  plt.style.use('bmh')
-  plt.figure(figsize=(x,y))
-  labels=[float(x) for x in centers]
-  rounded_labels=list(np.round(labels,4))
-  s=1
-  for item in mparams:
-    if stat.stdev(mparams[item])>std:
-      plt.subplot(r,c,s)
-      zeroes,ones,twos,threes=cluster_param_data(mparams[item],y_kmeans)
-      plt.hist([zeroes,ones,twos,threes], 10, density=False, histtype='bar', stacked=True)
-      plt.title(item)
-      plt.xlabel('optimal values')
-      plt.ylabel('counts')
-      plt.tight_layout(pad=3.0)
-      s+=1
-    else:
-      print('Parameter '+item+' has standard deviation('+str(stat.stdev(mparams[item]))+') less than threshold of '+str(std)+'\n')
-  centers=np.round(centers,2)
-  # plt.legend(['Type I','Type II','Type III','Type IV'], title = "Error", bbox_to_anchor=(1.0, 1.0), loc='upper right')
-  plt.legend([str(centers[0]),str(centers[1]),str(centers[2]),str(centers[3])], title = "Error", bbox_to_anchor=(1.0, 1.0), loc='upper right')
-  plt.suptitle('Optimal Parameters Classified by Errors')
-  return
-
 
 def plot_err_by_run(err_by_run, idx, x=24, y=8, r=3, c=4, deg=2):
   """
@@ -447,7 +353,7 @@ def plot_err_by_run(err_by_run, idx, x=24, y=8, r=3, c=4, deg=2):
   err_by_run - list of each iterations error grouped by run (in order)
   idx - index for each new calibration run from the iteration files (output of load_sort_itr_err)
   x - width of fig
-  y - height of fig 
+  y - height of fig
   r - number of rows
   c - number of columns
   deg - degree of curve to fit. currently not in use
@@ -501,8 +407,8 @@ def match_plot(df_model,df_params, target='GPP'):
   plot model-data match results
 
   Parameters: 
-  df_model - dataframe of target and model data (rows correspond to parameters, COLUMNS correspond to one simulation)
-  df_params - dataframe of optimal paramaters (currently not used)
+  df_model - dataframe of target and model data
+  df_params - dataframe of optimal paramaters
   target - (str) targets for the calibration, example: 'VEGC/NPP'
 
   Returns: plot with 2 figures:
@@ -523,3 +429,8 @@ def match_plot(df_model,df_params, target='GPP'):
   df_model.iloc[:,all_data:].plot(logy=True, xlabel="obs_id", ylabel=target, title="log-scale model "+target, style="-", colormap='tab20b', legend=True, ax=axes[1])
   df_model.iloc[:,idx].plot(logy=True, style="-o", color='black', ax=axes[1])
   return
+
+
+
+
+
