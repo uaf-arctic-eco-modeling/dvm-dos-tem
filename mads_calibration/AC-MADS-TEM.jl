@@ -42,7 +42,7 @@ end
 
 initial_guess=mads_config["mads_initial_guess"]
 
-y_init=tem.run_TEM(initial_guess)
+#y_init=tem.run_TEM(initial_guess)
 targets=tem.get_targets(1)
 
 n_o=length(targets)
@@ -100,9 +100,9 @@ obsdist = []
 mads_obsrange=mads_config["mads_obsrange"]
 if mads_obsrange == "ON"   
     var=mads_config["mads_obs_percent_variance"]
-    for i in eachindex(obs)
-        min_r = max.(obs[i] .- obs[i] .* (var / 100), 0)
-        max_r = obs[i] + obs[i] .* (var / 100)
+    for i in eachindex(targets)
+        min_r = max.(targets[i] .- targets[i] .* (var / 100), 0)
+        max_r = targets[i] + targets[i] .* (var / 100)
         push!(obsdist, "Uniform($(min_r), $(max_r))")
     end
 end
@@ -128,7 +128,7 @@ Mads.showobservations(md)
 #Mads.plotmatches(md, calib_param, xtitle="# of observations", 
 #		      ytitle="Targets",filename=mads_config["mads_problemname"]*".png")
 
-calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
+calib_random_results = Mads.calibraterandom(md, 30;  all=true, tolOF=0.01, tolOFcount=4)
 
 calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 
