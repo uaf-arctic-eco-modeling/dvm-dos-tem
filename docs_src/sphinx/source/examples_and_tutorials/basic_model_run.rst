@@ -5,19 +5,20 @@
    ^, for subsubsections
    ", for paragraphs
 
-##########################
-March 2022 Workshop Lab 1
-##########################
+################################
+Basic Model Setup and Run
+################################
 
-This lab exercise (tutorial) walks through the process of making a basic model
+This exercise/tutorial walks through the process of making a basic model
 simulation. With this exercise you will get to interact with the code and a
-bunch of the supporting tools, including Docker, Git, and some visualization
-tools.
+bunch of the supporting tools, including Docker, and Git. For post processing
+and visualization, see the :ref:`Plotting Example
+<examples_and_tutorials/plotting_discussion:Plotting>`. 
 
 .. note::
 
   This lab is more or less a duplicate of an existing wiki page:
-  https://github.com/ua-snap/dvm-dos-tem/wiki/How-To:-Run-dvmdostem-and-plot-output-via-Docker.
+  https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/wiki/How-To:-Run-dvmdostem-and-plot-output-via-Docker.
 
   We are in the process of migrating all content from the wiki and assorted
   Google Documents to this Sphinx based documentation system, therefore this
@@ -25,14 +26,18 @@ tools.
 
 This tutorial will walk you through the process of:
  
- - getting the dvmdostem code, 
+ - getting the ``dvmdostem`` code, 
  - building your Docker images, 
- - starting your Docker containers,
- - running dvmdostem in your Docker container (in a trivial and silly fashion), and
- - making a similarly trivial and silly plot.
+ - starting your Docker containers, and
+ - running ``dvmdostem`` in your Docker container (in a trivial fashion).
 
 This tutorial will walk you through most of the above steps with varying levels
 of hand-holding.
+
+If you need more background help, please see the Prelude document which has
+information on :ref:`Version Control<prelude:Version Control>`,
+:ref:`Docker<prelude:Docker>`, and :ref:`general programming<prelude:General
+Programming>`.
 
 *************
 Install tools
@@ -59,8 +64,16 @@ a server. In addition to basic code hosting Github provides a heap of additional
 features including issue tracking, access control, and various continuous
 integration, testing and publishing tools.
 
-There are more details about version control in the
-:ref:`software_development_info:Version Management` section of the Dev Info
+For more general information and help about Git, see the :ref:`Prelude - Version
+Control<prelude:Version Control>` section.
+
+For more information and details about how the ``dvmdostem`` project is using
+Git, please see the :ref:`Dev Info - Version
+Management<software_development_info:Version Management>` section.
+
+For more information about how the ``dvmdostem`` project is using Github, see
+the :ref:`Using Github
+Features<examples_and_tutorials/using_github_features:Using Github's Features>`
 document.
 
 Git terms you should familiarize yourself with before continuing: commit,
@@ -147,10 +160,15 @@ of 2022 popular text editors are Sublime, VSCode, and Atom. MacOS and Linux
 generally have an easily accessible terminal program. For Windows, look into
 MobaXTerm.
 
-So to get going, do the following:
+Summary
+========
+So to get going, do the following if you do not already have these tools:
 
+ #. Install a text editor and terminal program. 
  #. Install Git on your computer. Directions for this vary based on your
-    operating system; you should be able to get started here https://git-scm.com.
+    operating system; you should be able to get started here
+    https://git-scm.com. When you are done you should be able to run ``git
+    --version``.
  #. Install Docker. Again directions for this vary for your operating system but
     you should be able to get started here https://docs.docker.com. When
     you are done, you should be able to open a terminal and run ``$ docker
@@ -177,22 +195,40 @@ So to get going, do the following:
 Get the code
 ************
 
-With your tools setup, it is time to get started. Navigate to
-https://github.com/ua-snap/dvm-dos-tem and find the link to clone the
-repository. On your computer, open a terminal and navigate to a place where you
-would like your copy of ``dvmdostem`` to be stored. Copy the clone address and
-use it to run the ``$ git clone`` command in your terminal. You might notice
-that the clone address is simply the URL for the repo with ``.git`` at the end.
-This will fetch a copy of the repository from Github to your local machine. You
-should see some messages in your terminal to that extent. Notice that on your
-machine you now have a new directory entitled ``dvm-dos-tem`` with an exact copy
-of the code that is on Github. In addition, due to the power of Git, you also
-have the entire history of the project on your computer as well. This works
-because inside your dvm-dos-tem directory is another (hidden) folder named
-``.git`` - this hidden folder contains the history of the project and all the
-other information that Git needs to perform its magic. You rarely, if ever, need
-to look at the contents of the ``.git`` directory. Take a few minutes to explore
-the files in the dvm-dos-tem directory.
+With your tools setup, it is time to get the source code. Navigate to
+https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem and find the link to
+clone the repository. 
+
+.. image:: ../images/examples_and_tutorials/basic_model_run/github_clone.png
+
+On your computer, open a terminal and navigate to a place where you would like
+your copy of ``dvmdostem`` to be stored. Copy the clone address and use it to
+run the ``$ git clone`` command in your terminal. 
+
+.. _ssh vs http:
+.. note::
+
+  Using ``ssh`` vs ``https`` clone address. Notice that the "clone" button on
+  github gives you the option to use either the ``https`` address (default) or
+  the ``ssh`` address. If you are have been added to the project as a
+  collaborator you should use the ``ssh`` address so that you are able to push
+  changes to the upstream fork. If you use the ``https`` address, you will still
+  be able to push to your personal fork, but will not be able to push to the
+  upstream ``uaf-arctic-eco-modelling`` fork.
+
+
+You might notice that the clone address is simply the URL for the repo with
+``.git`` at the end. This will fetch a copy of the repository from Github to
+your local machine. You should see some messages in your terminal to that
+extent. Notice that on your machine you now have a new directory entitled
+``dvm-dos-tem`` with an exact copy of the code that is on Github. In addition,
+due to the power of Git, you also have the entire history of the project on your
+computer as well. This works because inside your ``dvm-dos-tem/`` directory is
+another (hidden) folder named ``.git`` - this hidden folder contains the history
+of the project and all the other information that Git needs to perform its
+magic. You rarely, if ever, need to look at the contents of the ``.git``
+directory. Take a few minutes to explore the files in the ``dvm-dos-tem``
+directory.
 
 .. _Names:
 .. note::
@@ -206,17 +242,17 @@ the files in the dvm-dos-tem directory.
   executable does not have hyphens.
 
 .. _git remotes:
-.. note::
+.. warning::
 
   Notice that when you run ``$ git remote -v`` you are presented with some text
-  indicating that your remote is named ‘origin’ and points to the Github ua-snap
-  repository. To be consistent with this tutorial and the rest of our
-  documentation, you should rename this remote to ‘upstream’ and point ‘origin’
-  to your personal fork of the code (if you have one). To do this use the ``$
-  git remote rename <old> <new>`` command.
+  indicating that your remote is named ‘origin’ and points to the Github
+  uaf-arctic-eco-modeling repository. To be consistent with this tutorial and
+  the rest of our documentation, you should rename this remote to ‘upstream’ and
+  point ‘origin’ to your personal fork of the code (if you have one). To do this
+  use the ``$ git remote rename <old> <new>`` command.
 
 .. _git branch:
-.. note::
+.. warning::
 
   Notice that after cloning the repository and running the ``$ git branch``
   command you are on the master branch of the code. It is highly recommended
@@ -278,7 +314,7 @@ and can take 15 minutes or more depending on your internet connection.
 When you have built all the images, you should be able to see them in Docker
 Desktop or with the command line as shown in the screenshot.
 
-.. image:: ../images/workshop_march_2022/lab1/docker_images.png
+.. image:: ../images/examples_and_tutorials/basic_model_run/docker_images.png
    :width: 600
    :alt: docker images
 
@@ -372,7 +408,7 @@ you should see that two of the containers are running. For our use case, we do
 not need the ``cpp-dev`` or the ``dvmdostem-build`` containers to keep running.
 They exit immediately, and that is OK.
 
-.. image:: ../images/workshop_march_2022/lab1/docker_containers.png
+.. image:: ../images/examples_and_tutorials/basic_model_run/docker_containers.png
    :width: 600
    :alt: docker containers
 
@@ -422,9 +458,9 @@ dvmdostem source code. To do this, run the following command:
 
 which will use the environment and tools inside the container to compile the C++
 source code (which is linked into the container via the mounted volume) into the
-``dvmdostem`` binary.This can take several minutes. Once it is done you should
-have a new file in your repository folder named dvmdostem. You should not need
-to run this again unless you modify the C++ source files.
+``dvmdostem`` binary. This can take several minutes. Once it is done you should
+have a new file in your repository folder named ``dvmdostem``. You should not
+need to run this again unless you modify the C++ source files.
 
 Finally with all this setup in place we can start working on setting up a model
 run.
@@ -433,11 +469,11 @@ run.
 Setting up a dvmdostem run
 ***************************
 
-In general the steps to making a dvmdostem run are as follows:
+In general the steps to making a ``dvmdostem`` run are as follows:
 
 #. Decide where on your computer you want to store your model run(s).
 #. Decide what spatial (geographic) area you want to run.
-#. Decide what variables you want to have output
+#. Decide what variables you want to have output.
 #. Decide on all other run settings/parameters:
 
    * Which stages to run and for how many years.
@@ -451,9 +487,9 @@ In general the steps to making a dvmdostem run are as follows:
 #. Make plots or other analysis.
 
 The rest of this tutorial will walk through the above steps, doing a very basic
-dvmdostem run and plotting the output using the Docker stack.
+``dvmdostem`` run using the Docker stack.
 
-.. _Two ways to run Docker commands:
+.. _two-ways-to-run-docker-commands:
 .. note:: 
 
   There are two distinct ways to run commands in the Docker containers:
@@ -488,27 +524,30 @@ dvmdostem run and plotting the output using the Docker stack.
   Both methods will be used in this tutorial. The different methods can be used
   to leverage the shell’s tab-complete functionality in different circumstances.
 
+Setting up the working directory
+==================================
+
 First we are going to set up a working directory where we will conduct our model
-run and save the outputs. We will keep this directory inside the workflows
+run and save the outputs. We will keep this directory inside the ``workflows``
 folder (which you linked from your host to the container during the setup
 above). There is a helper script for setting up a working directory. This script
 will copy over the required parameter and settings files, set up an output
 folder and make some adjustments to the configuration file for the run.
 
 Using the one-off command style, run the script. For this case we just
-arbitrarily select something from the input catalog. I'd have to look at a map
-to know where Chevak is.
+arbitrarily select a dataset from your input catalog. Don't worry if you have a
+different dataset from the example shown here.
 
 .. code:: bash
 
   $ docker compose exec dvmdostem-dev scripts/setup_working_directory.py \
-  /data/workflows/ws2022_lab1 \
+  /data/workflows/basic_model_run \
   --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
   Namespace(copy_inputs=False,
   input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10',
-  new_directory='/data/workflows/ws2022_lab1', no_cal_targets=False)
+  new_directory='/data/workflows/basic_model_run', no_cal_targets=False)
 
-which will create a new folder (named ``ws2022_lab1``) inside your workflows
+which will create a new folder (named ``basic_model_run``) inside your workflows
 directory. This folder will have the ``dvmdostem`` default parameters copied in
 as well as config settings. The paths in the ``config.js`` file should be
 correctly set to the input data set you chose with the ``--input-data-path``
@@ -526,7 +565,7 @@ command line option.
 
     ... 
     Namespace(copy_inputs=False, input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10',
-    new_directory='/data/workflows/ws2022_lab1', no_cal_targets=False)
+    new_directory='/data/workflows/basic_model_run', no_cal_targets=False)
 
   Sometimes it is useful and sometimes it isn’t. In most cases it is simply
   leftover from whatever was needed when the script was developed.
@@ -539,9 +578,9 @@ command line option.
   .. code:: bash
 
     $ docker compose exec dvmdostem-dev scripts/setup_working_directory.py \
-    /data/workflows/ws2022_lab1 --input-data-path \
+    /data/workflows/basic_model_run --input-data-path \
     /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
-    Namespace(copy_inputs=False, input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10', new_directory='/data/workflows/ws2022_lab1', no_cal_targets=False)
+    Namespace(copy_inputs=False, input_data_path='/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10', new_directory='/data/workflows/basic_model_run', no_cal_targets=False)
     Traceback (most recent call last):
       File "scripts/setup_working_directory.py", line 82, in <module>
         shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
@@ -551,7 +590,7 @@ command line option.
         os.makedirs(dst, exist_ok=dirs_exist_ok)
       File "/home/develop/.pyenv/versions/3.8.6/lib/python3.8/os.py", line 223, in makedirs
         mkdir(name, mode)
-    FileExistsError: [Errno 17] File exists: '/data/workflows/ws2022_lab1/config'
+    FileExistsError: [Errno 17] File exists: '/data/workflows/basic_model_run/config'
 
   In this case the error has to do with the directory you are trying to create
   already existing. This might happen because you ran the script once, then
@@ -572,24 +611,29 @@ Let’s look around in the directory you just created.
 .. code:: bash
 
   docker compose exec dvmdostem-dev bash
-  develop@ef7aad33441c:/work$ cd /data/workflows/ws2022_lab1/
+  develop@ef7aad33441c:/work$ cd /data/workflows/basic_model_run/
 
 
   # Check the files that should have been created with the setup script
-  develop@ef7aad33441c:/data/workflows/ws2022_lab1$ ls
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ ls
   calibration  config  output  parameters  run-mask.nc
 
 The idea is that each run will exist in its own self-contained directory with
-all the config files and the output data. This way the run can be easily
-adjusted, re-run, and archived for later use without losing any provenance data.
-The one linked item will be the actual driving input data files - they are not
-copied into the run directory, but are simply linked by specifying paths in the
-``config/config.js`` file. If you need you could copy the inputs into the run
-directory and adjust the paths in the ``config/config.js`` file accordingly. All
-the parameters for the run are in the ``parameters/`` directory, there is
-``run-mask.nc`` for controlling which pixels to run, a folder for calibration
-info, a folder for the outputs and a folder for the config file and output
-specification file.
+all the config files necessary to execute the run. The output data will also be
+stored here. This ensures that the run can be easily adjusted, re-run, and
+archived for later use without losing any provenance data. By default the
+driving input data is not copied to the experiment folder (to save space). If
+you need to copy the driving input data into your experiment directory, try the
+``--copy-inputs`` flag.
+
+If you inspect the ``config/config.js`` file, you will see that the paths to the
+input data are absolute (starting with ``/`` and pointing toward the input
+dataset that you specified) and the paths to the parameters, ``run-mask.nc``,
+calibration folder, ``outspec.csv`` and output folder are relative (no leading
+``/``).
+
+Adjusting the ``config`` file
+===============================
 
 .. _Input shapes:
 .. note:: 
@@ -620,6 +664,10 @@ your host machine or using ``vim`` from inside the container:
   ...
   }
 
+
+Adjusting the run mask
+========================
+
 Now let's adjust the run-mask so that we only run 1 or 2 pixels. Note that you
 can use the ``--show`` option to see what the mask looks like before and after
 adjusting it. We'll turn on 2 pixels here, just for fun:
@@ -627,28 +675,31 @@ adjusting it. We'll turn on 2 pixels here, just for fun:
 .. code:: bash
 
   # First make sure all pixels are OFF (set to 0)
-  $ docker compose exec dvmdostem-dev runmask-util.py --reset /data/workflows/ws2022_lab1/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask-util.py --reset /data/workflows/basic_model_run/run-mask.nc
   Setting all pixels in runmask to '0' (OFF).
 
   # Then turn one pixel.
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 0 0 /data/workflows/ws2022_lab1/run-mask.nc 
+  $ docker compose exec dvmdostem-dev runmask-util.py --yx 0 0 /data/workflows/basic_model_run/run-mask.nc 
   Turning pixel(y,x) (0,0) to '1', (ON).
 
   # And another pixel
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 1 1 /data/workflows/ws2022_lab1/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask-util.py --yx 1 1 /data/workflows/basic_model_run/run-mask.nc
   Turning pixel(y,x) (1,1) to '1', (ON).
 
 Note that you don't want to pass ``--reset`` to the second call, or it will
 disable the first pixel you enabled!
 
+Choosing the outputs
+=====================
+
 Next we need to enable some output variables. The control for which outputs
 ``dvmdostem`` will generate and at what resolution happens using a special
-``.csv`` file. The file has one row for every possible variable and columns for
+``.csv`` file. The file has one row for every available variable and columns for
 the different resolutions. The file can be edited by hand, but we have also
 written a utility script for working with the file. We’ll use the utility script
 here. For this example we will do our command using the interactive form instead
 of the one-off form. Also notice that this script outputs a summary of the
-variable enabled in a tabular format. This means that it is hard to read on a
+variables enabled in a tabular format. This means that it is hard to read on a
 narrow screen because the lines wrap, which is why the following looks so bad.
 On your computer you can make the font smaller or your terminal wider to have
 the output be readable.
@@ -659,42 +710,80 @@ the output be readable.
   $ docker compose exec dvmdostem-dev bash
 
   # Change into our working directory for this experiment
-  develop@ef7aad33441c:/work$ cd /data/workflows/ws2022_lab1/
+  develop@ef7aad33441c:/work$ cd /data/workflows/basic_model_run/
 
   # Turn on RH
-  develop@ef7aad33441c:/data/workflows/ws2022_lab1$ outspec_utils.py config/output_spec.csv --on RH y layer
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on RH y layer
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                     RH            g/m2/time            y                   invalid      invalid      invalid            l       double     Heterotrophic respiration
 
   # Turn on VEGC
-  develop@ef7aad33441c:/data/workflows/ws2022_lab1$ outspec_utils.py config/output_spec.csv --on VEGC m pft
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on VEGC m pft
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                   VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
 
 .. _outspec utils:
-.. note::
+.. warning::
 
   The order of arguments to ``outspec_utils.py`` is very counterintuitive!  The
   file you want to modify needs to be the first argument so that it doesn't get
   confused with the resolution specification.
+
+.. _outspec utils flags:
+.. note::
+
+  Try the ``--help`` flag for more options, inparticular, the ``-s`` flag for 
+  summarizing the current file.
+
+Every output variable can be produced for a set of dimensions. These dimensions
+are a reflection of the :ref:`structure of the model<model_overview:Structure>`
+and vary between output variables. The more dimensions are selected, the more
+information you will get, and the larger the output files will be. For regional
+runs, a trade-off between the granularity of the outputs needed and the size of
+the output files needs to be considered.
+
+Three time dimensions are available: yearly, monthly and daily. Daily outputs
+are only available for a few physical variables, and aren’t generally produced
+as (1) the model is primarily designed to represent ecological dynamics on a
+monthly basis, and (2) the amount of data created rapidly becomes unmanageable
+for multi-pixel runs.
+
+Two dimensions are specific to the vegetation: PFT, i.e. plant functional type,
+and Compartment. By default, all output variables associated with the
+vegetation are produced for the entire ecosystem (community type). But every
+community type is defined by an ensemble of plant function types, which are
+composed of single or multiple species sharing similar functional traits (e.g.
+"deciduous shrubs", "evergreen trees", "sphagnum moss" ...). Finally, every PFT is
+partitioned into multiple compartments: “leaves”, “wood” (stem and
+branches), and “roots” (coarse and fine). By selecting PFT and/or compartment,
+the outputs for a vegetation-related variable will be partitioned by these
+dimensions. 
+
+One dimension is specific to the soil column: layer. The soil column is divided
+into multiple layers, that can belong to five types of horizons – brown moss,
+fibric organic, humic organic, mineral and rock. By default, soil-related
+variables will be summed-up across the entire soil column. But if the layer
+dimension is selected in the ``output_spec.csv`` file, the selected variable
+will produce ouputs by layer.
+
 
 ************************
 Launch the dvmdostem run
 ************************
 
 Finally we are set to run the model! There are a number of command line options
-available for ``dvmdostem`` which you can investigate with the ``--help`` flag. The
-options used here are for setting the length of the :ref:`run-stages
-<model_overview:Temporal>`, for controlling the log level output, and
-for forcing the model to run as a particular community type.
+available for ``dvmdostem`` which you can investigate with the ``--help`` flag.
+The options used here are for setting the length of the :ref:`run-stages
+<model_overview:Temporal>`, for controlling the log level output, and for
+forcing the model to run as a particular community type.
 
-In a real run ``--eq-yrs`` might be something like 1500 and ``--sp-yrs`` something like
-250. But for testing we might be too impatient to wait for that. Plus for this
-toy example, we enabled fairly hi-resolution outputs so running the model for
-long time spans could result in huge volumes of output. The ``dvmdostem`` model is
-fairly flexible with respect to outputs and output resolution so the user must
-put some thought into choosing configurations that make sense and are reasonable
-for the available computing power.
+In a real run ``--eq-yrs`` might be something like 1500 and ``--sp-yrs``
+something like 250. But for testing we might be too impatient to wait for that.
+Plus for this toy example, we enabled fairly hi-resolution outputs so running
+the model for long time spans could result in huge volumes of output. The
+``dvmdostem`` model is fairly flexible with respect to outputs and output
+resolution so the user must put some thought into choosing configurations that
+make sense and are reasonable for the available computing power.
 
 In this case we are forcing the community type to be CMT 4. In a “normal”
 ``dvmdostem`` run, the community type is controlled by the input
@@ -703,8 +792,8 @@ corresponds to the CMT numbers in the parameter files. Frequently for single
 pixel runs the user wants to ignore the ``vegetation.nc`` map and force the
 pixel to run as a particular CMT. In this case we want to force our pixel to run
 as CMT 4 simply because we know that the parameters for CMT 4 have been
-calibrated. For more discussion about community types in dvmdostem see :ref:`the CMT
-section <model_overview:Community Types (CMTs)>`. 
+calibrated. For more discussion about community types in dvmdostem see :ref:`the
+CMT section <model_overview:Community Types (CMTs)>`. 
 
 The ``--log-level`` command line option controls the amount of information that is
 printed to the console during the model run. There are 5 levels to choose from:
@@ -720,7 +809,7 @@ if a run fails, it can be difficult to know why.
   Despite the fact that there is a command line option for pointing to an
   arbitrary control file (config.js), this option doesn’t work when used with
   relative paths in the control file as we have for this lab. For this reason we
-  provide the ``--workdir /data/workflows/ws2022_lab1/`` command line option 
+  provide the ``--workdir /data/workflows/basic_model_run/`` command line option 
   when launching the model. Notice that this command line option is associated
   with ``docker compose exec``, not ``dvmdostem``.
 
@@ -754,7 +843,7 @@ console output has been omitted for clarity:
 
 .. code:: bash
 
-  $ docker compose exec --workdir /data/workflows/ws2022_lab1/ dvmdostem-dev dvmdostem -l err -f /data/workflows/ws2022_lab1/config/config.js -p 50 -e 100 -s 25 -t 115 -n 85
+  $ docker compose exec --workdir /data/workflows/basic_model_run/ dvmdostem-dev dvmdostem -l err -f /data/workflows/basic_model_run/config/config.js -p 50 -e 100 -s 25 -t 115 -n 85
   Setting up logging...
   [err] [] Looks like CMTNUM output is NOT enabled. Strongly recommended to enable this output! Use outspec_utils.py to turn on the CMTNUM output!
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 0
@@ -785,7 +874,7 @@ file in the output folder, for example:
 
 .. code:: bash
 
-  $ docker compose exec dvmdostem-dev ncdump /data/workflows/ws2022_lab1/output/run_status.nc 
+  $ docker compose exec dvmdostem-dev ncdump /data/workflows/basic_model_run/output/run_status.nc 
   netcdf run_status {
   dimensions:
     Y = 10 ;
@@ -825,7 +914,7 @@ like.
   
   .. code:: bash
 
-    $ docker compose exec dvmdostem-dev grep vegetation.nc /data/workflows/ws2022_lab1/config/config.js
+    $ docker compose exec dvmdostem-dev grep vegetation.nc /data/workflows/basic_model_run/config/config.js
       "veg_class_file": "/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10/vegetation.nc",
 
   From here there are many ways we could go, but for this example we will use
@@ -881,143 +970,6 @@ like.
   only 10x10, the printed output is readable and we can see that incidentally,
   pixels (0,0) and (1,1) are set to CMT 4. So it turns out that the
   ``--force-cmt`` isn’t doing anything in this case. Oh well!
-
-*****************
-Plotting outputs
-*****************
-
-There are several plotting tools buried in the ``scripts/`` directory but none
-of them are particularly polished or fine tuned. Many, but not all, of the
-scripts have decent info with the ``--help`` flag. There is not a consistent
-pattern for whether plots are saved or shown in an interactive window, and in
-the cases where the plots are saved, the file names are not standardized. In
-other words, as a user, you will likely need to look at the script code to
-determine whether your plot will be displayed or saved. For example, looking at
-script ``plot_output_var.py`` with a text editor, approximately lines 250-252,
-we can see that in fact both ``plt.savefig()`` and ``plt.show()`` are being
-called. 
-
-.. image:: ../images/workshop_march_2022/lab1/plot_output_var.png
-   :width: 600
-   :alt: plot_output_var script
-
-
-This actually works nicely because when the command is run on the Docker
-container, the ``plt.show()`` call is essentially ignored and the resulting plot
-is saved to a file. The name of the saved plot is not currently configurable, so
-it would be up to the user to rename the file and move it somewhere appropriate.
-
-Also note that there is a script, ``output_utils.py``, that is designed to be
-imported into other Python scripts and has a bunch of functions for summarizing
-variables over various dimensions (layers, pfts, etc).
-
-The existing plotting tools rely on a variety of specific Python libraries, and
-not everything has been tested with the versions specified in the
-``requirements.txt`` file, so you might encounter small issues with the scripts
-that have to be resolved before they will run. Frequently this is just a matter
-of updating deprecated function calls for libraries like ``matplotlib`` or
-``pandas`` that have been changed since we first wrote the plotting tools.
-Please submit a Github pull request if you encounter and fix any of these
-issues!
-
-While all of the existing plotting tools are written in Python, users are free
-(and encouraged!) to write their own plotting tools using whatever language they
-prefer. We have made a lot of effort to make our outputs conform to the `CF
-Conventions`_, especially with respect to the time dimensions, data units, and
-geo-referencing. The output files are generally viewable at a basic level using
-standard tools like `ncview`_ as well.
-
-.. _docker interactive plotting:
-.. note::
-
-  Working with Docker provides advantages for standardizing the Python
-  environment and folder structure amongst developers, but provides one
-  significant hurdle for plotting: it is difficult to display the standard
-  Matplotlib interactive plotting window due to the need for the XWindows system
-  to be installed on your host computer and the ``DISPLAY`` environment variable to
-  be set correctly. Typically when plotting with ``matplotlib`` natively on your
-  computer, when you run ``plt.show(...)`` you are presented with a window showing
-  the plot and including some panning and zooming controls. From inside a Docker
-  container this will not work - nothing will show up and you may get error
-  messages.
-
-  There several possible solutions/workarounds we have discovered:
-
-  #. Avoid using ``plt.show(...)`` and instead modify plotting scripts to use
-     ``plt.savefig(...)``.
-
-  #. Install XWindows on the host system, Python TKinter inside Docker container
-     and set the ``DISPLAY`` environment variable appropriately when executing
-     commands in Docker container. See more info here:
-     https://stackoverflow.com/questions/46018102/how-can-i-use-matplotlib-pyplot-in-a-docker-container.
-  #. Run a Jupyter Notebook Server inside the Docker container and do plotting
-     inline in Jupyter Notebook.
-  #. Perform plotting and analysis on your host system.
-
-Before we get to plotting we should first review the outputs that we have
-specified for this model run and look at the files that were created. During the
-setup, we requested three variables, GPP, RH and VEGC. We requested GPP and RH
-at yearly resolution, and VEGC at monthly and PFT resolution. We also indicated
-that we did not want output for the equilibrium stage, but we did want output
-for all other run stages. We can easily verify these settings by looking at the
-``config.js`` file for the run and using the ``--summary`` option for
-``outspec_utils.py``, which you are encouraged to do on your own.
-
-We can start by looking at the output files that were created by our run:
-
-.. code:: bash
-
-  $ docker compose exec dvmdostem-dev ls /data/workflows/ws2022_lab1/output
-  GPP_yearly_sc.nc  RH_yearly_sp.nc     VEGC_monthly_tr.nc  restart-sp.nc
-  GPP_yearly_sp.nc  RH_yearly_tr.nc     restart-eq.nc	  restart-tr.nc
-  GPP_yearly_tr.nc  VEGC_monthly_sc.nc  restart-pr.nc	  run_status.nc
-  RH_yearly_sc.nc   VEGC_monthly_sp.nc  restart-sc.nc
-
-You can ignore the ``restart-*.nc`` files - these files help the model transition
-from one stage to the next. And we can see that we have three files for each
-variable - one file for each run-stage. If we inspect the GPP file we can see
-that there is a single data variable (GPP), the dimensions are (time, y, x), and
-the length of the time dimension is 25 which corresponds to the number of spinup
-years we ran for.
-
-.. code::bash
-
-  $ docker compose exec dvmdostem-dev ncdump -h /data/workflows/ws2022_lab1/output/GPP_yearly_sp.nc 
-  netcdf GPP_yearly_sp {
-  dimensions:
-    time = 25 ;
-    y = 10 ;
-    x = 10 ;
-  variables:
-    double GPP(time, y, x) ;
-      GPP:units = "g/m2/year" ;
-      GPP:long_name = "GPP" ;
-      GPP:_FillValue = -9999. ;
-  ...
-
-One of the easiest things we might want to look at is a time series plot of GPP
-for one of the pixels we ran. This can easily be done with ncview, but you will
-almost certainly encounter the problems described in the note about Docker and
-interactive plotting `docker interactive plotting`_. If you run ``ncview`` on
-your host machine (from which the output files should be accessible thanks to
-the Docker volume), you will see something like this:
-
-.. image:: ../images/workshop_march_2022/lab1/ncview.png
-  :width: 600
-  :alt: example ncview
-
-
-Note that while the ncview interface appears a bit antiquated, it is an
-extremely functional program that allows exploration of NetCDF files.
-
-We can create a very similar plot to the ``ncview`` plot using our
-``plot_output_var.py`` script, for example. Notice that we have used the one-off
-style of command here, and that we are viewing the saved file after the script
-has exited. 
-
-.. image:: ../images/workshop_march_2022/lab1/plot_output_var_example.png
-  :width: 600
-  :alt: example output plot
 
 
 .. links (explicit targets)

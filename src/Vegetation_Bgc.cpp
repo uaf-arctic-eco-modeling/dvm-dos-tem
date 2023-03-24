@@ -459,7 +459,7 @@ void Vegetation_Bgc::delta() {
       }
     } else {
       // This PFT is a moss or lichen and has no stems and roots. Allocate the
-      // remaining availabe GPP to leaf growth and associated growth respiration.
+      // remaining available GPP to leaf growth and associated growth respiration.
       del_a2v.innpp[I_leaf] += C_avail;
       del_v2a.rg[I_leaf] = del_a2v.innpp[I_leaf] * calpar.frg;
     }

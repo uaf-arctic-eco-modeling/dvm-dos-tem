@@ -639,7 +639,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       edall->daily_percolation[id][il] = soilenv.richards.percolation[il];
     }
 
-
     // save the variables to daily 'edall' (Note: not PFT specified)
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
 

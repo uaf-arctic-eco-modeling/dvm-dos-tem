@@ -43,6 +43,7 @@ which we can print the name and number of each CMT.
     12 Lowland Boreal Wet Shrubland
     20 EML Shrub Tundra
     21 EML Tussock Tundra
+    31 Boreal Bog
     44 Shrub Tundra Kougarok
 
 Build a lookup table, mapping file names to lists of available parameters
@@ -57,18 +58,18 @@ See that all the parameter files contain the same CMTs (by number):
     >>> import os
     >>> for f in os.listdir("../parameters/"):
     ...   print([i["cmtnum"] for i in pu.get_CMTs_in_file("../parameters/" + f)])
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
 
 Enforce that all the CMT verbose names are identical across files.
 
-    >>> for cmt in [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 44]:
+    >>> for cmt in [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]:
     ...   names = []
     ...   for f in os.listdir("../parameters/"):
     ...     dd = pu.cmtdatablock2dict(pu.get_CMT_datablock("../parameters/" + f, cmt))
@@ -90,6 +91,7 @@ Enforce that all the CMT verbose names are identical across files.
     cmt 12: OK
     cmt 20: OK
     cmt 21: OK
+    cmt 31: OK
     cmt 44: OK
 
 Check on one of the command line reporting fuctions:

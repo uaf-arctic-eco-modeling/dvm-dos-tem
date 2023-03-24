@@ -5,9 +5,9 @@
    ^, for subsubsections
    ", for paragraphs
 
-##########################
-March 2022 Workshop Lab 5
-##########################
+######################################
+Contributing to the Codebase
+######################################
 
 This lab takes you through one possible workflow using Git and Github to make a
 modification to the codebase and have it included upstream. This is a somewhat
@@ -30,126 +30,12 @@ This tutorial also assumes that you have:
  - A Github account. 
  - The ability to set up ssh keys for access to your Github account. (optional)
  - Been added as a collaborator with write access to the 
-   http://github.com/ua-snap/dvm-dos-tem repository.
+   http://github.com/uaf-arctic-eco-modeling/dvm-dos-tem repository.
 
 Begin by reading the :ref:`Version Management <software_development_info:Version
 Management>` section of this document for an overview of how the ``dvmdostem``
 project uses Git and Github.
 
-*************************
-Why use version control?
-*************************
-
-As mentioned in the :ref:`Version Management <software_development_info:Version
-Management>` section, using version control in a project really serves several
-purposes: 
-
-   #. Provenance - being able to understand (and trust) where the code came
-      from. 
-   #. Facilitating contributions from multiple people.
-   #. Backup - being able to
-      revert the code to a previous state in case of an error or other need.
-
-These needs can of course be met without a full fledged version control system
-and as you struggle to learn Git you will almost certainly be tempted to just go
-back to periodically emailing yourself backups or printing out the code and
-locking it in your gun safe. However I would encourage you to persevere as once
-you have the basics of Git under your belt, it will fundamentally change the way
-you think about programming and will enable you to interact with a wide variety
-of software projects as well as having great control over your own projects.
-
-As you work with Git it is valuable to keep in mind the reasons you are using
-version control: backup, collaboration, and provenance. Cultivating a clean,
-readable, traceable history frequently requires extra steps and care that will
-seem extraneous in the moment. However with a multi-person project this care is
-essential to making the project history useful. When you are stuck and wondering
-what to do, it is often helpful to think in terms of how you want the code
-history (commit graph) to look when you are finished. With the idea of the
-history you want to achieve in mind, you can then find a path forward. 
-
-***********************
-General Workflow Loops
-***********************
-
-According to the IEEE, Software Engineering is the systematic, disciplined,
-quantifiable approach to the design, development and maintenance of software
-systems. As such software engineers are frequently obsessed with processes -
-understanding the processes at play and figuring out how to make them consistent
-is one key to achieving the systematic, disciplined, and quantifiable approach
-that is called for. 
-
-Below we cover several core processes before assembling them to a full workflow.
-
-Core Development Process Loop
-=============================
-
-The core development process loop is shown in the diagram.
-
-.. image:: ../images/workshop_march_2022/lab5/edit-compile-run-check.png
-   
-These four steps are at the heart of any software work. In different
-environments, some of the steps might be automated or hidden, but the steps must
-be carried out in order for software to be created. With a single person this is
-straightforward. The individual may elect to add additional steps such as
-“backup work” or “publish finished code”. 
-
-Loop with individual version control
-=====================================
-
-The most basic version control process loop is simply: edit, stage, commit.
-
-.. image:: ../images/workshop_march_2022/lab5/edit-stage-commit.png
-   :width: 200
-   :alt: core process loop with individual version control
-
-By itself this loop is not particularly useful - it doesn’t even involve running
-the code, let alone checking it! But if we add the compile, run and check steps
-we are getting closer to a robust development process:
-
-.. image:: ../images/workshop_march_2022/lab5/edit-compile-run-check-stage-commit.png
-   :width: 200
-   :alt: core process loop with compile run check
-
-There are a number of other steps that might be added:
-
- * checkout branch,
- * stash changes not ready to be committed
- * merge branch(es)
- * pull from another repo,
- * push to another repo,
- * rebase changes
-
-Also note that the loop doesn’t not strictly need to happen in the above order.
-Sometimes you might want to commit code before it runs or you might want to
-cycle through the edit → compile → run → check loop many times before
-committing.
-
-Incorporating more people
-==========================
-
-When multiple people are involved their efforts must be synchronized so that
-their changes to the system are compatible and so the people do not interfere
-with each other. Git does not specify exactly how this should be done and leaves
-many of the details up to the end users. Git provides the general tools to
-accomplish collaborative (or individual) work in a wide variety of ways. When
-you are interacting with other people you will need to be pushing your changes
-to a remote repository and pulling changes from remote repositories. When things
-are working smoothly, there are rarely changes that need to be reconciled (merge
-conflicts). This leads to a clean and readable history.
-
-There are many complexities and possible scenarios that can come up as this
-process is carried out amongst multiple people. It is hard to describe the
-scenarios and the implications of different choices without the folks involved
-having a pretty solid handle on the basic core developer workflow as well as the
-mechanics of the following Git fundamentals:
- 
- * Making a commit.
- * Checking out branches.
- * A clone vs a fork.
- * Git vs Github.
- * Viewing git log information (either via command line or GUI app like gitk).
- * Interacting with remote repositories.
- * Browsing a repository on Github
 
 ******************************************************
 Single person topic branch and pull request process
@@ -163,9 +49,14 @@ changes that affect other people's environments (e.g. modifying the Dockerfile),
 you will frequently need to take additional steps or considerations beyond what
 is shown here!
 
-A very similar example to these steps is shown graphically in the accompanying slides ~14-27
+A very similar example to these steps is shown graphically in the accompanying
+slides ~14-27
 
-:download:`Workshop 2022 Lab 5 <../slides/WS2022_Lab5.pdf>`
+.. raw:: html
+
+  <!-- Shared from Tobey Carman's WS2022_Lab5 Google Slides presentation -->
+  <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRhJEtl1676vpHOUTxrwcaxlf3bodLLb9s4nSh9ENlzgxYzVyMbfSzSc3bssr9fDFBzZkzslVr2ROm1/embed?start=true&loop=true&delayms=3000" frameborder="0" width="480" height="286" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
 
 The steps:
 
@@ -208,7 +99,7 @@ The steps:
 
 #. Once you have finished your work, use the Github website to Create a
    Pull Request. You want to request that your topic branch be merged
-   into the ua-snap/dvm-dos-tem master branch.
+   into the uaf-arctic-eco-modeling/dvm-dos-tem master branch.
 
 #. Engage in discussion with other folks using Github’s comments on the
    PR, Slack, or other communications.
@@ -238,6 +129,8 @@ Discuss:
 *********************************
 Multi-person topic branch process
 *********************************
+
+See accompanying slides (above) ~29-39.
 
 Lets have two people: Y and Z who are both working on the project, and in fact
 they both need to work on the same topic branch. This example is harder to write

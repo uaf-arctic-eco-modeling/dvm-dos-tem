@@ -47,9 +47,9 @@ def verify_input_files(in_folder):
   in_folder : str
     A path to a folder of dvmdostem inputs.
 
-  Throws
+  Raises
   ------  
-  BadInputFilesValueError, 
+  BadInputFilesValueError
 
   Returns
   -------

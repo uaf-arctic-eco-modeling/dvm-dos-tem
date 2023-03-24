@@ -12,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
+import pandas as pd
 import collections
 
 
@@ -155,32 +156,137 @@ def average_monthly_pool_to_yearly(data):
 
   return output
 
+def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, 
+                        fileprefix=None):
+  '''Builds a pandas.DataFrame for the requested output variable with the
+  transient and scenario data merged together and a complete
+  DatetimeIndex.
 
-def stitch_stages(var, timestep, stages, fileprefix=''):
+  This function does not handle by-compartment files yet.
+
+  Parameters
+  ==========
+  var : str
+    The variable of interest. Must be a dvmdostem output variable, i.e.
+    GPP.
+
+  timeres : str
+    String of either 'monthly' or 'yearly' that will be used to find
+    and open the appropriate files as well as set the DatetimeIndex.
+
+  px_y : int
+    Index of the pixel to work with, latitude dimension.
+
+  px_x : int
+    Index of pixel to work with, longitude dimension.
+
+  fileprefix : str
+    The path, absolute or relative, where the function will look for files.
+
+  Returns
+  ========
+  df : pandas.DataFrame
+    A DataFrame with data for the requested ``var`` from transient and
+    scenario output files. The DataFrame should have a complete
+    DatetimeIndex.
+
+  meta : dict
+    A small dictionary containing metadata about the datasets in the
+    dataframe. Namely, the units.
   '''
-  Expects `var` to be one the dvmdostem output variable names. `timestep` must
-  be one of "yearly" or "monthly", and stages is a (ordered) list containing 
-  one or more of "pr","eq","sp","tr","sc". `fileprefix` is an optional path
-  that will be pre-pended to the filenames for opening files in a different
-  directory.
+  data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
+      timestep=timeres, fileprefix=fileprefix, with_dti=True
+  )
 
-  Outputs from dvmdostem assume one variable per file and the following 
+  timeslice = slice(0, None, 1)
+  yslice = slice(px_y, px_y+1, 1)
+  xslice = slice(px_x, px_x+1, 1)
+  pftslice = None
+  layerslice = None
+
+  if 'pft' in dims:
+    pftslice = slice(0, None, 1)
+  elif 'layer' in dims:
+    layerslice = slice(0, None, 1)
+
+  if pftslice is not None:
+    slice_tuple = (timeslice, pftslice, yslice, xslice)
+    final_shape = (data.shape[0], data.shape[1])
+  elif layerslice is not None:
+    slice_tuple = (timeslice, layerslice, yslice, xslice)
+    final_shape = (data.shape[0], data.shape[1])
+  else:
+    slice_tuple = (timeslice, yslice, xslice)
+    final_shape = (data.shape[0])
+
+  meta = {
+    'var_units': units,
+  }
+
+  return pd.DataFrame(data[slice_tuple].reshape(final_shape), index=dti), meta
+
+
+def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
+  '''Glues files together along the time axis. 
+
+  Outputs from ``dvmdostem`` assume one variable per file and the following
   file-naming pattern: 
   
-      `var`_`timestep`_`stage`.nc
+      ``var_timestep_stage.nc``
   
   This function makes the following additional assumptions about the files:
+
     - All files for different timesteps have the same dimensions
     - The file's variable name is the same as the variable name in the filename.
-    - There is a units attribute?
+    - There is a units attribute.
 
-  Returns a tuple (`data`, `units`), where `data` is a multi-dimensional numpy 
-  array that is the concatenation of the input arrays along the time axis and 
-  `units` is the unit string that is found in the input netcdf files.
+  Only able to return a ``pandas.DatetimeIndex`` for a transient (tr) and
+  scenario (sc) files.
+
+
+  Parameters
+  ==========
+  var : str
+    An uppercase string matching one of the dvmdostem output names.
+
+  timestep : str
+    Must be one of 'yearly' or 'monthly', and match the files present in
+    ``fileprefix`` for the ``var``.
+
+  stages : list of strings
+    Ordered list of strings for the stages to stitch together, i.e. for all
+    stages, in normal order: ``['pr','eq','sp','tr','sc']``.
+
+  fileprefix : str
+    A path that will be pre-pended to the filenames for opening files in a
+    different directory.
+
+  with_dti : bool
+    Whether or not a full pandas.DatetimeIndex should be retured. 
+
+  Returns
+  =======
+  data : np.array
+    A multi-dimensonal numpy array that is the concatenatio of the input arrays
+    along the time axis.
+
+  units_str : str
+    The units of the variable in question, read from the attributes of the
+    netCDF files.
+
+  dims : tuple
+    A list of strings naming the dimensions of the ``data`` array.
+
+  dti : (optional) pandas.DatetimeIndex 
+    The DatetimeIndex should span the time axis (first axis) of the ``data``
+    array.
+
   '''
-
   expected_file_names = ["{}_{}_{}.nc".format(var, timestep, stg) for stg in stages]
   expected_file_names = [os.path.join(fileprefix, i) for i in expected_file_names]
+
+  if len(expected_file_names) < 1:
+    raise RuntimeError("No files found. Can't stitch stages with no files!")
 
   full_ds = np.array([])
   units_str = ''
@@ -195,8 +301,46 @@ def stitch_stages(var, timestep, stages, fileprefix=''):
         full_ds = np.concatenate( (full_ds, f.variables[var][:]), axis=0 )
         if f.variables[var].units != units_str:
           raise RuntimeError("Something is wrong with your input files! Units don't match!")
+      dimensions = f.variables[var].dimensions
 
-  return (full_ds, units_str)
+  if with_dti:
+    ds_begin = nc.Dataset(expected_file_names[0])
+    ds_end = nc.Dataset(expected_file_names[1])
+    dti = build_full_datetimeindex(ds_begin, ds_end, timeres=timestep)
+    return (full_ds, units_str, dimensions, dti)
+  else:
+    return (full_ds, units_str, dimensions)
+
+def get_start_end(timevar):
+  '''Returns CF Times. use .strftime() to convert to python datetimes'''
+  start = nc.num2date(timevar[0], timevar.units, timevar.calendar)
+  end = nc.num2date(timevar[-1], timevar.units, timevar.calendar)
+  return start, end
+
+
+
+def build_full_datetimeindex(hds, pds, timeres):
+  '''Returns a ``pandas.DatetimeIndex`` covering the range of the two
+  input datasets. Assumes that the two input datasets are consecutive
+  monotonic, and not missing any points.'''
+  
+  if timeres == 'yearly':
+    freq = 'AS-JAN'
+  elif timeres == 'monthly':
+    freq = 'MS'
+  else:
+    raise RuntimeError("Invalid time resolution")
+
+  h_start, h_end = get_start_end(hds.variables['time'])
+  p_start, p_end = get_start_end(pds.variables['time'])
+
+  begin = sorted([h_start, h_end, p_start, p_end])[0]
+  end = sorted([h_start, h_end, p_start, p_end])[-1]
+
+  dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), end=end.strftime(), freq=freq))
+
+  return dti
+
 
 
 def check_files(fnames):
@@ -346,7 +490,7 @@ def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stag
 
   for i, var in enumerate(vars2plot):
     ax = plt.subplot(gs[i,:])
-    data, units = stitch_stages(var, time_resolution, stages, folder)
+    data, units, dims = stitch_stages(var, time_resolution, stages, folder)
     print(data.shape)
     ax.plot(data[:,spatial_y, spatial_x], label=var)
     ax.set_ylabel = units
@@ -391,7 +535,7 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
 
   Returns `None`
   '''
-  data, units = stitch_stages(var, timestep, stages)
+  data, units, dims = stitch_stages(var, timestep, stages)
   print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
@@ -541,7 +685,7 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
   Returns `None`
   '''
 
-  data, units = stitch_stages(var, 'monthly', stages)
+  data, units, dims = stitch_stages(var, 'monthly', stages)
   print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
@@ -585,7 +729,7 @@ def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   Work in progress...
   '''
 
-  data, units = stitch_stages(var, timestep, stages)
+  data, units, dims = stitch_stages(var, timestep, stages)
   print("data size:", data.size)
   print(data.shape)
 
@@ -621,6 +765,7 @@ def plot_soil_layers():
   
   Attempts to display an intuitive representation of the soil column using
   a horizontal bar chart. 
+
    - bar width is set by the value of the variable under investigation
    - bar color is set by the LAYERTYPE
    - bar height (thickness?) is controlled by the LAYERDZ

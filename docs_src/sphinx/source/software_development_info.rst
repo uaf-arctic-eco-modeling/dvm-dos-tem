@@ -25,6 +25,25 @@ code, and IPython Notebooks floating around for various tasks.
 The core code is compiled with a basic Makefile. This documentation is written 
 in reStrutured Text and Sphinx and is also compiled with a Makefile.
 
+***************************
+Coding Conventions
+***************************
+
+Table? List? Subsections?
+
+Here are some first things off the top of my head.
+
+  * Indent with spaces, use 2 spaces for the tab width.
+  * Aim for lines to be <80 chars long,
+  * For Python write docstrings in ``numpydoc`` (Link?) format.
+  * For C++ write comments in Doxygen format.
+  * Favor verbose descriptive variable names.
+
+For documentation (``*.rst`` and ``*.md`` files, ``docstring`` s, etc), please
+hard wrap lines at 80 charachters before comitting. Many text editors have
+settings or extensions that can help with this tedium. With VSCode, try the
+Rewrap extension. For Sublime, try "Select -> Edit -> Wrap".
+
 *************
 Documentation
 *************
@@ -92,36 +111,68 @@ To build the Doxygen documentation locally, then do the following:
 The resulting files are in the ``docs_src/doxygen/doxygen_build`` directory and 
 can be viewed locally with a web browser.
 
+=====================================
+Preview -> Editing -> Contributing
+=====================================
 
-======================
-Editing / Contributing
-======================
+Previewing
+-----------
 
-The writing and editing process for this docuemtation ends up looking
-essentially like the general coding or programing process:
+Here are the steps to preview documentation changes (perhaps made by someone
+else) in your local environment. Assuming you have a development environment, a
+cloned copy of the repo, and a "clean" working state:
 
- * setup a development environment of your choice
- * clone the repository to your development environment
- * edit the source files (``docs_src/sphinx/*.rst``)
- * process the ``.rst`` files: ``cd docs_src/sphinx && make clean && make html``
- * preview the results in your browser
-   (``file:///path/to/your/repo/docs_src/sphinx/build/html``)
- * commit your changes
- * push commits upstream and make pull request
+ 1. Checkout the branch you are interested in previewing. For example someone
+    else has pushed to the ``upstream/<BRANCH-NAME>`` branch and you'd like to
+    see what they have written or how it all looks: ``$ git remote update && git
+    checkout <BRANCH-NAME>``.
+  
+ 2. Clean the existing docs and build them: ``$ cd docs_src/sphinx && make clean
+    && make html``
+
+ 3. Preview the results in your browser
+    (``file:///path/to/your/repo/docs_src/sphinx/build/html``).
+
+.. note:: 
+
+  It is generally easiest to run the documentation build using the
+  ``dvmdostem-dev`` Docker container so that the build environment (Sphinx
+  version, etc) match the environment used to publish.
+
+
+Editing
+---------
+
+The writing and editing process for the docuemtation ends up looking essentially
+like the general coding or programing process:
+
+ 1. setup a development environment of your choice
+ 2. clone the repository to your development environment
+ 3. checkout a new or existing topic branc to work on
+ 4. edit the source files (``docs_src/sphinx/*.rst``)
+ 5. process the ``.rst`` files: ``cd docs_src/sphinx && make clean && make html``
+ 6. preview the results in your browser
+ 7. (``file:///path/to/your/repo/docs_src/sphinx/build/html``)
+ 8. commit your changes
 
 For more details about the coding process see the `Workflow`_ section.
 
----------------------------------
-Project Standards and Conventions
----------------------------------
 
- * Please hard wrap lines at 80 charachters before comiting. Many text editors
-   have settings or extensions that can help with this tedium.
- * 
+Contributing
+------------
 
-==========
+If you would like to contribute your edits use a Pull Request. 
+
+To make a Pull Request, you must push your commits to Github (either your fork)
+or the ``uaf-arctic-eco-modeling/dvm-dos-tem``, depending on your choice of
+workflow and your status as a collaborator.
+
+==============
 Publishing
-==========
+==============
+
+Publishing (updating the live website at github.io) is reserved for the
+maintainers, ``tcarman2`` and ``rarutter``.
 
 In the current implementation with Sphinx (used to format this document), we
 have a ``docs_src`` folder within which is a subdirectory for each documentation
@@ -215,151 +266,6 @@ should work. This solution is not perfect, downsides include:
 
 
 *****************************
-Software Development Patterns
-*****************************
-At the highest level, the process of software development is simply “write 
-some code (instructions) and get a machine to carry out the instructions”. 
-At the end of the day, this is all we are trying to accomplish. However the 
-situation is never simple and there are an infinite number of ways to 
-accomplish such a seemingly simple task. When a computer programmer talks 
-about toolchains and environment they are talking about the setup for the 
-process of “write code and make a machine run it”. There is no single best 
-way to set up your environment, and each person has their own needs and 
-preferences. Sometimes there are constraints due to hardware (i.e. working 
-on a High Performance Computing system or a tiny embedded microprocessor), 
-sometimes the constraints come from available software tools or the skills 
-of the people writing the code. You will encounter a variety of patterns for 
-the environments and toolchains used in this project. Understanding these 
-patterns will help you select the best way to perform your work and have 
-it mesh with the existing project.
-
-Usually when you start writing some code you are in a purely exploratory 
-and experimental mode and you reach for whatever environment and toolchain 
-is comfortable and close at hand. Once your code has matured and you want to 
-make it available to someone else, you need to put some thought into the 
-environment and toolchain for working with the code. Also as your code 
-grows in complexity, different environments make certain operations 
-easier or harder.
-
-The majority of the dvmdostem code is designed to be run via command line 
-interface (CLI), meaning it is expected that you have a terminal (presumably 
-bash or something similar) on an Ubuntu-like operating system. You are 
-expected to interact with the programs by running the scripts or compiled 
-binaries from the command line (REPL).
-
-Following is a brief overview of a variety of different programming 
-environments and toolchain patterns.
-
-
-* Read Eval Print Loop (REPL, shell, terminal)
-  REPL stands for "**R**\ ead **E**\ val **P**\ rint **L**\ oop". The REPL can 
-  be written in nearly any language and can be designed to interpret nearly 
-  any language. Users may be familiar with a number of REPL implementations 
-  including the basic Python interpreterprompt (``>>>``), the IPython 
-  interpreter prompt (``[In 0]:``), and R prompt (``>``) orsimply the 
-  terminal prompt in their shell of choice (commonly bash). A REPL typically 
-  ingests one line of text, follows the instructions, and returns the user 
-  to the prompt. This is handy for prototyping, but quickly becomes tedious 
-  to type if you have multi-line instructions (code). For this reason there 
-  is the concept of a script which provides a means for submitting multiple 
-  lines of code to a REPL
-
-
-* GUI Application
-  Common, intuitive for exploration. User uses a mouse and keyboard to click 
-  buttons and interact with the software. May be written in a wide variety 
-  of languages, but typically requires a “framework” of existing code that 
-  helps with common patterns. Frameworks you might hear of are: Tcl/Tkinter, 
-  QT, Cocoa, Swing, SWT, Delphi.
-
-* Interpreted Program (script)
-  An interpreted programming language is translated from human-written 
-  code (instructions) into computer instructions (machine language) 
-  on-the-fly. Python is an interpreted language meaning that there is not 
-  an explicit compile step required to run the program. You simply submit 
-  the script (your Python code) to the Python interpreter and it is 
-  translated into machine code on the fly.
-
-* Compiled Program (binary) A compiled programming language required a dedicated
-  “build step” to translate the human-written code (instructions) into machine
-  code. The result of the build step is an object file or a “compiled binary”.
-  The main dvmdostem binary is a compiled C++ program. When the source code is
-  modified, you must run make to re-compile the project and create a new binary
-  object file before running it.
-
-* Integrated Development Environment (IDE)
-  Typically this is a GUI application that bundles together a bunch of handing 
-  tools into one package. In general the tools are:
-
-    * Text editor
-    * REPL
-    * Debugger
-    * Build tools
-    * File browser
-
-  There are many different IDEs each with their own advantages and disadvantages. 
-  Often IDEs are particularly suited to a certain language (i.e. PyCharm for 
-  Python, Eclipse for C/C++, etc).
-
-* IPython
-  IPython is simply an enhanced REPL for Python. It comes with heaps of extra 
-  features that make life easier, including support for multi-line statements, 
-  built-in help, auto-complete features, and much more.
-
-* Basic IDE
-  All you really need for writing compiled or interpreted programs are a text 
-  editor and a terminal that will let you compile the program (if necessary) 
-  and execute it.
-
-* Jupyter Notebook
-  This is a novel addition to the traditional programming toolset. Jupyter 
-  Notebooks combine features of:
-
-    * an advanced (enhanced) REPL, 
-    * an IDE,
-    * formatted writing/documentation system and,
-    * run-time for the program.
-
-  This is accomplished using a client server architecture. In order to execute 
-  the code in a Jupyter Notebook, you must also run (or connect to) a 
-  “Notebook Server” which is a python environment and run-time. One advantage 
-  of this is that the client portion can be an interactive web page that is 
-  viewable for anyone with a standard web browser - provided they can make 
-  requests to a functioning backend server which provides the Python run-time.
-
-  The server can actually run a variety of languages, so it is possible to 
-  use R or Julia or a number of other languages as the notebook code cell 
-  language.
-
-  Notebooks are great for:
-
-    * Intermingling code and documentation or explanations (formatted text)
-    * Experimenting with small code snippets
-    * Presenting interactive plots from remote servers without needing an XWindow or other ``DISPLAY`` forwarding system
-    * Developing and prototyping code
-
-  Notebooks are challenging for:
-
-    * Version control
-    * Writing code that is easy to run in a non-notebook environment (library code)
-    * Groups that do not have the bandwidth or abilities for running individual notebook servers or to run and maintain a central notebook server
-    * Debugging certain types of process
-
-
-* Virtual Machine
-
-  In order to wrap up an environment such that you can preserve it or pass it to
-  someone else, people have devised the concept of a Virtual Machine (VM). In
-  2022, there are innumerable ways to run a VM (VMware, Parallels, Multipass,
-  Docker, etc), each with its own tradeoffs. The important thing to remember is
-  that a Virtual Machine attempts to encapsulate an environment. Each of the
-  items in the above list (Notebook, IPython, IDE, etc) might be able to run
-  inside a virtual machine. If you are not provided with a perfectly functioning
-  environment it is often up to you to understand what you need for an execution
-  context and set it up for yourself; a VM of some variety frequently provides
-  some way to achieve this.
-
-*****************************
 Version Management
 *****************************
 The primary reasons for using a version management system for  ``dvmdostem`` 
@@ -386,10 +292,10 @@ people to contribute.
 ===========================
 Version Control and Hosting
 ===========================
-This project is using Git for version control and Github for hosting. The 
-primary fork of the code (referred to as “upstream”) is currently hosted under 
-the ua-snap organization [#]_, so the primary (upstream) repository address is: 
-https://github.com/ua-snap/dvm-dos-tem.
+This project is using Git for version control and Github for hosting. The
+primary fork of the code (referred to as “upstream”) is currently hosted under
+the uaf-arctic-eco-modeling organization, so the primary (upstream)
+repository address is: https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem.
 
 .. note::
    * The Source Control Management (SCM) or Version Control software is 
@@ -408,85 +314,7 @@ upstream repository is only granted to trusted collaborators. We gladly
 accept contributions to the code via pull request from anyone, but the pull 
 request will have to be merged by a collaborator with write access to the 
 upstream repo. See the branching and workflow sections below for more details.
-
-.. [#] As of September 2022, this is true; we anticipate moving to a new 
-       Github Organization in the next 6 months or so. 
-
---------------
-Getting Help
---------------
-General Git help is beyond the scope of this document. Here a few key concepts
-that this document assumes you are familiar with:
-
- * What is a commit.
- * What is a SHA id.
- * Difference between a fork and a clone.
- * Difference between git push, pull, fetch, and pull request (PR).
- * Difference between git branch, merge and rebase.
-
-Here are several recommendations for general Git help:
-
- * https://git-scm.com/book/en/v2
- * https://www.atlassian.com/git
- * http://sethrobertson.github.io/GitBestPractices
-
-.. note::
-   It is important to make commits that are concise, organized, and readable, 
-   thus fulfilling the goals of using a version control system. This comes 
-   down to using git on a day-to-day basis and learning:
-  
-   * what is a commit,
-   * how to write a good commit message,
-   * how to separate different concerns into different commits,
-   * how to fine tune a commit (interactive rebase, amend and when 
-     to use it),
-   * understanding what types of files or information should not be kept 
-   * under version control,
-   * how to use branches,
-   * how to merge branches, and
-   * the implications of making merges in an environment with multiple 
-     developers.
-
--------
-Tools
--------
-It is possible to use ``git`` purely from the command line, and in many 
-cases this is the easiest way to go. However for some people and some 
-situations a Graphical User Interface (GUI) is really helpful. Find a solution 
-that works for you and your computing platform! There are generally two major 
-functions of the Git GUIs, sometimes bundled in one application, and 
-sometimes not:
-
- * Viewing the project history.
- * Adding to the project history (making commits, pushing, pulling, 
-   merging, rebasing).
-
-In 2022 there are many many graphical front ends to Git, and many text 
-editors and IDEs have built in support for at least some Git features. You 
-will need to find a tool that works for you. Although the interfaces look 
-antiquated, you might find that the programs Gitk (history viewer) and 
-Git Gui (for making commits) are perfectly sufficient, and these are 
-readily available on most systems. At the end of the day you are likely to 
-use a combination of the command line interface and a graphical frontend tool.
-
--------
-Setup
--------
-Your Git remote repositories should be appropriately named. This document 
-assumes that you are using the following convention:
-
-* The remote named origin should generally point to your fork of the 
-  codebase, so the URL will look something like: 
-  ``https://github.com/<your user name>/dvm-dos-tem``.
-* The remote named ``upstream`` should generally point to
-  ``https://github.com/ua-snap/dvm-dos-tem`` or
-  ``git@github.com:ua-snap/dvm-dos-tem.git`` if you will be contributing.
-
-It is **strongly encouraged** that you go to the effort of making sure your
-current git branch is displayed in your terminal shell prompt. There are many
-examples floating around online of how to achieve this for all major operating
-systems and shells; one example `here
-<https://stackoverflow.com/questions/15883416/adding-git-branch-on-the-bash-command-prompt>`_ 
+ 
 
 
 ==================
@@ -573,7 +401,7 @@ potential problem with merges.
 
     .. code:: shell
 
-        Merge branch 'master' from github.com:ua-snap/dvm-dos-tem into 'long-running-branch'
+        Merge branch 'master' from github.com:uaf-arctic-eco-modeling/dvm-dos-tem into 'long-running-branch'
 
     All well and good, but later, once you work has evolved, you may decide to
     change the name of long-running-branch to something more relevant:
@@ -656,9 +484,9 @@ trust.
      * https://blog.sourcetreeapp.com/2012/08/21/merge-or-rebase/
 
 
-*******************************
+================================
 Releases and Version Numbering
-*******************************
+================================
 
 Begining in 2021, we started using the "Releases" feature of Github to package
 and distribute specific versions of ``dvmdostem``. We would like to make this a
@@ -690,8 +518,80 @@ Releases are currently made on an as-needed basis by tcarman2@alaska.edu or
 rarutter@alaska.edu. 
 
 The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
-that release is visible here: https://github.com/ua-snap/dvm-dos-tem/releases
+that release is visible here: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
 
+================================================
+Keeping your repo up to date with ``upstream``
+================================================
+
+See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
+
+.. note::
+
+  A common developer issue is that you may have installed custom libraries that
+  are not available yet inside the dvmdostem Docker image. When you shutdown
+  your Docker containers, then any custom libraries you have installed will be
+  lost. When you start your containers again, you will have to re-install these
+  libraries. This can be somewhat tedious. One solution for this is that you
+  keep a custom requirements file and ask pip to install packages from that when
+  you start up your Docker containers. For example if you need the Python
+  package ``BeautifulSoup``, and ``PyDemux`` (don't ask why) you might make a
+  file in your repository ``requirements_custom.txt`` with the following lines:
+
+  .. code::
+
+    BeautifulSoup==4.8.1
+    PyDemux=1.0
+
+  And then when you start up your Docker container, you can run the following to
+  install your custom pacakges:
+
+  .. code::
+
+    develop@263004fd19aa:/work$ pip install -r requirements_custom.txt
+
+  Your ``requirements_custom.txt`` should not be tracked with Git. If you have
+  further customizations beyond this there is likely a way to inject your
+  specific environment needs into the Docker container using custom ``.bashrc``
+  files or the docker compose ``.env`` file or some combination thereof.
+
+
+
+.. note::
+
+  A common issue that comes up when you have multiple branches that you are
+  working on is that you checkout a different branch and try to run something in
+  your docker container and it fails because a library is not installed. For
+  example:
+
+  .. code::
+
+    docker compose exec dvmdostem-dev bokeh serve scripts/bk_timeslider.py --port 7001
+    2023-02-09 23:16:41,834 Starting Bokeh server version 2.4.2 (running on Tornado 6.2)
+    2023-02-09 23:16:41,835 User authentication hooks NOT provided (default user enabled)
+    2023-02-09 23:16:41,838 Bokeh app running at: http://localhost:7001/bk_timeslider
+    2023-02-09 23:16:41,838 Starting Bokeh server with process id: 5351
+    2023-02-09 23:16:48,986 Error running application handler <bokeh.application.handlers.script.ScriptHandler object at 0x7fdd8517b910>: No module named 'xarray'
+    File 'bk_timeslider.py', line 7, in <module>:
+    import xarray as xr Traceback (most recent call last):
+      File "/home/develop/.pyenv/versions/3.8.6/lib/python3.8/site-packages/bokeh/application/handlers/code_runner.py", line 231, in run
+        exec(self._code, module.__dict__)
+      File "/work/scripts/bk_timeslider.py", line 7, in <module>
+        import xarray as xr
+    ModuleNotFoundError: No module named 'xarray'
+
+  This happens when one of the branches introduces a library requirement that is
+  not yet in the upstream codebase. Ideally the library has been added to the
+  requirements file, but this is an easy step to forget. If the library is in
+  the requirements file, then all you usually need to do is ask pip to install
+  everything again:
+
+  .. code::
+
+    develop@a2d3e3cb5a55:/work$ pip install --upgrade -r requirements_general_dev.txt
+
+  If the offending library is not yet in the requirements file, then it is
+  usually a good idea to add it and make a commit first. 
 
 *******************************
 Testing and Deployment
@@ -797,5 +697,5 @@ Setting up with Ubuntu
 
 
 .. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
-.. _Github Issues: https://github.com/ua-snap/dvm-dos-tem/issues
+.. _Github Issues: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues
 .. _Semantic Versioning: https://semver.org
