@@ -166,7 +166,7 @@ def read_all_csv(folder_path, filenames, type):
 
 #-------------------------------FUNCTIONS TO LOAD ITERATION FILES (output from MADS)----------------------------------------------
 
-def get_optimal_sets_of_params(path, filename):
+def get_optimal_sets_of_params(filename):
   """
   Reads optimal parameters from final results file 
   #can probably use for interation and initial files too
@@ -178,7 +178,7 @@ def get_optimal_sets_of_params(path, filename):
   dictionary of params (keys) and optimal values found (values). 
   Order matters, optimal paramaters of index 1 for each key belong to the same run
   """
-  file_path = os.path.join(path, filename)
+  file_path = os.path.join(filename)
   #we assume there are three lines per calibration - 0=OF, 1=lambda, 2=params
   with open(file_path) as f:
       lines = f.readlines()
@@ -267,7 +267,7 @@ def get_all_optimal_sets_of_params(path, filenames):
           params.setdefault(key, []).append(round(float(val),2))
     return params
 
-def get_error(path, filename):
+def get_error(path, filenames):
   """
   read in error from final results file
 
@@ -496,15 +496,13 @@ def plot_err(err, x=8, y=6):
   plt.title('Final error for each run')
   return
 
-def match_plot(df_model,df_params, target='GPP'):
+def match_plot(df_model, target='GPP'):
   """
   plot model-data match results
-
   Parameters: 
   df_model - dataframe of target and model data (rows correspond to parameters, COLUMNS correspond to one simulation)
   df_params - dataframe of optimal paramaters (currently not used)
   target - (str) targets for the calibration, example: 'VEGC/NPP'
-
   Returns: plot with 2 figures:
     1 - match-plot for all runs
     2 - log scale match-plot for all runs
@@ -523,3 +521,27 @@ def match_plot(df_model,df_params, target='GPP'):
   df_model.iloc[:,all_data:].plot(logy=True, xlabel="obs_id", ylabel=target, title="log-scale model "+target, style="-", colormap='tab20b', legend=True, ax=axes[1])
   df_model.iloc[:,idx].plot(logy=True, style="-o", color='black', ax=axes[1])
   return
+
+# plot_paramsvstarget(df_param,df_model,r2,i=1,xlabel='nmax1',ylabel='NPP')
+def plot_paramsvstarget(x,y,r2,i=1,xlabel='nmax1',ylabel='NPP'):
+    
+    tight_params=x[r2>0.96]
+    tight_model=y.iloc[0:-1,:][r2>0.96]
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,5))
+
+    ax1.plot(x.iloc[:,i],y.iloc[0:-1,i],'o',alpha=0.5,color='b')
+    ax1.set_xlabel(xlabel)
+    ax1.set_ylabel(ylabel)
+    ax1.set_ylim([min(y.iloc[:,i])-1, max(y.iloc[:,i]+1)])
+    x1=min(x.iloc[:,i])
+    x2=max(x.iloc[:,i])
+    ax1.plot(np.linspace(x1,x2,10),np.ones(10)*y.iloc[-1,i],alpha=0.5,color='black')
+
+    ax2.plot(tight_params.iloc[:,i],tight_model.iloc[:,i],'o',alpha=0.5,color='b')
+    ax2.set_xlabel(xlabel)
+    ax2.set_title('values associated with r2>.96')
+    ax2.plot(np.linspace(x1,x2,10),np.ones(10)*y.iloc[-1,i],alpha=0.5,color='black')
+    ax2.set_ylim([min(y.iloc[:,i])-1, max(y.iloc[:,i])+1])
+
+

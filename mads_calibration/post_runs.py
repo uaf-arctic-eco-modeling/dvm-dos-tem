@@ -3,6 +3,7 @@
 #2. saves optimal parameter values into a list 
 #3. removes all duplicates from the list and save them into the csv file
 #4. runs the dmvdostem for all elements of the list and save them into another csv file
+#Example: python3 post_runs.py /work/mads_calibration/config-step1-md1.yaml
 #Author: Elchin Jafarov
 #Date: 03/2023
 
@@ -11,6 +12,14 @@ import numpy as np
 import sys,os
 sys.path.append(os.path.join('/work','mads_calibration'))
 import TEM
+import sys
+
+if len(sys.argv) != 2:
+    print("Usage: python3 post_runs.py <path/configfilename>")
+    sys.exit(1)
+
+config_file_name = sys.argv[1]
+print(f"The filename you provided is: {config_file_name}")
 
 def get_cofig_file(config_file_name):
     dvmdostem=TEM.TEM_model(config_file_name)
@@ -35,7 +44,7 @@ d=list(a.keys())
 ic_list= [[val[i] for key, val in a.items()] for i in range(len(a[d[0]]))]
 print(ic_list)
 
-tem=get_cofig_file('config-step1-md1.yaml')
+tem=get_cofig_file(config_file_name)
 
 new_list = []
 u_set = set()
@@ -51,3 +60,4 @@ y=[tem.run_TEM(ig) for ig in new_list]
 y.append(tem.get_targets(1))
 print(y)
 save_file('out.csv',y)
+
