@@ -11,6 +11,9 @@
 # info modified to display multiple pfts
 # removed all plotting functions from here
 
+import sys,os
+sys.path.append(os.path.join('/work','scripts'))
+
 import pathlib
 import numpy as np
 import netCDF4 as nc
@@ -20,10 +23,8 @@ import textwrap
 
 import lhsmdu
 import yaml
-import sys
 import glob
 import json
-import os
 import ast
 import shutil
 import subprocess
@@ -376,7 +377,7 @@ class SensitivityDriver(object):
     df = pd.DataFrame(targets).T
     df_out=pd.concat([df_out,df],axis=0)
     df_out=df_out.reset_index(drop=True)
-    out_file=os.path.join(self.work_dir, 'results.txt')
+    out_file=os.path.join(self.work_dir, 'results.csv')
     df_out.to_csv(out_file, header=False, index=False)
     return 
 
@@ -833,7 +834,6 @@ class SensitivityDriver(object):
         data = ds.variables['CMTNUM'][-last_N_yrs:,self.PXy,self.PXx]
 
     assert(data.min() == data.max()) # should be the same CMT for the whole time frame
-    print('nc_file')
     cmtkey = 'CMT{:02d}'.format(data[0])
     print('cmtkey',cmtkey)
 
