@@ -33,8 +33,12 @@ new_bounds=[[1, 5], [1, 5], [1, 5], [1, 5], \
         [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1], \
         [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1] \
         ]
+
 for i in range(len(driver.params)):
     driver.params[i]['bounds']=new_bounds[i]
+
+driver.generate_uniform(sample_size)
+print(driver.info())
 
 #setup folders based on a sample size  
 try:
