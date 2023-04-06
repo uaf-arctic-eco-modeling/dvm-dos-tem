@@ -12,7 +12,7 @@ configobj==5.0.6
 cycler==0.10.0
 decorator==4.4.2
 Fiona==1.8.18
-GDAL==3.1.2
+GDAL==3.2.2
 geojson==2.5.0
 geopandas==0.8.1
 ipython==8.10.0
@@ -32,7 +32,7 @@ parso==0.7.1
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.3.0
-prompt-toolkit==3.0.6
+prompt-toolkit
 ptyprocess==0.6.0
 Pygments==2.7.4
 pyparsing==2.4.7
@@ -43,6 +43,6 @@ PyYAML==5.4
 Shapely==1.7.1
 six==1.15.0
 tornado==6.1
-traitlets==4.3.3
+traitlets
 typing-extensions==3.7.4.3
 wcwidth==0.2.5

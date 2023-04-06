@@ -54,6 +54,7 @@ RUN pyenv global 3.8.6
 RUN pyenv rehash
 RUN python --version
 RUN pip install -U pip pipenv
+RUN pip install setuptools==58
 COPY requirements_mapping.txt .
 RUN pip install -r requirements_mapping.txt
 
