@@ -80,7 +80,7 @@
 
 /** Write out a status code to a particular pixel in the run status file.
 */
-void write_status(const std::string fname, int row, int col, int statusCode);
+void write_status_info(const std::string fname, std::string varname, int row, int col, int statusCode);
 
 
 /** Builds an empty netcdf file for recording the run status. 
@@ -430,7 +430,8 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
             std::cout << "cell " << rowidx << ", " << colidx << " complete." << difftime(cell_etime, cell_stime) << std::endl;
-            write_status(run_status_fname, rowidx, colidx, 100);
+            write_status_info(run_status_fname, "run_status", rowidx, colidx, 100);
+            write_status_info(run_status_fname, "total_runtime", rowidx, colidx, difftime(cell_etime, cell_stime));
             
           } catch (std::exception& e) {
 
@@ -444,13 +445,13 @@ int main(int argc, char* argv[]){
             outfile.close();
 
             // Write to fail_mask.nc file?? or json? might be good for visualization
-            write_status(run_status_fname, rowidx, colidx, -100); // <- what if this throws??
+            write_status_info(run_status_fname, "run_status", rowidx, colidx, -100); // <- what if this throws??
             BOOST_LOG_SEV(glg, err) << "End of exception handler.";
 
           }
         } else {
           BOOST_LOG_SEV(glg, fatal) << "Skipping cell (" << rowidx << ", " << colidx << ")";
-          write_status(run_status_fname, rowidx, colidx, 0);
+          write_status_info(run_status_fname, "run_status", rowidx, colidx, 0);
         }
  
 #ifdef WITHMPI
@@ -913,9 +914,11 @@ void create_empty_run_status_file(const std::string& fname,
   // Setup 2D vars, integer
   // Define handle for variable(s)
   int run_statusV;
+  int total_runtimeV;
   
   // Create variable(s) in nc file
   temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &run_statusV) );
+  temutil::nc( nc_def_var(ncid, "total_runtime", NC_INT, 2, vartype2D_dimids, &eq_runtimeV) );
 
   // SET FILL VALUE?
 
@@ -931,7 +934,7 @@ void create_empty_run_status_file(const std::string& fname,
 
 }
 
-void write_status(const std::string fname, int row, int col, int statusCode) {
+void write_status_info(const std::string fname, std::string varname, int row, int col, int statusCode) {
 
   int ncid;
   int statusV;
@@ -952,11 +955,12 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
 
   // Open dataset
   temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  //temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_inq_varid(ncid, varname.c_str(), &statusV) );
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
-  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING FOR PIXEL (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING "<<varname" for pixel (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
@@ -966,10 +970,10 @@ void write_status(const std::string fname, int row, int col, int statusCode) {
 
   // Open dataset
   temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
-  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_inq_varid(ncid, varname.c_str(), &statusV) );
   
   // Write data
-  BOOST_LOG_SEV(glg, note) << "WRITING OUTPUT STATUS FOR (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, note) << "WRITING "<< varname <<" for (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start, &statusCode) );
 
   /* Close the netcdf file. */
