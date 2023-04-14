@@ -429,7 +429,7 @@ int main(int argc, char* argv[]){
             cell_etime = time(0);
 
             BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
-            std::cout << "cell " << rowidx << ", " << colidx << " complete." << difftime(cell_etime, cell_stime) << std::endl;
+            std::cout << "cell " << rowidx << ", " << colidx << " complete." << std::endl;
             write_status_info(run_status_fname, "run_status", rowidx, colidx, 100);
             write_status_info(run_status_fname, "total_runtime", rowidx, colidx, difftime(cell_etime, cell_stime));
             
@@ -901,7 +901,7 @@ void create_empty_run_status_file(const std::string& fname,
   int yD;
   int xD;
 
-  BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
+  BOOST_LOG_SEV(glg, debug) << "Creating nc dimensions ["<<fname<<"]";
   temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
   temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
 
@@ -916,20 +916,23 @@ void create_empty_run_status_file(const std::string& fname,
   int run_statusV;
   int total_runtimeV;
   
-  // Create variable(s) in nc file
+  // Create variables in nc file and add attributes where relevant
+  // Status
   temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &run_statusV) );
-  temutil::nc( nc_def_var(ncid, "total_runtime", NC_INT, 2, vartype2D_dimids, &eq_runtimeV) );
+  temutil::nc( nc_put_att_int(ncid, run_statusV, "_FillValue", NC_INT, 1, &MISSING_I) );
 
-  // SET FILL VALUE?
-
-  /* Create Attributes?? */
+  // Runtime
+  temutil::nc( nc_def_var(ncid, "total_runtime", NC_INT, 2, vartype2D_dimids, &total_runtimeV) );
+  temutil::nc( nc_put_att_int(ncid, total_runtimeV, "_FillValue", NC_INT, 1, &MISSING_I) );
+  std::string runtime_units = "seconds";
+  temutil::nc( nc_put_att_text(ncid, total_runtimeV, "units", runtime_units.length(), runtime_units.c_str()) );
 
   /* End Define Mode (not strictly necessary for netcdf 4) */
-  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
+  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode' ["<<fname<<"]";
   temutil::nc( nc_enddef(ncid) );
 
   /* Close file. */
-  BOOST_LOG_SEV(glg, debug) << "Closing new file...";
+  BOOST_LOG_SEV(glg, debug) << "Closing new file ["<<fname<<"]";
   temutil::nc( nc_close(ncid) );
 
 }
