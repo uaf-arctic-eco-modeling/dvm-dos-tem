@@ -87,8 +87,13 @@ mads_paramrange=mads_config["mads_paramrange"]
 if mads_paramrange == "ON"
     var=mads_config["mads_param_percent_variance"]
     for i in eachindex(initial_guess)
-        min_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
-        max_r = initial_guess[i] + initial_guess[i] .* (var / 100)
+ 	if initial_guess[i]>0
+            min_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
+            max_r = initial_guess[i] + initial_guess[i] .* (var / 100)
+        else
+            max_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
+            min_r = initial_guess[i] + initial_guess[i] .* (var / 100)     
+        end  
         push!(paramdist, "Uniform($(min_r), $(max_r))")
     end
 else
