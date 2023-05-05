@@ -53,6 +53,39 @@ Build a lookup table, mapping file names to lists of available parameters
     In [27]: lu.keys()
     Out[27]: dict_keys(['../parameters/cmt_bgcvegetation.txt', '../parameters/cmt_dimvegetation.txt', '../parameters/cmt_firepar.txt', '../parameters/cmt_envground.txt', '../parameters/cmt_bgcsoil.txt', '../parameters/cmt_envcanopy.txt', '../parameters/cmt_dimground.txt', '../parameters/cmt_calparbgc.txt'])
 
+Note that this lookup functionality is wrapped in an class so that you can have
+a re-usable object that holds the lookup table:
+
+    In [14]: psh = pu.ParamUtilSpeedHelper('../parameters/')
+    In [15]: s = psh.list_params(cmtnum=5, pftnum=1)
+
+The `list_params(...)` function returns a new line separated string that prints
+out nicely, showing all params for all files. The ungainly line below just
+prints the last 20 some lines for demonstration and testing purposes:
+
+    In [16]: print('\n'.join(s.split('\n')[-22:]))
+    ../parameters/cmt_calparbgc.txt CMT5 PFT1 Decid
+               micbnup       0.7500
+               kdcsoma       0.0231
+              kdcsompr       0.0208
+               kdcrawc       0.0919
+              kdcsomcr       0.0000
+      pft_params
+              nfall(0)       0.0000
+                  nmax       8.2000
+              nfall(1)       0.0002
+                krb(0)      -3.1000
+              cfall(2)       0.0003
+              cfall(1)       0.0007
+                krb(2)      -5.5600
+                   kra      -0.0001
+              nfall(2)       0.0100
+                krb(1)      -6.3010
+                  cmax      60.0000
+              cfall(0)       0.1099
+                   frg       0.1000
+
+
 See that all the parameter files contain the same CMTs (by number):
 
     >>> import os
