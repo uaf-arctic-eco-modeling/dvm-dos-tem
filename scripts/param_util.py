@@ -2033,15 +2033,21 @@ def build_param_lookup(pdir):
       if detect_block_with_pft_info(db):
         for pft in get_datablock_pftkeys(db_dict):
           plist = [k for k in db_dict[pft] if k not in ['name']]
+          # Strip out all the units_, refs_, desc_, etc fields ...
+          plist = [i for i in plist if len(i.split('_')) <= 1]
           [pft_params.add(p) for p in plist]
 
         not_params = ['tag','cmtname','comment'] + ['pft{}'.format(x) for x in range(0,10)]
         non_pft_plist = [k for k in db_dict if k not in not_params]
+        # Strip out the units_, comments_, desc_, etc fields ...
+        non_pft_plist = [i for i in non_pft_plist if len(i.split('_')) <= 1]
         [non_pft_params.add(x) for x in non_pft_plist]
         #print(db_dict.keys())
       else:
         not_params = ['tag', 'name', 'comment', 'cmtname']
         plist = [k for k in db_dict.keys() if k not in not_params]
+        # Strip out the units_, desc_, refs_ etc fields ...
+        plist = [i for i in plist if len(i.split('_')) <= 1] 
         [non_pft_params.add(p) for p in plist]
 
     lu[f] = {'non_pft_params':non_pft_params,'pft_params':pft_params}
