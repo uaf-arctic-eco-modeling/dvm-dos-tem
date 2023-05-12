@@ -1680,7 +1680,13 @@ void RestartData::write_px_prev_pft_vars(const std::string& fname, const int row
   temutil::nc( nc_inq_varid(ncid, "unnormleafmxA", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &unnormleafmxA[0][0]) );
 
-  count[2] = 12;           // <-- previous 12 months?...
+//  count[2] = 12;           // <-- previous 12 months?...
+//  temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
+//  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
+
+  count[2] = 12;        // <-- previous 10 years?...
+  count[3] = MAX_SOI_LAY;
+
   temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
 
