@@ -6,6 +6,7 @@
 
 import os,sys
 import json
+import yaml
 import numpy as np
 import pandas as pd
 import mads_sensitivity as Sensitivity
@@ -28,17 +29,27 @@ driver.design_experiment(sample_size, driver.cmtnum,
   percent_diffs=list(0.1*np.ones(len(driver.pftnums))),
   sampling_method='uniform')
 
-#customize bounds
-new_bounds=[[1, 5], [1, 5], [1, 5], [1, 5], \
-        [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1], \
-        [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1] \
-        ]
+#getting initial parameters from config file
+initial=config['mads_initial_guess']
 
+perturbation=0.9
 for i in range(len(driver.params)):
-    driver.params[i]['bounds']=new_bounds[i]
+    driver.params[i]['initial']=initial[i]
+    driver.params[i]['bounds']=[initial[i] - (initial[i]*perturbation), initial[i] + (initial[i]*perturbation)]
 
-driver.generate_uniform(sample_size)
-print(driver.info())
+print('params:',driver.params)
+
+#customize bounds
+#new_bounds=[[1, 5], [1, 5], [1, 5], [1, 5], \
+#        [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1], \
+#        [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1] \
+#        ]
+
+#for i in range(len(driver.params)):
+#    driver.params[i]['bounds']=new_bounds[i]
+
+driver.generate_lhc(sample_size)
+#print(driver.info())
 
 #setup folders based on a sample size  
 try:
