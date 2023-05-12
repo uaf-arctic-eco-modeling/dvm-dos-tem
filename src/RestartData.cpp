@@ -121,7 +121,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MAX_SOI_LAY, // double somcr[MAX_SOI_LAY];
     
     1, // double wdebrisn;
-    1, // double orgn[MAX_SOI_LAY];
+    MAX_SOI_LAY, // double orgn[MAX_SOI_LAY];
     
     MAX_SOI_LAY, // double avln[MAX_SOI_LAY];
     
