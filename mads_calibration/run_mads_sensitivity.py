@@ -19,6 +19,9 @@ if len(sys.argv) != 2:
 config_file_name = sys.argv[1]
 print(f"The filename you provided is: {config_file_name}")
 
+with open(config_file_name, 'r') as config_data:
+    config = yaml.safe_load(config_data)
+
 #define the SA setup
 driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
 driver.clean()
