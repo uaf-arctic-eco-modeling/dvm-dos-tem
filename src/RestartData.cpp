@@ -915,13 +915,21 @@ void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowi
   temutil::nc( nc_inq_varid(ncid, "unnormleafmxA", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &unnormleafmxA[0][0]) );
 
-  count[2] = 12;           // <-- previous 12 months?...
+//  count[2] = 12;           // <-- previous 12 months?...
+//  temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
+//  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
+
+  count[2] = 12;        // <-- previous 12 months
+  count[3] = MAX_SOI_LAY;
+
   temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
+
 
   temutil::nc( nc_close(ncid) );
 
 }
+
 
 /** Creates (overwrites) an empty restart file. */
 void RestartData::create_empty_file(const std::string& fname,
@@ -957,15 +965,32 @@ void RestartData::create_empty_file(const std::string& fname,
   BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
   temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
   temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
-  temutil::nc( nc_def_dim(ncid, "pft", 10, &pftD) );
-  temutil::nc( nc_def_dim(ncid, "pftpart", 3, &pftpartD) );
-  temutil::nc( nc_def_dim(ncid, "snowlayer", 6, &snowlayerD) );
-  temutil::nc( nc_def_dim(ncid, "rootlayer", 10, &rootlayerD) );
-  temutil::nc( nc_def_dim(ncid, "soillayer", 23, &soillayerD) );
-  temutil::nc( nc_def_dim(ncid, "rocklayer", 5, &rocklayerD) );
+//  temutil::nc( nc_def_dim(ncid, "pft", 10, &pftD) );
+//  temutil::nc( nc_def_dim(ncid, "pftpart", 3, &pftpartD) );
+//  temutil::nc( nc_def_dim(ncid, "snowlayer", 6, &snowlayerD) );
+//  temutil::nc( nc_def_dim(ncid, "rootlayer", 10, &rootlayerD) );
+//  temutil::nc( nc_def_dim(ncid, "soillayer", 23, &soillayerD) );
+//  temutil::nc( nc_def_dim(ncid, "rocklayer", 5, &rocklayerD) );
+//  temutil::nc( nc_def_dim(ncid, "fronts", 10, &frontsD) );
+//  temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
+//  temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
+
+  temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+  temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
+  temutil::nc( nc_def_dim(ncid, "snowlayer", MAX_SNW_LAY, &snowlayerD) );
+  temutil::nc( nc_def_dim(ncid, "rootlayer", MAX_ROT_LAY, &rootlayerD) );
+  temutil::nc( nc_def_dim(ncid, "soillayer", MAX_SOI_LAY, &soillayerD) );
+  temutil::nc( nc_def_dim(ncid, "rocklayer", MAX_ROC_LAY, &rocklayerD) );
   temutil::nc( nc_def_dim(ncid, "fronts", 10, &frontsD) );
   temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
   temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
+
+//  BOOST_LOG_SEV(glg, fatal) << " NUM_PFT = " << NUM_PFT ;
+//  BOOST_LOG_SEV(glg, fatal) << " NUM_PFT_PART = " << NUM_PFT_PART ;
+//  BOOST_LOG_SEV(glg, fatal) << " MAX_ROT_LAY = " << MAX_ROT_LAY ;
+//  BOOST_LOG_SEV(glg, fatal) << " MAX_SNW_LAY = " << MAX_SNW_LAY ;
+//  BOOST_LOG_SEV(glg, fatal) << " MAX_SOI_LAY = " << MAX_SOI_LAY ;
+//  BOOST_LOG_SEV(glg, fatal) << " MAX_ROC_LAY = " << MAX_ROC_LAY ;
 
 
   // Setup arrays holding dimids for different "types" of variables
