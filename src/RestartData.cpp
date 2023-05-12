@@ -293,7 +293,7 @@ void RestartData::reinitValue() {
     lai[ip]    = MISSING_D;
 
     for (int i=0; i<MAX_ROT_LAY; i++) {
-      rootfrac[ip][i] = MISSING_D;
+      rootfrac[i][ip] = MISSING_D;
     }
 
     vegwater[ip] = MISSING_D;
