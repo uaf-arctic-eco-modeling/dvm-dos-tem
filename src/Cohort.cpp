@@ -278,7 +278,9 @@ void Cohort::initialize_state_parameters() {
 
   // Set-up the snow-soil-soilparent structure
   // snow updated daily, while soil dimension at monthly
+//  BOOST_LOG_SEV(glg, fatal) << "init before layer struc" ;
   ground.initLayerStructure(&cd.d_snow, &cd.m_soil);
+//  BOOST_LOG_SEV(glg, fatal) << "init after layer struc" ;
 
   cd.d_soil = cd.m_soil;
 
@@ -656,6 +658,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     //update Snow structure at daily timestep (for soil structure
     //  at yearly timestep in ::updateMonthly_DIMgrd)
+    ground.retrieveSnowDimension(&cd.d_snow);
     ground.retrieveSnowDimension(&cd.d_snow);
 
     cd.endOfDay(dinmcurr); //this must be done first, because it's needed below
@@ -1347,11 +1350,12 @@ void Cohort::set_state_from_restartdata() {
                            << "values from the RestartData object...";
 
   veg.set_state_from_restartdata(this->restartdata);
-  solprntenv.set_state_from_restartdata(this->restartdata);
-  fire.set_state_from_restartdata(this->restartdata);
+  ground.set_state_from_restartdata(&cd.d_snow, &cd.m_soil, this->restartdata);
   snowenv.set_state_from_restartdata(this->restartdata);
   soilenv.set_state_from_restartdata(this->restartdata);
+  solprntenv.set_state_from_restartdata(this->restartdata);
   soilbgc.set_state_from_restartdata(this->restartdata);
+  fire.set_state_from_restartdata(this->restartdata);
 
   for(int ii=0; ii<NUM_PFT; ii++){
     vegbgc[ii].set_state_from_restartdata(this->restartdata);
@@ -1383,7 +1387,7 @@ void Cohort::set_restartdata_from_state() {
   // clear the restartdata object
   restartdata.reinitValue();
   
-  restartdata.chtid = cd.chtid;  // deprecate?
+//  restartdata.chtid = cd.chtid;  // deprecate?
 
   // atm
   restartdata.dsr                = edall->d_atms.dsr;
@@ -1513,6 +1517,7 @@ void Cohort::set_restartdata_from_state() {
     restartdata.somcr[il] = bdall->m_sois.somcr[il];
     restartdata.orgn[il] = bdall->m_sois.orgn[il];
     restartdata.avln[il] = bdall->m_sois.avln[il];
+    
     deque<double> tmpdeque = bdall->prvltrfcnque[il];
     int recnum = tmpdeque.size();
 
