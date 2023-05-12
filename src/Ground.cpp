@@ -330,12 +330,15 @@ void Ground::initLayerStructure(snwstate_dim *snowdim, soistate_dim *soildim) {
   // Needs to clean up old 'ground', if any
   cleanAllLayers();
 
+  rocklayercreated = false;
+
   // Layers are constructed from bottom
   if(rocklayercreated) {
     cleanSnowSoilLayers();
   } else {
     initRockLayers(); // Rock in the bottom first and no-need to do again
   }
+
 
   initSnowSoilLayers();
   resortGroundLayers();
