@@ -216,7 +216,7 @@
 0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
 0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
 //===========================================================
-// CMT21 // EML Tussock Tundra (updated-checked 8/5/22 joy)
+// CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
 //Decidsh   Egreensh     Sedge      Forbs       Lichen        OMoss        Sphag         PFT7         PFT8         PFT9      // name: units // description // comment // refs
 0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
 0.15         0.15        0.15        0.15         0.70         0.70         0.70         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 

@@ -154,7 +154,7 @@
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
 //===========================================================
-// CMT21 // EML Tussock Tundra (updated-checked 8/5/22 joy)
+// CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
 //Decidsh   Egreensh     Sedge      Forbs       Lichen        OMoss        Sphag         PFT7         PFT8         PFT9             // names: comments
 0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.00         0.00         0.00             // albvisnir: canopy albedo
 0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.0          0.0          0.00             // er: light extinction coefficient

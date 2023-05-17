@@ -434,7 +434,7 @@
 0.0          0.5          0.8          0.0          1.9          0.0          0.0          0.0          0.0          0.0          // static_lai[10]:
 0.0          0.8          0.7          1.1          2.1          1.1          0.0          0.0          0.0          0.0          // static_lai[11]:
 //===========================================================
-// CMT21 // EML Tussock Tundra (updated-checked 8/5/22 joy)
+// CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
 //Decidsh   Egreensh     Sedge        Forbs       Lichen        OMoss        Sphag         PFT7       PFT8         PFT9           // names: comments
 0.01         0.01         0.01         0.01         0.01         0.01         0.01         0            0            0            // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
 1            1            0            0            0            0            0            0            0            0            // ifwoody: woody plants (1) or not (0)
