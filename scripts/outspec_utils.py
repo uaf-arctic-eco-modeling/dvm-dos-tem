@@ -36,6 +36,10 @@ def list_vars(data, verbose=False):
     var_names = ['{:<20} {:<}'.format(line['Name'], line['Description']) for line in data]
   return sorted(var_names)
 
+def list_var_options(line, var):
+  var_options = [x for x in ['Yearly','Monthly','Daily','PFT','Compartments','Layers'] if line[x] != 'invalid' and line[x] != 'forced' ]
+  return var_options
+
 def show_yearly_vars(data):
   print_line_dict({}, header=True)
   for line in data:
@@ -261,6 +265,11 @@ def cmdline_parse(argv=None):
   parser.add_argument('--show-layer-vars', action='store_true',
       help=textwrap.dedent('''Print all variables available by Layer.'''))
 
+  parser.add_argument('--show-options', 
+      nargs=1, metavar=('VAR'),
+      help=textwrap.dedent('''Show valid options for a specific 
+        variable'''))
+
   parser.add_argument('-s','--summary', action='store_true',
       help=textwrap.dedent('''Print out all the variables that are enabled in 
         the file.'''))
@@ -270,6 +279,9 @@ def cmdline_parse(argv=None):
 
   parser.add_argument('--enable-all-yearly', action='store_true',
     help=textwrap.dedent('''Enable yearly output for all possible variables'''))
+
+  parser.add_argument('--max-output', action='store_true',
+    help=textwrap.dedent('''Enable all outputs at the finest detail available'''))
 
   parser.add_argument('--on', 
       nargs='+', metavar=('VAR', 'RES',),
@@ -330,6 +342,14 @@ def cmdline_run(args):
     data = csv_file_to_data_dict_list(args.file)
     show_layer_vars(data)
 
+  if args.show_options:
+    var = args.show_options[0].upper()
+    data = csv_file_to_data_dict_list(args.file)
+
+    for line in data:
+      if line['Name'] == var.upper():
+        print(list_var_options(line, var))
+
   if args.summary:
     data = csv_file_to_data_dict_list(args.file)
     print_line_dict(data[0], header=True)
@@ -386,8 +406,26 @@ def cmdline_run(args):
         data = toggle_on_variable(data, line['Name'], 'yearly', verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
-
     return 0
+
+
+  #Maximum output
+  if args.max_output:
+    data = csv_file_to_data_dict_list(args.file)
+
+    for line in data:
+      var = line['Name']
+      var_options = list_var_options(line, var)
+      if "Compartments" in var_options:
+        var_options = ["Compartment" if x=="Compartments" else x for x in var_options]
+      if "Layers" in var_options:
+        var_options = ["Layer" if x=="Layers" else x for x in var_options]
+      var_options = " ".join(var_options)
+      toggle_on_variable(data, var, var_options, verbose=args.DEBUG)
+
+    write_data_to_csv(data, args.file)
+    return 0
+
 
   if args.on:
     if len(args.on) < 2:
