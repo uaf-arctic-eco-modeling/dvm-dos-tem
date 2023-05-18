@@ -192,12 +192,12 @@ def toggle_on_variable(data, var, res_spec, verbose=False):
         safe_set(line, 'PFT', 'p')
         safe_set(line, 'Compartments', '')
 
-      if any([r.lower() in ('c','cpt','compartment','cmpt',) for r in res_spec.split(' ')]):
+      if any([r.lower() in ('c','cpt','compartment','cmpt','compartments',) for r in res_spec.split(' ')]):
         safe_set(line, 'PFT', 'p')
         safe_set(line, 'Compartments', 'c')
 
       # And finally the layers...
-      if any([r.lower() in ('l','layer','lay') for r in res_spec.split(' ')]):
+      if any([r.lower() in ('l','layer','lay','layers') for r in res_spec.split(' ')]):
         safe_set(line, 'Layers', 'l')
 
       if verbose:
@@ -349,6 +349,7 @@ def cmdline_run(args):
     for line in data:
       if line['Name'] == var.upper():
         print(list_var_options(line, var))
+    return 0
 
   if args.summary:
     data = csv_file_to_data_dict_list(args.file)
@@ -416,10 +417,6 @@ def cmdline_run(args):
     for line in data:
       var = line['Name']
       var_options = list_var_options(line, var)
-      if "Compartments" in var_options:
-        var_options = ["Compartment" if x=="Compartments" else x for x in var_options]
-      if "Layers" in var_options:
-        var_options = ["Layer" if x=="Layers" else x for x in var_options]
       var_options = " ".join(var_options)
       toggle_on_variable(data, var, var_options, verbose=args.DEBUG)
 
