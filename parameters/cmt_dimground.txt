@@ -202,7 +202,7 @@
 0.0996             // coefminea:
 0.7810             // coefmineb:
 //===========================================================
-// CMT21 // EML Tussock Tundra
+// CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 Joy)
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)
 50                 // snwdennew:  new (min.) snow density (kg/m3)
