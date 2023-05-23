@@ -55,13 +55,13 @@ double ParentLayer::getUnfThermCond() {
   return tc;
 };
 
-// get albedo of visible radition
+// get albedo of visible radiation
 double ParentLayer::getAlbedoVis() { //should not used
   double vis=0.2;
   return vis;
 };
 
-// get albedo of nir radition
+// get albedo of nir radiation
 double ParentLayer::getAlbedoNir() { //should not used
   double nir=0.2;
   return nir;

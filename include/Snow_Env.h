@@ -51,8 +51,8 @@ private:
                         double const & ta);
 
   double getAlbedoVis(const double & tem); //get albedo of visible
-                                           //  radition of snow
-  double getAlbedoNir(const double & tem); //get albedo of Nir radition of snow
+                                           //  radiation of snow
+  double getAlbedoNir(const double & tem); //get albedo of Nir radiation of snow
 
 };
 
