@@ -42,10 +42,14 @@ end
 
 initial_guess=mads_config["mads_initial_guess"]
 
-#y_init=tem.run_TEM(initial_guess)
 targets=tem.get_targets(1)
-
 n_o=length(targets)
+#check if number of targets is zero
+if n_o == 0
+   y_init=tem.run_TEM(initial_guess)
+   targets=tem.get_targets(1)
+   n_o=length(targets)
+end
 obstime=1:n_o 
 
 # check for obsweight
@@ -126,19 +130,19 @@ md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 Mads.showparameters(md)
 Mads.showobservations(md)
 
-#forward_model = Mads.forward(md)
+forward_model = Mads.forward(md)
 
-#calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
+calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
-#Mads.plotmatches(md, calib_param, xtitle="# of observations", 
-#		      ytitle="Targets",filename=mads_config["mads_problemname"]*".png")
+Mads.plotmatches(md, calib_param, xtitle="# of observations", 
+		      ytitle="Targets",filename=mads_config["mads_problemname"]*".png")
 
-calib_random_results = Mads.calibraterandom(md, 30;  all=true, tolOF=0.01, tolOFcount=4)
+#calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
 
-calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
+#calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 
-forward_predictions = Mads.forward(md, calib_random_estimates)
-Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="Targets",
-		       filename=mads_config["mads_problemname"]*".png")
+#forward_predictions = Mads.forward(md, calib_random_estimates)
+#Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="Targets",
+#		       filename=mads_config["mads_problemname"]*".png")
 
 
