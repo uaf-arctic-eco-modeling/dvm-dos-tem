@@ -395,11 +395,11 @@ void Vegetation::phenology(const int &currmind) {
         }
       }
 
-      //2) plant size (biomass C) or age controlled foliage fraction rative
-      //   to the max. leaf C
-      cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
-                                            cd->m_veg.ifperenial[ip],
-                                            bd[ip]->m_vegs.call);
+//      //2) plant size (biomass C) or age controlled foliage fraction rative
+//      //   to the max. leaf C
+//      cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
+//                                            cd->m_veg.ifperenial[ip],
+//                                            bd[ip]->m_vegs.call);
     } else { // 'vegcov' is 0
       cd->m_vegd.unnormleaf[ip] = MISSING_D;
       cd->m_vegd.fleaf[ip] = MISSING_D;
