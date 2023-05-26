@@ -856,9 +856,10 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai
   // tentatively set to a common age from 'ysf' - year since fire -
   //   should have more varability based on PFT types
   for (int ip=0; ip<NUM_PFT; ip++) {
+//    BOOST_LOG_SEV(glg, err) << "pft: " << ip << ", vegage: " << cd.m_veg.vegage[ip];
     if (cd.m_veg.vegcov[ip]>0.) {
       cd.m_veg.vegage[ip] = cd.yrsdist;
-
+//      BOOST_LOG_SEV(glg, err) << "pft: " << ip << ", vegage: " << cd.m_veg.vegage[ip] << ", yrsdist: " << cd.yrsdist;
       if (cd.m_veg.vegage[ip]<=0) {
         cd.m_vegd.foliagemx[ip] = 0.;
       }
