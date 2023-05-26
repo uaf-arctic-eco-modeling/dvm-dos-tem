@@ -334,6 +334,13 @@ void Vegetation::phenology(const int &currmind) {
         prveetmx +=prvdeque[i]/dequeno;
       }
 
+      //1) plant size (biomass C) or age controlled foliage fraction rative
+      //   to the max. leaf C
+      cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
+                                            cd->m_veg.ifperenial[ip],
+                                            bd[ip]->m_vegs.call);
+
+      // 2) current EET and previous max. EET controlled
       // 1) current EET and previous max. EET controlled
       double tempunnormleaf = 0.;;
       double eet = ed[ip]->m_v2a.tran;//originally it's using 'l2a.eet', which
@@ -357,6 +364,7 @@ void Vegetation::phenology(const int &currmind) {
         cd->m_vegd.unnormleafmx[ip] = tempunnormleaf;
         cd->m_vegd.growingttime[ip] = ed[ip]->m_soid.rtdpgdd;
         cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;
+        cd->m_vegd.maxleafc[ip] = 0.0;
         cd->m_vegd.maxleafc[ip] = getYearlyMaxLAI(ip)/vegdimpar.sla[ip];
       } else {
         if (eet>cd->m_vegd.eetmx[ip]) {
