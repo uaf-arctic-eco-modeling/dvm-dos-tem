@@ -645,7 +645,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
 
     //assuming rock layer's temperature equal to that of lstsoill
-    solprntenv.retrieveDailyTM(ground.lstsoill);
+//    solprntenv.retrieveDailyTM(ground.lstsoill);
 
     //Propogates some daily values (specifically Front data)
     // into edall from each ed
