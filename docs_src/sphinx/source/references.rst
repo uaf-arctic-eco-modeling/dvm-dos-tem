@@ -139,11 +139,6 @@ nitrogen dynamics in estimating net primary productivity for potential
 vegetation in North America. Global Biogeochemical Cycles 6.
 https://doi.org/10.1029/92GB00219
 
-McGuire, A. D., D. W. Kicklighter, J. M. Melillo, and G. Esser. 1991.
-Estimates of potential net primary productivity for ecosystems in north
-america comparisons between two global models. Bulletin of the Ecological
-Society of America 72:188.
-
 McGuire, A. D., H. Genet, Z. Lyu, N. Pastick, S. Stackpoole, R. Birdsey, D.
 D’Amore, Y. He, T. S. Rupp, R. Striegl, B. K. Wylie, X. Zhou, Q. Zhuang, and
 Z. Zhu. 2018. Assessing historical and projected carbon balance of Alaska: A
@@ -223,11 +218,6 @@ J. Yarie. 2003. Modeling soil thermal and carbon dynamics of a fire
 chronosequence in interior Alaska. Journal of Geophysical Research:
 Atmospheres 108.
 https://doi.org/10.1029/2001jd001244
-
-Zhuang, Q., J. M. Melillo, B. S. Felzer, D. W. Kicklighter, A. D. McGuire, A.
-Sokolov, R. G. Prinn, and P. Steudler. 2004. The global warming potential
-budget of net methane and carbon dioxide exchanges in northern high
-latitudes. Ecological Society of America Annual Meeting Abstracts 89:565.
 
 Zhuang, Q., J. M. Melillo, D. W. Kicklighter, R. G. Prinn, A. D. McGuire, P.
 A. Steudler, B. S. Felzer, and S. Hu. 2004. Methane fluxes between

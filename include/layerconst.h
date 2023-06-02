@@ -22,7 +22,8 @@ const double ROCKTHICK[MAX_ROC_LAY] = {2.0, 4.0, 8.0, 16.0, 20.0};
 // maximum number of soil layer
 const int MAX_SOI_LAY = MAX_MOS_LAY + MAX_SLW_LAY + MAX_DEP_LAY + MAX_MIN_LAY;
 //maximumum number of Ground (soil+rock+snow) Layer
-const int MAX_GRN_LAY = MAX_SNW_LAY + MAX_SOI_LAY+ MAX_ROC_LAY;
+const int MAX_GRN_LAY = MAX_SNW_LAY + MAX_SOI_LAY + MAX_ROC_LAY;
+//const int MAX_GRN_LAY = MAX_SNW_LAY + MAX_SOI_LAY;
 
 const int MAX_NUM_FNT = 10; //maximum number of fronts in all ground layers
 

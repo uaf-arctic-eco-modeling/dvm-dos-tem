@@ -10,7 +10,7 @@
 # An empty field means that variable is not specified (turned on) for output at
 # that particular resolution (timestep or PFT or layer, etc).
 
-# A field containing 'invalid' means that the variable is not avaiable or is 
+# A field containing 'invalid' means that the variable is not available or is 
 # meaningless at that particular resolution.
 
 # A field containing anything other than "invalid" or an empty string is
@@ -22,6 +22,7 @@ import csv
 import sys
 import argparse
 import textwrap
+import os
 
 def print_line_dict(d, header=False):
   if header:
@@ -94,9 +95,9 @@ def csv_file_to_data_dict_list(fname):
   return data
 
 def write_data_to_csv(data, fname):
-    with open(fname, 'w') as csvfile:
+    with open(fname, 'w', newline='') as csvfile:
       fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder".split(",")
-      writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+      writer = csv.DictWriter(csvfile, fieldnames=fieldnames, lineterminator='\n')
       writer.writeheader()
       writer.writerows(data)
 
@@ -104,7 +105,7 @@ def write_data_to_csv(data, fname):
 def check_layer_vars(data):
 
   def warn_layers_not_set(dd):
-    if all([x == 'invalid' or x == '' for x in [dd['Layers'],]]):
+    if all([x == '' for x in [dd['Layers'],]]):
       print("WARNING! output by Layers not set for {}".format(dd['Name']))
 
   for line in data:
@@ -136,7 +137,7 @@ def toggle_off_variable(data, var, verbose=False):
 def all_vars_off(data, verbose=False):
   for line in data:
     for key in "Compartments,Layers,PFT,Monthly,Daily,Yearly".split(","):
-      if line[key] == 'invalid':
+      if line[key] == 'invalid' or line[key] == 'forced':
         pass
       else:
         line[key] = ''
@@ -267,6 +268,9 @@ def cmdline_parse(argv=None):
   parser.add_argument('--enable-cal-vars', action='store_true',
     help=textwrap.dedent('''Enable netcdf outputs for all the calibration target variables.'''))
 
+  parser.add_argument('--enable-all-yearly', action='store_true',
+    help=textwrap.dedent('''Enable yearly output for all possible variables'''))
+
   parser.add_argument('--on', 
       nargs='+', metavar=('VAR', 'RES',),
       help=textwrap.dedent('''Turn the selected variable on at the selected
@@ -330,7 +334,7 @@ def cmdline_run(args):
     data = csv_file_to_data_dict_list(args.file)
     print_line_dict(data[0], header=True)
     for line in data:
-      if all([line[x] == 'invalid' or line[x] == '' for x in ['Yearly','Monthly','Daily','PFT','Compartments','Layers']]):
+      if all([line[x] == 'invalid' or line[x] == '' or line[x] == 'forced' for x in ['Yearly','Monthly','Daily','PFT','Compartments','Layers']]):
         pass # Nothing turned on...
       else:
         print_line_dict(line)
@@ -372,6 +376,17 @@ def cmdline_run(args):
     write_data_to_csv(data, args.file)
 
     print("NOTE: Make sure to enable 'eq' outputs in the config file!!!")
+
+    return 0
+
+  if args.enable_all_yearly:
+    data = csv_file_to_data_dict_list(args.file)
+
+    for line in data:
+      if line['Yearly'] == '':
+        data = toggle_on_variable(data, line['Name'], 'yearly', verbose=args.DEBUG)
+
+    write_data_to_csv(data, args.file)
 
     return 0
 
