@@ -42,7 +42,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
   // create types for all the dimensions in the RestartData object...
   const int elems_in_restartdata = 63;
   int counts[elems_in_restartdata] = {
-//    1, // int chtid;
     1, // int dsr;
     1, // double firea2sorgn;
     1, // int yrsdist;
@@ -105,7 +104,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MAX_SOI_LAY, // double ICEsoil[MAX_SOI_LAY];
     MAX_SOI_LAY, // int FROZENsoil[MAX_SOI_LAY];
     MAX_SOI_LAY, // double FROZENFRACsoil[MAX_SOI_LAY];
-//    MAX_SOI_LAY, // int TEXTUREsoil[MAX_SOI_LAY];
     
     MAX_ROC_LAY, // double TSrock[MAX_ROC_LAY];
     MAX_ROC_LAY, // double DZrock[MAX_ROC_LAY];
@@ -128,7 +126,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     12 * MAX_SOI_LAY // double prvltrfcnA[12][MAX_SOI_LAY];   //previous 12-month litterfall (root death) input C/N ratios in each soil layer for adjusting 'kd'
   };
   MPI_Datatype old_types[elems_in_restartdata] = {
-//    MPI_INT, // int chtid;
     MPI_INT, // int dsr;
     MPI_DOUBLE, // double firea2sorgn;
     MPI_INT, // int yrsdist;
@@ -179,7 +176,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double ICEsoil[MAX_SOI_LAY];
     MPI_INT, // int FROZENsoil[MAX_SOI_LAY];
     MPI_DOUBLE, // double FROZENFRACsoil[MAX_SOI_LAY];
-//    MPI_INT, // int TEXTUREsoil[MAX_SOI_LAY];
     MPI_DOUBLE, // double TSrock[MAX_ROC_LAY];
     MPI_DOUBLE, // double DZrock[MAX_ROC_LAY];
     MPI_DOUBLE, // double frontZ[MAX_NUM_FNT];
@@ -195,7 +191,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE // double prvltrfcnA[12][MAX_SOI_LAY];
   };
   MPI_Aint displacements[elems_in_restartdata] = {
-//    offsetof(RestartData, chtid),
     offsetof(RestartData, dsr),
     offsetof(RestartData, firea2sorgn),
     offsetof(RestartData, yrsdist),
@@ -246,7 +241,6 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, ICEsoil),
     offsetof(RestartData, FROZENsoil),
     offsetof(RestartData, FROZENFRACsoil),
-//    offsetof(RestartData, TEXTUREsoil),
     offsetof(RestartData, TSrock),
     offsetof(RestartData, DZrock),
     offsetof(RestartData, frontZ),
@@ -275,12 +269,10 @@ MPI_Datatype RestartData::register_mpi_datatype() {
 #endif
 
 void RestartData::reinitValue() {
-  //
-//  chtid = MISSING_I;
-  // atm
+  // atmosphere
   dsr         = MISSING_I;
   firea2sorgn = MISSING_D;
-  //vegegetation
+  // vegetation
   yrsdist     = MISSING_I;
 
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -361,7 +353,6 @@ void RestartData::reinitValue() {
     ICEsoil[il]  = MISSING_D;
     FROZENsoil[il]= MISSING_I;
     FROZENFRACsoil[il]= MISSING_D;
-//    TEXTUREsoil[il]   = MISSING_I;
   }
 
   for(int il =0; il<MAX_ROC_LAY; il++) {
@@ -468,7 +459,6 @@ void RestartData::verify_logical_values(){
   //whether or not it makes sense for that value to have been initialized
   //to a low negative.
 
-//  check_bounds("chtid", chtid);
   check_bounds("dsr", dsr);
   check_bounds("firea2sorgn", firea2sorgn);
   check_bounds("yrsdist", yrsdist);
@@ -534,7 +524,6 @@ void RestartData::verify_logical_values(){
     check_bounds("ICEsoil", ICEsoil[ii]);
     check_bounds("FROZENsoil", FROZENsoil[ii]);
     check_bounds("FROZENFRACsoil", FROZENFRACsoil[ii]);
-//    check_bounds("TEXTUREsoil", TEXTUREsoil[ii]);
     check_bounds("rawc", rawc[ii]);
     check_bounds("soma", soma[ii]);
     check_bounds("sompr", sompr[ii]);
@@ -793,15 +782,12 @@ void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, 
   count[1] = 1;
   count[2] = MAX_SOI_LAY;
 
-
   temutil::nc( nc_inq_varid(ncid, "TYPEsoil", &cv) );
   temutil::nc( nc_get_vara_int(ncid, cv, start, count, &TYPEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "AGEsoil", &cv) );
   temutil::nc( nc_get_vara_int(ncid, cv, start, count, &AGEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENsoil", &cv) );
   temutil::nc( nc_get_vara_int(ncid, cv, start, count, &FROZENsoil[0]) );
-//  temutil::nc( nc_inq_varid(ncid, "TEXTUREsoil", &cv) );
-//  temutil::nc( nc_get_vara_int(ncid, cv, start, count, &TEXTUREsoil[0]) );
 
   temutil::nc( nc_inq_varid(ncid, "DZsoil", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &DZsoil[0]) );
@@ -886,8 +872,11 @@ void RestartData::read_px_front_vars(const std::string& fname, const int rowidx,
 
 }
 
-/**  Reads arrays for variables with dimensions (Y, X, prev<XX>, pft).
-* Used for variables that need the previous 10 or 12 values.
+/**  Reads arrays for variables with dimensions (Y, X, prev<XX>, pft). Used for
+* variables that need the previous 10 or 12 values. 
+*
+* Note: The name of this function is somewhat misleading as it also handles one
+* soil variable!
 */
 void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
   int ncid;
@@ -916,10 +905,7 @@ void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowi
   temutil::nc( nc_inq_varid(ncid, "unnormleafmxA", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &unnormleafmxA[0][0]) );
 
-//  count[2] = 12;           // <-- previous 12 months?...
-//  temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
-//  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
-
+  // Adjust offsets for use with monthly soil variable.
   count[2] = 12;        // <-- previous 12 months
   count[3] = MAX_SOI_LAY;
 
@@ -1126,12 +1112,9 @@ void RestartData::create_empty_file(const std::string& fname,
   vartype3D_dimids[2] = soillayerD;
 
   // Setup 3D vars, integer
-//  int TEXTUREsoilV;
   int FROZENsoilV;
   int TYPEsoilV;
   int AGEsoilV;
-//  temutil::nc( nc_def_var(ncid, "TEXTUREsoil", NC_INT, 3, vartype3D_dimids, &TEXTUREsoilV) );
-//  temutil::nc( nc_put_att_int(ncid, TEXTUREsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "FROZENsoil", NC_INT, 3, vartype3D_dimids, &FROZENsoilV) );
   temutil::nc( nc_put_att_int(ncid, FROZENsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "TYPEsoil", NC_INT, 3, vartype3D_dimids, &TYPEsoilV) );
@@ -1140,17 +1123,17 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_int(ncid, AGEsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
 
   // Setup 3D vars, double
-  int  TSsoilV;
-  int  DZsoilV;
-  int  LIQsoilV;
-  int  ICEsoilV;
-  int  FROZENFRACsoilV;
-  int  rawcV;
-  int  somaV;
-  int  somprV;
-  int  somcrV;
-  int  orgnV;
-  int  avlnV;
+  int TSsoilV;
+  int DZsoilV;
+  int LIQsoilV;
+  int ICEsoilV;
+  int FROZENFRACsoilV;
+  int rawcV;
+  int somaV;
+  int somprV;
+  int somcrV;
+  int orgnV;
+  int avlnV;
   temutil::nc( nc_def_var(ncid, "TSsoil", NC_DOUBLE, 3, vartype3D_dimids, &TSsoilV) );
   temutil::nc( nc_put_att_double(ncid, TSsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DZsoil", NC_DOUBLE, 3, vartype3D_dimids, &DZsoilV) );
@@ -1556,8 +1539,6 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   temutil::nc( nc_put_vara_int(ncid, cv, start, count, &AGEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENsoil", &cv) );
   temutil::nc( nc_put_vara_int(ncid, cv, start, count, &FROZENsoil[0]) );
-//  temutil::nc( nc_inq_varid(ncid, "TEXTUREsoil", &cv) );
-//  temutil::nc( nc_put_vara_int(ncid, cv, start, count, &TEXTUREsoil[0]) );
   
   temutil::nc( nc_inq_varid(ncid, "DZsoil", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &DZsoil[0]) );
@@ -1654,6 +1635,9 @@ void RestartData::write_px_front_vars(const std::string& fname, const int rowidx
 
 /** Writes arrays for variables with dimensions (Y, X, prev<XX>, pft).
 * Used for variables that need the previous 10 or 12 values.
+*
+* Note: This function name is somewhat misleading as it also handles one soil 
+* variable!
 */
 void RestartData::write_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx) {
   int ncid;
@@ -1687,10 +1671,7 @@ void RestartData::write_px_prev_pft_vars(const std::string& fname, const int row
   temutil::nc( nc_inq_varid(ncid, "unnormleafmxA", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &unnormleafmxA[0][0]) );
 
-//  count[2] = 12;           // <-- previous 12 months?...
-//  temutil::nc( nc_inq_varid(ncid, "prvltrfcnA", &cv) );
-//  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &prvltrfcnA[0][0]) );
-
+  // Adjust offsets for working with the a monthly soil variable.
   count[2] = 12;        // <-- previous 10 years?...
   count[3] = MAX_SOI_LAY;
 
@@ -1785,7 +1766,6 @@ void RestartData::restartdata_to_log(){
     BOOST_LOG_SEV(glg, debug) << "ICEsoil[" << ii << "]: " << ICEsoil[ii];
     BOOST_LOG_SEV(glg, debug) << "FROZENsoil[" << ii << "]: " << FROZENsoil[ii];
     BOOST_LOG_SEV(glg, debug) << "FROZENFRACsoil[" << ii << "]: " << FROZENFRACsoil[ii];
-//    BOOST_LOG_SEV(glg, debug) << "TEXTUREsoil[" << ii << "]: " << TEXTUREsoil[ii];
     BOOST_LOG_SEV(glg, debug) << "rawc[" << ii << "]: " << rawc[ii];
     BOOST_LOG_SEV(glg, debug) << "soma[" << ii << "]: " << soma[ii];
     BOOST_LOG_SEV(glg, debug) << "sompr[" << ii << "]: " << sompr[ii];
