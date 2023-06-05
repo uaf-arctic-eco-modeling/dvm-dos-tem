@@ -118,7 +118,6 @@ void Vegetation_Bgc::initializeState() {
 
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i]    = chtlu->initvegc[i][ipft];
- //   BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - part: " << i << " - vegc : " << bd->m_vegs.c[i];
     // Save five percent of structural nitrogen for labile. See below.
     bd->m_vegs.strn[i] = chtlu->initvegn[i][ipft]*0.95;
     totvegn += chtlu->initvegn[i][ipft];
@@ -148,7 +147,6 @@ void Vegetation_Bgc::initializeState() {
 void Vegetation_Bgc::set_state_from_restartdata(const RestartData & rdata) {
   for (int i=0; i<NUM_PFT_PART; i++) {
     bd->m_vegs.c[i]    = rdata.vegc[i][ipft];
-//    BOOST_LOG_SEV(glg, err) << "restart - PFT :" << ipft << " - part: " << i << " - vegc : " << bd->m_vegs.c[i];
     bd->m_vegs.strn[i] = rdata.strn[i][ipft];
     bgcpar.c2neven[i] = rdata.vegC2N[i][ipft];
   }
@@ -235,9 +233,6 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
   dleafc -= bd->m_vegs.c[I_leaf];
   dleafc = fmax(0.0, dleafc);
   // litter-falling seasonal adjustment
-
-//  BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - maxleafc: " << cd->m_vegd.maxleafc[ipft] <<
-//           " - fleaf : " << cd->m_vegd.fleaf[ipft] << " - leafc : " << bd->m_vegs.c[I_leaf] << " - dleafc: " << dleafc ;
 
   //previous 10 year mean of growing season degree-day, using for
   //  normalizing current growing period needed for litterfalling
@@ -392,15 +387,12 @@ void Vegetation_Bgc::delta() {
     } else {
       del_v2a.rm[i] = 0.0;
     }
-//    BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - part:" << i << " - rm: " << del_v2a.rm[i] << " - kr: " << bd->m_vegd.kr[i] << " - vegc: " << tmp_vegs.c[i];
     rm_wholePFT += del_v2a.rm[i];
   }
 
   // C available from GPP for allocation to new tissue after
   // accounting for maintenance respiration.
   double C_avail = gpp_all - rm_wholePFT;
-//  BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - C_avail:" << C_avail <<" - gpp_all: " << gpp_all 
-//        << " - rm_wholePFT : " << rm_wholePFT;
 
   // For instances when Rm is larger than GPP, i.e. winter months
   if (rm_wholePFT > gpp_all) {
@@ -418,7 +410,6 @@ void Vegetation_Bgc::delta() {
     // We decided to first affect the stem and root compartment because they
     // are considered as "storage compartment", and then leaves (for evergreens)
     for (int i=I_leaf; i<NUM_PFT_PART; i++) {
-//      BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - part:" << i <<" - vegc: " << tmp_vegs.c[i];
       if (tmp_vegs.c[i] > 0.0) {
         del_a2v.innpp[i] = (gpp_all * bgcpar.cpart[i] / cpart_all) - del_v2a.rm[i];
         if (del_a2v.innpp[i] > 0.0) {
@@ -484,12 +475,6 @@ void Vegetation_Bgc::delta() {
   // Partition 'ingpp' based on initial NPP, Rg, and Rm
   for (int i=0; i<NUM_PFT_PART; i++) {
     del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] + del_v2a.rg[i];
-//    BOOST_LOG_SEV(glg, err) << "delta - PFT :" << ipft << " - part: " << i << " - ingpp: " << del_a2v.ingpp[i] << 
-//    " - innpp: " << del_a2v.innpp[i] << " - rm: " << del_v2a.rm[i] << " - rg: " << del_v2a.rg[i];
-//      BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - part:" << i << " - vegc: " << tmp_vegs.c[i] <<
-//           " - cpart : " << bgcpar.cpart[i] << " - cpart_all : " << cpart_all << " - rm : " << del_v2a.rm[i] << 
-//           " - frg : " << calpar.frg << " - dleafc: " << dleafc << " - rm_wholePFT: " << rm_wholePFT << " - gpp_all: " << gpp_all;
-
   }
 
   // Handle litterfall
@@ -499,11 +484,6 @@ void Vegetation_Bgc::delta() {
     } else {
       del_v2soi.ltrfalc[i] = 0.0;
     }
-//    BOOST_LOG_SEV(glg, err) << "vegc, PFT :" << ipft << " - part: " << i << " - vegc : " << tmp_vegs.c[i];
-//    BOOST_LOG_SEV(glg, err) << "cfall, PFT :" << ipft << " - part: " << i << " - vegc : " << calpar.cfall[i];
-//    BOOST_LOG_SEV(glg, err) << "delta - PFT :" << ipft << " - part: " << i << " - vegc: " << tmp_vegs.c[i] << 
-//    " - ltrfalc: " << del_v2soi.ltrfalc[i] << " - ingpp: " << del_a2v.ingpp[i] << " - innpp: " << del_a2v.innpp[i] << 
-//    " - rm: " << del_v2a.rm[i] << " - rg: " << del_v2a.rg[i];
   }
 }
 
@@ -543,8 +523,6 @@ void Vegetation_Bgc::deltanfeed() {
       double avln = 0.0;
       for(int il=0; il<cd->m_soil.numsl; il++) {
         if (cd->m_soil.frootfrac[il][ipft] > 0.0) {
-//          BOOST_LOG_SEV(glg, err) << "pft: " << ipft << ", part: " << il << ", frootfrac: " 
-//              << cd->m_soil.frootfrac[il][ipft] << ", avln: " << bd->m_sois.avln[il];
           avln += bd->m_sois.avln[il];
         }
       }
@@ -556,9 +534,6 @@ void Vegetation_Bgc::deltanfeed() {
       // For non-vascular plants innuptake is not influenced by soil
       // available Nitrogen! Nothing to do...
     }
-
-//    BOOST_LOG_SEV(glg, err) << "pft: " << ipft << ", ffoliage: " << cd->m_vegd.ffoliage[ipft] << ", q10: " 
-//              << bd->m_vegd.raq10 << ", kuptake: " << bgcpar.knuptake << ", nmax: " << calpar.nmax ;
 
 
     // N litterfall and accompanying resorbtion
@@ -755,17 +730,8 @@ void Vegetation_Bgc::deltanfeed() {
       del_soi2v.lnuptake = 0.0;
     }
 
-//    for (int i=0; i<NUM_PFT_PART; i++) {
-//      BOOST_LOG_SEV(glg, err) << "deltanfeed - PFT :" << ipft << " - part: " << i << " - vegc: " << tmp_vegs.c[i] << 
-//      " - snuptake: " << del_soi2v.snuptake[i] << " - nmobil: " << del_v2v.nmobil[i] << " - ltrfaln: " << del_v2soi.ltrfaln[i] << 
-//      " - rm: " << del_v2a.rm[i] << " - require: " << tmp_vegs.nreq[i] << " - nresorb: " << del_v2v.nresorb[i] << " - gpp: " << 
-//      del_a2v.gpp[i] << " - npp: " << del_a2v.gpp[i] << " - rg: " << del_v2a.rg[i];
-//    }
-//    BOOST_LOG_SEV(glg, err) << "deltanfeed - PFT :" << ipft << " - innuptake: " << del_soi2v.innuptake;
-
     // end of nfeed
   } else {
-//    BOOST_LOG_SEV(glg, err) << "nfeed off"; 
     for (int i=0; i<NUM_PFT_PART; i++) {
       del_a2v.gpp[i] = del_a2v.ingpp[i];
       del_a2v.npp[i] = del_a2v.innpp[i];
@@ -793,13 +759,6 @@ void Vegetation_Bgc::deltastate() {
       del_vegs.labn += del_v2v.nresorb[i] - del_v2v.nmobil[i];
     }
   }
-
-//  for (int i=0; i<NUM_PFT_PART; i++) {
-//    BOOST_LOG_SEV(glg, err) << "deltastate - PFT :" << ipft << " - part: " << i << " - vegc: " << del_vegs.c[i] << 
-//    " - npp: " << del_a2v.npp[i] << " - ltrfal: " << del_v2soi.ltrfalc[i] << " - strn: " << del_vegs.strn[i] << 
-//    " - snuptake: " << del_soi2v.snuptake[i] << " - nmobil: " << del_v2v.nmobil[i] << " - nresorb: " << del_v2v.nresorb[i] << " - ltrfaln: " << del_v2soi.ltrfaln[i];
-//  }
-
 };
 
 // summarize some variables not done in 'integrator'
@@ -905,10 +864,6 @@ double  Vegetation_Bgc::getGPP(const double &co2, const double &par,
   gpp *= fpar;
   gpp *= ftemp;
   gpp *= thawpcnt;
-
-// BOOST_LOG_SEV(glg, err) << "pft: " << ipft << ", cmax: " << calpar.cmax << ", foliage: " 
-//              << foliage << ", ci: " << ci << ", fpar: " << fpar << ", ftemp: " 
-//              << ftemp << ", thawpcnt: " << thawpcnt;
 
   if(gpp < 0.0) {
     gpp = 0.0;

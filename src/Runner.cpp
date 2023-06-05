@@ -3660,25 +3660,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-//        double orgn[MAX_SOI_LAY] = {0};
-//        int il = 0;
-//        Layer* currL = this->cohort.ground.toplayer;
-//        while(currL != NULL){
-//          orgn[il] = currL->orgn;
-//          il++;
-//          currL = currL->nextl;
-//        }
-
         if(curr_spec.monthly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &orgn[0], MAX_SOI_LAY, month_timestep, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.orgn[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &orgn[0], MAX_SOI_LAY, year, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.orgn[0], MAX_SOI_LAY, month_timestep, 1);
         }
-
       }
       //Total, instead of by layer
       else if(!curr_spec.layer){
@@ -4419,22 +4406,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-//        double soilc[MAX_SOI_LAY];
-//        int il = 0;
-//        Layer* currL = this->cohort.ground.toplayer;
-//        while(currL != NULL){
-//          soilc[il] = currL->soma;
-//          il++;
-//          currL = currL->nextl;
-//        }
-
         if(curr_spec.monthly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.soma[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.soma[0], MAX_SOI_LAY, month_timestep, 1);
         }
       }
@@ -4465,23 +4440,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-//        double soilc[MAX_SOI_LAY];
-//        int il = 0;
-//        Layer* currL = this->cohort.ground.toplayer;
-//        while(currL != NULL){
-//          soilc[il] = currL->somcr;
-//          il++;
-//          currL = currL->nextl;
-//        }
-
         if(curr_spec.monthly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.somcr[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.somcr[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.somcr[0], MAX_SOI_LAY, year, 1);
         }
       }
       //Total, instead of by layer
@@ -4511,23 +4474,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-//        double soilc[MAX_SOI_LAY];
-//        int il = 0;
-//        Layer* currL = this->cohort.ground.toplayer;
-//        while(currL != NULL){
-//          soilc[il] = currL->sompr;
-//          il++;
-//          currL = currL->nextl;
-//        }
-
         if(curr_spec.monthly){
- //         output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.sompr[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.sompr[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.sompr[0], MAX_SOI_LAY, year, 1);
         }
       }
       //Total, instead of by layer
@@ -4557,22 +4508,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-  //      double soilc[MAX_SOI_LAY];
-  //      int il = 0;
-  //      Layer* currL = this->cohort.ground.toplayer;
-  //      while(currL != NULL){
-  //        soilc[il] = currL->rawc;
-  //        il++;
-  //        currL = currL->nextl;
-  //      }
-
         if(curr_spec.monthly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.rawc[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-//          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
           output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.rawc[0], MAX_SOI_LAY, year, 1);
         }
       }
