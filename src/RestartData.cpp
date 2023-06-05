@@ -1166,6 +1166,9 @@ void RestartData::create_empty_file(const std::string& fname,
   // the C++ code.
   // The old files that we've been using prior to 11/2016 seem to have been
   // using number of soil layers, so I left it at that for now....
+  // NOTE: As of spring 2023 I am not sure how much of this applies. The
+  // `fix_restart` branch may have addressed this in part; not sure if it fixed
+  // the MPI type?
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   // re-arrange dims in vartype
