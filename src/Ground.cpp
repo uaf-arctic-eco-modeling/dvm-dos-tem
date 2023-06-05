@@ -432,20 +432,12 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
                                    soistate_dim *soildim,
                                    const RestartData & rdata) {
 
-//  BOOST_LOG_SEV(glg, err) << "before cleanup :"
-//                              << layer_report_string("depth thermal ptr");
-
-  //needs to clean up old 'ground'
-  // This cleaning up will keep the bottom layer of the profile - 
-  //if one try to force deleting it, one would get a seg fault. 
-  // So let's try to delete this old bottom layer after new rock 
-  //layers have been created.
+  // This cleaning up will keep the bottom layer of the profile - if one try to
+  // force deleting it, one would get a seg fault. So let's try to delete this
+  // old bottom layer after new rock 
   cleanAllLayers();
   
-//  BOOST_LOG_SEV(glg, err) << "after cleanup :"
-//                              << layer_report_string("depth thermal ptr");
-
-  //test if any layer is remaining
+  // test if any layer is remaining
   Layer* current_layer = this->toplayer;
   int extra = 0;
   if (current_layer == NULL) {
@@ -457,7 +449,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
       current_layer = current_layer->nextl;
     }
   }
-//  BOOST_LOG_SEV(glg, err) << "number of old rock Layers " << extra ;
 
   soilparent.num = 0;
   soilparent.thick = 0.;
@@ -474,18 +465,12 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     insertFront(rl);
   }
 
-//  BOOST_LOG_SEV(glg, err) << "after parent layers :"
-//                              << layer_report_string("depth thermal ptr");
-
   // Clean extra bottom rock layers if any
-  for(int il =soilparent.num-1+extra; il>soilparent.num-1; il--) {
+  for(int il = soilparent.num-1+extra; il>soilparent.num-1; il--) {
     BOOST_LOG_SEV(glg, err) << "after parent layers :" << il;
     cleanRockLayers(); 
   }
 
-//  BOOST_LOG_SEV(glg, err) << "after second cleanup :"
-//                              << layer_report_string("depth thermal ptr");
- 
   rocklayercreated = true;
   //
   int soiltype[MAX_SOI_LAY];
@@ -500,9 +485,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     frozen[i]      = rdata.FROZENsoil[i];
   }
 
-//  BOOST_LOG_SEV(glg, err) << "after soil layers1 :"
-//                              << layer_report_string("depth thermal ptr");
-
   mineralinfo.set5Soilprofile(soiltype, dzsoil, MAX_SOI_LAY);
 
   for(int il =mineralinfo.num-1; il>=0; il--) {
@@ -516,8 +498,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     ml->frozen = frozen[il];
     insertFront(ml);
   }
-//  BOOST_LOG_SEV(glg, err) << "after soil layers2 :"
-//                              << layer_report_string("depth thermal ptr");
 
   organic.assignDeepThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
@@ -536,8 +516,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     pl->frozen = frozen[il];
     insertFront(pl);
   }
-//  BOOST_LOG_SEV(glg, err) << "after organic layers2 :"
-//                              << layer_report_string("depth thermal ptr");
 
   moss.setThicknesses(soiltype, dzsoil, MAX_SOI_LAY);
 
@@ -547,8 +525,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     ml->frozen = frozen[il];
     insertFront(ml);
   }
-//  BOOST_LOG_SEV(glg, err) << "after moss layers1 :"
-//                              << layer_report_string("depth thermal ptr");
 
   //snow
   snow.coverage  = 0.;
@@ -572,9 +548,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
     }
   }
 
-//  BOOST_LOG_SEV(glg, err) << "after snow layers1 :"
-//                              << layer_report_string("depth thermal ptr");
-
   //
   frontsz.clear();
   frontstype.clear();
@@ -592,9 +565,6 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
       frontstype.push_front(frontFT[ifnt]);
     }
   }
-
-//  BOOST_LOG_SEV(glg, err) << "after fronts :"
-//                              << layer_report_string("depth thermal ptr");
 
   //
   resortGroundLayers();

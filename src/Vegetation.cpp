@@ -125,7 +125,6 @@ void Vegetation::initializeState() {
   //
   for (int i=0; i<NUM_PFT; i++) {
     cd->m_veg.vegage[i]  = 0;
-//    BOOST_LOG_SEV(glg, err) << "initialization!";
   }
 
   // from 'lookup'
@@ -168,7 +167,6 @@ void Vegetation::set_state_from_restartdata(const RestartData & rd) {
 
   for (int ip=0; ip<NUM_PFT; ip++) {
     cd->m_veg.vegage[ip]      = rd.vegage[ip];
-//    BOOST_LOG_SEV(glg, err) << "pft: " << ip << ", vegage: " << cd->m_veg.vegage[ip];
     cd->m_veg.vegcov[ip]      = rd.vegcov[ip];
     cd->m_veg.ifwoody[ip]     = rd.ifwoody[ip];
     cd->m_veg.ifdeciwoody[ip] = rd.ifdeciwoody[ip];
@@ -186,7 +184,6 @@ void Vegetation::set_state_from_restartdata(const RestartData & rd) {
     cd->m_vegd.growingttime[ip] = rd.growingttime[ip];
     cd->m_vegd.topt[ip]         = rd.topt[ip];
     cd->m_vegd.foliagemx[ip]    = rd.foliagemx[ip];
-//    BOOST_LOG_SEV(glg, err) << "PFT :" << ip << ", foliagemx: " << cd->m_vegd.foliagemx[ip];
     cd->prveetmxque[ip].clear();
 
     for(int i=0; i<10; i++) {
@@ -338,8 +335,8 @@ void Vegetation::phenology(const int &currmind) {
         prveetmx +=prvdeque[i]/dequeno;
       }
 
-      //1) plant size (biomass C) or age controlled foliage fraction rative
-      //   to the max. leaf C
+      // 1) plant size (biomass C) or age controlled foliage fraction relative
+      //    to the max. leaf C
       cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
                                             cd->m_veg.ifperenial[ip],
                                             bd[ip]->m_vegs.call);
@@ -369,8 +366,6 @@ void Vegetation::phenology(const int &currmind) {
         cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;
         cd->m_vegd.maxleafc[ip] = 0.0;
         cd->m_vegd.maxleafc[ip] = getYearlyMaxLAI(ip)/vegdimpar.sla[ip];
-//        BOOST_LOG_SEV(glg, err) << "PFT :" << ip << " - maxleafc: " << cd->m_vegd.maxleafc[ip] <<
-//           " - vegcov : " << cd->m_veg.vegcov[ip] << " - sla : " << vegdimpar.sla[ip] << " - maxlai: " << getYearlyMaxLAI(ip) ;
       } else {
         if (eet>cd->m_vegd.eetmx[ip]) {
           cd->m_vegd.eetmx[ip] = eet;
@@ -400,11 +395,6 @@ void Vegetation::phenology(const int &currmind) {
         }
       }
 
-//      //2) plant size (biomass C) or age controlled foliage fraction rative
-//      //   to the max. leaf C
-//      cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
-//                                            cd->m_veg.ifperenial[ip],
-//                                            bd[ip]->m_vegs.call);
     } else { // 'vegcov' is 0
       cd->m_vegd.unnormleaf[ip] = MISSING_D;
       cd->m_vegd.fleaf[ip] = MISSING_D;
@@ -415,12 +405,6 @@ void Vegetation::phenology(const int &currmind) {
       cd->m_vegd.growingttime[ip] = MISSING_D;
       cd->m_vegd.ffoliage[ip] = MISSING_D;
     }
-//    BOOST_LOG_SEV(glg, err) << "PFT :" << ip << " - maxleafc: " << cd->m_vegd.maxleafc[ip] <<
-//           " - vegcov : " << cd->m_veg.vegcov[ip] << " - sla : " << vegdimpar.sla[ip] << " - maxlai: " << getYearlyMaxLAI(ip) ;
-//    BOOST_LOG_SEV(glg, err) << "PFT :" << ip << " - maxleafc: " << cd->m_vegd.maxleafc[ip] <<
-//           " - unnormleaf : " << cd->m_vegd.unnormleaf[ip] << " - fleaf : " << cd->m_vegd.fleaf[ip] << " - eetmx: " << cd->m_vegd.eetmx[ip] 
-//           << " - unnormleafmx: " << cd->m_vegd.unnormleafmx[ip]  << " - topt: " << cd->m_vegd.topt[ip] << " - growingttime: " << cd->m_vegd.growingttime[ip] 
-//           << " - ffoliage: " <<  cd->m_vegd.ffoliage[ip];
   }
 };
 
@@ -498,23 +482,12 @@ double Vegetation::getFfoliage(const int &ipft, const bool & ifwoody,
   //    ffoliage =  1./(1+m1*exp(m2*sqrt(fcv)));
   //  }
 
-  //BOOST_LOG_SEV(glg, err) << "Before update - pft: " << ipft << ", foliagemx: " << cd->m_vegd.foliagemx[ipft] 
-  //           << ", ffoliage: " << ffoliage << ", topt" << cd->m_vegd.topt[ipft];
-
   //it is assumed that foliage will not go down during a growth cycle
   if(ffoliage>cd->m_vegd.foliagemx[ipft]) {
     cd->m_vegd.foliagemx[ipft] = ffoliage;
   } else {
     ffoliage = cd->m_vegd.foliagemx[ipft];
   }
-
-//  BOOST_LOG_SEV(glg, err) << "After update - pft: " << ipft << ", foliagemx: " << cd->m_vegd.foliagemx[ipft] 
-//             << ", ffoliage: " << ffoliage;
-//  BOOST_LOG_SEV(glg, err) << "pft: " << ipft << ", kfoliage: " << vegdimpar.kfoliage[ipft] << ", cov: " 
-//             << vegdimpar.cov[ipft] << ", vegc: " << vegc << ", foliagemx: " << cd->m_vegd.foliagemx[ipft] 
-//             << ", ffoliage: " << ffoliage;
-
-
 
   return ffoliage;
 };
@@ -530,14 +503,10 @@ double Vegetation::getYearlyMaxLAI(const int &ipft) {
       double covlai = chtlu->static_lai[im][ipft];
     if (laimax <= covlai) {
       laimax = covlai;
-//      BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - month: " << im <<
-//           " - staticlai : " << chtlu->static_lai[im][ipft];
     }
   }
 
   laimax *= cd->m_vegd.ffoliage[ipft];
-//  BOOST_LOG_SEV(glg, err) << "PFT :" << ipft << " - laimax: " << laimax <<
-//           " - ffoliage : " << cd->m_vegd.ffoliage[ipft];
   return laimax;
 }
 
