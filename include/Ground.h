@@ -185,6 +185,7 @@ private :
 
   void cleanSnowSoilLayers();
   void cleanAllLayers();
+  void cleanRockLayers();
 
 };
 

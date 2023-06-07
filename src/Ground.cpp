@@ -330,12 +330,15 @@ void Ground::initLayerStructure(snwstate_dim *snowdim, soistate_dim *soildim) {
   // Needs to clean up old 'ground', if any
   cleanAllLayers();
 
+  rocklayercreated = false;
+
   // Layers are constructed from bottom
   if(rocklayercreated) {
     cleanSnowSoilLayers();
   } else {
     initRockLayers(); // Rock in the bottom first and no-need to do again
   }
+
 
   initSnowSoilLayers();
   resortGroundLayers();
@@ -428,9 +431,25 @@ void Ground::initSnowSoilLayers() {
 void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
                                    soistate_dim *soildim,
                                    const RestartData & rdata) {
-  //needs to clean up old 'ground'
+
+  // This cleaning up will keep the bottom layer of the profile - if one try to
+  // force deleting it, one would get a seg fault. So let's try to delete this
+  // old bottom layer after new rock 
   cleanAllLayers();
-  //
+  
+  // test if any layer is remaining
+  Layer* current_layer = this->toplayer;
+  int extra = 0;
+  if (current_layer == NULL) {
+    BOOST_LOG_SEV(glg, err) << " (No Layers left...)";
+  } else {
+    BOOST_LOG_SEV(glg, err) << " (Remaining Layers...)";
+    while(current_layer!=NULL) {
+      ++extra;
+      current_layer = current_layer->nextl;
+    }
+  }
+
   soilparent.num = 0;
   soilparent.thick = 0.;
 
@@ -444,6 +463,12 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   for(int il =soilparent.num-1; il>=0; il--) {
     ParentLayer* rl = new ParentLayer(soilparent.dz[il]);
     insertFront(rl);
+  }
+
+  // Clean extra bottom rock layers if any
+  for(int il = soilparent.num-1+extra; il>soilparent.num-1; il--) {
+    BOOST_LOG_SEV(glg, err) << "after parent layers :" << il;
+    cleanRockLayers(); 
   }
 
   rocklayercreated = true;
@@ -2346,6 +2371,19 @@ void Ground::cleanAllLayers() {
     currl = templ ;
   }
 }
+
+void Ground::cleanRockLayers() {
+  Layer* currl = botlayer;
+  Layer* templ;
+
+  while(currl!=NULL) {
+    templ = currl->nextl;
+    removeLayer(currl);
+    currl = templ ;
+  }
+
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

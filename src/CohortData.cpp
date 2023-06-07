@@ -32,7 +32,6 @@ CohortData::~CohortData() {
 
 // initialize CohortData class explicitly
 void CohortData::clear() {
-  chtid = MISSING_I;
   year  = MISSING_I;
   month = MISSING_I;
   cmttype = MISSING_I;
