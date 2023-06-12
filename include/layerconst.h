@@ -10,11 +10,11 @@ const int MAX_DEP_LAY = 3;  // Maximum number of deep organic Layer
 
 // maximum number of mineral Layer
 // (0.1,0.1,0.1,0.1, 0.2,0.2,0.2,0.3,0.3,0.3, 0.3, 0.5, 0.5, 1, 1)
-const int MAX_MIN_LAY =15;
-const double MINETHICK[MAX_MIN_LAY] = {0.1,0.1,0.1, 0.1, 0.2,0.2,0.2, 0.3, 0.3, 0.3, 0.3, 0.5, 0.5, 1.0, 1.0};
-const int MINEZONE[3] = {2, 6, 14}; // The mineral layer index (from 0) of
+const int MAX_MIN_LAY =46;
+const double MINETHICK[MAX_MIN_LAY] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0, 5.0};
+const int MINEZONE[3] = {4, 9, 14}; // The mineral layer index (from 0) of
                                     //  THREE soil zones
-// e.g., here: minea - 0~0.3m, mineb - 0.3~1.0m, minec - 1m~
+// e.g., here: minea - 0~0.5m, mineb - 0.5~1.0m, minec - 1m~5m
 
 const int MAX_ROC_LAY =5; // maximum number of rock Layer (
 const double ROCKTHICK[MAX_ROC_LAY] = {2.0, 4.0, 8.0, 16.0, 20.0};
