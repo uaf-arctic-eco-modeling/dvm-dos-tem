@@ -94,8 +94,8 @@ targets:
             targets file: /tmp/dvmdostem-doctests-qcal/calibration
          parameter files: /tmp/dvmdostem-doctests-qcal/parameters
                      CMT: {'CMT05'}
-                     QCR: 65.31246965588963
-            Weighted QCR: 22.29921752995369
+                     QCR: 37.65197095114939
+            Weighted QCR: 18.709441415887532
     <BLANKLINE> 
 
 The NetCDF and json reports should in theory match exactly, but there is
@@ -107,8 +107,8 @@ frequently a little variation due to rounding errors.
             targets file: /tmp/dvmdostem-doctests-qcal/calibration
          parameter files: /tmp/dvmdostem-doctests-qcal/parameters
                      CMT: {'CMT05'}
-                     QCR: 65.31246965588963
-            Weighted QCR: 22.299217529953683
+                     QCR: 37.651970951149394
+            Weighted QCR: 18.709441415887532
     <BLANKLINE>    
 
 
