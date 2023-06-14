@@ -24,8 +24,8 @@ copyright = '2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
 author = 'Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.6.1'
-version = 'v0.6.1'
+release = 'v0.7.0'
+version = 'v0.7.0'
 
 
 # -- General configuration ---------------------------------------------------
