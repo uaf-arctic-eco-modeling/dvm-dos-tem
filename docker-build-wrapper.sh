@@ -14,7 +14,10 @@
 #
 # This can then be wrapped in a for loop that calls docker image rm to cleanup.
 
-GIT_VERSION=$(git describe)
+# Use --tags so that lightweight tags are found. Useful for local tagging
+# as well as making sure that images built during the release process are 
+# appropriately tagged.
+GIT_VERSION=$(git describe --tags)
 
 # IMAGE FOR GENERAL C++ DEVELOPMENT
 # Makes a general development image with various dev tools installed:
