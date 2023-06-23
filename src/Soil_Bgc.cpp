@@ -173,7 +173,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //Manual layer index tracking.
   // Starting from 1 to allow for adding the moss layer later if wanted
   int il = 1;
-  while(currl->isSoil){
+  //TODO control statement modified to stop segfaulting, not tested.
+  while(currl && currl->isSoil){
 
     //Three cases:
     // Layer is completely below the water table
@@ -630,7 +631,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
     il = 1; //Reset manual layer index tracker. From 1 to allow moss layer in future
-    while(currl->isSoil){
+    //TODO control statement modified to stop segfaulting, not tested.
+    while(currl && currl->isSoil){
       currl->ch4 = V[il];
       currl = currl->nextl;
       il++;
@@ -657,7 +659,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // to be modified to start at the moss layer and il should be set to 0.
   currl = ground->fstshlwl; //reset currl to top of the soil stack
   il = 1; //reset manual layer index tracker.
-  while(currl->isSoil){
+  //TODO control statement modified to stop segfaulting, not tested.
+  while(currl && currl->isSoil){
     ed->daily_ch4_pool[id][il] = currl->ch4;
     il++;
     currl = currl->nextl;
