@@ -94,10 +94,12 @@ void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, doubl
 
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //Fan Eq. 13
+  // BM: check whether ub is a physical constant or a spatially explicit parameter
   const double ub = 0.076; //umol L-1 upper boundary ch4 concentration
   //Walter and Heimann 2000, section 2.3
   //  references D'Ans and Lax 1967 for the same value
   //Make global var DIFFCH4AIR?
+  // ANYONE: replace diff_a, diff_w with CH4DIFFA, CH4DIFFW in physicalconst.h
   const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
   //Walter and Heimann 2000, section 2.3
   //  references Scheffer and Schachtschabel, 1982
@@ -105,12 +107,17 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
   const int m = 24; //n = 10 (number of dx), m = time
 //  double *C, *D, *V, *diff, *r, *s;
+// BM: should m be in a time constant related header file - also m is used in tortuosity equation
   double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
+  // ANYONE: rename SS to something more descriptive
   double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   double Prod=0.0, Ebul=0.0, Oxid=0.0;//, Plant=0.0;
   double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
+  //BM : SM is the mass-based Bunsen solubility coefficient 
+  //BM : SB is the Bunsen solubility coefficient
+  // BM: these are calculated within this function
   double SB, SM, Pressure;
   int wtbflag = 0;
 
@@ -122,13 +129,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double ch4_flux_layer[MAX_SOI_LAY] = {0};
 
   int numsoill = cd->m_soil.numsl;
-
-  double C[numsoill];
-  double D[numsoill];
-  double V[numsoill];
-  double diff[numsoill];
-  double r[numsoill];
-  double s[numsoill];
+  //BM: used in trisolver - need new names (Crank-Nicholson Method)
+  double C[numsoill]; // BM: relating to upper boundary conditions 
+  double D[numsoill]; // BM: relating to lower boundary conditions
+  double V[numsoill]; // BM: V[il] = s[il] * currl->ch4 + s[il] * dt 
+  double diff[numsoill];  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient
+  double r[numsoill]; // BM: 2 + s[il] relating to sigma in Crank-Nicholson / trisolver   
+  double s[numsoill]; // BM: currl->dz * currl->dz / (diff[il] * dt); this is sigma!
 
   for(int ii=0; ii<numsoill; ii++){
     C[ii] = 0.0;
@@ -141,9 +148,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   //Calculate LAI per PFT
   //Should be by Fan Eq. 20
+
+//BM: Tveg parameter should account for PFTs, double check correct numbers in parameter files
+
   //TODO this should only include plant types that are good
   // methane conduits.
 //  double realLAI[NUM_PFT];
+// Ask HG: What is needed relating to LAI, do we need the previous time step LAI?
   double fLAI[NUM_PFT];
   for(int ip=0; ip<NUM_PFT; ip++){
     //Catch for if preLAI is still UIN_D (i.e. hasn't been initialized)
@@ -180,6 +191,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     // Layer is completely below the water table
     // Layer contains the water table
     // Layer is completely above the water table
+
+  //BM: 0.075 should either not be here, or be a fraction of the current layer
+  //BM: should dz*0.5 be there? 
+  //BM: We need to include when the watertable is within the layer and how to scale production and oxidation
 
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
       torty_tmp = currl->poro - currl->liq - currl->ice; //air content
@@ -241,7 +256,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     double ksoma_ch4 = 0.0;
     double ksompr_ch4 = 0.0;
     double ksomcr_ch4 = 0.0;
-    double TResp = 0.0;
+    double TResp = 0.0; //BM: Respiration temperature dependence - better name
 
     while(!currl->isMoss){
 //    for (il = numsoill - 1; il > 0; il--)  //loop through layers
@@ -257,11 +272,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         double layer_pft_froot = cd->m_soil.frootfrac[il][ip];
 
         //Fan 2013, Eq 19
+        // BM: What is KP, is it a physical constant? - 1.0 /hr in Fan supplementary material - double check units
         plant_ch4_movement[ip] = KP * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
         plant_ch4_sum += plant_ch4_movement[ip];
         //Storing plant transport values for output
         ed->output_ch4_transport[il][ip] = plant_ch4_movement[ip];
       }
+
+  //BM: THIS IS WHERE WE GOT TO
+
 //This is from peat-dos-tem:
 //      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
