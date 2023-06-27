@@ -278,10 +278,16 @@ def cmdline_parse(argv=None):
     help=textwrap.dedent('''Enable netcdf outputs for all the calibration target variables.'''))
 
   parser.add_argument('--enable-all-yearly', action='store_true',
-    help=textwrap.dedent('''Enable yearly output for all possible variables'''))
+    help=textwrap.dedent('''Enable all yearly ecosystem-level outputs.'''))
 
   parser.add_argument('--max-output', action='store_true',
     help=textwrap.dedent('''Enable all outputs at the finest detail available'''))
+
+  parser.add_argument('--max-yearly', action='store_true',
+    help=textwrap.dedent('''Enable all yearly outputs at the finest detail available'''))
+
+  parser.add_argument('--max-monthly', action='store_true',
+    help=textwrap.dedent('''Enable all monthly outputs at the finest detail available'''))
 
   parser.add_argument('--on', 
       nargs='+', metavar=('VAR', 'RES',),
@@ -419,6 +425,45 @@ def cmdline_run(args):
       var_options = list_var_options(line, var)
       var_options = " ".join(var_options)
       toggle_on_variable(data, var, var_options, verbose=args.DEBUG)
+
+    write_data_to_csv(data, args.file)
+    return 0
+
+
+  if args.max_yearly:
+    data = csv_file_to_data_dict_list(args.file)
+
+    for line in data:
+      if line['Yearly'] != 'invalid':
+        var_options = list_var_options(line, line['Name'])
+
+        #Remove time options other than yearly
+        if 'Monthly' in var_options:
+          var_options.remove('Monthly')
+        if 'Daily' in var_options:
+          var_options.remove('Daily')
+
+        var_options = " ".join(var_options)
+
+        data = toggle_on_variable(data, line['Name'], var_options, verbose=args.DEBUG)
+
+    write_data_to_csv(data, args.file)
+    return 0
+
+
+  if args.max_monthly:
+    data = csv_file_to_data_dict_list(args.file)
+
+    for line in data:
+      if line['Monthly'] != 'invalid':
+        var_options = list_var_options(line, line['Name'])
+
+        #Remove time options finer-grained than monthly
+        if 'Daily' in var_options:
+          var_options.remove('Daily')
+
+        var_options = " ".join(var_options)
+        data = toggle_on_variable(data, line['Name'], var_options, verbose=args.DEBUG)
 
     write_data_to_csv(data, args.file)
     return 0
