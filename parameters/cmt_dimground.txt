@@ -233,12 +233,12 @@
 0.21               // initdmossthick: initial dead moss thickness (m) UPDATED
 1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
-0.33               // initfibthick: meters UPDATED
-0.90               // inithumthick: UPDATED
+0.13333333333333334               // initfibthick: meters UPDATED
+0.2666666666666667               // inithumthick: UPDATED
 0.05070            // coefshlwa: 0.0507
-1.00000            // coefshlwb: 0.708 MODIFIED to improve calibration stability of mineral c 0.925
+0.708            // coefshlwb: 0.708 MODIFIED to improve calibration stability of mineral c 0.925
 0.05011            // coefdeepa: 0.05011
-1.00000            // coefdeepb: 0.975
+0.975            // coefdeepb: 0.975
 0.18610            // coefminea: 0.1861
 1.00000            // coefmineb: 0.7577
 //===========================================================
