@@ -40,10 +40,28 @@ Looking at the original file however, there should be only the default variable(
                      GPP            g/m2/time            y                   invalid                                invalid       double     GPP
     0
 
+Enable all yearly variables at the highest detail possible in the test file
+
+    >>> ou.cmdline_entry(['--max-yearly','/tmp/test-outspec_utils.csv'])
+    0
+
+Enable all monthly variables at the highest detail possible in the test file
+
+    >>> ou.cmdline_entry(['--max-monthly','/tmp/test-outspec_utils.csv'])
+    0
+
 Enable all variables at the highest resolution possible in the test file
 
     >>> ou.cmdline_entry(['--max-output','/tmp/test-outspec_utils.csv'])
     WARNING! Invalid TIME setting detected! You won't get output for NDRAIN
+    0
+
+Clear the test file and check that it is actually empty
+
+    >>> ou.cmdline_entry(['--empty','/tmp/test-outspec_utils.csv'])
+    0
+    >>> ou.cmdline_entry(['--summary','/tmp/test-outspec_utils.csv'])
+                    Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
     0
 
 Check available options for a single variable
