@@ -282,17 +282,26 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //BM: THIS IS WHERE WE GOT TO
 
 //This is from peat-dos-tem:
+
+  //BM: We don't think this is needed now, accounted for above. 
+  // rp is actually KP ?
+
 //      Plant = bd->rp * ed->m_sois.rootfrac[il] * currl->ch4 * bd->tveg * realLAI * 0.5;
 
 
 
-/*
 
+
+  //BM: Below section needs to be uncommented (297-312)
 
 //      //All layers
+
+  //BM: plant_ch4_sum_l is per layer summed for pfts - think about the names of these
+  //  plant_ch4_sum_l might be used as an array for output  
       plant_ch4_sum_l[il] = plant_ch4_sum;
 
       //Equations from Helene Genet to replace the ones from peat-dos-tem
+      //HG: Why >= -2.0? and why 0.25?
       if(currl->tem >= -2.0 && currl->tem < 0.000001){
         TResp_unsat = getRhq10(-2.1) * 0.25;
         TResp_sat = getRhq10(-6.0) * 0.25;
@@ -308,7 +317,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
 
 
+
 //      //Layer above the water table
+//  BM: naming convention for open_porosity - this is the same as torty_tmp
+//      Are multiple layer loops necessary? - there may be and top-down and bottom-up loop respectively
+//      re-write: maybe copy paste the limiter above just for trial run
+//      When is production starting?
       if(layer above the water table){
         open_porosity[il] = currl->poro - currl->liq - currl->ice;
         if(open_porosity[il] < 0.05){
@@ -318,11 +332,17 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //Fan 2013 Eq 18 for layers above the water table
         //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
         //  set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
+
+        //BM: does 5 and 20 need to be a parameter in param files?
         Oxid = 5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4);
-        Oxid_m = Oxid * tmp_flux * currl->dz * 12.0;
+        Oxid_m = Oxid * open_porosity[il] * currl->dz * 12.0;
+
+        //BM: general look this up
+        //HG: what is Plant_m = plant_ch4_sum * open_porosity * currl->dz * 1000.0; - and why 1000?
+        //plant_ch4_sum - theoretical maximum?
 
         if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = plant_ch4_sum * open_porosity * currl->dz * 1000.0;
+          Plant_m = plant_ch4_sum * open_porosity[il] * currl->dz * 1000.0;
         } else {
           Plant_m = 0.0;
         }
@@ -335,14 +355,21 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
 //      //Layer containing the water table
       //  Add totEbul to Prod?
+      //BM: does this occur again? Need to think about how to do this particularly 
+      //    where the watertable is in the layer
       else if(layer contains water table){
         //figure out transfer of ebullition
+
+        //Fan eq. 17: E = kh (Cch4 - Sm)
+
+
       }//end of layer containing water table
 
 
 
 
 //      //Layer below the water table
+// BM: change else if(layer below water table){
       else if(layer below water table){
 
         //if below, is currl->dz
@@ -351,7 +378,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         double layer_sat_z
         double layer_sat_liq
 
-        double layer_sat_ch4?
+        double layer_sat_ch4
         //also, different temperatures?
 
         if(tmp_sois.rawc[il] > 0.0){
@@ -446,14 +473,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       }//end of layer below water table
 
-
-*/
  
 
 
       //Layer above water table
       //The origin of the -0.075 is unknown.
       //Helene checked Fan 2013, but not Walter & Heimann 2000.
+
+
+
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
         if (wtbflag == 0) {
           Prod = totEbul;
@@ -496,8 +524,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Ebul = 0.0; // added by Y.Mi, Jan 2015
         Ebul_m = 0.0; //Y.Mi
 */      }
+
+//BM: above chunk is replicated.
+
+//THIS IS WHERE WE GOT TO
+
       //Layer below water table
-      else {
+      else { //BM: Original "Layer below the water table" calculation we think
 /*        TResp = getRhq10(currl->tem - 6.0);
 
         //Equations from Helene Genet to replace the ones from peat-dos-tem
