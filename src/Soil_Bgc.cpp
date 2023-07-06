@@ -279,8 +279,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         ed->output_ch4_transport[il][ip] = plant_ch4_movement[ip];
       }
 
-  //BM: THIS IS WHERE WE GOT TO
-
 //This is from peat-dos-tem:
 
   //BM: We don't think this is needed now, accounted for above. 
@@ -358,6 +356,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //BM: does this occur again? Need to think about how to do this particularly 
       //    where the watertable is in the layer
       else if(layer contains water table){
+
+        //BM: can we start building a "unified" equation in this section
+
         //figure out transfer of ebullition
 
         //Fan eq. 17: E = kh (Cch4 - Sm)
@@ -421,10 +422,24 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //rhrawc doesn't make sense for this - it's not heterotrophic respiration
         //this is the rate, but modified by temperature and carbon content
         //it is hourly
+
+        //BM: Prod eq seems incorrect - this may be in the process of 
+        //    unifying production across saturated and unsaturated layers
+
         Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz * layer_sat_liq) / 12.0;
+        
+        // U = (1/12) *1e6 * 1e-3
+        // Need to decide what to do with liquid water content, include/exclude, numerator/denominator
+        // Prod = U * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / currl->dz
 
         //Fan 2013 Eq. 15. Bunsen solubility coefficient
+
+        //BM : check for updated empirical study of Bunsen Solubility coefficient of methane
+        //BM, RR : Change SB, SM to more descriptive names
+
         SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
+
+        //BM: Pstd and G need renaming
 
         //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
         Pressure = DENLIQ * G * (layer_sat_z + layer_sat_dz / 2.0) + Pstd;
@@ -433,6 +448,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //This should be Fan 2013 Eq. 17 for if layers are below the water table
         //Fan does not explicitly limit it to layers with temp greater than 1 (at least
         // not at the equation).
+
+        //HG: >1.0, >-2.0 where do these come from? 
+        // and what about k_h = 1.0 /hr
+
         if(currl->tem > 1.0){
           Ebul = (layer_sat_ch4 - SM) * 1.0;
         }
@@ -452,9 +471,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //currl->liq units are kg m^-2
         //currl->dz units are m
         //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit)
+
+        //BM : Be very clear about conversions I.e. Ebul_m
+        //BM : Ebul_m seems like conversion but is a little confusing - work through dimensional analysis
+        
         Ebul_m = Ebul * layer_sat_liq * layer_sat_dz * 1000.0;
         totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
         totEbul_m += Ebul_m; //cumulated over 1 time step, 1 hour
+
+        //BM: pool of frozen methane bubbles for thaw
 
         if (currl->tem < 0.0) {
           totEbul_m = 0.0;
@@ -526,8 +551,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 */      }
 
 //BM: above chunk is replicated.
-
-//THIS IS WHERE WE GOT TO
 
       //Layer below water table
       else { //BM: Original "Layer below the water table" calculation we think
@@ -641,8 +664,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 //            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
 //            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
 //
-      tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
-      tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
+
+      //BM: Do we need totEbul or tottotEbul - we have commented below 2 lines - for now, but some kind of 
+      //    total Ebul is needed somewhere.
+
+      // tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
+      // tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
       totOxid_m = totOxid_m + Oxid_m; //cumulated over 1 day, 24 time steps, Y.MI
       ed->d_soid.oxid = totOxid_m;
 
@@ -669,6 +696,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //First member of this includes diffusion
       //Second member includes the other elements of methane leaving
+
+      //BM: s is maybe sigma used in tridiagonal solving...
+
       V[il] = s[il] * currl->ch4 + s[il] * dt * SS;
 
       if (V[il] < 0.0000001) {
@@ -679,6 +709,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       il--; //Incrementing manual layer index tracker
     } //end of layer looping
 
+    //BM: need to work thorugh this at some point, do the math
     TriSolver(numsoill - 1, C, D, C, V, V);
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
@@ -719,6 +750,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   }
 
   Layer* topsoil = ground->fstshlwl;
+
+  //BM: Torty_tmp again below vvv
   tmp_flux = (topsoil->poro - topsoil->liq - topsoil->ice);
   //tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
 
@@ -727,6 +760,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   }
 
   //Fan Eq. 21
+
+  // BM: Flux2A_m seems to be  a unit conversion and total diffusion related efflux
+  //     totFlux_m is the final efflux including plant-mediated, ebullition (if flooded) and diffusion
+
   Flux2A_m = Flux2A * tmp_flux * topsoil->dz * 1000.0;
   totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;//ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
 
@@ -738,6 +775,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   Flux2A = 0.0; //Y.Mi
   totPlant_m =0.0; //Y.Mi
   totEbul_m = 0.0; //Y.Mi
+
+  //BM: below looks like the precentage of diffusion efflux - not sure this is a necessary variable
+  //    can be calculated from general outputs      
 
   if (totFlux_m < 0.000001) {
     totFlux_m = 0.0;
