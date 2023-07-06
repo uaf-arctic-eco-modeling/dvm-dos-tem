@@ -75,10 +75,10 @@ calibration_targets = {
       'Root':                    [    0.17,    0.01,     0.03,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':           888.91,    #  shlwc
-    'CarbonDeep':             3174.53,    #  deepc
-    'CarbonMineralSum':      19821.50,    #  minec
-    'OrganicNitrogenSum':     1086.31,    #  soln
+    'CarbonShallow':           782.73,    #  shlwc
+    'CarbonDeep':             3448.46,    #  deepc
+    'CarbonMineralSum':      41665.00,    #  minec
+    'OrganicNitrogenSum':     2145.87,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
   },
   ## CMT02 - White Spruce Forest, calibration for Murphy Dome climate.
@@ -127,10 +127,10 @@ calibration_targets = {
       'Root':                    [    0.01,    0.11,     1.08,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.19,    #  dmossc
-    'CarbonShallow':           534.19,    #  shlwc
-    'CarbonDeep':             2017.94,    #  deepc
-    'CarbonMineralSum':      11004.89,    #  minec
-    'OrganicNitrogenSum':      699.89,    #  soln
+    'CarbonShallow':           528.17,    #  shlwc
+    'CarbonDeep':             1653.50,    #  deepc
+    'CarbonMineralSum':      25915.00,    #  minec
+    'OrganicNitrogenSum':     1513.10,    #  soln
     'AvailableNitrogenSum':       3.5,    #  avln
   },
   ## CMT04 - Shrub Tundra, calibration for Toolik climate.

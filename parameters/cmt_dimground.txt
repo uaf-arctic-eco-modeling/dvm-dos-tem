@@ -33,14 +33,14 @@
 0.02               // initdmossthick: initial dead moss thickness (m)
 1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
-0.054578             // initfibthick: meters
-0.109156            // inithumthick:
+0.049              // initfibthick: meters
+0.115              // inithumthick:
 0.012              // coefshlwa:
 1.18               // coefshlwb:
 0.008              // coefdeepa:
-1.54               // coefdeepb:
-0.1505             // coefminea:
-0.5598             // coefmineb:
+1.541              // coefdeepb:
+0.0995             // coefminea:
+0.8109             // coefmineb:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 // Snow characteristics
@@ -73,14 +73,14 @@
 0.02               // initdmossthick: initial dead moss thickness (m)
 1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
 // soil characteristics
-0.02538              // initfibthick: meters
-0.05076              // inithumthick:
+0.020              // initfibthick: meters
+0.056              // inithumthick:
 0.019              // coefshlwa:
-1.11               // coefshlwb:
-0.0292             // coefdeepa:
-1.19               // coefdeepb:
-0.1317             // coefminea:
-0.461              // coefmineb:
+1.475              // coefshlwb:
+0.023              // coefdeepa:
+1.145              // coefdeepb:
+0.0995             // coefminea:
+0.7078             // coefmineb:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 // Snow characteristics
