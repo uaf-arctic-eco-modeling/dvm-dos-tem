@@ -14,9 +14,19 @@ FROM osgeo/gdal:ubuntu-full-3.2.2
 
 
 # Make a developer user so as not to always be root
-RUN useradd -ms /bin/bash develop
-RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
-USER develop
+# In order for the resulting container to be able to mount host directories 
+# as volumes and have read/write access, we must be sure that the new user 
+# here has the same UID and GID as the user on the machine hosting the
+# container. Here we have default values for the UNAME, UID and GID, but
+# if you need to you can override them by passing --build-arg to the docker
+# build command.
+ARG UNAME=develop
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u$UID -g$GID -s /bin/bash $UNAME
+RUN echo "$UNAME   ALL=(ALL:ALL) ALL" >> /etc/sudoers
+USER $UNAME
 
 # Pyenv dependencies
 USER root
@@ -43,8 +53,8 @@ RUN apt-get update --fix-missing && apt-get install -y \
 # Pyenv seems to work well for overall python versioning and packagemanagement.
 # Not sure how to best manage pip requirements.txt yet between this mapping
 # support image and the other dvmdostem images.
-USER develop
-ENV HOME=/home/develop
+USER $UNAME
+ENV HOME=/home/$UNAME
 RUN git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
 ENV PYENV_ROOT=$HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
@@ -57,6 +67,16 @@ RUN pip install -U pip pipenv
 RUN pip install setuptools==58
 COPY requirements_mapping.txt .
 RUN pip install -r requirements_mapping.txt
+
+# Pickup some other general development tools...
+USER root
+# Various command line netcdf tools
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    nco \
+    netcdf-bin \
+  && rm -rf /var/lib/apt/lists/*
+
+USER $UNAME
 
 # or use this if not wanting to use requirements.txt...
 # Bug with ipython 7.19.0, so need to downgrade and pin jedi verison
