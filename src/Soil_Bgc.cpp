@@ -371,6 +371,7 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
   bgcpar.rhq10      = chtlu->rhq10;
+  bgcpar.rhq10_w    = chtlu->rhq10_w;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
   bgcpar.moistopt   = chtlu->moistopt;
@@ -1032,7 +1033,12 @@ double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
 
 double Soil_Bgc::getRhq10(const  double & tsoil) {
   double rhq10;
-  rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
+  if (tsoil > 0.) {
+    rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
+  } else {
+    rhq10 =  pow( (double)bgcpar.rhq10_w, tsoil/10.0);
+  }
+  
   return rhq10;
 };
 
