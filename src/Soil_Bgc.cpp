@@ -145,7 +145,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     r[ii] = 0.0;
     s[ii] = 0.0;
   }
-
+  //BM: New definitions to force a compile
+  double open_porosity[MAX_SOI_LAY] = {0};
+  double plant_ch4_sum_l[MAX_SOI_LAY] = {0};
+  double rhrawc_ch4[MAX_SOI_LAY] = {0};
+  double rhsoma_ch4[MAX_SOI_LAY] = {0};
+  double rhsompr_ch4[MAX_SOI_LAY] = {0};
+  double rhsomcr_ch4[MAX_SOI_LAY] = {0};
+  double TResp_unsat = 0;
+  double TResp_sat = 0;
   //Calculate LAI per PFT
   //Should be by Fan Eq. 20
 
@@ -321,7 +329,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 //      Are multiple layer loops necessary? - there may be and top-down and bottom-up loop respectively
 //      re-write: maybe copy paste the limiter above just for trial run
 //      When is production starting?
-      if(layer above the water table){
+      //if(layer above the water table){
+
+      if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { 
+
         open_porosity[il] = currl->poro - currl->liq - currl->ice;
         if(open_porosity[il] < 0.05){
           open_porosity[il] = 0.05;
@@ -355,7 +366,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //  Add totEbul to Prod?
       //BM: does this occur again? Need to think about how to do this particularly 
       //    where the watertable is in the layer
-      else if(layer contains water table){
+      //else if(layer contains water table){
 
         //BM: can we start building a "unified" equation in this section
 
@@ -364,22 +375,23 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //Fan eq. 17: E = kh (Cch4 - Sm)
 
 
-      }//end of layer containing water table
+      //}//end of layer containing water table
 
 
 
 
 //      //Layer below the water table
 // BM: change else if(layer below water table){
-      else if(layer below water table){
+      //else if(layer below water table){
+      else{
 
         //if below, is currl->dz
         //if contains, is thickness of saturated part
-        double layer_sat_dz
-        double layer_sat_z
-        double layer_sat_liq
+        double layer_sat_dz;
+        double layer_sat_z;
+        double layer_sat_liq;
 
-        double layer_sat_ch4
+        double layer_sat_ch4;
         //also, different temperatures?
 
         if(tmp_sois.rawc[il] > 0.0){
@@ -507,7 +519,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
 
 
-      if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
+ /*     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
         if (wtbflag == 0) {
           Prod = totEbul;
           wtbflag = 1;
@@ -519,7 +531,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           totEbul_m = 0.0; //Y.Mi
         }
 
-/*        tmp_flux = currl->poro - currl->liq - currl->ice;
+        tmp_flux = currl->poro - currl->liq - currl->ice;
 
         if (tmp_flux < 0.05) {
           tmp_flux = 0.05;
@@ -548,12 +560,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //Fan 2013 Eq. 17 if layers are above the water table
         Ebul = 0.0; // added by Y.Mi, Jan 2015
         Ebul_m = 0.0; //Y.Mi
-*/      }
+     }*/ 
 
 //BM: above chunk is replicated.
 
       //Layer below water table
-      else { //BM: Original "Layer below the water table" calculation we think
+    //  else { //BM: Original "Layer below the water table" calculation we think
 /*        TResp = getRhq10(currl->tem - 6.0);
 
         //Equations from Helene Genet to replace the ones from peat-dos-tem
@@ -653,7 +665,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         } else {
           Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
         }
-*/      }//End of layer below water table
+*/   //   }//End of layer below water table
 
       //Accumulating ebullitions per layer across timesteps for output
       ch4_ebul_layer[il] += Ebul_m;
