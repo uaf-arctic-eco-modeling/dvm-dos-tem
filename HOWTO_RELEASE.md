@@ -56,6 +56,7 @@
    message body. This is best done via the command line: 
 
     ```
+    $ git tag -d vN.N.N # Delete temporary lightweight tag before creating new annotated tag
     $ git tag -a vN.N.N <commit SHA> --cleanup verbatim --file /tmp/release_msg.txt
     ```
 
@@ -69,7 +70,7 @@
    formatting it might not end up as you expect! So you can ask git not to touch
    the message contents with the `--cleanup=verbatim` flag.
 
-8. **Important** Push tag to github: `$ git push upstream vN.N.N`
+8. **Important** Push tag to github: `$ git push upstream vN.N.N`, push version bump, then tag
 
 9. **Important!** Create the release on Github so that the Zenodo integration
 works. Basically Zendo is tied to the release event notification coming from
