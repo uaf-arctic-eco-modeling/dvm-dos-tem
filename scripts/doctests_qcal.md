@@ -75,13 +75,13 @@ the experiment directory by the `setup_working_directory.py` utility script).
 Now we can make the `QCal` object:
 
     >>> import qcal
-    >>> q = qcal.QCal(
+    >>> q = qcal.QCal( # doctest: +ELLIPSIS
     ...   jsondata_path=os.path.join(TMP_DIR, 'dvmdostem'),
     ...   ncdata_path=os.path.join(TMP_DIR, 'output'), 
     ...   ref_params_dir=os.path.join(TMP_DIR, 'parameters'), 
     ...   ref_targets_dir=os.path.join(TMP_DIR, 'calibration'), y=0, x=0)
     WARNING: No __init__.py python package file present. Copying targets to a temporary location for facilitate import
-    Loading calibration_targets from : ['/tmp/dvmdostem-user-1000-tmp-cal']
+    Loading calibration_targets from : ['/tmp/dvmdostem-user-...-tmp-cal']
     Cleaning up temporary targets and __init__.py file used for import...
     Resetting path...
 
