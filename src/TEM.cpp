@@ -963,7 +963,7 @@ void write_status_info(const std::string fname, std::string varname, int row, in
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
-  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING "<<varname" for pixel (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING "<< varname << " for pixel (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
