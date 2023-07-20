@@ -34,7 +34,7 @@ pickleshare==0.7.5
 Pillow==9.3.0
 prompt-toolkit
 ptyprocess==0.6.0
-Pygments==2.7.4
+Pygments==2.15.0
 pyparsing==2.4.7
 pyproj==3.0.0.post1
 python-dateutil==2.8.1
