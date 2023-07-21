@@ -182,6 +182,26 @@
 0.0996             // coefminea:
 0.6931             // coefmineb:
 //===========================================================
+// CMT13 // Black Spruce Bog
+// Snow characteristics
+250                // snwdenmax:
+50                 // snwdennew:
+0                  // initsnwthick:
+0                  // initsnwdense:
+// moss characteristics
+0.04               // maxmossthick:
+0.025              // initdmossthick:
+1                  // mosstype:
+//      soil      characteristics
+0.25               // initfibthick: 0.25
+0.25               // inithumthick: 0.25
+0.017              // coefshlwa: 0.017
+1.15               // coefshlwb: 1.15
+0.09              // coefdeepa: 0.09
+1.01               // coefdeepb: 1.01
+0.1005             // coefminea: 0.1005
+0.498             // coefmineb: 0.498
+//===========================================================
 // CMT20 // EML Shrub Tundra
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)

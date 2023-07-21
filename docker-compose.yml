@@ -31,11 +31,12 @@ services:
     build: .
     tty: true
     ports:
-      - "7001:7001"
+      - "8888:8888"
     volumes:
        - sourcecode:/work
        - inputcatalog:/data/input-catalog
        - workflows:/data/workflows
+       - comparison:/data/comparison_data
 
   # This is more of a stand-alone image, just meant to serve as a
   # compile time environment for creating the lean run image.
@@ -88,6 +89,11 @@ volumes:
     driver_opts:
       type: none
       device: '${DDT_WORKFLOWS}'
+      o: bind
+  comparison:
+    driver_opts:
+      type: none
+      device: '${DDT_COMPARISON}'
       o: bind
 
 ## EXAMPLES

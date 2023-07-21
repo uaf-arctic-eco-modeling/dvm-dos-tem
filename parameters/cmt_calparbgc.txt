@@ -202,6 +202,28 @@
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
 //===========================================================
+// CMT13 // Black Spruce Bog //                                                           
+//BlackSpr     Moss           Shrub        Sedge       Lichen        PFT5       PFT6         PFT7     PFT8           PFT9        // pftnames:      
+420.4455630     311.182724     362.94552    158.43417   34.069582     0          0            0        0             0            // cmax:      
+3.7436597454   3.71137695791  0.535881447  7.97863772  12.2566596    0          0            0        0             0            // nmax:      
+0.00630818991  0.02419415683  0.193410824  0.00014523  0.024574468   0          0            0        0             0            // cfall(0): leaf
+0.00722943351  0              0.039793606  0           0             0          0            0        0             0            // cfall(1): stem
+0.00627844286  0              0.036951531  0.02802344  0             0          0            0        0             0            // cfall(2): root
+5.87661540e-6  1.53371455e-6  1.055992e-7  2.76093e-7  3.331979e-7   0          0            0        0             0            // nfall(0): leaf
+0.02366721180  0              1.195911e-5  0           0             0          0            0        0             0            // nfall(1): stem
+0.00695202292  0              0.152158839  0.00302804  0             0          0            0        0             0            // nfall(2): root
+-8.06E-05     -8.07333E-05   -0.0000808   -0.0000807  -8.06e-05      0          0            0        0             0            // kra: coeff(0)
+-5.65474327   -3.523618301   -1.08378835  -5.87300450 -3.605037832   0          0            0        0             0            // krb(0): coeff(1)
+-19.0348955    0             -9.0464651    0           0             0          0            0        0             0            // krb(1): coeff(1)
+-5.22159894    0             -4.16024081  -3.2790235   0             0          0            0        0             0            // krb(2): coeff(1)
+0.11           0.133333333    0.2          0.15        0             0          0            0        0             0            // frg:           
+// soil calibrated parameters                                                      
+1.034717      // micbnup: was 0.145964, parameter for soil microbial immobialization of N                  
+0.159833      // kdcrawc: was 0.823548, raw-material (litter) C decompositin rates at reference condition 0.554      
+0.071426      // kdcsoma:                                                            
+0.005763      // kdcsompr:                                                            
+1.658316e-08	      // kdcsomcr:  
+//===========================================================
 // CMT20 // EML Shrub Tundra //
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
 2470.00    300.00      1710.00       510.00       108.0        88.0      285.0        0.0      0.0     0.0       // cmax:
