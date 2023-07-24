@@ -239,16 +239,19 @@ def climate_gap_count_plot(args):
   CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
 
-  ROWS = 2
-  COLS = 2
+  fig = plt.figure(layout='constrained', figsize=(12, 6))
+  subfigs = fig.subfigures(1, 2, wspace=0.07)
 
-  gs = gridspec.GridSpec(ROWS, COLS)
+  for subfigure, cf in enumerate(CLIMATE_FILES):
 
-  for cf in CLIMATE_FILES:
-    axtair = plt.subplot(gs[0,0])
-    axprecip = plt.subplot(gs[0,1])
-    axnirr = plt.subplot(gs[1,0])
-    axvapo = plt.subplot(gs[1,1])
+    ROWS = 2
+    COLS = 2
+    gs = gridspec.GridSpec(ROWS, COLS)
+
+    axtair =   subfigs[subfigure].add_subplot(gs[0,0])
+    axprecip = subfigs[subfigure].add_subplot(gs[0,1])
+    axnirr =   subfigs[subfigure].add_subplot(gs[1,0])
+    axvapo =   subfigs[subfigure].add_subplot(gs[1,1])
 
     for i, (ax, v) in enumerate(zip([axtair, axprecip, axnirr, axvapo], VARS)):
       with nc.Dataset(os.path.join(args.input_folder, cf)) as hds:
@@ -273,11 +276,14 @@ def climate_gap_count_plot(args):
 
         )
       ax.set_title(v)
-      plt.colorbar(img, ax=ax)
+      subfigs[subfigure].colorbar(img, ax=ax)
 
-    plt.suptitle(os.path.join(args.input_folder, cf))
-    plt.tight_layout()
-    plt.show(block=True)
+    subfigs[subfigure].suptitle('\n'.join([args.input_folder, cf]))
+
+  if args.savefig:
+    plt.savefig(args.savefig)
+
+  plt.show(block=True)
 
 
 
@@ -499,6 +505,9 @@ def climate_ts_plot(args):
       if ax != axes[-1]:
         plt.setp(ax.get_xticklabels(), visible=False)
 
+    if args.savefig:
+      plt.savefig(args.savefig)
+
     plt.show(block=True)
 
   elif args.type == 'raw':
@@ -541,6 +550,10 @@ def climate_ts_plot(args):
         axes.grid()
 
       plt.suptitle("{}: {},{}".format(args.input_folder, CLIMATE_FILES[0], CLIMATE_FILES[1]))
+
+      if args.savefig:
+        plt.savefig(args.savefig)
+
       plt.show(block=True)
 
       hds.close()
@@ -554,6 +567,10 @@ def climate_ts_plot(args):
           ax.plot(hidx, hds.variables[v][:,y, x])
           ax.set_title(v)
       plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[0]))
+
+      if args.savefig:
+        plt.savefig(args.savefig)
+
       plt.show(block=True)
 
       plt.title(CLIMATE_FILES[1])
@@ -564,6 +581,10 @@ def climate_ts_plot(args):
           ax.plot(pidx, pds.variables[v][:,y, x])
           ax.set_title(v)
       plt.suptitle(os.path.join(args.input_folder, CLIMATE_FILES[1]))
+
+      if args.savefig:
+        plt.savefig(args.savefig)
+
       plt.show(block=True)
 
   else:
@@ -660,6 +681,7 @@ if __name__ == '__main__':
   climate_ts_plot_parser.add_argument('--yx', type=int, nargs=2, required=False, help="The Y, X position of the pixel to plot")
   climate_ts_plot_parser.add_argument('--stitch', action='store_true', help="Attempt to stitch together the historic and projected data along the time axis")
   #climate_ts_plot_parser.add_argument('--yrs-slice', type=?? help="")
+  climate_ts_plot_parser.add_argument('--savefig', help='A path/name at which to save the resulting file, e.g. /tmp/fig1.png')
 
   climate_ts_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
@@ -669,7 +691,9 @@ if __name__ == '__main__':
       shows the number of values along the time axis that have missing or no
       data.
     '''))
+
   climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+  climate_gap_count_plot_parser.add_argument('--savefig', help='A path/name at which to save the resulting file, e.g. /tmp/fig1.png')
 
   args = parser.parse_args()
 
