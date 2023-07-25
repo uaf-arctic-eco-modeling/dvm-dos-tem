@@ -211,6 +211,7 @@ information is used to set the number of transient and scenario years to run.
         'input_folder': '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/',
         'stitch': False,
         'type': 'spatial-temporal-summary',
+        'savefig': None,
       }
 
       iu.climate_ts_plot(argparse.Namespace(**args))
