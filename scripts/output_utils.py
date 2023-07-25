@@ -6,6 +6,7 @@
 # A set of functions for plotting dvmdostem ouputs.
 
 import os
+import sys
 import glob
 import numpy as np
 import matplotlib
@@ -1159,8 +1160,11 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
 
     print(row_fmt.format(*data))
 
-
-if __name__ == '__main__':
+def cmdline_parse(arv=None):
+  '''
+  Define and parse the command line interface. When argv is None, this function
+  will process ``sys.argv[1:]``.
+  '''
 
   import argparse
   import textwrap
@@ -1277,8 +1281,12 @@ if __name__ == '__main__':
   #ss_parser.add_argument()
 
   args = parser.parse_args()
-  print(args)
+  #print(args)
+  return args
 
+
+
+def cmdline_run(args):
   if args.command == 'fronts':
     plot_fronts(args)
 
@@ -1315,6 +1323,15 @@ if __name__ == '__main__':
 
 
 
+
+
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
+
+
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())
 
 
 
