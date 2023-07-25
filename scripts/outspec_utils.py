@@ -213,16 +213,16 @@ def toggle_on_variable(data, var, res_spec, verbose=False):
 
 def cmdline_parse(argv=None):
   '''
-  Example API
-  ./outputspec_utils.py --list-pft-vars PATH/TO/FILE
-  ./outputspec_utils.py --list-layer-vars PATH/TO/FILE
-  ./outputspec_utils.py --show-enabled PATH/TO/FILE
+  Define and parse the command line interface. When argv is None, this function
+  will process ``sys.argv[1:]``.
 
-  ./outputspec_utils.py --show-enabled PATH/TO/FILE
-
-  ./outspec_utils.py --on LAI yearly PATH/TO/FILE
-  ./outspec_utils.py --off LAI
-
+  Example API:
+    ./outputspec_utils.py --list-pft-vars PATH/TO/FILE
+    ./outputspec_utils.py --list-layer-vars PATH/TO/FILE
+    ./outputspec_utils.py --show-enabled PATH/TO/FILE
+    ./outputspec_utils.py --show-enabled PATH/TO/FILE
+    ./outspec_utils.py --on LAI yearly PATH/TO/FILE
+    ./outspec_utils.py --off LAI
   '''
 
   parser = argparse.ArgumentParser(
