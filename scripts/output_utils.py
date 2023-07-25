@@ -450,7 +450,7 @@ def mask_by_failed_run_status(data, run_status_filepath="run_status.nc"):
 
   return rsnd_all
 
-def plot_comp_sst():
+def plot_comp_sst(savefig=None):
 
   ROWS=4; COLS=4 
 
@@ -461,11 +461,16 @@ def plot_comp_sst():
     plot_spatial_summary_timeseries('VEGC', 'yearly', cmt, 'tr sc'.split(' '), "vegetation.nc", "run_status.nc", ax=ax)
 
   plt.tight_layout()
+
+  # Not really tested yet...
+  if savefig:
+    plt.savefig(savefig)
+
   plt.show(block=True)
 
 
 
-def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stages, folder):
+def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stages, folder, savefig=None):
   '''
   Make a basic timeseries plot, one subplot per variable.
 
@@ -495,13 +500,17 @@ def plot_basic_timeseries(vars2plot, spatial_y, spatial_x, time_resolution, stag
     ax.plot(data[:,spatial_y, spatial_x], label=var)
     ax.set_ylabel = units
 
-  plt.savefig("plot_basic_timeseries.png")
+  if savefig:
+    print(f"Saving figure to: {savefig}")
+    plt.savefig(savefig)
+
   plt.show()
 
 
 
 
-def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status, ax=None):
+def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
+                                    ref_run_status, ax=None, savefig=None):
   '''
   Plots a single line with min/max shading representing the `var` averaged over
   the spatial dimension, considering only pixels for `cmtnum`. Stitches together
@@ -553,10 +562,12 @@ def plot_spatial_summary_timeseries(var, timestep, cmtnum, stages, ref_veg_map, 
   if len(data.shape) == 3: # assume (time, y, x)
     pass # all set...
 
-  workhorse_spatial_summary_plot(data, cmtnum, units, var, stages, ax=ax)
+  workhorse_spatial_summary_plot(data, cmtnum, units, var, stages, ax=ax, 
+                                 savefig=savefig)
 
 
-def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages, ax=None):
+def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages, 
+                                   ax=None, savefig=None):
   '''
   Worker function, plots a line for average along time axis (axis 0), 
   with shading for min and max.
@@ -600,10 +611,16 @@ def workhorse_spatial_summary_plot(data, cmtnum, yunits, varname, stages, ax=Non
     )
     plt.ylabel(yunits)
     plt.title("{} for CMT {} averaged spatially for stages {}".format(varname, cmtnum, stages))
+
+    # Not really tested yet...
+    if savefig:
+      print(f"Saving figure to: {savefig}")
+      plt.savefig(savefig)
+
     plt.show(block=True)
 
 
-def plot_inputs(cmtnum, hist_fname, proj_fname, ref_veg_map):
+def plot_inputs(cmtnum, hist_fname, proj_fname, ref_veg_map, savefig=None):
   '''
   Plots the historic and projected climate inputs, averaging over the spatial
   dimensions and with shading for min/max.
@@ -613,6 +630,9 @@ def plot_inputs(cmtnum, hist_fname, proj_fname, ref_veg_map):
   `hist_fname`: (str) path to a dvmdostem historic input file.
 
   `proj_fname`: (str) path to a dvmdostem projected input file.
+
+  `ref_veg_map`: (str) path to a reference vegetation map used for filtering
+                       by CMT number.
 
   The historic and projected input files are assumed to be have the variables
   tair, precip, vapor_press, and nirr all with the dimensions (time, y, x). 
@@ -665,18 +685,25 @@ def plot_inputs(cmtnum, hist_fname, proj_fname, ref_veg_map):
     pax.set_title("{} averaged spatially for historic and projected masked to cmt{}".format(vname, cmtnum))
 
   plt.tight_layout()
+  if savefig:
+    print(f'Saving file: {savefig}')
+    plt.savefig(savefig)
   plt.show(block=True)
   
 
-def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolor='blue'):
+def boxplot_monthlies(var, stages, outfiles_loc, cmtnum, ref_veg_map, ref_run_status, 
+                      facecolor='blue', savefig=None):
   '''
   Makes a boxplot showing distribution of values for `var` for each month,
   averaged over spatial dimensions, and only considering `cmtnum`. If multiple
   stages are specified, the stages will be stitched together along the time 
   dimension before the distributions are calculated.
 
+  Parameters
+  -----------
   `var`: (str) one of the dvmdostem output variables.
   `stages`: (list) must contain one or more of "pr","eq","sp","tr","sc".
+  `outfiles_loc`: (str) path to folder of dvmdostem output files.
   `cmtnum`: (int) which CMT to work with.
   `ref_veg_map`: (str) path to a vegetation map to use for masking cmts
   `ref_run_status`: (str) path to run status map to use for masking failed cells
@@ -685,7 +712,7 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
   Returns `None`
   '''
 
-  data, units, dims = stitch_stages(var, 'monthly', stages)
+  data, units, dims = stitch_stages(var, 'monthly', stages, fileprefix=outfiles_loc)
   print("data size:", data.size)
 
   data = mask_by_cmt(data, cmtnum, ref_veg_map)
@@ -712,7 +739,7 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
       data2,
       labels=list(monthstr2data.keys()),
       #notch=True,
-      whis='range', # force whiskers to min/max range instead of quartiles
+      #whis='range', # force whiskers to min/max range instead of quartiles (older versions of matplotlib!)
       showfliers=False,
       patch_artist=True,
       boxprops=dict(facecolor=facecolor, alpha=.25),
@@ -721,15 +748,21 @@ def boxplot_monthlies(var, stages, cmtnum, ref_veg_map, ref_run_status, facecolo
   )
   plt.ylabel(units)
   plt.title("{} for CMT {}, averaged spatially ".format(var, cmtnum))
+
+  if savefig:
+    print(f'Saving file: {savefig}')
+    plt.savefig(savefig)
+
   plt.show(block=True)
 
 
-def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
+def boxplot_by_pft(var, timestep, cmtnum, stages, outfiles_loc, ref_veg_map, ref_run_status,
+                   savefig=None):
   '''
   Work in progress...
   '''
 
-  data, units, dims = stitch_stages(var, timestep, stages)
+  data, units, dims = stitch_stages(var, timestep, stages, fileprefix=outfiles_loc)
   print("data size:", data.size)
   print(data.shape)
 
@@ -748,7 +781,7 @@ def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
   plt.boxplot(
       pft0avg,
       labels = ["PFT {}".format(i) for i in range(0, 10)],
-      whis='range',
+      #whis='range', # <-- this must be for older version of matplotlib...
       showfliers=False,
       patch_artist=True,
       boxprops=dict(color='blue', alpha=0.25),
@@ -756,6 +789,11 @@ def boxplot_by_pft(var, timestep, cmtnum, stages, ref_veg_map, ref_run_status):
       capprops=dict(color='blue'),
   )
   plt.ylabel(units)
+
+  if savefig:
+    print(f'Saving file: {savefig}')
+    plt.savefig(savefig)
+
   plt.show(block=True)
 
 
@@ -1159,6 +1197,9 @@ if __name__ == '__main__':
   parser.add_argument('--stage', default="tr", 
       choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
 
+  parser.add_argument('--savefig', help=textwrap.dedent('''\
+      A path/name at which to save the resulting plot. Type deduced by the 
+      provided filename extension. E.g.: --savefig /data/workflows/sample.png'''))
 
   subparsers = parser.add_subparsers(help='sub commands', dest='command')
 
@@ -1267,7 +1308,9 @@ if __name__ == '__main__':
           data = nc.Dataset(ep)
 
     # Make the plots...
-    plot_basic_timeseries(args.vars[0].split(','), args.yx[0], args.yx[1], args.timeres, args.stitch, args.output_folder[0]) 
+    plot_basic_timeseries(args.vars[0].split(','), args.yx[0], args.yx[1], 
+                          args.timeres, args.stitch, args.output_folder[0], 
+                          savefig=args.savefig) 
 
 
 
