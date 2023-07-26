@@ -1160,7 +1160,7 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
 
     print(row_fmt.format(*data))
 
-def cmdline_parse(arv=None):
+def cmdline_parse(argv=None):
   '''
   Define and parse the command line interface. When argv is None, this function
   will process ``sys.argv[1:]``.
@@ -1280,7 +1280,7 @@ def cmdline_parse(arv=None):
 
   #ss_parser.add_argument()
 
-  args = parser.parse_args()
+  args = parser.parse_args(argv)
   #print(args)
   return args
 
@@ -1320,8 +1320,7 @@ def cmdline_run(args):
                           args.timeres, args.stitch, args.output_folder[0], 
                           savefig=args.savefig) 
 
-
-
+  return 0
 
 
 
