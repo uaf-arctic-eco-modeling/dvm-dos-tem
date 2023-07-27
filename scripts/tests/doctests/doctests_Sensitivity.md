@@ -15,11 +15,11 @@ and carry out the runs.
 
 Load the library
 
-    >>> import Sensitivity
+    >>> import drivers.Sensitivity
 
 Instantiate a driver object:
 
-    >>> sd = Sensitivity.SensitivityDriver()
+    >>> sd = drivers.Sensitivity.SensitivityDriver()
 
 In order to conduct a sensitivity analysis we must consider the following:
 
@@ -195,7 +195,7 @@ See what we got:
 
 Now see if we can load the experiment again into a new driver:
 
-    >>> sd2 = Sensitivity.SensitivityDriver()
+    >>> sd2 = drivers.Sensitivity.SensitivityDriver()
 
 This new driver should not have its `work_dir` set:
 
