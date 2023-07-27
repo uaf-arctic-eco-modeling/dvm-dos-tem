@@ -24,12 +24,12 @@ enforced outside this testing file.
 
 Load the library
 
-    >>> import param_util as pu
+    >>> import util.param
 
 List all the CMTs found in a file. This returns a list of dictionaries, from
 which we can print the name and number of each CMT.
 
-    >>> cmts = pu.get_CMTs_in_file("../parameters/cmt_calparbgc.txt")
+    >>> cmts = util.param.get_CMTs_in_file("parameters/cmt_calparbgc.txt")
     >>> for i in cmts:
     ...     print("{} {}".format(i["cmtnum"], i["cmtname"]))
     0 BARE GROUND OPEN WATER SNOW AND ICE
@@ -48,15 +48,15 @@ which we can print the name and number of each CMT.
 
 Build a lookup table, mapping file names to lists of available parameters
 
-    In [26]: lu = pu.build_param_lookup("../parameters/")
+    In [26]: lu = util.param.build_param_lookup("parameters/")
 
     In [27]: lu.keys()
-    Out[27]: dict_keys(['../parameters/cmt_bgcvegetation.txt', '../parameters/cmt_dimvegetation.txt', '../parameters/cmt_firepar.txt', '../parameters/cmt_envground.txt', '../parameters/cmt_bgcsoil.txt', '../parameters/cmt_envcanopy.txt', '../parameters/cmt_dimground.txt', '../parameters/cmt_calparbgc.txt'])
+    Out[27]: dict_keys(['parameters/cmt_bgcvegetation.txt', 'parameters/cmt_dimvegetation.txt', 'parameters/cmt_firepar.txt', 'parameters/cmt_envground.txt', 'parameters/cmt_bgcsoil.txt', 'parameters/cmt_envcanopy.txt', 'parameters/cmt_dimground.txt', 'parameters/cmt_calparbgc.txt'])
 
 Note that this lookup functionality is wrapped in an class so that you can have
 a re-usable object that holds the lookup table:
 
-    In [14]: psh = pu.ParamUtilSpeedHelper('../parameters/')
+    In [14]: psh = util.param.ParamUtilSpeedHelper('parameters/')
     In [15]: s = psh.list_params(cmtnum=5, pftnum=1)
 
 The `list_params(...)` function returns a new line separated string that prints
@@ -64,7 +64,7 @@ out nicely, showing all params for all files. The ungainly line below just
 prints the last 20 some lines for demonstration and testing purposes:
 
     In [16]: print('\n'.join(s.split('\n')[-22:]))
-    ../parameters/cmt_calparbgc.txt CMT5 PFT1 Decid
+    parameters/cmt_calparbgc.txt CMT5 PFT1 Decid
                micbnup       0.7500
                kdcsoma       0.0231
               kdcsompr       0.0208
@@ -89,8 +89,8 @@ prints the last 20 some lines for demonstration and testing purposes:
 See that all the parameter files contain the same CMTs (by number):
 
     >>> import os
-    >>> for f in os.listdir("../parameters/"):
-    ...   print([i["cmtnum"] for i in pu.get_CMTs_in_file("../parameters/" + f)])
+    >>> for f in os.listdir("parameters/"):
+    ...   print([i["cmtnum"] for i in util.param.get_CMTs_in_file("parameters/" + f)])
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
@@ -104,8 +104,8 @@ Enforce that all the CMT verbose names are identical across files.
 
     >>> for cmt in [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]:
     ...   names = []
-    ...   for f in os.listdir("../parameters/"):
-    ...     dd = pu.cmtdatablock2dict(pu.get_CMT_datablock("../parameters/" + f, cmt))
+    ...   for f in os.listdir("parameters/"):
+    ...     dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock("parameters/" + f, cmt))
     ...     names.append(dd["cmtname"])
     ...   print("cmt {}: ".format(cmt), end='')
     ...   if len(set(names)) != 1:
@@ -129,83 +129,83 @@ Enforce that all the CMT verbose names are identical across files.
 
 Check on one of the command line reporting fuctions:
 
-    In [8]: pu.cmdline_entry(["--report-cmt-names", "../parameters", "5"])
+    In [8]: util.param.cmdline_entry(["--report-cmt-names", "parameters", "5"])
                                         file name  cmt key   long name
-                    ../parameters/cmt_bgcsoil.txt    CMT05   Tussock Tundra
-              ../parameters/cmt_bgcvegetation.txt    CMT05   Tussock Tundra
-                  ../parameters/cmt_calparbgc.txt    CMT05   Tussock Tundra
-                  ../parameters/cmt_dimground.txt    CMT05   Tussock Tundra
-              ../parameters/cmt_dimvegetation.txt    CMT05   Tussock Tundra
-                  ../parameters/cmt_envcanopy.txt    CMT05   Tussock Tundra
-                  ../parameters/cmt_envground.txt    CMT05   Tussock Tundra
-                    ../parameters/cmt_firepar.txt    CMT05   Tussock Tundra
+                    parameters/cmt_bgcsoil.txt    CMT05   Tussock Tundra
+              parameters/cmt_bgcvegetation.txt    CMT05   Tussock Tundra
+                  parameters/cmt_calparbgc.txt    CMT05   Tussock Tundra
+                  parameters/cmt_dimground.txt    CMT05   Tussock Tundra
+              parameters/cmt_dimvegetation.txt    CMT05   Tussock Tundra
+                  parameters/cmt_envcanopy.txt    CMT05   Tussock Tundra
+                  parameters/cmt_envground.txt    CMT05   Tussock Tundra
+                    parameters/cmt_firepar.txt    CMT05   Tussock Tundra
     Out[8]: 0
 
 Run the functionality that pulls out a single CMT from all files.
 
-    >>> pu.cmdline_entry(["--extract-cmt", "../parameters", "cmt04"])
+    >>> util.param.cmdline_entry(["--extract-cmt", "parameters", "cmt04"])
     0
 
 When the above is complete, there should be a new folder in the parameters directory, named with the CMT key with a bunch of files in it.
 
-    >>> 'CMT04' in os.listdir('../parameters')
+    >>> 'CMT04' in os.listdir('parameters')
     True
 
 Check that the CMT exists in each new file:
 
-    In [16]: pu.cmdline_entry(['--report-cmt-names', '../parameters/CMT04', '4'])
+    In [16]: util.param.cmdline_entry(['--report-cmt-names', 'parameters/CMT04', '4'])
                                         file name  cmt key   long name
-              ../parameters/CMT04/cmt_bgcsoil.txt    CMT04   Shrub Tundra
-        ../parameters/CMT04/cmt_bgcvegetation.txt    CMT04   Shrub Tundra
-            ../parameters/CMT04/cmt_calparbgc.txt    CMT04   Shrub Tundra
-            ../parameters/CMT04/cmt_dimground.txt    CMT04   Shrub Tundra
-        ../parameters/CMT04/cmt_dimvegetation.txt    CMT04   Shrub Tundra
-            ../parameters/CMT04/cmt_envcanopy.txt    CMT04   Shrub Tundra
-            ../parameters/CMT04/cmt_envground.txt    CMT04   Shrub Tundra
-              ../parameters/CMT04/cmt_firepar.txt    CMT04   Shrub Tundra
+              parameters/CMT04/cmt_bgcsoil.txt    CMT04   Shrub Tundra
+        parameters/CMT04/cmt_bgcvegetation.txt    CMT04   Shrub Tundra
+            parameters/CMT04/cmt_calparbgc.txt    CMT04   Shrub Tundra
+            parameters/CMT04/cmt_dimground.txt    CMT04   Shrub Tundra
+        parameters/CMT04/cmt_dimvegetation.txt    CMT04   Shrub Tundra
+            parameters/CMT04/cmt_envcanopy.txt    CMT04   Shrub Tundra
+            parameters/CMT04/cmt_envground.txt    CMT04   Shrub Tundra
+              parameters/CMT04/cmt_firepar.txt    CMT04   Shrub Tundra
     Out[16]: 0
 
 And that some of the other CMTs don't exist:
 
-    In [18]: pu.cmdline_entry(['--report-cmt-names', '../parameters/CMT04', '1'])
+    In [18]: util.param.cmdline_entry(['--report-cmt-names', 'parameters/CMT04', '1'])
                                         file name  cmt key   long name
-              ../parameters/CMT04/cmt_bgcsoil.txt      n/a   n/a
-        ../parameters/CMT04/cmt_bgcvegetation.txt      n/a   n/a
-            ../parameters/CMT04/cmt_calparbgc.txt      n/a   n/a
-            ../parameters/CMT04/cmt_dimground.txt      n/a   n/a
-        ../parameters/CMT04/cmt_dimvegetation.txt      n/a   n/a
-            ../parameters/CMT04/cmt_envcanopy.txt      n/a   n/a
-            ../parameters/CMT04/cmt_envground.txt      n/a   n/a
-              ../parameters/CMT04/cmt_firepar.txt      n/a   n/a
+              parameters/CMT04/cmt_bgcsoil.txt      n/a   n/a
+        parameters/CMT04/cmt_bgcvegetation.txt      n/a   n/a
+            parameters/CMT04/cmt_calparbgc.txt      n/a   n/a
+            parameters/CMT04/cmt_dimground.txt      n/a   n/a
+        parameters/CMT04/cmt_dimvegetation.txt      n/a   n/a
+            parameters/CMT04/cmt_envcanopy.txt      n/a   n/a
+            parameters/CMT04/cmt_envground.txt      n/a   n/a
+              parameters/CMT04/cmt_firepar.txt      n/a   n/a
     Out[18]: 0
 
 Cleanup:
 
     >>> import shutil
-    >>> shutil.rmtree('../parameters/CMT04')
+    >>> shutil.rmtree('parameters/CMT04')
 
 Work with the smartformat() function. This function is used to try and control
 the way things are formatted when printing the fixed width text parameter files.
 
-    >>> pu.smart_format('   34.56')
+    >>> util.param.smart_format('   34.56')
     '     34.5600 '
-    >>> pu.smart_format('  0.00000000056')
+    >>> util.param.smart_format('  0.00000000056')
     '   5.600e-10 '
-    >>> pu.smart_format(' 40.0000000')
+    >>> util.param.smart_format(' 40.0000000')
     '     40.0000 '
-    >>> pu.smart_format('  04000.00000')
+    >>> util.param.smart_format('  04000.00000')
     '   4000.0000 '
-    >>> pu.smart_format(00000050.23)
+    >>> util.param.smart_format(00000050.23)
     '     50.2300 '
-    >>> pu.smart_format('  0000050.340500', n=7)
+    >>> util.param.smart_format('  0000050.340500', n=7)
     '     50.3405 '
-    >>> pu.smart_format('0')
+    >>> util.param.smart_format('0')
     '      0.0000 '
-    >>> pu.smart_format('0.00not a number0')
+    >>> util.param.smart_format('0.00not a number0')
     Traceback (most recent call last):
       ...
     ValueError: could not convert string to float: '0.00not a number0'
-    >>> pu.smart_format('0.000')
+    >>> util.param.smart_format('0.000')
     '      0.0000 '
 
 Test that cmt datablocks can be read with and without multiple comment lines.
@@ -216,7 +216,7 @@ CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
 
 > Note that the string 'CMT' is not allowed in the extra comment lines!
 
-    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_calparbgc.txt', 0))
+    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_calparbgc.txt', 0))
     >>> dd['cmtname']
     'BARE GROUND OPEN WATER SNOW AND ICE'
     >>> dd['comment']
@@ -224,7 +224,7 @@ CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
 
 While CMT01 does not:
 
-    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_calparbgc.txt', 1))
+    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_calparbgc.txt', 1))
     >>> dd['cmtname']
     'Boreal Black Spruce'
     >>> dd['comment']
@@ -232,13 +232,13 @@ While CMT01 does not:
 
 Try the same thing, but on a non-PFT file:
 
-    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_dimground.txt', 0))
+    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_dimground.txt', 0))
     >>> dd['cmtname']
     'BARE GROUND OPEN WATER SNOW AND ICE'
     >>> dd['comment']
     ''
 
-    >>> dd = pu.cmtdatablock2dict(pu.get_CMT_datablock('../parameters/cmt_dimground.txt', 1))
+    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_dimground.txt', 1))
     >>> dd['cmtname']
     'Boreal Black Spruce'
     >>> dd['comment']
