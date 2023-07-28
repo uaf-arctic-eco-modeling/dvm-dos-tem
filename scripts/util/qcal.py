@@ -17,8 +17,8 @@ import netCDF4 as nc
 # directory
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
-import scripts.output_utils as ou
-import scripts.param_util as pu
+import util.param
+import util.output
 
 from calibration.InputHelper import InputHelper
 
@@ -105,13 +105,13 @@ def measure_calibration_quality_nc(output_directory_path, ref_param_dir, ref_tar
   #print("variable value target rank(abs)")
   for ctname, ncname in caltarget_to_ncname_map:
 
-    data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path, n=last_N_yrs)
+    data, dims = util.output.get_last_n_eq(ncname, 'yearly', output_directory_path, n=last_N_yrs)
     dsizes, dnames = list(zip(*dims))
 
     #print(ctname, output_directory_path, ncname, dims, dnames, dsizes)
 
     if dnames == ('time','y','x'):
-      pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_params_dir=ref_param_dir)
+      pec = util.param.percent_ecosys_contribution(cmtkey, ctname, ref_params_dir=ref_param_dir)
       truth = ref_targets[cmtkey][ctname]
       value = data[:,Y,X].mean()
       #print ctname, value, truth, np.abs(qcal_rank(truth, value))
@@ -129,8 +129,8 @@ def measure_calibration_quality_nc(output_directory_path, ref_param_dir, ref_tar
 
     elif dnames == ('time','y','x','pft'):
       for pft in range(0,10):
-        if pu.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
-          pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_param_dir)
+        if util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
+          pec = util.param.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_param_dir)
           truth = ref_targets[cmtkey][ctname][pft]
           value = data[:,pft,Y,X].mean()
 
@@ -154,8 +154,8 @@ def measure_calibration_quality_nc(output_directory_path, ref_param_dir, ref_tar
         clu = {0:'Leaf', 1:'Stem', 2:'Root'}
         for cmprt in range(0,3):
           #print "analyzing... ctname {} (nc output: {}) for pft {} compartment {}".format(ctname, ncname, pft, cmprt),
-          if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
-            pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_param_dir)
+          if util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
+            pec = util.param.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_param_dir)
             truth = ref_targets[cmtkey][ctname][clu[cmprt]][pft]
             value = data[:,cmprt,pft,Y,X].mean()
             # Unweighted Rank
@@ -317,7 +317,7 @@ def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets
 
   # First process all the non-PFT variables
   for v in 'MossDeathC,CarbonShallow,CarbonDeep,CarbonMineralSum,OrganicNitrogenSum,AvailableNitrogenSum'.split(','):
-    pec = pu.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
+    pec = util.param.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
     d = 0.0
     for f in file_list:
       with open(f) as fh:
@@ -339,9 +339,9 @@ def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets
 
   # Now process all the PFT variables
   for ipft, pft in enumerate(['PFT{}'.format(i) for i in range(0,10)]):
-    if pu.is_ecosys_contributor(cmtkey, ipft, ref_params_dir=ref_params_dir):
+    if util.param.is_ecosys_contributor(cmtkey, ipft, ref_params_dir=ref_params_dir):
       for v in ['GPPAllIgnoringNitrogen','NPPAllIgnoringNitrogen','NPPAll']:
-        pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
+        pec = util.param.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
         d = 0.0
         for f in file_list:
           with open(f) as fh:
@@ -358,9 +358,9 @@ def measure_calibration_quality_json(file_list, ref_params_dir=None, ref_targets
 
     # And process all the PFT/Compartment variables
     for cmprt in ['Leaf','Stem','Root']:
-      if pu.is_ecosys_contributor(cmtkey, ipft, cmprt, ref_params_dir=ref_params_dir):
+      if util.param.is_ecosys_contributor(cmtkey, ipft, cmprt, ref_params_dir=ref_params_dir):
         for v in ['VegCarbon', 'VegStructuralNitrogen']:
-          pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
+          pec = util.param.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
           d = 0.0
           for f in file_list:
             with open(f) as fh:
@@ -388,24 +388,24 @@ def print_report(jdata, caltargets):
   cmtkey = jdata['CMT']
 
   for v in 'MossDeathC,CarbonShallow,CarbonDeep,CarbonMineralSum,OrganicNitrogenSum,AvailableNitrogenSum'.split(','):
-    pec = pu.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
+    pec = util.param.percent_ecosys_contribution(cmtkey, v, ref_params_dir=ref_params_dir)
     qcr = qcal_rank(caltargets[cmtkey][v], jdata[v])
     print("{} {}".format(pec, qcr))
 
   for ipft, pft in enumerate(['PFT{}'.format(i) for i in range(0,10)]):
-    if pu.is_ecosys_contributor(cmtkey, ipft):
+    if util.param.is_ecosys_contributor(cmtkey, ipft):
       for v in ['GPPAllIgnoringNitrogen','NPPAllIgnoringNitrogen','NPPAll']:
-        pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
+        pec = util.param.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, ref_params_dir=ref_params_dir)
         qcr = qcal_rank(caltargets[cmtkey][v][ipft], jdata[pft][v])
 
         print("{} {}".format(pec, qcr))
 
     for cmprt in ['Leaf','Stem','Root']:
 
-      if pu.is_ecosys_contributor(cmtkey, ipft, cmprt):
+      if util.param.is_ecosys_contributor(cmtkey, ipft, cmprt):
         for v in ['VegCarbon', 'VegStructuralNitrogen']:
 
-          pec = pu.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
+          pec = util.param.percent_ecosys_contribution(cmtkey, v, pftnum=ipft, compartment=cmprt, ref_params_dir=ref_params_dir)
           qcr = qcal_rank(caltargets[cmtkey][v][cmprt][ipft], jdata[pft][v][cmprt])
     
         print("{} {}".format(pec, qcr))
