@@ -1,7 +1,42 @@
 MADS-TEM parameter calibration 
 ===========================================
 
-The autocalibration (AC) process is focused on matching average above- and below-ground carbon and nitrogen stocks and fluxes. We match mean annual observed values during the equilibrium run period to ensure that the model represents the history of a given site. All parameters and observations are vectors, where an element of a vector represents a given plant functional type (PFT) within a given vegetation community type or a subsurface parameter. The calibration workflow consists of multiple steps. First, we calibrate above-ground carbon and nitrogen fluxes, and then we calibrate below-ground stocks. To start the calibration process in MADS, we provide an initial set of parameter values called initial guesses (see `yaml` files). The initial guess usually comes from the previous values for a similar vegetation community type. MADS allows setting ranges for each element of the initial guess vector. We can run one or multiple (R) calibration runs at each step to test for the overall method convergence. The letter (R) stands for random, indicating that values in the initial guess vector are randomly perturbated. `AC-MADS-TEM` can handle a combination of multiple parameters (set in configuration `yaml` file) and target values per calibration, accounting for the combined effect of multiple correlated parameters on observations. We combine (C) multiple parameters and target values to study the effects of multiple correlated parameters on observations. We can also run both (C) and (R) simultaneously. The calibration process is scalable and can run parallel on multiple processors. 
+The autocalibration (AC) process is focused on matching average above- and below-ground carbon and nitrogen stocks and fluxes. We match mean annual observed values during the equilibrium run period to ensure that the model represents the history of a given site. All parameters and observations are vectors, where an element of a vector represents a given plant functional type (PFT) within a given vegetation community type or a subsurface parameter. The calibration parameters can be found in [`paramters/calparbgc.txt`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/parameters/cmt_calparbgc.txt) and targets can be found in [calibration/calibration_targets.py](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/calibration/calibration_targets.py). For example, if we calibrating parameters for CMT4 then the corresponding targets will be under CMT4 as well. 
+## Parameters (above ground)
+| Name          | Description         |
+| ------------- |  ------------------ |
+| cmax          | maximum rate of carbon assimilation |
+| nmax          | maximum plant N uptake|
+| krb (leaf,stem,root) | autotrophic respiration    |
+| cfall (leaf,stem,root) | C in litter production   |
+| nfall (leaf,stem,root) | N in litter production   |
+
+## Parameters (below ground)
+| Name          | Description         |
+| ------------- |  ------------------ |
+| micbnup | soil microbial immobilization |
+| kdcraw | litter/raw pool decomposition rate |
+| kdcactive | active pool decomposition rate |
+| kdcpr | physically resistant pools decomposition rate |
+| kdccr | chemically resistant pools decomposition rate |
+
+## Targets (above ground)
+| Name          | Description         |
+| ------------- |  ------------------ |
+| GPP | Gross Primary Productivity |
+| NPP | Nitrogen Primary Productivity |
+| VegC (leaf,stem,root) | Vegetation Carbon |
+| VegN (leaf,stem,root) | Vegetation Nitrogen |
+
+## Targets (below ground)
+| Name          | Description         |
+| ------------- |  ------------------ |
+| Shallow C | Shallow C Pool |
+| Deep C | Deep C Pool |
+| MineralSumC | Mineral C Pool |
+| AvailSumN | Available N Pool |
+
+The calibration workflow consists of multiple steps. First, we calibrate above-ground carbon and nitrogen fluxes, and then we calibrate below-ground stocks. To start the calibration process in MADS, we provide an initial set of parameter values called initial guesses (see `yaml` files). It is useful to run the Sensitivity Analysis before running calibration. The main goal of the SA is to see if targets are included in the range of modeled target values. The initial guess usually comes from the previous values for a similar vegetation community type. The SA can improve the initial guess values. MADS allows setting ranges for each element of the initial guess vector. We can run one or multiple calibration runs at each step to test for the overall method convergence, where multiple runs correspond to the randomly perturbated initial guess vector. `AC-MADS-TEM.jl` can handle a combination of multiple parameters (set in configuration `yaml` file) and target values per calibration, accounting for the combined effect of multiple correlated parameters on observations. We can combine multiple parameters and target values to study the effects of multiple correlated parameters on observations. The calibration process is scalable and can be run in parallel on multiple processors. 
 
 
 Installing git, dvm-dos-tem, and Docker on Linux
@@ -169,6 +204,14 @@ Exit Package Mode
 
 Exit Julia REPL
 `julia> ‘ctrl+d’`
+
+Running the Sensitivity Analysis (SA)
+===========================================
+Before running calibration, it is important to understand the impact of a set of parameters on the target space.  To do this, we use `run_mads_sensitivity.py`. This script runs in parallel a number of parameter samples, set in `sample_size=1000`.  This python script is using the setup in the `yaml` file but only partially. For example, the initial parameter set is read from the `parameters/cmt_calparbgc.txt`. The site location and output location are read from yaml file. Use the commed below to run the sensitivity inside the docker:
+```
+python run_mads_sensitivity.py /work/mads_calibration/config-step1-md1.yaml
+```
+This will produce a lot of folders in the output path set in the config file. We only need four files for further analysis: `info.txt`, `param_props.csv`, `results.txt`,`sample_matrix.csv`. The examples of the SA analysis can be found in this [repo](https://github.com/whrc/MADS-TEM-calibration)
 
 Running the Calibration
 ===========================================
