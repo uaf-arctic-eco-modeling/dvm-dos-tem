@@ -205,8 +205,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //BM: We need to include when the watertable is within the layer and how to scale production and oxidation
 
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
-      torty_tmp = currl->poro - currl->liq - currl->ice; //air content
-
+      torty_tmp = currl->poro - currl->getVolLiq() - currl->getVolIce(); //air content
+      
       if (torty_tmp < 0.05) {
         torty_tmp = 0.05;
       }
@@ -333,7 +333,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { 
 
-        open_porosity[il] = currl->poro - currl->liq - currl->ice;
+        open_porosity[il] = currl->poro - currl->getVolLiq() - currl->getVolIce(); //air content
         if(open_porosity[il] < 0.05){
           open_porosity[il] = 0.05;
         } 
@@ -764,7 +764,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   Layer* topsoil = ground->fstshlwl;
 
   //BM: Torty_tmp again below vvv
-  tmp_flux = (topsoil->poro - topsoil->liq - topsoil->ice);
+  tmp_flux = (topsoil->poro - topsoil->getVolLiq() - topsoil->getVolIce()); //air content
   //tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
 
   if (tmp_flux < 0.05) {
