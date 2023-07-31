@@ -195,9 +195,9 @@
 //      soil      characteristics
 0.25               // initfibthick: 0.25
 0.25               // inithumthick: 0.25
-0.017              // coefshlwa: 0.017
+0.011             // coefshlwa: 0.017
 1.15               // coefshlwb: 1.15
-0.09              // coefdeepa: 0.09
+0.07              // coefdeepa: 0.09
 1.01               // coefdeepb: 1.01
 0.1005             // coefminea: 0.1005
 0.498             // coefmineb: 0.498
