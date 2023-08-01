@@ -215,6 +215,11 @@ python run_mads_sensitivity.py /work/mads_calibration/config-step1-md1.yaml
 ```
 This will produce a lot of folders in the output path set in the config file. We only need four files for further analysis: `info.txt`, `param_props.csv`, `results.txt`,`sample_matrix.csv`. The examples of the SA analysis can be found in this [repo](https://github.com/whrc/MADS-TEM-calibration)
 
+Check for equilibrium runs
+===========================================
+After sensitivity is finished, it is important to check for equilibrium. The `equilibrium_check.py` is under development to check for it. This script filters model outputs that do not satisfy the equilibrium criteria defined in the script.  
+
+
 Running the Calibration
 ===========================================
 Note that before running calibrations, you must have the inputs (driver) files. From within Docker, change the directory to scripts and run `AC-MADS-TEM.jl` with Julia:
@@ -249,4 +254,3 @@ Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="
 		       filename=mads_config["mads_problemname"]*".png")
 ```
 This calibration will generate results for 10 randomly perturbed initial guesses. Then `post_run.py` needs to be modified and used to generate parameter and outputs files based on the optimal parameter sets. These files are used later for further similar to SA analysis in this [repo](https://github.com/whrc/MADS-TEM-calibration).
-. 
