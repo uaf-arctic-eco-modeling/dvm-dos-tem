@@ -233,5 +233,18 @@ lambda: NaN
 OrderedCollections.OrderedDict("cmax0" => 134.3675944648774, "cmax1" => 4.407632869450644, "cmax2" => 337.56299939603224, "cmax3" => 594.1233078870423, "cmax4" => 3.5051465533751056, "cmax5" => 32.30723495103502, "cmax6" => 90.30393701357312, "cmax7" => 47.254720715049544)
 ```
 
+Post-processing Calibration results
+===========================================
+`AC-MADS-TEM` allows to run multiple runs with perturbed initial guesses. To enable that mode one needs to uncomment the lines below. 
 
+```
+calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
 
+calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
+
+forward_predictions = Mads.forward(md, calib_random_estimates)
+Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="Targets",
+		       filename=mads_config["mads_problemname"]*".png")
+```
+This calibration will generate results for 10 randomly perturbed initial guesses. Then `post_run.py` needs to be modified and used to generate parameter and outputs files based on the optimal parameter sets. These files are used later for further similar to SA analysis in this [repo](https://github.com/whrc/MADS-TEM-calibration).
+. 
