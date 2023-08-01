@@ -39,6 +39,8 @@ The autocalibration (AC) process is focused on matching average above- and below
 The calibration workflow consists of multiple steps. First, we calibrate above-ground carbon and nitrogen fluxes, and then we calibrate below-ground stocks. To start the calibration process in MADS, we provide an initial set of parameter values called initial guesses (see `yaml` files). It is useful to run the Sensitivity Analysis before running calibration. The main goal of the SA is to see if targets are included in the range of modeled target values. The initial guess usually comes from the previous values for a similar vegetation community type. The SA can improve the initial guess values. MADS allows setting ranges for each element of the initial guess vector. We can run one or multiple calibration runs at each step to test for the overall method convergence, where multiple runs correspond to the randomly perturbated initial guess vector. `AC-MADS-TEM.jl` can handle a combination of multiple parameters (set in configuration `yaml` file) and target values per calibration, accounting for the combined effect of multiple correlated parameters on observations. We can combine multiple parameters and target values to study the effects of multiple correlated parameters on observations. The calibration process is scalable and can be run in parallel on multiple processors. 
 
 
+![The workflow that outlines sensitivity analysis and calibration processes](images/SA-CA-workflow.png)
+
 Installing git, dvm-dos-tem, and Docker on Linux
 ===========================================
 Before installing dvm-dos-tem, bring any updates to the existing packages on your instance by typing:
