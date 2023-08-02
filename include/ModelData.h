@@ -94,9 +94,10 @@ public:
   bool fire_on_SP,
   bool fire_on_TR;
   bool fire_on_SC;
-  // FW_NOTE: Wildfire ignitions is only a placeholder at this point s and likely to change.
-  // Wildfire ignitions: 1: default/old, FIR or prescribed by file depending on the stage.
-  // 2 for revised fire ignitions (calculated?):
+  // Wildfire ignitions modes: [Note: In development.  Numbers will likely change!]
+  // 0: Default/old:  FRI for PR/EQ/SP, explicit for TR/SC.
+  // 1: Use fire return interval for all stages with fire on.
+  // 2; Revised (placeholder only currently)
   int fire_ignition_mode;
   // FW_MOD_END.
 

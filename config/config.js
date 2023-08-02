@@ -82,8 +82,11 @@
     "fire_on_SP": 0,
     "fire_on_TR": 0,
     "fire_on_SC": 0,
-    // Wildfire ignitions: 1: default/old, 2 for revised (placeholder currently):
-    "fire_ignition_mode": 1
+    // Wildfire ignitions modes: [Note: In development.  Numbers will likely change!]
+    // 0: Default/old:  FRI for PR/EQ/SP, explicit for TR/SC.
+    // 1: Use fire return interval for all stages with fire on.
+    // 2; Revised (placeholder only currently)
+    "fire_ignition_mode": 0
     // FW_MOD_END.
   }
 

@@ -148,43 +148,81 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
   //bool fri_derived = false;// FW_NOTE: Not actually used!
 
   //if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+  // FW_MOD_START:
+  // Check that fire is on for the current run stage:
   if ( (stage.compare("pre-run") == 0 && md->fire_on_PR) ||
        (stage.compare("eq-run") == 0  && md->fire_on_EQ) ||
-       (stage.compare("sp-run") == 0  && md->fire_on_SP) ) {// FW_MOD
+       (stage.compare("sp-run") == 0  && md->fire_on_SP) )
+  {
+    // Currently for the PR, EQ, and SP stages only fire return interval based fire is implemented
+    // so there is no need to check fire_ignition_mode.  If fire is on it is FRI based.
+    // This could change in the future.
+    // FW_MOD_END.
 
     this->fri_derived = true;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
 
-    if ( (yr % this->fri) == 0 && yr > 0 ) {
-      if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
-        ignite = true;
-      }
-      // do nothing: correct year, wrong month.
+//     if ( (yr % this->fri) == 0 && yr > 0 ) {
+//       if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
+//         ignite = true;
+//       }
+//       // do nothing: correct year, wrong month.
+//     }
+    // Extracted to:
+    if (is_fire_return_date(yr, midx))
+    {
+      ignite = true;
     }
 
+  // FW_MOD_START:
   //} else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
-  } else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
-              (stage.compare("sc-run") == 0 && md->fire_on_SC) ) {// FW_MOD
-
-    this->fri_derived = false;
+  }
+  else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
+            (stage.compare("sc-run") == 0 && md->fire_on_SC) )
+  {
+    //this->fri_derived = false;
+    // FW_MOD_END.
     
-    if (md->fire_ignition_mode == 1)// FW_MOD
+    //if (md->fire_ignition_mode == 1)// FW_MOD
+    switch (fire_ignition_mode)
     {
-      BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
+      case 0:// Default (old) fire behavior, use explicit fire from input file:
+      {
+        this->fri_derived = false;
+        BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
 
-      if ( this->exp_burn_mask[yr] == 1 ){
-        if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
+        if ( this->exp_burn_mask[yr] == 1 ){
+          if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
+            ignite = true;
+          }
+          // do nothing: correct year, wrong month
+        }
+        break;
+      }
+      case 1:// Use fire return interval:
+      {
+        this->fri_derived = true;
+        BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
+        if (is_fire_return_date(yr, midx))
+        {
           ignite = true;
         }
-        // do nothing: correct year, wrong month
+        break;
       }
-    }
-    else//md->fire_ignition_mode == 2// FW_MOD_START:
-    {
-      BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 1.";
-      // Should probably terminate here.
-      ignite = false
-    }// FW_MOD_END.
+      case 2://Placeholder for future dynamic ignition mode...
+      {
+        BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 1.";
+        // Should probably terminate here.
+        this->fri_derived = false;
+        ignite = false
+        break;
+      }
+      default:
+      {
+        BOOST_LOG_SEV(glg, err) << "Undefined ignition mode! (" << stage << ")";
+        break;
+      }
+      // FW_MOD_END.
   } else {
     BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";// FW_NOTE: This check may be partially broken now due to fire switch checks!
   }
@@ -193,6 +231,23 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 
   return ignite;
 }
+
+// FW_MOD_START:
+/** Determine if the current date, by year and month midpoint?, aligns with a fire return date.
+ * Removed from should_ignite() to avoid code repetition.
+ * Should this be moved?  The private functions don't seem to be in a particular place.*/
+bool WildFire::is_fire_return_date(const int yr, const int midx)
+{
+  if ( (yr % this->fri) == 0 && yr > 0 )
+  {
+    if (midx == temutil::doy2month(this->fri_jday_of_burn))
+    {
+      return true;
+    }
+    // do nothing: correct year, wrong month.
+  }
+  return false;
+}// FW_MOD_END.
 
 /** Burning vegetation and soil organic C */
 void WildFire::burn(int year) {
