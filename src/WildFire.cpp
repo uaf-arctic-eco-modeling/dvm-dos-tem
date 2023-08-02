@@ -150,7 +150,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
   //if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
   if ( (stage.compare("pre-run") == 0 && md->fire_on_PR) ||
        (stage.compare("eq-run") == 0  && md->fire_on_EQ) ||
-       (stage.compare("sp-run") == 0  && md->fire_on_SP)) {// FW_MOD
+       (stage.compare("sp-run") == 0  && md->fire_on_SP) ) {// FW_MOD
 
     this->fri_derived = true;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
@@ -164,19 +164,29 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 
   //} else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
   } else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
-              (stage.compare("sc-run") == 0 && md->fire_on_SC) {// FW_MOD
+              (stage.compare("sc-run") == 0 && md->fire_on_SC) ) {// FW_MOD
 
     this->fri_derived = false;
-    BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
+    
+    if (md->fire_ignition_mode == 1)// FW_MOD
+    {
+      BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
 
-    if ( this->exp_burn_mask[yr] == 1 ){
-      if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
-        ignite = true;
+      if ( this->exp_burn_mask[yr] == 1 ){
+        if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
+          ignite = true;
+        }
+        // do nothing: correct year, wrong month
       }
-      // do nothing: correct year, wrong month
     }
+    else//md->fire_ignition_mode == 2// FW_MOD_START:
+    {
+      BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 1.";
+      // Should probably terminate here.
+      ignite = false
+    }// FW_MOD_END.
   } else {
-    BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";
+    BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";// FW_NOTE: This check may be partially broken now due to fire switch checks!
   }
 
   BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire?:" << ignite;

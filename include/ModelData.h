@@ -94,6 +94,10 @@ public:
   bool fire_on_SP,
   bool fire_on_TR;
   bool fire_on_SC;
+  // FW_NOTE: Wildfire ignitions is only a placeholder at this point s and likely to change.
+  // Wildfire ignitions: 1: default/old, FIR or prescribed by file depending on the stage.
+  // 2 for revised fire ignitions (calculated?):
+  int fire_ignition_mode;
   // FW_MOD_END.
 
   bool outSiteDay;

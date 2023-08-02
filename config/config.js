@@ -81,7 +81,9 @@
     "fire_on_EQ": 0,
     "fire_on_SP": 0,
     "fire_on_TR": 0,
-    "fire_on_SC": 0
+    "fire_on_SC": 0,
+    // Wildfire ignitions: 1: default/old, 2 for revised (placeholder currently):
+    "fire_ignition_mode": 1
     // FW_MOD_END.
   }
 
