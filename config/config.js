@@ -70,11 +70,19 @@
   },
 
   "model_settings": {
-    "dynamic_lai": 1                    // from model (1) or from input (0)
+    "dynamic_lai": 1,                    // from model (1) or from input (0)
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
 //    //"output_starting_year": -9999
+    // FW_MOD_START:
+    // Switches to turn fire off (0) or on (1) for each run stage:
+    "fire_on_PR": 0,
+    "fire_on_EQ": 0,
+    "fire_on_SP": 0,
+    "fire_on_TR": 0,
+    "fire_on_SC": 0
+    // FW_MOD_END.
   }
 
 //  "output_switches": {

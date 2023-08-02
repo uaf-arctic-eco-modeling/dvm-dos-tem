@@ -136,15 +136,21 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
  *  NOTE: how to handle fire severity, to be determined.
  *
 */
-bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
+//bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
+bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage,
+                             //const ModelData md) {// FW_MOD: Add ModelData. Pointer?
+                             const ModelData* md) {// FW_MOD
 
   BOOST_LOG_SEV(glg, note) << "determining fire ignition for yr:" << yr
                            << ", monthidx:" << midx << ", stage:" << stage;
 
   bool ignite = false;
-  bool fri_derived = false;
+  //bool fri_derived = false;// FW_NOTE: Not actually used!
 
-  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+  //if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+  if ( (stage.compare("pre-run") == 0 && md->fire_on_PR) ||
+       (stage.compare("eq-run") == 0  && md->fire_on_EQ) ||
+       (stage.compare("sp-run") == 0  && md->fire_on_SP)) {// FW_MOD
 
     this->fri_derived = true;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
@@ -156,7 +162,9 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       // do nothing: correct year, wrong month.
     }
 
-  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+  //} else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+  } else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
+              (stage.compare("sc-run") == 0 && md->fire_on_SC) {// FW_MOD
 
     this->fri_derived = false;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";

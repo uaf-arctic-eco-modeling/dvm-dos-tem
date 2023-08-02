@@ -87,6 +87,14 @@ public:
   bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
 
+  // FW_MOD_START:
+  bool fire_on_PR;
+  bool fire_on_EQ;
+  bool fire_on_SP,
+  bool fire_on_TR;
+  bool fire_on_SC;
+  // FW_MOD_END.
+
   bool outSiteDay;
 
   bool get_envmodule();

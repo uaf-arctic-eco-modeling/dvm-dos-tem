@@ -583,7 +583,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(false);
     runner.cohort.md->set_avlnflg(false);
     runner.cohort.md->set_baseline(false);
-    runner.cohort.md->set_dsbmodule(false);
+    //runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md.fire_on_PR);// FW_MOD: Would make sense to move into ModelData class.
     runner.cohort.md->set_dslmodule(false);
     runner.cohort.md->set_dynamic_lai_module(false);
 
@@ -629,7 +630,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_avlnflg(true);
     runner.cohort.md->set_baseline(true);
 
-    runner.cohort.md->set_dsbmodule(false);
+    //runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md.fire_on_EQ);// FW_MOD: Would make sense to move into ModelData class.
 
     // This variable ensures that OpenMP threads do not modify
     // the shared modeldata.eq_yrs value.
@@ -692,7 +694,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(true);
     runner.cohort.md->set_avlnflg(true);
     runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
+    //runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md.fire_on_SP);// FW_MOD: Would make sense to move into ModelData class.
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dynamic_lai_module(true);
 
@@ -746,7 +749,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(true);
     runner.cohort.md->set_avlnflg(true);
     runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
+    //runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md.fire_on_TR);// FW_MOD: Would make sense to move into ModelData class.
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dynamic_lai_module(true);
 
@@ -796,7 +800,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(true);
     runner.cohort.md->set_avlnflg(true);
     runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
+    //runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md.fire_on_SC);// FW_MOD: Would make sense to move into ModelData class.
     runner.cohort.md->set_dslmodule(true);
     runner.cohort.md->set_dynamic_lai_module(true);
 
