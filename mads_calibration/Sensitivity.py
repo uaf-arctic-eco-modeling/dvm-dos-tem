@@ -117,6 +117,7 @@ class SensitivityDriver(object):
     self.cmtnum={}
     self.opt_run_setup = '-p 5 -e 5 -s 5 -t 5 -n 5'
     self.params = {}
+    self.logparams = []
     self.sampling_method = sampling_method
 
     if self.work_dir is not None:
@@ -171,6 +172,14 @@ class SensitivityDriver(object):
     spreads = highs - lows
 
     sm = l * spreads + lows
+
+    #apply log uniform for small interval values 
+    if len(self.logparams)>0:
+        inum=0
+        for ilog,p in zip(self.logparams,self.params):
+            if ilog:
+                sm[:,inum]=loguniform.rvs(p['bounds'][0],p['bounds'][1],size=N)
+            inum+=1
     
     self.sample_matrix = pd.DataFrame(sm, columns=[p['name'] for p in self.params])
 
