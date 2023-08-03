@@ -25,6 +25,7 @@ import os
 import ast
 import shutil
 import subprocess
+from scipy.stats import loguniform
 from contextlib import contextmanager
 
 import param_util as pu
