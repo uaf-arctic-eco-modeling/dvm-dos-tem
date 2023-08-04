@@ -391,7 +391,7 @@
 0.0          0.8          0.0          0.8          1.0          0.0          2.00         2.00         0.8          0           // static_lai[10]:
 0.0          0.7          0.0          0.7          0.5          0.0          2.00         2.00         0.7          0           // static_lai[11]:
 //===========================================================
-// CMT13 // Black Spruce Bog
+// CMT13 // Black Spruce Peatland
 //BlackSpr   Moss        Shrub         Sedge        Lichen       PFT5         PFT6         PFT7         PFT8         PFT9      pftnames:
 1            1            1            1            1            0            0            0            0            0             // vegfrac:
 1            0            1            0            0            0            0            0            0            0             // ifwoody:

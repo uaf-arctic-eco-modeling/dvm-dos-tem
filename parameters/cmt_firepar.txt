@@ -195,7 +195,7 @@
 0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
 0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //
 //===========================================================
-// CMT13 // Black Spruce Bog
+// CMT13 // Black Spruce Peatland
 //BlackSpr   Moss         Shrub        Sedge        Lichen       PFT5         PFT6         PFT7      PFT8       PFT9    // name: units // description // comment // refs
 0.00            0.00         0.00         0.00         0.00         0.00         0.00         0.00      0.00       0.00    // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 //
 0.15            0.70         0.15         0.15         0.70         0.00         0.00         0.00      0.00       0.00    // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 //

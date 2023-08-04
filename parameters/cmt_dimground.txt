@@ -182,12 +182,12 @@
 0.0996             // coefminea:
 0.6931             // coefmineb:
 //===========================================================
-// CMT13 // Black Spruce Bog
+// CMT13 // Black Spruce Peatland
 // Snow characteristics
 250                // snwdenmax:
 50                 // snwdennew:
-0                  // initsnwthick:
-0                  // initsnwdense:
+0.                 // initsnwthick:
+0.                  // initsnwdense:
 // moss characteristics
 0.04               // maxmossthick:
 0.025              // initdmossthick:

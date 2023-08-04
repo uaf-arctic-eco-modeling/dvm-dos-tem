@@ -28,7 +28,7 @@
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-35.               // lcclnc:
+35.00               // lcclnc:
 0.3717            // fsoma:
 0.6112            // fsompr:
 0.0171            // fsomcr:
@@ -190,11 +190,11 @@
 2177.91           // initsoln:
 0.8               // initavln:
 //===========================================================
-// CMT13 // Black Spruce Bog      
+// CMT13 // Black Spruce Peatland      
 2.0                 // rhq10: Marty et al., 2019; Nagano et al., 2018
-2.5               // rhq10_w:
+3.0               // rhq10_w:
 0.0                // moistmin:
-0.5               // moistopt:
+0.25               // moistopt:
 1.0                 // moistmax:
 53.11571429       // lcclnc:
 0.371957143       // fsoma:
@@ -202,9 +202,9 @@
 0.017014286       // fsomcr:
 0.320585714       // som2co2:
 0.0042            // kn2:
-24.26571429       // nmincnsoil:
+30.0      // nmincnsoil: was 24.26571429 
 0.2               // propftos:
-0                 // fnloss:
+0.0                 // fnloss:
 4362.19          // initshlwc: 4362.19
 22396.02          // initdeepc: 22396.02
 45220.4          // initminec: 45220.4

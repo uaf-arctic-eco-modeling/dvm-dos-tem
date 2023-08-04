@@ -202,7 +202,7 @@
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
 //===========================================================
-// CMT13 // Black Spruce Bog //                                                           
+// CMT13 // Black Spruce Peatland //                                                           
 //BlackSpr     Moss           Shrub        Sedge       Lichen        PFT5       PFT6         PFT7     PFT8           PFT9        // pftnames:      
 420.4455630    311.182724    362.94552   158.43417  34.069582     0          0            0        0             0            // cmax:      
 6.86895351273  2.19602773514  0.961998990  2.33721200  6.879525569    0          0            0        0             0            // nmax:      
@@ -218,11 +218,11 @@
 -4.8859414838  0             -2.791596725 -3.4329131   0            0          0            0        0             0            // krb(2): coeff(1)
 0.11           0.133333333    0.2          0.15        0            0          0            0        0             0            // frg:           
 // soil calibrated parameters                                                      
-1.034717      // micbnup: was 0.145964, parameter for soil microbial immobialization of N                  
-0.159833      // kdcrawc: was 0.823548, raw-material (litter) C decompositin rates at reference condition 0.554      
-0.071426      // kdcsoma:                                                            
-0.005763      // kdcsompr:                                                            
-1.658316e-08	      // kdcsomcr:  
+1.345712     // micbnup: parameter for soil microbial immobilization of N
+0.193940     // kdcrawc: raw-material (litter) C decomposition rates at reference condition
+0.168754     // kdcsoma:
+0.001235     // kdcsompr:
+3.926601e-06     // kdcsomcr: 
 //===========================================================
 // CMT20 // EML Shrub Tundra //
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
