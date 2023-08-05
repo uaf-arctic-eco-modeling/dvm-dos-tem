@@ -1194,7 +1194,7 @@ if __name__ == '__main__':
     files for FRONTSDEPTH and FRONTSTYPE'''))
 
   # sc for 'site compare'
-  # ./output_util.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
+  # ./output.py --stage tr --yx 0 0 --timeres monthly site-compare --save-name some/path/to/somefile.pdf /path/to/inputA /path/to/inputB /pathto.inpuC
   sc_parser = subparsers.add_parser('site-compare',
       help=textwrap.dedent('''\
         Make time-series plots of various variables, with a line for each site.
@@ -1212,7 +1212,7 @@ if __name__ == '__main__':
         Path to a folder containing dvmdostem outputs.
         '''))
 
-  # E.G.: ./output_util.py basic-ts --stitch eq,sp,tr,sc --yx 0 0 --vars VEGC,SOC,GPP --savename test.pdf /data/tcarman/ngee_dhs_runs/dhs_1_cmt04/out/2000121081/
+  # E.G.: ./output.py basic-ts --stitch eq,sp,tr,sc --yx 0 0 --vars VEGC,SOC,GPP --savename test.pdf /data/tcarman/ngee_dhs_runs/dhs_1_cmt04/out/2000121081/
   bts_parser = subparsers.add_parser('basic-ts',
       help=textwrap.dedent('''\
           Make time-series of one or more various variables. Each variable gets

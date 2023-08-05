@@ -100,7 +100,7 @@ def crop_attr_string(ys='', xs='', yo='', xo='', msg=''):
   -------
   s : str
     A string something like:
-    "./scripts/input_util.py::crop_file --ysize 3 --xsize 4 --yx 0 0
+    "./scripts/input.py::crop_file --ysize 3 --xsize 4 --yx 0 0
   '''
   import inspect
   cf = inspect.currentframe().f_back # <-- gotta look up one frame.
