@@ -124,7 +124,7 @@ def average_monthly_pool_to_yearly(data):
 
       >>> import numpy as np
       >>> import netCDF4 as nc
-      >>> import scripts.output_utils as ou
+      >>> import util.output
       >>>
       >>> soc = nc.Dataset('all-merged/SOC_monthly_tr.nc')
       >>> a = np.ma.masked_values(soc.variables['SOC'][:], soc.variables['SOC']._FillValue)
@@ -1163,7 +1163,7 @@ if __name__ == '__main__':
   subparsers = parser.add_subparsers(help='sub commands', dest='command')
 
   # EXAMPLES
-  # ./input_utils.py soil-profiles /some/path/to/some/outputs/
+  # ./input.py soil-profiles /some/path/to/some/outputs/
 
   # sp for 'soil profile'
   sp_parser = subparsers.add_parser('soil-profiles', 

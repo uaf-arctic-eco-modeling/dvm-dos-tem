@@ -650,7 +650,7 @@ if __name__ == '__main__':
   crop_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
   # EXAMPLES
-  # ./input_utils.py crop --yx 0 0 --ysize 1 --xsize 1 demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10
+  # ./input.py crop --yx 0 0 --ysize 1 --xsize 1 demo-data/cru-ts40_ar5_rcp85_mri-cgcm3_Toolik_10x10
 
   climate_ts_plot_parser = subparsers.add_parser('climate-ts-plot', help=textwrap.dedent('''\
     Quick 'n dirty time series plots of the 4 climate driver variables for a 
