@@ -65,6 +65,11 @@ RUN pip install -r requirements_mapping.txt
 #RUN pip install ipython
 #RUN pip install jedi==0.17.2
 
+# Set a few environemnt variables for ease of use...
+ENV PATH="/work:$PATH"
+ENV PATH="/work/scripts:$PATH"
+ENV PATH="/work/scripts/util:$PATH"
+
 WORKDIR /work
 
 
