@@ -28,22 +28,22 @@ General Utilities
 These are general purpose utility scripts for working with ``dvmdostem``.
 
 ==================
-param_util.py
+param.py
 ==================
 
-.. automodule:: param_util
+.. automodule:: param
     :members:
 
 ================
-output_util.py
+output.py
 ================
 
-.. automodule:: output_utils
+.. automodule:: output
     :members:
 
 ================
-input_util.py
+input.py
 ================
 
-.. automodule:: input_util
+.. automodule:: input
     :members:

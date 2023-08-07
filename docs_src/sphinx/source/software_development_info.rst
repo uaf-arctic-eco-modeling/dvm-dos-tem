@@ -639,7 +639,7 @@ To run the tests that are in ``__docstring__`` s of a function or file:
 .. code:: shell
 
     $ cd scripts
-    $ python -m doctest param_util.py   # <-- script name!
+    $ python -m doctest util/param.py   # <-- script name!
 
 To run the tests that are in an independent file:
 
