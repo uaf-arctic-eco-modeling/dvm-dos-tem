@@ -610,51 +610,64 @@ into this project. The ``doctest`` module has a nice feature that allows tests
 to be written in a literate fashion with much explanatory text. This allows us
 to hit several goals with one set of testing material:
  
- - explanations and examples of code/script usage 
+ - explanations and examples of code/script usage; 
  - testing across a wide range of encapsulation; for example some of the tests
    are very granular unit tests of single functions in the script files, while
    others test comprehensive behavior of entire modules and command line
-   interfaces
+   interfaces;
  - basic regression testing.
 
 There are two primary places that the ``doctests`` will show up:
  
  #. In the ``__docstring__`` of a given Python script or function.
- #. In a standalone markdown file with specially formatted test code.
+ #. In a standalone markdown (.md) or reStructuredText (.rst) file with
+    specially formatted test code.
 
 The tests that are in the docstrings of a given file or function should be very
 narrow in their scope and should only check the functionality of that specific
 function, independant from everything else, whereas tests in a standalone file
-can be much broader and more flexible in their design. 
+can be much broader and more flexible in their design - i.e. module level tests. 
 
 At present we have had much more luck writing the broader tests (that also serve
 as examples of usage) in stand alone files named with the following pattern:
-``scripts/doctests_*.md``. The files are markdown formatted with embedded code
-that is executed by the ``doctest`` module. The execution context and other
-``doctest`` particulars are described here:
+``scripts/tests/doctests/doctests_*[.md | .rst]``. The files are markdown or
+reStructuredText formatted with embedded code that is executed by the
+``doctest`` module. The execution context and other ``doctest`` particulars are
+described here:
 https://docs.python.org/3/library/doctest.html#what-s-the-execution-context
 
 To run the tests that are in ``__docstring__`` s of a function or file:
 
 .. code:: shell
 
-    $ cd scripts
-    $ python -m doctest util/param.py   # <-- script name!
+    $ PYTHONPATH="/work/scripts" python -m doctest scripts/util/param.py   # <-- script name!
 
 To run the tests that are in an independent file:
 
 .. code:: shell
 
-    $ cd scripts
-    $ python -m doctest doctests_param_util.md  # <-- test file name!
+    $ PYTHONPATH="/work/scripts" python -m doctest scripts/tests/doctests/doctests_param_util.md  # <-- test file name!
 
 In either case, if all the tests execute successfully, then the command exits
-silently. If there errors, the ``doctest`` package tried to point you towards
+silently. If there errors, the ``doctest`` package tries to point you towards
 the tests that fail.
 
-.. warning::
+Note that in both cases, the ``PYTHONPATH`` variable is set so that the module
+imports work properly in the scripts and tests. Many of the test currently use
+the demo-data, config files and parameter files in the main repo. The paths for
+these in the tests are assumed to be relative to the repo root. So you will
+likely have the best luck running the tests from the repo-root. For this reason
+you need to specify ``PYTHONPATH`` so that inside the test scripts, imports can
+be made of scripts and tools in the scripts folder.
 
-  You must change into the ``scripts/`` directory for the tests to work!
+In order to run all the tests, this loop should work:
+
+.. code:: shell
+
+    for i in $(ls scripts/tests/doctests/);
+    do
+        PYTHONPATH="/work/scripts" python -m doctest scripts/tests/doctests/$i;
+    done
 
 
 *******************************
