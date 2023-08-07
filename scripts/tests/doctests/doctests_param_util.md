@@ -1,15 +1,15 @@
 # Some basic testing and exercise of the param_util script.
 
-This series of tests will demonstrate basic usage of the `param_util.py` script
-and serve as some basic regression testing. The `param_util.py` script is
+This series of tests will demonstrate basic usage of the `util/param.py` script
+and serve as some basic regression testing. The `util/param.py` script is
 designed to work on well formatted `dvmdostem` parameter files. The files that
 are included in the repository are considered the reference files for both
 format and values. As of April 2022 there are some know problems with some of
 the files, specifically the fire parameter files are missing some of the
-comments that `param_util.py` relies on for extracting parameter names.
+comments that `util/param.py` relies on for extracting parameter names.
 
 The tests here will serve as regression tests for both the code in
-`param_util.py` *and* the format of the parameter files. Therefore changes to
+`util/param.py` *and* the format of the parameter files. Therefore changes to
 the parameter files will likely require updating the tests here. To reduce the
 frequency of the test updates, it will be best to write tests that check the
 comments, pftnames and numbers, and cmt names and numbers rather than the actual 
