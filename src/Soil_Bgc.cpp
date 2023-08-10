@@ -387,11 +387,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         //if below, is currl->dz
         //if contains, is thickness of saturated part
-        double layer_sat_dz;
-        double layer_sat_z;
-        double layer_sat_liq;
+        double layer_sat_dz = currl->dz;
+        double layer_sat_z = currl->z;
+        double layer_sat_liq = currl->getVolLiq();
 
-        double layer_sat_ch4;
+        double layer_sat_ch4 = currl->ch4;
         //also, different temperatures?
 
         if(tmp_sois.rawc[il] > 0.0){
