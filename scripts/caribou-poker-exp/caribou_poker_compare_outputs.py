@@ -17,9 +17,9 @@ def calc_rmse(column_a, column_b):
 
 
 #path to station observations
-path_to_ec_obs = '/data/comparison_data/US-Prr-ec-daily.csv'
-path_to_met_data = '/data/comparison_data/poker_flats_2010-2022_daily.csv'
-
+#path_to_ec_obs = '/data/comparison_data/US-Prr-ec-daily.csv'
+#path_to_met_data = '/data/comparison_data/poker_flats_2010-2022_daily.csv'
+path_to_met_data = '/data/comparison_data/US-Prr-monthly.csv'
 #netCDF coordinates to extract data from
 #poker flats
 cell_x_coord = 1
@@ -27,41 +27,10 @@ cell_y_coord = 0
 
 
 met_data = pd.read_csv(path_to_met_data)
-met_data['date'] = pd.to_datetime(met_data['date'])
+met_data['m_y'] = pd.to_datetime(met_data['m_y'])
+met_data['year'] = met_data['m_y'].dt.year
 met_data = met_data.replace(-9999.0, np.nan)
 met_data.head()
-
-
-## aggregate ec data monthly
-met_data['year'] = pd.DatetimeIndex(met_data['date']).year
-met_data = met_data[met_data['year']>=2012]
-met_data['month'] = pd.DatetimeIndex(met_data['date']).month # get month from datetime
-
-#group by year and month, taking sum of daily ec measurements
-met_data = met_data.groupby(by=['year', 'month'], dropna=True).mean().reset_index() 
-
-#create datetime column for just month and year
-met_data['m_y'] = pd.to_datetime(met_data['month'].astype(str) + '-'+ met_data['year'].astype(str), format='%m-%Y') 
-
-met_data.head(5)
-
-
-ec_data=pd.read_csv(path_to_ec_obs)
-ec_data = ec_data.replace(-9999.0, np.nan)
-ec_data['date'] = pd.to_datetime(ec_data['date'])
-ec_data.head()
-
-
-## aggregate ec data monthly
-ec_data['month'] = pd.DatetimeIndex(ec_data['date']).month # get month from datetime
-
-#group by year and month, taking sum of daily ec measurements
-ec_data = ec_data.groupby(by=['Year', 'month']).sum().reset_index() 
-
-#create datetime column for just month and year
-ec_data['m_y'] = pd.to_datetime(ec_data['month'].astype(str) + '-'+ ec_data['Year'].astype(str), format='%m-%Y') 
-
-ec_data.head(5)
 
 
 gpp_ds = xr.open_dataset('/data/workflows/poker_flats_merged_data/output/GPP_monthly_tr.nc')
@@ -184,34 +153,36 @@ tem_output_df_yearly = pd.DataFrame({'date': dates_yearly, 'ALD': ald, 'MOSSDZ':
 tem_output_df_yearly['year'] = pd.DatetimeIndex(tem_output_df_yearly['date']).year
 
 
-ec_data.columns
+#ec_data.columns
 
 
 met_data.columns.to_list()
 
 
-tem_comparison_years = tem_output_df[tem_output_df['year']>=2012]
-yearly_tem_comparison_years = tem_output_df_yearly[tem_output_df_yearly['year']>=2012]
-station_years = ec_data[ec_data['Year']>=2012]
+tem_comparison_years = tem_output_df[tem_output_df['year']>=2011]
+yearly_tem_comparison_years = tem_output_df_yearly[tem_output_df_yearly['year']>=2011]
+#ec_data = ec_data[ec_data['Year']>=2011]
+met_data = met_data[met_data['year']>=2011]
 
 
 fig, axes = plt.subplots(3,1, figsize=(8,5), sharex=True)
 axes[0].set(title='US-Prr', ylabel='GPP \n(gC $m^{-2}$ $month^{-1}$)')
-sns.lineplot(data=tem_comparison_years, x='m_y', y='GPP', label = 'TEM', ax=axes[0], color='grey')
-sns.scatterplot(data=station_years, x='m_y', y='GPP_filled', ax=axes[0], color='red', s=10, alpha=0.7, label='US-Prr measured')
-#sns.scatterplot(data=met_data, x='m_y', y='(\'GPP_1_1_1\', \'sum\')', label = 'US-Prr measured', color='blue', ax=axes[0], alpha=0.7, s=10)
+sns.lineplot(data=tem_comparison_years, x='m_y', y='GPP', ax=axes[0], color='grey')
+#sns.scatterplot(data=ec_data, x='m_y', y='GPP_filled', ax=axes[0], color='black', s=10, alpha=0.7)
+sns.scatterplot(data=met_data, x='m_y', y='GPP1 (gC/m2/d)', ax=axes[0], color='red', s=10, alpha=0.7)
+sns.scatterplot(data=met_data, x='m_y', y='GPP2 (gC/m2/d)', color='blue', ax=axes[0], alpha=0.7, s=10)
 
 
-sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'], ax=axes[1], color='grey')
-sns.scatterplot(data=station_years, x='m_y', y='RE_filled', ax=axes[1], color='red', s=10, alpha=0.7)
-#sns.scatterplot(data=met_data, x='m_y', y='(\'RECO_1_1_1\', \'sum\')', ax=axes[1], color='blue', s=10, alpha=0.7)
-#sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RG'], label = 'Growth Respiration')
-#sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RM'], label = 'Maintenance Respiration')
-#sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RH'], label = 'Heterotrophic Respiration - TEM', color='red', ax=axes[1])
+sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'], ax=axes[1], color='grey', label = 'TEM',)
+#sns.scatterplot(data=station_years, x='m_y', y='RE_filled', ax=axes[1], color='red', s=10, alpha=0.7)
+#sns.scatterplot(data=ec_data, x='m_y', y='RE_filled', ax=axes[1], color='black', s=10, alpha=0.7, label = 'US-Prr 1_1_1 (v1)')
+sns.scatterplot(data=met_data, x='m_y', y='RECO1 (gC/m2/d)', ax=axes[1], color='red', s=10, alpha=0.7, label='US-Prr 1_1_1 (v2)')
+sns.scatterplot(data=met_data, x='m_y', y='RECO2 (gC/m2/d)', ax=axes[1], color='blue', s=10, alpha=0.7, label='US-Prr 1_2_1 (v2)')
 
 sns.lineplot(data=tem_comparison_years, x='m_y', y=(tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'])-tem_comparison_years['GPP'],ax=axes[2], color='grey')
-sns.scatterplot(data=station_years, x='m_y', y='NEE_filled', color='red', alpha=0.7, s=10, ax=axes[2])
-#sns.scatterplot(data=met_data, x='m_y', y=met_data['(\'RECO_1_1_1\', \'sum\')']-met_data['(\'GPP_1_1_1\', \'sum\')'], color='blue', alpha=0.7, s=10, ax=axes[2])
+#sns.scatterplot(data=ec_data, x='m_y', y=ec_data['RE_filled'] - ec_data['GPP_filled'], ax=axes[2], color='black', s=10, alpha=0.7)
+sns.scatterplot(data=met_data, x='m_y', y='NEE1 (gC/m2/d)', ax=axes[2], color='red', s=10, alpha=0.7)
+sns.scatterplot(data=met_data, x='m_y', y='NEE2 (gC/m2/d)', ax=axes[2], color='blue', s=10, alpha=0.7)
 
 axes[1].set(ylabel='RECO \n(gC $m^{-2}$ $month^{-1}$)')
 axes[2].set(ylabel='NEE \n(gC $m^{-2}$ $month^{-1}$)', xlabel='Date', )
@@ -224,17 +195,17 @@ plt.savefig('US-Prr_carbon_flux.jpg', dpi=300)
 
 
 #group by year and month, taking sum of daily ec measurements
-ec_data_yearly = ec_data.groupby(by=['Year']).sum().reset_index() 
+#ec_data_yearly = ec_data.drop(columns=['m_y']).groupby(by=['Year']).sum().reset_index() 
 
 
-ec_data_yearly.head()
+#ec_data_yearly.head()
 
 
-np.nanmean(ec_data_yearly[ec_data_yearly['Year']>2010]['GPP_filled'])
+#np.nanmean(ec_data_yearly[ec_data_yearly['Year']>2010]['GPP_filled'])
 
 
 sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'], label = 'RECO - TEM')
-sns.scatterplot(data=station_years, x='m_y', y='RE_filled', label = 'RECO US-Prr measured', color='orange')
+#sns.scatterplot(data=station_years, x='m_y', y='RE_filled', label = 'RECO US-Prr measured', color='orange')
 sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RG'], label = 'Growth Respiration')
 sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RM'], label = 'Maintenance Respiration')
 sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RH'], label = 'Heterotrophic Respiration - TEM', color='red')
@@ -242,10 +213,6 @@ sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RH'], l
 plt.ylabel('Respiration')
 plt.xlabel('Date')
 #plt.savefig('US-Prr_RECO.jpg', dpi=300)
-
-
-sns.lineplot(data=tem_comparison_years, x='m_y', y=(tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'])-tem_comparison_years['GPP'], label = 'TEM')
-sns.scatterplot(data=station_years, x='m_y', y='NEE_filled', label = 'Station', color='orange')
 
 
 
@@ -267,7 +234,7 @@ soil_layer_synth['LWCLAYERbot'] = soil_layer_synth['LWCLAYERbot']*100
 len(soil_layer_synth[soil_layer_synth['year']==1901])
 
 
-layer = 4
+layer = 2
 
 
 vwc_ds = xr.open_dataset('/data/workflows/poker_flats_merged_data/output/VWCLAYER_monthly_tr.nc')
@@ -318,16 +285,16 @@ sns.lineplot(data = swc_df.loc[swc_df['year']>2010], x='m_y', y='layerdepth', la
 
 
 fig, ax = plt.subplots()
-sns.lineplot(data = met_data, x='m_y', y='(\'SWC_1_1_1\', \'mean\')', label='station (volumetric) @ 5cm') #-0.05 m
-sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='(\'SWC_1_2_1\', \'mean\')', label='station (volumetric) @ 10cm') #-0.1 m
-sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='(\'SWC_1_3_1\', \'mean\')', label='station (volumetric) @ 20cm') #-0.2 m
+sns.lineplot(data = met_data, x='m_y', y='SWC_1_1_1', label='station (volumetric) @ 5cm') #-0.05 m
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_2_1', label='station (volumetric) @ 10cm') #-0.1 m
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_3_1', label='station (volumetric) @ 20cm') #-0.2 m
 #sns.lineplot(data = met_data, x='m_y', y='SWC_1_4_1') #-0.3 m
 #sns.lineplot(data = met_data, x='m_y', y='SWC_1_5_1') #-0.4 m
 
 #ax2 = plt.twinx()
 #sns.lineplot(data=df.column2, color="b", ax=ax2)
 
-sns.lineplot(data = swc_df.loc[swc_df['year']>2010], x='m_y', y='vwc', label='VWC TEM @ 10cm') #-0.1 m
+#sns.lineplot(data = swc_df.loc[swc_df['year']>2010], x='m_y', y='vwc', label='VWC TEM @ 10cm') #-0.1 m
 sns.lineplot(data = swc_df.loc[swc_df['year']>2010], x='m_y', y='lwc', label='LWC TEM @ 10cm') #-0.1 m
 #sns.lineplot(data = soil_layer_synth.loc[soil_layer_synth['year']>2010], x='time', y='LWCLAYERtop', label='LWC TEM @ 10cm (script)') #-0.1 m
 #sns.lineplot(data = soil_layer_synth.loc[soil_layer_synth['year']>2010], x='time', y='LWCLAYERbot', label='LWC TEM @ 10cm (script)') #-0.1 m
@@ -340,15 +307,22 @@ fig.tight_layout()
 
 
 fig, ax = plt.subplots()
-sns.lineplot(data = met_data, x='m_y', y='(\'TS_1_1_1\', \'mean\')', label='station @ 5cm') #-0.05 m
-sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='(\'TS_1_2_1\', \'mean\')', label='station @ 10cm') #-0.1 m
-sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='(\'TS_1_3_1\', \'mean\')', label='station @ 20cm') #-0.2 m
+sns.lineplot(data = met_data, x='m_y', y='TS_1_1_1', label='station @ 5cm') #-0.05 m
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='TS_1_2_1', label='station @ 10cm') #-0.1 m
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='TS_1_3_1', label='station @ 20cm') #-0.2 m
              
 sns.lineplot(data = swc_df.loc[swc_df['year']>2010], x='m_y', y=swc_df.loc[swc_df['year']>2010]['ts'], label='TEM @ 10cm') #-0.1 m
+plt.ylabel('T Soil')
 
 
-merged_df= pd.merge(tem_comparison_years, swc_df, on='date')
-sns.scatterplot(x=merged_df['ts'], y=merged_df['RH'], hue=merged_df['lwc'])
+merged_df = pd.merge(swc_df, tem_comparison_years, on='date')
+
+
+sns.scatterplot(x=merged_df['ts'], y=merged_df['RH']+merged_df['RG']+merged_df['RM'], label = 'TEM RECO')
+sns.scatterplot(x=merged_df['ts'], y=merged_df['RH'], label = 'TEM RH')
+#sns.scatterplot(data = met_data, x='(\'TS_1_1_1\', \'mean\')', y='(\'RECO_1_1_1\', \'sum\')', label='station @ 5cm')
+plt.ylabel('RECO')
+plt.xlabel('TS')
 
 
 sns.lineplot(x=tem_comparison_years['date'], y=tem_comparison_years['EET']/tem_comparison_years['PET'])
@@ -361,7 +335,7 @@ swc_df.head()
 met_data.columns.to_list()
 
 
-met_data['mean_snow_depth'] = met_data[['(\'D_SNOW_1_1_2\', \'mean\')', '(\'D_SNOW_1_1_3\', \'mean\')']].mean(axis=1)
+#met_data['mean_snow_depth'] = met_data[['(\'D_SNOW_1_1_2\', \'mean\')', '(\'D_SNOW_1_1_3\', \'mean\')']].mean(axis=1)
 
 
 fig, ax = plt.subplots()

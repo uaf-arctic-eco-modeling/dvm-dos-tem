@@ -194,7 +194,10 @@ def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None,
     A small dictionary containing metadata about the datasets in the
     dataframe. Namely, the units.
   '''
-  data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
+  #data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
+  #    timestep=timeres, fileprefix=fileprefix, with_dti=True
+  #)
+  data, units, dims, dti = stitch_stages(var=var, stages=['tr'], 
       timestep=timeres, fileprefix=fileprefix, with_dti=True
   )
 
@@ -305,7 +308,8 @@ def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
 
   if with_dti:
     ds_begin = nc.Dataset(expected_file_names[0])
-    ds_end = nc.Dataset(expected_file_names[1])
+    ds_end = nc.Dataset(expected_file_names[0])
+    #ds_end = nc.Dataset(expected_file_names[1])
     dti = build_full_datetimeindex(ds_begin, ds_end, timeres=timestep)
     return (full_ds, units_str, dimensions, dti)
   else:

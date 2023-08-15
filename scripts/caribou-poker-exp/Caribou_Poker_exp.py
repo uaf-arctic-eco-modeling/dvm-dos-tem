@@ -50,6 +50,10 @@ print('x coordinate: {}'.format(y_x[1]))
 get_ipython().run_line_magic('cd', '/work')
 
 
+#!make clean
+#!make
+
+
 # Cleanup:
 get_ipython().system('rm -r /data/workflows/poker_flats_merged_data')
 
@@ -205,6 +209,16 @@ get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_mer
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on DEEPC yearly')
 
 
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SHLWC yearly')
+
+
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LTRFALC yearly')
+
+
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on AVLN yearly')
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on ORGN yearly')
+
+
 #force input data to site obs: --force-cmt {#}  black spruce = 1, deciduous = 3
 #!scripts/outspec_utils.py --help
 get_ipython().system('scripts/outspec_utils.py --list-vars ../data/workflows/poker_flats_merged_data/config/output_spec.csv')
@@ -219,7 +233,7 @@ get_ipython().system('scripts/outspec_utils.py --list-vars ../data/workflows/pok
 get_ipython().run_line_magic('cd', '/data/workflows/poker_flats_merged_data')
 
 
-get_ipython().system("dvmdostem --force-cmt=1 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=1000")
+get_ipython().system("dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=500")
 #!dvmdostem --force-cmt=1 --log-level='err' --tr-yrs=115 --sp-yrs=300 --eq-yrs=1000
 
 
@@ -239,7 +253,7 @@ lwc = lwc_ds.variables['LWCLAYER'][:,3,y_x[0], y_x[1]]*100
 year=np.array([np.floor(i/12) for i in range(0, len(gpp))]).astype(np.uint16)
 month=[1,2,3,4,5,6,7,8,9,10,11,12]*(len(gpp)//12)
 tem_output_df = pd.DataFrame({'year': year, 'month': month, 'GPP': gpp, 'RH': rh, 'LWC':lwc})
-yearly_gpp = tem_output_df.groupby('year').mean().reset_index()
+yearly_gpp = tem_output_df.groupby('year').sum().reset_index()
 
 
 len(gpp)//12
@@ -250,22 +264,55 @@ len(gpp)//12
 sns.scatterplot(data=yearly_gpp, x='year', y='GPP')
 
 
+sns.scatterplot(data=yearly_gpp, x='year', y='RH')
+
+
 deepc_ds = nc.Dataset('/data/workflows/poker_flats_merged_data/output/DEEPC_yearly_eq.nc')
 deepc = deepc_ds.variables['DEEPC'][:, y_x[0], y_x[1]]
 year=np.array([i for i in range(0, len(deepc))]).astype(np.uint16)
 deepc_df = pd.DataFrame({'year': year, 'DEEPC': deepc})
 
 
+shlwc_ds = nc.Dataset('/data/workflows/poker_flats_merged_data/output/SHLWC_yearly_eq.nc')
+shlwc = shlwc_ds.variables['SHLWC'][:, y_x[0], y_x[1]]
+year=np.array([i for i in range(0, len(deepc))]).astype(np.uint16)
+shlwc_df = pd.DataFrame({'year': year, 'SHLWC': shlwc})
+
+
 sns.scatterplot(data=deepc_df, x='year', y='DEEPC')
+sns.scatterplot(data=shlwc_df, x='year', y='SHLWC')
 
 
-sns.scatterplot(data=yearly_gpp, x='year', y='RH')
+ltrfalc_ds = nc.Dataset('/data/workflows/poker_flats_merged_data/output/LTRFALC_yearly_eq.nc')
+ltrfalc = ltrfalc_ds.variables['LTRFALC'][:, y_x[0], y_x[1]]
+year=np.array([i for i in range(0, len(ltrfalc))]).astype(np.uint16)
+ltrfalc_df = pd.DataFrame({'year': year, 'LTRFALC': ltrfalc})
+
+
+sns.scatterplot(data=ltrfalc_df, x='year', y='LTRFALC')
+
+
+avln_ds = nc.Dataset('/data/workflows/poker_flats_merged_data/output/AVLN_yearly_eq.nc')
+avln = avln_ds.variables['AVLN'][:, y_x[0], y_x[1]]
+year=np.array([i for i in range(0, len(ltrfalc))]).astype(np.uint16)
+avln_df = pd.DataFrame({'year': year, 'AVLN': avln})
+
+orgn_ds = nc.Dataset('/data/workflows/poker_flats_merged_data/output/ORGN_yearly_eq.nc')
+orgn = orgn_ds.variables['ORGN'][:, y_x[0], y_x[1]]
+year=np.array([i for i in range(0, len(ltrfalc))]).astype(np.uint16)
+orgn_df = pd.DataFrame({'year': year, 'ORGN': orgn})
+
+
+sns.scatterplot(data=avln_df, x='year', y='AVLN')
+
+
+sns.scatterplot(data=orgn_df, x='year', y='ORGN')
 
 
 sns.scatterplot(data=yearly_gpp, x='year', y='LWC')
 
 
-
+TLAYER_monthly_eq
 
 
 

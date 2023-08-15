@@ -21,14 +21,14 @@ STEP1_sample_matrix = '/data/workflows/US-Prr-STEP1-SA/sample_matrix.csv'
 STEP2_results = '/data/workflows/US-Prr-STEP2-SA/results.csv'
 STEP2_sample_matrix = '/data/workflows/US-Prr-STEP2-SA/sample_matrix.csv'
 
-STEP3_results = '/data/workflows/US-Prr-STEP3-SA/results.csv'
-STEP3_sample_matrix = '/data/workflows/US-Prr-STEP3-SA/sample_matrix.csv'
+STEP3_results = '/data/workflows/US-Prr-STEP3-SA-v2/results.csv'
+STEP3_sample_matrix = '/data/workflows/US-Prr-STEP3-SA-v2/sample_matrix.csv'
 
 #STEP3_results = 'results_US-Prr_STEP3.csv'
 #STEP3_sample_matrix = 'sample_matrix_US-Prr_STEP3.csv'
 
-STEP4_results = '/data/workflows/US-Prr-STEP4-SA-lower/results.csv'
-STEP4_sample_matrix = '/data/workflows/US-Prr-STEP4-SA-lower/sample_matrix.csv'
+STEP4_results = '/data/workflows/US-Prr-STEP4-SA/results.csv'
+STEP4_sample_matrix = '/data/workflows/US-Prr-STEP4-SA/sample_matrix.csv'
 
 #STEP4_results = '/data/workflows/US-Prr-STEP4-SA/results.csv'
 #STEP4_sample_matrix = '/data/workflows/US-Prr-STEP4-SA/sample_matrix.csv'
@@ -137,7 +137,7 @@ def calc_rmse(x,y):
 def calc_overall_accuracy(results, sample_matrix, target_vars, vars_nopft):
     
     results = pd.read_csv(results, names=target_vars)
-    print(results)
+    #print(results)
     # extract targets from last row of results csv
     targets = results.loc[len(results)-1] 
     results = results.loc[0:len(results)-2]
@@ -158,35 +158,39 @@ def calc_overall_accuracy(results, sample_matrix, target_vars, vars_nopft):
                 tgt_r2s.append(0)
                 tgt_rmses.append(10000000)
                 continue
-            tgt_r2s.append(r2_score(row[results_vars_cols], targets[results_vars_cols]))
-            tgt_rmses.append(calc_rmse(row[results_vars_cols], targets[results_vars_cols]))  
+            tgt_r2s.append(r2_score(targets[results_vars_cols], row[results_vars_cols]))
+            tgt_rmses.append(calc_rmse(targets[results_vars_cols], row[results_vars_cols]))  
             
-        r2s.append(tgt_r2s)
-        rmses.append(tgt_rmses)
+        #r2s.append(tgt_r2s)
+        #rmses.append(tgt_rmses)
+        r2s.append(r2_score(targets[results_vars_cols], row[results_vars_cols]))
+        rmses.append(calc_rmse(targets[results_vars_cols], row[results_vars_cols]))
 
     # concatenate sample matrix to results
     sample_matrix = pd.read_csv(sample_matrix)
     results[sample_matrix.columns] = sample_matrix
     r2s=np.array(r2s)
     rmses=np.array(rmses)
-    
+    results['r2']= r2s
+    results['rmse']= rmses
     #iterate over target variables (no pft or compartment)
-    for idx, name in enumerate(vars_nopft):
+    #for idx, name in enumerate(vars_nopft):
         
         #set r2 and rmse columns
-        results[name + '_r2_raw'] = r2s[:, idx]
-        results[name + '_rmse_raw'] = rmses[:, idx]
+    #    results[name + '_r2_raw'] = r2s[:, idx]
+    #    results[name + '_rmse_raw'] = rmses[:, idx]
         
-        #scale rmse between min and max
-        results[name + '_rmse_scaled'] = (results[name + '_rmse_raw']-np.nanmin(results[name + '_rmse_raw']))/(np.max(results[name + '_rmse_raw'])-np.nanmin(results[name + '_rmse_raw']))
+    #    #scale rmse between min and max
+    #    results[name + '_rmse_scaled'] = (results[name + '_rmse_raw']-np.nanmin(results[name + '_rmse_raw']))/(np.max(results[name + '_rmse_raw'])-np.nanmin(results[name + '_rmse_raw']))
         
-        #subrtact scaled rmse from r2 for overall accuracy term
-        results[name + '_accuracy'] = (results[name + '_r2_raw']-results[name+'_rmse_scaled'])
+    #    #subrtact scaled rmse from r2 for overall accuracy term
+    #    results[name + '_accuracy'] = (results[name + '_r2_raw']-results[name+'_rmse_scaled'])
     
     #scale r2 and rmse and combine for overall accuracy term
-    results['overall_accuracy'] = results[Filter(list(results.columns), ['accuracy'])].mean(axis=1)
-    results['mean_rmse'] = results[Filter(list(results.columns), ['_rmse_scaled'])].mean(axis=1)
-    results['mean_r2'] = results[Filter(list(results.columns), ['_r2_raw'])].mean(axis=1)
+    results['rmse_scaled'] = (results['rmse']-np.nanmin(results['rmse']))/(np.max(results['rmse'])-np.nanmin(results['rmse']))
+    results['overall_accuracy'] = (results['r2']-results['rmse_scaled'])
+    results['mean_rmse'] = results[Filter(list(results.columns), ['rmse'])].mean(axis=1)
+    results['mean_r2'] = results[Filter(list(results.columns), ['r2'])].mean(axis=1)
     
     return results, targets
 
@@ -205,17 +209,14 @@ if STEP == 4:
 print('{} runs'.format(len(results)))
 
 
-results
+results['mean_r2']
 
 
 #get indices of top 15 performing parameter sets
 perf = np.argsort(results['overall_accuracy'])[::-1]
-perf = np.argsort(results['mean_rmse'])[::-1]
-top = perf[:50].values.tolist()
-first = perf[:5].values.tolist()
-
-
-top
+#perf = np.argsort(results['mean_rmse'])[::-1]
+top = perf[:8].values.tolist()
+first = perf[:1].values.tolist()
 
 
 fig, ax = plt.subplots(figsize = (8,5))
@@ -227,6 +228,8 @@ sns.scatterplot(data = results.iloc[first], x='mean_rmse', y='mean_r2', color='y
 ax.title.set_text('Step {}'.format(STEP))
 ax.set_ylabel('Mean $r^2$ across all variables')
 ax.set_xlabel('Mean RMSE across all variables - scaled between min and max')
+plt.ylim(0,1)
+#plt.xlim(0,1)
 
 
 results.columns
@@ -517,8 +520,9 @@ def spaghetti_match_plot(df_x,df_y,logy=False):
     
     #top=results.sort_values(by='mean_rmse', ascending=False)[:50].index
     #results[target_vars].iloc[results['mean_rmse'].idxmin()].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
-    results[target_vars].iloc[41].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
-    #results[target_vars].iloc[first].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='red',ax=ax)
+    #results[target_vars].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
+    #results[target_vars].iloc[41].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
+    results[target_vars].iloc[top].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='red',ax=ax)
     
     df_x.plot(logy=logy,legend=False,style="o",color='red',xticks=nrange, rot=90,ax=ax)
     ax.set_xticklabels(df_y.columns,fontsize=12)
@@ -562,7 +566,8 @@ minmax=results[calib_params_flat].iloc[top].apply(minMax)
 minmax.columns
 
 
-minmax
+for index, row in minmax.iterrows():
+    print(row)
 
 
 
@@ -601,19 +606,21 @@ print(results.iloc[[144,63,400,495]]['kdcsomcr'].min())
 print(results.iloc[[144,63,400,495]]['kdcsomcr'].max())
 
 
-sns.scatterplot(data=results, x='micbnup', y='AvailableNitrogenSum')
+sns.scatterplot(data=results, x='kdcsomcr', y='AvailableNitrogenSum')
 plt.axhline(targets['AvailableNitrogenSum'], color='grey', alpha=0.5)
+plt.xscale('log')
 
 
 sns.scatterplot(data=results, x='kdcrawc', y='CarbonShallow')
 plt.axhline(targets['CarbonShallow'], color='grey', alpha=0.5)
 
 
-sns.scatterplot(data=results, x='kdcrawc', y='CarbonDeep')
+sns.scatterplot(data=results, x='kdcsomcr', y='CarbonDeep')
 plt.axhline(targets['CarbonDeep'], color='grey', alpha=0.5)
+plt.xscale('log')
 
 
-sns.scatterplot(data=results, x='micbnup', y='CarbonMineralSum')
+sns.scatterplot(data=results, x='kdcsomcr', y='CarbonMineralSum')
 plt.axhline(targets['CarbonMineralSum'], color='grey', alpha=0.5)
 
 
@@ -636,6 +643,39 @@ pd.DataFrame(targets)
 
 
 targets.index
+
+
+import numpy as np
+import seaborn as sns
+from matplotlib import pyplot as plt
+from scipy.stats import loguniform
+
+
+from scipy.stats import loguniform
+
+def generate_loguniform_sample(a, b, size=10):
+    """
+    Generate a random sample of size 'size' from a log uniform distribution for elements within the interval (a, b).
+    
+    Parameters:
+        a (float): Lower bound of the interval.
+        b (float): Upper bound of the interval.
+        size (int): Number of elements in the sample (default is 10).
+    
+    Returns:
+        numpy.ndarray: An array of size 'size' containing random samples from the log uniform distribution.
+    """
+    min_val = a
+    max_val = b
+    spread=b-a
+    loguniform_samples = loguniform.rvs(min_val,max_val,size=size)
+    return loguniform_samples
+
+# Example usage:
+a = 1e-15
+b = 1e-12
+sample = generate_loguniform_sample(a, b, size=500)
+print("Generated Sample:", sample)
 
 
 
