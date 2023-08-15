@@ -1,0 +1,111 @@
+# This file configures TEM and MADS parameters for STEP2 of the calibration 
+# EJ 03/02/23
+calib_mode: NPPVEGC
+PXx: 1
+PXy: 0
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 13
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- nmax
+- nmax
+- nmax
+- nmax
+- nmax  
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)  
+- krb(1)
+- krb(1)
+- krb(2)
+- krb(2)
+- krb(2)  
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 2
+- 0
+- 2
+- 3
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/US-Prr-STEP2
+mads_initial_guess:
+- 2.95
+- 2.45
+- 1.87 
+- 2.1
+- 1.1 
+- -10.0
+- -2.5 
+- -10.0 
+- -18.65
+- -4.0
+- -8.0  
+- -20.0
+- -10.0 
+- -0.5
+- -9.0
+mads_paramdist:
+- Uniform(1, 10)
+- Uniform(1, 10)
+- Uniform(1, 10)
+- Uniform(1, 10)
+- Uniform(1, 10)  
+- Uniform(-20, -5)
+- Uniform(-5, -0.1)
+- Uniform(-20, -8)
+- Uniform(-20, -5)
+- Uniform(-20, -1)
+- Uniform(-20, -0.1)
+- Uniform(-20, -12)
+- Uniform(-20, -0.1)
+- Uniform(-4, -0.1)
+- Uniform(-20, -0.1) 
+mads_paramkey:
+- nmax0
+- nmax1
+- nmax2
+- nmax3
+- nmax4 
+- krb00
+- krb01
+- krb02
+- krb03
+- krb04  
+- krb10
+- krb12
+- krb20
+- krb22
+- krb23
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 10
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'OFF'
+mads_param_percent_variance: 30
+mads_problemname: STEP2-US-Prr-R-AM

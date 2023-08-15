@@ -1,0 +1,212 @@
+# This file configures TEM and MADS parameters for STEP3 of the calibration 
+# EJ 03/02/23
+calib_mode: NPPVEGCVEGN
+PXx: 1
+PXy: 0
+
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+- VegCarbon
+- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 13
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params: 
+- nmax 
+- nmax
+- nmax
+- nmax
+- nmax
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(1)
+- krb(1)
+- krb(2)
+- krb(2)
+- krb(2)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)  
+- cfall(1)
+- cfall(1)
+- cfall(2)
+- cfall(2)
+- cfall(2)
+- nfall(0)
+- nfall(0)
+- nfall(0)
+- nfall(0)
+- nfall(0)  
+- nfall(1)
+- nfall(1)
+- nfall(2)
+- nfall(2)
+- nfall(2)
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 2
+- 0
+- 2
+- 3
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0 
+- 2
+- 0
+- 2
+- 3
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0 
+- 2
+- 0
+- 2
+- 3
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/US-Prr-STEP3-v2
+mads_initial_guess:
+- 5.465144861801178
+- 2.005158146760247
+- 1.1791289108004286
+- 2.718172766441111
+- 6.126897753855926
+- -7.135211018206376
+- -3.644801957928382
+- -2.144599529846345
+- -10.637271137340774
+- -3.524953981103514
+- -4.841622752087964
+- -3.12003762293074
+- -4.853263284305887
+- -2.8886650569747747
+- -3.3787216473439146
+- 0.0038834928921804277
+- 0.024350167800887793
+- 0.25368338913946537
+- 0.00014324342117304293
+- 0.024612463815310775
+- 0.006659864325925325
+- 0.03335834098182887
+- 0.006730323748617739
+- 0.03112004258813307
+- 0.026128360756074633
+- 1.3699408866584563e-5
+- 2.344105429306543e-6
+- 8.409674456445769e-8
+- 2.1918399496717898e-7
+- 3.3882433559324495e-7
+- 0.03587708556254218
+- 1.1391953378583744e-5 
+- 0.00921090805219966
+- 0.10846723416165119
+- 0.004096643575873938
+mads_paramdist:
+- Uniform(4, 6)
+- Uniform(3.5, 4.5)
+- Uniform(0.5, 1.5)
+- Uniform(5, 6)
+- Uniform(8, 9) 
+- Uniform(-5.0, -4.0)
+- Uniform(-5.5, -4.5)
+- Uniform(-2.0, -1.5)
+- Uniform(-7.5, -6.5)
+- Uniform(-5.5, -4.5)
+- Uniform(-14.5, -13.0)
+- Uniform(-6.5, -5.5)
+- Uniform(-7, -5.5)
+- Uniform(-4.5, -3.5)
+- Uniform(-5, -3.5)
+- Uniform(0.004, 0.006)
+- Uniform(0.04, 0.055)
+- Uniform(0.2, 0.25)
+- Uniform(6e-5, 1e-4)
+- Uniform(0.03, 0.053)
+- Uniform(0.0064, 0.0082)
+- Uniform(0.04, 0.06)
+- Uniform(0.0065, 0.008)
+- Uniform(0.04, 0.06)
+- Uniform(0.04, 0.06)
+- Uniform(9e-6, 1.5e-5)
+- Uniform(2e-6, 4e-6)
+- Uniform(5e-8, 3e-7)
+- Uniform(1e-7, 3e-7)
+- Uniform(3e-7, 5e-7)
+- Uniform(0.04, 0.05)
+- Uniform(1e-5, 3e-5)
+- Uniform(0.006, 0.009)
+- Uniform(0.05, 0.15)
+- Uniform(0.004, 0.0055)
+mads_paramkey:
+- nmax0
+- nmax1
+- nmax2
+- nmax3
+- nmax4  
+- krb00
+- krb01
+- krb02
+- krb03
+- krb04  
+- krb10
+- krb12
+- krb20
+- krb22
+- krb23
+- cfall00
+- cfall01
+- cfall02
+- cfall03
+- cfall04  
+- cfall10
+- cfall12
+- cfall20
+- cfall22
+- cfall23
+- nfall00
+- nfall01
+- nfall02
+- nfall03
+- nfall04  
+- nfall10
+- nfall12
+- nfall20
+- nfall22
+- nfall23
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 10
+# mads_paramrange (ON, OFF) sets ranges for parametersi
+mads_paramrange: 'ON'
+mads_param_percent_variance: 30
+mads_problemname: STEP3-US-Prr-R-AM-v2

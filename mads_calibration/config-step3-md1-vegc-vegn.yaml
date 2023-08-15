@@ -1,0 +1,137 @@
+# This file configures TEM and MADS parameters for STEP3 of the calibration 
+# EJ 03/02/23
+calib_mode: VEGCVEGN
+PXx: 1
+PXy: 0
+
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+#- NPPAll
+- VegCarbon
+- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 13
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params: 
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)  
+- cfall(1)
+- cfall(1)
+- cfall(2)
+- cfall(2)
+- cfall(2)
+- nfall(0)
+- nfall(0)
+- nfall(0)
+- nfall(0)
+- nfall(0)  
+- nfall(1)
+- nfall(1)
+- nfall(2)
+- nfall(2)
+- nfall(2)
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0 
+- 2
+- 0
+- 2
+- 3
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0 
+- 2
+- 0
+- 2
+- 3
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/US-Prr-STEP3
+mads_initial_guess:
+- 0.005041618764214122
+- 0.04838813267964828
+- 0.23398348025230997
+- 9.704371379215253e-5
+- 0.04840326263319129
+- 0.007519883295989756
+- 0.05128315044840445
+- 0.007182507602990085
+- 0.04827840616934252
+- 0.051416759171006146
+- 1.0066258167645805e-5
+- 2.6593083068793853e-6
+- 1.5043169704961892e-7
+- 2.0656898795141394e-7
+- 4.171137977188907e-7
+- 0.04703947643905666
+- 1.9620418756352675e-5 
+- 0.00763908597074066
+- 0.11169388828743669 
+- 0.004803476689673937
+mads_paramdist:
+- Uniform(0.0035, 0.006)
+- Uniform(0.02, 0.05)
+- Uniform(0.15, 0.23)
+- Uniform(0.00008, 0.0004)
+- Uniform(0.03, 0.055)
+- Uniform(0.0064, 0.01)
+- Uniform(0.03, 0.08)
+- Uniform(0.005, 0.01)
+- Uniform(0.03, 0.08)
+- Uniform(0.03, 0.08)
+- Uniform(1e-7, 0.2)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+- Uniform(1e-7, 0.1)
+mads_paramkey:
+- cfall00
+- cfall01
+- cfall02
+- cfall03
+- cfall04  
+- cfall10
+- cfall12
+- cfall20
+- cfall22
+- cfall23
+- nfall00
+- nfall01
+- nfall02
+- nfall03
+- nfall04  
+- nfall10
+- nfall12
+- nfall20
+- nfall22
+- nfall23
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 10
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'ON'
+mads_param_percent_variance: 20
+mads_problemname: STEP3-US-Prr-R-VEGC-VEGN-AM
