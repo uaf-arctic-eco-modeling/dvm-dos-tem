@@ -262,12 +262,20 @@ class SensitivityDriver(object):
 
     self.set_work_dir(work_dir)
 
-    self.site = '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10'
-    self.PXx = 0
+    self.site = '/data/input-catalog/caribou-poker_merged'
+    self.PXx = 1
     self.PXy = 0
     self.outputs = [
       { 'name': 'GPP', 'type': 'flux',},
+      { 'name': 'RG', 'type': 'flux',},
+      { 'name': 'RM', 'type': 'flux',},
+      { 'name': 'RH', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
+      { 'name': 'LWCLAYER', 'type': 'pool'},
+      { 'name': 'TLAYER', 'type': 'pool'},
+      { 'name': 'LAYERDEPTH', 'type': 'pool'},
+      { 'name': 'LAYERDZ', 'type': 'pool'},
+      { 'name': 'LAYERTYPE', 'type': 'pool'}
     ]
     self.opt_run_setup = opt_run_setup
     self.sampling_method = sampling_method
@@ -613,7 +621,7 @@ class SensitivityDriver(object):
     # Adjust run mask for appropriate pixel
     runmask_util.cmdline_entry([
       '--reset',
-      '--yx',self.PXy, self.PXx,
+      '--yx', str(self.PXy), str(self.PXx),
       '{}/run-mask.nc'.format(sample_specific_folder)
     ])
 
@@ -757,7 +765,7 @@ class SensitivityDriver(object):
     '''
 
     folders = self._ssrf_names()
-
+    print(folders)
     with multiprocessing.Pool(processes=(os.cpu_count()-1)) as pool:
       results = pool.map(self.run_model, folders)
     print()
@@ -864,7 +872,7 @@ class SensitivityDriver(object):
             d = ou.sum_monthly_flux_to_yearly(d)
           else:
             print("What the heck??")
-          d = ou.sum_across_pfts(d)
+          #d = ou.sum_across_pfts(d)
           d = pd.DataFrame(d[:,self.PXy,self.PXx], columns=[o['name']])
           all_data = all_data.append(d, ignore_index=True)
 
