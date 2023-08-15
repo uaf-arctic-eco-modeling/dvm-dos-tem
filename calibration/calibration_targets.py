@@ -1,39 +1,14 @@
 #!/usr/bin/env python
 
 # could add code here to load up calibration_targets variable from the
-# contents of an excel file...? or just plain csv?
+# contents of an excel file...? or just plain csv? Elchin's copy
 
 calibration_targets = {
-  # Added this data structure to support comments, units, references etc that
-  # can be handled in the fixed width text parameter files as well as the csv
-  # parameter files.
-  "meta": {
-    'GPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'GPP without N limitation', 'comment': 'ingpp', 'ref': ''},
-    'NPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'NPP without N limitation', 'comment': 'innpp', 'ref': ''},
-    'NPPAll': {'units': 'g/m2/year', 'desc': 'NPP with N limitation', 'comment': 'npp', 'ref': ''},
-    'Nuptake': {'units': 'g/m2/year', 'desc': '', 'comment': 'nuptake', 'ref': ''},
-    'VegCarbon': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegcl', 'ref': ''},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegcw', 'ref': ''},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegcr', 'ref': ''},
-    },
-    'VegStructuralNitrogen': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': ''},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': ''},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': ''},
-    },
-    'MossDeathC': {'units': '', 'desc': '', 'comment': 'dmossc', 'ref': ''},
-    'CarbonShallow': {'units': '', 'desc': '', 'comment': 'shlwc', 'ref': ''},
-    'CarbonDeep': {'units': '', 'desc': '', 'comment': 'deep', 'ref': ''},
-    'CarbonMineralSum': {'units': '', 'desc': '', 'comment': 'minec', 'ref': ''},
-    'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': ''},
-    'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': ''},
-  },
-
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "BLANK": {
     'cmtnumber': 0,
-    'PFTNames':                  [  'PFT0',  'PFT1',   'PFT2',   'PFT3',  'PFT4',  'PFT5',  'PFT6',  'PFT7',  'PFT0', 'PFT9'],
+                                 #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
+                                 #    Misc.    Misc.     Misc.     Misc.    Misc.    Misc.    Misc.    Misc.    Misc.   Misc.
     'GPPAllIgnoringNitrogen':    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # ingpp     (gC/m2/year)   GPP without N limitation
     'NPPAllIgnoringNitrogen':    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # innpp     (gC/m2/year)   NPP without N limitation 
     'NPPAll':                    [     0.0,     0.0,      0.0,      0.0,     0.0,     0.0,     0.0,     0.0,     0.0,    0.0 ], # npp       (gC/m2/year)   NPP with N limitation
@@ -55,83 +30,83 @@ calibration_targets = {
     'OrganicNitrogenSum':        0.00,    #  soln
     'AvailableNitrogenSum':      0.00,    #  avln
   },
-  ## CMT01 - Black Spruce Forest, calibration for Murphy Dome climate.
+  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "black spruce forest": {
     'cmtnumber': 1,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-    'PFTNames':                  ['BlackSpr', 'DecidShrub', 'Decid', 'Moss', '', '', '', '', '', ''],
-    'GPPAllIgnoringNitrogen':    [  306.07,   24.53,    46.53,    54.23,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  229.56,   18.40,    34.90,    40.65,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [  153.04,   12.27,    17.36,    27.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [    1.26,    0.07,     0.23,     0.03,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
+                  'PFTNames':    ['BlackSpr', 'Decid', 'DecidShrub', 'EGreen', 'Sphag', 'Feather', 'Moss', 'Lichen', 'Forbs', 'Sedge'],
+    'GPPAllIgnoringNitrogen':    [  468.74,   81.73,    27.51,    22.23,   29.85,   28.44,   11.29,    7.75,   42.18,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  200.39,   61.30,    25.73,    20.79,   27.91,   26.59,   10.56,    7.25,   39.44,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [  133.59,   40.87,    13.76,    11.12,   14.92,   14.22,    5.65,    3.87,   21.09,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [    0.67,    0.42,     0.17,     0.17,    0.22,    0.21,    0.08,    0.01,    0.24,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [  293.76,   15.13,     9.06,   180.85,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [ 1796.32,  100.16,   333.75,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [  404.48,   15.07,    44.80,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [  121.92,   13.17,     8.85,     6.03,    5.60,    5.33,    2.12,   35.22,  100.35,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [ 1519.45,  129.81,    76.07,    13.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [  410.34,    4.00,     4.20,     1.17,    9.33,    8.89,    3.53,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    6.35,    0.72,     0.70,     1.61,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [   24.34,    2.48,     9.45,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [    0.17,    0.01,     0.03,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [    1.05,    0.53,     0.38,     0.15,    0.26,    0.25,    0.09,    0.99,    2.31,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    2.74,    3.05,     3.10,     0.23,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    3.52,    0.06,     0.06,     0.01,    0.19,    0.17,    0.07,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':           782.73,    #  shlwc
-    'CarbonDeep':             3448.46,    #  deepc
-    'CarbonMineralSum':      41665.00,    #  minec
-    'OrganicNitrogenSum':     2145.87,    #  soln
+    'CarbonShallow':          1783.00,    #  shlwc
+    'CarbonDeep':             5021.00,    #  deepc
+    'CarbonMineralSum':       9000.00,    #  minec
+    'OrganicNitrogenSum':      363.00,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
   },
-  ## CMT02 - White Spruce Forest, calibration for Murphy Dome climate.
+  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "white spruce forest": {
     'cmtnumber': 2,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-    'PFTNames':                  ['WhiteSpr', 'DecidShrub', 'Decid', 'Moss', '', '', '', '', '', ''],
-    'GPPAllIgnoringNitrogen':    [  491.81,   10.73,   189.32,    54.20,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  368.96,    8.04,   141.99,    40.65,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [  245.90,    5.36,    94.66,    27.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [    1.36,    0.05,     0.92,     0.03,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
+                                 #  Spruce    Salix    Decid.   E.green   Sedges    Forbs  Grasses  Lichens  Feather.   Misc.
+    'GPPAllIgnoringNitrogen':    [  468.74,   81.73,    27.51,    22.23,   29.85,   28.44,   11.29,    7.75,   42.18,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  200.39,   61.30,    25.73,    20.79,   27.91,   26.59,   10.56,    7.25,   39.44,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [  133.59,   40.87,    13.76,    11.12,   14.92,   14.22,    5.65,    3.87,   21.09,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [    0.67,    0.42,     0.17,     0.17,    0.22,    0.21,    0.08,    0.01,    0.24,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [  417.34,    2.26,    26.99,   180.85,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [ 5359.60,   76.76,  1367.66,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [  401.63,   10.33,   182.27,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [  121.92,   13.17,     8.85,     6.03,    5.60,    5.33,    2.12,   35.22,  100.35,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [ 1519.45,  129.81,    76.07,    13.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [  410.34,    4.00,     4.20,     1.17,    9.33,    8.89,    3.53,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    9.03,    0.11,     2.10,     1.61,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [   72.61,    1.90,    38.72,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [    9.20,    0.20,     3.57,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [    1.05,    0.53,     0.38,     0.15,    0.26,    0.25,    0.09,    0.99,    2.31,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    2.74,    3.05,     3.10,     0.23,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    3.52,    0.06,     0.06,     0.01,    0.19,    0.17,    0.07,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
-    'CarbonShallow':          1156.00,    #  shlwc
-    'CarbonDeep':             4254.00,    #  deepc
-    'CarbonMineralSum':      11005.00,    #  minec
-    'OrganicNitrogenSum':      699.81,    #  soln
-    'AvailableNitrogenSum':      1.69,    #  avln
+    'CarbonShallow':          1783.00,    #  shlwc
+    'CarbonDeep':             5021.00,    #  deepc
+    'CarbonMineralSum':       9000.00,    #  minec
+    'OrganicNitrogenSum':      363.00,    #  soln
+    'AvailableNitrogenSum':      0.76,    #  avln
   },
-  ## CMT03 - Deciduous Forest, calibration for Murphy Dome climate.
+  ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
   "deciduous forest": {
     'cmtnumber': 3,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
-    'PFTNames':                  ['SprTree', 'DecidShrub', 'DecidTree', 'Moss', '', '', '', '', '', ''],
-    'GPPAllIgnoringNitrogen':    [    1.81,   61.75,   997.38,     0.82,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [    1.36,   46.31,   748.03,     0.62,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [    0.91,   30.87,   498.69,     0.41,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [    1.69,    0.07,     3.68,     0.01,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # nuptake   (gN/m2/year)
+                                 #  Spruce    Salix    Decid.   E.green   Sedges    Forbs  Grasses  Lichens  Feather.   Misc.
+    'GPPAllIgnoringNitrogen':    [  468.74,   81.73,    27.51,    22.23,   29.85,   28.44,   11.29,    7.75,   42.18,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  200.39,   61.30,    25.73,    20.79,   27.91,   26.59,   10.56,    7.25,   39.44,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [  133.59,   40.87,    13.76,    11.12,   14.92,   14.22,    5.65,    3.87,   21.09,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [    0.67,    0.42,     0.17,     0.17,    0.22,    0.21,    0.08,    0.01,    0.24,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [    2.47,    8.33,   131.74,     5.60,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [   11.82,   93.25,  5469.13,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [    0.99,   13.28,   731.99,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [  121.92,   13.17,     8.85,     6.03,    5.60,    5.33,    2.12,   35.22,  100.35,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [ 1519.45,  129.81,    76.07,    13.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [  410.34,    4.00,     4.20,     1.17,    9.33,    8.89,    3.53,    0.00,    0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    0.05,    0.41,     7.04,     0.10,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [    0.16,    2.37,   107.98,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [    0.01,    0.11,     1.08,     0.00,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [    1.05,    0.53,     0.38,     0.15,    0.26,    0.25,    0.09,    0.99,    2.31,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    2.74,    3.05,     3.10,     0.23,    0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    3.52,    0.06,     0.06,     0.01,    0.19,    0.17,    0.07,    0.00,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
-    'MossDeathC':              178.19,    #  dmossc
-    'CarbonShallow':           528.17,    #  shlwc
-    'CarbonDeep':             1653.50,    #  deepc
-    'CarbonMineralSum':      25915.00,    #  minec
-    'OrganicNitrogenSum':     1513.10,    #  soln
-    'AvailableNitrogenSum':       3.5,    #  avln
+    'MossDeathC':              178.00,    #  dmossc
+    'CarbonShallow':          1783.00,    #  shlwc
+    'CarbonDeep':             5021.00,    #  deepc
+    'CarbonMineralSum':       9000.00,    #  minec
+    'OrganicNitrogenSum':      363.00,    #  soln
+    'AvailableNitrogenSum':      0.76,    #  avln
   },
   ## CMT04 - Shrub Tundra, calibration for Toolik climate.
   "shrub tundra": {
@@ -166,28 +141,27 @@ calibration_targets = {
     'cmtnumber': 5,
                                  #    pft0     pft1      pft2      pft3     pft4     pft5     pft6     pft7     pft8    pft9   
                   'PFTNames':    ['Betula', 'Decid', 'EGreen', 'Sedges', 'Forbs', 'Lichens', 'Feather', 'Sphag', 'PFT8', 'PFT9'],
-    'GPPAllIgnoringNitrogen':    [   46.08,   1.333,   113.44,   201.06,   1.029,    8.88,   28.18,    15.01,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [   23.04,   0.666,    56.72,   100.53,   0.515,    4.44,   14.09,     7.50,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [   15.36,   0.444,    37.81,    67.02,   0.343,    2.96,    9.39,     5.00,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'GPPAllIgnoringNitrogen':    [   46.08,    1.33,   113.44,	 201.1,	   1.03,   8.88,    28.18,    15.0,    0.00,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [   59.00,   27.06,   104.20,   195.20,   3.508,  136.60,   94.97,    85.42,   0.00,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'GPPAll':                    [   30.71,    0.89,    75.63,   134.04,   0.686,   5.92,   18.79,    10.01,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'NPPAll':                    [   15.35,    0.44,    37.81,    67.02,   0.343,   2.96,    9.39,     5.00,   0.00,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
     'Nuptake':                   [   0.197,   0.082,    0.418,    0.731,   0.009,   0.074,   0.487,    0.376,   0.00,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [   12.02,   0.349,    42.42,    32.17,   0.165,    32.93,   57.26,   80.55,   0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [  462.96,   3.716,   224.49,     0.00,   0.000,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [  147.94,   1.188,   143.47,   147.65,   2.599,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [   12.01,    0.35,    42.42,    32.16,    0.16,    32.93,   57.26,   80.55,   0.00,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [  462.96,    3.72,   224.49,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [  147.94,    1.19,   143.47,   147.65,    2.60,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [    0.36,   0.0069,    1.01,     0.82,    0.0058,    0.69,    1.33,    1.22,   0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [    7.75,   0.0559,    2.57,     0.00,    0.0000,    0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [    3.07,   0.0221,    2.01,     3.03,    0.0921,    0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [    0.36,    0.007,    1.01,     0.82,    0.006,    0.69,    1.33,    1.21,   0.00,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [    7.75,    0.06,     2.57,     0.00,    0.00,     0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [    3.07,    0.02,     2.01,     3.03,    0.009,    0.00,    0.00,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
     },
-    'RE':                       25.00,    #  Respiration_ecosystem  ** JUNK VALUE FOR TESTING! **
-    'NEE':                      10.00,     #  Net Ecosystem Exchange ** JUNK VALUE FOR TESTING! **
-    'MossDeathC':              178.00,    #  dmossc
+    'MossDeathC':              178.00,    #  dmossc remove from the list of targets
     'CarbonShallow':          3079.00,    #  shlwc
     'CarbonDeep':             7703.00,    #  deepc
     'CarbonMineralSum':      43404.00,    #  minec
     'OrganicNitrogenSum':     2206.00,    #  soln
-    'AvailableNitrogenSum':      8.958,   #  avln
+    'AvailableNitrogenSum':      0.8,   #  avln
   },
   ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH toolik climate (also barrow climate)  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {
@@ -293,24 +267,24 @@ calibration_targets = {
     'OrganicNitrogenSum':     1904.10,    #  soln
     'AvailableNitrogenSum':      4.00,    #  avln
   },
-  ## Prepared from EML??  Need Nuptake   created from excel file sent by Helene August 2022
+ ## Prepared from EML??
   "Tussock tundra EML": {
-    'cmtnumber': 21,
-                                 #   pft0       pft1      pft2     pft3     pft4     pft5     pft6     pft7      pft8    pft9
-                  'PFTNames':    ['Decidsh','Egreensh', 'Sedge', 'Forbs', 'Lichen', 'Omoss', 'Sphag',  'PFT7', 'PFT8', 'PFT9'],
-    'GPPAllIgnoringNitrogen':    [  21.831,  132.247,   301.40,    1.792,  15.469,  49.072,   26.139,    0.00,   0.00,   0.00 ], # ingpp    (gC/m2/year)  GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  10.915,   66.124,   150.70,    0.896,   7.735,  24.536,   13.070,    0.00,   0.00,   0.00 ], # innpp    (gC/m2/year)  NPP without N limitation
-    'NPPAll':                    [   7.277,   44.082,   100.47,    0.598,   5.156,  16.357,    8.713,    0.00,   0.00,   0.00 ], # npp       (gC/m2/year)  NPP with N limitation
-    'Nuptake':                   [   0.043,    0.429,    0.930,    0.011,   0.040,   0.126,    0.086,    0.00,   0.00,   0.00 ], # nuptake   (gN/m2/year)
+    'cmtnumber': 10,
+                                 #      pft0       pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
+                  #'PFTNames':    ['Betnan', 'Carex', 'Ericoid', 'Erivag', 'Feather', 'Lichen', 'Othmoss', 'Rubcha', 'Sphag.', 'Misc.'],
+    'GPPAllIgnoringNitrogen':    [     80.64,    300.26,   572.29,   657.57,   0.133,   46.58,  415.07,  154.58,    9.03,   0.00 ], # ingpp     (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [     60.48,    225.19,   429.22,   493.18,   0.100,   34.94,  311.31,  115.93,    6.77,   0.00 ], # innpp     (gC/m2/year)   NPP without N limitation 
+    'NPPAll':                    [     40.32,    150.13,   286.14,   328.79,   0.066,   23.29,  207.54,   77.29,    4.51,   0.00 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [      0.48,      1.80,     3.43,     3.95,  0.0008,    0.28,    2.49,    0.93,    0.05,   0.00 ], # nuptake   (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [   2.464,   33.925,   118.20,    0.165,   24.75,  133.78,    7.088,    0.00,   0.00,   0.00 ], # vegcl     (gC/m2)
-      'Stem':                    [  71.674,  230.388,     0.00,    0.000,    0.00,    0.00,     0.00,    0.00,   0.00,   0.00 ], # vegcw     (gC/m2)
-      'Root':                    [ 105.495,  169.930,   205.57,    2.599,    0.00,    0.00,     0.00,    0.00,   0.00,   0.00 ], # vegcr     (gC/m2)
+      'Leaf':                    [      8.71,     18.65,   228.12,   269.81,   0.214,  123.12,  669.55,    0.71,   35.44,   0.00 ], # vegcl     (gC/m2)
+      'Stem':                    [     11.64,    243.40,  1089.93,   226.60,   0.000,    0.00,    0.00,   22.40,    0.00,   0.00 ], # vegcw     (gC/m2)
+      'Root':                    [     31.60,    140.91,   187.16,    58.98,   0.000,    0.00,    0.00,   76.58,    0.00,   0.00 ], # vegcr     (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [   0.044,    0.660,    2.189,    0.006,    0.19,   2.065,    0.139,    0.00,   0.00,   0.00 ], # vegnl     (gN/m2)
-      'Stem':                    [   0.892,    1.861,    0.000,    0.000,    0.00,    0.00,    0.000,    0.00,   0.00,   0.00 ], # vegnw     (gN/m2)
-      'Root':                    [   1.271,    1.609,    3.180,    0.092,    0.00,    0.00,    0.000,    0.00,   0.00,   0.00 ], # vegnr     (gN/m2)
+      'Leaf':                    [      0.15,      0.52,     4.46,     6.98,  0.0043,    0.95,   10.34,   0.027,    0.70,   0.00 ], # vegnl     (gN/m2)
+      'Stem':                    [      0.11,      3.01,     9.77,     6.67,   0.000,    0.00,    0.00,    0.42,    0.00,   0.00 ], # vegnw     (gN/m2)
+      'Root':                    [      0.34,      1.52,     1.77,     0.65,   0.000,    0.00,    0.00,    1.08,    0.00,   0.00 ], # vegnr     (gN/m2)
     },
     'MossDeathC':                0.00,    #  dmossc
     'CarbonShallow':          4365.66,    #  shlwc
@@ -319,8 +293,36 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
   },
-  ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
-  "shrub tundra kougarok": {
+
+ ## Prepared from US-Prr
+  "Open Canopy Black Spruce Peatland - US-Prr": {
+    'cmtnumber': 13,
+                                ##      pft0       pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
+                  'PFTNames':    ['BlackSpr', 'Moss', 'Shrub', 'Sedge', 'Lichen', 'Misc.', 'Misc.', 'Misc.', 'Misc.', 'Misc.'],
+    'GPPAllIgnoringNitrogen':    [     324.45,    185.55,  241.74,     98.592,    18.09125,    0.00,    0.00,   0.00 ], # ingpp (gC/m2/year) GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [     162.225,    92.775,  120.87,      49.296,     9.0456,    0.00,    0.00,    0.00,    0.00,   0.00 ], # innpp (gC/m2/year) NPP without N limitation 
+    'NPPAll':                    [     129.78,      74.22,  96.696,    39.437,     7.2365,   0.00,    0.00,    0.00,    0.00,   0.00 ], # npp (gC/m2/year) NPP with N limitation
+    'Nuptake':                   [       0.28,       0.04,    0.14,    0.14,     0.0131,    0.00,    0.00,    0.00,    0.00,   0.00 ], # nuptake (gN/m2/year)
+    'VegCarbon': {
+      'Leaf':                    [       153.6932,    266.4950,   11.36,   32.8,     28.3776,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcl (gC/m2)
+      'Stem':                    [       434.1363,      0.00,  59.64,    0.00,     0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcw (gC/m2)
+      'Root':                    [       1120.4716,      0.00,  86.50,   117.1428,     0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegcr (gC/m2)
+    },
+    'VegStructuralNitrogen': {
+      'Leaf':                    [       4.8029,       3.37,   0.284,    0.9647,    0.2511,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnl (gN/m2)
+      'Stem':                    [       6.7308,      0.00,   0.556,    0.00,     0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnw (gN/m2)
+      'Root':                    [       30.9522,      0.00,    1.694,   1.63,     0.00,    0.00,    0.00,    0.00,    0.00,   0.00 ], # vegnr (gN/m2)
+    },
+    'MossDeathC':                0.00,    #  dmossc
+    'CarbonShallow':          4362.19,    #  shlwc
+    'CarbonDeep':            22396.02,    #  deepc
+    'CarbonMineralSum':      45220.4,    #  minec
+    'OrganicNitrogenSum':     2748.367,    #  soln
+    'AvailableNitrogenSum':     6.153826,    #  avln
+  },
+
+  ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougaruk  
+  "shrub tundra": {
     'cmtnumber': 44,
                                  #    pft0     pft1      pft2     pft3     pft4     pft5      pft6      pft7      pft8     pft9   
                   'PFTNames':    [ 'Salix', 'Betula', 'Decid.', 'E.green','Sedges','Forbs','Grasses','Lichens','Feather.', 'Misc.'],
@@ -347,32 +349,6 @@ calibration_targets = {
   },
 
 }
-
-def cmtbynumber(cmtnum):
-  '''
-  Find target values for a single CMT based on the number only.
-
-  Parameters
-  ----------
-  cmtnumber : int
-    The integer value for the CMT to return data for.
-
-  Returns
-  -------
-  data : dict
-    A multi-level dict structure with calibration target data for a single CMT.
-
-  Raises
-  ------
-  RuntimeError if the cmtnum is not found anywhere in the calibration_targets
-  data structure.
-  '''
-  for k, v in calibration_targets.items():
-    if 'cmtnumber' in v.keys():
-      if v['cmtnumber'] == cmtnum:
-        return {k:v}
-  raise RuntimeError("Can't find cmtnumber: {}".format(cmtnum))
-
 
 def cmtnames():
   '''returns a list of community names'''
