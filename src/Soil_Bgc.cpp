@@ -371,6 +371,7 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
   bgcpar.rhq10      = chtlu->rhq10;
+  bgcpar.rhq10_w    = chtlu->rhq10_w;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
   bgcpar.moistopt   = chtlu->moistopt;
@@ -589,7 +590,7 @@ void Soil_Bgc::deltac() {
     //HG: 01122023 - this condition allows for winter respiration
     //(Natali et al. 2019, Nature Climate Change)
     if (ed->m_sois.ts[il] <0.) {
-      bd->m_soid.rhmoist[il] = 1;
+      bd->m_soid.rhmoist[il] = 0.001;
     } else {
       // Yuan: vwc normalized by total pore - this will allow
       // respiration (methane/oxidation) implicitly
@@ -678,7 +679,7 @@ void Soil_Bgc::deltan() {
       del_soi2soi.nimmob[i] = nimmob;
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
-                                         decay, calpar.micbnup);
+                                         decay, calpar.micbnup, ed->m_sois.ts[i]);
 
       totnetnmin += del_soi2soi.netnmin[i];
     }
@@ -1032,7 +1033,11 @@ double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
 
 double Soil_Bgc::getRhq10(const  double & tsoil) {
   double rhq10;
-  rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
+  if (tsoil > 0.) {
+    rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
+  } else {
+    rhq10 =  pow( (double)bgcpar.rhq10_w, tsoil/10.0);
+  }
   return rhq10;
 };
 
@@ -1056,16 +1061,19 @@ double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
 double Soil_Bgc::getNetmin(const double & nimmob, const double & soilorgc,
                            const double & soilorgn, const double & rh,
                            const double & tcnsoil,
-                           const double & decay, const double & nup ) {
+                           const double & decay, const double & nup, const double & soilts) {
   double nmin = 0.0;
+  
+  if ( soilts > 0.0 ) {
 
-  if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
-    nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
-
-    if ( nmin >= 0.0 ) {
-      nmin *= (soilorgn/soilorgc) * tcnsoil;
-    } else {
-      nmin *= (soilorgc/soilorgn) / tcnsoil;
+    if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
+      nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
+  
+      if ( nmin >= 0.0 ) {
+        nmin *= (soilorgn/soilorgc) * tcnsoil;
+      } else {
+        nmin *= (soilorgc/soilorgn) / tcnsoil;
+      }
     }
   }
 

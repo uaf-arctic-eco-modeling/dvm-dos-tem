@@ -202,7 +202,7 @@ struct soipar_bgc {
   double moistmax;
   double moistopt;
   double rhq10;
-
+  double rhq10_w;
   double propftos;
   double nmincnsoil;
 
@@ -230,7 +230,7 @@ struct soipar_bgc {
   double kdsomcr[MAX_SOI_LAY];
 
   soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
-                rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
+                rhq10(UIN_D), rhq10_w(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
                 eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
                 lcclnc(UIN_D) {

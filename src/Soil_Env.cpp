@@ -527,13 +527,15 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
-    ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    // ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    ed->d_soi2l.qover = 0.0;
   } else {
     ed->d_soi2l.qover = 0.0;
   }
 
   //Calculate infiltration (mm/day)
-  double infil = rnth + melt - ed->d_soi2l.qover;
+  // double infil = rnth + melt - ed->d_soi2l.qover;
+  double infil = rnth + melt;
 
   //Get unsaturated space potentially available for liq infiltration (mm)
   double space_for_liq = 0.0;
@@ -558,7 +560,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
   ed->d_soi2l.magic_puddle += add_to_puddle;
   //Subtracting surface water storage from runoff
-  ed->d_soi2l.qover -= add_to_puddle;
+  //ed->d_soi2l.qover -= add_to_puddle;
 
   //If there is space remaining in the soil, and water in
   // the puddle, transfer water from the puddle
@@ -635,8 +637,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
       add_to_puddle = fmin(space_in_puddle, infil);
       ed->d_soi2l.magic_puddle += add_to_puddle;
       infil -= add_to_puddle;
-      ed->d_soi2l.qover += infil;
-      ed->d_soi2l.qinfl = 0;
+      // ed->d_soi2l.qover += infil;
+      // ed->d_soi2l.qinfl = 0;
     }
     if(weighted_veg_tran > 0){
       //Subtract transpiration from each layer
@@ -1011,7 +1013,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
       double to_puddle = fmin(sink_liq, space_in_puddle);
       ed->d_soi2l.magic_puddle += to_puddle;
       sink_liq -= to_puddle;
-      ed->d_soi2l.qover += sink_liq;
+      //ed->d_soi2l.qover += sink_liq;
     }
     currl = currl->prevl;
   }
