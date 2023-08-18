@@ -76,7 +76,7 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
 
 
 void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, double *B,double *X) {
-
+//TriSolver(                numsoill - 1,         C,         D,         C,         V,        V);
 	int i;
 	double xmult;
 
@@ -216,7 +216,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       diff_tmp = diff_a;
     } else { //layer below water table
       //Fan 2013 Eq. 12 for layers below the water table
-      torty = 0.66 * currl->liq * pow(currl->liq / (currl->poro + currl->ice), 3.0);
+        //BM :changed torty to use volumetric liquid and ice
+      torty = 0.66 * currl->getVolLiq() * pow(currl->getVolLiq() / (currl->poro + currl->getVolIce()), 3.0);
       diff_tmp = diff_w;
     }
 
@@ -245,7 +246,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       D[il] = r[il];
     }
 
-    if (il == 0) {
+    //if (il == 0) { looks like boundary condition is in the moss layer - but trisolver calls from il = 1
+
+    if (il == 1) {
       C[il] = -1.0 - ub;
     } else {
       C[il] = -1.0;
