@@ -678,7 +678,7 @@ void Soil_Bgc::deltan() {
       del_soi2soi.nimmob[i] = nimmob;
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
-                                         decay, calpar.micbnup);
+                                         decay, calpar.micbnup, ed->m_sois.ts[i]);
 
       totnetnmin += del_soi2soi.netnmin[i];
     }
@@ -1056,19 +1056,21 @@ double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
 double Soil_Bgc::getNetmin(const double & nimmob, const double & soilorgc,
                            const double & soilorgn, const double & rh,
                            const double & tcnsoil,
-                           const double & decay, const double & nup ) {
+                           const double & decay, const double & nup, 
+			   const double & soilts) {
   double nmin = 0.0;
+  if ( soilts > 0.0 ) {
 
-  if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
-    nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
+    if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
+      nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
 
-    if ( nmin >= 0.0 ) {
-      nmin *= (soilorgn/soilorgc) * tcnsoil;
-    } else {
-      nmin *= (soilorgc/soilorgn) / tcnsoil;
+      if ( nmin >= 0.0 ) {
+        nmin *= (soilorgn/soilorgc) * tcnsoil;
+      } else {
+        nmin *= (soilorgc/soilorgn) / tcnsoil;
+      }
     }
   }
-
   return nmin;
 };
 
