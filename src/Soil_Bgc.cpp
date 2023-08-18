@@ -438,7 +438,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //BM: Prod eq seems incorrect - this may be in the process of 
         //    unifying production across saturated and unsaturated layers
 
-        Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz * layer_sat_liq) / 12.0;
+        //WBM RR: We are removing layer_sat_liq from production function denominator because it creates unphysical (inifinite) production rates
+
+        Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz) / 12.0;
         
         // U = (1/12) *1e6 * 1e-3
         // Need to decide what to do with liquid water content, include/exclude, numerator/denominator
@@ -728,6 +730,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     il = 1; //Reset manual layer index tracker. From 1 to allow moss layer in future
     //TODO control statement modified to stop segfaulting, not tested.
     while(currl && currl->isSoil){
+      //BM: Setting currl->ch4 + and = to V[il] to account for loss 
+      //    Another update, V should be newly calculated methane, but appears to go to zero when frozen in TriSolver
       currl->ch4 = V[il];
       currl = currl->nextl;
       il++;
