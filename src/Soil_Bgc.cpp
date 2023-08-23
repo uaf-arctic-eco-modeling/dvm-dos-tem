@@ -735,7 +735,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     while(currl && currl->isSoil){
       //BM: Setting currl->ch4 + and = to V[il] to account for loss 
       //    Another update, V should be newly calculated methane, but appears to go to zero when frozen in TriSolver
-      currl->ch4 = V[il];
+      if (currl->frozen < 0 ){ //-1 refers to an unfrozen layer
+        currl->ch4 = V[il];
+      }
       currl = currl->nextl;
       il++;
     }
