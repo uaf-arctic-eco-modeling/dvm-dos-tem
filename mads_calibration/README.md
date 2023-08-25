@@ -36,7 +36,30 @@ The autocalibration (AC) process is focused on matching average above- and below
 | MineralSumC | Mineral C Pool |
 | AvailSumN | Available N Pool |
 
-The calibration workflow consists of multiple steps. First, we calibrate above-ground carbon and nitrogen fluxes, and then we calibrate below-ground stocks. To start the calibration process in MADS, we provide an initial set of parameter values called initial guesses (see `yaml` files). It is useful to run the Sensitivity Analysis before running calibration. The main goal of the SA is to see if targets are included in the range of modeled target values. The initial guess usually comes from the previous values for a similar vegetation community type. The SA can improve the initial guess values. MADS allows setting ranges for each element of the initial guess vector. We can run one or multiple calibration runs at each step to test for the overall method convergence, where multiple runs correspond to the randomly perturbated initial guess vector. `AC-MADS-TEM.jl` can handle a combination of multiple parameters (set in configuration `yaml` file) and target values per calibration, accounting for the combined effect of multiple correlated parameters on observations. We can combine multiple parameters and target values to study the effects of multiple correlated parameters on observations. The calibration process is scalable and can be run in parallel on multiple processors. 
+The calibration workflow consists of multiple steps. First, we calibrate above-ground carbon and nitrogen fluxes, and then we calibrate below-ground stocks. To start the calibration process in MADS, we provide an initial set of parameter values called initial guesses (see `yaml` files). YAML configuration file provides a flexible setup for different calibration (CA) setup types. Besides, `GPPAllIgnoringNitrogen` case, where only `cmax` values can participate, the rest of the cases can be combined based on the user's preferences and goals. 
+
+## YAML Configuration File includes
+* `calib_mode`: see calibration cases in `calibration/calibration_targets.py`. This option matters for ``GPPAllIgnoringNitrogen`` case only. 
+* `target_names`: use elements from the corresponding row in  `calibration/calibration_targets.py` as target values
+* `cmtnum`: community type number
+* `opt_run_setup`: define [run stages](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/model_overview.html#temporal)
+* `params`: name of parameters
+* `pftnum`: corresponds to the parameters listed in `params`
+* `site`: path to the input data
+* `work_dir`: path to the working directory
+* `mads_initial_guess`: initial values for the corresponding `params`
+* `mads_paramdist`: the only allowed for CA uniform distribution `Uniform(0, 0)`
+* `mads_paramkey`: for bookkeeping MADS outputs
+* `mads_obsweight`: weight of target values, if applicable
+* `mads_obsrange`: `ON`,`OFF`
+* `mads_obs_percent_variance`: ranges from 0% to 99%
+* `mads_paramrange`: `ON`,`OFF`, if `ON` will overwrite `mads_paramdist`
+* `mads_param_percent_variance`: `ON`,`OFF`
+* `mads_problemname`: for bookkeeping, suggested format param_name/s_target_name/s_user_initial
+
+
+
+It is useful to run the Sensitivity Analysis before running calibration. The main goal of the SA is to see if targets are included in the range of modeled target values. The initial guess usually comes from the previous values for a similar vegetation community type. The SA can improve the initial guess values. MADS allows setting ranges for each element of the initial guess vector. We can run one or multiple calibration runs at each step to test for the overall method convergence, where multiple runs correspond to the randomly perturbated initial guess vector. `AC-MADS-TEM.jl` can handle a combination of multiple parameters (set in configuration `yaml` file) and target values per calibration, accounting for the combined effect of multiple correlated parameters on observations. We can combine multiple parameters and target values to study the effects of multiple correlated parameters on observations. The calibration process is scalable and can be run in parallel on multiple processors. 
 
 
 ![The workflow that outlines sensitivity analysis and calibration processes](images/SA-CA-workflow.png)
