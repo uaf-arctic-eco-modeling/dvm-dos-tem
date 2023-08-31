@@ -11,6 +11,9 @@
 # info modified to display multiple pfts
 # removed all plotting functions from here
 
+import sys,os
+sys.path.append(os.path.join('/work','scripts'))
+
 import pathlib
 import numpy as np
 import netCDF4 as nc
@@ -73,10 +76,14 @@ class SensitivityDriver(object):
   --------
   Instantiate object, sets pixel, outputs, working directory, 
   site selection (input data path)
+
   >>> driver = SensitivityDriver()
   >>> driver.work_dir = '/tmp/tests-Sensitivity'
 
-  Show info about the driver object:
+  Setup the sensitivity analysis experiment:
+
+  >>> driver.clean()
+  >>> # generate sample size N=5 and CMT=4
   >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
   >>> driver.sample_matrix
           cmax     rhq10  nfall(1)
@@ -85,8 +92,16 @@ class SensitivityDriver(object):
   2  67.606747  1.834203  0.000145
   3  59.671967  2.042034  0.000171
   4  57.711999  1.968631  0.000155
+
+  Generate smaple matrix using uniform and lhc methods:
+
   >>> driver.generate_uniform(3)
   >>> driver.generate_lhc(3)
+  >>> driver.sample_matrix
+          cmax     rhq10  nfall(1)
+  0  64.235204  2.068878  0.000171
+  1  58.242357  2.001612  0.000144
+  2  62.733933  1.830199  0.000161
 
   '''
   def __init__(self, work_dir=None, sampling_method=None, clean=False):
@@ -145,13 +160,22 @@ class SensitivityDriver(object):
     N : int
       number of samples (rows) to create
 
+    seed : int
+      a number that allows to reproduce a similar set of random numbers
+
     params : list of dicts
       Each item in `param_props` list will be a dictionary
       with at least the following:
+      
       >>> params = {
       ...   'name': 'rhq10',        # name in dvmdostem parameter file (cmt_*.txt)
       ...   'bounds': [5.2, 6.4],   # the min and max values the parameter can have
       ... }
+
+    logparams : list 
+      for parameter values less than 0.01 use log distribution
+
+      1 : apply log distribution, 0 : keep as is.
 
     Returns
     -------
@@ -174,7 +198,7 @@ class SensitivityDriver(object):
 
     sm = l * spreads + lows
 
-    #apply log uniform for small interval values 
+    #apply log uniform for small interval values
     if len(self.logparams)>0:
         inum=0
         for ilog,p in zip(self.logparams,self.params):
@@ -197,9 +221,13 @@ class SensitivityDriver(object):
     N : int
       number of samples (rows) to create
 
+    seed : int
+      a number that allows to reproduce a similar set of random numbers
+
     params : list of dicts
       Each item in `param_props` list will be a dictionary
       with at least the following:
+
       >>> params = {
       ...   'name': 'cmax',               # name in dvmdostem parameter file (cmt_*.txt)
       ...   'bounds': [100.1, 105.1],     # the min and max values the parameter can have
@@ -235,7 +263,7 @@ class SensitivityDriver(object):
     self.sample_matrix = pd.DataFrame(sample_matrix, columns=[p['name'] for p in self.params])
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
-      percent_diffs=None, sampling_method='lhc'):
+      percent_diffs=None, bounds = None, sampling_method='lhc'):
     '''
     Builds bounds based on initial values found in dvmdostem parameter 
     files (cmt_*.txt files) and the `percent_diffs` array. 
@@ -285,6 +313,10 @@ class SensitivityDriver(object):
 
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
+    if not bounds:
+      bounds_iter = [[]]*len(params) # bounds set by percent diffs and initial value
+    else:
+      bounds_iter = bounds
 
     assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
     assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
@@ -292,7 +324,7 @@ class SensitivityDriver(object):
     self.params = []
     plu = pu.build_param_lookup(self.__initial_params)
 
-    for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
+    for pname, pftnum, perturbation, p_bounds in zip(params, pftnums, percent_diffs, bounds_iter):
       original_pdata_file = pu.which_file(self.__initial_params, pname, lookup_struct=plu)
 
       p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
@@ -302,8 +334,8 @@ class SensitivityDriver(object):
         p_initial = p_dd[pname]
       else:
         p_initial = p_dd['pft{}'.format(pftnum)][pname]
-
-      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+      if not bounds:
+        p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
 
       self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
 
@@ -480,13 +512,12 @@ class SensitivityDriver(object):
     Parameters
     ----------
     row : dict
-      One row of the sample matrix, in dict form. So like this:
-        `{'cmax': 108.2, 'rhq10': 34.24}`
+      One row of the sample matrix, in dict form. So like this: ``{'cmax': 108.2, 'rhq10': 34.24}``
       with one key for each parameter name.
 
     idx : int
       The row index of the `sample_matrix` being worked on. Gets
-      used to set the run specific folder name, i.e. sample_000001.
+      used to set the run specific folder name, i.e. ``sample_000001``.
 
     Returns
     -------
@@ -525,10 +556,17 @@ class SensitivityDriver(object):
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on', output_spec['name'], 'month', 'layer' 
         ])
-      else:
+        
+      if output_spec['type']=='pft':
         outspec_utils.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on', output_spec['name'], 'month', 'pft'
+        ])
+        
+      else:
+        outspec_utils.cmdline_entry([
+        '{}/config/output_spec.csv'.format(sample_specific_folder),
+        '--on', output_spec['name'], 'month'
         ])
 
     # Make sure CMTNUM output is on
@@ -699,13 +737,10 @@ class SensitivityDriver(object):
 
     For each row in the sensitivity matrix (and corresponding 
     run folder), 
-      For each variable specified in self.outputs:
-          - opens the NetCDF files that were output from
-            dvmdostem
-          - grabs the last datapoint
-          - writes it to the sensitivity.csv file
-
-    
+    For each variable specified in self.outputs:
+    - opens the NetCDF files that were output from dvmdostem
+    - grabs the last datapoint
+    - writes it to the sensitivity.csv file
 
     Parameters
     ----------
