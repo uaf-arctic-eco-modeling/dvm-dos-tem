@@ -1,7 +1,7 @@
 MADS-TEM parameter calibration 
 ===========================================
 
-The autocalibration (AC) process is focused on matching average above- and below-ground carbon and nitrogen stocks and fluxes. We match mean annual observed values during the equilibrium run period to ensure that the model represents the history of a given site. All parameters and observations are vectors, where an element of a vector represents a given plant functional type (PFT) within a given vegetation community type or a subsurface parameter. The calibration parameters can be found in [`paramters/calparbgc.txt`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/parameters/cmt_calparbgc.txt) and targets can be found in [`calibration/calibration_targets.py`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/calibration/calibration_targets.py). For example, if we calibrating parameters for CMT4 then the corresponding targets will be under CMT4 as well. 
+The autocalibration (AC) process is focused on matching average above- and below-ground carbon and nitrogen stocks and fluxes. We match mean annual observed values during the equilibrium run period to ensure that the model represents the history of a given site. All parameters and observations are vectors, where an element of a vector represents a given plant functional type (PFT) within a given vegetation community type (CMT)  or a subsurface parameter. The calibration parameters can be found in [`paramters/calparbgc.txt`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/parameters/cmt_calparbgc.txt) and targets can be found in [`calibration/calibration_targets.py`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/calibration/calibration_targets.py). For example, if we calibrating parameters for CMT4 then the corresponding targets will be under CMT4 as well. 
 ## Parameters (above ground)
 | Name          | Description         |
 | ------------- |  ------------------ |
@@ -48,7 +48,7 @@ The calibration workflow consists of multiple steps. First, we calibrate above-g
 * `site`: path to the input data
 * `work_dir`: path to the working directory
 * `mads_initial_guess`: initial values for the corresponding `params`
-* `mads_paramdist`: the only allowed for CA uniform distribution `Uniform(0, 0)`
+* `mads_paramdist`: the only allowed for CA uniform distribution `Uniform(0, 10)`
 * `mads_paramkey`: for bookkeeping MADS outputs
 * `mads_obsweight`: weight of target values, if applicable
 * `mads_obsrange`: `ON`,`OFF`
