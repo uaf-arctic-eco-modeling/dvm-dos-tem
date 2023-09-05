@@ -318,11 +318,15 @@ plt.ylabel('T Soil')
 merged_df = pd.merge(swc_df, tem_comparison_years, on='date')
 
 
+met_data
+
+
 sns.scatterplot(x=merged_df['ts'], y=merged_df['RH']+merged_df['RG']+merged_df['RM'], label = 'TEM RECO')
-sns.scatterplot(x=merged_df['ts'], y=merged_df['RH'], label = 'TEM RH')
-#sns.scatterplot(data = met_data, x='(\'TS_1_1_1\', \'mean\')', y='(\'RECO_1_1_1\', \'sum\')', label='station @ 5cm')
+#sns.scatterplot(x=merged_df['ts'], y=merged_df['RH'], label = 'TEM RH')
+sns.scatterplot(data = met_data, x='TS_1_1_1', y='RECO1 (gC/m2/d)', label='station @ 5cm')
 plt.ylabel('RECO')
 plt.xlabel('TS')
+plt.ylim(0,200)
 
 
 sns.lineplot(x=tem_comparison_years['date'], y=tem_comparison_years['EET']/tem_comparison_years['PET'])
@@ -335,15 +339,39 @@ swc_df.head()
 met_data.columns.to_list()
 
 
-#met_data['mean_snow_depth'] = met_data[['(\'D_SNOW_1_1_2\', \'mean\')', '(\'D_SNOW_1_1_3\', \'mean\')']].mean(axis=1)
+met_data.columns
 
 
 fig, ax = plt.subplots()
-sns.lineplot(data =  met_data.loc[met_data['year']>2010], x='m_y', y='mean_snow_depth', label='station') #-0.05 m
+sns.lineplot(data =  met_data.loc[met_data['year']>2010], x='m_y', y='D_SNOW', label='station') #-0.05 m
              
 sns.lineplot(data = tem_comparison_years, x='m_y', y=tem_comparison_years['SNOWTHICK']*100, label='TEM') #-0.1 m
 
 plt.ylabel('snow depth (cm)')
+
+
+met_data.loc[met_data['year']<=2016, 'D_SNOW'].median()
+
+
+met_data.loc[met_data['year']>=2016, 'D_SNOW'].median()
+
+
+fig, ax = plt.subplots()
+sns.lineplot(data =  met_data.loc[met_data['year']>2010], x='m_y', y='P_RAIN', label='station') #-0.05 m
+
+plt.ylabel('snow depth (cm)')
+
+
+met_data.loc[met_data['year']<=2016, 'P_RAIN'].median()
+
+
+met_data.loc[met_data['year']>=2016, 'P_RAIN'].median()
+
+
+met_data.loc[met_data['year']<=2016, 'TA'].median()
+
+
+met_data.loc[met_data['year']>=2016, 'TA'].median()
 
 
 met_data.columns

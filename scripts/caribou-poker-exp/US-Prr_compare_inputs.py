@@ -40,7 +40,7 @@ comparison_data.dtypes
 
 # !ls /data/input-catalog/caribou-poker/
 
-ds = nc.Dataset('/data/input-catalog/caribou-poker/historic-climate.nc')
+ds = nc.Dataset('/data/input-catalog/caribou-poker_merged/historic-climate.nc')
 ds.variables
 
 
@@ -56,12 +56,9 @@ dates = [starting_date + pd.Timedelta(t, 'd') for t in ds.variables['time'][:]]
 len(dates)
 
 
-ds = xr.open_dataset('/data/input-catalog/caribou-poker/historic-climate.nc')
+ds = xr.open_dataset('/data/input-catalog/caribou-poker_merged/historic-climate.nc')
 dates=ds.indexes['time'].to_datetimeindex()
 dates
-
-
-
 
 
 tem_output_df = pd.DataFrame({'date':dates, 'tair':tair, 'nirr': nirr, 'precip': precip, 'vapor_press': vapor_press})

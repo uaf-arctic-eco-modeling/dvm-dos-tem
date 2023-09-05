@@ -13,19 +13,158 @@ import Sensitivity as sa
 import output_utils as ou
 
 
+# # parameters influencing soil hydro/thermal state
+# ### cmt_envground.txt
+# --------------------------------------------------------
+# #### tcsolid(m): Soil thermal conductivity for moss (W/mK)
+# current value: 0.25, range: 0.005-0.5
+# 
+# *Ekici et al. 2015,Jiang et al. 2015, O’Donnell et al. 2009*
+# 
+# #### tcsolid(f): Soil thermal conductivity for fibric (W/mK)
+# current value: 0.25, range: 0.005-0.5
+# 
+# *Ekici et al. 2015,Jiang et al. 2015, O’Donnell et al. 2009*
+# 
+# #### tcsolid(h): Soil thermal conductivity for humic (W/mK)
+# current value: 0.25, range: 0.02-2.0
+# 
+# *Ekici et al. 2015,Jiang et al. 2015, O’Donnell et al. 2009*
+# 
+# ---------------------------------------------------------
+# #### porosity(m): porosity for moss layers (m3/m3)
+# current value: 0.98, range: 0.85-0.99
+# 
+# *O’Donnell et al. 2009*
+# 
+# #### porosity(f): porosity for fibric layers  (m3/m3)
+# current value: 0.95, range: 0.85-0.99
+# 
+# *O’Donnell et al. 2009*
+# 
+# #### porosity(h): porosity for humic layers  (m3/m3)
+# current value: 0.8, range: 0.7-0.9
+# 
+# *O’Donnell et al. 2009*
+# 
+# --------------------------------------------------------
+# #### bulkden(m): bulk density for moss (g/m3)
+# current value: 25,000, range: 10,000 - 80,000
+# 
+# *Tuomi et al. 2020, Rodionov et al. 2007, O’Donnell et al. 2009*
+# 
+# #### bulkden(f): bulk density for fibric (g/m3)
+# current value: 51,000, range: 20,000 - 200,000
+# 
+# *Tuomi et al. 2020, Rodionov et al. 2007, O’Donnell et al. 2009*
+# 
+# #### bulkden(h): bulk density for humic (g/m3)
+# current value: 176,000, range: 100,000 - 800,000
+# 
+# *Tuomi et al. 2020, Rodionov et al. 2007, O’Donnell et al. 2009*
+# 
+# --------------------------------------------------------
+# #### hksat(m): hydraulic conductivity at saturation for moss (mm/s)
+# current value: 0.15, range: 0.0002 - 30
+# 
+# *Ekici et al. 2015, Letts et al. 2000, Liu et al. 2019*
+# 
+# #### hksat(f): hydraulic conductivity at saturation for fibric (mm/s)
+# current value: 0.28, range: 0.0002 - 30
+# 
+# *Ekici et al. 2015, Letts et al. 2000, Liu et al. 2019*
+# 
+# #### hksat(h): hydraulic conductivity at saturation for humic (mm/s)
+# current value: 0.002, range: 0.00004 - 2.01
+# 
+# *Ekici et al. 2015, Letts et al. 2000, Liu et al. 2019*
+# 
+# ---------------------------------------------------------
+# #### nfactor(s): Summer nfactor
+# current value: 1.5, range: 0.2-2.0
+# 
+# *Kade et al. 2006, Klene et al. 2001*
+# 
+# #### nfactor(w): Winter nfactor
+# current value: 1.0, range: 0.4-1.0
+# 
+# *Kade et al. 2006, Klene et al. 2001*
+# 
+# ---------------------------------------------------------
+# #### snwalbmax
+# current value: 0.8, range: 0.7-0.85
+# 
+# *Te Beest et al. 2016, Petzold et al. 1975, Loranty et al. 2011*
+# 
+# #### snwalbmin
+# current value: 0.4, range: 0.4-0.6
+# 
+# *Te Beest et al. 2016, Petzold et al. 1975, Loranty et al. 2011*
+# 
+# ---------------------------------------------------------
+# ### cmt_dimground.txt
+# ---------------------------------------------------------
+# #### snwdenmax (kg/m3)
+# current value: 250, range: 100-800
+# 
+# *Domine et al. 2016, Gerland et al. 1999, Muskett 2012*
+# 
+# #### snwdennew (kg/m3)
+# current value: 50, range: 10-250
+# 
+# *Domine et al. 2016, Gerland et al. 1999, Muskett 2012*
+# 
+# 
+# ### cmt_bgcsoil.txt
+# ---------------------------------------------------------
+# #### rhq10
+# current value: 2, range: 1.6-2.4
+# #### rhq10_w
+# current value: 2, range: 0.85-0.99
+
 work_dir='/data/workflows/US-Prr_SWC_SA'
+opt_run_setup='--tr-yrs=121 --sp-yrs=300 --eq-yrs=500 '
 
+driver = sa.SensitivityDriver(work_dir = work_dir, clean=True)
+driver.site = '/data/input-catalog/caribou-poker_merged/'
+driver.opt_run_setup = opt_run_setup
+driver.PXx ='1'
+driver.PXy='0'
 
-if not os.path.isdir(work_dir):
-        os.mkdir(work_dir)
+params = ['hksat(m)','hksat(f)','hksat(h)',
+          'tcsolid(m)', 'tcsolid(f)', 'tcsolid(h)',
+          'porosity(m)', 'porosity(f)', 'porosity(h)',
+          'nfactor(s)', 'nfactor(w)',
+          'rhq10']#, 'rhq10_w']
+percent_diffs = [0.1, 0.1, 0.1,
+                 0.1, 0.1, 0.1,
+                 0.1, 0.1, 0.1,
+                 0.1, 0.1,
+                 0.1]#, 0.1]
+bounds = [[0.001, 0.005], [1e-4, 0.05], [1e-4, 8e-4],
+          [0.005, 0.5], [0.005, 0.5], [0.02, 2.0],
+          [0.85, 0.99], [0.85, 0.99], [0.7, 0.9],
+          [0.2, 2.0], [0.4, 1.0],
+          [1.6, 2.4]]#, [1.6, 2.4]]
+driver.logparams = [1, 1, 1,
+                    1, 1, 1,
+                    0, 0, 0,
+                    0, 0,
+                    0]#, 0]
 
+driver.outputs = [
+      { 'name': 'GPP', 'type': 'flux'},
+      { 'name': 'RH','type': 'flux'},
+      { 'name': 'LWCLAYER','type': 'layer'},
+      { 'name': 'VWCLAYER','type': 'layer'},
+      { 'name': 'TLAYER','type': 'layer'},
+      { 'name': 'LAYERDEPTH','type': 'layer'},
+      { 'name': 'LAYERDZ','type': 'layer'},
+      { 'name': 'LAYERTYPE','type': 'layer'},
+    ]
 
-driver = sa.SensitivityDriver(opt_run_setup='--tr-yrs=121 --sp-yrs=300 --eq-yrs=1000 ')
-driver.set_work_dir(work_dir)
-driver.clean()
-driver.set_seed_path('/work/parameters')
-
-driver.design_experiment(Nsamples = 4, cmtnum = 13, params = ['hksat(m)','hksat(f)','hksat(f)','rhq10'], pftnums = [None, None, None, None])
+driver.design_experiment(Nsamples = 50, cmtnum = 13, params = params, percent_diffs = percent_diffs,
+                         bounds=bounds, pftnums = [None]*len(params), sampling_method='uniform')
 
 
 driver.setup_multi()
@@ -35,207 +174,6 @@ driver.sample_matrix
 
 
 driver.run_all_samples()
-
-
-driver.plot_sensitivity_matrix()
-
-
-print(LWCLAYER)
-
-
-def seasonal_profile(VAR, depth, thickness, time_range, months, z):
-    LWCLAYER
-
-
-def seasonal_profile(VAR, depth, thickness, time_range, months, z):
-    '''
-    VAR : variable dataframe (i.e. TLAYER - temperature by layer)
-    depth : associated LAYERDEPTH dataframe
-    thickness : associated LAYERDZ dataframe
-    time_range : time period to be calculated over -  e.g. ['2011-01-01','2021-01-01']
-    months : list of strings - months included in calculation - ['Jan', 'Feb', 'Dec'] (e.g winter season)
-    z : array for depth required for interpolation to the same depth profile 
-         (typically, np.linspace(min(depth), max(depth), resolution)
-    '''
-    month_range = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-    startyr, endyr = time_range[0], time_range[1]
-
-    #Limiting by time range    
-    range_series = VAR[startyr:endyr]
-    LD = depth[startyr:endyr]
-    LZ = thickness[startyr:endyr]
-
-    #Averaging by layer for months in month_range
-    range_series = range_series[range_series.index.month.isin([i+1 for i, e in enumerate(month_range) if e in months])]
-    LD = (LD[LD.index.month.isin([i+1 for i, e in enumerate(month_range) if e in months])]).mean()
-    LZ = (LZ[LZ.index.month.isin([i+1 for i, e in enumerate(month_range) if e in months])]).mean()
-
-    #Creating lists for interpolation
-    mean = range_series.mean().values.tolist()    
-    maxi = range_series.max().values.tolist()
-    mini = range_series.min().values.tolist()
-    std =  range_series.std().values.tolist()
-
-    #Creating list with z position at the center of each layer
-    print(LD)
-    print(LZ)
-    zp = (LD + LZ/2).values.tolist()
-    print(zp)
-    print(z)
-    print(mean)
-    
-    #Indexes of depths with fill values
-    indexes = [i for i,v in enumerate(zp) if v < 0]
-
-    #Removing indexes with fill values
-    for index in sorted(indexes, reverse=True):
-        del zp[index]
-        del mean[index]
-        del mini[index]
-        del maxi[index]
-        del std[index]
-
-    #Interpolating seasonal mean, min, max, and standard deviation
-    interp_mean=np.interp(z,zp,mean)
-    interp_mini=np.interp(z,zp,mini)
-    interp_maxi=np.interp(z,zp,maxi)
-    interp_std=np.interp(z,zp,std)
-    
-    return z, interp_mean, interp_std, interp_mini, interp_maxi
-
-
-ou.load_trsc_dataframe
-
-
-LWCLAYER = ou.load_trsc_dataframe(var ='LWCLAYER', timeres='monthly', px_y=0, px_x=1, fileprefix='/data/workflows/US-Prr_SWC_SA/sample_000000000/output/')[0]
-TLAYER = ou.load_trsc_dataframe(var ='TLAYER', timeres='monthly', px_y=0, px_x=1, fileprefix='/data/workflows/US-Prr_SWC_SA/sample_000000000/output/')[0]
-LAYERDEPTH = ou.load_trsc_dataframe(var ='LAYERDEPTH', timeres='monthly', px_y=0, px_x=1, fileprefix='/data/workflows/US-Prr_SWC_SA/sample_000000000/output/')[0]
-LAYERDZ = ou.load_trsc_dataframe(var ='LAYERDZ', timeres='monthly', px_y=0, px_x=1, fileprefix='/data/workflows/US-Prr_SWC_SA/sample_000000000/output/')[0]
-
-
-LAYERTYPE = ou.load_trsc_dataframe(var ='LAYERTYPE', timeres='monthly', px_y=0, px_x=1, fileprefix='/data/workflows/US-Prr_SWC_SA/sample_000000000/output/')[0]
-
-
-pf_obs_path = '/data/comparison_data/US-Prr-monthly.csv'
-pf_obs= pd.read_csv(pf_obs_path, parse_dates=['m_y'])
-pf_obs['Month'] = pf_obs['m_y'].dt.month
-pf_obs = pf_obs.set_index('m_y')
-swc = pf_obs[['SWC_1_1_1', 'SWC_1_2_1', 'SWC_1_3_1', 'SWC_1_4_1', 'SWC_1_5_1']]/100
-#swc['Month'] = pf_obs['Month']
-swc_depths = pd.DataFrame({'SWC_1_1_1':[0.05]*len(pf_obs), 'SWC_1_2_1':[0.1]*len(pf_obs), 'SWC_1_3_1':[0.2]*len(pf_obs),
-                          'SWC_1_4_1':[0.3]*len(pf_obs), 'SWC_1_5_1':[0.4]*len(pf_obs)})
-swc_depths = swc_depths.set_index(swc.index)
-swc_thickness = pd.DataFrame({'SWC_1_1_1':[0.75]*len(pf_obs), 'SWC_1_2_1':[0.75]*len(pf_obs), 'SWC_1_3_1':[0.1]*len(pf_obs),
-                          'SWC_1_4_1':[0.1]*len(pf_obs), 'SWC_1_5_1':[0.1]*len(pf_obs)})
-swc_thickness = swc_thickness.set_index(swc.index)
-
-
-LAYERDZ
-
-
-swc
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-fig, ax = plt.subplots()
-
-z, mean, std, mn, mx = seasonal_profile(
-                                        TLAYER, LAYERDEPTH, LAYERDZ, ['1901-01-01', '1902-12-01'], 
-                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                                        np.linspace(min(LAYERDEPTH), max(LAYERDEPTH), 100)
-                                        )
-
-
-ax.plot(mean, z, label="annual mean")
-ax.fill_betweenx(z, mn, mx, alpha=0.2, label="annual range")
-ax.plot(np.zeros(len(z)), z, 'k--', alpha=0.5) #Zero degree line
-
-plt.legend(loc="lower right", fontsize=12)
-
-ax.xaxis.tick_top()
-ax.set_xlabel(f"Temperature [$^\circ$C]", fontsize=14)
-ax.xaxis.set_label_position('top') 
-
-ax.set_ylabel(f"Depth [m]", fontsize=14)
-plt.ylim(0,1)
-ax.invert_yaxis()
-
-plt.show()
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-fig, ax = plt.subplots()
-
-z, mean, std, mn, mx = seasonal_profile(
-                                        LWCLAYER, LAYERDEPTH, LAYERDZ, ['2010-01-01', '2021-12-01'], 
-                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                                        np.linspace(min(LAYERDEPTH), max(LAYERDEPTH), 100)
-                                        )
-
-
-ax.plot(mean, z, label="annual mean")
-ax.fill_betweenx(z, mn, mx, alpha=0.2, label="annual range")
-ax.plot(np.zeros(len(z)), z, 'k--', alpha=0.5) #Zero degree line
-
-plt.legend(loc="lower right", fontsize=12)
-
-ax.xaxis.tick_top()
-ax.set_xlabel(f"Temperature [$^\circ$C]", fontsize=14)
-ax.xaxis.set_label_position('top') 
-
-ax.set_ylabel(f"Depth [m]", fontsize=14)
-plt.ylim(0,1)
-ax.invert_yaxis()
-
-
-plt.show()
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-fig, ax = plt.subplots()
-
-z, mean, std, mn, mx = seasonal_profile(
-                                        swc, swc_depths, swc_thickness, ['2010-01-01', '2021-12-01'], 
-                                        ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-                                        np.linspace(np.nanmin(swc_depths), np.nanmax(swc_depths), 100)
-                                        )
-
-
-ax.plot(mean, z, label="annual mean")
-#ax.fill_betweenx(z, mn, mx, alpha=0.2, label="annual range")
-ax.plot(np.zeros(len(z)), z, 'k--', alpha=0.5) #Zero degree line
-
-plt.legend(loc="lower right", fontsize=12)
-
-ax.xaxis.tick_top()
-ax.set_xlabel(f"Temperature [$^\circ$C]", fontsize=14)
-ax.xaxis.set_label_position('top') 
-
-ax.set_ylabel(f"Depth [m]", fontsize=14)
-plt.ylim(0,1)
-ax.invert_yaxis()
-
-
-plt.show()
-
-
-print(mean)
-
-
-len(swc_groupby)
-
-
-swc_groupby['depth'] = [-.5, -.1, -.2, -.3, -.4]
-
-
-sns.lineplot(data=swc_groupby, x='1', y='depth')
 
 
 

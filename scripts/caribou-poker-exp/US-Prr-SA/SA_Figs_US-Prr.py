@@ -11,6 +11,9 @@ import os
 from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
 
 
+np.nan<0
+
+
 #Set step, paths, pfts and run all
 
 STEP = 4
@@ -55,7 +58,7 @@ if STEP == 3:
     calib_params_flat=[
                     'cfall(0)','cfall(0).1','cfall(0).2','cfall(0).3','cfall(0).4',
                     'cfall(1)','cfall(1).1',
-                    'cfall(2)','cfall(2).1','cfall(2).2',
+                    'cfall(2)','cfall(2).1','sudocfall(2).2',
                     'nfall(0)','nfall(0).1','nfall(0).2','nfall(0).3','nfall(0).4',
                     'nfall(1)','nfall(1).1',
                     'nfall(2)','nfall(2).1','nfall(2).2']
@@ -215,7 +218,7 @@ results['mean_r2']
 #get indices of top 15 performing parameter sets
 perf = np.argsort(results['overall_accuracy'])[::-1]
 #perf = np.argsort(results['mean_rmse'])[::-1]
-top = perf[:8].values.tolist()
+top = perf[:20].values.tolist()
 first = perf[:1].values.tolist()
 
 
@@ -500,10 +503,48 @@ if STEP == 3:
     axes[1,1].set_ylim(0, 50)
 
 
+if STEP == 3:
+    fig, axes = plt.subplots(2,3, figsize = (10,8))
+    fig.suptitle('STEP 2 cfall(0) vs NPPAll for each PFT')
 
+    axes[0,0].axhline(targets['VegCarbonStem1'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cfall(1)', y='VegCarbonStem1', ax=axes[0,0], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='cfall(1)', y='VegCarbonStem1', ax=axes[0,0], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cfall(1)', y='VegCarbonStem1', ax=axes[0,0], color='yellow',legend=False)
+    axes[0,0].title.set_text('Black Spruce')
+    
+    axes[0,1].axhline(targets['VegCarbonStem3'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cfall(0).1', y='VegCarbonStem3', ax=axes[0,1], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='cfall(0).1', y='VegCarbonStem3', ax=axes[0,1], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cfall(0).1', y='VegCarbonStem3', ax=axes[0,1], color='yellow',legend=False)
+    axes[0,1].title.set_text('Shrub')
+
+    
+    axes[0,2].axhline(targets['VegCarbonRoot1'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cfall(2)', y='VegCarbonRoot1', ax=axes[0,2], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='cfall(0)', y='VegCarbonRoot1', ax=axes[0,2], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cfall(0)', y='VegCarbonRoot1', ax=axes[0,2], color='yellow',legend=False)
+    axes[0,2].title.set_text('Shrub')
+
+    
+    axes[1,0].axhline(targets['VegCarbonRoot3'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cfall(0).3', y='VegCarbonRoot3', ax=axes[1,0], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='cfall(0).3', y='VegCarbonRoot3', ax=axes[1,0], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cfall(0).3', y='VegCarbonRoot3', ax=axes[1,0], color='yellow',legend=False)
+    axes[1,0].title.set_text('sedge')
+
+    
+    axes[1,1].axhline(targets['VegCarbonRoot4'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cfall(0).4', y='VegCarbonRoot4', ax=axes[1,1], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='cfall(0).4', y='VegCarbonRoot4', ax=axes[1,1], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cfall(0).4', y='VegCarbonRoot4', ax=axes[1,1], color='yellow',legend=False)
+    axes[1,1].title.set_text('lichen')
 
 
 results.sort_values(by='mean_rmse')[-15:].index
+
+
+results.iloc[results['rmse'].idxmin()]
 
 
 def spaghetti_match_plot(df_x,df_y,logy=False):
@@ -518,14 +559,15 @@ def spaghetti_match_plot(df_x,df_y,logy=False):
     nrange=range(len(df_y.columns))
     df_x.plot(logy=logy,legend=True,style="o",color='red',xticks=nrange, rot=90, label="Targets", ax=ax);
     
-    #top=results.sort_values(by='mean_rmse', ascending=False)[:50].index
-    #results[target_vars].iloc[results['mean_rmse'].idxmin()].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
+    top=results.sort_values(by='rmse', ascending=False)[:10].index
+    results[target_vars].iloc[results['rmse'].idxmin()].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
     #results[target_vars].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
     #results[target_vars].iloc[41].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='yellow',ax=ax)
     results[target_vars].iloc[top].transpose().plot(logy=logy,legend=False,alpha=0.5,figsize=(10,5), color='red',ax=ax)
     
     df_x.plot(logy=logy,legend=False,style="o",color='red',xticks=nrange, rot=90,ax=ax)
     ax.set_xticklabels(df_y.columns,fontsize=12)
+    #plt.ylim(10e-5, 2000)
     
 target_df=pd.DataFrame(targets).reset_index()
 target_df.columns=['variable', 'value']
@@ -537,6 +579,10 @@ if STEP==2:
 
 if STEP==3:
     spaghetti_match_plot(target_df, results[target_vars], logy=True)
+
+
+for val in results[calib_params_flat].iloc[results['overall_accuracy'].idxmax()].values:
+    print(f'- {val}')
 
 
 corr = results[target_vars + calib_params_flat].corr()
@@ -552,7 +598,7 @@ f, ax = plt.subplots(figsize=(10, 10))
 cmap = sns.diverging_palette(230, 20, as_cmap=True)
 
 # Draw the heatmap with the mask and correct aspect ratio
-sns.heatmap(corr, cmap=cmap, vmax=.3, center=0,annot=True,
+sns.heatmap(corr, cmap=cmap, vmax=.3, center=0,annot=False,
             square=True, linewidths=.5, cbar_kws={"shrink": .5})
 
 
@@ -563,27 +609,36 @@ def minMax(x):
 minmax=results[calib_params_flat].iloc[top].apply(minMax)
 
 
-minmax.columns
+for column in minmax.columns:
+    print('- Uniform({}, {})'.format(minmax[column]['min'], minmax[column]['max']))
+
+
+targets
 
 
 for index, row in minmax.iterrows():
     print(row)
 
 
-
+results.loc[results['kdcrawc']>results['kdcsoma']].sort_values(by='mean_rmse')[-50:]
 
 
 if STEP==4:
     spaghetti_match_plot(target_df, results[target_vars], logy=True)
 
 
-results.sort_values(by='CarbonDeep', ascending=False).head(20)
+results.sort_values(by='CarbonDeep', ascending=False).head(100)
+
+
+results[(results['AvailableNitrogenSum']>4) & (results['CarbonDeep']<30000)]
+#203
+#225
 
 
 targets
 
 
-results.iloc[[495,400,63,162, 119, 144]]
+results.iloc[[203, 225, 438, 301]]
 
 
 print(results.iloc[[144,63,400,495]]['micbnup'].min())
@@ -606,21 +661,22 @@ print(results.iloc[[144,63,400,495]]['kdcsomcr'].min())
 print(results.iloc[[144,63,400,495]]['kdcsomcr'].max())
 
 
-sns.scatterplot(data=results, x='kdcsomcr', y='AvailableNitrogenSum')
+sns.scatterplot(data=results, x='kdcsompr', y='AvailableNitrogenSum')
 plt.axhline(targets['AvailableNitrogenSum'], color='grey', alpha=0.5)
 plt.xscale('log')
+plt.ylim(0,30)
 
 
 sns.scatterplot(data=results, x='kdcrawc', y='CarbonShallow')
 plt.axhline(targets['CarbonShallow'], color='grey', alpha=0.5)
 
 
-sns.scatterplot(data=results, x='kdcsomcr', y='CarbonDeep')
+sns.scatterplot(data=results, x='kdcsompr', y='CarbonDeep')
 plt.axhline(targets['CarbonDeep'], color='grey', alpha=0.5)
 plt.xscale('log')
 
 
-sns.scatterplot(data=results, x='kdcsomcr', y='CarbonMineralSum')
+sns.scatterplot(data=results, x='kdcsompr', y='CarbonMineralSum')
 plt.axhline(targets['CarbonMineralSum'], color='grey', alpha=0.5)
 
 
