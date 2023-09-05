@@ -320,7 +320,32 @@ calibration_targets = {
     'OrganicNitrogenSum':     2748.367,    #  soln
     'AvailableNitrogenSum':     6.153826,    #  avln
   },
-
+    ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
+  "deciduous forest": {
+    'cmtnumber': 14,
+                                 #    pft0       pft1           pft2          pft3         pft4      pft5    pft6    pft7    pft8    pft9
+                  'PFTNames':    [  'SprTree',   'EvrShrub',    'DecShrub',   'DecTree',   'Moss',   '',     '',     '',     '',     ''],
+    'GPPAllIgnoringNitrogen':    [  0.92,         0.475,         9.55,         1801.675,    0.3,     0.0,    0.0 ,   0.0,    0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  0.46,         0.2375,        4.775,        900.8375,    0.15,    0.0,    0.0,    0.0,    0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
+    'NPPAll':                    [  0.368,        0.19,          3.82,         720.67,      0.12,    0.0,    0.0,    0.0,    0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [  0.67,         0.42,          0.17,         0.17,        0.22,    0.0,    0.0,    0.0,    0.0,    0.0 ], # nuptake (gN/m2/year)
+    'VegCarbon': {
+      'Leaf':                    [  1.56,         0.27,          1.03,         190.38,      1.58,    0.0,    0.0 ,   0.0,    0.0,    0.0 ], # vegcl (gC/m2)
+      'Stem':                    [  7.47,         1.23,          1.12,         8178.35,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0 ], # vegcw (gC/m2)
+      'Root':                    [  0.63,         0.2,           0.28,         1093.71,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0 ], # vegcr (gC/m2)
+    },
+    'VegStructuralNitrogen': {
+      'Leaf':                    [  0.032,        0.0089,        0.05,         10.17,       0.03,    0.25,   0.09,   0.0,    0.0,    0.0 ], # vegnl (gN/m2)
+      'Stem':                    [  0.1,          0.019,         0.028,        161.47,      0.0,     0.0,    0.0,    0.0,    0.0,    0.0 ], # vegnw (gN/m2)
+      'Root':                    [  0.0064,       0.004,         0.0023,       1.61,        0.0,     0.17,   0.07,   0.0,    0.0,    0.0 ], # vegnr (gN/m2)
+    },
+    'MossDeathC':              178.00,    #  dmossc
+    'CarbonShallow':          327.80,    #  shlwc
+    'CarbonDeep':             1141.79,    #  deepc
+    'CarbonMineralSum':       25907.35,    #  minec
+    'OrganicNitrogenSum':      1474.34,    #  soln
+    'AvailableNitrogenSum':      3.41,    #  avln
+  },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougaruk  
   "shrub tundra": {
     'cmtnumber': 44,
