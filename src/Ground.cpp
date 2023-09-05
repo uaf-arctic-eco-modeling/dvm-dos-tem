@@ -399,7 +399,7 @@ void Ground::initSnowSoilLayers() {
 
     if(moss_pft_exists){
 
-      //This is wrong - FIX. Should be related to living moss C pool
+      //This is wrong - FIX. Should be related to living moss C pool or LAI?
       double initmldz[1] = {0.01};
 
       int soiltype[] = {0};
