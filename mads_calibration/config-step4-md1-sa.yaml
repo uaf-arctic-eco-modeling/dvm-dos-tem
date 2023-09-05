@@ -18,7 +18,7 @@ target_names:
 - OrganicNitrogenSum
 - AvailableNitrogenSum
 cmtnum: 13
-opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+opt_run_setup: --pr-yrs 100 --eq-yrs 1000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
 params:
 - micbnup 
 - kdcrawc 

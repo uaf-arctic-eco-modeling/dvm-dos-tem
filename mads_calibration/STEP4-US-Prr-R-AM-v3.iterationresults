@@ -1,0 +1,30 @@
+OF: 3.3718505031635297e11
+lambda: NaN
+OrderedCollections.OrderedDict("micbnup" => 0.5984649867176045, "kdcrawc" => 1.0264219105532797, "kdcsoma" => 0.12345629676311212, "kdcsompr" => 0.028970788602522217, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 3.3718505031635297e11
+lambda: 20.0
+OrderedCollections.OrderedDict("micbnup" => 0.5984649867176045, "kdcrawc" => 1.0264219105532797, "kdcsoma" => 0.12345629676311212, "kdcsompr" => 0.028970788602522217, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 3.3718505031635297e11
+lambda: 20000.0
+OrderedCollections.OrderedDict("micbnup" => 0.5984649867176045, "kdcrawc" => 1.0264219105532797, "kdcsoma" => 0.12345629676311212, "kdcsompr" => 0.028970788602522217, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 3.3718505031635297e11
+lambda: 2.0e8
+OrderedCollections.OrderedDict("micbnup" => 0.5984649867176045, "kdcrawc" => 1.0264219105532797, "kdcsoma" => 0.12345629676311212, "kdcsompr" => 0.028970788602522217, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 3.2960257877967035e11
+lambda: 2.0e12
+OrderedCollections.OrderedDict("micbnup" => 1.0253408762069287, "kdcrawc" => 0.6354291044526826, "kdcsoma" => 0.15166304936832728, "kdcsompr" => 0.043986520641611425, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 3.2960257877967035e11
+lambda: 4.0e14
+OrderedCollections.OrderedDict("micbnup" => 1.0253408762069287, "kdcrawc" => 0.6354291044526826, "kdcsoma" => 0.15166304936832728, "kdcsompr" => 0.043986520641611425, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 3.2960257877967035e11
+lambda: 4.0e10
+OrderedCollections.OrderedDict("micbnup" => 1.0253408762069287, "kdcrawc" => 0.6354291044526826, "kdcsoma" => 0.15166304936832728, "kdcsompr" => 0.043986520641611425, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 2.810420159765619e11
+lambda: 4.0e9
+OrderedCollections.OrderedDict("micbnup" => 0.9114343947518526, "kdcrawc" => 0.6436887913970086, "kdcsoma" => 0.17234292809033686, "kdcsompr" => 0.03007177048576293, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 2.810420159765619e11
+lambda: 8.0e7
+OrderedCollections.OrderedDict("micbnup" => 0.9114343947518526, "kdcrawc" => 0.6436887913970086, "kdcsoma" => 0.17234292809033686, "kdcsompr" => 0.03007177048576293, "kdcsomcr" => 3.2842620792283937e-7)
+OF: 2.810420159765619e11
+lambda: 1.6e10
+OrderedCollections.OrderedDict("micbnup" => 0.9114343947518526, "kdcrawc" => 0.6436887913970086, "kdcsoma" => 0.17234292809033686, "kdcsompr" => 0.03007177048576293, "kdcsomcr" => 3.2842620792283937e-7)

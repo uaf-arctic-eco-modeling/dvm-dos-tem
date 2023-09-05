@@ -225,7 +225,7 @@ class SensitivityDriver(object):
     self.sample_matrix = pd.DataFrame(sample_matrix, columns=[p['name'] for p in self.params])
 
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
-      percent_diffs=None, sampling_method='lhc'):
+      percent_diffs=None, bounds = None, sampling_method='lhc'):
     '''
     Builds bounds based on initial values found in dvmdostem parameter 
     files (cmt_*.txt files) and the `percent_diffs` array. 
@@ -275,6 +275,8 @@ class SensitivityDriver(object):
 
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
+    if not bounds:
+      bounds = []*len(params)
 
     assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
     assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
@@ -282,7 +284,7 @@ class SensitivityDriver(object):
     self.params = []
     plu = pu.build_param_lookup(self.__initial_params)
 
-    for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
+    for pname, pftnum, perturbation, param_bounds in zip(params, pftnums, percent_diffs, bounds):
       original_pdata_file = pu.which_file(self.__initial_params, pname, lookup_struct=plu)
 
       p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
@@ -292,8 +294,10 @@ class SensitivityDriver(object):
         p_initial = p_dd[pname]
       else:
         p_initial = p_dd['pft{}'.format(pftnum)][pname]
-
-      p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+      
+      if not bounds:
+          p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
+      else: p_bounds = param_bounds
 
       self.params.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
 
