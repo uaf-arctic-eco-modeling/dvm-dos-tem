@@ -400,7 +400,7 @@
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
 0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
 0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
+0.8383838383838383        // porosity(f): porosity for fibric layers
 0.8                // porosity(h): porosity for humic layers
 25000              // bulkden(m): bulk density for moss (g/m3)
 61700              // bulkden(f): bulk density for fibric (g/m3)

@@ -194,7 +194,7 @@
 2.0                 // rhq10: Marty et al., 2019; Nagano et al., 2018
 1.5               // rhq10_w:
 0.0                // moistmin:
-0.25               // moistopt:
+0.5               // moistopt:
 1.0                 // moistmax:
 53.11571429       // lcclnc:
 0.371957143       // fsoma:
