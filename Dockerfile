@@ -144,6 +144,7 @@ ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
+ENV PATH="/work/scripts/util:$PATH"
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
@@ -287,7 +288,7 @@ ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 # Set a few environemnt variables for ease of use...
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
-
+ENV PATH="/work/scripts/util:$PATH"
 
 
 #########

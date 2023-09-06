@@ -16,7 +16,7 @@ from mpl_toolkits.basemap import Basemap
 import rasterio
 import pyproj
 
-from . import input_util as iu
+import util.input
 
 def pretty_print_crs(crs):
   print(crs.is_projected)
@@ -273,7 +273,7 @@ def onpick0(event):
   print("{:>10s} {:>7s} {:>9s} {:>7s} {:>7s}   {:>7s} {:>7s}".format('event.ind', 'lat', 'lon', 'iy' , 'ix', 'iy_alt', 'ix'))
   for (ei, lat, lon) in zip(event.ind, np.array(site_lat)[event.ind], np.array(site_lon)[event.ind]):
 
-    iy, ix = iu.tunnel_fast(nc_latv, nc_lonv, lat, lon)
+    iy, ix = util.input.tunnel_fast(nc_latv, nc_lonv, lat, lon)
 
     iy_alt = (nc_meta['height'] - iy) - SIZE
 
@@ -284,7 +284,7 @@ def onpick0(event):
 
   #from IPython import embed; embed()
 
-  iu.cropper(ix, iy_alt, SIZE, SIZE, 
+  util.input.cropper(ix, iy_alt, SIZE, SIZE, 
           input_file='../atlas_original_snap_data/ancillary/land_cover/v_0_4/iem_vegetation_model_input_v0_4.tif',
           output_file='/home/vagrant/small_region.nc')
  

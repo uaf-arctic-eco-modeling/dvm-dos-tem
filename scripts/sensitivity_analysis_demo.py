@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import json
-import output_utils as ou
+import util.output
 
 
 # In[10]:
@@ -57,9 +57,9 @@ get_ipython().system('docker compose exec dvmdostem-dev setup_working_directory.
 get_ipython().system('docker compose exec dvmdostem-dev runmask-util.py --reset --yx {PXy} {PXx} {D_RUNFOLDER}/run-mask.nc')
 
 # Outputs
-get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py {D_RUNFOLDER}/config/output_spec.csv --on GPP m p')
+get_ipython().system('docker compose exec dvmdostem-dev outspec.py {D_RUNFOLDER}/config/output_spec.csv --on GPP m p')
 
-get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py {D_RUNFOLDER}/config/output_spec.csv --on CMTNUM y')
+get_ipython().system('docker compose exec dvmdostem-dev outspec.py {D_RUNFOLDER}/config/output_spec.csv --on CMTNUM y')
 
 
 # Config, enable eq outputs
