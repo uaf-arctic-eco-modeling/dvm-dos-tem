@@ -140,6 +140,23 @@ RUN pip install -r requirements_general_dev.txt
 
 COPY --chown=$UNAME:$UNAME special_configurations/jupyter_notebook_config.py /home/$UNAME/.jupyter/jupyter_notebook_config.py
 
+# Install julia as root...
+USER root
+RUN mkdir -p /usr/local/bin \
+    && mkdir -p /opt \
+    && wget https://julialang-s3.julialang.org/bin/linux/x64/1.7/julia-1.7.3-linux-x86_64.tar.gz \
+    && tar -xzf julia-1.7.3-linux-x86_64.tar.gz \
+    && cp -r julia-1.7.3 /opt/ \
+    && ln -s /opt/julia-1.7.3/bin/julia /usr/local/bin/julia
+
+# Then install julia packages on a per-user basis...
+USER $UNAME
+RUN echo 'using Pkg; Pkg.add(name="Mads", version="1.3.10")' | julia
+RUN echo 'using Pkg; Pkg.add("DataFrames")' | julia
+RUN echo 'using Pkg; Pkg.add("DataStructures")' | julia
+RUN echo 'using Pkg; Pkg.add("CSV")' | julia
+
+
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
