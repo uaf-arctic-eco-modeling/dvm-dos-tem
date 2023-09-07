@@ -535,7 +535,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
   //Calculate infiltration (mm/day)
   // double infil = rnth + melt - ed->d_soi2l.qover;
-  double infil = rnth + melt;
+  double infil = rnth + melt + getRunoff(fstsoill, drainl, rnth, melt);
 
   //Get unsaturated space potentially available for liq infiltration (mm)
   double space_for_liq = 0.0;
