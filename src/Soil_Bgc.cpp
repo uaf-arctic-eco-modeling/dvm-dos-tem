@@ -173,11 +173,18 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 //    realLAI[ip] = ed->d_vegs.preLAI[ip] + (cd->m_veg.lai[ip] - ed->d_vegs.preLAI[ip]) / 30.0;
 
     //See Fan Eq. 20
-    if(chtlu->static_lai_max[ip] <= 0){
+    // if(chtlu->static_lai_max[ip] <= 0){
+    //   fLAI[ip] = 0;
+    // }
+    // else{
+    //   fLAI[ip] = cd->m_veg.lai[ip] / chtlu->static_lai_max[ip];
+    // }
+    // BM: implemented below statements to replace above - so fLAI remains between 0 - 1 and not based on static lai
+    if(cd->m_vegd.ffoliage[ip]<=0){
       fLAI[ip] = 0;
     }
     else{
-      fLAI[ip] = cd->m_veg.lai[ip] / chtlu->static_lai_max[ip];
+      fLAI[ip] = cd->m_vegd.ffoliage[ip];
     }
 //    double daily_LAI_change = (chtlu->static_lai[mind][ip] - cd->m_veg.lai[ip]) / DINM[mind];
 //    realLAI[ip] = ed->d_vegs.preLAI[ip] + daily_LAI_change; 
