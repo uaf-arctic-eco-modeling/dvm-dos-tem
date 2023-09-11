@@ -7,6 +7,8 @@
 #  * dvmdostem-dev           libraries, tools for developing dvmdostem
 #  * dvmdostem-build         a standalone compile environment for dvmdostem
 #  * dvmdostem-run           a standalone run-time environemnt for dvmdostem
+#  * dvmdostem-autocal       built on top of the dev image, includes julia and
+#                            MADS
 #
 # There is an additional image for the project, dvmdostem-mapping-support, which
 # has its own Dockerfile.
@@ -140,6 +142,16 @@ RUN pip install -r requirements_general_dev.txt
 
 COPY --chown=$UNAME:$UNAME special_configurations/jupyter_notebook_config.py /home/$UNAME/.jupyter/jupyter_notebook_config.py
 
+ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
+ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
+ENV PATH="/work:$PATH"
+ENV PATH="/work/scripts:$PATH"
+ENV PATH="/work/scripts/util:$PATH"
+WORKDIR /work
+# or use command
+#ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+
+FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-autocal
 # Install julia as root...
 USER root
 RUN mkdir -p /usr/local/bin \
@@ -155,16 +167,6 @@ RUN echo 'using Pkg; Pkg.add(name="Mads", version="1.3.10")' | julia
 RUN echo 'using Pkg; Pkg.add("DataFrames")' | julia
 RUN echo 'using Pkg; Pkg.add("DataStructures")' | julia
 RUN echo 'using Pkg; Pkg.add("CSV")' | julia
-
-
-ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
-ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
-ENV PATH="/work:$PATH"
-ENV PATH="/work/scripts:$PATH"
-ENV PATH="/work/scripts/util:$PATH"
-WORKDIR /work
-# or use command
-#ENTRYPOINT [ "tail", "-f", "/dev/null" ]
 
 
 # === IMAGE FOR BUILDING (COMPILING) DVMDOSTEM ================================
