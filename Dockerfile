@@ -164,6 +164,7 @@ RUN mkdir -p /usr/local/bin \
 # Then install julia packages on a per-user basis...
 USER $UNAME
 RUN echo 'using Pkg; Pkg.add(name="Mads", version="1.3.10")' | julia
+RUN echo 'using Pkg; Pkg.add("PyCall")' | julia
 RUN echo 'using Pkg; Pkg.add("DataFrames")' | julia
 RUN echo 'using Pkg; Pkg.add("DataStructures")' | julia
 RUN echo 'using Pkg; Pkg.add("CSV")' | julia
