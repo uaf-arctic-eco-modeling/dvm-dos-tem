@@ -17,9 +17,28 @@
 
 function usage () {
   echo "usage: "
-  echo "  $ ./docker-build-wrapper.sh [ help | all | cpp-dev | dev | build | run | cal | map ]"
+  echo "  $ ./docker-build-wrapper.sh [ help | all | cpp-dev | dev | build | run | autocal | map ]"
   echo ""
-  echo "  -h, --help  Print this message."
+  echo "  Wrapper program around docker build that will assist in consistently
+  echo "  building and tagging images for the dvmdostem project.
+  echo ""  
+  echo "  Some of the images take a long time to build and require many GB of"
+  echo "  storage space so you can select specific images to build here."
+  echo "  Note that the images are built on top of eachother, so you may have" 
+  echo "  to explicitly build some of the underlying images before some of the" 
+  echo "  upper level images."
+  echo ""  
+  echo "  For details on each image, read the comments in this script file."
+  echo ""
+  echo "  --help, help            Print this message."
+  echo "  --all, all              Build all the images."
+  echo "  --cpp-dev, cpp-dev      Build the cpp-dev image."
+  echo "  --dev, dev              Build the dev image."
+  echo "  --build, build          Build the build image."
+  echo "  --run, run              Build the run image."
+  echo "  --autocal, autocal      Build the autocal image."
+  echo "  --map, map              Build the mapping support image."
+  
   echo "  "
 
   if [[ "$#" -gt 0 ]]
@@ -53,7 +72,7 @@ function build_all() {
   build_dev
   build_build
   build_run
-  build_cal
+  build_autocal
   build_map
 }
 
@@ -84,7 +103,7 @@ function build_autocal() {
   # This adds the Julia Language and the Mads Package to enable auto-calibration.
   # Otherwise the usage is basically the same as the dev container with the same
   # volume mounts.
-  echo "Building cal image for $GIT_VERSION using hostuid=$HOSTUID and hostgid=$HOSTGID"
+  echo "Building autocal image for $GIT_VERSION using hostuid=$HOSTUID and hostgid=$HOSTGID"
   docker build --build-arg GIT_VERSION=$GIT_VERSION \
                --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
                --target dvmdostem-autocal --tag dvmdostem-autocal:$GIT_VERSION .
