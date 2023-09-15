@@ -19,8 +19,8 @@ function usage () {
   echo "usage: "
   echo "  $ ./docker-build-wrapper.sh [ help | all | cpp-dev | dev | build | run | autocal | map ]"
   echo ""
-  echo "  Wrapper program around docker build that will assist in consistently
-  echo "  building and tagging images for the dvmdostem project.
+  echo "  Wrapper program around docker build that will assist in consistently"
+  echo "  building and tagging images for the dvmdostem project."
   echo ""  
   echo "  Some of the images take a long time to build and require many GB of"
   echo "  storage space so you can select specific images to build here."
