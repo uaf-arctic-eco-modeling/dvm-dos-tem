@@ -17,6 +17,7 @@
 
 function usage () {
   echo "usage: "
+  echo ""
   echo "  $ ./docker-build-wrapper.sh [ help | all | cpp-dev | dev | build | run | autocal | map ]"
   echo ""
   echo "  Wrapper program around docker build that will assist in consistently"
@@ -30,16 +31,26 @@ function usage () {
   echo ""  
   echo "  For details on each image, read the comments in this script file."
   echo ""
-  echo "  --help, help            Print this message."
-  echo "  --all, all              Build all the images."
-  echo "  --cpp-dev, cpp-dev      Build the cpp-dev image."
-  echo "  --dev, dev              Build the dev image."
-  echo "  --build, build          Build the build image."
-  echo "  --run, run              Build the run image."
-  echo "  --autocal, autocal      Build the autocal image."
-  echo "  --map, map              Build the mapping support image."
-  
-  echo "  "
+  echo "  -h, --help, help        Print this message."
+  echo ""
+  echo "  -a, --all, all          Everything"
+  echo ""
+  echo "  --cpp-dev, cpp-dev      Just the basic image with C++ tools."
+  echo ""
+  echo "  --dev, dev              The dvmdostem development image for compile" 
+  echo "                          and run-time. Intention is that you mount "
+  echo "                          the host repo directory at /work"
+  echo ""
+  echo "  --build, build          A compile time image for making binaries."
+  echo ""
+  echo "  --run, run              A run-time image with binaries copied in."
+  echo ""
+  echo "  --autocal, autocal      Based off the dev image, but with Julia and "
+  echo "                          MADS installed"
+  echo ""
+  echo "  --map, map              An image with GDAL and other mapping and "
+  echo "                          Python tools installed."
+  echo ""
 
   if [[ "$#" -gt 0 ]]
   then
@@ -145,7 +156,13 @@ function build_map() {
                -f Dockerfile-mapping-support .
 }
 
-# First pass over arguments, exit if user asks for help
+# Make sure user asks for something.
+if [[ "$#" == 0 ]]
+then
+  usage "Argument required!"
+  exit -1
+fi
+# Pass over arguments, exit if user asks for help
 for i in $@;
 do
   case $i in
