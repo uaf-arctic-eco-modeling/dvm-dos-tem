@@ -3,6 +3,10 @@
 # and it's associated python scripts. So here is a separate image that has
 # GDAL and Python working well together.
 
+ARG UNAME=develop
+ARG UID=1000
+ARG GID=1000
+
 # need this for netCDF
 FROM osgeo/gdal:ubuntu-full-3.2.2
 
@@ -20,9 +24,9 @@ FROM osgeo/gdal:ubuntu-full-3.2.2
 # container. Here we have default values for the UNAME, UID and GID, but
 # if you need to you can override them by passing --build-arg to the docker
 # build command.
-ARG UNAME=develop
-ARG UID=1000
-ARG GID=1000
+ARG UNAME
+ARG UID
+ARG GID
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u$UID -g$GID -s /bin/bash $UNAME
 RUN echo "$UNAME   ALL=(ALL:ALL) ALL" >> /etc/sudoers
