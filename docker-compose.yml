@@ -37,6 +37,18 @@ services:
        - inputcatalog:/data/input-catalog
        - workflows:/data/workflows
 
+  dvmdostem-autocal:
+    image: dvmdostem-autocal:${V_TAG}
+    build: .
+    tty: true
+    ports:
+      - "7009:7009"
+    volumes:
+      - sourcecode:/work
+      - inputcatalog:/data/input-catalog
+      - workflows:/data/workflows
+
+
   # This is more of a stand-alone image, just meant to serve as a
   # compile time environment for creating the lean run image.
   # Copies source code into the image so that it doesn't need

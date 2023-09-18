@@ -7,6 +7,8 @@
 #  * dvmdostem-dev           libraries, tools for developing dvmdostem
 #  * dvmdostem-build         a standalone compile environment for dvmdostem
 #  * dvmdostem-run           a standalone run-time environemnt for dvmdostem
+#  * dvmdostem-autocal       built on top of the dev image, includes julia and
+#                            MADS
 #
 # There is an additional image for the project, dvmdostem-mapping-support, which
 # has its own Dockerfile.
@@ -35,6 +37,8 @@
 # This is used for tagging images. In most cases, this value will be overridden
 # by passing a --build-arg when running docker build to create your images. See
 # docker-build-wrapper.sh for examples of this pattern in use.
+# These must be defined here with default values and then in each stage
+# of the build you must again declare the ARG lines...
 ARG GIT_VERSION=latest
 ARG UNAME=develop
 ARG UID=1000
@@ -59,6 +63,10 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
 # More specific build stuff for compiling dvmdostem and running the project's
 # associated python scripts. 
 FROM cpp-dev:$GIT_VERSION as dvmdostem-dev
+ARG UNAME
+ARG UID
+ARG GID
+
 # dvmdostem dependencies
 RUN apt-get update -y --fix-missing && apt-get install -y \
     libboost-all-dev \
@@ -82,9 +90,6 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
 # container. Here we have default values for the UNAME, UID and GID, but
 # if you need to you can override them by passing --build-arg to the docker
 # build command.
-ARG UNAME=develop
-ARG UID=1000
-ARG GID=1000
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u$UID -g$GID -s /bin/bash $UNAME
 RUN echo "$UNAME   ALL=(ALL:ALL) ALL" >> /etc/sudoers
@@ -149,6 +154,28 @@ WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
 
+FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-autocal
+ARG UNAME
+ARG UID
+ARG GID
+
+# Install julia as root...
+USER root
+RUN mkdir -p /usr/local/bin \
+    && mkdir -p /opt \
+    && wget https://julialang-s3.julialang.org/bin/linux/x64/1.7/julia-1.7.3-linux-x86_64.tar.gz \
+    && tar -xzf julia-1.7.3-linux-x86_64.tar.gz \
+    && cp -r julia-1.7.3 /opt/ \
+    && ln -s /opt/julia-1.7.3/bin/julia /usr/local/bin/julia
+
+# Then install julia packages on a per-user basis...
+USER $UNAME
+RUN echo 'using Pkg; Pkg.add(name="Mads", version="1.3.10")' | julia
+RUN echo 'using Pkg; Pkg.add("PyCall")' | julia
+RUN echo 'using Pkg; Pkg.add("DataFrames")' | julia
+RUN echo 'using Pkg; Pkg.add("DataStructures")' | julia
+RUN echo 'using Pkg; Pkg.add("CSV")' | julia
+
 
 # === IMAGE FOR BUILDING (COMPILING) DVMDOSTEM ================================
 # A stand-alone container that can be used to compile the dvmdostem binary
@@ -157,6 +184,10 @@ WORKDIR /work
 # to the dev image, where there is no source code present in the imag instead it
 # must be provided by mounting a volume at container run-time.
 FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
+ARG UNAME
+ARG UID
+ARG GID
+
 COPY src/ /work/src
 COPY Makefile /work/Makefile
 COPY include/ /work/include
@@ -179,6 +210,9 @@ USER root
 #COPY dvmdostem /work/dvmdostem
 RUN make
 
+# Not sure how the USERNAME should be used with this image
+# So setting to the passed in ARG value like the other images, though
+# this might not be important for the usecases we have...
 USER $UNAME
 # Use this to keep container going when doing docker compose up
 # CMD ["tail -f /dev/null"]
@@ -197,6 +231,9 @@ USER $UNAME
 # more mounted volumes) in order to run dvmdostem.
 #
 FROM ubuntu:focal as dvmdostem-run
+ARG UNAME
+ARG UID
+ARG GID
 
 WORKDIR /work
 
@@ -212,6 +249,9 @@ COPY --from=dvmdostem-build /work/config ./config
 # copy it in... 
 #  ~800MB
 RUN echo ${UNAME}
+# There is some kind of bug or oddity with how the file gets copied.
+# Doing it like below with the "as" construct allows us to set the 
+# correct username in the copy step...
 FROM ${UNAME} as uname
 COPY --from=dvmdostem-build /home/uname/.pyenv /home/uname/.pyenv
 
@@ -273,9 +313,6 @@ COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-lin
 # container. Here we have default values for the UNAME, UID and GID, but
 # if you need to you can override them by passing --build-arg to the docker
 # build command.
-ARG UNAME=develop
-ARG UID=1000
-ARG GID=1000
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u$UID -g$GID -s /bin/bash $UNAME
 RUN echo "$UNAME   ALL=(ALL:ALL) ALL" >> /etc/sudoers
