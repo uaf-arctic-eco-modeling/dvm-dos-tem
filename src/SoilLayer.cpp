@@ -97,7 +97,7 @@ double SoilLayer::getMatricPotential() {
   return psi;
 };
 
-// get albedo of visible radition
+// get albedo of visible radiation
 double SoilLayer::getAlbedoVis() {
   double vis;
   double liq1 = getVolLiq();
@@ -109,7 +109,7 @@ double SoilLayer::getAlbedoVis() {
   return vis;
 };
 
-// get albedo of nir radition
+// get albedo of nir radiation
 double SoilLayer::getAlbedoNir() {
   double nir;
   double wat = getVolLiq()+getVolIce();

@@ -11,18 +11,15 @@ outputs and see which parameter most influences the outputs. To accomplish this,
 Sensitivity.py provides a `SensitivityDriver` class which helps setup, organize
 and carry out the runs.
 
-To test run >>python -m doctest doctests_Sensitivity.md
-To test the Sensitivity.py independently run >>python Sensitivity_beta.py -v 
-
 ## Get started
 
 Load the library
 
-    >>> import Sensitivity_beta as Sensitivity
+    >>> import drivers.Sensitivity
 
 Instantiate a driver object:
 
-    >>> sd = Sensitivity.SensitivityDriver()
+    >>> sd = drivers.Sensitivity.SensitivityDriver()
 
 In order to conduct a sensitivity analysis we must consider the following:
 
@@ -143,11 +140,7 @@ and `rhq10`, which is a soil parameter, so not connected to a specific PFT.
 The driver object has methods for retrieving the cmt being used for this
 driver: 
 
-<<<<<<< HEAD
     >>> sd.cmtnum()
-=======
-    >>> sd.get_cmtnum()
->>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
     4
 
 And now we can see that the `sample_matrix` is a Pandas DataFrame:
@@ -202,7 +195,7 @@ See what we got:
 
 Now see if we can load the experiment again into a new driver:
 
-    >>> sd2 = Sensitivity.SensitivityDriver()
+    >>> sd2 = drivers.Sensitivity.SensitivityDriver()
 
 This new driver should not have its `work_dir` set:
 
@@ -229,11 +222,7 @@ attributes.
     >>> sd.sampling_method == sd2.sampling_method
     True
 
-<<<<<<< HEAD
     >>> sd.cmtnum() == sd2.cmtnum()
-=======
-    >>> sd.get_cmtnum() == sd2.get_cmtnum()
->>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
     True
 
 We won't be using the second driver object, so we can delete it.
@@ -294,12 +283,11 @@ matrix.
 > sample folders are being setup correctly.
 
     >>> # Read the data in sample folder's parameter file
-    >>> import param_util as pu
+    >>> import util.param
     >>> idx = 0
     >>> pfile = os.path.join(sd._ssrf_name(idx), "parameters/cmt_calparbgc.txt")
-    >>> data = pu.get_CMT_datablock(pfile, sd.get_cmtnum())
-    >>> dd = pu.cmtdatablock2dict(data)
-<<<<<<< HEAD
+    >>> data = util.param.get_CMT_datablock(pfile, sd.cmtnum())
+    >>> dd = util.param.cmtdatablock2dict(data)
 
     >>> # get the correct param spec out of the params list
     >>> PS = [pdict for pdict in sd.params if pdict['name'] == 'cmax'][0]
@@ -313,8 +301,6 @@ matrix.
     Value from run folder: 348.426
     >>> print("Value from sample matrix: {}".format(value_from_sample_matrix))
     Value from sample matrix: 348.426
-=======
->>>>>>> 7002adb04d7fb88f43b5242071f816ce823773b6
 
 We could get fancy and write some loops to check all the rest of the parameters
 and sample folders but for now, we'll assume its working.
@@ -326,7 +312,7 @@ and sample folders but for now, we'll assume its working.
 
 Next we can check that the multi-PFT functionality works:
 
-    >>> sd = Sensitivity.SensitivityDriver(clean=True)
+    >>> sd = drivers.Sensitivity.SensitivityDriver(clean=True)
     >>> sd.set_work_dir('/tmp/tests-Sensitivity')
     >>> sd.set_seed_path('/work/parameters')
 

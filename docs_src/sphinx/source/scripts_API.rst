@@ -18,7 +18,7 @@ Sensitivity Analysis Tools
 
 These are tools and APIs for carrying out Sensitivity Analysis.
 
-.. automodule:: Sensitivity
+.. automodule:: drivers.Sensitivity
     :members:
 
 ******************
@@ -28,22 +28,22 @@ General Utilities
 These are general purpose utility scripts for working with ``dvmdostem``.
 
 ==================
-param_util.py
+param.py
 ==================
 
-.. automodule:: param_util
+.. automodule:: util.param
     :members:
 
 ================
-output_util.py
+output.py
 ================
 
-.. automodule:: output_utils
+.. automodule:: util.output
     :members:
 
 ================
-input_util.py
+input.py
 ================
 
-.. automodule:: input_util
+.. automodule:: util.input
     :members:

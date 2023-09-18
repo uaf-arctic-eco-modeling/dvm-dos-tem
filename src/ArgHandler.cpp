@@ -39,14 +39,14 @@ void ArgHandler::parse(int argc, char** argv) {
      "your own risk - you may end up filling your hard-drive!")
 
     ("no-output-cleanup", boost::program_options::bool_switch(&no_output_cleanup),
-     "Do not clean the output directory at the beginging of a run. This might "
+     "Do not clean the output directory at the beginning of a run. This might "
      "be useful when running dvmdostem under the control of an outside program "
      "such as PEcAn that makes assumptions about the presence of an output "
      "directory and may perform its own cleanup.")
 
     ("restart-run", boost::program_options::bool_switch(&restart_run),
-     "This run will use a restart file - do not create new files that"
-     "would overwrite the files needed.")
+     "Restart at the first stage with >0 years specified and "
+     "do not overwrite the files needed for that.")
 
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
@@ -85,7 +85,7 @@ void ArgHandler::parse(int argc, char** argv) {
 
     ("pr-yrs,p", boost::program_options::value<int>(&pr_yrs)
        ->default_value(10),
-     "Number or PRE RUN years to run.")
+     "Number of PRE RUN years to run.")
 
     ("eq-yrs,e", boost::program_options::value<int>(&eq_yrs)
        ->default_value(1000),

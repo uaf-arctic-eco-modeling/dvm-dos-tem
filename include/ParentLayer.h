@@ -26,8 +26,8 @@ public:
   virtual double getFrzVolHeatCapa();//get frozen layer specific heat capcity
   virtual double getUnfVolHeatCapa();//get unfrozen layer specific heat capacity
   virtual double getMixVolHeatCapa();//get blended layer specific heat capacity
-  virtual double getAlbedoVis();//get albedo of visible radition
-  virtual double getAlbedoNir();//get albedo of Nir radition
+  virtual double getAlbedoVis();//get albedo of visible radiation
+  virtual double getAlbedoNir();//get albedo of Nir radiation
 
   void updateProperty();
 

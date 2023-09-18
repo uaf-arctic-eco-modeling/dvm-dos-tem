@@ -675,15 +675,15 @@ adjusting it. We'll turn on 2 pixels here, just for fun:
 .. code:: bash
 
   # First make sure all pixels are OFF (set to 0)
-  $ docker compose exec dvmdostem-dev runmask-util.py --reset /data/workflows/basic_model_run/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask.py --reset /data/workflows/basic_model_run/run-mask.nc
   Setting all pixels in runmask to '0' (OFF).
 
   # Then turn one pixel.
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 0 0 /data/workflows/basic_model_run/run-mask.nc 
+  $ docker compose exec dvmdostem-dev runmask.py --yx 0 0 /data/workflows/basic_model_run/run-mask.nc 
   Turning pixel(y,x) (0,0) to '1', (ON).
 
   # And another pixel
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 1 1 /data/workflows/basic_model_run/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask.py --yx 1 1 /data/workflows/basic_model_run/run-mask.nc
   Turning pixel(y,x) (1,1) to '1', (ON).
 
 Note that you don't want to pass ``--reset`` to the second call, or it will
@@ -713,19 +713,19 @@ the output be readable.
   develop@ef7aad33441c:/work$ cd /data/workflows/basic_model_run/
 
   # Turn on RH
-  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on RH y layer
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec.py config/output_spec.csv --on RH y layer
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                     RH            g/m2/time            y                   invalid      invalid      invalid            l       double     Heterotrophic respiration
 
   # Turn on VEGC
-  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on VEGC m pft
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec.py config/output_spec.csv --on VEGC m pft
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                   VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
 
 .. _outspec utils:
 .. warning::
 
-  The order of arguments to ``outspec_utils.py`` is very counterintuitive!  The
+  The order of arguments to ``util/outspec.py`` is very counterintuitive!  The
   file you want to modify needs to be the first argument so that it doesn't get
   confused with the resolution specification.
 
@@ -845,7 +845,7 @@ console output has been omitted for clarity:
 
   $ docker compose exec --workdir /data/workflows/basic_model_run/ dvmdostem-dev dvmdostem -l err -f /data/workflows/basic_model_run/config/config.js -p 50 -e 100 -s 25 -t 115 -n 85
   Setting up logging...
-  [err] [] Looks like CMTNUM output is NOT enabled. Strongly recommended to enable this output! Use outspec_utils.py to turn on the CMTNUM output!
+  [err] [] Looks like CMTNUM output is NOT enabled. Strongly recommended to enable this output! Use outspec.py to turn on the CMTNUM output!
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 0
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 1
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 2

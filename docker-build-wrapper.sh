@@ -14,12 +14,24 @@
 #
 # This can then be wrapped in a for loop that calls docker image rm to cleanup.
 
-GIT_VERSION=$(git describe)
+# Use --tags so that lightweight tags are found. Useful for local tagging
+# as well as making sure that images built during the release process are 
+# appropriately tagged.
+GIT_VERSION=$(git describe --tags)
+
+# This helps with sharing host folders to container. It is important that the
+# user in the container has the same uid/gid as the host user so that both
+# users can have read and write permissions on the files. In many circumstances
+# this build wrapper script will be run with sudo, so we have to find the id 
+# of the login user, not the sudo user, to pass into the guest.
+export HOSTUID=$(id -u $(logname))
+export HOSTGID=$(id -g $(logname))
 
 # IMAGE FOR GENERAL C++ DEVELOPMENT
 # Makes a general development image with various dev tools installed:
 # e.g. compiler, make, gdb, etc
 docker build --build-arg GIT_VERSION=$GIT_VERSION \
+	           --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
              --target cpp-dev --tag cpp-dev:$GIT_VERSION .
 
 # IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT 
@@ -28,7 +40,8 @@ docker build --build-arg GIT_VERSION=$GIT_VERSION \
 # your host machine's repo will be mounted as a volume at /work, and you can
 # use this container as a compile time and run time environment.
 docker build --build-arg GIT_VERSION=$GIT_VERSION \
-             --target dvmdostem-dev --tag dvmdostem-dev:$GIT_VERSION .
+ 	           --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
+ 	           --target dvmdostem-dev --tag dvmdostem-dev:$GIT_VERSION .
 
 # IMAGE FOR BUILDING (COMPILING) DVMDOSTEM
 # This is for a stand-alone container that can be used to compile the
@@ -38,17 +51,20 @@ docker build --build-arg GIT_VERSION=$GIT_VERSION \
 # used to create the dvmdostem binary so that it can be copied into
 # the lean run image.
 docker build --build-arg GIT_VERSION=$GIT_VERSION \
+             --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
              --target dvmdostem-build --tag dvmdostem-build:$GIT_VERSION .
 
 # IMAGE FOR SIMPLY RUNNING DMVDOSTEM AND ASSOCIATED SCRIPTS
 # A lean images with only the bare minimum stuff to run dvmdostem
 # Does NOT have development tools, compilers, editors, etc
 docker build --build-arg GIT_VERSION=$GIT_VERSION \
+             --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
              --target dvmdostem-run --tag dvmdostem-run:$GIT_VERSION .
 
 
 # IMAGE FOR WORKING WITH MAPPING TOOLS, SPECIFICALLY GDAL
 # The bastard step child needed to run various gdal tools
-docker build --build-arg GIT_VERSION=$GIT_VERSION \
+docker build --no-cache --build-arg GIT_VERSION=$GIT_VERSION \
+	           --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
              --tag dvmdostem-mapping-support:$GIT_VERSION \
              -f Dockerfile-mapping-support .

@@ -33,7 +33,7 @@ class ParamUtilSpeedHelper(object):
   cache some data in the object. Will save lots of time for various
   look up type functionality.
 
-  With param_util.py in general the idea has been to have it be flexible
+  With param.py in general the idea has been to have it be flexible
   with repsect to the location of the parameter files. But that makes 
   some operations expensive because the code is constantly having to 
   re-build lookup data structures to find parameter names or files.
@@ -44,8 +44,8 @@ class ParamUtilSpeedHelper(object):
 
   Examples
   --------
-  >>> import param_util as pu
-  >>> psh = pu.ParamUtilSpeedHelper("/work/parameters")
+  >>> import util.param
+  >>> psh = util.param.ParamUtilSpeedHelper("/work/parameters")
   >>> psh.get_value(pname='cmax', cmtnum=4, pftnum=3, with_metadata=False)
   13.45
 
@@ -354,13 +354,13 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
         # calibration notes: "{}"
         # references file: {}
         #
-        # This file was generated using the param_util.fwt2csv_v1(...) function.
+        # This file was generated using the util.param.fwt2csv_v1(...) function.
         # There are columns here (comment units desc refs)
         # that are not represented in a standard way in the 
         # fixed width text parameter files.
         # 
         # To convert this file back to fixed width text for use with dvmdostem,
-        # see the param_util.csv2fwt_v1() function. 
+        # see the util.param.csv2fwt_v1() function. 
         # 
         '''.format(label, cmt, cmtname, desc, site, notes, ref_file))
 
@@ -652,7 +652,7 @@ def csv_v1_specification():
     # references file: refs.bib
     #
     # To convert this file back to fixed width text for use with dvmdostem
-    # see the param_util.csv2fwt_v1() function.
+    # see the util.param.csv2fwt_v1() function.
     #
     file,cmtkey,cmtname,comment,,,,,,,,,,,,
     ../parameters/cmt_bgcvegetation.txt,CMT22,Single PFT Alpine Tussock Tundra,,,,,,,,,,,,,
@@ -2033,15 +2033,21 @@ def build_param_lookup(pdir):
       if detect_block_with_pft_info(db):
         for pft in get_datablock_pftkeys(db_dict):
           plist = [k for k in db_dict[pft] if k not in ['name']]
+          # Strip out all the units_, refs_, desc_, etc fields ...
+          plist = [i for i in plist if len(i.split('_')) <= 1]
           [pft_params.add(p) for p in plist]
 
         not_params = ['tag','cmtname','comment'] + ['pft{}'.format(x) for x in range(0,10)]
         non_pft_plist = [k for k in db_dict if k not in not_params]
+        # Strip out the units_, comments_, desc_, etc fields ...
+        non_pft_plist = [i for i in non_pft_plist if len(i.split('_')) <= 1]
         [non_pft_params.add(x) for x in non_pft_plist]
         #print(db_dict.keys())
       else:
         not_params = ['tag', 'name', 'comment', 'cmtname']
         plist = [k for k in db_dict.keys() if k not in not_params]
+        # Strip out the units_, desc_, refs_ etc fields ...
+        plist = [i for i in plist if len(i.split('_')) <= 1] 
         [non_pft_params.add(p) for p in plist]
 
     lu[f] = {'non_pft_params':non_pft_params,'pft_params':pft_params}

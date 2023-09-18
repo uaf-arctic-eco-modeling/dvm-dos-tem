@@ -41,26 +41,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import Sensitivity
-import param_util as pu
+import drivers.Sensitivity
+import util.parama
 
 
 # Lets get started by making a driver object and print out some info about it.
 
 # In[3]:
 
-
-driver = Sensitivity.SensitivityDriver()
+driver = drivers.Sensitivity.SensitivityDriver()
 print(driver.info())
 
 
-# OK, well now we have a `SensitivityDriver` object, but what can we do with it?? Well we can modify any parameter that exists for `dvmdostem`. How do we find these parameters? There are some helper functions in the `param_util` module for working with parameter files.
-# > Note: Why in the world do we need a special `ParamUtilSpeedHelper` object here? Well the param_util.py file is written to be used in a wide varietly of circumstances and does not by default have any kind of cache or lookup structure for mapping files to parameter names. So we use a special object here, that builds such a cache and uses it, which is much faster than running the file-->parameter name look everytime.
+# OK, well now we have a `SensitivityDriver` object, but what can we do with it?? Well we can modify any parameter that exists for `dvmdostem`. How do we find these parameters? There are some helper functions in the ``util.param`` module for working with parameter files.
+# > Note: Why in the world do we need a special `ParamUtilSpeedHelper` object here? Well the util/param.py file is written to be used in a wide varietly of circumstances and does not by default have any kind of cache or lookup structure for mapping files to parameter names. So we use a special object here, that builds such a cache and uses it, which is much faster than running the file-->parameter name look everytime.
 
 # In[4]:
 
 
-psh = pu.ParamUtilSpeedHelper(driver.get_initial_params_dir())
+psh = util.param.ParamUtilSpeedHelper(driver.get_initial_params_dir())
 print(psh.list_params(cmtnum=4, pftnum=0))
 
 
@@ -270,10 +269,10 @@ def get_CMT_params(cmtnum=4,pftnum=3,perc=0.1):
           print(key,':',param_specs[key])
 
     '''
-    # Tobey consider changing param_util.py to more appropriate calling of a function from the .py file
+    # Tobey consider changing util/param.py to more appropriate calling of a function from the .py file
     # change driver.work_dir to self.work_dir
-    data = get_ipython().getoutput('param_util.py --dump-block-to-json /work/parameters/cmt_calparbgc.txt {cmtnum}')
-    #data = run -i param_util.py --dump-block-to-json {self.work_dir}/default_parameters/cmt_calparbgc.txt {cmtnum}
+    data = get_ipython().getoutput('param.py --dump-block-to-json /work/parameters/cmt_calparbgc.txt {cmtnum}')
+    #data = run -i param.py --dump-block-to-json {self.work_dir}/default_parameters/cmt_calparbgc.txt {cmtnum}
     CMT_data = json.loads(data[0])
 
     #choose parameters correspoding to a given pfnum
