@@ -1,3 +1,14 @@
+# TEM.py uses for communication between julia code (AC-MADS-TEM.jl) and (dvmdostem) 
+# It uses functions developed in the Sensitivity.py.
+# This version is not parallel. 
+#1. processes all the finalresults files for a given step
+#2. saves optimal parameter values into a list 
+#3. removes all duplicates from the list and save them into the csv file
+#4. runs the dmvdostem for all elements of the list and save them into another csv file
+#Example: python3 post_runs.py /work/mads_calibration/config-step1-md1.yaml
+#Author: Elchin Jafarov
+#Date: 03/2023
+
 import sys,os
 sys.path.append(os.path.join('/work','scripts'))
 
