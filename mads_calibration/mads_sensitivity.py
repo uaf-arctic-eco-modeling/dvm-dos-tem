@@ -30,13 +30,13 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 
-import param_util as pu
-import output_utils as ou
+import util.param
+import util.output
+import util.outspec
 
-import setup_working_directory
-import importlib
-runmask_util = importlib.import_module("runmask-util")
-import outspec_utils
+import util.setup_working_directory
+import util.runmask
+
 
 @contextmanager
 def log_wrapper(message,tag=''):
@@ -317,13 +317,13 @@ class SensitivityDriver(object):
     assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
 
     self.params = []
-    plu = pu.build_param_lookup(self.__initial_params)
+    plu = util.param.build_param_lookup(self.__initial_params)
 
     for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
-      original_pdata_file = pu.which_file(self.__initial_params, pname, lookup_struct=plu)
+      original_pdata_file = util.param.which_file(self.__initial_params, pname, lookup_struct=plu)
 
-      p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
-      p_dd = pu.cmtdatablock2dict(p_db)
+      p_db = util.param.get_CMT_datablock(original_pdata_file, cmtnum)
+      p_dd = util.param.cmtdatablock2dict(p_db)
 
       if pname in p_dd.keys():
         p_initial = p_dd[pname]
@@ -454,7 +454,7 @@ class SensitivityDriver(object):
         pftnums=set([p['pftnum'] for p in self.params])
         pftnums.discard(None)
         for pft in pftnums:
-            pft_verbose_name.append( pu.get_pft_verbose_name(
+            pft_verbose_name.append( util.param.get_pft_verbose_name(
             cmtnum=self.params[0]['cmtnum'], pftnum=pft, 
             lookup_path=self.get_initial_params_dir()
             ))
@@ -554,13 +554,13 @@ class SensitivityDriver(object):
       sample_specific_folder = self._ssrf_name(idx)
 
     # Make the working directory
-    setup_working_directory.cmdline_entry([
+    util.setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
       sample_specific_folder
     ])
 
     # Adjust run mask for appropriate pixel
-    runmask_util.cmdline_entry([
+    util.runmask.cmdline_entry([
       '--reset',
       '--yx',self.PXy, self.PXx,
       '{}/run-mask.nc'.format(sample_specific_folder)
@@ -568,7 +568,7 @@ class SensitivityDriver(object):
 
     # Enable outputs as specified
     if not(initial) and calib:
-        program = '/work/scripts/outspec_utils.py'
+        program = '/work/scripts/util/outspec.py'
         opt_str = '--enable-cal-vars {}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
         cmdline = program + ' ' + opt_str
         with log_wrapper(cmdline, tag='setup') as lw:
@@ -583,17 +583,17 @@ class SensitivityDriver(object):
     else:
         for output_spec in self.outputs:
             if output_spec['type']=='layer':
-                outspec_utils.cmdline_entry([
+                util.outspec.cmdline_entry([
                 '{}/config/output_spec.csv'.format(sample_specific_folder),
                 '--on', output_spec['name'], 'month', 'layer' 
                 ])
             else:
-                outspec_utils.cmdline_entry([
+                util.outspec.cmdline_entry([
                 '{}/config/output_spec.csv'.format(sample_specific_folder),
                 '--on', output_spec['name'], 'month', 'pft'
                 ])
         # Make sure CMTNUM output is on
-        outspec_utils.cmdline_entry([
+        util.outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on','CMTNUM','y'
          ]) 
@@ -633,13 +633,13 @@ class SensitivityDriver(object):
       for pname, pval in row.items():
         #for pname, pval in zip(row._fields[1:], row[1:]):
         pdict = list(filter(lambda x: x['name'] == pname, self.params))[0]
-        pu.update_inplace(
+        util.param.update_inplace(
             pval, os.path.join(sample_specific_folder, 'parameters'), 
             pname, pdict['cmtnum'], pdict['pftnum']
         )
     else:
       for pval,j in zip(row,range(len(row))):
-        pu.update_inplace(
+        util.param.update_inplace(
             pval, os.path.join(sample_specific_folder, 'parameters'), 
             self.params[j]['name'],
             self.params[j]['cmtnum'],
@@ -863,12 +863,12 @@ class SensitivityDriver(object):
     #save the targets from calibration_target and nc files into final_data dict list
     for ctname, ncname in self.caltarget_to_ncname_map:
 
-        data, dims = ou.get_last_n_eq(ncname, 'yearly', output_directory_path, n=last_N_yrs)
+        data, dims = util.output.get_last_n_eq(ncname, 'yearly', output_directory_path, n=last_N_yrs)
         dsizes, dnames = list(zip(*dims))
 
         #print(ctname, output_directory_path, ncname, dims, dnames, dsizes)
         if dnames == ('time','y','x'):
-            pec = pu.percent_ecosys_contribution(cmtkey, ctname, ref_params_dir=ref_param_dir)
+            pec = util.param.percent_ecosys_contribution(cmtkey, ctname, ref_params_dir=ref_param_dir)
             truth = ref_targets[cmtkey][ctname]
             value = data[:,self.PXy,self.PXx].mean()
 
@@ -877,8 +877,8 @@ class SensitivityDriver(object):
 
         elif dnames == ('time','y','x','pft'):
             for pft in range(0,10):
-                if pu.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
-                    pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_param_dir)
+                if util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
+                    pec = util.param.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, ref_params_dir=ref_param_dir)
                     truth = ref_targets[cmtkey][ctname][pft]
                     value = data[:,pft,self.PXy,self.PXx].mean()
                     d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,pft=pft)
@@ -892,8 +892,8 @@ class SensitivityDriver(object):
                 clu = {0:'Leaf', 1:'Stem', 2:'Root'}
                 for cmprt in range(0,3):
                     #print "analyzing... ctname {} (nc output: {}) for pft {} compartment {}".format(ctname, ncname, pft, cmprt),
-                    if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
-                        pec = pu.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_param_dir)
+                    if util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
+                        pec = util.param.percent_ecosys_contribution(cmtkey, ctname, pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_param_dir)
                         truth = ref_targets[cmtkey][ctname][clu[cmprt]][pft]
                         value = data[:,cmprt,pft,self.PXy,self.PXx].mean()
                         d = dict(cmt=cmtkey, ctname=ctname,value=value,truth=truth,pft=pft)
@@ -971,7 +971,7 @@ class SensitivityDriver(object):
         ds = nc.Dataset(sample_specific_folder + '/output/' + '{}_monthly_eq.nc'.format(output['name']))
         data_m = ds.variables[output['name']][:]
         if output['type'] == 'pool':
-          data_y = ou.average_monthly_pool_to_yearly(data_m)
+          data_y = util.output.average_monthly_pool_to_yearly(data_m)
         elif output['type'] == 'flux':
           data_y = ou.sum_monthly_flux_to_yearly(data_m)
 
