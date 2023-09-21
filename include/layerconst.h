@@ -5,8 +5,8 @@ const int MAX_SNW_LAY = 6;  // Maximum number of Snow Layer
 
 const int MAX_MOS_LAY = 1;  // Maximum number of moss Layer involved in soil
                             //   thermal/hydrological/bgc processes
-const int MAX_SLW_LAY = 4;  // Maximum number of shallow organic Layer
-const int MAX_DEP_LAY = 3;  // Maximum number of deep organic Layer
+const int MAX_SLW_LAY = 5;  // Maximum number of shallow organic Layer
+const int MAX_DEP_LAY = 5;  // Maximum number of deep organic Layer
 
 // maximum number of mineral Layer
 // (0.1,0.1,0.1,0.1, 0.2,0.2,0.2,0.3,0.3,0.3, 0.3, 0.5, 0.5, 1, 1)
