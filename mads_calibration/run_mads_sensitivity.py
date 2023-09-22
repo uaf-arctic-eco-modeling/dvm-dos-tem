@@ -4,11 +4,9 @@
 # Author: Elchin Jafarov 
 # Date: 03/27/2023
 
-import os,sys
-import json
+import sys
 import yaml
 import numpy as np
-import pandas as pd
 import mads_sensitivity as Sensitivity
 
 #read the config yaml file and 
