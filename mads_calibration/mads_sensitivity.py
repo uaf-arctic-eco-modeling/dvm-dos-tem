@@ -51,54 +51,176 @@ def log_wrapper(message,tag=''):
 
 class SensitivityDriver(object):
   '''
-  Sensitivity Analysis Driver class.
-
-  Driver class for conducting dvmdostem SensitivityAnalysis.
-  Methods for cleaning, setup, running model, collecting outputs.
-
-  Basic overview of use is like this:
-   1. Instantiate driver object.
-   2. Setup/design the experiment (parameters, to use, 
-      number of samples, etc)
-   3. Use driver object to setup the run folders.
-   4. Use driver object to carry out model runs.
-   5. Use driver object to summarize/collect outputs.
-   6. Use driver object to make plots, do analysis.
+  The MADS Sensitivity Analysis (SA) class is borrowed from the 
+  original Sensitivity Analysis Driver. The difference between 
+  `mads_sensitivity` and `sensitivity` is that this one was written 
+  for the ``equilibrium`` case. `mads_sensitivity` is a wrapper that 
+  provides communication between paramters 
+  `parameters/cmt_calparbeg.txt` and the model executable `dvmdostem`.
+  It also genrates `N` number of samples distributed without
+  duplications. Each sample represents a set of paramters defined 
+  by a user. Parameters could be vegetations related (above ground)
+  or soil related (below ground), see `parameters/cmt_calparbeg.txt`.
+  The vegetation related paramters typically associated with the 
+  plant functional type (PFT). PFT numbers used to differentiate 
+  between vegetation parameters with the same parameter name. A community type 
+  (CMT) can have mutiple PFTs. Only parameters for one CMT can 
+  participate in SA.
 
   Parameters
   ----------
+  work_dir : str
+      path to working ``work_dir`` (all runs will be saved in that folder)
 
-  See Also
-  --------
+  sampling_method : str
+      [``uniform``, ``lhc``] uniform or latin hypercube parameter sampling
 
-  Examples
-  --------
-  Instantiate object, sets pixel, outputs, working directory, 
-  site selection (input data path)
-  >>> driver = SensitivityDriver()
+  clean : bool
+      [``True``, ``False``]: removes everything from ``work_dir``
+
+  config_file : str
+      path to the ``config_file``
+
+      ...   
+
+  Example
+  -------
+  Instantiate `SensitivityDriver`:
+  
+  >>> import mads_sensitivity as Sensitivity
+  >>> driver = Sensitivity.SensitivityDriver(
+  ...    config_file='config-demo.yaml')
+
+  Set a new path for the working directory:
+
   >>> driver.work_dir = '/tmp/tests-Sensitivity'
 
-  Show info about the driver object:
-  >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
-  >>> driver.sample_matrix
-          cmax     rhq10  nfall(1)
-  0  63.536594  1.919504  0.000162
-  1  62.528847  2.161819  0.000159
-  2  67.606747  1.834203  0.000145
-  3  59.671967  2.042034  0.000171
-  4  57.711999  1.968631  0.000155
-  >>> driver.generate_uniform(3)
-  >>> driver.generate_lhc(3)
+  Clean the `work_dir` folder:
+
+  >>> driver.clean()
+
+  Display the sensitivity/calibration case:
+
+  >>> driver.calib_mode
+  'GPPAllIgnoringNitrogen'
+
+  Display the model run setup: 
+  
+  >>> driver.opt_run_setup
+  '--pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0'
+
+  Display the community type:
+  
+  >>> driver.cmtnum
+  1
+
+  Display parameter names, PFT numbers, and target_names
+  
+  >>> driver.paramnames
+  ['cmax', 'cmax', 'cmax', 'cmax']
+
+  >>> driver.pftnums
+  [0, 1, 2, 3]
+
+  >>> driver.target_names
+  ['GPPAllIgnoringNitrogen']
+
+  Set the sample size:
+  
+  >>> sample_size=4
+
+  Set the parameters for the SA experiment:
+
+  >>> import numpy as np
+  >>> driver.design_experiment(sample_size, 
+  ...        driver.cmtnum,
+  ...        params=driver.paramnames,
+  ...        pftnums=driver.pftnums,
+  ...        # +-10% variance from the initial `params` values in 
+  ...        # `prameters/cmt_calparbgc.txt` file
+  ...        percent_diffs=list(0.1*np.ones(len(driver.pftnums))),
+  ...        sampling_method='uniform')
+
+  Read parameters from the configuration file
+
+  >>> import yaml
+  >>> config_file_name = 'config-step1-md1-sa.yaml'
+  >>> with open(config_file_name, 'r') as config_data:
+  ...   config = yaml.safe_load(config_data)
+  >>> #getting initial parameters from config file
+  >>> initial=config['mads_initial_guess']
+
+  Re-assign old parameter values with values from the configuration file with new variance (+-90%):
+
+  >>> perturbation=0.9
+  >>> for i in range(len(driver.params)):
+  ...  driver.params[i]['initial']=initial[i]
+  ...  driver.params[i]['bounds']=[initial[i] - (initial[i]*perturbation), 
+  ...  initial[i] + (initial[i]*perturbation)]
+
+  Display a new parameter set:
+
+  >>> print('params:',driver.params)
+  params: [{'name': 'cmax', 'bounds': [38.11899999999997, 724.261], 'initial': 381.19, 'cmtnum': 1, 'pftnum': 0}, {'name': 'cmax', 'bounds': [11.393, 216.467], 'initial': 113.93, 'cmtnum': 1, 'pftnum': 1}, {'name': 'cmax', 'bounds': [20.708, 393.452], 'initial': 207.08, 'cmtnum': 1, 'pftnum': 2}, {'name': 'cmax', 'bounds': [9.331000000000003, 177.289], 'initial': 93.31, 'cmtnum': 1, 'pftnum': 3}]
+
+  Regenerate parameter distribution: 
+
+  >>> driver.generate_lhc(sample_size)
+
+  Setup `work_dir` folder for SA run:
+
+  >>> #before setup clean up the `work_dir`
+  >>> driver.clean()
+  >>> #setup N folders, where is a sample size
+  >>> try:
+  ...    # calib=True enables the equilibrium case setup    
+  ...    driver.setup_multi(calib=True)
+  ... except ValueError:
+  ...    print("Oops!  setup_multi failed.  Check the setup...")
+  args [(array([369.13065164, 103.86456187, 282.3221183 ,  18.90188351]), 0, False, True), (array([519.81133337,  20.95816706, 104.21116387,  69.25454249]), 1, False, True), (array([146.77023007, 210.95866101, 329.89947182, 169.64753101]), 2, False, True), (array([702.21192807, 141.58126773, 124.14929864, 129.45164683]), 3, False, True)]
+
+  Run all `N` samples in parallel:
+  
+  >>> #run themads_sensitivity in parallel
+  >>> try:
+  ...   driver.run_all_samples()
+  ... except ValueError:
+  ...   print("Oops!  run_all_samples failed.  Check the sample folders...")
+  <BLANKLINE>  
+
+  >>> #NOTE, that the last row in the results.txt is targets
+  >>> #for a given CMT from calibration/calibration_targets.py
+  >>> driver.save_results()
+  /tmp/tests-Sensitivity/sample_000000001
+  /tmp/tests-Sensitivity/sample_000000002
+  /tmp/tests-Sensitivity/sample_000000003
+  cmtkey CMT01
+  Loading calibration_targets from : ['/work/calibration']
+  Resetting path...
+  Output variables:
+  Observations [True-ON], Modeled [False-OFF ]: True
+
+  Check /tmp/tests-Sensitivity/ folder, it should have all four sample folders and four summary files.
+  Check the `results.csv` file, it should have 5 lines, where the line is observations. 
 
   '''
   def __init__(self, work_dir=None, sampling_method=None, clean=False, config_file=[]):
     '''
-    Constructor
-    Hard code a bunch of stuff for now...
+    Constructor requires `config_file` to run properly. 
 
     Parameters
     ----------
-    work_dir : 
+    site : path to input data 
+    work_dir : path to working folder (all runs will be saved in that folder)
+    calib_mode : set the calibration mode 
+                 [ GPPAllIgnoringNitrogen, NPPAllIgnoringNitrogen, NPPAll, VegCarbon
+                 VegStructuralNitrogen, MossDeathC, CarbonShallow, CarbonDeep, CarbonMineralSum
+                 OrganicNitrogenSum, AvailableNitrogenSum]
+    opt_run_setup : set the run option 
+    cmtnum : set the community type
+    pftnums : list of PFT numbers
+    paramnames : list of parameter names
+    target_names : list of target names
 
     clean : bool
       CAREFUL! - this will forecfully remove the entrire tree rooted at `work_dir`.
@@ -138,6 +260,7 @@ class SensitivityDriver(object):
     #self.opt_run_setup = '--pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0'
     self.params = {}
     self.sampling_method = sampling_method
+    self.logparams = []
     #self.calib_mode = 'GPPAllIgnoringNitrogen'
     self.caltarget_to_ncname_map = [
         ('GPPAllIgnoringNitrogen','INGPP'),
@@ -180,13 +303,13 @@ class SensitivityDriver(object):
     N : int
       number of samples (rows) to create
 
-    params : list of dicts
-      Each item in `param_props` list will be a dictionary
-      with at least the following:
-      >>> params = {
-      ...   'name': 'rhq10',        # name in dvmdostem parameter file (cmt_*.txt)
-      ...   'bounds': [5.2, 6.4],   # the min and max values the parameter can have
-      ... }
+    seed : int
+      a number that allows to reproduce a similar set of random numbers
+
+    logparams : list 
+      for parameter values less than 0.01 use log distribution
+
+      1 : apply log distribution, 0 : keep as is.
 
     Returns
     -------
@@ -209,6 +332,14 @@ class SensitivityDriver(object):
 
     sm = l * spreads + lows
     
+    #apply log uniform for small interval values
+    if len(self.logparams)>0:
+        inum=0
+        for ilog,p in zip(self.logparams,self.params):
+            if ilog:
+                sm[:,inum]=loguniform.rvs(p['bounds'][0],p['bounds'][1],size=N)
+            inum+=1
+
     self.sample_matrix = pd.DataFrame(sm, columns=[p['name'] for p in self.params])
 
   def generate_lhc(self, N):
@@ -224,9 +355,13 @@ class SensitivityDriver(object):
     N : int
       number of samples (rows) to create
 
+    seed : int
+      a number that allows to reproduce a similar set of random numbers
+
     params : list of dicts
       Each item in `param_props` list will be a dictionary
       with at least the following:
+
       >>> params = {
       ...   'name': 'cmax',               # name in dvmdostem parameter file (cmt_*.txt)
       ...   'bounds': [100.1, 105.1],     # the min and max values the parameter can have
@@ -528,13 +663,21 @@ class SensitivityDriver(object):
     Parameters
     ----------
     row : dict
-      One row of the sample matrix, in dict form. So like this:
-        `{'cmax': 108.2, 'rhq10': 34.24}`
+      One row of the sample matrix, in dict form. So like this:{'cmax': 108.2, 'rhq10': 34.24}
       with one key for each parameter name.
 
     idx : int
       The row index of the `sample_matrix` being worked on. Gets
       used to set the run specific folder name, i.e. sample_000001.
+
+    initial : bool
+      [``True``, ``False``] enables initial value run, that is saved in separate folder
+      Typically, this option is not important for the calibration mode ON.
+
+    calib : bool
+      [``True``, ``False``] enables calibration mode run
+      based on ``calib_mode`` it updates config/calibration_directives.txt
+      setups up the required outputs, and enables correspoding post-processing
 
     Returns
     -------
@@ -651,7 +794,7 @@ class SensitivityDriver(object):
     Makes one run directory for each row in sample matrix.
 
     This is essentially a wrapper around `core_setup(..)` 
-    that allows for parallelization.
+    that enables parallelization. As a result of this run multiple sample folders created in `work_dir`.
     
     Returns
     -------
@@ -690,6 +833,7 @@ class SensitivityDriver(object):
     '''
     Enforces that there is only one cmtnum specified
     amongst all the param specifications in `self.params`.
+    NOTE: not sure if this function is needed. Probably used in core_setup. 
 
     Returns
     -------
@@ -738,7 +882,6 @@ class SensitivityDriver(object):
     print()
 
 
-
   def run_model(self, rundirectory):
     '''
     Run the model. 
@@ -777,10 +920,25 @@ class SensitivityDriver(object):
     return 
 
   def get_targets(self,cdir,targets=False):
-    # targets=False grab model outputs
-    # targets=True grab model observations
-    # fill the final_data list using targets from 
-    # calibration/calibration_targets.py
+    ''' 
+    Grabs both observed and modeled targets
+
+    Parameters
+    ----------
+    cdir : str 
+       current directory ``work_dir``
+    
+    target : bool
+       [``True``, ``False``] grab observations, grab moodel outputs
+
+    Returns
+    -------
+
+    out_flat : list
+       flat list of target values
+ 
+    '''
+    # get the modeled and observed targets values 
     self.get_calibration_outputs(cdir)
     # organize the ouput in the form of the dictionary 
     # generates the flat list only for given target_names 
@@ -817,7 +975,24 @@ class SensitivityDriver(object):
     return out_flat
 
   def get_calibration_outputs(self,cdir):
+    ''' 
+    This function was modified based on function in scripts/qcal.py
+    The function grabs the outputs from the ``CMTNUM_yearly_eq.nc``,
+    selects only targets defined in the ``config_file``, averages them
+    for `last_N_yrs`, and selects corespoding targets values from 
+    ``calibration/calibration_targets.py`` file.
 
+    Parameters
+    ----------
+    cdir : str 
+       current directory ``work_dir``
+    
+    Returns
+    -------
+    self.final_data : list
+       list of obsevred and modeled target values
+ 
+    '''
     output_directory_path=cdir+"/output"
     ref_param_dir=cdir+"/parameters"
     ref_targets={}
@@ -916,17 +1091,14 @@ class SensitivityDriver(object):
     1.215,   2.108,     0.432,       0.533,  5.112
 
     with one columns for each parameter and one column for 
-    each output. The
+    each output.
 
     For each row in the sensitivity matrix (and corresponding 
-    run folder), 
-      For each variable specified in self.outputs:
-          - opens the NetCDF files that were output from
-            dvmdostem
-          - grabs the last datapoint
-          - writes it to the sensitivity.csv file
-
-    
+    run folder).
+    For each variable specified in self.outputs:
+    - opens the NetCDF files that were output from dvmdostem
+    - grabs the last datapoint
+    - writes it to the sensitivity.csv file
 
     Parameters
     ----------
