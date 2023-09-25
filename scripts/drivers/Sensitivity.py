@@ -363,7 +363,7 @@ class SensitivityDriver(object):
     if self.sampling_method == 'lhc':
       self.sample_matrix = generate_lhc(Nsamples, self.params)
     elif sampling_method == 'uniform':
-      self.sample_matrix = self.generate_uniform(Nsamples, self.params)
+      self.sample_matrix = generate_uniform(Nsamples, self.params)
     else:
       raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
 
