@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Sensitivity adapted for the calibration type output
 # uses calibration configuration file as an input
 # Example: python3 run_mads_sensitivity.py /work/mads_calibration/config-step1-md1.yaml
@@ -8,6 +10,7 @@ import sys
 import yaml
 import numpy as np
 import mads_sensitivity as Sensitivity
+import drivers.Sensitivity 
 
 #read the config yaml file and 
 if len(sys.argv) != 2:
@@ -23,7 +26,7 @@ with open(config_file_name, 'r') as config_data:
 #define the SA setup
 driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
 driver.clean()
-sample_size=1000
+sample_size=10
 driver.design_experiment(sample_size, driver.cmtnum,
   params=driver.paramnames,
   pftnums=driver.pftnums,
@@ -49,8 +52,21 @@ print('params:',driver.params)
 #for i in range(len(driver.params)):
 #    driver.params[i]['bounds']=new_bounds[i]
 
-driver.generate_lhc(sample_size)
+#driver.generate_lhc(sample_size)
+driver.generate_uniform(sample_size)
 #print(driver.info())
+
+d2 = drivers.Sensitivity.SensitivityDriver()
+print(d2.info())
+d2.set_work_dir(config['work_dir'])
+d2.set_seed_path('/work/parameters/')
+d2.design_experiment(10, config['cmtnum'], config['params'], config['pftnums'], list(0.1*np.ones(len(config['pftnums']))), sampling_method='uniform')
+d2.setup_multi()
+d2.get_initial_params_dir()
+# d2.info()
+
+from IPython import embed; embed()
+
 
 #setup folders based on a sample size  
 try:

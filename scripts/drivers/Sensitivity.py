@@ -460,13 +460,17 @@ class SensitivityDriver(object):
     '''
 
     def lookup_pft_verbose_name(row):
-      if row.pftnum >= 0 and row.pftnum < 10:
-        pft_verbose_name = util.param.get_pft_verbose_name(
-          cmtnum=self.cmtnum(), pftnum=row.pftnum, 
-          lookup_path=self.get_initial_params_dir()
-        )
+      if self.get_initial_params_dir() is not None:
+        lookup_path = os.path.join(self.get_initial_params_dir(), 'parameters')
+        if row.pftnum >= 0 and row.pftnum < 10:
+          pft_verbose_name = util.param.get_pft_verbose_name(
+            cmtnum=self.cmtnum(), pftnum=row.pftnum, 
+            lookup_path=lookup_path
+          )
+        else:
+          pft_verbose_name = None
       else:
-        pft_verbose_name = None
+          pft_verbose_name = None
       return pft_verbose_name
 
     # Not all class attributes might be initialized, so if an 
