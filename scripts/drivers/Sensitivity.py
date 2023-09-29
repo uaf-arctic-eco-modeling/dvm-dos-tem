@@ -372,6 +372,28 @@ class SensitivityDriver(object):
     else:
       raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
 
+    # This little helper function is duplicated elsewhere in this file
+    # and should be consolidated...
+    def pdict2colname(pdict):
+      '''Takes a parameter dict and returns something like cmax_pft1
+
+      Examples
+      ========
+      >>> pdict2rowkey({'name': 'cmax','bounds': [117.0, 143.0], 'initial': 130.0,'cmtnum': 5, 'pftnum': 0})
+      'cmax_pft0'
+      '''
+      if 'pftnum' in pdict.keys():
+        key = "{}_pft{}".format(pdict['name'], pdict['pftnum'] )
+      else:
+        key = pdict['name']
+      return key
+
+    # Fix the names on the sample matrix columns. Make sure that the
+    # column names have the PFT info.
+    self.sample_matrix.columns = [pdict2colname(p) for p in self.params]
+
+
+
   def save_experiment(self, name=''):
     '''Write the parameter properties and sensitivity matrix to files.'''
     if name == '':
@@ -548,7 +570,7 @@ class SensitivityDriver(object):
 
      - you have called set_working_directory()
      - you have called set_seed_path()
-     - you have called designe experiment - OR you at least have:
+     - you have called design experiment - OR you at least have:
      - you have a sample_matrix
      - you have a list of param specs
 
@@ -592,6 +614,7 @@ class SensitivityDriver(object):
         pftnum = None
       return pname, pftnum
 
+    # This function is duplicated elsewhere and should be consolidated.
     def pdict2rowkey(pdict):
       '''Takes a parameter dict and returns something like cmax_1
       
@@ -698,6 +721,10 @@ class SensitivityDriver(object):
 
     This is essentially a wrapper around `core_setup(..)` 
     that allows for parallelization.
+
+    As a result of this function, multiple sample folders will be created in
+    the object's ``work_dir``. There will be one sample folder for each row
+    of the ``sample_matrix``.
     
     Returns
     -------
