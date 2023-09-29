@@ -6,18 +6,48 @@
 # Author: Elchin Jafarov 
 # Date: 03/27/2023
 
-import sys
+import os
 import yaml
 import numpy as np
-import mads_sensitivity as Sensitivity
+import argparse
+import pathlib
+
 import drivers.Sensitivity 
 
-#read the config yaml file and 
-if len(sys.argv) != 2:
-    print("Usage: python run_mads_sensitivity.py <path/configfilename>")
-    sys.exit(1)
+def config_file_validator(arg_config_file):
+  '''Make sure that the file exists'''
+  try:
+    files = os.path.isfile(arg_config_file)
+  except OSError as e:
+    msg = "Can't find file: {}".format(e)
+    raise argparse.ArgumentTypeError(msg)
+  return arg_config_file
 
-config_file_name = sys.argv[1]
+if __name__ == '__main__':
+  
+  import argparse
+  import textwrap
+
+  parser = argparse.ArgumentParser(
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+      description=textwrap.dedent('''\
+        This script runs a special Sensitivity Analysis that is used as
+        as the initial part of a the calibration process. This is the left 
+        (orange) half of the diagram.     
+        '''.format("")),
+  )
+
+  parser.add_argument("configfile", type=config_file_validator,
+      help=textwrap.dedent('''The config file to use.'''))
+
+  parser.add_argument('-f', '--force', action='store_true', 
+      help=textwrap.dedent('''Clean the working directory without warning.'''))
+
+  args = parser.parse_args()
+  
+
+config_file_name = args.configfile
+
 print(f"The filename you provided is: {config_file_name}")
 
 with open(config_file_name, 'r') as config_data:
