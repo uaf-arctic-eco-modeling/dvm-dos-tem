@@ -82,7 +82,7 @@ driver.design_experiment(Nsamples=10,
                          cmtnum=config['cmtnum'], 
                          params=config['params'], 
                          pftnums=config['pftnums'], 
-                         percent_diffs=perturbations.to_list(), 
+                         percent_diffs=list(perturbations),
                          sampling_method='uniform')
 #define the SA setup
 driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
