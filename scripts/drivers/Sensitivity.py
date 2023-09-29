@@ -383,7 +383,10 @@ class SensitivityDriver(object):
       'cmax_pft0'
       '''
       if 'pftnum' in pdict.keys():
-        key = "{}_pft{}".format(pdict['name'], pdict['pftnum'] )
+        if pdict['pftnum'] is not None:
+          key = "{}_pft{}".format(pdict['name'], pdict['pftnum'] )
+        else:
+          key = pdict['name']
       else:
         key = pdict['name']
       return key
