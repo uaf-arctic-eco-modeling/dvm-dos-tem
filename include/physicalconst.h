@@ -18,8 +18,8 @@ const float LHVAP  = 2.501e6 ; // latent heat of vaporization  J/kg
 const float LHSUB  = 2.8338e6 ; // latent heat of sublimation  J/kg
 
 const float KP     = 0.01; // rate constant related to methane. Unit/hr
-const float CH4DIFFA = 0.0720;  // diffusion of CH4 in air m2/hr 
-const float CH4DIFFW = 0.00000720;  // diffusion of CH4 in water m2/hr 
+const float CH4DIFFA = 0.0720;  // diffusion of CH4 in air m2/hr - Walter and Heimann 2000, section 2.3 (D'Ans and Lax 1967) 
+const float CH4DIFFW = 0.00000720;  // diffusion of CH4 in water m2/hr - Walter and Heimann 2000, section 2.3 (Scheffer and Schachtschabel, 1982)
 
 const float G        = 9.80616 ;  //  acceleration of gravity m/s2
 #ifndef PI

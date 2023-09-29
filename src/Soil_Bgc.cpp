@@ -93,20 +93,10 @@ void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, doubl
 
 
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
-  //Fan Eq. 13
-  // BM: check whether ub is a physical constant or a spatially explicit parameter
-  const double ub = 0.076; //umol L-1 upper boundary ch4 concentration
-  //Walter and Heimann 2000, section 2.3
-  //  references D'Ans and Lax 1967 for the same value
-  //Make global var DIFFCH4AIR?
-  // ANYONE: replace diff_a, diff_w with CH4DIFFA, CH4DIFFW in physicalconst.h
-  const double diff_a = 720.0 / 10000.0; //m2 h-1 diffusion air
-  //Walter and Heimann 2000, section 2.3
-  //  references Scheffer and Schachtschabel, 1982
-  //Make global var DIFFCH4WATER?
-  const double diff_w = 0.072 / 10000.0; //m2 h-1 diffusion water
+  //Initial atmospheric CH4 concentration upper boundary condition
+  //as in Fan et al. 2010 supplement Eq. 13. Units: umol L-1
+  const double ub = 0.076;
   const int m = 24; //n = 10 (number of dx), m = time
-//  double *C, *D, *V, *diff, *r, *s;
 // BM: should m be in a time constant related header file - also m is used in tortuosity equation
   double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
   // ANYONE: rename SS to something more descriptive
@@ -115,11 +105,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
-  //BM : SM is the mass-based Bunsen solubility coefficient 
-  //BM : SB is the Bunsen solubility coefficient
-  // BM: these are calculated within this function
-  double SB, SM, Pressure;
-  int wtbflag = 0;
+
+  //Bunsen solubility coefficient (SB). Fan et al. 2010 supplement Eq. 15.
+  //Mass-based Bunsen solubility coefficient (SM). Fan et al. 2010 supplement Eq. 16.  
+  double bun_sol, bun_sol_mass;
+
+  // double check equation for pressure
+  double Pressure;
 
   updateKdyrly4all();
 
@@ -136,6 +128,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double diff[numsoill];  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient
   double r[numsoill]; // BM: 2 + s[il] relating to sigma in Crank-Nicholson / trisolver   
   double s[numsoill]; // BM: currl->dz * currl->dz / (diff[il] * dt); this is sigma!
+
+  double ch4_pool_prev[numsoill]; //BM: Setting these to check the change before and after TriSolver - ch4_pool_tmp is assigned to in the layer loop
+  double ch4_diffusion[numsoill];  //BM: ch4_diffusion will take the difference between V (post trisolver) and ch4_pool_prev to determine changes from trisolver
 
   for(int ii=0; ii<numsoill; ii++){
     C[ii] = 0.0;
@@ -220,7 +215,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //Fan 2013 Eq. 12 for layers above the water table
       torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
-      diff_tmp = diff_a;
+      diff_tmp = CH4DIFFA;
     } else { //layer below water table
       //Fan 2013 Eq. 12 for layers below the water table
         //BM :changed torty to use volumetric liquid and ice
@@ -265,7 +260,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   ed->d_soid.oxid = 0.0;
 
   for (int j = 1; j <= m; j++) { //loop through time steps
-    wtbflag = 0;
 
     currl = ground->lstsoill; //reset currl to bottom of the soil stack
     il = numsoill-1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
@@ -356,10 +350,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         Oxid = 5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4);
         Oxid_m = Oxid * open_porosity[il] * currl->dz * 12.0;
 
-        //BM: general look this up
-        //HG: what is Plant_m = plant_ch4_sum * open_porosity * currl->dz * 1000.0; - and why 1000?
-        //plant_ch4_sum - theoretical maximum?
-
         if (ed->d_sois.ts[il] > 0.0) {
           Plant_m = plant_ch4_sum * open_porosity[il] * currl->dz * 1000.0;
         } else {
@@ -372,28 +362,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }//end of layer above the water table
 
 
-//      //Layer containing the water table
-      //  Add totEbul to Prod?
-      //BM: does this occur again? Need to think about how to do this particularly 
-      //    where the watertable is in the layer
-      //else if(layer contains water table){
-
-        //BM: can we start building a "unified" equation in this section
-
-        //figure out transfer of ebullition
-
-        //Fan eq. 17: E = kh (Cch4 - Sm)
-
-
-      //}//end of layer containing water table
-
-
-
-
-//      //Layer below the water table
-// BM: change else if(layer below water table){
-      //else if(layer below water table){
       else{
+        //FIX THIS: handles both partially saturated and completely saturated
 
         //if below, is currl->dz
         //if contains, is thickness of saturated part
@@ -461,13 +431,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //BM : check for updated empirical study of Bunsen Solubility coefficient of methane
         //BM, RR : Change SB, SM to more descriptive names
 
-        SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
+        bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
 
         //BM: Pstd and G need renaming
 
         //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
         Pressure = DENLIQ * G * (layer_sat_z + layer_sat_dz / 2.0) + Pstd;
-        SM = Pressure * SB / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+        bun_sol_mass = Pressure * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
 
         //This should be Fan 2013 Eq. 17 for if layers are below the water table
         //Fan does not explicitly limit it to layers with temp greater than 1 (at least
@@ -477,7 +447,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // and what about k_h = 1.0 /hr
 
         if(currl->tem > 1.0){
-          Ebul = (layer_sat_ch4 - SM) * 1.0;
+          Ebul = (layer_sat_ch4 - bun_sol_mass) * 1.0;
         }
         else{
           Ebul = 0.0;
@@ -521,163 +491,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
  
 
       }//end of layer below water table
-
- 
-
-
-      //Layer above water table
-      //The origin of the -0.075 is unknown.
-      //Helene checked Fan 2013, but not Walter & Heimann 2000.
-
-
-
- /*     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) {
-        if (wtbflag == 0) {
-          Prod = totEbul;
-          wtbflag = 1;
-          totEbul = 0.0; //Y.Mi
-          totEbul_m = 0.0; //Y.Mi
-        } else {
-          Prod = 0.0;
-          totEbul = 0.0; //Y.Mi
-          totEbul_m = 0.0; //Y.Mi
-        }
-
-        tmp_flux = currl->poro - currl->liq - currl->ice;
-
-        if (tmp_flux < 0.05) {
-          tmp_flux = 0.05;
-        }
-
-        TResp = getRhq10(currl->tem-2.1);
-
-        if (currl->tem >= -2.0 && currl->tem < 0.000001) {
-          TResp = getRhq10(-2.1) * 0.25;
-        } else if (currl->tem < -2.0) {
-          TResp = 0.0;
-        }
-
-        //Fan 2013 Eq 18 for layers above the water table
-        //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
-        //  set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
-        Oxid = 5.0 * currl->ch4 * TResp / (20.0 + currl->ch4);
-        Oxid_m = Oxid * tmp_flux * currl->dz * 12.0;
-
-        if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = plant_ch4_sum * tmp_flux * currl->dz * 1000.0;
-        } else {
-          Plant_m = 0.0;
-        }
-
-        //Fan 2013 Eq. 17 if layers are above the water table
-        Ebul = 0.0; // added by Y.Mi, Jan 2015
-        Ebul_m = 0.0; //Y.Mi
-     }*/ 
-
-//BM: above chunk is replicated.
-
-      //Layer below water table
-    //  else { //BM: Original "Layer below the water table" calculation we think
-/*        TResp = getRhq10(currl->tem - 6.0);
-
-        //Equations from Helene Genet to replace the ones from peat-dos-tem
-        if(ed->d_sois.ts[il] >= -2.0 && ed->d_sois.ts[il] < 0.000001){
-          TResp = getRhq10(-6.0) * 0.25;
-        }
-        else if(ed->d_sois.ts[il] < -2.0){
-          TResp = 0.0;
-        }
-
-        if(tmp_sois.rawc[il] > 0.0){
-          del_soi2a.rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp);
-        }
-        else{
-          del_soi2a.rhrawc_ch4[il] = 0.0;
-        }
-
-        if(tmp_sois.soma[il] > 0.0){
-          del_soi2a.rhsoma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp);
-        }
-        else{
-          del_soi2a.rhsoma_ch4[il] = 0.0;
-        }
-
-        if(tmp_sois.sompr[il] > 0.0){
-          del_soi2a.rhsompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp);
-        }
-        else{
-          del_soi2a.rhsompr_ch4[il] = 0.0;
-        }
-
-        if(tmp_sois.somcr[il] > 0.0){
-          del_soi2a.rhsomcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp);
-        }
-        else{
-          del_soi2a.rhsomcr_ch4[il] = 0.0;
-        }
-*/
-/*
-        //Fan 2013 Eq. 9 for layers below the water table 
-        //TODO Use liquid water, not porosity in the denominator
-        //The f(Tc,i) and Cs,i are included in the _ch4 values - calculated prior
-        //dz is in meters
-        //The /12 is from the conversion from grams to mol. 1 mol C = 12g
-        //We actually want micro-mols (10^6 micro-mol)
-        //Also converts m^3 to liters (10^-3 m^3)
-        //U (unit conversion) = (1/12) * 10^6 * 10^-3
-        //This rhrawc_ch4 has different units than the corresponding CO2.
-        //rhrawc doesn't make sense for this - it's not heterotrophic respiration
-        //this is the rate, but modified by temperature and carbon content
-        //it is hourly
-        Prod = 1000.0 * (del_soi2a.rhrawc_ch4[il] + del_soi2a.rhsoma_ch4[il] + del_soi2a.rhsompr_ch4[il] + del_soi2a.rhsomcr_ch4[il]) / (currl->dz * currl->poro) / 12.0;
-
-        //Fan 2013 Eq. 15. Bunsen solubility coefficient
-        SB = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
-
-        //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-        Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
-        SM = Pressure * SB / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
-
-        //This should be Fan 2013 Eq. 17 for if layers are below the water table
-        //Fan does not explicitly limit it to layers with temp greater than 1 (at least
-        // not at the equation).
-        if(currl->tem > 1.0){
-          Ebul = (currl->ch4 - SM) * 1.0;
-        }
-        else{
-          Ebul = 0.0;
-        }
-
-//                if (ed->d_sois.ts[il] > 1.0) Ebul = (ed->d_soid.ch4[il] - SM) * 1.0;
-//                else Ebul = 0.0;
-
-        if (Ebul < 0.0000001) {
-          Ebul = 0.0;
-        }
-
-        //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
-        //  we're in a time loop)
-        //currl->liq units are kg m^-2
-        //currl->dz units are m
-        //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit)
-        Ebul_m = Ebul * currl->liq * currl->dz * 1000.0;
-        totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
-        totEbul_m += Ebul_m; //cumulated over 1 time step, 1 hour
-
-        if (currl->tem < 0.0) {
-          totEbul_m = 0.0;
-        }
-
-        //Fan 2013 Eq 18 for layers below the water table
-        Oxid = 0.0;
-        Oxid_m = 0.0;
-
-        if (currl->tem > 0.0) {
-          Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
-        } else {
-          Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
-        }
-*/   //   }//End of layer below water table
 
       //Accumulating ebullitions per layer across timesteps for output
       ch4_ebul_layer[il] += Ebul_m;
@@ -729,6 +542,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         V[il] = 0.0;
       }
 
+      ch4_pool_prev[il] = currl->ch4; //assigning ch4 to view diffusion changes to ch4 pool
+
       currl = currl->prevl;
       il--; //Incrementing manual layer index tracker
     } //end of layer looping
@@ -740,6 +555,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     il = 1; //Reset manual layer index tracker. From 1 to allow moss layer in future
     //TODO control statement modified to stop segfaulting, not tested.
     while(currl && currl->isSoil){
+      
+      ch4_diffusion[il] = V[il] - ch4_pool_prev[il];
+
       //BM: Setting currl->ch4 + and = to V[il] to account for loss 
       //    Another update, V should be newly calculated methane, but appears to go to zero when frozen in TriSolver
       if (currl->frozen < 0 ){ //-1 refers to an unfrozen layer
