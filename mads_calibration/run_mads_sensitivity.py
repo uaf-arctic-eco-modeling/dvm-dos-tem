@@ -53,6 +53,37 @@ print(f"The filename you provided is: {config_file_name}")
 with open(config_file_name, 'r') as config_data:
     config = yaml.safe_load(config_data)
 
+# Make an instance of the driver object
+driver = drivers.Sensitivity.SensitivityDriver()
+
+# Set the "seed" path. This is the directory where initial parameter values
+# will be read from.
+driver.set_seed_path('/work/parameters/')
+
+# Set the working directory. This is the folder where all the individual runs
+# will be carried out. Each individual run directory will be setup using
+# parameter values from the seed path, and then parameter values in the
+# run directories will be adjusted as part of the sensitivity analysis.
+driver.set_work_dir(os.path.join(os.path.dirname(os.path.abspath(config_file_name)), 'SA'))
+
+# Bug in some circumstances with directory not existing yet...
+pathlib.Path(driver.work_dir).mkdir(parents=True, exist_ok=True)
+
+if args.force:
+   driver.clean()
+
+# Use this function to further configure the sensitivitry analysis. 
+# Note that the percent_diffs (aka "perturbations") array allows you to set the
+# ranges that the sampling method will use to choose parameter values. The default
+# perturbation is initial values (from seed path) +/-10%. Here we choose
+# set the perturbations to initial value +/-90%.
+perturbations = 0.9 * np.ones(len(config['pftnums']))
+driver.design_experiment(Nsamples=10, 
+                         cmtnum=config['cmtnum'], 
+                         params=config['params'], 
+                         pftnums=config['pftnums'], 
+                         percent_diffs=perturbations.to_list(), 
+                         sampling_method='uniform')
 #define the SA setup
 driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
 driver.clean()
