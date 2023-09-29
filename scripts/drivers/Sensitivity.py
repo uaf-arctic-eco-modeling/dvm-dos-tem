@@ -570,27 +570,31 @@ class SensitivityDriver(object):
 
      - you have called set_working_directory()
      - you have called set_seed_path()
-     - you have called design experiment - OR you at least have:
-     - you have a sample_matrix
-     - you have a list of param specs
+     - you have called design experiment OR you at least have:
+        * a sample_matrix
+        * a list of param specs
 
-    Do all the work to setup and configure a model run.
-    Uses the `row` parameter (one row of the sample matrix) to
-    set the parameter values for the run.
+    Do all the work to setup and configure a model run. Uses the `row` parameter
+    (one row of the sample matrix) to set the parameter values for the run.
 
-    Currently relies on command line API for various ``dvmdostem``
-    helper scripts. Would be nice to transition to using a Python
-    API for all these helper scripts (modules).
+    Currently relies on command line API for various ``dvmdostem`` helper
+    scripts. Would be nice to transition to using a Python API for all these
+    helper scripts (modules).
 
     Parameters
     ----------
     row : dict
-      One row of the sample matrix, in dict form. So like this:
-      `{'cmax': 108.2, 'rhq10': 34.24}` with one key for each parameter name.
+      One row of the sample matrix, in dict form. So like this: 
+          `{'cmax_pft0': 108.2, 'rhq10': 34.24}` 
+      with one key for each parameter name. Assumes that if ther
 
     idx : int
-      The row index of the `sample_matrix` being worked on. Gets
-      used to set the run specific folder name, i.e. sample_000001.
+      The row index of the `sample_matrix` being worked on. Gets used to set the
+      run specific folder name, i.e. sample_000001.
+
+    initial : bool
+      A flag indicating whether the folder to be setup  is the special "initial
+      value" folder.
 
     Returns
     -------
