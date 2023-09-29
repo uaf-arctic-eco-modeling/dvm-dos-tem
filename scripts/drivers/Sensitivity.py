@@ -697,8 +697,8 @@ class SensitivityDriver(object):
       pname, pft = rowkey2pdict(rowkey)
       for pdict in self.params:
         if pname == pdict['name']:
-          if not pft and 'pftnum' not in pdict.keys():
-            #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+          if not pft and pdict['pftnum'] is None:
+            #print("This is NOT a PFT one...", rowkey, pval, pname, pft, pdict, flush=True)
             util.param.update_inplace(
               pval, os.path.join(sample_specific_folder, 'parameters'), 
               pdict['name'], pdict['cmtnum'], pft
@@ -706,17 +706,17 @@ class SensitivityDriver(object):
           if pft and 'pftnum' in pdict.keys():
             if pdict['pftnum'] is not None:
               if int(pft) == int(pdict['pftnum']):
-                #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
+                #print("This IS a PFT one...", rowkey, pval, pname, pft, pdict, flush=True)
                 util.param.update_inplace(
                   pval, os.path.join(sample_specific_folder, 'parameters'), 
                   pdict['name'], pdict['cmtnum'], pft
                 )
             else:
-              pass # pftnum key is set, but value is None, so not a PFT parameter...
+              pass # pftnum key is set, but value could be None, so not a PFT parameter...
           else:
             pass # might be same param name, different pft
         else:
-          pass # wrong parameter dict
+          pass # wrong parameter dict, keep moving...
 
 
 
