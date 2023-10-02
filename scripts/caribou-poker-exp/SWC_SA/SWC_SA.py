@@ -136,16 +136,16 @@ params = ['hksat(m)','hksat(f)','hksat(h)',
           'porosity(m)', 'porosity(f)', 'porosity(h)',
           'nfactor(s)', 'nfactor(w)',
           'rhq10']#, 'rhq10_w']
-percent_diffs = [0.1, 0.1, 0.1,
-                 0.1, 0.1, 0.1,
-                 0.1, 0.1, 0.1,
-                 0.1, 0.1,
-                 0.1]#, 0.1]
-bounds = [[0.001, 0.005], [1e-4, 0.05], [1e-4, 8e-4],
-          [0.005, 0.5], [0.005, 0.5], [0.02, 2.0],
-          [0.85, 0.99], [0.85, 0.99], [0.7, 0.9],
-          [0.2, 2.0], [0.4, 1.0],
+#hksat-m .12-.15
+#.25-.35
+#.01-0.33
+bounds = [[0.0005056, 0.003922], [0.0000539, 0.004125], [0.000040, 0.000620], #[0.000040, ]
+          [0.005, 0.5], [0.005, 0.5], [0.02, 2],
+          [0.83, 0.98], [0.8, 0.83], [0.7, 0.8],
+          [0.2, 2.5], [0.1, 1],
           [1.6, 2.4]]#, [1.6, 2.4]]
+
+
 driver.logparams = [1, 1, 1,
                     1, 1, 1,
                     0, 0, 0,
@@ -155,6 +155,7 @@ driver.logparams = [1, 1, 1,
 driver.outputs = [
       { 'name': 'GPP', 'type': 'flux'},
       { 'name': 'RH','type': 'flux'},
+      { 'name': 'ALD','type': 'flux'},
       { 'name': 'LWCLAYER','type': 'layer'},
       { 'name': 'VWCLAYER','type': 'layer'},
       { 'name': 'TLAYER','type': 'layer'},
@@ -167,6 +168,7 @@ driver.design_experiment(Nsamples = 50, cmtnum = 13, params = params, percent_di
                          bounds=bounds, pftnums = [None]*len(params), sampling_method='uniform')
 
 
+driver.clean()
 driver.setup_multi()
 
 

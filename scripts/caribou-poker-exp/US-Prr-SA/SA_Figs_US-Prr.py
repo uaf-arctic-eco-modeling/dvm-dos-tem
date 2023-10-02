@@ -620,7 +620,7 @@ for index, row in minmax.iterrows():
     print(row)
 
 
-results.loc[results['kdcrawc']>results['kdcsoma']].sort_values(by='mean_rmse')[-50:]
+results.loc[results['kdcrawc']>results['kdcsoma']].sort_values(by='mean_rmse')[-60:]
 
 
 if STEP==4:
@@ -669,6 +669,9 @@ plt.ylim(0,30)
 
 sns.scatterplot(data=results, x='kdcrawc', y='CarbonShallow')
 plt.axhline(targets['CarbonShallow'], color='grey', alpha=0.5)
+
+
+results[(results['CarbonShallow']<6000)& (results['CarbonShallow']>3000)]
 
 
 sns.scatterplot(data=results, x='kdcsompr', y='CarbonDeep')

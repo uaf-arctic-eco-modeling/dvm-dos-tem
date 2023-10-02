@@ -209,6 +209,9 @@ get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_mer
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on DEEPC yearly')
 
 
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on MINEC yearly')
+
+
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SHLWC yearly')
 
 
@@ -233,8 +236,8 @@ get_ipython().system('scripts/outspec_utils.py --list-vars ../data/workflows/pok
 get_ipython().run_line_magic('cd', '/data/workflows/poker_flats_merged_data')
 
 
-#!dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=2000
-get_ipython().system("dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=115 --sp-yrs=300 --eq-yrs=1000")
+get_ipython().system("dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=500")
+#!dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=0 --sp-yrs=0 --eq-yrs=1000
 
 
 get_ipython().system('ls /data/workflows/poker_flats_merged_data/output/')
@@ -312,10 +315,13 @@ sns.scatterplot(data=orgn_df, x='year', y='ORGN')
 sns.scatterplot(data=yearly_gpp, x='year', y='LWC')
 
 
+minec_ds = nc.Dataset('/data/workflows/poker_flats_merged_data/output/MINEC_yearly_eq.nc')
+minec = minec_ds.variables['MINEC'][:, y_x[0], y_x[1]]
+year=np.array([i for i in range(0, len(minec))]).astype(np.uint16)
+minec_df = pd.DataFrame({'year': year, 'MINEC': minec})
 
 
-
-
+sns.scatterplot(data=minec_df, x='year', y='MINEC')
 
 
 

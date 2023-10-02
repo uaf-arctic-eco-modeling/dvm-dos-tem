@@ -170,19 +170,19 @@ axes[0].set(title='US-Prr', ylabel='GPP \n(gC $m^{-2}$ $month^{-1}$)')
 sns.lineplot(data=tem_comparison_years, x='m_y', y='GPP', ax=axes[0], color='grey')
 #sns.scatterplot(data=ec_data, x='m_y', y='GPP_filled', ax=axes[0], color='black', s=10, alpha=0.7)
 sns.scatterplot(data=met_data, x='m_y', y='GPP1 (gC/m2/d)', ax=axes[0], color='red', s=10, alpha=0.7)
-sns.scatterplot(data=met_data, x='m_y', y='GPP2 (gC/m2/d)', color='blue', ax=axes[0], alpha=0.7, s=10)
+#sns.scatterplot(data=met_data, x='m_y', y='GPP2 (gC/m2/d)', color='blue', ax=axes[0], alpha=0.7, s=10)
 
 
 sns.lineplot(data=tem_comparison_years, x='m_y', y=tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'], ax=axes[1], color='grey', label = 'TEM',)
 #sns.scatterplot(data=station_years, x='m_y', y='RE_filled', ax=axes[1], color='red', s=10, alpha=0.7)
 #sns.scatterplot(data=ec_data, x='m_y', y='RE_filled', ax=axes[1], color='black', s=10, alpha=0.7, label = 'US-Prr 1_1_1 (v1)')
-sns.scatterplot(data=met_data, x='m_y', y='RECO1 (gC/m2/d)', ax=axes[1], color='red', s=10, alpha=0.7, label='US-Prr 1_1_1 (v2)')
-sns.scatterplot(data=met_data, x='m_y', y='RECO2 (gC/m2/d)', ax=axes[1], color='blue', s=10, alpha=0.7, label='US-Prr 1_2_1 (v2)')
+sns.scatterplot(data=met_data, x='m_y', y='RECO1 (gC/m2/d)', ax=axes[1], color='red', s=10, alpha=0.7, label='US-Prr')
+#sns.scatterplot(data=met_data, x='m_y', y='RECO2 (gC/m2/d)', ax=axes[1], color='blue', s=10, alpha=0.7, label='US-Prr 1_2_1 (v2)')
 
 sns.lineplot(data=tem_comparison_years, x='m_y', y=(tem_comparison_years['RG']+tem_comparison_years['RH']+tem_comparison_years['RM'])-tem_comparison_years['GPP'],ax=axes[2], color='grey')
 #sns.scatterplot(data=ec_data, x='m_y', y=ec_data['RE_filled'] - ec_data['GPP_filled'], ax=axes[2], color='black', s=10, alpha=0.7)
 sns.scatterplot(data=met_data, x='m_y', y='NEE1 (gC/m2/d)', ax=axes[2], color='red', s=10, alpha=0.7)
-sns.scatterplot(data=met_data, x='m_y', y='NEE2 (gC/m2/d)', ax=axes[2], color='blue', s=10, alpha=0.7)
+#sns.scatterplot(data=met_data, x='m_y', y='NEE2 (gC/m2/d)', ax=axes[2], color='blue', s=10, alpha=0.7)
 
 axes[1].set(ylabel='RECO \n(gC $m^{-2}$ $month^{-1}$)')
 axes[2].set(ylabel='NEE \n(gC $m^{-2}$ $month^{-1}$)', xlabel='Date', )
@@ -234,7 +234,7 @@ soil_layer_synth['LWCLAYERbot'] = soil_layer_synth['LWCLAYERbot']*100
 len(soil_layer_synth[soil_layer_synth['year']==1901])
 
 
-layer = 2
+layer =3
 
 
 vwc_ds = xr.open_dataset('/data/workflows/poker_flats_merged_data/output/VWCLAYER_monthly_tr.nc')
@@ -398,10 +398,10 @@ fig.tight_layout()
 
 fig, ax = plt.subplots()
 sns.lineplot(data=tem_comparison_years, x='m_y', y='RAINFALL', label = 'Rainfall')
-sns.lineplot(data=tem_comparison_years, x='m_y', y='PET', label = 'Potential ET')
-sns.lineplot(data=tem_comparison_years, x='m_y', y='EET', label = 'Actual ET')
-sns.lineplot(data=tem_comparison_years, x='m_y', y='TRANSPIRATION', label = 'Transpiration')
-sns.lineplot(x=tem_comparison_years['m_y'], y=tem_comparison_years['EET']-tem_comparison_years['TRANSPIRATION'], label = 'Evaporation')
+#sns.lineplot(data=tem_comparison_years, x='m_y', y='PET', label = 'Potential ET')
+#sns.lineplot(data=tem_comparison_years, x='m_y', y='EET', label = 'Actual ET')
+#sns.lineplot(data=tem_comparison_years, x='m_y', y='TRANSPIRATION', label = 'Transpiration')
+#sns.lineplot(x=tem_comparison_years['m_y'], y=tem_comparison_years['EET']-tem_comparison_years['TRANSPIRATION'], label = 'Evaporation')
 plt.ylabel('mm water $m^-2$ $month^-1$')
 plt.xlabel('Date')
 fig.tight_layout()
@@ -409,9 +409,9 @@ fig.tight_layout()
 
 fig, ax = plt.subplots()
 sns.lineplot(data=yearly_tem_comparison_years, x='date', y='ALD', label = 'Active Layer Depth')
-sns.lineplot(data=yearly_tem_comparison_years, x='date', y='MOSSDZ', label = 'Moss Thickness')
+#sns.lineplot(data=yearly_tem_comparison_years, x='date', y='MOSSDZ', label = 'Moss Thickness')
 sns.lineplot(data=tem_comparison_years, x='date', y='WATERTAB', label = 'Water Table Depth')
-sns.lineplot(x=yearly_tem_comparison_years['date'], y=yearly_tem_comparison_years['SHLWDZ']+yearly_tem_comparison_years['DEEPDZ'], label = 'O Thickness')
+sns.lineplot(x=yearly_tem_comparison_years['date'], y=yearly_tem_comparison_years['SHLWDZ']+yearly_tem_comparison_years['DEEPDZ'], label = 'O-Layer Thickness')
 
 #sns.lineplot(data=tem_comparison_years, x='m_y', y='PET', label = 'Potential ET')
 #sns.lineplot(data=tem_comparison_years, x='m_y', y='EET', label = 'Actual ET')
