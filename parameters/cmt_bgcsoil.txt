@@ -191,7 +191,7 @@
 0.8               // initavln:
 //===========================================================
 // CMT13 // Black Spruce Peatland      
-2.0                 // rhq10: Marty et al., 2019; Nagano et al., 2018
+1.860264                 // rhq10: Marty et al., 2019; Nagano et al., 2018
 1.5               // rhq10_w:
 0.0                // moistmin:
 0.5               // moistopt:
