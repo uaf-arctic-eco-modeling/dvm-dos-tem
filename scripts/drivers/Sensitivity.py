@@ -599,6 +599,16 @@ class SensitivityDriver(object):
       A flag indicating whether the folder to be setup  is the special "initial
       value" folder.
 
+    calib : bool !! NOT IMPLEMENTED !!
+      This is a stub/reminder from the process of porting from the
+      ``mads_sensitivity.``py`` implementation. In that implenntation there is a
+      flag that is passed that attempts to toggle the DSL module when ``calib``
+      is True using the ``calibration_directives.txt`` file. It is likely this
+      never worked because there isn't any evidence of folks starting
+      ``dvmdostem`` with the ``--cal-mode`` flag. Leaving this note here as a
+      reminder to implement this functionality. It should be easier when PR #628
+      is merged.
+
     Returns
     -------
     None
@@ -607,6 +617,9 @@ class SensitivityDriver(object):
 
     def rowkey2pdict(key):
       '''
+      Takes a key such as 'rhq10' or 'cmax_pft1' and returns the parameter
+      name and the pft number.
+
       Examples
       =========
       >>> rowkey2pdict('cmax_pft3')
@@ -623,7 +636,9 @@ class SensitivityDriver(object):
 
     # This function is duplicated elsewhere and should be consolidated.
     def pdict2rowkey(pdict):
-      '''Takes a parameter dict and returns something like cmax_1
+      '''
+      Takes a parameter dict and returns something like 'cmax_pft1' or
+      rhq10'
       
       Examples
       ========
@@ -660,12 +675,19 @@ class SensitivityDriver(object):
       '{}/run-mask.nc'.format(sample_specific_folder)
     ])
 
+    # Looks like for the most part the mads_sensitivity.py was relying on 
+    # just using the --enable-cal-vars and was not trying to leave outputs
+    # configurable in the .yaml file...
     # Enable outputs as specified
     for output_spec in self.outputs:
       util.outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on', output_spec['name'], 'month'
       ])
+
+    # TO DO:
+    # Handle more resolutions!!!!
+
 
     # Make sure CMTNUM output is on
     util.outspec.cmdline_entry([
@@ -681,18 +703,29 @@ class SensitivityDriver(object):
     
     config['IO']['output_nc_eq'] = 1 # Modify value...
 
+    # The mads_sensitivity.py has an implementation that tries to 
+    # us the old calibration_directives.txt file to turn the dsl module 
+    # off...while I bet it was modifying the file right, I can't find anywhere
+    # that the --cal-mode flag is being passed to dvmdostem itself...
+    # Should stub out here to use the new config settings that Ruth just 
+    # made a PR for...
+    # See note in docstring for this function.
+
     # Write it back..
     with open(CONFIG_FILE, 'w') as f:
       json.dump(config, f, indent=2)
 
-    # modify parameters according to sample_matrix (param values)
-
-    # row is something like {'cmax_pft1':2344, 'cmax_pft2':2344, 'rhq10':45} 
+    # Modify parameters according to sample_matrix (param values). Iterate over
+    # the items in a row, so we can find the param dict (out of the self.params
+    # list) that matches the item in the row. Once we know the parameter name
+    # and the PFT number, we can use the utility function to modify the
+    # parameter in place.
+    # row is a dict with one row of the sample matrix, e.g.: 
+    #     {'cmax_pft1':2344, 'cmax_pft2':2344, 'rhq10':45} p
     # 
-    # iterate over the items in row, we need to find the parameter dict (out of
-    # the self.params list) that matches the item in the row. The problem is
-    # that in the parameter dict, pft is encoded with a key, where as in the
-    # row, it is an item in the row...so we can look up the 
+    # pdict is a dict with slightly different shape:
+    #      {'name': 'cmax', 'bounds': [2.28, 43.32], 'initial': 22.8, 'cmtnum': 6, 'pftnum': 0}
+    # 
     for rowkey, pval in row.items():
       pname, pft = rowkey2pdict(rowkey)
       for pdict in self.params:
