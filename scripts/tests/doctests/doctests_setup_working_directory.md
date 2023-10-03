@@ -3,7 +3,7 @@ Load the tools
     >>> import shutil
     >>> import os
 
-    >>> import setup_working_directory as swd
+    >>> import util.setup_working_directory
   
 Cleanup
 
@@ -13,28 +13,28 @@ Cleanup
 
 Run the tool on some arguments. Lets try working ones first.
 
-    >>> args = swd.cmdline_parse(
+    >>> args = util.setup_working_directory.cmdline_parse(
     ... [ '--input-data-path',
-    ...   '../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
+    ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
     ...   '/tmp/test-setup_working_directory'
     ... ])
 
 See what we got:
 
     >>> print(args)
-    Namespace(copy_inputs=False, force=False, input_data_path='../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False)
+    Namespace(copy_inputs=False, force=False, input_data_path='demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False)
 
 Now that we've parsed them, lets run the primary functionality of the utility -
 setting up a new working directroy for a `dvmdostem` run!
 
-    >>> swd.cmdline_run(args)
+    >>> util.setup_working_directory.cmdline_run(args)
 
 If we try yo run again, it should fail because the files exist and we don't want
 to overwrite them: 
 
-    >>> swd.cmdline_entry([
+    >>> util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
-    ...   '../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
+    ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
     ...   '/tmp/test-setup_working_directory'
     ... ])
     Traceback (most recent call last):
@@ -49,9 +49,9 @@ to overwrite them:
 
 If we would like to overwrite the files, then pass the `--force` flag:
 
-    >>> swd.cmdline_entry([
+    >>> util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
-    ...   '../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
+    ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
     ...   '--force',
     ...   '/tmp/test-setup_working_directory'
     ... ])

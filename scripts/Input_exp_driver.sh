@@ -56,9 +56,9 @@ done
 cd /data/workflows/workshop-lab2
 for i in $(ls);
 do
-  /work/scripts/outspec_utils.py $i/config/output_spec.csv --empty
-  /work/scripts/outspec_utils.py $i/config/output_spec.csv --on DRIVINGTAIR d
-  /work/scripts/outspec_utils.py $i/config/output_spec.csv --on NPP m
+  /work/scripts/util/outspec.py $i/config/output_spec.csv --empty
+  /work/scripts/util/outspec.py $i/config/output_spec.csv --on DRIVINGTAIR d
+  /work/scripts/util/outspec.py $i/config/output_spec.csv --on NPP m
 done
 
 # further adjust config, output settings

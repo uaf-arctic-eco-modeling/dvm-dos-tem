@@ -319,7 +319,7 @@ int main(int argc, char* argv[]){
   if (!cmtoutput_enabled) {
     BOOST_LOG_SEV(glg, err) << "Looks like CMTNUM output is NOT enabled."
                             << " Strongly recommended to enable this output!"
-                            << " Use outspec_utils.py to turn on the CMTNUM output!";
+                            << " Use util/outspec.py to turn on the CMTNUM output!";
   }
 
   // Work on checking that the particular configuration will not result in too

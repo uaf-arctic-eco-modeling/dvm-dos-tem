@@ -79,13 +79,13 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
 .. warning::
 
-  The ``outspec_utils.py`` script prints some confusing messages when working
+  The ``util/outspec.py`` script prints some confusing messages when working
   with by-layer files. For outputs that are only availale by layer, (i.e.
   LAYERDZ), the output is flagged as 'invlaid' in the ``output_spec.csv`` file.
   This means that if you provide the ``layer`` resolution specification when
-  requesting one of these outputs, ``outspec_utils.py`` will print a message to
+  requesting one of these outputs, ``util/outspec.py`` will print a message to
   the extent of "Not enabling layer outputs for LAYERDZ". This is true
-  (``outspec_utils.py`` finds the "invalid" marker and doesn't enable that
+  (``util/outspec.py`` finds the "invalid" marker and doesn't enable that
   column in the ``.csv`` file), but it is not a problem - for those outputs, the
   by-layer resolution is enforced internally in the C++ part of the model.
 
@@ -97,26 +97,26 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
       $ ./scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10 /data/workflows/exp0_jan26_test
       $ cd /data/workflows/exp0_jan26_test/
-      $ outspec_utils.py config/output_spec.csv --on RH m
-      $ outspec_utils.py config/output_spec.csv --on RG m
-      $ outspec_utils.py config/output_spec.csv --on RM m
-      $ outspec_utils.py config/output_spec.csv --on TLAYER l m
-      $ outspec_utils.py config/output_spec.csv --on GPP m p
-      $ outspec_utils.py config/output_spec.csv --on VEGC y
-      $ outspec_utils.py config/output_spec.csv --on ALD y
-      $ outspec_utils.py config/output_spec.csv --on CMTNUM y
-      $ outspec_utils.py config/output_spec.csv --on SHLWC y l
-      $ outspec_utils.py config/output_spec.csv --on SHLWDZ y l
-      $ outspec_utils.py config/output_spec.csv --on DEEPC y l
-      $ outspec_utils.py config/output_spec.csv --on DEEPDZ y l
-      $ outspec_utils.py config/output_spec.csv --on MINEC y l
-      $ outspec_utils.py config/output_spec.csv --on LAYERDZ y
-      $ outspec_utils.py config/output_spec.csv --on LAYERDEPTH y
-      $ outspec_utils.py config/output_spec.csv --on LAYERTYPE y 
-      $ runmask-util.py --reset run-mask.nc 
-      $ runmask-util.py --yx 0 0 run-mask.nc 
-      $ #runmask-util.py --yx 1 1 run-mask.nc 
-      $ #runmask-util.py --yx 2 2 run-mask.nc 
+      $ outspec.py config/output_spec.csv --on RH m
+      $ outspec.py config/output_spec.csv --on RG m
+      $ outspec.py config/output_spec.csv --on RM m
+      $ outspec.py config/output_spec.csv --on TLAYER l m
+      $ outspec.py config/output_spec.csv --on GPP m p
+      $ outspec.py config/output_spec.csv --on VEGC y
+      $ outspec.py config/output_spec.csv --on ALD y
+      $ outspec.py config/output_spec.csv --on CMTNUM y
+      $ outspec.py config/output_spec.csv --on SHLWC y l
+      $ outspec.py config/output_spec.csv --on SHLWDZ y l
+      $ outspec.py config/output_spec.csv --on DEEPC y l
+      $ outspec.py config/output_spec.csv --on DEEPDZ y l
+      $ outspec.py config/output_spec.csv --on MINEC y l
+      $ outspec.py config/output_spec.csv --on LAYERDZ y
+      $ outspec.py config/output_spec.csv --on LAYERDEPTH y
+      $ outspec.py config/output_spec.csv --on LAYERTYPE y 
+      $ runmask.py --reset run-mask.nc 
+      $ runmask.py --yx 0 0 run-mask.nc 
+      $ #runmask.py --yx 1 1 run-mask.nc 
+      $ #runmask.py --yx 2 2 run-mask.nc 
       $ dvmdostem --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85
 
 ***************************
@@ -131,8 +131,8 @@ other words if you are following along, copy the following code into your Python
 interperter and run it before continuing. 
 
 To read more about the data loading function that is imported from
-``output_utils.py`` please see the API documentation here
-:py:meth:`output_utils.load_trsc_dataframe`
+``util/output.py`` please see the API documentation here
+:py:meth:`util.output.load_trsc_dataframe`
 
 **If you are not working on the TEM Docker stack or have named your experiment
 differently, please adjust your paths accordingly.**
@@ -152,7 +152,7 @@ differently, please adjust your paths accordingly.**
       # This allows us to import tools from the dvm-dos-tem/scripts directory
       sys.path.insert(0, '/work/scripts')
 
-      from output_utils import load_trsc_dataframe
+      from util.output import load_trsc_dataframe
 
       # This lets us work with shorter paths relative to the experiment 
       # directory
@@ -190,7 +190,7 @@ information is used to set the number of transient and scenario years to run.
    So ``1380/12 = 115``. Looks like 115 years for the historic and  ``1020/85 =
    85`` for the projected.
 
-.. collapse:: Example input_util.py plot
+.. collapse:: Example input.py plot
    :class: working
 
    This shows how you might plot the driving inputs using one of the existing
@@ -198,12 +198,12 @@ information is used to set the number of transient and scenario years to run.
    figure out the exact start and end years.
 
    Also notice that this technique allows us to interact with the command line
-   interface of the ``input_util.py`` script directly from a Python interperter.
+   interface of the ``input.py`` script directly from a Python interperter.
    Neat!
 
    .. jupyter-execute::
 
-      import input_util as iu
+      import util.input
       import argparse
 
       args = {
@@ -213,7 +213,7 @@ information is used to set the number of transient and scenario years to run.
         'type': 'spatial-temporal-summary',
       }
 
-      iu.climate_ts_plot(argparse.Namespace(**args))
+      util.input.climate_ts_plot(argparse.Namespace(**args))
 
 *****************************************
 Computing Mean Vegetation C and Soil C

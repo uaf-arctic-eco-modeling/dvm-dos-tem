@@ -94,13 +94,13 @@ def setup_for_parameter_adjust_ensemble(exe_path, input_data_path, PFT='pft0', N
 
     # 2. Modify the appropriate value in the parameter files. This is somewhat
     #  obtuse, these are the steps: 
-    #    a) convert "block" of parameter data to json (using param_util.py)
+    #    a) convert "block" of parameter data to json (using util/param.py)
     #    b) modify value in json datastructure
     #    c) write json data structure to temporary file
     #    d) convert json file to "block" of data formatted as required for 
-    #       our parameter files, again using param_util.py
+    #       our parameter files, again using util.param.py
     #    e) capture output of previous step and overwrite the parameter file
-    s = "{}/param_util.py --dump-block-to-json {}/parameters/cmt_envcanopy.txt 4".format(exe_path, run_dir)
+    s = "{}/param.py --dump-block-to-json {}/parameters/cmt_envcanopy.txt 4".format(exe_path, run_dir)
     result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, capture_output=True)
     if len(result.stderr) > 0:
       print(result)
@@ -108,7 +108,7 @@ def setup_for_parameter_adjust_ensemble(exe_path, input_data_path, PFT='pft0', N
     jd[PFT][PARAM] = pv
     with open('/tmp/data.json', 'w') as f:
       f.write(json.dumps(jd))
-    s = "{}/param_util.py --fmt-block-from-json /tmp/data.json {}/parameters/cmt_envcanopy.txt".format(exe_path, run_dir)
+    s = "{}/param.py --fmt-block-from-json /tmp/data.json {}/parameters/cmt_envcanopy.txt".format(exe_path, run_dir)
     result = subprocess.run(s.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE) #, capture_output=True)
     with open("{}/parameters/cmt_envcanopy.txt".format(run_dir), 'w') as f:
       f.write(result.stdout.decode('utf-8'))

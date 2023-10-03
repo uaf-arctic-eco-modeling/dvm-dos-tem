@@ -190,19 +190,19 @@ running ``dvmdostem``. More complete instructions can be found by using the
 
 .. list-table::
 
-   * - ``$ ./scripts/setup_working_directory.py [output_dir] --input-data-path
+   * - ``$ ./scripts/util/setup_working_directory.py [output_dir] --input-data-path
        [input_dir]``
      - Set up a working directory
-   * - ``$ ./scripts/runmask-util.py --reset [run-mask file]``
+   * - ``$ ./scripts/util/runmask.py --reset [run-mask file]``
      - Disable all cells in the run mask
-   * - ``$ ./scripts/runmask-util.py --yx 0 0 [run-mask file]``
+   * - ``$ ./scripts/util/runmask.py --yx 0 0 [run-mask file]``
      - Enable cell 0,0 in the run mask
-   * - ``$ ./scripts/outspec_utils.py [output spec file] --reset``
+   * - ``$ ./scripts/util/outspec.py [output spec file] --reset``
      - Disable all outputs
-   * - ``$ ./scripts/outspec_utils.py [output spec file] --on [var] [timestep]
+   * - ``$ ./scripts/util/outspec.py [output spec file] --on [var] [timestep]
        [granularity]``
      - Enable an output (generic)
-   * - ``$ ./scripts/outspec_utils.py [output spec file] --on GPP m pft``
+   * - ``$ ./scripts/util/outspec.py [output spec file] --on GPP m pft``
      - Enable GPP output by month and pft
    * - ``$ ./dvmdostem -l err -f [config file] -p 50 -e 100 -s 250 -t 115 -n 85``
      - Run `dvmdostem` with error level logging and a specified config file
