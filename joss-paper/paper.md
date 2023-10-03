@@ -29,7 +29,7 @@ affiliations:
   - name: Woodwell Climate Research Center
     index: 2
 date: 13 September 2023
-bibliography: joss-paper.bib
+bibliography: paper.bib
 ---
 
 # Summary
@@ -37,35 +37,26 @@ bibliography: joss-paper.bib
 Questions about the evolution of ecosystems under a changing climate are
 pressing in many fields. Terrestrial Biosphere Models (TBMs) seek to answer
 questions about changing ecosystems at a scale somewhere between the Global
-Circulation Models smaller point or process specific models. The ``dvm-dos-tem``
+Circulation Models smaller point or process specific models. The ``DVMDOSTEM``
 model is a TBM focused on C and N cycling through vegetation and soil as well as
-soil thermal dynamics. The ``dvm-dos-tem`` model has been primarlily used thus
+soil thermal dynamics. The ``DVMDOSTEM`` model has been primarlily used thus
 far for high latitude ecosystems, but with work put into the parameterizations,
 it could be used elsewhere.
 
 # Statement of need
-<!-- 
-`Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
-enables wrapping low-level languages (e.g., C) for speed without losing
-flexibility or ease-of-use in the user-interface. The API for `Gala` was
-designed to provide a class-based and user-friendly interface to fast (C or
-Cython-optimized) implementations of common operations such as gravitational
-potential and force evaluation, orbit integration, dynamical transformations,
-and chaos indicators for nonlinear dynamics. `Gala` also relies heavily on and
-interfaces well with the implementations of physical units and astronomical
-coordinate systems in the `Astropy` package [@astropy] (`astropy.units` and
-`astropy.coordinates`).
 
-`Gala` was designed to be used by both astronomical researchers and by
-students in courses on gravitational dynamics or astronomy. It has already been
-used in a number of scientific publications [@Pearson:2017] and has also been
-used in graduate courses on Galactic dynamics to, e.g., provide interactive
-visualizations of textbook material [@Binney:2008]. The combination of speed,
-design, and support for Astropy functionality in `Gala` will enable exciting
-scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike. -->
+TBMs are needed because...
 
 # Mathematics
+
+The fundamental equation governing the vegetation side of ``DVMDOSTEM`` is the
+equation for GPP as a function of...
+
+$$\Theta(x) = 0$$
+
+The fundamental equations for the dynamic soil side of ``DVMDOSTEM`` are...
+
+$$`\Pi(x) = 1$$
 
 <!-- Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
 
@@ -107,7 +98,5 @@ Figure sizes can be customized by adding an optional second parameter:
 
 # Acknowledgements
 
-<!-- We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project. -->
 
 # References
