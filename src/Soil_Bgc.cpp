@@ -206,6 +206,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //BM: should dz*0.5 be there? 
   //BM: We need to include when the watertable is within the layer and how to scale production and oxidation
 
+  //Tortuosity models vary, see https://www.tandfonline.com/doi/pdf/10.1111/j.1600-0889.2009.00445.x
+  //Rename torty_tmp to pore_air_content (or something alike)
+
     if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
       torty_tmp = currl->poro - currl->getVolLiq() - currl->getVolIce(); //air content
       
@@ -218,9 +221,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       diff_tmp = CH4DIFFA;
     } else { //layer below water table
       //Fan 2013 Eq. 12 for layers below the water table
-        //BM :changed torty to use volumetric liquid and ice
-      torty = 0.66 * currl->getVolLiq() * pow(currl->getVolLiq() / (currl->poro + currl->getVolIce()), 3.0);
-      diff_tmp = diff_w;
+        //BM :changed torty to use volumetric liquid and ice ----->>>>>> should this be volumetric liquid or volumetric WATER???
+      // torty = 0.66 * currl->getVolLiq() * pow(currl->getVolLiq() / (currl->poro + currl->getVolIce()), 3.0);
+      torty = 0.66 * (currl->getVolLiq()+currl->getVolIce()) * pow((currl->getVolLiq()+currl->getVolIce())/(currl->poro), 3.0);
+      diff_tmp = CH4DIFFW;
     }
 
     //CH4 diffusion coefficient Dg, m2/h
@@ -560,9 +564,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //BM: Setting currl->ch4 + and = to V[il] to account for loss 
       //    Another update, V should be newly calculated methane, but appears to go to zero when frozen in TriSolver
-      if (currl->frozen < 0 ){ //-1 refers to an unfrozen layer
-        currl->ch4 = V[il];
-      }
+      //if (currl->frozen < 0 ){ //-1 refers to an unfrozen layer
+      currl->ch4 = V[il];
+      //}
       currl = currl->nextl;
       il++;
     }
