@@ -43,6 +43,15 @@ soil thermal dynamics. The ``DVMDOSTEM`` model has been primarlily used thus
 far for high latitude ecosystems, but with work put into the parameterizations,
 it could be used elsewhere.
 
+DVM-DOS-TEM is an advanced ecological mechanistic model tailored to capture the intricacies of vegetation and soil thermal dynamics in cold regions. Designed to study ecosystem responses to climate changes and disturbances, it has a particular focus on boreal, arctic, and alpine landscapes. The model integrates vegetation dynamics (DVM) and soil biogeochemistry (DOS-TEM) to simulate processes on monthly and yearly scales, with some components operating at an even finer granularity. Its versatility allows for site-specific to regional simulations, making it valuable for predicting shifts in permafrost, vegetation, and carbon dynamics.
+
+Key Features:
+
+* Vegetation Dynamics: Simulates the lifecycle of various plant functional types, influenced by climatic conditions.
+* Carbon and Nitrogen Cycling: Captures ecosystem carbon and nitrogen fluxes and reservoirs, incorporating processes such as photosynthesis, respiration, and decomposition.
+* Soil Thermal Dynamics: Provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover.
+* Disturbance Modules: Accounts for ecological disturbances, including wildfires, insect infestations, and anthropogenic activities.
+
 # Statement of need
 
 TBMs are needed because...
