@@ -89,9 +89,20 @@ For a quick reference, the following citation commands can be used:
 
 # Figures
 
+<!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
+![Overview of DVMDOSTEM spatial structure. DVMDOSTEM is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
+
+<!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
+![Overview of DVMDOSTEM soil and vegetation structure. On the left is the soil structure showing the layers, different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal to layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-10-09.jpg)
+
+
 <!-- Figures can be included like this:
 ![Caption for example figure.\label{fig:example}](figure.png)
+
 and referenced from text using \autoref{fig:example}.
+
+
+
 
 Figure sizes can be customized by adding an optional second parameter:
 ![Caption for example figure.](figure.png){ width=20% } -->
