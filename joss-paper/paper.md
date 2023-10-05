@@ -65,14 +65,45 @@ The model leveraged the two-directional Stefan Algorithm and the Richards equati
 
 # Mathematics
 
-The fundamental equation governing the vegetation side of ``DVMDOSTEM`` is the
-equation for GPP as a function of...
+The fundamental equation includes carbon cycling, surface and subsurface energy balance, and hydrology. In addition to these equations, the model includes the dynamics of the organic layer and fire disturbance processes. 
 
-$$\Theta(x) = 0$$
+### Carbon Cycling:
 
-The fundamental equations for the dynamic soil side of ``DVMDOSTEM`` are...
+1. **Net Primary Production (NPP):**
+   $$NPP = GPP - R_a$$
+   where $GPP$ is Gross Primary Production, and $R_a$ is autotrophic respiration.
 
-$$`\Pi(x) = 1$$
+2. **Net Ecosystem Exchange (NEE):**
+   $$NEE = NPP - R_h$$
+   where $R_h$ is heterotrophic respiration.
+
+3. **Carbon Stock Change:**
+   $$\Delta C = \text{Input} - (\text{Decomposition} + \text{Leaching})$$
+
+### Permafrost Energy Balance:
+
+1. **Conductive Heat Flux:**
+   $$Q = -k \cdot \frac{\Delta T}{\Delta z}$$
+   where $k$ is thermal conductivity, $\Delta T$ is the temperature gradient, and $\Delta z$ is the thickness of the soil layer.
+
+2. **Ground Heat Flux:**
+   $$G = (1 - \alpha) \cdot SW_{\downarrow} + LW_{\downarrow} - LW_{\uparrow} - H - LE$$
+   where $\alpha$ is albedo, $SW_{\downarrow}$ is downward shortwave radiation, $LW_{\downarrow}$ is downward longwave radiation, $LW_{\uparrow}$ is upward longwave radiation, $H$ is sensible heat flux, and $LE$ is latent heat flux.
+
+### Hydrology:
+
+1. **Water Balance Equation:**
+   $$P = Q + ET + \Delta S$$
+   where $P$ is precipitation, $Q$ is runoff, $ET$ is evapotranspiration, and $\Delta S$ is change in storage.
+
+2. **Darcy’s Law (Water Flow):**
+   $$Q = -k \cdot A \cdot \frac{\Delta h}{\Delta l}$$
+   where $Q$ is the flow rate, $k$ is the hydraulic conductivity, $A$ is the cross-sectional area, $\Delta h$ is the head loss, and $\Delta l$ is the length of the pathway.
+
+3. **Richards Equation (Unsaturated Water Flow):**
+   $$\frac{\partial \theta}{\partial t} = \nabla \cdot [K(\theta) \cdot \nabla h] + S(\theta)$$
+   where $\theta$ is the volumetric water content, $t$ is time, $K(\theta)$ is the hydraulic conductivity as a function of $\theta$, $h$ is the matric potential, and $S(\theta)$ is a source/sink term.
+
 
 <!-- Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
 
@@ -88,6 +119,14 @@ You can also use plain \LaTeX for equations
 \hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
 \end{equation}
 and refer to \autoref{eq:fourier} from text. -->
+
+# Model Architecture
+
+# Input Data
+
+# Demo
+
+# Conclusion
 
 # Citations
 
