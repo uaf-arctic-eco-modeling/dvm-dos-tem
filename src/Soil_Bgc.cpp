@@ -129,6 +129,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double r[numsoill]; // BM: 2 + s[il] relating to sigma in Crank-Nicholson / trisolver   
   double s[numsoill]; // BM: currl->dz * currl->dz / (diff[il] * dt); this is sigma!
 
+  //These are for testing:
   double ch4_pool_prev[numsoill]; //BM: Setting these to check the change before and after TriSolver - ch4_pool_tmp is assigned to in the layer loop
   double ch4_diffusion[numsoill];  //BM: ch4_diffusion will take the difference between V (post trisolver) and ch4_pool_prev to determine changes from trisolver
 
@@ -149,67 +150,29 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double rhsomcr_ch4[MAX_SOI_LAY] = {0};
   double TResp_unsat = 0;
   double TResp_sat = 0;
-  //Calculate LAI per PFT
-  //Should be by Fan Eq. 20
 
-//BM: Tveg parameter should account for PFTs, double check correct numbers in parameter files
-
-  //TODO this should only include plant types that are good
-  // methane conduits.
-//  double realLAI[NUM_PFT];
-// Ask HG: What is needed relating to LAI, do we need the previous time step LAI?
   double fLAI[NUM_PFT];
+  //Looping through pfts and assigning fgrow (0-1) from Fan equation 20
   for(int ip=0; ip<NUM_PFT; ip++){
-    //Catch for if preLAI is still UIN_D (i.e. hasn't been initialized)
-//    if(ed->d_vegs.preLAI[ip] < 0.0){
-//      ed->d_vegs.preLAI[ip] = cd->m_veg.lai[ip];
-//    }
-
-//    realLAI[ip] = ed->d_vegs.preLAI[ip] + (cd->m_veg.lai[ip] - ed->d_vegs.preLAI[ip]) / 30.0;
-
-    //See Fan Eq. 20
-    // if(chtlu->static_lai_max[ip] <= 0){
-    //   fLAI[ip] = 0;
-    // }
-    // else{
-    //   fLAI[ip] = cd->m_veg.lai[ip] / chtlu->static_lai_max[ip];
-    // }
-    // BM: implemented below statements to replace above - so fLAI remains between 0 - 1 and not based on static lai
     if(cd->m_vegd.ffoliage[ip]<=0){
       fLAI[ip] = 0;
     }
     else{
       fLAI[ip] = cd->m_vegd.ffoliage[ip];
     }
-//    double daily_LAI_change = (chtlu->static_lai[mind][ip] - cd->m_veg.lai[ip]) / DINM[mind];
-//    realLAI[ip] = ed->d_vegs.preLAI[ip] + daily_LAI_change; 
-
-    //Storing current LAI value as 'pre' for the next time
-    // this function is called.
-    //ed->d_vegs.preLAI[ip] = cd->m_veg.lai[ip];
-//    ed->d_vegs.preLAI[ip] = realLAI[ip];
   }
 
   Layer *currl = ground->fstshlwl;
   //Manual layer index tracking.
   // Starting from 1 to allow for adding the moss layer later if wanted
   int il = 1;
-  //TODO control statement modified to stop segfaulting, not tested.
   while(currl && currl->isSoil){
-
-    //Three cases:
-    // Layer is completely below the water table
-    // Layer contains the water table
-    // Layer is completely above the water table
-
-  //BM: 0.075 should either not be here, or be a fraction of the current layer
-  //BM: should dz*0.5 be there? 
-  //BM: We need to include when the watertable is within the layer and how to scale production and oxidation
 
   //Tortuosity models vary, see https://www.tandfonline.com/doi/pdf/10.1111/j.1600-0889.2009.00445.x
   //Rename torty_tmp to pore_air_content (or something alike)
 
-    if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { //layer above water table
+    //Removed dz*0.5 and watertab - 0.075 so now if the layer is completely above the WT do this
+    if (ed->d_sois.watertab > (currl->z + currl->dz) ){ //layer above water table
       torty_tmp = currl->poro - currl->getVolLiq() - currl->getVolIce(); //air content
       
       if (torty_tmp < 0.05) {
@@ -219,16 +182,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //Fan 2013 Eq. 12 for layers above the water table
       torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
       diff_tmp = CH4DIFFA;
-    } else { //layer below water table
+    } else { //layer below water table - Or contains the water table - need another ifesle statement
       //Fan 2013 Eq. 12 for layers below the water table
-        //BM :changed torty to use volumetric liquid and ice ----->>>>>> should this be volumetric liquid or volumetric WATER???
-      // torty = 0.66 * currl->getVolLiq() * pow(currl->getVolLiq() / (currl->poro + currl->getVolIce()), 3.0);
       torty = 0.66 * (currl->getVolLiq()+currl->getVolIce()) * pow((currl->getVolLiq()+currl->getVolIce())/(currl->poro), 3.0);
       diff_tmp = CH4DIFFW;
     }
 
-    //CH4 diffusion coefficient Dg, m2/h
-    //Fan 2013 Eq. 11
+    //CH4 diffusion coefficient Dg, m2/h - Fan 2013 Eq. 11
     diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
 
     //In order to prevent NaNs in the calculation of s[]
@@ -245,14 +205,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     il++;//Manual layer index increment
   }//end loop-by-layer
 
+  //CHECK THIS:
+  //if (il == 0) { looks like boundary condition is in the moss layer - but trisolver calls from il = 1
   for (il = 0; il < numsoill; il++) {
     if (il == (numsoill - 1)) {
       D[il] = r[il] - 1.0;
     } else {
       D[il] = r[il];
     }
-
-    //if (il == 0) { looks like boundary condition is in the moss layer - but trisolver calls from il = 1
 
     if (il == 1) {
       C[il] = -1.0 - ub;
