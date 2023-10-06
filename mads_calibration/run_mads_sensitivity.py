@@ -84,6 +84,21 @@ driver.design_experiment(Nsamples=10,
                          pftnums=config['pftnums'], 
                          percent_diffs=list(perturbations),
                          sampling_method='uniform')
+
+# Load up the target (aka observation) data.
+driver.load_target_data('/work/calibration/')
+
+driver.opt_run_setup = config['opt_run_setup']
+
+# Build the outputs dict for the driver object, based on what is specified by
+# the user in the config file for targets. Idea is that for each target you are
+# interested in looking at you need to make sure the appropriate netCDf output
+# is enabled.
+#
+# This is so far only designed to work for outputs that have a corresponding 
+# target. If more outputs are needed, we will need to add more functionality
+# to the setup_outputs function, or add another function.
+driver.setup_outputs(config['target_names'])
 #define the SA setup
 driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
 driver.clean()
