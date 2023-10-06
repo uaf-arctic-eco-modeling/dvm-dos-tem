@@ -807,19 +807,35 @@ class SensitivityDriver(object):
       '{}/run-mask.nc'.format(sample_specific_folder)
     ])
 
-    # Looks like for the most part the mads_sensitivity.py was relying on 
-    # just using the --enable-cal-vars and was not trying to leave outputs
-    # configurable in the .yaml file...
-    # Enable outputs as specified
+    # Looks like for the most part the mads_sensitivity.py was relying on just
+    # using the --enable-cal-vars and was not trying to leave outputs
+    # configurable in the .yaml file...which worked, but was inefficient when
+    # the user is only looking at one or two of the output variables.
+    #
+    #util.outspec.cmdline_entry([
+    #  '--enable-cal-vars',
+    #  '{}/config/output_spec.csv'.format(sample_specific_folder),
+    #])
+
+    # First clear the file incase the user has funky modifications in their repo's
+    # copy of the template output spec file.
+    # maybe a flag should be added to setup_working_directory.py that can
+    # enforce starting with an empty outspec file...
+    util.outspec.cmdline_entry([
+      '{}/config/output_spec.csv'.format(sample_specific_folder),
+      '--empty',
+    ])
+
+    # Next run thru the requested outputs toggling them on in the file.
     for output_spec in self.outputs:
       util.outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
-        '--on', output_spec['name'], 'month'
+        '--on', output_spec['name'], 
+        output_spec['timeres'],
+        output_spec['pftres'],
+        output_spec['cpartres'],
+        output_spec['layerres'],
       ])
-
-    # TO DO:
-    # Handle more resolutions!!!!
-
 
     # Make sure CMTNUM output is on
     util.outspec.cmdline_entry([
@@ -973,6 +989,10 @@ class SensitivityDriver(object):
     # Make a special directory for the "initial values" run.
     # row and idx args are ignored when setting up initial value run. 
     self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
+
+    # Could save some time here by making a template output_spec.csv file and
+    # copying it into the SSRFs rather than individually making each
+    # output_spec.csv. Same strategy could be applied to the run mask!
 
     # Make the individial sample directories
     args = list(zip(self.sample_matrix.to_dict(orient='records'),
