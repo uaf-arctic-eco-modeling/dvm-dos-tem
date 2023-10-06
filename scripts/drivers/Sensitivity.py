@@ -899,6 +899,14 @@ class SensitivityDriver(object):
         else:
           pass # wrong parameter dict, keep moving...
 
+  def load_observations(self):
+    '''
+    Might want this to handle obs for data that are not in the
+    calibration_targets.py file. This would need to be tied in with the 
+    setup_outputs(...) function.
+    '''
+    print("NOT IMPLEMENTED")
+    pass
 
   def setup_outputs(self, target_names):
     '''
