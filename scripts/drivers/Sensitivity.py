@@ -23,6 +23,71 @@ import util.setup_working_directory
 import util.runmask
 import util.outspec
 
+# Maybe these should be part of the calibration_targets.py...
+def deduce_target_type(target, meta):
+  '''
+  Helper function to figure out wheter a target is a flux or a pool by
+  inspecting the metadata for a target.
+
+  TODO: Handle monthly or daily cases.
+
+  Parameters
+  ----------
+  target : str
+    The name of a target value that can be found in the calibration_targets.py
+    file. This name should also be a key in the ``meta`` argument.
+
+  meta : dict
+    A dictionary of metadata describing calibration targets from the
+    calibration_targets.py file.
+
+  Returns
+  -------
+  type : str
+    'flux' or 'pool'
+  '''
+  type = None
+  units = None
+  if 'units' in meta[target]:
+     units = meta[target]['units']
+  else:
+    for cprt in 'Leaf Stem Root'.split(' '):
+      units = meta[target][cprt]['units']
+
+  if 'year' in units:
+     type = 'flux'
+  else:
+     type = 'pool'
+
+  return type
+
+def get_target_ncname(target, meta):
+  '''
+  Looks up the NetCDF output name based on the target name.
+
+  Parameters
+  ----------
+  target : str
+    The name of a target value that can be found in the calibration_targets.py
+    file. This name should also be a key in the ``meta`` argument.
+
+  meta : dict
+    A dictionary of metadata describing calibration targets from the
+    calibration_targets.py file. Must include a key for the ncname (NetCDF
+    name).
+
+  Returns
+  -------
+  '''
+  ncname = None
+  if 'ncname' in meta[target]:
+    ncname = meta[target]['ncname']
+  else:
+    for cprt in 'Leaf Stem Root'.split(' '):
+      ncname = meta[target][cprt]['ncname']
+  return ncname
+
+
 @contextmanager
 def log_wrapper(message,tag=''):
   '''
@@ -447,6 +512,73 @@ class SensitivityDriver(object):
           x['pftnum'] = None
         else:
           x['pftnum'] = int(x['pftnum'])
+
+  def load_target_data(self, ref_target_path=None):
+    '''
+    Load a set of target values from a calibration_targets.py file. When the
+    function is done, the targets will be available as a dictionary that is a
+    data member of the SensitivityDriver object (self). There will be an
+    additional dict named ``targets_meta`` that has the metadata about the
+    targets, for example the corresponding NetCDF name, the units, etc.
+
+    Targets could also be referred to as "observations". I.e. data that was
+    measured in the field and that model should be able to produce by
+    simulation.
+
+    This function reads the entire calibration_target.py file but extracts only
+    the targets for the CMTNUM of this SensitivityDriver object.
+
+    Note: This function loads executable code from an arbitrary loction which is
+    probably not ideal from a security standpoint. Maybe calibration_targets.py
+    should be re-facotred into a data file and a set of target utilities similar
+    to the parameters files.
+
+    Parameters
+    ==========
+    ref_target_path : str (path)
+      A path to a folder containing a calibration_targets.py file. 
+
+    Modifies/Sets
+    =============
+    self.targets, self.targets_meta
+
+    Returns
+    =======
+    None
+    '''
+    if not self.cmtnum:
+      raise RuntimeError("cmtnum must be set before you can load targets.")
+
+    print("Saving original path...")
+    original_path = sys.path
+
+    print("Loading calibration_targets from : {}".format(sys.path))
+    if not os.path.isfile(os.path.join(ref_target_path, 'calibration_targets.py')):
+      raise RuntimeError(f"Can't find calibration_targets.py file in {ref_target_path}")
+
+    sys.path = [ref_target_path]
+    # loading the calibration targets into ct and save them into caltargets dict
+    import calibration_targets as ct
+
+    targets = ct.cmtbynumber(self.cmtnum())
+    targets_meta = ct.calibration_targets['meta']
+
+    if len(targets) != 1:
+      raise RuntimeError(f'''Problem loading targets for {self.cmtnum()}
+                             from {ref_target_path}. Check file for duplicate 
+                             or missing CMTs.''')
+
+    del ct
+
+    print("Resetting path...")
+    sys.path = original_path
+
+    # targets is a dict keyed by the cmt verbose name, which is annoying,
+    # so we remove that layer and have targets simply be the inner dict, which
+    # is then keyed by target name, i.e. MossDeathC
+    self.targets = targets[list(targets.keys())[0]]
+    self.targets_meta = targets_meta
+
 
 
   def clean(self):
