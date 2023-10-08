@@ -1258,32 +1258,45 @@ class SensitivityDriver(object):
       with open(sensitivity_outfile, 'a') as f:
         f.write(pstr + ',' + ostr + '\n')
 
-  def plot_sensitivity_matrix(self):
+  def plot_sensitivity_matrix(self, save=False):
     '''
-    Make a quick plot showing the properties of the sensitivity matrix.
-    
-    One row for each parameter:
-      Left column is sample values with bounds marked in red.
-      Middle column is histogram of sample values.
-      Right column is boxplot of sample values
+    Make a set of plots showing the properties of the sensitivity matrix. This
+    plot allows you to check that the sampling strategy is producing a
+    reasonable distribution of samples across the range. Usually you want to see
+    that the whole range is sampled evenly between the bounds and that no
+    samples are falling outside the bounds.
 
+    Shows one row of plots for each parameter with 3 different ways of viewing
+    the sample distributions:
+       - Left column is sample values with bounds marked in red. 
+       - Middle column is a histogram of sample values.
+       - Right column is boxplot of sample values
+
+    Parameters
+    ----------
+    save : bool
+      True saves plot in ``work_dir`` with name
+      ``sample_matrix_distributions.png``
+
+
+    Returns
+    -------
+    None
     '''
 
-    # Elchin: please improve or comment on this plot. I am not sure
-    # what the standard, meaningful ways to visualize the sample matrix
-    # data are!
-
-    fig, axes = plt.subplots(len(self.params),3)
+    fig, axes = plt.subplots(len(self.params),3, figsize=(10,3*len(self.params)))
 
     for i, (p, ax) in enumerate(zip(self.params, axes)):
-      ax[0].plot(self.sample_matrix.iloc[:, i], marker='.', linewidth=0)
-      ax[0].set_ylabel(p['name'])
+      ax[0].plot(self.sample_matrix.iloc[:, i], marker='.', linewidth=0, alpha=.5)
+      ax[0].set_ylabel(f"{p['name']}_{p['pftnum']}")
       ax[0].hlines(p['bounds'], 0, len(self.sample_matrix)-1, linestyles='dotted', colors='red')
       ax[1].hist(self.sample_matrix.iloc[:, i], range=p['bounds'], orientation='horizontal', alpha=0.75, rwidth=0.8)
       ax[2].boxplot(self.sample_matrix.iloc[:, i])
       ax[2].set_ylim(ax[0].get_ylim())
       
     plt.tight_layout()
+    if save:
+      plt.savefig(self.work_dir + "sample_matrix_distributions.png")
 
 if __name__ == '__main__':
   import doctest
