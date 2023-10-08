@@ -1073,7 +1073,7 @@ class SensitivityDriver(object):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
-    opt_str = '-l err --force-cmt {} --ctrl-file {}'.format(self.cmtnum(), ctrl_file)
+    opt_str = f" -l fatal --force-cmt {self.cmtnum()} --ctrl-file {ctrl_file}"
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(
