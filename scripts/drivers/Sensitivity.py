@@ -369,6 +369,101 @@ class SensitivityDriver(object):
     '''Read only accessor to private member variable.'''
     return self.__initial_params_rundir
 
+  def info(self):
+    '''
+    Print some summary info about the SensitivityDriver object.
+
+    Not sure how to best handle the summary of outputs yet. Maybe
+    a separate method. The problem is that existing outputs may 
+    be leftover from prior runs and thus may not match the existing
+    params and sample_matrix data. But I don't want to be too
+    aggressive in cleaning up old outputs incase they are expensive 
+    to re-create.
+
+    Returns
+    -------
+    None
+    '''
+
+    def lookup_pft_verbose_name(row):
+      if self.__seedpath is not None:
+        lookup_path = self.__seedpath
+      elif self.get_initial_params_dir() is not None:
+        lookup_path = os.path.join(self.get_initial_params_dir(), 'parameters')
+      else:
+        pft_verbose_name = None
+        return pft_verbose_name
+
+      if row.pftnum >= 0 and row.pftnum < 10:
+        pft_verbose_name = util.param.get_pft_verbose_name(
+          cmtnum=self.cmtnum(), pftnum=row.pftnum, 
+          lookup_path=lookup_path,
+        )
+      else:
+        pft_verbose_name = None
+
+      return pft_verbose_name
+
+
+    # Not all class attributes might be initialized, so if an 
+    # attribute is not set, then print empty string.
+    try:
+      # DataFrame prints nicely
+      df = pd.DataFrame(self.params)
+      # prevents printing nan
+      # Might want to make this more specific to PFT column, 
+      # in case there somehow ends up being bad data in one of the 
+      # number columns that buggers things farther along?
+      df['PFT Name'] = df.apply(lookup_pft_verbose_name, axis=1)
+      df = df.where(df.notna(), '')
+      ps = df.to_string()
+    except AttributeError:
+      ps = "[not set]"
+
+    try:
+      #sms = self.sample_matrix.head()
+      sms = self.sample_matrix.shape
+    except AttributeError:
+      sms = "[not set]"    
+
+    info_str = textwrap.dedent('''\
+      --- Setup ---
+      work_dir: {workdir}
+      site: {site}
+      pixel(y,x): ({pxY},{pxX})
+      cmtnum: {cmtnum}
+      sampling_method: {sampmeth}
+
+      '''.format(
+        workdir=self.work_dir, site=self.site, 
+        pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum(),
+        sampmeth=self.sampling_method))
+
+    info_str += textwrap.dedent('''\
+      --- Parameters ---
+      '''.format())
+    info_str += '{}\n\n'.format(ps)
+
+
+    info_str += textwrap.dedent('''\
+      --- Sample Matrix ---
+      sample_matrix shape: {}
+
+      '''.format(sms))
+
+    info_str += textwrap.dedent('''\
+      --- Outputs ---
+      > NOTE - these may be leftover from a prior run!
+      found {} existing sensitivity csv files.
+
+      '''.format(len(self.get_sensitivity_csvs())))
+
+
+
+    return info_str
+
+
+
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
     '''
@@ -608,99 +703,6 @@ class SensitivityDriver(object):
     pattern = '{}/*/sensitivity.csv'.format(self.work_dir)
     file_list = sorted(glob.glob(pattern, recursive=True))
     return file_list
-
-  def info(self):
-    '''
-    Print some summary info about the SensitivityDriver object.
-
-    Not sure how to best handle the summary of outputs yet. Maybe
-    a separate method. The problem is that existing outputs may 
-    be leftover from prior runs and thus may not match the existing
-    params and sample_matrix data. But I don't want to be too
-    aggressive in cleaning up old outputs incase they are expensive 
-    to re-create.
-
-    Returns
-    -------
-    None
-    '''
-
-    def lookup_pft_verbose_name(row):
-      if self.__seedpath is not None:
-        lookup_path = self.__seedpath
-      elif self.get_initial_params_dir() is not None:
-        lookup_path = os.path.join(self.get_initial_params_dir(), 'parameters')
-      else:
-        pft_verbose_name = None
-        return pft_verbose_name
-
-      if row.pftnum >= 0 and row.pftnum < 10:
-        pft_verbose_name = util.param.get_pft_verbose_name(
-          cmtnum=self.cmtnum(), pftnum=row.pftnum, 
-          lookup_path=lookup_path,
-        )
-      else:
-        pft_verbose_name = None
-
-      return pft_verbose_name
-
-
-    # Not all class attributes might be initialized, so if an 
-    # attribute is not set, then print empty string.
-    try:
-      # DataFrame prints nicely
-      df = pd.DataFrame(self.params)
-      # prevents printing nan
-      # Might want to make this more specific to PFT column, 
-      # in case there somehow ends up being bad data in one of the 
-      # number columns that buggers things farther along?
-      df['PFT Name'] = df.apply(lookup_pft_verbose_name, axis=1)
-      df = df.where(df.notna(), '')
-      ps = df.to_string()
-    except AttributeError:
-      ps = "[not set]"
-
-    try:
-      #sms = self.sample_matrix.head()
-      sms = self.sample_matrix.shape
-    except AttributeError:
-      sms = "[not set]"    
-
-    info_str = textwrap.dedent('''\
-      --- Setup ---
-      work_dir: {workdir}
-      site: {site}
-      pixel(y,x): ({pxY},{pxX})
-      cmtnum: {cmtnum}
-      sampling_method: {sampmeth}
-
-      '''.format(
-        workdir=self.work_dir, site=self.site, 
-        pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum(),
-        sampmeth=self.sampling_method))
-
-    info_str += textwrap.dedent('''\
-      --- Parameters ---
-      '''.format())
-    info_str += '{}\n\n'.format(ps)
-
-
-    info_str += textwrap.dedent('''\
-      --- Sample Matrix ---
-      sample_matrix shape: {}
-
-      '''.format(sms))
-
-    info_str += textwrap.dedent('''\
-      --- Outputs ---
-      > NOTE - these may be leftover from a prior run!
-      found {} existing sensitivity csv files.
-
-      '''.format(len(self.get_sensitivity_csvs())))
-
-
-
-    return info_str
 
   def core_setup(self, row, idx, initial=False):
     '''Sets up a sample run folder for the given ``idx`` and ``row``.
