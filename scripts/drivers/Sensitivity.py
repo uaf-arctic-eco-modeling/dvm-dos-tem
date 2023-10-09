@@ -855,13 +855,13 @@ class SensitivityDriver(object):
     
     config['IO']['output_nc_eq'] = 1 # Modify value...
 
-    # The mads_sensitivity.py has an implementation that tries to 
-    # us the old calibration_directives.txt file to turn the dsl module 
-    # off...while I bet it was modifying the file right, I can't find anywhere
-    # that the --cal-mode flag is being passed to dvmdostem itself...
-    # Should stub out here to use the new config settings that Ruth just 
-    # made a PR for...
-    # See note in docstring for this function.
+    # NOTE, TODO: 
+    # The work in progress mads_sensitivity.py has an implementation
+    # that tries to us the old calibration_directives.txt file to turn the dsl
+    # module off...while I bet it was modifying the file right, I can't find
+    # anywhere that the --cal-mode flag is being passed to dvmdostem itself...
+    # Should stub out here to use the new config settings that Ruth just made a
+    # PR for... See note in docstring for this function.
 
     # Write it back..
     with open(CONFIG_FILE, 'w') as f:
