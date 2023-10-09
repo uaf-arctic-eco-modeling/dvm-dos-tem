@@ -1063,9 +1063,13 @@ class SensitivityDriver(object):
 
   def run_model(self, rundirectory):
     '''
-    Run the model. 
+    Run the model according to the setup.
     
-    Assumes everything is setup in a "Sample Specific Run Folder".
+    Assumes everything is setup in a "Sample Specific Run Folder" (SSRF).
+
+    When the run is complete, summarize the output data into a csv file that 
+    is written into the SSRF. The csv file has one column for each output.
+    The csv file should have only one row.
     
     Returns
     -------
@@ -1087,6 +1091,17 @@ class SensitivityDriver(object):
       if not completed_process.returncode == 0:
         print(completed_process.stdout)
         print(completed_process.stderr)
+
+    # Run the extraction of data from NetCDF to csv for outputs.
+    summary_data = self.summarize_ssrf(os.path.join(rundirectory, 'output'))
+
+    # Turn this data into a csv format and write it to a file.
+    csv_data = self.ssrf_summary2csv(summary_data)
+
+    with open(os.path.join(rundirectory, 'results.csv'), 'w') as outfile:
+      outfile.writelines(csv_data)
+
+    return None
 
   def first_steps_sensitivity_analysis(self):
     '''
@@ -1170,6 +1185,95 @@ class SensitivityDriver(object):
         axes[i].plot(all_data)
         axes[i].set_ylabel(o['name'])
     plt.show()
+
+  def summarize_ssrf(self, output_directory_path):
+    '''
+    Grabs the modeled data from the run and collates it into a list of dicts
+    that can then be easily transformed into other formats. The intention here
+    is to create a list of dicts that can be fed directly into a
+    ``pandas.DataFrame`` with labeled columns.
+
+    And there should be one dict in the list for each variable the outputs list.
+
+    NOTE: This function takes extract the data from the output netcdf files and
+    takes the mean over the last 10 timesteps!
+
+    Parameters
+    ==========
+    output_directory_path : str (path)
+      Path to a Sample Specific Run Folder (ssrf).
+
+    Returns
+    =======
+    data : [{...}, ... {...}], list of dicts
+      One dict for each output that is specified. The keys in the dicts will be
+      cmt, ncname, ctname, modeled_value, target_value and pft and compartment
+      when appropriate. For example: 
+
+        { 'cmt': 'CMT06',
+          'ncname': 'INGPP', 'ctname': 'GPPAllIgnoringNitrogen',
+          'modeled_value': 6.743048039242422, 'target_value': 11.833, 'pft': 0 }
+
+      There will be one dict in the returned list for each output variable. 
+    '''
+    def standardize(resspec):
+      '''
+      Standardize the time resolution specification.
+      '''
+      std = ''
+      if resspec.lower() in ['y','yr','yearly','year']:
+        std = 'yearly'
+      if resspec.lower() in ['m','monthly','month',]:
+        std = 'monthly'
+      return std
+
+    # Note that the following block of code is quite similar to functions in
+    # qcal.py::measure_calibration_quality...(...)
+    final_data = []
+    last_N_timesteps = 10
+    cmtkey = f"CMT{self.targets['cmtnumber']:02d}"
+    pref = os.path.join(self.get_initial_params_dir(), 'parameters')
+
+    for output in self.outputs:
+      ncname = output['ncname']
+      ctname = output['ctname']
+      resspec = standardize(output['timeres'])
+
+      data, dims = util.output.get_last_n_eq(ncname, resspec, output_directory_path, n=last_N_timesteps)
+      dsizes, dnames = list(zip(*dims))
+
+      #print(ctname, output_directory_path, ncname, dims, dnames, dsizes)
+      if dnames == ('time','y','x'):
+        truth = self.targets[ctname]
+        value = data[:,self.PXy,self.PXx].mean()
+        d = dict(cmt=cmtkey, ncname=ncname, ctname=ctname, modeled_value=value, target_value=truth)
+        final_data.append(d)
+
+      elif dnames == ('time','y','x','pft'):
+        for pft in range(0,10):
+          if util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=pref):
+            truth = self.targets[ctname][pft]
+            value = data[:,pft,self.PXy,self.PXx].mean()
+            d = dict(cmt=cmtkey, ncname=ncname, ctname=ctname, modeled_value=value, target_value=truth, pft=pft)
+            final_data.append(d)
+          else:
+            pass #print "  -> Failed" # contributor test! Ignoring pft:{}, caltarget:{}, output:{}".format(pft, ctname, ncname)
+
+      elif dnames == ('time','y','x','pft','pftpart'):
+        for pft in range(0,10):
+          clu = {0:'Leaf', 1:'Stem', 2:'Root'}
+          for cmprt in range(0,3):
+            if util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=pref):
+              truth = self.targets[ctname][clu[cmprt]][pft]
+              value = data[:,cmprt,pft,self.PXy,self.PXx].mean()
+              d = dict(cmt=cmtkey, ncname=ncname, ctname=ctname, modeled_value=value, target_value=truth, pft=pft, cmprt=clu[cmprt])
+              final_data.append(d)
+            else:
+              pass #print "  -> Failed! "#contributor test! Ignoring pft:{}, compartment:{}, caltarget:{}, output:{}".format(pft, cmprt, ctname, ofname)
+      else:
+          raise RuntimeError(f"Unexpeceted dimensions for variable {ncname}")
+
+    return final_data
 
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
