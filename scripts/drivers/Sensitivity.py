@@ -1275,6 +1275,43 @@ class SensitivityDriver(object):
 
     return final_data
 
+  def ssrf_summary2csv(self, list_of_data):
+    '''
+    Transforms a list of dicts with output data into a csv.
+
+    Parameters
+    ==========
+    list_of_data : list of dicts
+      List of dicts as produced by ``summarize_ssrf(..)``. Keys should be
+      cmt, ncname, ctname, modeled_value, target_value and pft and compartment
+      when applicable
+
+    Returns
+    =======
+    data : str, formatted csv file
+      data will be a string that is a csv file with column names being output
+      variable (with PFT and compartment if applicable) and data will be the 
+      modeled value for that output. The csv will should have one header line
+      and one data line.
+
+    '''
+    def colname(x):
+      '''Builds column names using NetCDF name, PFT and compartment.'''
+      cname = ''
+      if 'pft' in x and 'cmprt' in x:
+        cname = f"{x['ncname']}_pft{x['pft']}_{x['cmprt']}"
+      elif 'pft' in x and 'cmprt' not in x:
+        cname = f"{x['ncname']}_pft{x['pft']}"
+      else:
+        cname = f"{x['ncname']}"
+      return cname
+
+    final = {}
+    for data in list_of_data:
+      final[colname(data)] = data['modeled_value']
+    d = pd.DataFrame([final])
+    return d.to_csv(index=False)
+
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
     Creates a csv file in each run directory that summarizes the run's
