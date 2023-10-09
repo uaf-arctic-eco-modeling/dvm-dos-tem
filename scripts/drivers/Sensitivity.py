@@ -1186,6 +1186,32 @@ class SensitivityDriver(object):
         axes[i].set_ylabel(o['name'])
     plt.show()
 
+  def post_hoc_build_all(self):
+    '''
+    After the run is done, go make all the ssrf results.csv files...
+
+    Typically these are created on-the-fly in the run_model(...) function, but
+    in some cases it is nice to build them again later.
+
+    Returns
+    =======
+    None
+    '''
+
+    # Make all the individual run summaries. Should parallelize this...
+    for ssrf in self._ssrf_names():
+      data = self.summarize_ssrf(os.path.join(ssrf, 'output'))
+      csv_data = self.ssrf_summary2csv(data)
+      with open(os.path.join(ssrf, 'results.csv'), 'w') as outfile:
+        outfile.write(csv_data)
+
+    #bring 'em all together into one file in the work dir
+    self.collate_results()
+
+    # make the targets file in the work dir too.
+    d0 = self.summarize_ssrf(os.path.join(self._ssrf_names()[0], 'output'))
+    self.ssrf_targets2csv( d0, os.path.join(self.work_dir, 'targets.csv') )
+
   def collate_results(self):
     '''
     Gathers up all the results.csv files from individual ssrf folders and
