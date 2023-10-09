@@ -1250,7 +1250,7 @@ class SensitivityDriver(object):
     data : [{...}, ... {...}], list of dicts
       One dict for each output that is specified. The keys in the dicts will be
       cmt, ncname, ctname, modeled_value, target_value and pft and compartment
-      when appropriate. For example: 
+      when applicable. For example: 
 
         { 'cmt': 'CMT06',
           'ncname': 'INGPP', 'ctname': 'GPPAllIgnoringNitrogen',
