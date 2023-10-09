@@ -1186,6 +1186,22 @@ class SensitivityDriver(object):
         axes[i].set_ylabel(o['name'])
     plt.show()
 
+  def collate_results(self):
+    '''
+    Gathers up all the results.csv files from individual ssrf folders and
+    stuffs them into one giant csv file. Number of rows should match rows in
+    sample matrix.
+
+    Writes file "results.csv" to the work dir.
+
+    Returns
+    =======
+    None
+    '''
+    results = [os.path.join(ssrf, 'results.csv') for ssrf in self._ssrf_names()]
+    df = pd.concat(map(pd.read_csv, results), ignore_index=True)
+    with open(os.path.join(self.work_dir, 'results.csv'), 'w') as f:
+      f.write(df.to_csv())
   def summarize_ssrf(self, output_directory_path):
     '''
     Grabs the modeled data from the run and collates it into a list of dicts
