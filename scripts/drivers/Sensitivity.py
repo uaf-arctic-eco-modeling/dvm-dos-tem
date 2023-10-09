@@ -1312,6 +1312,65 @@ class SensitivityDriver(object):
     d = pd.DataFrame([final])
     return d.to_csv(index=False)
 
+  def ssrf_targets2csv(self, data, filename):
+    '''
+    Write a nicely formatted csv file with the target values. The column names
+    are the NetCDF variable names with PFT and compartment if applicable. The
+    calibration target names (names that are used for target values in the
+    calibration_targets.py file) are included as a commented out line at the top
+    of the file.
+
+    Including the comment line with calibration target names precludes following
+    the API pattern of the ssrf_summary2csv(..) function, so here rather than
+    returing the csv string, we require a path name and we write data to the
+    file.
+
+    Writes file to ``filename``.
+
+    Parameters
+    ----------
+    data : list of dicts
+      Something like this:
+
+      [ {'cmt': 'CMT06',
+         'ncname': 'INGPP', 'ctname': 'GPPAllIgnoringNitrogen', 'pft': 0
+         'modeled_value': 8.8399451693811, 'target_value': 11.833, }, ... ]
+
+    Returns
+    -------
+    None
+    '''
+
+    def colname(x, vname):
+      '''Builds column names using NetCDF name, PFT and compartment.'''
+      assert  vname in ('ctname','ncname'), "Invalid parameter"
+      col = ''
+      if 'pft' in x and 'cmprt' in x:
+        col = f"{x[vname]}_pft{x['pft']}_{x['cmprt']}"
+      elif 'pft' in x and 'cmprt' not in x:
+        col = f"{x[vname]}_pft{x['pft']}"
+      else:
+        col = f"{x[vname]}"
+      return col  # e.g. INGPP_pft0 or GPPAllIgnoringNitrogen_pft0
+
+    with open(filename, 'w') as f:
+
+      # write the header line which uses the calibration targets names.
+      header = ','.join([colname(d, 'ctname') for d in data])
+      f.write('#' + header + '\n')
+
+      # make the data dictionary keyed by the netcdf name.
+      final = []
+      row_dict = {}
+      for d in data:
+        row_dict[colname(d, 'ncname')] = d['target_value']   
+      final.append(row_dict)
+
+      d = pd.DataFrame(final).to_csv(f, index=False)
+
+    return None
+
+
   def extract_data_for_sensitivity_analysis(self, posthoc=True, multi=True):
     '''
     Creates a csv file in each run directory that summarizes the run's
