@@ -40,6 +40,14 @@ if __name__ == '__main__':
   parser.add_argument("configfile", type=config_file_validator,
       help=textwrap.dedent('''The config file to use.'''))
 
+  parser.add_argument('--N', type=int, default=10,
+      help=textwrap.dedent('''The number of samples that should be run.'''))
+
+  parser.add_argument('--sampling-method', default='uniform',
+      choices=['uniform','lhc'],
+      help=textwrap.dedent('''Which sampling method to use for drawing parameter
+        sets. ``lhc`` offers better coverage, but is slow.'''))
+
   parser.add_argument('-f', '--force', action='store_true', 
       help=textwrap.dedent('''Clean the working directory without warning.'''))
 
@@ -78,12 +86,12 @@ if args.force:
 # perturbation is initial values (from seed path) +/-10%. Here we choose
 # set the perturbations to initial value +/-90%.
 perturbations = 0.9 * np.ones(len(config['pftnums']))
-driver.design_experiment(Nsamples=10, 
+driver.design_experiment(Nsamples=args.N, 
                          cmtnum=config['cmtnum'], 
                          params=config['params'], 
                          pftnums=config['pftnums'], 
                          percent_diffs=list(perturbations),
-                         sampling_method='uniform')
+                         sampling_method=args.sampling_method)
 
 # Load up the target (aka observation) data.
 driver.load_target_data('/work/calibration/')
