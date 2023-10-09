@@ -231,6 +231,9 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
   for params specified in `params` for the pfts specified in `pftnums` and the
   Community specified in `cmtnum`. Sets bounds based on the intial values
   found in the `seedpath` and according to the percent_diffs.
+  
+  NOTE: What happens for negative numbers? Do the bounds need to be reversed?
+  
   '''
 
   assert len(params) == len(pftnums), "params list and pftnums list must be same length!"
