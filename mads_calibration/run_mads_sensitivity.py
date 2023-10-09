@@ -99,64 +99,29 @@ driver.opt_run_setup = config['opt_run_setup']
 # target. If more outputs are needed, we will need to add more functionality
 # to the setup_outputs function, or add another function.
 driver.setup_outputs(config['target_names'])
-#define the SA setup
-driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
-driver.clean()
-sample_size=10
-driver.design_experiment(sample_size, driver.cmtnum,
-  params=driver.paramnames,
-  pftnums=driver.pftnums,
-  percent_diffs=list(0.1*np.ones(len(driver.pftnums))),
-  sampling_method='uniform')
 
-#getting initial parameters from config file
-initial=config['mads_initial_guess']
-
-perturbation=0.9
-for i in range(len(driver.params)):
-    driver.params[i]['initial']=initial[i]
-    driver.params[i]['bounds']=[initial[i] - (initial[i]*perturbation), initial[i] + (initial[i]*perturbation)]
-
-print('params:',driver.params)
-
-#customize bounds
-#new_bounds=[[1, 5], [1, 5], [1, 5], [1, 5], \
-#        [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1], \
-#        [-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1],[-20, -0.1] \
-#        ]
-
-#for i in range(len(driver.params)):
-#    driver.params[i]['bounds']=new_bounds[i]
-
-#driver.generate_lhc(sample_size)
-driver.generate_uniform(sample_size)
-#print(driver.info())
-
-d2 = drivers.Sensitivity.SensitivityDriver()
-print(d2.info())
-d2.set_work_dir(config['work_dir'])
-d2.set_seed_path('/work/parameters/')
-d2.design_experiment(10, config['cmtnum'], config['params'], config['pftnums'], list(0.1*np.ones(len(config['pftnums']))), sampling_method='uniform')
-d2.setup_multi()
-d2.get_initial_params_dir()
-# d2.info()
-
-from IPython import embed; embed()
-
-
-#setup folders based on a sample size  
 try:
-    driver.setup_multi(calib=True)
+    # add param calib  (a boolean, turns off dsl)
+    driver.setup_multi() 
 except ValueError:
     print("Oops!  setup_multi failed.  Check the setup...")
 
-#run themads_sensitivity in parallel
 try:
     driver.run_all_samples()
 except ValueError:
     print("Oops!  run_all_samples failed.  Check the sample folders...")
 
-#save results in the work_dir results.txt
-#NOTE, that the last row in the results.txt is targets/observations
-driver.save_results()
+# Gather up all the results into one place.
+driver.collate_results()
+
+# Make the targets file in the work dir too. This API needs to change slightly
+# as it required using the private _ssrf_names() function inorder to make
+# the targets csv file...
+d0 = driver.summarize_ssrf(os.path.join(driver._ssrf_names()[0], 'output'))
+driver.ssrf_targets2csv(d0, os.path.join(driver.work_dir, 'targets.csv'))
+
+# TODO: keep working on implementing the dsl on/off toggle correctly. This
+# existed in the mads_sensitivity.py, but I don't think it was doing anything.
+# (no evidence of ever calling dvmdostem with --cal-mode, so calibration
+# directives file was likely never being read or executed.)
 
