@@ -66,11 +66,15 @@ Layer::~Layer() {
   BOOST_LOG_SEV(glg, debug) << "Deleting a (generic) layer object...";
 };
 
+
 void Layer::advanceOneDay() {
   age+=1/365.;
 };
 
-double Layer::getHeatCapacity() { // volumetric heat capacity
+
+/** Returns volumetric heat capacity determined by
+ *   layer type and frozen status. */
+double Layer::getHeatCapacity() {
   double hcap = MISSING_D;
 
   if(isSoil) {
@@ -90,6 +94,9 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   return hcap;
 };
 
+
+/** ???
+ */
 double Layer::getThermalConductivity() {
   double tc = MISSING_D;
 
@@ -107,12 +114,17 @@ double Layer::getThermalConductivity() {
   return tc;
 };
 
+
+/** Return volumetric water (frozen and liquid) */
 double Layer::getVolWater() {
   double vice = getVolIce();
   double vliq = getVolLiq();
   return fmin((double)poro,(double)vice+vliq);
 };
 
+
+/** ???
+ */
 double Layer::getEffVolWater() {
   double effvol = 0.;
 
@@ -129,6 +141,9 @@ double Layer::getEffVolWater() {
   return effvol;
 };
 
+
+/** ???
+ */
 double Layer::getVolIce() {
   if (dz != 0) {
     double vice = ice/DENICE/dz; // FIX THIS: divide by zero error when there is no thickness!
@@ -150,6 +165,9 @@ double Layer::getVolIce() {
   }
 };
 
+
+/** ???
+ */
 double Layer::getVolLiq() {
   if (dz != 0) {
     double vliq = liq/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
@@ -169,11 +187,11 @@ double Layer::getVolLiq() {
   } else {
     return 0;
   }
-
-
-
 };
 
+
+/** ???
+ */
 double Layer::getEffVolLiq() {
   if (dz != 0) {
     double evliq = (liq-minliq)/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
@@ -182,4 +200,11 @@ double Layer::getEffVolLiq() {
   } else {
     return 0;
   }
+};
+
+
+/** Returns volumetric air: proportion of porosity not occupied
+ *   by water or ice) */
+double Layer::getVolAir(){
+  return this->poro - this->getVolLiq() - this->getVolIce();
 };

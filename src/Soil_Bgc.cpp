@@ -173,7 +173,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     //Removed dz*0.5 and watertab - 0.075 so now if the layer is completely above the WT do this
     if (ed->d_sois.watertab > (currl->z + currl->dz) ){ //layer above water table
-      torty_tmp = currl->poro - currl->getVolLiq() - currl->getVolIce(); //air content
+      torty_tmp = currl->getVolAir(); //air content
       
       if (torty_tmp < 0.05) {
         torty_tmp = 0.05;
@@ -301,7 +301,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if (ed->d_sois.watertab - 0.075 > (currl->z + currl->dz*0.5)) { 
 
-        open_porosity[il] = currl->poro - currl->getVolLiq() - currl->getVolIce(); //air content
+        open_porosity[il] = currl->getVolAir(); //air content
         if(open_porosity[il] < 0.05){
           open_porosity[il] = 0.05;
         } 
@@ -562,7 +562,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   Layer* topsoil = ground->fstshlwl;
 
   //BM: Torty_tmp again below vvv
-  tmp_flux = (topsoil->poro - topsoil->getVolLiq() - topsoil->getVolIce()); //air content
+  tmp_flux = topsoil->getVolAir(); //air content
   //tmp_flux = (cd->m_soil.por[1] - ed->d_soid.alllwc[1] - ed->d_soid.alliwc[1]);
 
   if (tmp_flux < 0.05) {

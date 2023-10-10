@@ -104,6 +104,7 @@ public:
   double getVolLiq();
   double getEffVolLiq();
   double getVolIce();
+  double getVolAir();
 
   virtual double getFrzThermCond()=0; // get frozen layer thermal conductivity
   virtual double getUnfThermCond()=0; // get unfrozen layer thermal conductivity
