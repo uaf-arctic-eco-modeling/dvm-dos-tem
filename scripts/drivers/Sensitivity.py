@@ -330,8 +330,13 @@ class SensitivityDriver(object):
   def __init__(self, work_dir=None, sampling_method=None, clean=False,opt_run_setup=None):
     '''Create a SensitivityDriver object.'''
 
+    # These are setup in this construction, but are declared here simply to 
+    # keep the object definition more explicit.
     self.__seedpath = None
+    self.work_dir = None
+    self.__initial_params_rundir = None
 
+    # handles __initial_params_rundir as well
     self.set_work_dir(work_dir)
 
     self.site = '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10'
@@ -349,6 +354,15 @@ class SensitivityDriver(object):
 
     if clean and work_dir is not None:
       self.clean()
+
+    # These will get setup later; client for setting them directly or using
+    # other member functions for setting.
+    # TODO: finish exposing thse to client and or make client interface
+    # more consistent.
+    self.params = None
+    self.sample_matrix = None
+    self.targets = None
+    self.targets_meta = None
 
   def set_work_dir(self, path):
     '''Sets the working directory for the object. Assumes that the working
@@ -648,10 +662,8 @@ class SensitivityDriver(object):
     if not self.cmtnum:
       raise RuntimeError("cmtnum must be set before you can load targets.")
 
-    print("Saving original path...")
     original_path = sys.path
 
-    print("Loading calibration_targets from : {}".format(sys.path))
     if not os.path.isfile(os.path.join(ref_target_path, 'calibration_targets.py')):
       raise RuntimeError(f"Can't find calibration_targets.py file in {ref_target_path}")
 
@@ -669,7 +681,6 @@ class SensitivityDriver(object):
 
     del ct
 
-    print("Resetting path...")
     sys.path = original_path
 
     # targets is a dict keyed by the cmt verbose name, which is annoying,
@@ -1233,6 +1244,8 @@ class SensitivityDriver(object):
     df = pd.concat(map(pd.read_csv, results), ignore_index=True)
     with open(os.path.join(self.work_dir, 'results.csv'), 'w') as f:
       f.write(df.to_csv())
+
+
   def summarize_ssrf(self, output_directory_path):
     '''
     Grabs the modeled data from the run and collates it into a list of dicts

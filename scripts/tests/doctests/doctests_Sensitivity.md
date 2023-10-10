@@ -81,7 +81,7 @@ working directory. Nothing has been setup yet, no folders have been created, and
 no parameters set or copied. We have simply told the `SensitivityDriver` where
 we would like the files to go, but we haven't actually initialized anything yet.
 
-To finish setting up the experment we need to create the `sample_matrix` and
+To finish setting up the experiment we need to create the `sample_matrix` and
 have all the individual sample run directories be setup with the correct
 parameter values from the sample matrix. In addition, the
 `initial_params_run_dir` should be setup with parameter values from the
@@ -237,11 +237,27 @@ Now that the save/load functionality has been tested we can go back to testing
 the main functionality of the driver. We'll start by setting up a small
 experiment and running it. We already have designed our experiment, so the
 driver object has a list of parameters to modify and has generated a sample
-matrix from the parameter specifications. But in order to run the analysis we
-need to have a dedicated folder for each of the runs. Each run folder should
-have in it parameter files with the modified parameter values. The
-`SensitivityDriver` object provides a funciton for creating and populating these
-directories:
+matrix from the parameter specifications. An additional piece of setup remains:
+setting the targets values and turning on the appropriate model outputs so that
+a comparison with the targets is possible. Targets are stored in a special
+python file named `calibration_targets.py`. This is a python file with a
+dictionary datastructure holding the target values. For this experiment, we will
+use the default target set that comes with the repository. THis function loads
+up all the targets for the driver's cmt number.
+
+    >>> sd.load_target_data('/work/calibration')
+
+The next step is to setup the output variables that the model runs should
+produce. The helper function used below takes a list of target names and assumes
+that you want the corresponding NetCDF outputs to be enabled so that you can
+compare the model outputs with the target values to check model performance.
+
+    >>> sd.setup_outputs(['GPPAllIgnoringNitrogen', 'VegCarbon']) 
+
+Finally, to actually run the mode (in parallel) each run needs to have a
+dedicated folder to run in. Each run folder should have in it
+parameter files with the modified parameter values. The `SensitivityDriver`
+object provides a funciton for creating and populating these directories:
 
     >>> sd.setup_multi()
 
