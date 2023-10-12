@@ -1355,13 +1355,13 @@ double  Soil_Env::updateLayerTemp5Lat(Layer* currl, const double & infil) {
     double tem = currl->tem;
     //SoilLayer* sl = dynamic_cast<SoilLayer*>(currl);
     double vhp = currl->getHeatCapacity();
-    double heatprovide = infil * 3.34e5; // provide latent heat
+    double heatprovide = infil * LHFUS; // provide latent heat
     double heatneed = fabs(tem) * vhp * currl->dz; //needed heat for increasing
                                                    //temperature from minus
                                                    //to zero
     if(heatprovide >=heatneed) {
       currl->tem =0.;
-      extraliq = (heatprovide -heatneed)/3.34e5;
+      extraliq = (heatprovide -heatneed)/LHFUS;
     } else {
       if(currl->tem<0) { // a double check
         currl->tem += heatprovide/(vhp *currl->dz);

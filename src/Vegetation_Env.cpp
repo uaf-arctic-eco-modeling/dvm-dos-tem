@@ -239,12 +239,12 @@ double Vegetation_Env::getPenMonET(const double & ta, const double& vpd,
                                    const double &irad, const double &rv,
                                    const double & rh) {
   double et; // out , mmH2O/m2s
-  double CP =1004.64 ; // specific heat capacity of dry air [J/kgK)
-  double tk = ta+273.15;
-  double pa = 101300;// pressure , Pa
-  double rho = 1.292- (0.00428 * ta); // air density  kg/m3
-  double EPS=0.6219; // ratio of mole weights
-  double SBC= 5.67e-8; //Stefan-boltzmann constant W/m2K4
+  double CP =1004.64 ; // specific heat capacity of dry air [J/kgK) - BM: SHCAIR
+  double tk = ta + 273.15;
+  double pa = 101300;// pressure , Pa - Pstd
+  double rho = 1.292 - (0.00428 * ta); // air density  kg/m3 - BM: 1.292 density of dry air at given temperature should be exported to physicalconst
+  double EPS=0.6219; // ratio of mole weights BM: as with this
+  double SBC= 5.67e-8; //Stefan-boltzmann constant W/m2K4 BM: STFBOLTZ
   /*resistance to raiative heat transfer through air*/
   double rr = rho * CP /(4.0 * SBC * tk* tk*tk);
   /* resistance to convective heat tranfer: rh*/
@@ -253,7 +253,7 @@ double Vegetation_Env::getPenMonET(const double & ta, const double& vpd,
    * parallel resistances:rhr= (rh*rr)/(rh+rr)*/
   double rhr = (rh*rr)/(rh+rr);
   /*latent heat of vaporization as a function of ta*/
-  double lhvap = 2.5023e6 -2430.54 *ta;
+  double lhvap = 2.5023e6 - 2430.54 *ta; //BM: LHVAP - 2430.54 * ta
   double dt =0.2;
   double t1 = ta+dt;
   double t2 =ta-dt;
@@ -263,8 +263,8 @@ double Vegetation_Env::getPenMonET(const double & ta, const double& vpd,
   /*slope of pvs vs. T curve at T*/
   double slope = (pvs1-pvs2)/(t1-t2);
   /*evapotranspiration*/
-  et = (slope*irad+ rho*CP *vpd/rhr)/((pa * CP *rv)/(lhvap*EPS *rhr)+slope);
-  return et/lhvap;
+  et = (slope*irad+ rho*CP *vpd/rhr)/((pa * CP *rv)/(lhvap*EPS *rhr)+slope); //BM: lhvap needs renaming temperature dependent lhvap
+  return et/lhvap; //BM: rename lhvap
 };
 
 double Vegetation_Env::getCanopySubl(const double & rac, const double & sinter,
@@ -272,11 +272,10 @@ double Vegetation_Env::getCanopySubl(const double & rac, const double & sinter,
   double sub;
   double psub; //potential sub
   double snow_int =envpar.iscoef;
-  double lamdaw = 2.501e6; // latent heat of vaporization J/kg
-  double lf = 3.337e5 ;// latent heat of fusion J/kg
+  double lamdaw = 2.501e6; // latent heat of vaporization J/kg - BM: LHVAP
   //rac in unit W/m2
   // change the unit from J/kg to MJ/mm
-  double phasechange = (lamdaw+lf)/10e6 ;
+  double phasechange = (lamdaw+LHFUS)/10e6 ;
   double sub1 = (rac*86400)/phasechange;
   //double sub2 = lai/envpar.all2prj * snow_int;
   double sub2 = lai * snow_int;
