@@ -527,6 +527,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
+    //Runoff / qover removed - see lines 537-539 cmt31 bog calibration
     // ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
     ed->d_soi2l.qover = 0.0;
   } else {
@@ -534,7 +535,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   }
 
   //Calculate infiltration (mm/day)
-  // double infil = rnth + melt - ed->d_soi2l.qover;
+  // double infil = rnth + melt - ed->d_soi2l.qover; BM: for cmt31 (bog) we are rerouting runoff losses back into infiltration 
+  // as system is hydrologically isolated and topographically lower than surrounding peat plateaus (so no losses) 
   double infil = rnth + melt + getRunoff(fstsoill, drainl, rnth, melt);
 
   //Get unsaturated space potentially available for liq infiltration (mm)
@@ -560,6 +562,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
   ed->d_soi2l.magic_puddle += add_to_puddle;
   //Subtracting surface water storage from runoff
+  //BM: removing qover interactions
   //ed->d_soi2l.qover -= add_to_puddle;
 
   //If there is space remaining in the soil, and water in

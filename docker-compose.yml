@@ -33,9 +33,9 @@ services:
     ports:
       - "7001:7001"
     volumes:
-       - /home/bmaglio/develop/dvm-dos-tem:/work
-       - /home/bmaglio/develop/ddt_inputs:/data/input-catalog
-       - /home/bmaglio/develop/ddt_outputs:/data/workflows
+       - sourcecode:/work
+       - inputcatalog:/data/input-catalog
+       - workflows:/data/workflows
 
   # This is more of a stand-alone image, just meant to serve as a
   # compile time environment for creating the lean run image.
@@ -56,8 +56,8 @@ services:
     ports:
       - "7002:7002"
     volumes:
-      - /home/bmaglio/develop/ddt_inputs:/data/input-catalog
-      - /home/bmaglio/develop/ddt_outputs:/data/workflows
+      - inputcatalog:/data/input-catalog
+      - workflows:/data/workflows
       
   # Auxillary stuff that can't run on other container/images due to difficult
   # build dependencies (GDAL mainly).
@@ -68,16 +68,16 @@ services:
     ports: 
       - "7003:7003"
     volumes:
-      - /home/bmaglio/develop/dvm-dos-tem:/work
-      - /home/bmaglio/develop/ddt_inputs:/data/input-catalog
-      - /home/bmaglio/develop/ddt_outputs:/data/workflows
+      - sourcecode:/work
+      - inputcatalog:/data/input-catalog
+      - workflows:/data/workflows
 
 
 volumes:
   sourcecode:
     driver_opts:
       type: none
-      device: '${PWD}'
+      device: "${PWD}"
       o: bind
   inputcatalog:
     driver_opts:
