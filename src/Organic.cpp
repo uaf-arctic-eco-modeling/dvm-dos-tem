@@ -13,15 +13,8 @@ void Organic::ShlwThickScheme(const double & shlw_totthickness, const double & d
   // Initialize total thickness of shlw horizon - do I even need to initialize these?
   shlwthick = shlw_totthickness;
   deepthick = deep_totthickness;
-
-  // Initialize shlw thicknesses as fill values
-  std::fill(begin(shlwdz), end(shlwdz), MISSING_D);
-
-  // Initialize shlwnum=0 and deepnum=0 prior to assignment - necessary?
-  shlwnum = 0;
-  deepnum = 0;
-
-  // Force number of layers to MAX_LAY values from layerconst.h
+  
+  // Force number of layers to MAX_LAY values from layerconst.h - not necessary if dsl on (non-forced)
   shlwnum = sizeof(shlwdz) / sizeof(double);
   deepnum = sizeof(deepdz) / sizeof(double);
 
@@ -67,14 +60,7 @@ void Organic::DeepThickScheme(const double & shlw_totthickness, const double & d
   shlwthick = shlw_totthickness;
   deepthick = deep_totthickness;
 
-  // Initialize shlw thicknesses as fill values
-  std::fill(begin(deepdz), end(deepdz), MISSING_D);
-
-  // Initialize shlwnum=0 and deepnum=0 prior to assignment - necessary?
-  shlwnum = 0;
-  deepnum = 0;
-
-  // Force number of layers to MAX_LAY values from layerconst.h
+  // Force number of layers to MAX_LAY values from layerconst.h - not necessary if dsl on (non-forced)
   shlwnum = sizeof(shlwdz) / sizeof(double);
   deepnum = sizeof(deepdz) / sizeof(double);
 
