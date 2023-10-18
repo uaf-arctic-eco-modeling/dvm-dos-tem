@@ -400,7 +400,7 @@ void Ground::initSnowSoilLayers() {
     if(moss_pft_exists){
 
       //This is wrong - FIX. Should be related to living moss C pool
-      double initmldz[1] = {0.01};
+      double initmldz[1] = {0.02625}; //Set following USGS soil data for BZB bog calibration
 
       int soiltype[] = {0};
 
