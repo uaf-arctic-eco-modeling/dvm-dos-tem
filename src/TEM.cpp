@@ -148,6 +148,10 @@ int main(int argc, char* argv[]){
 		args->show_help();
 		return 0;
 	}
+  else if(args->get_print_sha()){
+    std::cout<<GIT_SHA<<std::endl;
+    return 0;
+  }
 
   std::cout << "Setting up logging...\n";
   setup_logging(args->get_log_level(), args->get_log_scope());
