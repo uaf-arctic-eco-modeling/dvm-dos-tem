@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-### Author: Hélène Genet
+### Author: Hélène Genet, modified by Ruth Rutter
 ### Contact: hgenet@alaska.edu
 ### Institution: Institute of Arctic Biology, University of Alaska Fairbanks
-### Script purpose: branch comparison. This script is a companion to a main bash script
-### (simulation_comparison_setup.sh). When a new branch is ready to be pushed to github, 
-### these two scripts can be run to evaluate the effect of the changes brought to the code
-### on model outputs. This python script will produce a series of graphs for this purpose.
-### The product of this comparison will be a pdf named result.pdf This pdf should be
-### provided with the push of any new branch.
+### Script purpose: branch comparison.
+### When a topic branch is ready to be submitted as a pull request, this
+### script should be used to produce comparison plots to evaluate
+### the effect of the code changes on model outputs.
+### The product of this script is a file named result.pdf This should be
+### provided with the pull request.
 
 
 import os
@@ -176,35 +176,56 @@ def ts_stock(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl):
 	plt.close()
 
 
-def seasonality(simpath,simlist,vlist,sclist,clist,oname):
+def seasonality(simpath, simlist, vlist, sclist, clist, oname):
+	'''
+	Produces decadal seasonal pattern plots for the given variables.
+
+	Assumes cell [0,0], eq stage, and that there are 11 or more
+	  years of output data for the stage.
+	'''
 	for VAR in vlist:
-#		print(VAR)
 		dt = pd.DataFrame()
+
+		#For each simulation subdirectory
 		for i in range(len(simlist)):
 			simlist[i]
 			PODout = (os.path.join(simpath,simlist[i],'output'))
-#			print(PODout)
+
+			#If there are any files for that variable in this output set
 			if len(glob.glob(PODout + '/' + VAR + "_*_eq.nc")) > 0:
 				filepath = glob.glob(PODout + '/' + VAR + "_*_eq.nc")[0]
+
 				ds = xr.open_dataset(filepath)
 				ds = ds.to_dataframe()
+				#Flatten key structure
 				ds.reset_index(inplace=True)
+				#Reduce to a single cell
 				ds = ds[(ds['x'] == 0)]
 				ds = ds[(ds['y'] == 0)]
+				#Add name for plot label and color for line
 				ds['scenario'] = sclist[i]
 				ds['color'] = clist[i]
+				#x,y unnecessary because of single cell reduction
 				ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
+				#Construct time columns
 				ds['month'] = ds['time'] % 12 + 1
 				ds['year'] = (ds['time'] / 12).astype('int')
+				#Sample every 10 years, excluding year 0 to avoid the
+				# volatility at stage change.
+				#If the stage has <11 years of data, quietly produces empty plots
 				ds = ds[(ds['year'] % 10 == 0) & (ds['year'] > 0)]
+
 				out = pd.DataFrame(ds.groupby(['year','month'])[VAR].sum())
 				out.reset_index(inplace=True)
 				out['scenario'] = sclist[i]
 				out['color'] = clist[i]
+
 				dt = pd.concat([dt,out],axis=0)
+
 		ncols = int(min(np.ceil(len(sclist)**0.5),3))
 		nrows = int(np.ceil(len(sclist)/ncols))
 		plt.figure(figsize=(12, int(0.8*12*(nrows/ncols))))
+
 		for i in range(0,len(sclist)):
 			scname=sclist[i]
 #			print(scname)
@@ -215,6 +236,7 @@ def seasonality(simpath,simlist,vlist,sclist,clist,oname):
 			norm = mpl.colors.Normalize(vmin=dt[dt['scenario']==scname]['year'].min(), vmax=dt[dt['scenario']==scname]['year'].max())
 			cmap = plt.cm.ScalarMappable(norm=norm,cmap=plt.cm.jet)
 			cmap.set_array([])
+
 			for j in range(len(group_dict.keys())):
 				group = list(group_dict.keys())[j]
 				group_dict[group].reset_index(inplace=True)
