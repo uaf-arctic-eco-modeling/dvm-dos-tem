@@ -133,9 +133,12 @@ void ArgHandler::parse(int argc, char** argv) {
      "Switch for enabling floating point exceptions. If present, the program "
      "will crash when NaN or Inf are generated.")
 
+    ("sha", boost::program_options::bool_switch(&print_sha),
+     "Prints the SHA of the commit used to build this binary then exits")
+
     ("help,h",
      boost::program_options::bool_switch(&help),
-     "produces helps message, then quits")
+     "Produces helps message, then quits")
 
 //    ("foo,f",
 //     po::value<std::std::string>()
