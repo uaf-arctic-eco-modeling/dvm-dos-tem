@@ -172,25 +172,30 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //and (Fan, 2014 10.1007/s10533-014-0012-0)
   //Rename torty_tmp to pore_air_content (or something alike)
 
-    //Removed dz*0.5 and watertab - 0.075 so now if the layer is completely above the WT do this
-    if (ed->d_sois.watertab > (currl->z + currl->dz)){ //layer above water table
+    //CH4 diffusion coefficient Dg, m2/h - Fan 2013 Eq. 11
+    //tortuosity - Fan 2013 Eq. 12 calculated depending on watertable position
+    //layer above water table
+    if (ed->d_sois.watertab > (currl->z + currl->dz)){
       torty_tmp = currl->getVolAir(); //air content
       
       if (torty_tmp < 0.05) {
         torty_tmp = 0.05;
       }
 
-      //Fan 2013 Eq. 12 for layers above the water table
       torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
-      diff_tmp = CH4DIFFA;
-    } else { //layer below water table - Or contains the water table - need another ifesle statement
-      //Fan 2013 Eq. 12 for layers below the water table
-      torty = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
-      diff_tmp = CH4DIFFW;
+      diff[il] = CH4DIFFA * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
     }
-
-    //CH4 diffusion coefficient Dg, m2/h - Fan 2013 Eq. 11
-    diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+    //layer contains water table
+    // else if(currl->z < ed->d_sois.watertab < (currl->z + currl->dz)){
+    //   double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
+    //   //need to add torty_sat and torty_unsat
+    //   //then diffusion depending on sat unsat and then averaged diffusion coefficient
+    // }
+    //layer below water table
+    else {
+      torty = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
+      diff[il] = CH4DIFFW * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+    }
 
     //In order to prevent NaNs in the calculation of s[]
     if(diff[il] == 0){
@@ -205,22 +210,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     currl = currl->nextl;
     il++;//Manual layer index increment
   }//end loop-by-layer
-
-  //CHECK THIS:
-  //if (il == 0) { looks like boundary condition is in the moss layer - but trisolver calls from il = 1
-  for (il = 0; il < numsoill; il++) {
-    if (il == (numsoill - 1)) {
-      D[il] = r[il] - 1.0;
-    } else {
-      D[il] = r[il];
-    }
-
-    if (il == 1) {
-      C[il] = -1.0 - ub;
-    } else {
-      C[il] = -1.0;
-    }
-  }
 
   ed->d_soid.oxid = 0.0;
 
@@ -252,6 +241,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //rate constant for plant-aided CH4 transport (hr^-1), 1.0 in (Zhuang, 2004) 10.1029/2004GB002239, 
         //but depths given in cm whereas we are using meters 
         double rate_parameter_kp = 0.01; 
+        //See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] for pft transport capacity 
         plant_ch4_movement[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
         plant_ch4_sum += plant_ch4_movement[ip];
 
@@ -290,12 +280,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
         //  set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
 
-        //BM: does 5 and 20 need to be a parameter in param files?
+        //BM: does 5 and 20 need to be a parameter in param files? yes
         Oxid = 5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4);
-        Oxid_m = Oxid * open_porosity[il] * currl->dz * 12.0;
-
+        Oxid_m = Oxid * currl->poro * currl->dz * 12.0;
+        // Not sure whether currl->poro is required, and why not used in oxid, plant_ch4_sum but only "_m" variables
         if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = plant_ch4_sum * open_porosity[il] * currl->dz * 1000.0;
+          Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
         } else {
           Plant_m = 0.0;
         }
@@ -353,7 +343,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //U (unit conversion) = (1/12) * 10^6 * 10^-3
         //This rhrawc_ch4 has different units than the corresponding CO2.
         //rhrawc doesn't make sense for this - it's not heterotrophic respiration
-        //this is the rate, but modified by temperature and carbon content
+        //this is the rate, but modified by temperature and carbon content - rename the "rh" part to something relevant
         //it is hourly
         Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz) / 12.0;
   
@@ -385,9 +375,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //  we're in a time loop)
         //currl->liq units are kg m^-2
         //currl->dz units are m
-        //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit)      
+        //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit) - These units are actually: umol m^-2 hr^-1
+        //L^-1 = 0.001m^-3   
+
+        // Scaling by the LWC here could actually have relevance when scaled up to the /m2, as:
+        //    This assump- tion is supported by the fact that wetland soils are generally very porous, 
+        //    the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
+        //    and the finding that the velocity of bubbles ascending in pure water lies in the order of 
+        //    1- 10 cm s -1 [e.g. Shafer and Zare, 1991 ].  
+
+        //BUT - shouldn't this be applied to Ebul?
+
         Ebul_m = Ebul * layer_sat_liq * layer_sat_dz * 1000.0;
-        totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI
+        totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI - BM: so per day (rather than per hour - see m = 24 declaration)
         totEbul_m += Ebul_m; //cumulated over 1 time step, 1 hour
 
         if (currl->tem < 0.0) {
@@ -439,11 +439,18 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // calculation of V[] below
       SS = Prod - Ebul - Oxid - plant_ch4_sum;
 
+      //Check this and remove if unchanged from initial loop
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
       } else {
         D[il] = r[il];
       }
+
+    if (il == 1) {
+      C[il] = -1.0 - ub;
+    } else {
+      C[il] = -1.0;
+    }
 
       //V is a delta from equation 8, based on previous methane state and current fluxes
       V[il] = s[il] * currl->ch4 + s[il] * dt * SS;
@@ -1672,5 +1679,3 @@ void Soil_Bgc::set_baseline(int value) {
 int Soil_Bgc::get_baseline() {
   return this->baseline;
 }
-
-
