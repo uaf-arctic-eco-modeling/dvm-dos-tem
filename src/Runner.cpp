@@ -1213,12 +1213,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
 
   //Burned soil carbon
-  map_itr = netcdf_outputs.find("BURNSOIC");
+  map_itr = netcdf_outputs.find("BURNSOIL2AIRC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIL2AIRC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNSOIC)
+    #pragma omp critical(outputBURNSOIL2AIRC)
     {
       //By layer
       if(curr_spec.layer){
@@ -1229,11 +1229,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
-          outhold.burnsoic_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
+          outhold.burnsoil2airc_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
 
           if(output_this_timestep){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, month_start_idx, months_to_output);
-            outhold.burnsoic_for_output.clear();
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoil2airc_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.burnsoil2airc_for_output.clear();
           }
         }
         else if(curr_spec.yearly){
@@ -1241,16 +1241,16 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           for(int im=0; im<12; im++){
             burnsoilC += cohort.year_fd[im].fire_soi2a.orgc;
           }
-          outhold.burnsoic_for_output.push_back(burnsoilC);
+          outhold.burnsoil2airc_for_output.push_back(burnsoilC);
 
           if(output_this_timestep){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, year_start_idx, years_to_output);
-            outhold.burnsoic_for_output.clear();
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoil2airc_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.burnsoil2airc_for_output.clear();
           }
         }
       }
-    }//end critical(outputBURNSOIC)
-  }//end BURNSOIC
+    }//end critical(outputBURNSOIL2AIRC)
+  }//end BURNSOIL2AIRC
   map_itr = netcdf_outputs.end();
 
 
