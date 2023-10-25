@@ -170,7 +170,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 //       // do nothing: correct year, wrong month.
 //     }
     // Extracted to:
-    if (is_fire_return_date(yr, midx))
+    if (isFireReturnDate(yr, midx))
     {
       ignite = true;
     }
@@ -201,7 +201,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       {
         this->fri_derived = true;
         BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
-        if (is_fire_return_date(yr, midx))
+        if (isFireReturnDate(yr, midx))
         {
           ignite = true;
         }
@@ -234,7 +234,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 /** Determine if the current date, by year and month midpoint, aligns with a fire return date.
  *  This code was extracted from should_ignite() to avoid code repetition due to other changes.
  *  Should this be moved?  The private functions don't seem to be in a particular place.*/
-bool WildFire::is_fire_return_date(const int yr, const int midx)
+bool WildFire::isFireReturnDate(const int yr, const int midx)
 {
   if ( (yr % this->fri) == 0 && yr > 0 )
   {

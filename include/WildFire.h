@@ -117,7 +117,7 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  bool is_fire_return_date(const int yr, const int midx);
+  bool isFireReturnDate(const int yr, const int midx);// FW_MOD
   double getBurnOrgSoilthick(const int year);
   void getBurnAbgVegetation(const int ipft, const int year);
 
