@@ -17,13 +17,11 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 
-import param_util as pu
-import output_utils as ou
-
-import setup_working_directory
-import importlib
-runmask_util = importlib.import_module("runmask-util")
-import outspec_utils
+import util.param
+import util.output
+import util.setup_working_directory
+import util.runmask
+import util.outspec
 
 @contextmanager
 def log_wrapper(message,tag=''):
@@ -168,13 +166,13 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
   assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
 
   final = []
-  plu = pu.build_param_lookup(seedpath)
+  plu = util.param.build_param_lookup(seedpath)
 
   for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
-    original_pdata_file = pu.which_file(seedpath, pname, lookup_struct=plu)
+    original_pdata_file = util.param.which_file(seedpath, pname, lookup_struct=plu)
 
-    p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
-    p_dd = pu.cmtdatablock2dict(p_db)
+    p_db = util.param.get_CMT_datablock(original_pdata_file, cmtnum)
+    p_dd = util.param.cmtdatablock2dict(p_db)
 
     if pname in p_dd.keys():
       p_initial = p_dd[pname]
@@ -463,7 +461,7 @@ class SensitivityDriver(object):
 
     def lookup_pft_verbose_name(row):
       if row.pftnum >= 0 and row.pftnum < 10:
-        pft_verbose_name = pu.get_pft_verbose_name(
+        pft_verbose_name = util.param.get_pft_verbose_name(
           cmtnum=self.cmtnum(), pftnum=row.pftnum, 
           lookup_path=self.get_initial_params_dir()
         )
@@ -605,13 +603,13 @@ class SensitivityDriver(object):
       sample_specific_folder = self._ssrf_name(idx)
 
     # Make the working directory
-    setup_working_directory.cmdline_entry([
+    util.setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
       sample_specific_folder
     ])
 
     # Adjust run mask for appropriate pixel
-    runmask_util.cmdline_entry([
+    util.runmask.cmdline_entry([
       '--reset',
       '--yx',self.PXy, self.PXx,
       '{}/run-mask.nc'.format(sample_specific_folder)
@@ -619,13 +617,13 @@ class SensitivityDriver(object):
 
     # Enable outputs as specified
     for output_spec in self.outputs:
-      outspec_utils.cmdline_entry([
+      util.outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on', output_spec['name'], 'month'
       ])
 
     # Make sure CMTNUM output is on
-    outspec_utils.cmdline_entry([
+    util.outspec.cmdline_entry([
       '{}/config/output_spec.csv'.format(sample_specific_folder),
       '--on','CMTNUM','y'
     ])
@@ -656,7 +654,7 @@ class SensitivityDriver(object):
         if pname == pdict['name']:
           if not pft and 'pftnum' not in pdict.keys():
             #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
-            pu.update_inplace(
+            util.param.update_inplace(
               pval, os.path.join(sample_specific_folder, 'parameters'), 
               pdict['name'], pdict['cmtnum'], pft
             )
@@ -664,7 +662,7 @@ class SensitivityDriver(object):
             if pdict['pftnum'] is not None:
               if int(pft) == int(pdict['pftnum']):
                 #print("GOT ONE!", rowkey, pval, pname, pft, pdict, flush=True)
-                pu.update_inplace(
+                util.param.update_inplace(
                   pval, os.path.join(sample_specific_folder, 'parameters'), 
                   pdict['name'], pdict['cmtnum'], pft
                 )
@@ -859,12 +857,12 @@ class SensitivityDriver(object):
           stg_data = nc.Dataset(f, 'r')
           d = stg_data.variables[o['name']][:]
           if o['type'] == 'pool':
-            d = ou.average_monthly_pool_to_yearly(d)
+            d = util.output.average_monthly_pool_to_yearly(d)
           elif o['type'] == 'flux':
-            d = ou.sum_monthly_flux_to_yearly(d)
+            d = util.output.sum_monthly_flux_to_yearly(d)
           else:
             print("What the heck??")
-          d = ou.sum_across_pfts(d)
+          d = util.output.sum_across_pfts(d)
           d = pd.DataFrame(d[:,self.PXy,self.PXx], columns=[o['name']])
           all_data = all_data.append(d, ignore_index=True)
 
@@ -943,13 +941,13 @@ class SensitivityDriver(object):
         ds = nc.Dataset(sample_specific_folder + '/output/' + '{}_monthly_eq.nc'.format(output['name']))
         data_m = ds.variables[output['name']][:]
         if output['type'] == 'pool':
-          data_y = ou.average_monthly_pool_to_yearly(data_m)
+          data_y = util.output.average_monthly_pool_to_yearly(data_m)
         elif output['type'] == 'flux':
-          data_y = ou.sum_monthly_flux_to_yearly(data_m)
+          data_y = util.output.sum_monthly_flux_to_yearly(data_m)
 
         # Not sure what is most meaningful here, so collapsing PFT dimension
         # into ecosystem totals...
-        data_y_eco = ou.sum_across_pfts(data_y)
+        data_y_eco = util.output.sum_across_pfts(data_y)
 
         # TODO: Need to handle non-PFT outputs!
         ostr += '{:2.3f},'.format(data_y_eco[-1,self.PXy,self.PXx])

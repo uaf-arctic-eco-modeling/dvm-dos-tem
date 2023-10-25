@@ -19,6 +19,7 @@ simply be setting up a dummy model run, and running the model.
 Start by defining a working directory for the tests and making sure it is
 cleaned of any prior experiments.
 
+    >>> import os
     >>> TMP_DIR = "/tmp/dvmdostem-doctests-qcal"
     >>> import shutil
     >>> shutil.rmtree(TMP_DIR)
@@ -26,25 +27,23 @@ cleaned of any prior experiments.
 Next use the utility script to setup the test folder with parameters, config
 file, etc.
 
-    >>> import setup_working_directory as swd
-    >>> swd.cmdline_entry([ '--input-data-path',
-    ...   '../demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
+    >>> import util.setup_working_directory
+    >>> util.setup_working_directory.cmdline_entry([ '--input-data-path',
+    ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
     ...   TMP_DIR
     ... ])
 
 Use another utility script to fiddle with the run mask, turning on only one
 pixel.
 
-    >>> import os
-    >>> import importlib
-    >>> rmu  = importlib.import_module("runmask-util")
-    >>> rmu.cmdline_entry(['--reset', '--yx', '0', '0', os.path.join(TMP_DIR, 'run-mask.nc')])
+    >>> import util.runmask
+    >>> util.runmask.cmdline_entry(['--reset', '--yx', '0', '0', os.path.join(TMP_DIR, 'run-mask.nc')])
     0
 
 Then turn on all the appropriate NetCDF outputs for matching with the targets:
 
-    >>> import outspec_utils as osu
-    >>> osu.cmdline_entry(['--enable-cal-vars',os.path.join(TMP_DIR, 'config',  'output_spec.csv')])
+    >>> import util.outspec
+    >>> util.outspec.cmdline_entry(['--enable-cal-vars',os.path.join(TMP_DIR, 'config',  'output_spec.csv')])
     NOTE: Make sure to enable 'eq' outputs in the config file!!!
     0
 
@@ -74,14 +73,14 @@ the experiment directory by the `setup_working_directory.py` utility script).
 
 Now we can make the `QCal` object:
 
-    >>> import qcal
-    >>> q = qcal.QCal(
+    >>> import util.qcal
+    >>> q = util.qcal.QCal( # doctest: +ELLIPSIS
     ...   jsondata_path=os.path.join(TMP_DIR, 'dvmdostem'),
     ...   ncdata_path=os.path.join(TMP_DIR, 'output'), 
     ...   ref_params_dir=os.path.join(TMP_DIR, 'parameters'), 
     ...   ref_targets_dir=os.path.join(TMP_DIR, 'calibration'), y=0, x=0)
     WARNING: No __init__.py python package file present. Copying targets to a temporary location for facilitate import
-    Loading calibration_targets from : ['/tmp/dvmdostem-user-1000-tmp-cal']
+    Loading calibration_targets from : ['/tmp/dvmdostem-user-...-tmp-cal']
     Cleaning up temporary targets and __init__.py file used for import...
     Resetting path...
 

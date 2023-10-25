@@ -29,7 +29,8 @@ ModelData::~ModelData() {}
 ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
-  
+
+  //Config Stage Settings  
   std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
@@ -37,6 +38,53 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
   sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
 
+  //PR stage module settings
+  pr_env = controldata["stage_settings"]["pr"]["env"].asBool();
+  pr_bgc = controldata["stage_settings"]["pr"]["bgc"].asBool();
+  pr_nfeed = controldata["stage_settings"]["pr"]["nfeed"].asBool();
+  pr_avln = controldata["stage_settings"]["pr"]["avlnflg"].asBool();
+  pr_baseline = controldata["stage_settings"]["pr"]["baseline"].asBool();
+  pr_dsb = controldata["stage_settings"]["pr"]["dsb"].asBool();
+  pr_dsl = controldata["stage_settings"]["pr"]["dsl"].asBool();
+  pr_dyn_lai = controldata["stage_settings"]["pr"]["dyn_lai"].asBool();
+  //EQ stage module settings
+  eq_env = controldata["stage_settings"]["eq"]["env"].asBool();
+  eq_bgc = controldata["stage_settings"]["eq"]["bgc"].asBool();
+  eq_nfeed = controldata["stage_settings"]["eq"]["nfeed"].asBool();
+  eq_avln = controldata["stage_settings"]["eq"]["avlnflg"].asBool();
+  eq_baseline = controldata["stage_settings"]["eq"]["baseline"].asBool();
+  eq_dsb = controldata["stage_settings"]["eq"]["dsb"].asBool();
+  eq_dsl = controldata["stage_settings"]["eq"]["dsl"].asBool();
+  eq_dyn_lai = controldata["stage_settings"]["eq"]["dyn_lai"].asBool();
+  //SP stage module settings
+  sp_env = controldata["stage_settings"]["sp"]["env"].asBool();
+  sp_bgc = controldata["stage_settings"]["sp"]["bgc"].asBool();
+  sp_nfeed = controldata["stage_settings"]["sp"]["nfeed"].asBool();
+  sp_avln = controldata["stage_settings"]["sp"]["avlnflg"].asBool();
+  sp_baseline = controldata["stage_settings"]["sp"]["baseline"].asBool();
+  sp_dsb = controldata["stage_settings"]["sp"]["dsb"].asBool();
+  sp_dsl = controldata["stage_settings"]["sp"]["dsl"].asBool();
+  sp_dyn_lai = controldata["stage_settings"]["sp"]["dyn_lai"].asBool();
+  //TR stage module settings
+  tr_env = controldata["stage_settings"]["tr"]["env"].asBool();
+  tr_bgc = controldata["stage_settings"]["tr"]["bgc"].asBool();
+  tr_nfeed = controldata["stage_settings"]["tr"]["nfeed"].asBool();
+  tr_avln = controldata["stage_settings"]["tr"]["avlnflg"].asBool();
+  tr_baseline = controldata["stage_settings"]["tr"]["baseline"].asBool();
+  tr_dsb = controldata["stage_settings"]["tr"]["dsb"].asBool();
+  tr_dsl = controldata["stage_settings"]["tr"]["dsl"].asBool();
+  tr_dyn_lai = controldata["stage_settings"]["tr"]["dyn_lai"].asBool();
+  //SC stage module settings
+  sc_env = controldata["stage_settings"]["sc"]["env"].asBool();
+  sc_bgc = controldata["stage_settings"]["sc"]["bgc"].asBool();
+  sc_nfeed = controldata["stage_settings"]["sc"]["nfeed"].asBool();
+  sc_avln = controldata["stage_settings"]["sc"]["avlnflg"].asBool();
+  sc_baseline = controldata["stage_settings"]["sc"]["baseline"].asBool();
+  sc_dsb = controldata["stage_settings"]["sc"]["dsb"].asBool();
+  sc_dsl = controldata["stage_settings"]["sc"]["dsl"].asBool();
+  sc_dyn_lai = controldata["stage_settings"]["sc"]["dyn_lai"].asBool();
+
+  //Config IO Settings
   parameter_dir     = controldata["IO"]["parameter_dir"].asString();
   hist_climate_file = controldata["IO"]["hist_climate_file"].asString();
   proj_climate_file = controldata["IO"]["proj_climate_file"].asString();
@@ -59,6 +107,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   nc_sc             = controldata["IO"]["output_nc_sc"].asBool();
   output_interval   = controldata["IO"]["output_interval"].asInt();
 
+  //Config Calibration IO Settings
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 

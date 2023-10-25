@@ -32,7 +32,7 @@ import os
 import glob
 import sys
 sys.path.insert(0,"/Users/tobeycarman/sandbox/dvm-dos-tem/")
-import scripts.output_utils as ou
+import util.output
 
 DATA_DIR ="/Users/tobeycarman/sandbox/better-gl_c/output"
 
@@ -71,9 +71,9 @@ def list_available_variables():
 def get_data(variable="", stages=['eq','sp','tr','sc'], timeres='yearly', pixel=(0,0)):
   y, x = pixel
 
-  d, units = ou.stitch_stages(variable, timeres, stages, fileprefix=DATA_DIR)
+  d, units = util.output.stitch_stages(variable, timeres, stages, fileprefix=DATA_DIR)
   if len(d.shape) == 5:
-    d = ou.sum_across_compartments(d)
+    d = util.output.sum_across_compartments(d)
   else:
     pass
   d = d[:,y,x]
@@ -82,7 +82,7 @@ def get_data(variable="", stages=['eq','sp','tr','sc'], timeres='yearly', pixel=
   #   print ds
   #   if all(i in ds.dimensions.keys() for i in ['time','y','x','pft','pftpart']):
   #     d = ds.variables[variable]
-  #     d = ou.sum_across_compartments(d)
+  #     d = util.output.sum_across_compartments(d)
   #     d = d[:,y,x]
   #   else:
   #     d = ds.variables[variable][:,y,x]

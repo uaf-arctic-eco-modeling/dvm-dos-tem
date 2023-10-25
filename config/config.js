@@ -58,7 +58,58 @@
   },
   "stage_settings": {
     "restart_mode": "restart",   // other options??
-    "inter_stage_pause": false
+    "inter_stage_pause": false,
+    //Per-stage module settings
+    "pr": {
+      "env": true,
+      "bgc": false,
+      "nfeed": false,
+      "avlnflg": false,
+      "baseline": false,
+      "dsb": false,
+      "dsl": false,
+      "dyn_lai": false
+    },
+    "eq": {
+      "env": true,
+      "bgc": true,
+      "nfeed": true,
+      "avlnflg": true,
+      "baseline": true,
+      "dsb": false,
+      "dsl": true,
+      "dyn_lai": true
+    },
+    "sp": {
+      "env": true,
+      "bgc": true,
+      "nfeed": true,
+      "avlnflg": true,
+      "baseline": true,
+      "dsb": false,
+      "dsl": true,
+      "dyn_lai": true 
+    },
+    "tr": {
+      "env": true,
+      "bgc": true,
+      "nfeed": true,
+      "avlnflg": true,
+      "baseline": true,
+      "dsb": false,
+      "dsl": true,
+      "dyn_lai": true
+    },
+    "sc": {
+      "env": true,
+      "bgc": true,
+      "nfeed": true,
+      "avlnflg": true,
+      "baseline": true,
+      "dsb": false,
+      "dsl": true,
+      "dyn_lai": true
+    }
 
     // maybe less confusing if these settings are only available from cmd line?
     //"tr_yrs": 109,

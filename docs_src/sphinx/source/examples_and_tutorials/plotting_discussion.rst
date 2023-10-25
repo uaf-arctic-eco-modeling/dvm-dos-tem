@@ -79,7 +79,7 @@ container, the ``plt.show()`` call is essentially ignored and the resulting plot
 is saved to a file. The name of the saved plot is not currently configurable, so
 it would be up to the user to rename the file and move it somewhere appropriate.
 
-Also note that there is a script, ``output_utils.py``, that is designed to be
+Also note that there is a script, ``util/output.py``, that is designed to be
 imported into other Python scripts and has a bunch of functions for summarizing
 variables over various dimensions (layers, pfts, etc).
 
@@ -274,7 +274,7 @@ projected timeseries are stitched together.
 
 .. code:: 
 
-  ./scripts/input_util.py climate-ts-plot \
+  ./scripts/util/input.py climate-ts-plot \
     --type spatial-temporal-summary \
     --yx 0 0 --stitch \
     ../dvmdostem-input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_bonanzacreeklter_10x10
@@ -282,7 +282,7 @@ projected timeseries are stitched together.
 
 .. image:: ../images/examples_and_tutorials/plotting_discussion/input_spatial_summary_timeseries.png
   :width: 800
-  :alt: example of input_util spatial summary timeseries plot
+  :alt: example of util/input spatial summary timeseries plot
 
 
 .. _ncview: https://cirrus.ucsd.edu/ncview/ 

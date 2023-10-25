@@ -214,14 +214,14 @@ def toggle_on_variable(data, var, res_spec, verbose=False):
 def cmdline_parse(argv=None):
   '''
   Example API
-  ./outputspec_utils.py --list-pft-vars PATH/TO/FILE
-  ./outputspec_utils.py --list-layer-vars PATH/TO/FILE
-  ./outputspec_utils.py --show-enabled PATH/TO/FILE
+  ./outspec.py.py --list-pft-vars PATH/TO/FILE
+  ./outspec.py.py --list-layer-vars PATH/TO/FILE
+  ./outspec.py.py --show-enabled PATH/TO/FILE
 
-  ./outputspec_utils.py --show-enabled PATH/TO/FILE
+  ./outspec.py.py --show-enabled PATH/TO/FILE
 
-  ./outspec_utils.py --on LAI yearly PATH/TO/FILE
-  ./outspec_utils.py --off LAI
+  ./outspec.py --on LAI yearly PATH/TO/FILE
+  ./outspec.py --off LAI
 
   '''
 

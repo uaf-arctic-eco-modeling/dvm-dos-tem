@@ -10,9 +10,9 @@ import numpy as np
 
 # Find the path to the this file so that we can look, relative to this file
 # up one directory and into the scripts/ directory
+# NOTE: this should probably not be used - likley better to set the PYTHONPATH
+# in the calling environment...
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
-
-import scripts.param_util as pu
 
 
 def yearly_files(tarfileobj):

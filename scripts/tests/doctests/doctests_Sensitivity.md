@@ -15,11 +15,11 @@ and carry out the runs.
 
 Load the library
 
-    >>> import Sensitivity
+    >>> import drivers.Sensitivity
 
 Instantiate a driver object:
 
-    >>> sd = Sensitivity.SensitivityDriver()
+    >>> sd = drivers.Sensitivity.SensitivityDriver()
 
 In order to conduct a sensitivity analysis we must consider the following:
 
@@ -195,7 +195,7 @@ See what we got:
 
 Now see if we can load the experiment again into a new driver:
 
-    >>> sd2 = Sensitivity.SensitivityDriver()
+    >>> sd2 = drivers.Sensitivity.SensitivityDriver()
 
 This new driver should not have its `work_dir` set:
 
@@ -283,11 +283,11 @@ matrix.
 > sample folders are being setup correctly.
 
     >>> # Read the data in sample folder's parameter file
-    >>> import param_util as pu
+    >>> import util.param
     >>> idx = 0
     >>> pfile = os.path.join(sd._ssrf_name(idx), "parameters/cmt_calparbgc.txt")
-    >>> data = pu.get_CMT_datablock(pfile, sd.cmtnum())
-    >>> dd = pu.cmtdatablock2dict(data)
+    >>> data = util.param.get_CMT_datablock(pfile, sd.cmtnum())
+    >>> dd = util.param.cmtdatablock2dict(data)
 
     >>> # get the correct param spec out of the params list
     >>> PS = [pdict for pdict in sd.params if pdict['name'] == 'cmax'][0]
@@ -312,7 +312,7 @@ and sample folders but for now, we'll assume its working.
 
 Next we can check that the multi-PFT functionality works:
 
-    >>> sd = Sensitivity.SensitivityDriver(clean=True)
+    >>> sd = drivers.Sensitivity.SensitivityDriver(clean=True)
     >>> sd.set_work_dir('/tmp/tests-Sensitivity')
     >>> sd.set_seed_path('/work/parameters')
 
