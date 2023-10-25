@@ -162,6 +162,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
     this->fri_derived = true;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
 
+  // FW_MOD_START:
 //     if ( (yr % this->fri) == 0 && yr > 0 ) {
 //       if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
 //         ignite = true;
@@ -174,17 +175,14 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       ignite = true;
     }
 
-  // FW_MOD_START:
   //} else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
   }
   else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
             (stage.compare("sc-run") == 0 && md->fire_on_SC) )
   {
     //this->fri_derived = false;
-    // FW_MOD_END.
     
-    //if (md->fire_ignition_mode == 1)// FW_MOD
-    switch (fire_ignition_mode)
+    switch (md->fire_ignition_mode)
     {
       case 0:// Default (old) fire behavior, use explicit fire from input file:
       {
@@ -233,9 +231,9 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 }
 
 // FW_MOD_START:
-/** Determine if the current date, by year and month midpoint?, aligns with a fire return date.
- * Removed from should_ignite() to avoid code repetition.
- * Should this be moved?  The private functions don't seem to be in a particular place.*/
+/** Determine if the current date, by year and month midpoint, aligns with a fire return date.
+ *  This code was extracted from should_ignite() to avoid code repetition due to other changes.
+ *  Should this be moved?  The private functions don't seem to be in a particular place.*/
 bool WildFire::is_fire_return_date(const int yr, const int midx)
 {
   if ( (yr % this->fri) == 0 && yr > 0 )
