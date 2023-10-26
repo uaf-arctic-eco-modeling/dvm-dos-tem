@@ -7,6 +7,7 @@ const int DINM[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 const int DOYINDFST[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 
 const double SEC_IN_DAY = 86400.0;
+const int HR_IN_DAY = 24;
 
 // driving data set dimension
 // maximum number of years of fire size history at regional-scale (YUAN);

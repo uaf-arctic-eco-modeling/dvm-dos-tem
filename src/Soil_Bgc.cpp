@@ -93,15 +93,16 @@ void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, doubl
 
 
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
+
   //Initial atmospheric CH4 concentration upper boundary condition
   //as in Fan et al. 2010 supplement Eq. 13. Units: umol L-1
-  const double ub = 0.076;
-  const int m = 24; //n = 10 (number of dx), m = time
-// BM: should m be in a time constant related header file - also m is used in tortuosity equation
-  double dt = 1.0 / m; //h = dx; k = dt; dx = 1.0 / n,
-  // ANYONE: rename SS to something more descriptive
-  double SS, torty, torty_tmp, diff_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
+  const double ub = 0.076;//rename:u_bound
+  const int time_steps = HR_IN_DAY;
+  double dt = 1.0 / time_steps; 
+  //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
+  double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   double Prod=0.0, Ebul=0.0, Oxid=0.0;//, Plant=0.0;
+  //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
   double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
@@ -162,58 +163,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     }
   }
 
-  Layer *currl = ground->fstshlwl;
-  //Manual layer index tracking.
-  // Starting from 1 to allow for adding the moss layer later if wanted
-  int il = 1;
-  while(currl && currl->isSoil){
-
-  //Tortuosity models vary, see (Pingintha, 2010 10.1111/j.1600-0889.2009.00445.x) 
-  //and (Fan, 2014 10.1007/s10533-014-0012-0)
-  //Rename torty_tmp to pore_air_content (or something alike)
-
-    //CH4 diffusion coefficient Dg, m2/h - Fan 2013 Eq. 11
-    //tortuosity - Fan 2013 Eq. 12 calculated depending on watertable position
-    //layer above water table
-    if (ed->d_sois.watertab > (currl->z + currl->dz)){
-      torty_tmp = currl->getVolAir(); //air content
-      
-      if (torty_tmp < 0.05) {
-        torty_tmp = 0.05;
-      }
-
-      torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
-      diff[il] = CH4DIFFA * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
-    }
-    //layer contains water table
-    // else if(currl->z < ed->d_sois.watertab < (currl->z + currl->dz)){
-    //   double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
-    //   //need to add torty_sat and torty_unsat
-    //   //then diffusion depending on sat unsat and then averaged diffusion coefficient
-    // }
-    //layer below water table
-    else {
-      torty = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
-      diff[il] = CH4DIFFW * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
-    }
-
-    //In order to prevent NaNs in the calculation of s[]
-    if(diff[il] == 0){
-      s[il] = 0;
-    }
-    else{
-      s[il] = currl->dz * currl->dz / (diff[il] * dt);
-    }
-
-    r[il] = 2 + s[il];
-
-    currl = currl->nextl;
-    il++;//Manual layer index increment
-  }//end loop-by-layer
-
   ed->d_soid.oxid = 0.0;
-
-  for (int j = 1; j <= m; j++) { //loop through time steps
+  
+  Layer* currl;
+  int il; //manual layer index tracker
+  for (int j = 1; j <= time_steps; j++) { //loop through time steps
 
     currl = ground->lstsoill; //reset currl to bottom of the soil stack
     il = numsoill-1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
@@ -225,7 +179,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     double TResp = 0.0; //BM: Respiration temperature dependence - better name
 
     while(!currl->isMoss){
-//    for (il = numsoill - 1; il > 0; il--)  //loop through layers
+
       krawc_ch4 = bgcpar.kdrawc_ch4[il];
       ksoma_ch4 = bgcpar.kdsoma_ch4[il];
       ksompr_ch4 = bgcpar.kdsompr_ch4[il];
@@ -249,9 +203,52 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         ed->output_ch4_transport[il][ip] = plant_ch4_movement[ip];
       }
 
-  //BM: plant_ch4_sum_l is per layer summed for pfts - think about the names of these
-  //  plant_ch4_sum_l might be used as an array for output  
+      //BM: plant_ch4_sum_l is per layer summed for pfts - think about the names of these
+      //  plant_ch4_sum_l might be used as an array for output  
       plant_ch4_sum_l[il] = plant_ch4_sum;
+
+      //Tortuosity models vary, see (Pingintha, 2010 10.1111/j.1600-0889.2009.00445.x) 
+      //and (Fan, 2014 10.1007/s10533-014-0012-0)
+      //Rename torty_tmp to pore_air_content (or something alike)
+
+      //CH4 diffusion coefficient Dg, m2/h - Fan 2013 Eq. 11
+      //tortuosity - Fan 2013 Eq. 12 calculated depending on watertable position
+      //layer above water table
+      if (ed->d_sois.watertab > (currl->z + currl->dz)){
+        torty_tmp = currl->getVolAir(); //air content
+        if (torty_tmp < 0.05) {
+          torty_tmp = 0.05;
+        }
+
+        torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
+        diff[il] = CH4DIFFA * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+      }
+      //layer contains water table
+      // else if(currl->z < ed->d_sois.watertab < (currl->z + currl->dz)){
+      //   double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
+      //   //need to add torty_sat and torty_unsat
+      //   //then diffusion depending on sat unsat and then averaged diffusion coefficient
+      // }
+      //layer below water table
+      else {
+        torty = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
+        diff[il] = CH4DIFFW * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+
+        //Example for one layer loop construction:
+        //Factor = saturated fraction
+        //tortuosity_sat, tortuosity_unsat
+        //torty = (Factor)*(0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0)) + (1-Factor)(torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3)
+      }
+
+      //In order to prevent NaNs in the calculation of s[]
+      if(diff[il] == 0){
+        s[il] = 0;
+      }
+      else{
+        s[il] = currl->dz * currl->dz / (diff[il] * dt);
+      }
+
+      r[il] = 2 + s[il];
 
       //Equations from Helene Genet to replace the ones from peat-dos-tem
       //HG: Why >= -2.0? and why 0.25?
@@ -439,18 +436,17 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // calculation of V[] below
       SS = Prod - Ebul - Oxid - plant_ch4_sum;
 
-      //Check this and remove if unchanged from initial loop
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
       } else {
         D[il] = r[il];
       }
 
-    if (il == 1) {
-      C[il] = -1.0 - ub;
-    } else {
-      C[il] = -1.0;
-    }
+      if (il == 1) {
+        C[il] = -1.0 - ub;
+      } else {
+        C[il] = -1.0;
+      }
 
       //V is a delta from equation 8, based on previous methane state and current fluxes
       V[il] = s[il] * currl->ch4 + s[il] * dt * SS;
