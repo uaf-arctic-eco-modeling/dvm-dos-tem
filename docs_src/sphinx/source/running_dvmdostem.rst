@@ -129,6 +129,11 @@ level keys:
     "model_settings": { },
     }
 
+Of note is that under the "stage_settings" entry it is now possible to control
+which modules of the model are enabled at different stages. Previously this was
+not possible to modify after compilation unless you were using the calibration
+mode and the calibration directives file.
+
 --------------
 Parameters
 --------------
