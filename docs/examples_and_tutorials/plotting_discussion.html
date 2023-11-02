@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5. Plotting &mdash; dvmdostem v0.6.2 documentation</title>
+  <title>5. Plotting &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.2
+                v0.7.0-58-g27e9e2e9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -182,7 +182,7 @@ called.</p>
 container, the <code class="docutils literal notranslate"><span class="pre">plt.show()</span></code> call is essentially ignored and the resulting plot
 is saved to a file. The name of the saved plot is not currently configurable, so
 it would be up to the user to rename the file and move it somewhere appropriate.</p>
-<p>Also note that there is a script, <code class="docutils literal notranslate"><span class="pre">output_utils.py</span></code>, that is designed to be
+<p>Also note that there is a script, <code class="docutils literal notranslate"><span class="pre">util/output.py</span></code>, that is designed to be
 imported into other Python scripts and has a bunch of functions for summarizing
 variables over various dimensions (layers, pfts, etc).</p>
 <p>The existing plotting tools rely on a variety of specific Python libraries, and
@@ -355,13 +355,13 @@ systems.</p></li>
 <p>This plot shows the data for an input dataset, summarized over the spatial
 dimensions and for the full timeseries. In this example, the historic and
 projected timeseries are stitched together.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">input_util</span><span class="o">.</span><span class="n">py</span> <span class="n">climate</span><span class="o">-</span><span class="n">ts</span><span class="o">-</span><span class="n">plot</span> \
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">climate</span><span class="o">-</span><span class="n">ts</span><span class="o">-</span><span class="n">plot</span> \
   <span class="o">--</span><span class="nb">type</span> <span class="n">spatial</span><span class="o">-</span><span class="n">temporal</span><span class="o">-</span><span class="n">summary</span> \
   <span class="o">--</span><span class="n">yx</span> <span class="mi">0</span> <span class="mi">0</span> <span class="o">--</span><span class="n">stitch</span> \
   <span class="o">../</span><span class="n">dvmdostem</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="n">catalog</span><span class="o">/</span><span class="n">cru</span><span class="o">-</span><span class="n">ts40_ar5_rcp85_ncar</span><span class="o">-</span><span class="n">ccsm4_bonanzacreeklter_10x10</span>
 </pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/input_spatial_summary_timeseries.png"><img alt="example of input_util spatial summary timeseries plot" src="../_images/input_spatial_summary_timeseries.png" style="width: 800px;" /></a>
+<a class="reference internal image-reference" href="../_images/input_spatial_summary_timeseries.png"><img alt="example of util/input spatial summary timeseries plot" src="../_images/input_spatial_summary_timeseries.png" style="width: 800px;" /></a>
 </section>
 </section>
 </section>

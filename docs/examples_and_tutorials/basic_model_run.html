@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.6.2 documentation</title>
+  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.2
+                v0.7.0-58-g27e9e2e9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -698,15 +698,15 @@ your host machine or using <code class="docutils literal notranslate"><span clas
 can use the <code class="docutils literal notranslate"><span class="pre">--show</span></code> option to see what the mask looks like before and after
 adjusting it. We’ll turn on 2 pixels here, just for fun:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure all pixels are OFF (set to 0)</span>
-$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask-util.py<span class="w"> </span>--reset<span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask.py<span class="w"> </span>--reset<span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
 Setting<span class="w"> </span>all<span class="w"> </span>pixels<span class="w"> </span><span class="k">in</span><span class="w"> </span>runmask<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="w"> </span><span class="o">(</span>OFF<span class="o">)</span>.
 
 <span class="c1"># Then turn one pixel.</span>
-$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask-util.py<span class="w"> </span>--yx<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask.py<span class="w"> </span>--yx<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
 Turning<span class="w"> </span>pixel<span class="o">(</span>y,x<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="m">0</span>,0<span class="o">)</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;1&#39;</span>,<span class="w"> </span><span class="o">(</span>ON<span class="o">)</span>.
 
 <span class="c1"># And another pixel</span>
-$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask-util.py<span class="w"> </span>--yx<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
+$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>runmask.py<span class="w"> </span>--yx<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>/data/workflows/basic_model_run/run-mask.nc
 Turning<span class="w"> </span>pixel<span class="o">(</span>y,x<span class="o">)</span><span class="w"> </span><span class="o">(</span><span class="m">1</span>,1<span class="o">)</span><span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;1&#39;</span>,<span class="w"> </span><span class="o">(</span>ON<span class="o">)</span>.
 </pre></div>
 </div>
@@ -733,19 +733,19 @@ $<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> <
 develop@ef7aad33441c:/work$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/data/workflows/basic_model_run/
 
 <span class="c1"># Turn on RH</span>
-develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>outspec_utils.py<span class="w"> </span>config/output_spec.csv<span class="w"> </span>--on<span class="w"> </span>RH<span class="w"> </span>y<span class="w"> </span>layer
+develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>outspec.py<span class="w"> </span>config/output_spec.csv<span class="w"> </span>--on<span class="w"> </span>RH<span class="w"> </span>y<span class="w"> </span>layer
 <span class="w">                </span>Name<span class="w">                </span>Units<span class="w">       </span>Yearly<span class="w">      </span>Monthly<span class="w">        </span>Daily<span class="w">          </span>PFT<span class="w"> </span>Compartments<span class="w">       </span>Layers<span class="w">    </span>Data<span class="w"> </span>Type<span class="w">     </span>Description
 <span class="w">                  </span>RH<span class="w">            </span>g/m2/time<span class="w">            </span>y<span class="w">                   </span>invalid<span class="w">      </span>invalid<span class="w">      </span>invalid<span class="w">            </span>l<span class="w">       </span>double<span class="w">     </span>Heterotrophic<span class="w"> </span>respiration
 
 <span class="c1"># Turn on VEGC</span>
-develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>outspec_utils.py<span class="w"> </span>config/output_spec.csv<span class="w"> </span>--on<span class="w"> </span>VEGC<span class="w"> </span>m<span class="w"> </span>pft
+develop@ef7aad33441c:/data/workflows/basic_model_run$<span class="w"> </span>outspec.py<span class="w"> </span>config/output_spec.csv<span class="w"> </span>--on<span class="w"> </span>VEGC<span class="w"> </span>m<span class="w"> </span>pft
 <span class="w">                </span>Name<span class="w">                </span>Units<span class="w">       </span>Yearly<span class="w">      </span>Monthly<span class="w">        </span>Daily<span class="w">          </span>PFT<span class="w"> </span>Compartments<span class="w">       </span>Layers<span class="w">    </span>Data<span class="w"> </span>Type<span class="w">     </span>Description
 <span class="w">                </span>VEGC<span class="w">                 </span>g/m2<span class="w">            </span>y<span class="w">            </span>m<span class="w">      </span>invalid<span class="w">            </span>p<span class="w">                   </span>invalid<span class="w">       </span>double<span class="w">     </span>Total<span class="w"> </span>veg.<span class="w"> </span>biomass<span class="w"> </span>C
 </pre></div>
 </div>
 <div class="admonition warning" id="outspec-utils">
 <p class="admonition-title">Warning</p>
-<p>The order of arguments to <code class="docutils literal notranslate"><span class="pre">outspec_utils.py</span></code> is very counterintuitive!  The
+<p>The order of arguments to <code class="docutils literal notranslate"><span class="pre">util/outspec.py</span></code> is very counterintuitive!  The
 file you want to modify needs to be the first argument so that it doesn’t get
 confused with the resolution specification.</p>
 </div>
@@ -846,7 +846,7 @@ appropriate for your particular use-case.</p>
 console output has been omitted for clarity:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--workdir<span class="w"> </span>/data/workflows/basic_model_run/<span class="w"> </span>dvmdostem-dev<span class="w"> </span>dvmdostem<span class="w"> </span>-l<span class="w"> </span>err<span class="w"> </span>-f<span class="w"> </span>/data/workflows/basic_model_run/config/config.js<span class="w"> </span>-p<span class="w"> </span><span class="m">50</span><span class="w"> </span>-e<span class="w"> </span><span class="m">100</span><span class="w"> </span>-s<span class="w"> </span><span class="m">25</span><span class="w"> </span>-t<span class="w"> </span><span class="m">115</span><span class="w"> </span>-n<span class="w"> </span><span class="m">85</span>
 Setting<span class="w"> </span>up<span class="w"> </span>logging...
-<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Looks<span class="w"> </span>like<span class="w"> </span>CMTNUM<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>NOT<span class="w"> </span>enabled.<span class="w"> </span>Strongly<span class="w"> </span>recommended<span class="w"> </span>to<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>this<span class="w"> </span>output!<span class="w"> </span>Use<span class="w"> </span>outspec_utils.py<span class="w"> </span>to<span class="w"> </span>turn<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>CMTNUM<span class="w"> </span>output!
+<span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[]</span><span class="w"> </span>Looks<span class="w"> </span>like<span class="w"> </span>CMTNUM<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>NOT<span class="w"> </span>enabled.<span class="w"> </span>Strongly<span class="w"> </span>recommended<span class="w"> </span>to<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>this<span class="w"> </span>output!<span class="w"> </span>Use<span class="w"> </span>outspec.py<span class="w"> </span>to<span class="w"> </span>turn<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>CMTNUM<span class="w"> </span>output!
 <span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">0</span>
 <span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">1</span>
 <span class="o">[</span>err<span class="o">]</span><span class="w"> </span><span class="o">[</span>PRE-RUN-&gt;Y<span class="o">]</span><span class="w"> </span>y:<span class="w"> </span><span class="m">0</span><span class="w"> </span>x:<span class="w"> </span><span class="m">0</span><span class="w"> </span>Year:<span class="w"> </span><span class="m">2</span>

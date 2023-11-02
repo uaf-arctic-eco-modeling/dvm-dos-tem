@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Running &mdash; dvmdostem v0.6.2 documentation</title>
+  <title>2. Running &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.2
+                v0.7.0-58-g27e9e2e9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -191,14 +191,14 @@ directory where you keep the code (named <code class="docutils literal notransla
 clone the repository), to your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> variable, or you can reference the
 scripts and other programs by their absolute path.</p>
 <p>While the <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> variable is setup in the development docker container:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@d146768bfaac:/data/workflows$ runmask-util.py -h
-usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@d146768bfaac:/data/workflows$ runmask.py -h
+usage: runmask.py [-h] [--verbose] [--reset] [--all-on] ...
                     [FILE]
 </pre></div>
 </div>
 <p>many of the examples still show things using the absolute path:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@d146768bfaac:/data/workflows$ /work/scripts/runmask-util.py --help
-usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@d146768bfaac:/data/workflows$ /work/scripts/runmask.py --help
+usage: runmask.py [-h] [--verbose] [--reset] [--all-on] ...
                     [FILE]
 </pre></div>
 </div>
@@ -206,20 +206,39 @@ usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
 </section>
 <section id="control-options">
 <h3><span class="section-number">2.1.2. </span>Control Options<a class="headerlink" href="#control-options" title="Permalink to this heading"></a></h3>
+<p>There are generally three ways you can control how <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> runs:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>Command Line Options</p></li>
+<li><p>Configuration Files</p></li>
+<li><p>Parameter Files</p></li>
+</ul>
 </div></blockquote>
+<p>If setting are present in both the configuration files and the command line
+options, precedence is given to the command line.</p>
 <section id="command-line">
 <h4>Command line<a class="headerlink" href="#command-line" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>The best way to see the command line options for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> is by using the
+<code class="docutils literal notranslate"><span class="pre">--help</span></code> flag.</p>
 </section>
 <section id="configuration">
 <h4>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> program will look for a file, <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code> when
+starting. The file is <code class="docutils literal notranslate"><span class="pre">.json</span></code> formatted, and should have the following top
+level keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;general&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="p">},</span>
+<span class="s2">&quot;IO&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="p">},</span>
+<span class="s2">&quot;calibration-IO&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="p">},</span>
+<span class="s2">&quot;stage_settings&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="p">},</span>
+<span class="s2">&quot;model_settings&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Of note is that under the “stage_settings” entry it is now possible to control
+which modules of the model are enabled at different stages. Previously this was
+not possible to modify after compilation unless you were using the calibration
+mode and the calibration directives file.</p>
 </section>
 <section id="parameters">
 <h4>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h4>
@@ -228,7 +247,7 @@ This means that many parameters have been factored out so that their values can
 be set in text files which allows the operation of the model to be changed
 without re-compiling. But this flexibility results in <strong>lots</strong> of parameters,
 and managing them can be cumbersome.</p>
-<p><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> ingests parameters that are stored in a custom space delimited,
+<p><code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> ingests parameters that are stored in a custom, space delimited,
 fixed width text format. The format is a compromise that allows:</p>
 <blockquote>
 <div><ul class="simple">
@@ -246,16 +265,22 @@ fixed width text format. The format is a compromise that allows:</p>
 units, comments, and references</p></li>
 </ul>
 </div></blockquote>
-<p>The <code class="docutils literal notranslate"><span class="pre">param_util.py</span></code> script has many functions to help manipulate <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
-parameter files. Included in <code class="docutils literal notranslate"><span class="pre">param_util.py</span></code> are functions that can help
-convert from the custom fixed width text (fwt) format to Command Separated Value
-(csv) and back. Certain edits (such as adding and updating metadata) are much
+<p>The <code class="docutils literal notranslate"><span class="pre">util/param.py</span></code> script has many functions to help manipulate <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
+parameter files. Included in <code class="docutils literal notranslate"><span class="pre">util/param.py</span></code> are functions that can help
+convert from the custom fixed width text (FWT) format to command separated value
+(CSV) and back. Certain edits (such as adding and updating metadata) are much
 easier to accomplish in a spreadhsheet program. The metadata in the existing FWT
 files is incomplete and the assumption is that this will improve over time as
 users convert to CSV, work on the files, updating values (i.e. through
 calibration, new observations or further literature review), and updating
-metadata and then convert the files back to FWT before comitting to the repository.</p>
-<p><code class="docutils literal notranslate"><span class="pre">param_utils.py</span></code> also has facilities for converting from FWT to json and back.
+metadata and then convert the files back to FWT before comitting to the
+repository. This is described in the following diagram.</p>
+<!-- From Shared Drive, Documentation Embed Images folder google drawing "working_with_parameters"-->
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vTla1Wpo09y9OO1vSdcoHo_o4drkumHU1gET-P1Uz31QBk3Fgepp11NFvZi88LQ8HdPSLTdS1f9joUu/pub?w=960&amp;h=720"><p>More information about the csv format can be found with the <code class="docutils literal notranslate"><span class="pre">param.py</span>
+<span class="pre">--csv-v1-spec</span></code> command line option. Rather than circulating a template file,
+the intention is that the user creates template files from the FWT files using
+the tools in <code class="docutils literal notranslate"><span class="pre">param.py</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">util/param.py</span></code> also has facilities for converting from FWT to json and back.
 These functions had thus far been most useful in integrating <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> with
 other software such as <a class="reference external" href="https://pecanproject.github.io">PEcAn</a></p>
 <p>Example parameter files can be found in the <code class="docutils literal notranslate"><span class="pre">parameters/</span></code> directory. The

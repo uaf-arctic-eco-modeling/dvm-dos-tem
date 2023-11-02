@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5. Command Cheat Sheet &mdash; dvmdostem v0.6.2 documentation</title>
+  <title>5. Command Cheat Sheet &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.2
+                v0.7.0-58-g27e9e2e9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -376,24 +376,24 @@ running <code class="docutils literal notranslate"><span class="pre">dvmdostem</
 <col style="width: 50%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/setup_working_directory.py</span> <span class="pre">[output_dir]</span> <span class="pre">--input-data-path</span>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/util/setup_working_directory.py</span> <span class="pre">[output_dir]</span> <span class="pre">--input-data-path</span>
 <span class="pre">[input_dir]</span></code></p></td>
 <td><p>Set up a working directory</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/runmask-util.py</span> <span class="pre">--reset</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/util/runmask.py</span> <span class="pre">--reset</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
 <td><p>Disable all cells in the run mask</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/runmask-util.py</span> <span class="pre">--yx</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/util/runmask.py</span> <span class="pre">--yx</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">[run-mask</span> <span class="pre">file]</span></code></p></td>
 <td><p>Enable cell 0,0 in the run mask</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--reset</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/util/outspec.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--reset</span></code></p></td>
 <td><p>Disable all outputs</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">[var]</span> <span class="pre">[timestep]</span>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/util/outspec.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">[var]</span> <span class="pre">[timestep]</span>
 <span class="pre">[granularity]</span></code></p></td>
 <td><p>Enable an output (generic)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/outspec_utils.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">GPP</span> <span class="pre">m</span> <span class="pre">pft</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./scripts/util/outspec.py</span> <span class="pre">[output</span> <span class="pre">spec</span> <span class="pre">file]</span> <span class="pre">--on</span> <span class="pre">GPP</span> <span class="pre">m</span> <span class="pre">pft</span></code></p></td>
 <td><p>Enable GPP output by month and pft</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">./dvmdostem</span> <span class="pre">-l</span> <span class="pre">err</span> <span class="pre">-f</span> <span class="pre">[config</span> <span class="pre">file]</span> <span class="pre">-p</span> <span class="pre">50</span> <span class="pre">-e</span> <span class="pre">100</span> <span class="pre">-s</span> <span class="pre">250</span> <span class="pre">-t</span> <span class="pre">115</span> <span class="pre">-n</span> <span class="pre">85</span></code></p></td>

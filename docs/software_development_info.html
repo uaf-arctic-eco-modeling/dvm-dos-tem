@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. Dev Info &mdash; dvmdostem v0.6.2 documentation</title>
+  <title>3. Dev Info &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.2
+                v0.7.0-58-g27e9e2e9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -664,11 +664,11 @@ to be written in a literate fashion with much explanatory text. This allows us
 to hit several goals with one set of testing material:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>explanations and examples of code/script usage</p></li>
+<li><p>explanations and examples of code/script usage;</p></li>
 <li><p>testing across a wide range of encapsulation; for example some of the tests
 are very granular unit tests of single functions in the script files, while
 others test comprehensive behavior of entire modules and command line
-interfaces</p></li>
+interfaces;</p></li>
 <li><p>basic regression testing.</p></li>
 </ul>
 </div></blockquote>
@@ -676,35 +676,45 @@ interfaces</p></li>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p>In the <code class="docutils literal notranslate"><span class="pre">__docstring__</span></code> of a given Python script or function.</p></li>
-<li><p>In a standalone markdown file with specially formatted test code.</p></li>
+<li><p>In a standalone markdown (.md) or reStructuredText (.rst) file with
+specially formatted test code.</p></li>
 </ol>
 </div></blockquote>
 <p>The tests that are in the docstrings of a given file or function should be very
 narrow in their scope and should only check the functionality of that specific
 function, independant from everything else, whereas tests in a standalone file
-can be much broader and more flexible in their design.</p>
+can be much broader and more flexible in their design - i.e. module level tests.</p>
 <p>At present we have had much more luck writing the broader tests (that also serve
 as examples of usage) in stand alone files named with the following pattern:
-<code class="docutils literal notranslate"><span class="pre">scripts/doctests_*.md</span></code>. The files are markdown formatted with embedded code
-that is executed by the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The execution context and other
-<code class="docutils literal notranslate"><span class="pre">doctest</span></code> particulars are described here:
+<code class="docutils literal notranslate"><span class="pre">scripts/tests/doctests/doctests_*[.md</span> <span class="pre">|</span> <span class="pre">.rst]</span></code>. The files are markdown or
+reStructuredText formatted with embedded code that is executed by the
+<code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The execution context and other <code class="docutils literal notranslate"><span class="pre">doctest</span></code> particulars are
+described here:
 <a class="reference external" href="https://docs.python.org/3/library/doctest.html#what-s-the-execution-context">https://docs.python.org/3/library/doctest.html#what-s-the-execution-context</a></p>
 <p>To run the tests that are in <code class="docutils literal notranslate"><span class="pre">__docstring__</span></code> s of a function or file:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>scripts
-$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>param_util.py<span class="w">   </span><span class="c1"># &lt;-- script name!</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work/scripts&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>scripts/util/param.py<span class="w">   </span><span class="c1"># &lt;-- script name!</span>
 </pre></div>
 </div>
 <p>To run the tests that are in an independent file:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>scripts
-$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>doctests_param_util.md<span class="w">  </span><span class="c1"># &lt;-- test file name!</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work/scripts&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>scripts/tests/doctests/doctests_param_util.md<span class="w">  </span><span class="c1"># &lt;-- test file name!</span>
 </pre></div>
 </div>
 <p>In either case, if all the tests execute successfully, then the command exits
-silently. If there errors, the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> package tried to point you towards
+silently. If there errors, the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> package tries to point you towards
 the tests that fail.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>You must change into the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory for the tests to work!</p>
+<p>Note that in both cases, the <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> variable is set so that the module
+imports work properly in the scripts and tests. Many of the test currently use
+the demo-data, config files and parameter files in the main repo. The paths for
+these in the tests are assumed to be relative to the repo root. So you will
+likely have the best luck running the tests from the repo-root. For this reason
+you need to specify <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> so that inside the test scripts, imports can
+be made of scripts and tools in the scripts folder.</p>
+<p>In order to run all the tests, this loop should work:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>ls<span class="w"> </span>scripts/tests/doctests/<span class="k">)</span><span class="p">;</span>
+<span class="k">do</span>
+<span class="w">    </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work/scripts&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>scripts/tests/doctests/<span class="nv">$i</span><span class="p">;</span>
+<span class="k">done</span>
+</pre></div>
 </div>
 </section>
 <section id="setting-up-a-dev-environment">

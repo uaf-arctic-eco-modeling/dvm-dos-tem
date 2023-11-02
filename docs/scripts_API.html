@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python API Docs &mdash; dvmdostem v0.6.2 documentation</title>
+  <title>Python API Docs &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.6.2
+                v0.7.0-58-g27e9e2e9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -72,9 +72,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Python API Docs</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#sensitivity-analysis-tools">Sensitivity Analysis Tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#general-utilities">General Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-param_util">param_util.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-output_utils">output_util.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-input_util">input_util.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-util.param">param.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-util.output">output.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-util.input">input.py</a></li>
 </ul>
 </li>
 </ul>
@@ -112,9 +112,9 @@
 <section id="sensitivity-analysis-tools">
 <h2>Sensitivity Analysis Tools<a class="headerlink" href="#sensitivity-analysis-tools" title="Permalink to this heading"></a></h2>
 <p>These are tools and APIs for carrying out Sensitivity Analysis.</p>
-<span class="target" id="module-Sensitivity"></span><dl class="py class">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">SensitivityDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_run_setup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver" title="Permalink to this definition"></a></dt>
+<span class="target" id="module-drivers.Sensitivity"></span><dl class="py class">
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">SensitivityDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_run_setup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver" title="Permalink to this definition"></a></dt>
 <dd><p>Sensitivity Analysis Driver class.</p>
 <p>Driver class for conducting <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> SensitivityAnalysis. Methods for
 cleaning, setup, running model, collecting outputs.</p>
@@ -166,15 +166,15 @@ test case).</p>
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.clean">
-<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.clean" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.clean" title="Permalink to this definition"></a></dt>
 <dd><p>Remove the entire tree at <cite>self.work_dir</cite>.</p>
 <p>This function is NOT CAREFUL, so be careful using it!</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.cmtnum">
-<span class="sig-name descname"><span class="pre">cmtnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.cmtnum" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.cmtnum">
+<span class="sig-name descname"><span class="pre">cmtnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.cmtnum" title="Permalink to this definition"></a></dt>
 <dd><p>Enforces that there is only one cmtnum specified
 amongst all the param specifications in <cite>self.params</cite>.</p>
 <dl class="field-list simple">
@@ -194,8 +194,8 @@ amongst all the param specifications in <cite>self.params</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.core_setup">
-<span class="sig-name descname"><span class="pre">core_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.core_setup" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.core_setup">
+<span class="sig-name descname"><span class="pre">core_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.core_setup" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up a sample run folder for the given <code class="docutils literal notranslate"><span class="pre">idx</span></code> and <code class="docutils literal notranslate"><span class="pre">row</span></code>.</p>
 <p>The following things are assumed:</p>
 <blockquote>
@@ -229,8 +229,8 @@ used to set the run specific folder name, i.e. sample_000001.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.design_experiment">
-<span class="sig-name descname"><span class="pre">design_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lhc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.design_experiment" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.design_experiment">
+<span class="sig-name descname"><span class="pre">design_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lhc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.design_experiment" title="Permalink to this definition"></a></dt>
 <dd><p>Builds bounds based on initial values found in dvmdostem parameter files
 (cmt_*.txt files) and the <cite>percent_diffs</cite> array. The <cite>percent_diffs</cite> array
 gets used to figure out how far the bounds should be from the initial value.
@@ -276,8 +276,8 @@ the sample matrix. Currently the options are ‘lhc’ or ‘uniform’.</p></li
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis">
-<span class="sig-name descname"><span class="pre">extract_data_for_sensitivity_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posthoc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis">
+<span class="sig-name descname"><span class="pre">extract_data_for_sensitivity_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posthoc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a csv file in each run directory that summarizes the run’s
 parameters and outut. The csv file will look something like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p_cmax</span><span class="p">,</span>  <span class="n">p_rhq10</span><span class="p">,</span>   <span class="n">p_micbnup</span><span class="p">,</span>   <span class="n">o_GPP</span><span class="p">,</span>  <span class="n">o_VEGC</span>
@@ -310,8 +310,8 @@ of the run before the next run overwrites it.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis">
-<span class="sig-name descname"><span class="pre">first_steps_sensitivity_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis">
+<span class="sig-name descname"><span class="pre">first_steps_sensitivity_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis" title="Permalink to this definition"></a></dt>
 <dd><p>Grab the summarized sensitivity csvs and glue them
 together, then make correlation matrix. When glued together,
 the data will look like this, with one row for each sample,
@@ -334,14 +334,14 @@ each output:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.get_initial_params_dir">
-<span class="sig-name descname"><span class="pre">get_initial_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.get_initial_params_dir" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.get_initial_params_dir">
+<span class="sig-name descname"><span class="pre">get_initial_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.get_initial_params_dir" title="Permalink to this definition"></a></dt>
 <dd><p>Read only accessor to private member variable.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.get_sensitivity_csvs">
-<span class="sig-name descname"><span class="pre">get_sensitivity_csvs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.get_sensitivity_csvs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.get_sensitivity_csvs">
+<span class="sig-name descname"><span class="pre">get_sensitivity_csvs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.get_sensitivity_csvs" title="Permalink to this definition"></a></dt>
 <dd><p>Looks for all the sensitivity.csv files that are present in
 the run directories. The sensitivity.csv files are created
 using the extract_data_for_sensitivity_analysis(..) funciton.</p>
@@ -356,8 +356,8 @@ using the extract_data_for_sensitivity_analysis(..) funciton.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.info">
-<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.info" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.info" title="Permalink to this definition"></a></dt>
 <dd><p>Print some summary info about the SensitivityDriver object.</p>
 <p>Not sure how to best handle the summary of outputs yet. Maybe
 a separate method. The problem is that existing outputs may
@@ -373,14 +373,14 @@ to re-create.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.load_experiment">
-<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_props_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.load_experiment" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.load_experiment">
+<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_props_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.load_experiment" title="Permalink to this definition"></a></dt>
 <dd><p>Load parameter properties and sample matrix from files.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.make_cool_plot_2">
-<span class="sig-name descname"><span class="pre">make_cool_plot_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.make_cool_plot_2" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.make_cool_plot_2">
+<span class="sig-name descname"><span class="pre">make_cool_plot_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.make_cool_plot_2" title="Permalink to this definition"></a></dt>
 <dd><p>stitches all run stages together and plots one
 line for each sample run.</p>
 <dl class="field-list simple">
@@ -391,8 +391,8 @@ line for each sample run.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.plot_sensitivity_matrix">
-<span class="sig-name descname"><span class="pre">plot_sensitivity_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.plot_sensitivity_matrix" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.plot_sensitivity_matrix">
+<span class="sig-name descname"><span class="pre">plot_sensitivity_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.plot_sensitivity_matrix" title="Permalink to this definition"></a></dt>
 <dd><p>Make a quick plot showing the properties of the sensitivity matrix.</p>
 <dl class="simple">
 <dt>One row for each parameter:</dt><dd><p>Left column is sample values with bounds marked in red.
@@ -403,15 +403,15 @@ Right column is boxplot of sample values</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.run_all_samples">
-<span class="sig-name descname"><span class="pre">run_all_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.run_all_samples" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.run_all_samples">
+<span class="sig-name descname"><span class="pre">run_all_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.run_all_samples" title="Permalink to this definition"></a></dt>
 <dd><p>Starts run in each Sample Specific Run Folder.</p>
 <p>Wrapper around <cite>run_model(..)</cite> that allows for parallelization.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.run_model">
-<span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rundirectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.run_model" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.run_model">
+<span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rundirectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.run_model" title="Permalink to this definition"></a></dt>
 <dd><p>Run the model.</p>
 <p>Assumes everything is setup in a “Sample Specific Run Folder”.</p>
 <dl class="field-list simple">
@@ -422,22 +422,22 @@ Right column is boxplot of sample values</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.save_experiment">
-<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.save_experiment" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.save_experiment">
+<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.save_experiment" title="Permalink to this definition"></a></dt>
 <dd><p>Write the parameter properties and sensitivity matrix to files.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.set_work_dir">
-<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.set_work_dir" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.set_work_dir">
+<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.set_work_dir" title="Permalink to this definition"></a></dt>
 <dd><p>Sets the working directory for the object. Assumes that the working
 directory will have an <code class="docutils literal notranslate"><span class="pre">initial_params_rundir</span></code> directory that will have
 the initial parameter values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Sensitivity.SensitivityDriver.setup_multi">
-<span class="sig-name descname"><span class="pre">setup_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.SensitivityDriver.setup_multi" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.setup_multi">
+<span class="sig-name descname"><span class="pre">setup_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.setup_multi" title="Permalink to this definition"></a></dt>
 <dd><p>Makes one run directory for each row in sample matrix.</p>
 <p>This is essentially a wrapper around <cite>core_setup(..)</cite>
 that allows for parallelization.</p>
@@ -451,8 +451,8 @@ that allows for parallelization.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="Sensitivity.generate_lhc">
-<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">generate_lhc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_props</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.generate_lhc" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.generate_lhc">
+<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">generate_lhc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_props</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.generate_lhc" title="Permalink to this definition"></a></dt>
 <dd><p>Generate sample matrix using Latin Hyper Cube method.</p>
 <p>Sample matrix will have one row for each “sample” of the
 parameters. There will be one column for each parameter in
@@ -492,8 +492,8 @@ with at least the following:
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="Sensitivity.generate_uniform">
-<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">generate_uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_props</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.generate_uniform" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.generate_uniform">
+<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">generate_uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_props</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.generate_uniform" title="Permalink to this definition"></a></dt>
 <dd><p>Generate sample matrix using uniform method.</p>
 <p>Sample matrix will have one row for each “sample” of the
 parameters. There will be one column for each parameter in
@@ -533,15 +533,15 @@ with at least the following:
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="Sensitivity.log_wrapper">
-<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">log_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.log_wrapper" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.log_wrapper">
+<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">log_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.log_wrapper" title="Permalink to this definition"></a></dt>
 <dd><p>Likely will abandon or repurpose this function.
 Not super helpful as a log printer.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="Sensitivity.params_from_seed">
-<span class="sig-prename descclassname"><span class="pre">Sensitivity.</span></span><span class="sig-name descname"><span class="pre">params_from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seedpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Sensitivity.params_from_seed" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.params_from_seed">
+<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">params_from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seedpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.params_from_seed" title="Permalink to this definition"></a></dt>
 <dd><p>Builds a list of “param specifications” from the data in the <cite>seedpath</cite> and
 for params specified in <cite>params</cite> for the pfts specified in <cite>pftnums</cite> and the
 Community specified in <cite>cmtnum</cite>. Sets bounds based on the intial values
@@ -552,15 +552,15 @@ found in the <cite>seedpath</cite> and according to the percent_diffs.</p>
 <section id="general-utilities">
 <h2>General Utilities<a class="headerlink" href="#general-utilities" title="Permalink to this heading"></a></h2>
 <p>These are general purpose utility scripts for working with <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>.</p>
-<section id="module-param_util">
-<span id="param-util-py"></span><h3>param_util.py<a class="headerlink" href="#module-param_util" title="Permalink to this heading"></a></h3>
+<section id="module-util.param">
+<span id="param-py"></span><h3>param.py<a class="headerlink" href="#module-util.param" title="Permalink to this heading"></a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">ParamUtilSpeedHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.ParamUtilSpeedHelper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">ParamUtilSpeedHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.ParamUtilSpeedHelper" title="Permalink to this definition"></a></dt>
 <dd><p>Experimenting with having an object oriented API so that we can
 cache some data in the object. Will save lots of time for various
 look up type functionality.</p>
-<p>With param_util.py in general the idea has been to have it be flexible
+<p>With param.py in general the idea has been to have it be flexible
 with repsect to the location of the parameter files. But that makes
 some operations expensive because the code is constantly having to
 re-build lookup data structures to find parameter names or files.</p>
@@ -568,15 +568,15 @@ re-build lookup data structures to find parameter names or files.</p>
 instantiation, and build the lookup data structure. Then future
 operations can use that cached structure.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">param_util</span> <span class="k">as</span> <span class="nn">pu</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span> <span class="o">=</span> <span class="n">pu</span><span class="o">.</span><span class="n">ParamUtilSpeedHelper</span><span class="p">(</span><span class="s2">&quot;/work/parameters&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">util.param</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">ParamUtilSpeedHelper</span><span class="p">(</span><span class="s2">&quot;/work/parameters&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">pname</span><span class="o">=</span><span class="s1">&#39;cmax&#39;</span><span class="p">,</span> <span class="n">cmtnum</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">pftnum</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">with_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="go">13.45</span>
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper.get_value">
-<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper.get_value" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.ParamUtilSpeedHelper.get_value">
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.ParamUtilSpeedHelper.get_value" title="Permalink to this definition"></a></dt>
 <dd><p>Look up the parameter value by name for given CMT and PFT.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -600,8 +600,8 @@ info.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper.list_non_pft_params">
-<span class="sig-name descname"><span class="pre">list_non_pft_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper.list_non_pft_params" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.ParamUtilSpeedHelper.list_non_pft_params">
+<span class="sig-name descname"><span class="pre">list_non_pft_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.ParamUtilSpeedHelper.list_non_pft_params" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a listing of all non-PFT parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -617,8 +617,8 @@ info.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="param_util.ParamUtilSpeedHelper.list_params">
-<span class="sig-name descname"><span class="pre">list_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.ParamUtilSpeedHelper.list_params" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.ParamUtilSpeedHelper.list_params">
+<span class="sig-name descname"><span class="pre">list_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.ParamUtilSpeedHelper.list_params" title="Permalink to this definition"></a></dt>
 <dd><p>Builds and returns a formatted string listing all the
 parameters for a given CMT and PFT.</p>
 <dl class="field-list simple">
@@ -640,8 +640,8 @@ parameters for a given CMT and PFT.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.build_param_lookup">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">build_param_lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.build_param_lookup" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.build_param_lookup">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">build_param_lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.build_param_lookup" title="Permalink to this definition"></a></dt>
 <dd><p>Builds a lookup table, mapping file names to lists of
 parameters (separate lists for PFT and non PFT params).</p>
 <dl class="field-list simple">
@@ -670,8 +670,8 @@ e.g.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.cmdline_parse">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">cmdline_parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.cmdline_parse" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.cmdline_parse">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">cmdline_parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.cmdline_parse" title="Permalink to this definition"></a></dt>
 <dd><p>Define and parse the command line interface.</p>
 <p>When argv is None, the parser will evaluate sys.argv[1:]</p>
 <dl class="field-list simple">
@@ -685,8 +685,8 @@ e.g.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.cmtdatablock2dict">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">cmtdatablock2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtdatablock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.cmtdatablock2dict" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.cmtdatablock2dict">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">cmtdatablock2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtdatablock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.cmtdatablock2dict" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a “CMT datablock” (list of strings) into a dict structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -703,8 +703,8 @@ values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.comment_splitter">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">comment_splitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.comment_splitter" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.comment_splitter">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">comment_splitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.comment_splitter" title="Permalink to this definition"></a></dt>
 <dd><p>Splits a string into data before comment and after comment.</p>
 <p>The comment delimiter (‘//’) will be included in the after component.</p>
 <dl class="field-list simple">
@@ -723,8 +723,8 @@ string. The “after commnet” string will include the comment charachter.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.compare_CMTs">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">compare_CMTs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnumA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnumB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_formatting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.compare_CMTs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.compare_CMTs">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">compare_CMTs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnumA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnumB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_formatting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.compare_CMTs" title="Permalink to this definition"></a></dt>
 <dd><p>Compares the specified CMT data blocks in each file line by line, prints
 “Match” if the lines are the same, otherwise print the lines for visual
 comparison.</p>
@@ -749,8 +749,8 @@ setting is False, lines with different formatting will not match, i.e.
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.converter">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.converter" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.converter">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.converter" title="Permalink to this definition"></a></dt>
 <dd><p>Convert data to float type for printing. Converts empty string to 0.0</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -767,8 +767,8 @@ is returned. Otherwise x is returned un-modified.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv2fwt_v1">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv2fwt_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../parameters'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv2fwt_v1" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv2fwt_v1">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv2fwt_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../parameters'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv2fwt_v1" title="Permalink to this definition"></a></dt>
 <dd><p>Convert from csv parameter files to fixed width text format.</p>
 <p>Uses csv_v1_specification().</p>
 <p>Unrefined function that depends on the csv file being
@@ -807,8 +807,8 @@ the CMT number in the csv file is not present in the reference files.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v0_find_section_starts">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_find_section_starts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_find_section_starts" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v0_find_section_starts">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v0_find_section_starts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v0_find_section_starts" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the starting index and name for sections of data in a specially formatted csv file.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
@@ -832,8 +832,8 @@ text name for the section, as read from the file.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v0_get_pftnames">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_get_pftnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_get_pftnames" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v0_get_pftnames">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v0_get_pftnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v0_get_pftnames" title="Permalink to this definition"></a></dt>
 <dd><p>Retrieves PFT names from a specially formatted csv file.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
@@ -856,8 +856,8 @@ formatted as described above.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v0_get_section">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_get_section" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v0_get_section">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v0_get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v0_get_section" title="Permalink to this definition"></a></dt>
 <dd><p>Extracts a section of block of data from a specially formatted csv file.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
@@ -883,8 +883,8 @@ described in the docstring for csv_v0_specification()</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v0_specification">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v0_specification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v0_specification" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v0_specification">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v0_specification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v0_specification" title="Permalink to this definition"></a></dt>
 <dd><p>Specification for csv files that hold parameter data.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
@@ -931,8 +931,8 @@ toptmin,15,15,15,15
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v1_find_section_indices">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v1_find_section_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v1_find_section_indices" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v1_find_section_indices">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v1_find_section_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v1_find_section_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Parses a csv file and returns the starting and ending indices for each
 section in the file.</p>
 <p>Uses csv_v1_specification().</p>
@@ -949,8 +949,8 @@ indices of the section, for example:
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v1_read_section">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v1_read_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v1_read_section" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v1_read_section">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v1_read_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v1_read_section" title="Permalink to this definition"></a></dt>
 <dd><p>Write this…</p>
 <p>Uses csv_v1_specification().</p>
 <dl class="field-list simple">
@@ -967,8 +967,8 @@ indices of the section, for example:
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.csv_v1_specification">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">csv_v1_specification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#param_util.csv_v1_specification" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.csv_v1_specification">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">csv_v1_specification</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#util.param.csv_v1_specification" title="Permalink to this definition"></a></dt>
 <dd><p>Specification for v1 csv files for holding parameter data.</p>
 <p>Each csv file will hold the data for one Community Type (CMT). As such the csv
 file will be broken into sections to accomodate the different number of
@@ -1009,7 +1009,7 @@ in the sample below.</p>
 <span class="c1"># references file: refs.bib</span>
 <span class="c1">#</span>
 <span class="c1"># To convert this file back to fixed width text for use with dvmdostem</span>
-<span class="c1"># see the param_util.csv2fwt_v1() function.</span>
+<span class="c1"># see the util.param.csv2fwt_v1() function.</span>
 <span class="c1">#</span>
 <span class="n">file</span><span class="p">,</span><span class="n">cmtkey</span><span class="p">,</span><span class="n">cmtname</span><span class="p">,</span><span class="n">comment</span><span class="p">,,,,,,,,,,,,</span>
 <span class="o">../</span><span class="n">parameters</span><span class="o">/</span><span class="n">cmt_bgcvegetation</span><span class="o">.</span><span class="n">txt</span><span class="p">,</span><span class="n">CMT22</span><span class="p">,</span><span class="n">Single</span> <span class="n">PFT</span> <span class="n">Alpine</span> <span class="n">Tussock</span> <span class="n">Tundra</span><span class="p">,,,,,,,,,,,,,</span>
@@ -1032,8 +1032,8 @@ in the sample below.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.detect_block_with_pft_info">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">detect_block_with_pft_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtdatablock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.detect_block_with_pft_info" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.detect_block_with_pft_info">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">detect_block_with_pft_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtdatablock</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.detect_block_with_pft_info" title="Permalink to this definition"></a></dt>
 <dd><p>Inspects a block of CMT data and trys to figure out if it is PFT data or not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1049,8 +1049,8 @@ in the sample below.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.enforce_initvegc_split">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">enforce_initvegc_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.enforce_initvegc_split" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.enforce_initvegc_split">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">enforce_initvegc_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.enforce_initvegc_split" title="Permalink to this definition"></a></dt>
 <dd><p>Makes sure that the ‘cpart’ compartments variables match the proportions
 set in initvegc variables in a cmt_bgcvegetation.txt file.</p>
 <p>The initvegc(leaf, wood, root) variables in cmt_bgcvegetation.txt are the
@@ -1078,8 +1078,8 @@ and work.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.error_exit">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">error_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linenumber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.error_exit" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.error_exit">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">error_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linenumber</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.error_exit" title="Permalink to this definition"></a></dt>
 <dd><p>Prints and error message and exits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1093,8 +1093,8 @@ and work.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.find_cmt_start_idx">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">find_cmt_start_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtkey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.find_cmt_start_idx" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.find_cmt_start_idx">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">find_cmt_start_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtkey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.find_cmt_start_idx" title="Permalink to this definition"></a></dt>
 <dd><p>Finds the starting index for a CMT data block in a list of lines.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1114,8 +1114,8 @@ returns None.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.format_CMTdatadict">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">format_CMTdatadict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.format_CMTdatadict" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.format_CMTdatadict">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">format_CMTdatadict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.format_CMTdatadict" title="Permalink to this definition"></a></dt>
 <dd><p>Format a block of CMT data.</p>
 <p><cite>dd</cite> : dict containing parameter names and values for a CMT.</p>
 <p><cite>refFile</cite> : str with a path to a file that should be used for reference
@@ -1142,8 +1142,8 @@ wide, with 6 places after the decimal, something like this:</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.format_section_csv_v0">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">format_section_csv_v0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.format_section_csv_v0" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.format_section_csv_v0">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">format_section_csv_v0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.format_section_csv_v0" title="Permalink to this definition"></a></dt>
 <dd><p>Prints data (presumably from csv file) to dvmdostem space delimited parameter format.</p>
 <div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.6.1: </span><cite>csv_v0</cite> format will be removed in later versions!</p>
@@ -1171,8 +1171,8 @@ file must be formatted as described in the docstring for csv_v0_specification().
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.fwt2csv_v1">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">fwt2csv_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_cmts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.fwt2csv_v1" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.fwt2csv_v1">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">fwt2csv_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_cmts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.fwt2csv_v1" title="Permalink to this definition"></a></dt>
 <dd><p>Convert from dvmdostem fixed width text (fwt) format to CSV (comma separated
 values), version 1.</p>
 <p>Writes one file for each CMT, with all parameters from the fixed width
@@ -1193,8 +1193,8 @@ will be written in your current working directory.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.generate_reference_order">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">generate_reference_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.generate_reference_order" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.generate_reference_order">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">generate_reference_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.generate_reference_order" title="Permalink to this definition"></a></dt>
 <dd><p>Lists order that variables should be in in a parameter file based on CMT 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1211,8 +1211,8 @@ in the order they appear in the input file.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.get_CMT_datablock">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_CMT_datablock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">afile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_CMT_datablock" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.get_CMT_datablock">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">get_CMT_datablock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">afile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.get_CMT_datablock" title="Permalink to this definition"></a></dt>
 <dd><p>Search file, returns the first block of data for one CMT as a list of strings.
 Ignores empty lines.</p>
 <dl class="field-list simple">
@@ -1233,8 +1233,8 @@ Each string will have a newline charachter in it.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.get_CMTs_in_file">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_CMTs_in_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_CMTs_in_file" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.get_CMTs_in_file">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">get_CMTs_in_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aFile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.get_CMTs_in_file" title="Permalink to this definition"></a></dt>
 <dd><p>Gets a list of the CMTs found in a file.</p>
 <p>Looks at all lines in the file and considers any commented line with the
 ‘CMT’ as the first non-whitespace charachters after the initial comment
@@ -1254,8 +1254,8 @@ keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.get_available_CMTs">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_available_CMTs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_available_CMTs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.get_available_CMTs">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">get_available_CMTs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.get_available_CMTs" title="Permalink to this definition"></a></dt>
 <dd><p>Return list of available CMT numbers in directory.</p>
 <p>Only returns CMTs that are defined in all files.</p>
 <dl class="simple">
@@ -1280,8 +1280,8 @@ keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.get_datablock_pftkeys">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">get_datablock_pftkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.get_datablock_pftkeys" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.get_datablock_pftkeys">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">get_datablock_pftkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.get_datablock_pftkeys" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a sorted list of the pft keys present in a CMT data dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1297,8 +1297,8 @@ keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.isCMTkey">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">isCMTkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.isCMTkey" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.isCMTkey">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">isCMTkey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.isCMTkey" title="Permalink to this definition"></a></dt>
 <dd><p>Function for testing validity of a CMT key specifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1322,21 +1322,21 @@ keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.isParamFile">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">isParamFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.isParamFile" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.isParamFile">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">isParamFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.isParamFile" title="Permalink to this definition"></a></dt>
 <dd><p>Check to see if a file is likely a dvmdostem parameter file.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.is_CMT_divider_line">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">is_CMT_divider_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.is_CMT_divider_line" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.is_CMT_divider_line">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">is_CMT_divider_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.is_CMT_divider_line" title="Permalink to this definition"></a></dt>
 <dd><p>Checks to see if a line is one of the comment lines we use to divide
 CMT data blocks in parameter files, e.g. // ======</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.keyFnum">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">keyFnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.keyFnum" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.keyFnum">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">keyFnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.keyFnum" title="Permalink to this definition"></a></dt>
 <dd><p>Given a number</p>
 <p>Examples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keyFnum</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -1380,8 +1380,8 @@ CMT data blocks in parameter files, e.g. // ======</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.parse_header_line">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">parse_header_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linedata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.parse_header_line" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.parse_header_line">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">parse_header_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">linedata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.parse_header_line" title="Permalink to this definition"></a></dt>
 <dd><p>Splits a header line into components: cmtkey, text name, comment.</p>
 <p>Assumes a CMT block header line looks like this:
 // CMT07 // Heath Tundra - (ma…..</p>
@@ -1401,8 +1401,8 @@ CMT data blocks in parameter files, e.g. // ======</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.read_paramfile">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">read_paramfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thefile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.read_paramfile" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.read_paramfile">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">read_paramfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thefile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.read_paramfile" title="Permalink to this definition"></a></dt>
 <dd><p>Opens and reads a file, returning the data as a list of lines (with newlines).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1418,8 +1418,8 @@ CMT data blocks in parameter files, e.g. // ======</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.replace_CMT_data">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">replace_CMT_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.replace_CMT_data" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.replace_CMT_data">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">replace_CMT_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">origfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.replace_CMT_data" title="Permalink to this definition"></a></dt>
 <dd><p>Replaces the CMT datablock in <cite>origfile</cite> with the data block found in
 <cite>newfile</cite> for the provided <cite>cmtnum</cite>. If <cite>overwrite</cite> is True, then <cite>origfile</cite>
 is written with the new data. Returns a list of lines which can then be
@@ -1442,8 +1442,8 @@ printed to stdout or otherwise redirected to a file.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.smart_format">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">smart_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:12.4f}</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolongfmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:12.3e}</span> <span class="pre">'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.smart_format" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.smart_format">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">smart_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:12.4f}</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toolongfmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:12.3e}</span> <span class="pre">'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.smart_format" title="Permalink to this definition"></a></dt>
 <dd><p>Provides a flexible method for printing different number formats.</p>
 <p>Tries to assess the length of the string version of x and apply different
 formats based on the length. While the formats are flexible using
@@ -1468,8 +1468,8 @@ shorter numbers and scientific notation for longer numbers.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.standardize_pftnames">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">standardize_pftnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.standardize_pftnames" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.standardize_pftnames">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">standardize_pftnames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.standardize_pftnames" title="Permalink to this definition"></a></dt>
 <dd><p>Replaces any spaces, dots, underscores or dashes with CamelCase.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1490,8 +1490,8 @@ shorter numbers and scientific notation for longer numbers.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.update_inplace">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">update_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.update_inplace" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.update_inplace">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">update_inplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.update_inplace" title="Permalink to this definition"></a></dt>
 <dd><p>Updates a parameter value in a parameter file. This will overwrite the
 existing parameter file! Also note that it will remove all other CMTs
 in the file.</p>
@@ -1513,8 +1513,8 @@ for PFT specific parameters! Otherwise leave as None.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="param_util.which_file">
-<span class="sig-prename descclassname"><span class="pre">param_util.</span></span><span class="sig-name descname"><span class="pre">which_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#param_util.which_file" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.param.which_file">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">which_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.which_file" title="Permalink to this definition"></a></dt>
 <dd><p>Given a parameter directory and parameter name, searches the
 files to find which file the parameter is defined in.</p>
 <dl class="field-list simple">
@@ -1539,11 +1539,11 @@ and the <cite>lookup_struct</cite> doesn’t need to be rebuilt each time.</p></
 </dd></dl>
 
 </section>
-<section id="module-output_utils">
-<span id="output-util-py"></span><h3>output_util.py<a class="headerlink" href="#module-output_utils" title="Permalink to this heading"></a></h3>
+<section id="module-util.output">
+<span id="output-py"></span><h3>output.py<a class="headerlink" href="#module-util.output" title="Permalink to this heading"></a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.average_monthly_pool_to_yearly">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">average_monthly_pool_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.average_monthly_pool_to_yearly" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.average_monthly_pool_to_yearly">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">average_monthly_pool_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.average_monthly_pool_to_yearly" title="Permalink to this definition"></a></dt>
 <dd><p>Expects <cite>data</cite> to be a 3D, 4D, or 5D numpy MASKED array with dimensions
 <cite>(time, layers, y, x)</cite>, <cite>(time, pft, y, x)</cite>  or <cite>(time, pftpart, pft, y, x)</cite>
 and the size of the time dimension to be an even multiple of 12. The calling
@@ -1560,12 +1560,12 @@ with some fancy numpy indexing.</p>
 <dt>Examples:</dt><dd><p>Load a monthly file with soil layer data and convert it to yearly.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scripts.output_utils</span> <span class="k">as</span> <span class="nn">ou</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">util.output</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;all-merged/SOC_monthly_tr.nc&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_values</span><span class="p">(</span><span class="n">soc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;SOC&#39;</span><span class="p">][:],</span> <span class="n">soc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;SOC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_FillValue</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_values</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="mi">99999</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">average_monthly_pool_to_yearly</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span>
 <span class="go">(1308, 22, 10, 10) (109, 22, 10, 10)</span>
@@ -1576,14 +1576,14 @@ with some fancy numpy indexing.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.boxplot_by_pft">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">boxplot_by_pft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.boxplot_by_pft" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.boxplot_by_pft">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">boxplot_by_pft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.boxplot_by_pft" title="Permalink to this definition"></a></dt>
 <dd><p>Work in progress…</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.boxplot_monthlies">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">boxplot_monthlies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.boxplot_monthlies" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.boxplot_monthlies">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">boxplot_monthlies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.boxplot_monthlies" title="Permalink to this definition"></a></dt>
 <dd><p>Makes a boxplot showing distribution of values for <cite>var</cite> for each month,
 averaged over spatial dimensions, and only considering <cite>cmtnum</cite>. If multiple
 stages are specified, the stages will be stitched together along the time
@@ -1598,36 +1598,36 @@ dimension before the distributions are calculated.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.build_full_datetimeindex">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">build_full_datetimeindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.build_full_datetimeindex" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.build_full_datetimeindex">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">build_full_datetimeindex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.build_full_datetimeindex" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a <code class="docutils literal notranslate"><span class="pre">pandas.DatetimeIndex</span></code> covering the range of the two
 input datasets. Assumes that the two input datasets are consecutive
 monotonic, and not missing any points.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.check_files">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">check_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.check_files" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.check_files">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">check_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.check_files" title="Permalink to this definition"></a></dt>
 <dd><p>A work in progress for verifying assumptions about input files, <cite>fnames</cite>.</p>
 <p>Prints messages to stdout.</p>
 <p>Returns <cite>None</cite>.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.get_last_n_eq">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">get_last_n_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yearly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.get_last_n_eq" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.get_last_n_eq">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">get_last_n_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yearly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.get_last_n_eq" title="Permalink to this definition"></a></dt>
 <dd><p>Work in progress for getting the last few year of equlibrium stage for calibration.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.get_start_end">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">get_start_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timevar</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.get_start_end" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.get_start_end">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">get_start_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timevar</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.get_start_end" title="Permalink to this definition"></a></dt>
 <dd><p>Returns CF Times. use .strftime() to convert to python datetimes</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.load_trsc_dataframe">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">load_trsc_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.load_trsc_dataframe" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.load_trsc_dataframe">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">load_trsc_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.load_trsc_dataframe" title="Permalink to this definition"></a></dt>
 <dd><p>Builds a pandas.DataFrame for the requested output variable with the
 transient and scenario data merged together and a complete
 DatetimeIndex.</p>
@@ -1658,8 +1658,8 @@ dataframe. Namely, the units.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.mask_by_cmt">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">mask_by_cmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vegmap_filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.mask_by_cmt" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.mask_by_cmt">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">mask_by_cmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vegmap_filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.mask_by_cmt" title="Permalink to this definition"></a></dt>
 <dd><p>Expects <cite>data</cite> to be at least a 2D array with the last two dimensions being
 (y, x). <cite>cmtnum</cite> is the community type number that will remain unmasked
 in the final data. <cite>vegmap_filepath</cite> should be the path to dvmdostem input
@@ -1684,8 +1684,8 @@ Out[143]: (2, 3, 4, 5, 5)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.mask_by_failed_run_status">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">mask_by_failed_run_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_status_filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'run_status.nc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.mask_by_failed_run_status" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.mask_by_failed_run_status">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">mask_by_failed_run_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_status_filepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'run_status.nc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.mask_by_failed_run_status" title="Permalink to this definition"></a></dt>
 <dd><p>Masks out any data for which the run status is &lt; 0 in the <cite>run_status_filepath</cite>.</p>
 <dl class="simple">
 <dt><cite>data</cite>: (numpy.ndarray) must have at least 2 dimensions (y, x) and they must</dt><dd><p>be the last dimensions.</p>
@@ -1700,8 +1700,8 @@ failed pixels masked out.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.plot_basic_timeseries">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_basic_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars2plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_basic_timeseries" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.plot_basic_timeseries">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">plot_basic_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vars2plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_resolution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.plot_basic_timeseries" title="Permalink to this definition"></a></dt>
 <dd><p>Make a basic timeseries plot, one subplot per variable.</p>
 <p>Not sure yet how should handle summarizing over layers, pfts, etc.</p>
 <p>Assembles expected file name for data based on args. i.e. GPP_monthly_eq.nc
@@ -1721,8 +1721,8 @@ Raises FileNotFoundError if files does not exist.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.plot_fronts">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_fronts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_fronts" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.plot_fronts">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">plot_fronts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.plot_fronts" title="Permalink to this definition"></a></dt>
 <dd><p>Makes a timeseries plot of all the fronts that are output. The X axis is time,
 the Y axis is depth from surface (0 at the top of the plot). Each front will
 have a line on the plot.</p>
@@ -1742,8 +1742,8 @@ Red is used for THAWING fronts (warm above, frozen below, value &lt; 0)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.plot_inputs">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_inputs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.plot_inputs">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">plot_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.plot_inputs" title="Permalink to this definition"></a></dt>
 <dd><p>Plots the historic and projected climate inputs, averaging over the spatial
 dimensions and with shading for min/max.</p>
 <p><cite>cmtnum</cite>: (int) CMT to work with, must be in the veg map, see mask_by_cmt(..).</p>
@@ -1756,8 +1756,8 @@ The files are assumed to be monthly resolution.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.plot_soil_layers">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_soil_layers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_soil_layers" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.plot_soil_layers">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">plot_soil_layers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#util.output.plot_soil_layers" title="Permalink to this definition"></a></dt>
 <dd><p>WORK IN PROGRESS!</p>
 <p>Attempts to display an intuitive representation of the soil column using
 a horizontal bar chart.</p>
@@ -1772,8 +1772,8 @@ a horizontal bar chart.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.plot_soil_layers2">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_soil_layers2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_soil_layers2" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.plot_soil_layers2">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">plot_soil_layers2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.plot_soil_layers2" title="Permalink to this definition"></a></dt>
 <dd><p>Makes plots of soil profile variables. Generates one plot/axis for each
 variable specified. Y axis is the depth, X axis is the value of the variable.
 Plots include horizontal lines marking layer boundaries.</p>
@@ -1792,8 +1792,8 @@ the speficied <cite>stage</cite> and <cite>timeres</cite>!</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.plot_spatial_summary_timeseries">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">plot_spatial_summary_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.plot_spatial_summary_timeseries" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.plot_spatial_summary_timeseries">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">plot_spatial_summary_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_veg_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_run_status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.plot_spatial_summary_timeseries" title="Permalink to this definition"></a></dt>
 <dd><p>Plots a single line with min/max shading representing the <cite>var</cite> averaged over
 the spatial dimension, considering only pixels for <cite>cmtnum</cite>. Stitches together
 data for the specified <cite>stages</cite>.</p>
@@ -1819,8 +1819,8 @@ summed across PFTs before plotting.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.print_soil_table">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">print_soil_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.print_soil_table" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.print_soil_table">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">print_soil_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.print_soil_table" title="Permalink to this definition"></a></dt>
 <dd><p>Prints a table to stdout with all the soil info.</p>
 <p>Looks in the <cite>outdir</cite> for any .nc file with ‘layer’ in the dimension list,
 and <cite>stage</cite> and <cite>timeres</cite> in the name, e.g. “SOC_monthly_tr.nc”. Each
@@ -1832,8 +1832,8 @@ addition to this function would be a better way to control the width.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.pull_data_wrapper">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">pull_data_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.pull_data_wrapper" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.pull_data_wrapper">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">pull_data_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.pull_data_wrapper" title="Permalink to this definition"></a></dt>
 <dd><p>Extracts data from an netcdf file.</p>
 <p><cite>args</cite> must be a dict with settings for outfolder, timeres, and stage.
 <cite>variable</cite> must be a string with the variable name that is expected to be in
@@ -1848,8 +1848,8 @@ and units is a string that is extracted from the attributs of the netcdf file.</
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.stitch_stages">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">stitch_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_dti</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.stitch_stages" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.stitch_stages">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">stitch_stages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_dti</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.stitch_stages" title="Permalink to this definition"></a></dt>
 <dd><p>Glues files together along the time axis.</p>
 <p>Outputs from <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> assume one variable per file and the following
 file-naming pattern:</p>
@@ -1895,8 +1895,8 @@ array.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.sum_across_compartments">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_across_compartments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_across_compartments" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.sum_across_compartments">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">sum_across_compartments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.sum_across_compartments" title="Permalink to this definition"></a></dt>
 <dd><p>Expects <cite>data</cite> to be a 5D numpy array with dimensions
 <cite>(time, pftpart, pft, y, x)</cite>.</p>
 <p>Returns a 4D array that has been summed over the <cite>pftpart</cite> dimension,
@@ -1905,8 +1905,8 @@ values split by compartment.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.sum_across_layers">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_across_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_across_layers" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.sum_across_layers">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">sum_across_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.sum_across_layers" title="Permalink to this definition"></a></dt>
 <dd><p>Expects <cite>data</cite> to be a 4D numpy array with dimensions
 <cite>(time, layers, y, x)</cite>.</p>
 <p>Returns a 3D array that has been summed over the <cite>layer</cite> dimension,
@@ -1915,8 +1915,8 @@ instead of having the totals broken out by layer.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.sum_across_pfts">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_across_pfts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_across_pfts" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.sum_across_pfts">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">sum_across_pfts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.sum_across_pfts" title="Permalink to this definition"></a></dt>
 <dd><p>Expects <cite>data</cite> to be a 4D numpy array with dimensions
 <cite>(time, pft, y, x)</cite>.</p>
 <p>Returns a 3D array that has been summed over the <cite>pft</cite> dimension, effectively
@@ -1925,8 +1925,8 @@ having the totals broken out by PFT.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.sum_monthly_flux_to_yearly">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">sum_monthly_flux_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.sum_monthly_flux_to_yearly" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.sum_monthly_flux_to_yearly">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">sum_monthly_flux_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.sum_monthly_flux_to_yearly" title="Permalink to this definition"></a></dt>
 <dd><p>Expects <cite>data</cite> to be at least a 1D array, with the first axis being time.
 Also assumes that the time axis starts and stops on Jan 1 and Dec 31. In
 otherwords, if you had a 2 years of monthly data that ran from Aug 1 thru
@@ -1934,8 +1934,8 @@ July 31, this function would NOT work!</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="output_utils.workhorse_spatial_summary_plot">
-<span class="sig-prename descclassname"><span class="pre">output_utils.</span></span><span class="sig-name descname"><span class="pre">workhorse_spatial_summary_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#output_utils.workhorse_spatial_summary_plot" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.output.workhorse_spatial_summary_plot">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">workhorse_spatial_summary_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yunits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">varname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.workhorse_spatial_summary_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Worker function, plots a line for average along time axis (axis 0),
 with shading for min and max.</p>
 <p><cite>data</cite>: (numpy.ndarray) must have dimensions (time, y, x).</p>
@@ -1952,29 +1952,29 @@ and plot.</p>
 </dd></dl>
 
 </section>
-<section id="module-input_util">
-<span id="input-util-py"></span><h3>input_util.py<a class="headerlink" href="#module-input_util" title="Permalink to this heading"></a></h3>
+<section id="module-util.input">
+<span id="input-py"></span><h3>input.py<a class="headerlink" href="#module-util.input" title="Permalink to this heading"></a></h3>
 <dl class="py exception">
-<dt class="sig sig-object py" id="input_util.BadInputFilesValueError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">BadInputFilesValueError</span></span><a class="headerlink" href="#input_util.BadInputFilesValueError" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.BadInputFilesValueError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">BadInputFilesValueError</span></span><a class="headerlink" href="#util.input.BadInputFilesValueError" title="Permalink to this definition"></a></dt>
 <dd><p>Raise when there is a problem with the input files.</p>
 </dd></dl>
 
 <dl class="py exception">
-<dt class="sig sig-object py" id="input_util.MissingInputFilesValueError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">MissingInputFilesValueError</span></span><a class="headerlink" href="#input_util.MissingInputFilesValueError" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.MissingInputFilesValueError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">MissingInputFilesValueError</span></span><a class="headerlink" href="#util.input.MissingInputFilesValueError" title="Permalink to this definition"></a></dt>
 <dd><p>Raise when not enough files are present.</p>
 </dd></dl>
 
 <dl class="py exception">
-<dt class="sig sig-object py" id="input_util.MustSupplyPixelCoordsError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">MustSupplyPixelCoordsError</span></span><a class="headerlink" href="#input_util.MustSupplyPixelCoordsError" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.MustSupplyPixelCoordsError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">MustSupplyPixelCoordsError</span></span><a class="headerlink" href="#util.input.MustSupplyPixelCoordsError" title="Permalink to this definition"></a></dt>
 <dd><p>Raise when user must supply pixel coordinates(i.e. command line flag –yx)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.climate_gap_count_plot">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">climate_gap_count_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.climate_gap_count_plot" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.climate_gap_count_plot">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">climate_gap_count_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.climate_gap_count_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Creates plots showing how many missing datapoints exist for each pixel.</p>
 <p>Creates 2 figures: first from the historic file and then from the projected
 file.</p>
@@ -1984,8 +1984,8 @@ give a rough idea where there are bad pixels and how bad they are.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.climate_ts_plot">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">climate_ts_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.climate_ts_plot" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.climate_ts_plot">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">climate_ts_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.climate_ts_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Make time series plots of the 4 climate driver variables.</p>
 <p>There are 2 modes controlled by the value of <cite>args.type</cite>. In <cite>raw</cite> mode, 2
 figures are generated, one for historic and one for projected data (with the
@@ -2002,8 +2002,8 @@ dimension.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.crop_attr_string">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">crop_attr_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.crop_attr_string" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.crop_attr_string">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">crop_attr_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.crop_attr_string" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a string to be included as a netCDF global attribute named “crop”.</p>
 <p>The string will start with the filename and function name responsible for
 creating the (new) input file, and if provided, will include values for size
@@ -2022,7 +2022,7 @@ offset arguments are much more important to include.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>s</strong> – A string something like:
-“./scripts/input_util.py::crop_file –ysize 3 –xsize 4 –yx 0 0</p>
+“./scripts/input.py::crop_file –ysize 3 –xsize 4 –yx 0 0</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>str</p>
@@ -2031,38 +2031,38 @@ offset arguments are much more important to include.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.crop_file">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">crop_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ysize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xsize</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.crop_file" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.crop_file">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">crop_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ysize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xsize</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.crop_file" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a new <cite>outfile</cite> and copies data from the <cite>infile</cite> to the new <cite>outfile</cite>
 according to <cite>y</cite>, <cite>x</cite>, and respective size parameters. Copys all attributes
 and adds a new attribute describing this crop step.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.crop_wrapper">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">crop_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.crop_wrapper" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.crop_wrapper">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">crop_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.crop_wrapper" title="Permalink to this definition"></a></dt>
 <dd><p>Parses input folder name to find tag, and creates appropriately named
 output directory alongside the input directory. Calls the crop_file
 function for each netcdf file found in the input directory.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.cropper">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">cropper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/smaller.nc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_lonlat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.cropper" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.cropper">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">cropper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/smaller.nc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_lonlat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.cropper" title="Permalink to this definition"></a></dt>
 <dd><p>Very thin wrapper around gdal_translate.</p>
 <p>Advantage: it will update the geo referencing info
 Disadvantage: this may not create a valid 1x1 dataset</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.mkdir_p">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">mkdir_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.mkdir_p" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.mkdir_p">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">mkdir_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.mkdir_p" title="Permalink to this definition"></a></dt>
 <dd><p>Emulates the shell’s <cite>mkdir -p</cite>.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.tunnel_fast">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">tunnel_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latvar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lonvar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.tunnel_fast" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.tunnel_fast">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">tunnel_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latvar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lonvar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.tunnel_fast" title="Permalink to this definition"></a></dt>
 <dd><p>Find closest pair in a set of (lat,lon) pairs to specified query point.
 latvar - 2D latitude data, usually from reading a netCDF dataset
 lonvar - 2D longitude data, usually from reading a netCDF dataset
@@ -2075,15 +2075,15 @@ Code from Unidata’s Python Workshop:
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="input_util.verify_input_files">
-<span class="sig-prename descclassname"><span class="pre">input_util.</span></span><span class="sig-name descname"><span class="pre">verify_input_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_util.verify_input_files" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="util.input.verify_input_files">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">verify_input_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.verify_input_files" title="Permalink to this definition"></a></dt>
 <dd><p>Raises various exceptions if there are problems with the files in the in_folder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>in_folder</strong> (<em>str</em>) – A path to a folder of dvmdostem inputs.</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="#input_util.BadInputFilesValueError" title="input_util.BadInputFilesValueError"><strong>BadInputFilesValueError</strong></a> – </p>
+<dd class="field-even"><p><a class="reference internal" href="#util.input.BadInputFilesValueError" title="util.input.BadInputFilesValueError"><strong>BadInputFilesValueError</strong></a> – </p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>None</p>
