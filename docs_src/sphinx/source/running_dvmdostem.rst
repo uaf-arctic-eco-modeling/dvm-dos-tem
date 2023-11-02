@@ -94,17 +94,40 @@ many of the examples still show things using the absolute path:
 ==================
 Control Options
 ==================
-    WRITE THIS...
+
+There are generally three ways you can control how ``dvmdostem`` runs:
+
+ - Command Line Options
+ - Configuration Files
+ - Parameter Files
+
+If setting are present in both the configuration files and the command line 
+options, precedence is given to the command line.
 
 --------------
 Command line
 --------------
-    WRITE THIS...
+
+The best way to see the command line options for ``dvmdostem`` is by using the 
+``--help`` flag. 
 
 --------------
 Configuration
 --------------
-    WRITE THIS...
+
+The ``dvmdostem`` program will look for a file, ``config/config.js`` when
+starting. The file is ``.json`` formatted, and should have the following top
+level keys:
+
+.. code::
+
+    {
+    "general": { },
+    "IO": { },
+    "calibration-IO": { },
+    "stage_settings": { },
+    "model_settings": { },
+    }
 
 --------------
 Parameters
@@ -116,7 +139,7 @@ be set in text files which allows the operation of the model to be changed
 without re-compiling. But this flexibility results in **lots** of parameters,
 and managing them can be cumbersome.
 
-``dvmdostem`` ingests parameters that are stored in a custom space delimited,
+``dvmdostem`` ingests parameters that are stored in a custom, space delimited,
 fixed width text format. The format is a compromise that allows:
  
  * Storing parameters for multiple Community Types (CMTs) in one file.
@@ -132,13 +155,25 @@ at the expense of:
 
 The ``util/param.py`` script has many functions to help manipulate ``dvmdostem``
 parameter files. Included in ``util/param.py`` are functions that can help
-convert from the custom fixed width text (fwt) format to Command Separated Value
-(csv) and back. Certain edits (such as adding and updating metadata) are much
+convert from the custom fixed width text (FWT) format to command separated value
+(CSV) and back. Certain edits (such as adding and updating metadata) are much
 easier to accomplish in a spreadhsheet program. The metadata in the existing FWT
 files is incomplete and the assumption is that this will improve over time as
 users convert to CSV, work on the files, updating values (i.e. through
 calibration, new observations or further literature review), and updating
-metadata and then convert the files back to FWT before comitting to the repository.
+metadata and then convert the files back to FWT before comitting to the
+repository. This is described in the following diagram.
+
+.. raw:: html
+
+   <!-- From Shared Drive, Documentation Embed Images folder google drawing "working_with_parameters"-->
+   <img src="https://docs.google.com/drawings/d/e/2PACX-1vTla1Wpo09y9OO1vSdcoHo_o4drkumHU1gET-P1Uz31QBk3Fgepp11NFvZi88LQ8HdPSLTdS1f9joUu/pub?w=960&amp;h=720">
+
+More information about the csv format can be found with the ``param.py
+--csv-v1-spec`` command line option. Rather than circulating a template file,
+the intention is that the user creates template files from the FWT files using
+the tools in ``param.py``.
+
 
 ``util/param.py`` also has facilities for converting from FWT to json and back.
 These functions had thus far been most useful in integrating ``dvmdostem`` with 
