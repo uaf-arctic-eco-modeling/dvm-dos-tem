@@ -434,6 +434,49 @@
 0.6          0.37         0.05         0.0          0.23            0            0            0            0            0             // static_lai[10]:
 0.6          0.37         0.05         0.0          0.23            0            0            0            0            0             // static_lai[11]:
 //===========================================================
+// CMT14 // Boreal Birch Forest // Calibrated for Caribou Creek.
+//EverTree  DecidShrub  DecidTree     Moss         EvrShrub  PFT5   PFT6   PFT7   PFT8   PFT9  // names: comments
+1            1            1            1           1      0.0    0.0    0.0    0.0    0.0  // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
+1            1            1            0           1      0      0      0      0      0    // ifwoody: woody plants (1) or not (0)
+0            1            1            0           0      0      0      0      0      0    // ifdeciwoody: deciduous woodland (1) or not (0)
+1            1            1            0           1      0      0      0      0      0    // ifperenial: perenial (1) or not (0)
+0            0            0            1           0      0      0      0      0      0    // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
+0.004843     0.0144425    0.01848      0.026855    0.0048 0.0    0.0    0.0    0.0    0.0  // sla: specific leaf area (m2/gC)
+0.55         0.35         0.45         0.1         0.2    0.0    0.0    0.0    0.0    0.0  // klai: extinction coeff for conversion from lai to fpc
+0.5          0.5          0.5          0.5         0.5    0.0    0.0    0.0    0.0    0.0  // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
+0.42893      0.42893      0.42893      0.42893     0.4289 0.0    0.0    0.0    0.0    0.0  // aleaf:
+0.33295      0.33295      0.33295      0.33295     0.33295    0.0    0.0    0.0    0.0    0.0  // bleaf:
+0.32228      0.32228      0.32228      0.32228     0.32228    0.0    0.0    0.0    0.0    0.0  // cleaf:
+1.6662       1.6662       1.6662       1.6662      1.6662    0.0    0.0    0.0    0.0    0.0  // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage)
+-0.001571   -0.000292    -0.000292    -0.023       -0.001571    0.0    0.0    0.0    0.0    0.0  // cov:
+19.62        38.57        38.57        19.62       19.62    0.0    0.0    0.0    0.0    0.0  // m1: this and the following 3 parameters are for woody plant's f(foliage)
+-0.3999     -0.4509      -0.4509      -0.3999      -.3999    0.0    0.0    0.0    0.0    0.0  // m2:
+0.1487       0.0743       0.0743       0.1487      0.1487    0.0    0.0    0.0    0.0    0.0  // m3:
+0.0001       0.0001       0.0001       0.0001      0.0001    0.0    0.0    0.0    0.0    0.0  // m4:
+52.73        40.487       40.487       0.00        52.73    0.0    0.0    0.0    0.0    0.0  // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
+14.41        31.354       31.354       0.00        14.41    0.0    0.0    0.0    0.0    0.0  // frprod[1]: fine root allocation percentage vertically in soils (every 10 cm)
+14.41        14.003       14.003       0.00        14.41    0.0    0.0    0.0    0.0    0.0  // frprod[2]: fine root allocation percentage vertically in soils (every 10 cm)
+14.41        9.851        9.851        0.00        14.41    0.0    0.0    0.0    0.0    0.0  // frprod[3]: fine root allocation percentage vertically in soils (every 10 cm)
+ 3.24        4.305        4.305        0.00        3.24    0.0    0.0    0.0    0.0    0.0  // frprod[4]: fine root allocation percentage vertically in soils (every 10 cm)
+0.800        0.00         0.00         0.00        0.8    0.0    0.0    0.0    0.0    0.0  // frprod[5]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00         0.00         0.00         0.00        0.0    0.0    0.0    0.0    0.0    0.0  // frprod[6]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00         0.00         0.00         0.00        0.0    0.0    0.0    0.0    0.0    0.0  // frprod[7]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00         0.00         0.00         0.00        0.0    0.0    0.0    0.0    0.0    0.0  // frprod[8]: fine root allocation percentage vertically in soils (every 10 cm)
+0.00         0.00         0.00         0.00        0.0    0.0    0.0    0.0    0.0    0.0  // frprod[9]: fine root allocation percentage vertically in soils (every 10 cm)
+0.0239       0.2405       4.8690       0.3008      0.0239   0.0    0.0    0.0    0.0    0.0  // initial_lai: starting value for Leaf Area Index
+0.0131       0.0          0.0          0.3008      0.0131   0.0    0.0    0.0    0.0    0.0  // static_lai[0]: monthly LAI for a year, used for static input of LAI
+0.0137       0.0          0.0          0.3008      0.0137   0.0    0.0    0.0    0.0    0.0  // static_lai[1]:
+0.0143       0.0          0.0          0.3008      0.0143   0.0    0.0    0.0    0.0    0.0  // static_lai[2]:
+0.0143       0.0481       0.9738       0.3008      0.0143   0.0    0.0    0.0    0.0    0.0  // static_lai[3]:
+0.0155       0.0770       1.5581       0.3008      0.0155   0.0    0.0    0.0    0.0    0.0  // static_lai[4]:
+0.0227       0.1732       3.5057       0.3008      0.0227   0.0    0.0    0.0    0.0    0.0  // static_lai[5]:
+0.0239       0.2405       4.8690       0.3008      0.0239   0.0    0.0    0.0    0.0    0.0  // static_lai[6]:
+0.0239       0.1924       3.8952       0.3008      0.0239   0.0    0.0    0.0    0.0    0.0  // static_lai[7]:
+0.0179       0.1443       2.9214       0.3008      0.0179   0.0    0.0    0.0    0.0    0.0  // static_lai[8]:
+0.0155       0.0962       1.9476       0.3008      0.0155   0.0    0.0    0.0    0.0    0.0  // static_lai[9]:
+0.0137       0.0          0.0          0.3008      0.0137   0.0    0.0    0.0    0.0    0.0  // static_lai[10]:
+0.0131       0.0          0.0          0.3008      0.0131   0.0    0.0    0.0    0.0    0.0  // static_lai[11]:
+//===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex        Ericoid      Feather      Lichen      OthMoss       Rubcha       Misc1        Misc2        Misc3        // names: comments
 1.00         1.00         1.00         1.00         1.00         1.00         1.00         0            0            0            // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
