@@ -18,7 +18,11 @@ import collections
 
 def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
   '''
-  Work in progress for getting the last few year of equlibrium stage for calibration.
+  Work in progress for getting the last few year of equlibrium stage for
+  calibration.
+
+  Maybe the default for ``n`` should be 12 so that if the ``timeres`` is monthly
+  it gets the lasy year?
   '''
   fname = os.path.join(fileprefix, '{}_{}_eq.nc'.format(var.upper(), timeres.lower()))
 
