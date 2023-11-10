@@ -11,3 +11,4 @@ lhsmdu==1.1
 Sphinx==5.1.1
 sphinx-rtd-theme==1.1.0
 sphinx-toolbox==3.4.0
+sphinx-argparse==0.4.0

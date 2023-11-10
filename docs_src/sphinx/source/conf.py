@@ -43,6 +43,7 @@ extensions = [
   #'sphinx.ext.automodule',
   #'numpydoc',
   'sphinx.ext.napoleon',
+  'sphinxarg.ext',
 ]
 
 

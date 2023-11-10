@@ -606,10 +606,9 @@ def tunnel_fast(latvar,lonvar,lat0,lon0):
   return iy_min,ix_min
 
 
+def cmdline_define():
+  '''Define the command line interface, return the parser object.'''
 
-
-
-if __name__ == '__main__':
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
 
@@ -670,6 +669,13 @@ if __name__ == '__main__':
       data.
     '''))
   climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+
+  return parser
+
+
+if __name__ == '__main__':
+
+  parser = cmdline_define()
 
   args = parser.parse_args()
 

@@ -2094,18 +2094,9 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   with open(f, 'w') as updated_file:
     updated_file.write('\n'.join(formatted))  
 
+def cmdline_define():
+  '''Define the command line interface and return the parser object.'''
 
-def cmdline_parse(argv=None):
-  '''
-  Define and parse the command line interface.
-
-  When argv is None, the parser will evaluate sys.argv[1:]
-
-  Return
-  ------
-  args : Namespace
-    A Namespace object with all the arguments and associated values.
-  '''
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
@@ -2218,6 +2209,21 @@ def cmdline_parse(argv=None):
   parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
       help=textwrap.dedent('''(DEPRECATED!!) Dumps a parameter file to csv format.'''))
 
+  return parser
+
+
+def cmdline_parse(argv=None):
+  '''
+  Define and parse the command line interface.
+
+  When argv is None, the parser will evaluate sys.argv[1:]
+
+  Return
+  ------
+  args : Namespace
+    A Namespace object with all the arguments and associated values.
+  '''
+  parser = cmdline_define()
   args = parser.parse_args(argv)
 
   return args
