@@ -68,6 +68,7 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
     CLI_tools/param
     CLI_tools/runmask
     CLI_tools/input
+    CLI_tools/outspec
 
 .. toctree::
     :maxdepth: 5
