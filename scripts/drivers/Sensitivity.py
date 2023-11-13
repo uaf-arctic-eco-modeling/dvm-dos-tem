@@ -1243,7 +1243,7 @@ class SensitivityDriver(object):
     results = [os.path.join(ssrf, 'results.csv') for ssrf in self._ssrf_names()]
     df = pd.concat(map(pd.read_csv, results), ignore_index=True)
     with open(os.path.join(self.work_dir, 'results.csv'), 'w') as f:
-      f.write(df.to_csv())
+      f.write(df.to_csv(index=False))
 
 
   def summarize_ssrf(self, output_directory_path):
@@ -1528,6 +1528,7 @@ class SensitivityDriver(object):
 
     Shows one row of plots for each parameter with 3 different ways of viewing
     the sample distributions:
+
        - Left column is sample values with bounds marked in red. 
        - Middle column is a histogram of sample values.
        - Right column is boxplot of sample values
