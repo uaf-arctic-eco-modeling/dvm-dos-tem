@@ -25,6 +25,13 @@ These are tools and APIs for carrying out Sensitivity Analysis.
 General Utilities
 ******************
 
+##########################################
+mads_calibration.SA_post_hoc_analysis
+##########################################
+
+.. automodule:: SA_post_hoc_analysis
+    :members:
+
 These are general purpose utility scripts for working with ``dvmdostem``.
 
 ==================
