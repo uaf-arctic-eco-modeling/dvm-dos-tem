@@ -212,7 +212,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
         BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 1.";
         // Should probably terminate here.
         this->fri_derived = false;
-        ignite = false
+        ignite = false;
         break;
       }
       default:
