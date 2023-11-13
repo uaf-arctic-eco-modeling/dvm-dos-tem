@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>param.py &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="runmask.py" href="runmask.html" />
+    <link rel="prev" title="7. Using Github’s Features" href="../examples_and_tutorials/using_github_features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.7.0-66-gb3a5fe1b
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">8. References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">param.py</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runmask.html">runmask.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">input.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qcal.html">qcal.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outspec.html">outspec.py</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.input">util.input</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">param.py</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/CLI_tools/param.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="param-py">
+<h1>param.py<a class="headerlink" href="#param-py" title="Permalink to this heading"></a></h1>
+<p><p>Script for manipulating dvmdostem parameter files.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reformat</span><span class="o">-</span><span class="n">block</span> <span class="n">FILE</span> <span class="n">CMT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">enforce</span><span class="o">-</span><span class="n">initvegc</span> <span class="n">FILE</span> <span class="n">CMT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">replace</span><span class="o">-</span><span class="n">cmt</span><span class="o">-</span><span class="n">block</span> <span class="n">AFILE</span> <span class="n">BFILE</span> <span class="n">CMTNUM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">compare</span><span class="o">-</span><span class="n">cmtblocks</span> <span class="n">AFILE</span> <span class="n">ANUM</span> <span class="n">BFILE</span> <span class="n">BNUM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">block</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">json</span> <span class="n">FILE</span> <span class="n">CMT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dump</span><span class="o">-</span><span class="n">block</span> <span class="n">FILE</span> <span class="n">CMT</span><span class="p">]</span>
+                <span class="p">[</span><span class="o">--</span><span class="n">fmt</span><span class="o">-</span><span class="n">block</span><span class="o">-</span><span class="n">from</span><span class="o">-</span><span class="n">json</span> <span class="n">INFILE</span> <span class="n">REFFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">report</span><span class="o">-</span><span class="n">pft</span><span class="o">-</span><span class="n">names</span> <span class="n">INFOLDER</span> <span class="n">CMTNUM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">report</span><span class="o">-</span><span class="n">pft</span><span class="o">-</span><span class="n">stats</span> <span class="n">INFOLDER</span> <span class="n">CMTNUM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">report</span><span class="o">-</span><span class="n">cmt</span><span class="o">-</span><span class="n">names</span> <span class="n">INFOLDER</span> <span class="n">CMTNUM</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">report</span><span class="o">-</span><span class="nb">all</span><span class="o">-</span><span class="n">cmts</span> <span class="n">FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">plot</span><span class="o">-</span><span class="n">static</span><span class="o">-</span><span class="n">lai</span> <span class="n">INFOLDER</span> <span class="n">CMT</span><span class="p">]</span>
+                <span class="p">[</span><span class="o">--</span><span class="n">extract</span><span class="o">-</span><span class="n">cmt</span> <span class="n">INFOLDER</span> <span class="n">CMTKEY</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">csv</span><span class="o">-</span><span class="n">v1</span><span class="o">-</span><span class="n">spec</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fwt2csv</span><span class="o">-</span><span class="n">v1</span> <span class="n">PARAMDIR</span> <span class="n">REQ_CMTS</span> <span class="n">TARGETS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">csv2fwt</span><span class="o">-</span><span class="n">v1</span> <span class="n">CSV</span> <span class="n">REFPARAMS</span> <span class="n">REFTARGETS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">csv</span><span class="o">-</span><span class="n">v0</span><span class="o">-</span><span class="mi">2</span><span class="n">cmtdatablocks</span> <span class="n">CSVFILE</span> <span class="n">CMTNAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">csv</span><span class="o">-</span><span class="n">v0</span><span class="o">-</span><span class="n">spec</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">params2csv</span><span class="o">-</span><span class="n">v0</span> <span class="n">PARAMFOLDER</span> <span class="n">CMTKEY</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
+<dl class="option-list">
+<dt><kbd>--reformat-block</kbd></dt>
+<dd><p>??</p>
+</dd>
+<dt><kbd>--enforce-initvegc</kbd></dt>
+<dd><dl class="simple">
+<dt>Reads data from cmt_bgcvegetation.txt file for</dt><dd><p>the specified community and adjusts the cpart compartment parmeters so
+as to match the proportions of the initvegc compartment parameters.
+Re-formats the block of data and prints to stdout.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--replace-cmt-block</kbd></dt>
+<dd><dl class="simple">
+<dt>Replaces the CMT datablock in AFILE with the</dt><dd><p>contents CMT data in BFILE. Assumes that the CMTNUM exists in both files!</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--compare-cmtblocks</kbd></dt>
+<dd><dl class="simple">
+<dt>Do a line by line comparison of the CMT data blocks</dt><dd><p>in FILEA and FILEB. The comparison ignores whitespace and numeric formatting.
+prints report indicating which lines match.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--dump-block-to-json</kbd></dt>
+<dd><dl class="simple">
+<dt>Extract the specific CMT data block from the</dt><dd><p>specified data input file and print the contents to stdout as a json
+object (string).</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--dump-block</kbd></dt>
+<dd><dl class="simple">
+<dt>Extract the specific CMT data block from the</dt><dd><p>specified input file and print the contents to stdout</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--fmt-block-from-json</kbd></dt>
+<dd><dl class="simple">
+<dt>Reads infile (assumed to be a well formed data</dt><dd><p>dict of dvmdostem parameter data in json form), formats the block
+according to the reffile, and spits contents back to stdouts</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--report-pft-names</kbd></dt>
+<dd><dl class="simple">
+<dt>Prints the PFT name lines for each parameter file</dt><dd><p>so that it is easy to visually check that all the PFTs are named
+exactly the same for the given (‘INFOLDER’, ‘CMTNUM’). Might require a wide screen
+to view the columns lined up appropriately! Prints n/a if the CMT
+does not exist in the file.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--report-pft-stats</kbd></dt>
+<dd><dl class="simple">
+<dt>Prints a tables summarizing the amount of C and N</dt><dd><p>allocated to each PFT and the percent contribution to the ecosystem totals
+of C and N. Assumes that a file ‘cmt_bgcvegetation.txt’ exists in the
+INFOLDER.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--report-cmt-names</kbd></dt>
+<dd><dl class="simple">
+<dt>Prints the CMT number and name for each file.</dt><dd><p>Prints n/a if the CMT does not exist in the file!</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--report-all-cmts</kbd></dt>
+<dd><dl class="simple">
+<dt>Prints out a table with all the CMT names found</dt><dd><p>in each file found in the FOLDER. Only looks at files named like:
+‘cmt_*.txt’ in the FOLDER.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--plot-static-lai</kbd></dt>
+<dd><dl class="simple">
+<dt>Makes plots of the static_lai parameter.</dt><dd><p>static_lai is a monthly value, so each PFT has 12 entries in the
+parameter file. The plot shows the values over the year so you can check
+the seasonality. Looks a ‘cmt_dimvegetation.txt file in the
+INFOLDER.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--extract-cmt</kbd></dt>
+<dd><dl class="simple">
+<dt>Given a folder of parameter files, and a CMT</dt><dd><p>number, this will open each file, copy the block of data for the CMT
+and paste that block in to a new file named CMTKEY_cmt_*.txt,
+i.e: CMT04_cmt_calparbgc.txt</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--csv-v1-spec</kbd></dt>
+<dd><p>Print the specification for the supported csv files, v1.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--fwt2csv-v1</kbd></dt>
+<dd><dl class="simple">
+<dt>Converts all the parameters found in the files in</dt><dd><p>PARAMDIR into csv format, creating one csv file for each requested CMT.
+REQ_CMTs should be a comma separatedlist of CMT numbers. The resulting csv
+file will be v1, and will have the targets included as found in the
+TARGETS file.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--csv2fwt-v1</kbd></dt>
+<dd><dl class="simple">
+<dt>Converts the input CSV file into the standard</dt><dd><p>dvmdostem Fixed Width Text parameter format. The CSV file must conform
+to the v1 specification and must have all info present! Prints the
+resulting data to stdout in a format that can be copied into new or
+existing dvmdostem parameter files. Also prints the targets data such
+that if can be copied into an existing targets file, although the key
+order may not match the hand-formatted targets.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--csv-v0-2cmtdatablocks</kbd></dt>
+<dd><dl class="simple">
+<dt>(DEPRECATED!!) Reads data from csv file and prints</dt><dd><p>CMT datablocks to stdout. Expected workflow is that user starts with a
+spreadsheet that is exported to csv, then use this feature is used to
+parse the csv and print formatted sections of data to stdout that can be
+pasted into the standard dvmdostem space delimited text files that are
+used for parameters.</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--csv-v0-spec</kbd></dt>
+<dd><p>(DEPRECATED!!) Print the specification for supported csv files, v0.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--params2csv-v0</kbd></dt>
+<dd><p>(DEPRECATED!!) Dumps a parameter file to csv format.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../examples_and_tutorials/using_github_features.html" class="btn btn-neutral float-left" title="7. Using Github’s Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="runmask.html" class="btn btn-neutral float-right" title="runmask.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

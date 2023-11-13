@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. Model Overview &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
+  <title>1. Model Overview &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-58-g27e9e2e9
+                v0.7.0-66-gb3a5fe1b
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -105,9 +105,20 @@
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">Python API Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
 </ul>
 
         </div>
@@ -569,9 +580,1373 @@ HH:MM:SS</p></td>
 </section>
 <section id="outputs">
 <h3><span class="section-number">1.3.2. </span>Outputs<a class="headerlink" href="#outputs" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>The outputs that are available for DVM-DOS-TEM are listed in the
+<code class="docutils literal notranslate"><span class="pre">config/output_spec.csv</span></code> file that is shipped ith the repo. The following table
+is built from that csv file:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">output_spec.csv</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Units</p></th>
+<th class="head"><p>Yearly</p></th>
+<th class="head"><p>Monthly</p></th>
+<th class="head"><p>Daily</p></th>
+<th class="head"><p>PFT</p></th>
+<th class="head"><p>Compartments</p></th>
+<th class="head"><p>Layers</p></th>
+<th class="head"><p>Data Type</p></th>
+<th class="head"><p>Placeholder</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ALD</p></td>
+<td><p>Soil active layer depth</p></td>
+<td><p>m</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>AVLN</p></td>
+<td><p>Total soil available N</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>BURNAIR2SOIN</p></td>
+<td><p>Nitrogen deposit from fire emission</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>BURNSOIC</p></td>
+<td><p>Burned soil C</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>BURNSOILN</p></td>
+<td><p>Burned soil N</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>BURNTHICK</p></td>
+<td><p>Ground burn thickness</p></td>
+<td><p>m</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>BURNVEG2AIRC</p></td>
+<td><p>Burned vegetation C to atmosphere</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>BURNVEG2AIRN</p></td>
+<td><p>Burned vegetation N to atmosphere</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>BURNVEG2DEADC</p></td>
+<td><p>Burned vegetation C to standing dead C</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>BURNVEG2DEADN</p></td>
+<td><p>Burned vegetation N to standing dead N</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>BURNVEG2SOIABVC</p></td>
+<td><p>Burned vegetation C to soil above</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>BURNVEG2SOIABVN</p></td>
+<td><p>Burned vegetation N to soil above</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>BURNVEG2SOIBLWC</p></td>
+<td><p>Burned vegetation C to soil below</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>BURNVEG2SOIBLWN</p></td>
+<td><p>Burned vegetation N to soil below</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>CMTNUM</p></td>
+<td><p>Community Type Number</p></td>
+<td><p>m</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>DEADC</p></td>
+<td><p>Standing dead C</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>DEADN</p></td>
+<td><p>Standing dead N</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>DEEPC</p></td>
+<td><p>Amorphous SOM C</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>DEEPDZ</p></td>
+<td><p>Amorphous SOM horizon thickness</p></td>
+<td><p>m</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>DRIVINGNIRR</p></td>
+<td><p>Input driving NIRR</p></td>
+<td><p>W/m2</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>DRIVINGRAINFALL</p></td>
+<td><p>Input driving precip data after being split from snowfall</p></td>
+<td><p>mm</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>float</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>DRIVINGSNOWFALL</p></td>
+<td><p>Input driving precip data after being split from rainfall</p></td>
+<td><p>mm</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>float</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>DRIVINGTAIR</p></td>
+<td><p>Input driving air temperature data</p></td>
+<td><p>degree_C</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>float</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>DRIVINGVAPO</p></td>
+<td><p>Input driving vapor pressure</p></td>
+<td><p>hPa</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>float</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>DWDC</p></td>
+<td><p>Dead woody debris C</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>DWDN</p></td>
+<td><p>Dead woody debris N</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>DWDRH</p></td>
+<td><p>Dead woody debris HR</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>EET</p></td>
+<td><p>Actual ET</p></td>
+<td><p>mm/m2/time</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>FRONTSDEPTH</p></td>
+<td><p>Depth of fronts</p></td>
+<td><p>mm</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>FRONTSTYPE</p></td>
+<td><p>Front types</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>GPP</p></td>
+<td><p>GPP</p></td>
+<td><p>g/m2/time</p></td>
+<td><p>y</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>GROWEND</p></td>
+<td><p>Growing ending day</p></td>
+<td><p>DOY</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>GROWSTART</p></td>
+<td><p>Growing starting day</p></td>
+<td><p>DOY</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>HKDEEP</p></td>
+<td><p>Hydraulic conductivity in amorphous horizon</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>HKLAYER</p></td>
+<td><p>Hydraulic conductivity by layer</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>HKMINEA</p></td>
+<td><p>Hydraulic conductivity top mineral</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>HKMINEB</p></td>
+<td><p>Hydraulic conductivity middle mineral</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>HKMINEC</p></td>
+<td><p>Hydraulic conductivity bottom mineral</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>HKSHLW</p></td>
+<td><p>Hydraulic conductivity in fibrous horizon</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>INGPP</p></td>
+<td><p>GPP without N limitation</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>INNPP</p></td>
+<td><p>NPP witout N limitation</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>INNUPTAKE</p></td>
+<td><p>Unlimited N uptake by plants. N uptake by happy plants when N is not limited.</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>IWCLAYER</p></td>
+<td><p>IWC by layer</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>LAI</p></td>
+<td><p>LAI</p></td>
+<td><p>m2/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>LAYERDEPTH</p></td>
+<td><p>Layer depth from the surface</p></td>
+<td><p>m</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>LAYERDZ</p></td>
+<td><p>Thickness of layer</p></td>
+<td><p>m</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>LAYERTYPE</p></td>
+<td><p>0:moss 1:shlw 2:deep 3:mineral</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>LTRFALC</p></td>
+<td><p>Litterfall C</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>LTRFALN</p></td>
+<td><p>Litterfall N</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>LWCLAYER</p></td>
+<td><p>LWC by layer</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>MINEC</p></td>
+<td><p>Mineral SOM C</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>MOSSDEATHC</p></td>
+<td><p>Moss death carbon</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>MOSSDEATHN</p></td>
+<td><p>Moss death nitrogen</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>MOSSDZ</p></td>
+<td><p>Moss thickness</p></td>
+<td><p>m</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>NDRAIN</p></td>
+<td><p>N losses from drainage (AVLN)</p></td>
+<td><p>g/m2/time</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>NETNMIN</p></td>
+<td><p>Soil net N mineralization</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>NIMMOB</p></td>
+<td><p>Nitrogen immobilization</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>NINPUT</p></td>
+<td><p>N inputs into soil (AVLN)</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>NLOST</p></td>
+<td><p>N losses from soil (AVLN)</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>NPP</p></td>
+<td><p>NPP</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>NRESORB</p></td>
+<td><p>NRESORB</p></td>
+<td><p>??</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>NUPTAKELAB</p></td>
+<td><p>Labile N uptake by plants</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>NUPTAKEST</p></td>
+<td><p>Structural N uptake by plants</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ORGN</p></td>
+<td><p>Total soil organic N</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>PERCOLATION</p></td>
+<td><p>Percolation by layer</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>PERMAFROST</p></td>
+<td><p>Permafrost (1 or 0)</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>PET</p></td>
+<td><p>Potential ET</p></td>
+<td><p>mm/m2/time</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>QDRAINAGE</p></td>
+<td><p>Water drainage quotient (~ratio)</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>QDRAINLAYER</p></td>
+<td><p>Qdrain per layer</p></td>
+<td><p>mm</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>QINFILTRATION</p></td>
+<td><p>Water infiltration quotient (~ratio)</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>QRUNOFF</p></td>
+<td><p>Water runoff quotient (~ratio)</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>RAINFALL</p></td>
+<td><p>Total rainfall</p></td>
+<td><p>mm</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>RG</p></td>
+<td><p>Growth respiration</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>RH</p></td>
+<td><p>Heterotrophic respiration</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>RM</p></td>
+<td><p>Maintenance respiration</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ROLB</p></td>
+<td><p>Relative organic horizon burned ratio C</p></td>
+<td><p>g/g</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>ROOTWATERUPTAKE</p></td>
+<td><p>Water uptake by roots per layer</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SHLWC</p></td>
+<td><p>Fibrous SOM C</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SHLWDZ</p></td>
+<td><p>Fibrous SOM horizon thickness</p></td>
+<td><p>m</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SNOWEND</p></td>
+<td><p>DOY of last snow fall</p></td>
+<td><p>DOY</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SNOWFALL</p></td>
+<td><p>Total snowfall</p></td>
+<td><p>mm</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SNOWSTART</p></td>
+<td><p>DOY of first snow fall</p></td>
+<td><p>DOY</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SNOWTHICK</p></td>
+<td><p>Snow pack thickness</p></td>
+<td><p>m</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SOMA</p></td>
+<td><p>Soil organic C active</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SOMCR</p></td>
+<td><p>Soil organic C chemically resistant</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SOMPR</p></td>
+<td><p>Soil organic C physically resistant</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SOMRAWC</p></td>
+<td><p>Soil organic C raw</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SWE</p></td>
+<td><p>Snow water equivalent</p></td>
+<td><p>kg/m2</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TCDEEP</p></td>
+<td><p>Thermal conductivity in amorphous horizon</p></td>
+<td><p>W/m/K</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TCLAYER</p></td>
+<td><p>Thermal conductivity by layer</p></td>
+<td><p>W/m/K</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TCMINEA</p></td>
+<td><p>Thermal conductivity top mineral</p></td>
+<td><p>W/m/K</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TCMINEB</p></td>
+<td><p>Thermal conductivity middle mineral</p></td>
+<td><p>W/m/K</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TCMINEC</p></td>
+<td><p>Thermal conductivity bottom mineral</p></td>
+<td><p>W/m/K</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TCSHLW</p></td>
+<td><p>Thermal conductivity in fibrous horizon</p></td>
+<td><p>W/m/K</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TDEEP</p></td>
+<td><p>Temperature in amorphous horizon</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TLAYER</p></td>
+<td><p>Temperature by layer</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TMINEA</p></td>
+<td><p>Temperature top mineral</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TMINEB</p></td>
+<td><p>Temperature middle mineral</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TMINEC</p></td>
+<td><p>Temperature bottom mineral</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TRANSPIRATION</p></td>
+<td><p>Transpiration</p></td>
+<td><p>mm/day</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TSHLW</p></td>
+<td><p>Temperature in fibrous horizon</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VEGC</p></td>
+<td><p>Total veg. biomass C</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VEGN</p></td>
+<td><p>Total veg. biomass N</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VWCDEEP</p></td>
+<td><p>VWC in amorphous horizon</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VWCLAYER</p></td>
+<td><p>VWC by layer</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>forced</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VWCMINEA</p></td>
+<td><p>VWC top mineral</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VWCMINEB</p></td>
+<td><p>VWC middle mineral</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VWCMINEC</p></td>
+<td><p>VWC bottom mineral</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VWCSHLW</p></td>
+<td><p>VWC in fibrous horizon</p></td>
+<td><p>m3/m3</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>WATERTAB</p></td>
+<td><p>Water table depth below surface</p></td>
+<td><p>m</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>YSD</p></td>
+<td><p>Years since last disturbance</p></td>
+<td><p>Years</p></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>int</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <section id="output-selection">
 <h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this heading"></a></h4>
 <blockquote>

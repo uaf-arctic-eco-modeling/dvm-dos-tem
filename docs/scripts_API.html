@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python API Docs &mdash; dvmdostem v0.7.0-58-g27e9e2e9 documentation</title>
+  <title>drivers.Sensitivity &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -25,7 +25,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="7. Using Github’s Features" href="examples_and_tutorials/using_github_features.html" /> 
+    <link rel="prev" title="outspec.py" href="CLI_tools/outspec.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-58-g27e9e2e9
+                v0.7.0-66-gb3a5fe1b
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -67,18 +67,20 @@
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Python API Docs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#sensitivity-analysis-tools">Sensitivity Analysis Tools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#general-utilities">General Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-util.param">param.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-util.output">output.py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-util.input">input.py</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-util.input">util.input</a></li>
 </ul>
 
         </div>
@@ -95,7 +97,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">Python API Docs</li>
+      <li class="breadcrumb-item active">drivers.Sensitivity</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/scripts_API.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -105,14 +107,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="python-api-docs">
-<h1>Python API Docs<a class="headerlink" href="#python-api-docs" title="Permalink to this heading"></a></h1>
-<p>The content in these section has been auto-generated from the python
+  <p>The content in these section has been auto-generated from the python
 <code class="docutils literal notranslate"><span class="pre">docstrings</span></code> in the project.</p>
-<section id="sensitivity-analysis-tools">
-<h2>Sensitivity Analysis Tools<a class="headerlink" href="#sensitivity-analysis-tools" title="Permalink to this heading"></a></h2>
-<p>These are tools and APIs for carrying out Sensitivity Analysis.</p>
-<span class="target" id="module-drivers.Sensitivity"></span><dl class="py class">
+<section id="module-drivers.Sensitivity">
+<span id="drivers-sensitivity"></span><h1>drivers.Sensitivity<a class="headerlink" href="#module-drivers.Sensitivity" title="Permalink to this heading"></a></h1>
+<dl class="py class">
 <dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">SensitivityDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_run_setup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver" title="Permalink to this definition"></a></dt>
 <dd><p>Sensitivity Analysis Driver class.</p>
@@ -548,12 +547,10 @@ Community specified in <cite>cmtnum</cite>. Sets bounds based on the intial valu
 found in the <cite>seedpath</cite> and according to the percent_diffs.</p>
 </dd></dl>
 
-</section>
-<section id="general-utilities">
-<h2>General Utilities<a class="headerlink" href="#general-utilities" title="Permalink to this heading"></a></h2>
 <p>These are general purpose utility scripts for working with <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>.</p>
+</section>
 <section id="module-util.param">
-<span id="param-py"></span><h3>param.py<a class="headerlink" href="#module-util.param" title="Permalink to this heading"></a></h3>
+<span id="util-param"></span><h1>util.param<a class="headerlink" href="#module-util.param" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="util.param.ParamUtilSpeedHelper">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">ParamUtilSpeedHelper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.param.ParamUtilSpeedHelper" title="Permalink to this definition"></a></dt>
@@ -667,6 +664,12 @@ e.g.</p>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="util.param.cmdline_define">
+<span class="sig-prename descclassname"><span class="pre">util.param.</span></span><span class="sig-name descname"><span class="pre">cmdline_define</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#util.param.cmdline_define" title="Permalink to this definition"></a></dt>
+<dd><p>Define the command line interface and return the parser object.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1540,7 +1543,7 @@ and the <cite>lookup_struct</cite> doesn’t need to be rebuilt each time.</p></
 
 </section>
 <section id="module-util.output">
-<span id="output-py"></span><h3>output.py<a class="headerlink" href="#module-util.output" title="Permalink to this heading"></a></h3>
+<span id="util-output"></span><h1>util.output<a class="headerlink" href="#module-util.output" title="Permalink to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="util.output.average_monthly_pool_to_yearly">
 <span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">average_monthly_pool_to_yearly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.average_monthly_pool_to_yearly" title="Permalink to this definition"></a></dt>
@@ -1616,7 +1619,10 @@ monotonic, and not missing any points.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="util.output.get_last_n_eq">
 <span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">get_last_n_eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'yearly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.get_last_n_eq" title="Permalink to this definition"></a></dt>
-<dd><p>Work in progress for getting the last few year of equlibrium stage for calibration.</p>
+<dd><p>Work in progress for getting the last few year of equlibrium stage for
+calibration.</p>
+<p>Maybe the default for <code class="docutils literal notranslate"><span class="pre">n</span></code> should be 12 so that if the <code class="docutils literal notranslate"><span class="pre">timeres</span></code> is monthly
+it gets the lasy year?</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1953,7 +1959,7 @@ and plot.</p>
 
 </section>
 <section id="module-util.input">
-<span id="input-py"></span><h3>input.py<a class="headerlink" href="#module-util.input" title="Permalink to this heading"></a></h3>
+<span id="util-input"></span><h1>util.input<a class="headerlink" href="#module-util.input" title="Permalink to this heading"></a></h1>
 <dl class="py exception">
 <dt class="sig sig-object py" id="util.input.BadInputFilesValueError">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">BadInputFilesValueError</span></span><a class="headerlink" href="#util.input.BadInputFilesValueError" title="Permalink to this definition"></a></dt>
@@ -1999,6 +2005,12 @@ automatically stitched along the temporal dimension) with one subplot for each
 variable. The data that is shown is also averaged over the spatial dimensions
 of the input files AND resampled to an annual resolution along the time
 dimension.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="util.input.cmdline_define">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">cmdline_define</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#util.input.cmdline_define" title="Permalink to this definition"></a></dt>
+<dd><p>Define the command line interface, return the parser object.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2092,14 +2104,12 @@ Code from Unidata’s Python Workshop:
 </dd></dl>
 
 </section>
-</section>
-</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="examples_and_tutorials/using_github_features.html" class="btn btn-neutral float-left" title="7. Using Github’s Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CLI_tools/outspec.html" class="btn btn-neutral float-left" title="outspec.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
