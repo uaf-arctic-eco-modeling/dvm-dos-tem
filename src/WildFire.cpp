@@ -220,7 +220,8 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
         BOOST_LOG_SEV(glg, err) << "Undefined ignition mode! (" << stage << ")";
         break;
       }
-      // FW_MOD_END.
+    }
+    // FW_MOD_END.
   } else {
     BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";// FW_NOTE: This check may be partially broken now due to fire switch checks!
   }
