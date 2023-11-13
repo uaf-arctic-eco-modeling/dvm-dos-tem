@@ -148,6 +148,10 @@ int main(int argc, char* argv[]){
 		args->show_help();
 		return 0;
 	}
+  else if(args->get_print_sha()){
+    std::cout<<GIT_SHA<<std::endl;
+    return 0;
+  }
 
   std::cout << "Setting up logging...\n";
   setup_logging(args->get_log_level(), args->get_log_scope());
@@ -578,14 +582,14 @@ void advance_model(const int rowidx, const int colidx,
     }
 
     // turn off everything but env
-    runner.cohort.md->set_envmodule(true);
-    runner.cohort.md->set_bgcmodule(false);
-    runner.cohort.md->set_nfeed(false);
-    runner.cohort.md->set_avlnflg(false);
-    runner.cohort.md->set_baseline(false);
-    runner.cohort.md->set_dsbmodule(false);
-    runner.cohort.md->set_dslmodule(false);
-    runner.cohort.md->set_dynamic_lai_module(false);
+    runner.cohort.md->set_envmodule(runner.cohort.md->pr_env);
+    runner.cohort.md->set_bgcmodule(runner.cohort.md->pr_bgc);
+    runner.cohort.md->set_nfeed(runner.cohort.md->pr_nfeed);
+    runner.cohort.md->set_avlnflg(runner.cohort.md->pr_avln);
+    runner.cohort.md->set_baseline(runner.cohort.md->pr_baseline);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->pr_dsb);
+    runner.cohort.md->set_dslmodule(runner.cohort.md->pr_dsl);
+    runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->pr_dyn_lai);
 
     BOOST_LOG_SEV(glg, debug) << "Ground, right before 'pre-run'. "
                               << runner.cohort.ground.layer_report_string("depth thermal");
@@ -620,16 +624,14 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
-    runner.cohort.md->set_envmodule(true);
-    runner.cohort.md->set_dynamic_lai_module(true);
-    runner.cohort.md->set_bgcmodule(true);
-    runner.cohort.md->set_dslmodule(true);
-
-    runner.cohort.md->set_nfeed(true);
-    runner.cohort.md->set_avlnflg(true);
-    runner.cohort.md->set_baseline(true);
-
-    runner.cohort.md->set_dsbmodule(false);
+    runner.cohort.md->set_envmodule(runner.cohort.md->eq_env);
+    runner.cohort.md->set_bgcmodule(runner.cohort.md->eq_bgc);
+    runner.cohort.md->set_nfeed(runner.cohort.md->eq_nfeed);
+    runner.cohort.md->set_avlnflg(runner.cohort.md->eq_avln);
+    runner.cohort.md->set_baseline(runner.cohort.md->eq_baseline);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->eq_dsb);
+    runner.cohort.md->set_dslmodule(runner.cohort.md->eq_dsl);
+    runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->eq_dyn_lai);
 
     // This variable ensures that OpenMP threads do not modify
     // the shared modeldata.eq_yrs value.
@@ -687,14 +689,14 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
-    runner.cohort.md->set_envmodule(true);
-    runner.cohort.md->set_bgcmodule(true);
-    runner.cohort.md->set_nfeed(true);
-    runner.cohort.md->set_avlnflg(true);
-    runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
-    runner.cohort.md->set_dslmodule(true);
-    runner.cohort.md->set_dynamic_lai_module(true);
+    runner.cohort.md->set_envmodule(runner.cohort.md->sp_env);
+    runner.cohort.md->set_bgcmodule(runner.cohort.md->sp_bgc);
+    runner.cohort.md->set_nfeed(runner.cohort.md->sp_nfeed);
+    runner.cohort.md->set_avlnflg(runner.cohort.md->sp_avln);
+    runner.cohort.md->set_baseline(runner.cohort.md->sp_baseline);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->sp_dsb);
+    runner.cohort.md->set_dslmodule(runner.cohort.md->sp_dsl);
+    runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->sp_dyn_lai);
 
     runner.cohort.climate.monthlycontainers2log();
 
@@ -741,14 +743,14 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
-    runner.cohort.md->set_envmodule(true);
-    runner.cohort.md->set_bgcmodule(true);
-    runner.cohort.md->set_nfeed(true);
-    runner.cohort.md->set_avlnflg(true);
-    runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
-    runner.cohort.md->set_dslmodule(true);
-    runner.cohort.md->set_dynamic_lai_module(true);
+    runner.cohort.md->set_envmodule(runner.cohort.md->tr_env);
+    runner.cohort.md->set_bgcmodule(runner.cohort.md->tr_bgc);
+    runner.cohort.md->set_nfeed(runner.cohort.md->tr_nfeed);
+    runner.cohort.md->set_avlnflg(runner.cohort.md->tr_avln);
+    runner.cohort.md->set_baseline(runner.cohort.md->tr_baseline);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->tr_dsb);
+    runner.cohort.md->set_dslmodule(runner.cohort.md->tr_dsl);
+    runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->tr_dyn_lai);
 
     // update the cohort's restart data object
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
@@ -791,14 +793,14 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
-    runner.cohort.md->set_envmodule(true);
-    runner.cohort.md->set_bgcmodule(true);
-    runner.cohort.md->set_nfeed(true);
-    runner.cohort.md->set_avlnflg(true);
-    runner.cohort.md->set_baseline(true);
-    runner.cohort.md->set_dsbmodule(false);
-    runner.cohort.md->set_dslmodule(true);
-    runner.cohort.md->set_dynamic_lai_module(true);
+    runner.cohort.md->set_envmodule(runner.cohort.md->sc_env);
+    runner.cohort.md->set_bgcmodule(runner.cohort.md->sc_bgc);
+    runner.cohort.md->set_nfeed(runner.cohort.md->sc_nfeed);
+    runner.cohort.md->set_avlnflg(runner.cohort.md->sc_avln);
+    runner.cohort.md->set_baseline(runner.cohort.md->sc_baseline);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->sc_dsb);
+    runner.cohort.md->set_dslmodule(runner.cohort.md->sc_dsl);
+    runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->sc_dyn_lai);
 
     // update the cohort's restart data object
     BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;

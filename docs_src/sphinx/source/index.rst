@@ -59,6 +59,21 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
     examples_and_tutorials/make_contribution
     examples_and_tutorials/using_github_features
 
+
+.. toctree::
+    :maxdepth: 5
+    :caption: Command Line Interfaces
+
+    CLI_tools/SA_setup_and_run
+    CLI_tools/param
+    CLI_tools/runmask
+    CLI_tools/input
+    CLI_tools/qcal
+    CLI_tools/outspec
+
+
+
+
 .. toctree::
     :maxdepth: 5
     :caption: Python Scripts API

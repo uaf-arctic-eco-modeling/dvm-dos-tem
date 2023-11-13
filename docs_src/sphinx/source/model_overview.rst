@@ -355,7 +355,16 @@ The complete list of required TEM input variables is shown below.
 ==========
 Outputs
 ==========
-    WRITE THIS...
+
+The outputs that are available for DVM-DOS-TEM are listed in the
+``config/output_spec.csv`` file that is shipped ith the repo. The following table
+is built from that csv file:
+
+
+.. csv-table:: output_spec.csv
+    :file: ../../../config/output_spec.csv
+    :header-rows: 1
+
 
 ------------------
 Output Selection
