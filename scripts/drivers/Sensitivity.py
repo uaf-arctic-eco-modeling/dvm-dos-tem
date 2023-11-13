@@ -447,6 +447,74 @@ class SensitivityDriver(object):
     self.targets = targets[list(targets.keys())[0]]
     self.targets_meta = targets_meta
 
+  def load_observations(self):
+    '''
+    Might want this to handle obs for data that are not in the
+    calibration_targets.py file. This would need to be tied in with the 
+    setup_outputs(...) function.
+    '''
+    print("NOT IMPLEMENTED")
+    pass
+
+  def setup_outputs(self, target_names):
+    '''
+    Setup the SensitivityDriver's list of output specifications based on the
+    target (observation) names.
+
+    The client must have already loaded the targets
+    (``SensitivityDriver.load_target_data(...)``) for this to work.
+
+    The resulting ``SensitivityDriver.outputs`` is a list of dicts, each of
+    which is an "output specification" which contains the information that will
+    allow a mapping from the target names (as stored in calibration_targets.py)
+    to the corresponding NetCDF output. Additional informations in the
+    specification are the resolutions desired and a type signifier allowing us
+    to differentiate between fluxes and pools, which is necessary for some 
+    summary statistics that may be calculated later.
+
+    This list of output specifications will be used to setup the correct outputs
+    in each sample specific run folder as well as conveniences like naming
+    columns in output summary files.
+
+    Parameters
+    ----------
+    target_names : list of str
+      The list should be strings naming targets in the calibration_targets.py
+      file. 
+
+    Sets/Modifies
+    -------------
+    self.outputs
+
+    Returns
+    -------
+    None
+    '''
+    for t in target_names:
+      if t not in self.targets:
+        raise RuntimeError(f"Can't find requested target ({t}) in targets dict!")
+
+    self.outputs = []
+    for t in target_names:
+      name = get_target_ncname(t, self.targets_meta)
+      ctname = t
+      t_type = deduce_target_type(t, self.targets_meta)
+      timeres = 'y'
+      pftres = 'p' if type(self.targets[t]) == list else ''
+      cpartres = 'c' if type(self.targets[t]) == dict else ''
+      layerres = '' # nothing is by layer...yet
+
+      outspec = dict( ncname=name,
+                      ctname=ctname,
+                      type=t_type,
+                      timeres=timeres,
+                      pftres=pftres,
+                      cpartres=cpartres,
+                      layerres=layerres )
+
+      self.outputs.append(outspec)
+
+    return None
 
   def info(self):
     '''
@@ -738,7 +806,7 @@ class SensitivityDriver(object):
     ----------
     row : dict
       One row of the sample matrix, in dict form. So like this: 
-          `{'cmax_pft0': 108.2, 'rhq10': 34.24}` 
+          ``{'cmax_pft0': 108.2, 'rhq10': 34.24}``
       with one key for each parameter name. Assumes that if ther
 
     idx : int
@@ -916,75 +984,6 @@ class SensitivityDriver(object):
             pass # might be same param name, different pft
         else:
           pass # wrong parameter dict, keep moving...
-
-  def load_observations(self):
-    '''
-    Might want this to handle obs for data that are not in the
-    calibration_targets.py file. This would need to be tied in with the 
-    setup_outputs(...) function.
-    '''
-    print("NOT IMPLEMENTED")
-    pass
-
-  def setup_outputs(self, target_names):
-    '''
-    Setup the SensitivityDriver's list of output specifications based on the
-    target (observation) names.
-
-    The client must have already loaded the targets
-    (``SensitivityDriver.load_target_data(...)``) for this to work.
-
-    The resulting ``SensitivityDriver.outputs`` is a list of dicts, each of
-    which is an "output specification" which contains the information that will
-    allow a mapping from the target names (as stored in calibration_targets.py)
-    to the corresponding NetCDF output. Additional informations in the
-    specification are the resolutions desired and a type signifier allowing us
-    to differentiate between fluxes and pools, which is necessary for some 
-    summary statistics that may be calculated later.
-
-    This list of output specifications will be used to setup the correct outputs
-    in each sample specific run folder as well as conveniences like naming
-    columns in output summary files.
-
-    Parameters
-    ----------
-    target_names : list of str
-      The list should be strings naming targets in the calibration_targets.py
-      file. 
-
-    Sets/Modifies
-    -------------
-    self.outputs
-
-    Returns
-    -------
-    None
-    '''
-    for t in target_names:
-      if t not in self.targets:
-        raise RuntimeError(f"Can't find requested target ({t}) in targets dict!")
-
-    self.outputs = []
-    for t in target_names:
-      name = get_target_ncname(t, self.targets_meta)
-      ctname = t
-      t_type = deduce_target_type(t, self.targets_meta)
-      timeres = 'y'
-      pftres = 'p' if type(self.targets[t]) == list else ''
-      cpartres = 'c' if type(self.targets[t]) == dict else ''
-      layerres = '' # nothing is by layer...yet
-
-      outspec = dict( ncname=name,
-                      ctname=ctname,
-                      type=t_type,
-                      timeres=timeres,
-                      pftres=pftres,
-                      cpartres=cpartres,
-                      layerres=layerres )
-
-      self.outputs.append(outspec)
-
-    return None
 
 
   def setup_multi(self, force=False):
