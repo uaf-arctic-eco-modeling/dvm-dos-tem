@@ -14,6 +14,22 @@ generally follows the conceptual outline described in the :ref:`Calibration
 Process <calibration:Calibration Process - Conceptual>` section, but with some
 portions being done iteratively and or in an automated fashion.
 
+.. note:: 
+
+   The MADS Assisted Calibration process has been a group effort led by Elchin
+   Jafarov with contributions and testing from the team at Woodwell Climate Research Center as well as the UAF Team, including:
+
+    - Tobey Carman
+    - Helene Genet
+    - Ruth Rutter
+    - Aiza Kabeer
+    - Andrew Mullen
+    - Ben Maglio
+    - Joy Clein
+    - Valeria Briones
+    - 
+
+
 The description in the :ref:`Calibration Process <calibration:Calibration
 Process - Conceptual>` section is a guideline from the most susccessful of the
 manual calibration efforts. The new part of the approach presented here involves
@@ -73,7 +89,6 @@ a number of plotting functions that will help the  user assess whether or not
 the modeled output is within acceptable range of the targets.
 
 Examples of the plots are here:
-
 
 
 
