@@ -1589,26 +1589,45 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //CH4FLUX
-  map_itr = netcdf_outputs.find("CH4FLUX");
+  //CH4EFFLUX
+  map_itr = netcdf_outputs.find("CH4EFFLUX");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4FLUX";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUX";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputCH4FLUX)
+    #pragma omp critical(outputCH4EFFLUX)
     {
 
       if(curr_spec.daily){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_ch4_flux[0], 1, day_timestep, dinm);
+
+        for(int id=0; id<DINM[month]; id++){
+          outhold.ch4efflux_for_output.push_back(cohort.edall->daily_ch4_efflux[id]);
+        }
+
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, day_timestep, DINY);
+          outhold.ch4efflux_for_output.clear();
+        }
       }
       else if(curr_spec.monthly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, month_timestep, 1);
+
+        outhold.ch4efflux_for_output.push_back(cohort.edall->m_soid.ch4flux);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.ch4efflux_for_output.clear();
+        }
       }
       else if(curr_spec.yearly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, 1);
+
+        outhold.ch4efflux_for_output.push_back(cohort.edall->y_soid.ch4flux);
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.ch4efflux_for_output.clear();
+        }
       }
-    }//end critical(outputCH4FLUX)
-  }//end CH4FLUX
+    }//end critical(outputCH4EFFLUX)
+  }//end CH4EFFLUX
   map_itr = netcdf_outputs.end();
 
 

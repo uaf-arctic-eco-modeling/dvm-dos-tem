@@ -544,8 +544,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // TODO check: should probably be 0.000012
   ed->d_soid.ch4flux = 0.012 * totFlux_m;
 
-  //Store daily flux value for output
-  ed->daily_ch4_flux[id] = ed->d_soid.ch4flux;
+  //Store daily efflux value for output
+  ed->daily_ch4_efflux[id] = ed->d_soid.ch4flux;
 }
 
 

@@ -34,6 +34,7 @@ public:
   std::vector<double> burnveg2deadc_for_output;
   std::vector<double> burnveg2soiabvc_for_output;
   std::vector<double> burnveg2soiblwc_for_output;
+  std::vector<double> ch4efflux_for_output;
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;
   std::vector<double> dwdc_for_output;
