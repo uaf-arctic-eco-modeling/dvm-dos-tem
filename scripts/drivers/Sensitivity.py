@@ -18,6 +18,8 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 
+from drivers.BaseDriver import BaseDriver
+
 import util.param
 import util.output
 import util.setup_working_directory
@@ -272,7 +274,7 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
   
 
 
-class SensitivityDriver(object):
+class Sensitivity(BaseDriver):
   '''
   Sensitivity Analysis Driver class.
 
@@ -327,33 +329,16 @@ class SensitivityDriver(object):
       3  59.671967  2.042034  0.000171
       4  57.711999  1.968631  0.000155
   '''
-  def __init__(self, work_dir=None, sampling_method=None, clean=False,opt_run_setup=None):
-    '''Create a SensitivityDriver object.'''
+  def __init__(self, sampling_method=None, **kwargs):
+    '''Create a Sensitivity driver object.'''
 
-    # These are setup in this construction, but are declared here simply to 
-    # keep the object definition more explicit.
-    self.__seedpath = None
-    self.work_dir = None
-    self.__initial_params_rundir = None
+    # Call the constructor of the parent class...
+    super().__init__(**kwargs)
 
-    # handles __initial_params_rundir as well
-    self.set_work_dir(work_dir)
-
-    self.site = '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10'
-    self.PXx = 0
-    self.PXy = 0
-    self.outputs = [
-      { 'name': 'GPP', 'type': 'flux',},
-      { 'name': 'VEGC','type': 'pool',},
-    ]
-    self.opt_run_setup = opt_run_setup
     self.sampling_method = sampling_method
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
         os.mkdir(self.work_dir)
-
-    if clean and work_dir is not None:
-      self.clean()
 
     # These will get setup later; client for setting them directly or using
     # other member functions for setting.
@@ -364,24 +349,6 @@ class SensitivityDriver(object):
     self.targets = None
     self.targets_meta = None
 
-  def set_work_dir(self, path):
-    '''Sets the working directory for the object. Assumes that the working
-    directory will have an ``initial_params_rundir`` directory that will have
-    the initial parameter values.'''
-    if path:
-      self.work_dir = path
-      self.__initial_params_rundir = os.path.join(self.work_dir, 'initial_params_run_dir')
-    else:
-      self.work_dir = None
-      self.__initial_params_rundir = None
-
-  def set_seed_path(self, path):
-    self.__seedpath = path
-
-
-  def get_initial_params_dir(self):
-    '''Read only accessor to private member variable.'''
-    return self.__initial_params_rundir
 
 
   def load_target_data(self, ref_target_path=None):
@@ -533,8 +500,8 @@ class SensitivityDriver(object):
     '''
 
     def lookup_pft_verbose_name(row):
-      if self.__seedpath is not None:
-        lookup_path = self.__seedpath
+      if self._seedpath is not None:
+        lookup_path = self._seedpath
       elif self.get_initial_params_dir() is not None:
         lookup_path = os.path.join(self.get_initial_params_dir(), 'parameters')
       else:
@@ -670,12 +637,12 @@ class SensitivityDriver(object):
 
     if os.path.isdir(self.work_dir):
       if len(os.listdir(self.work_dir)) > 0:
-        raise RuntimeError("SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.")
+        raise RuntimeError("Sensitivity.work_dir is not empty! You must run Sensitivity.clean() before designing an experiment.")
 
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
 
-    self.params = params_from_seed(seedpath=self.__seedpath, params=params, 
+    self.params = params_from_seed(seedpath=self._seedpath, params=params, 
         pftnums=pftnums, percent_diffs=percent_diffs, cmtnum=cmtnum)
 
     if self.sampling_method == 'lhc':
@@ -729,7 +696,7 @@ class SensitivityDriver(object):
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
     with open(info_fname, 'w') as f:
       f.writelines("sampling_method: {}\n".format(self.sampling_method))
-      f.writelines("initial_params_seedpath: {}\n".format(self.__seedpath))
+      f.writelines("initial_params_seedpath: {}\n".format(self._seedpath))
 
   def load_experiment(self, param_props_path, sample_matrix_path, info_path):
     '''Load parameter properties and sample matrix from files.'''
@@ -741,7 +708,7 @@ class SensitivityDriver(object):
       if 'sampling_method' in l:
         self.sampling_method = l.split(':')[1].strip()
       if 'initial_params_seedpath' in l:
-        self.__seedpath = l.split(':')[1].strip()
+        self._seedpath = l.split(':')[1].strip()
 
     self.sample_matrix = pd.read_csv(sample_matrix_path)
     self.params = pd.read_csv(param_props_path, 

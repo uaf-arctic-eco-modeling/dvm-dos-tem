@@ -69,7 +69,7 @@ if __name__ == '__main__':
       config = yaml.safe_load(config_data)
 
   # Make an instance of the driver object
-  driver = drivers.Sensitivity.SensitivityDriver()
+  driver = drivers.Sensitivity.Sensitivity()
 
   # Set the "seed" path. This is the directory where initial parameter values
   # will be read from.
