@@ -357,7 +357,7 @@ class SensitivityDriver(object):
 
     # These will get setup later; client for setting them directly or using
     # other member functions for setting.
-    # TODO: finish exposing thse to client and or make client interface
+    # TODO: finish exposing these to client and or make client interface
     # more consistent.
     self.params = None
     self.sample_matrix = None
@@ -651,10 +651,12 @@ class SensitivityDriver(object):
       parameter and no PFT info is set or needed.
     
     percent_diffs : list of floats
-      List values, one for each parameter in `params`. The value is used to the
-      bounds with respect to the intial parameter value. I.e. passing a value in
-      the percent_diff array of .3 would mean that bounds should be +/-30% of
-      the initial value of the parameter.
+      List values, one for each parameter in `params`. The value is used to set
+      the bounds with respect to the intial parameter value. I.e. passing a
+      value in the percent_diff array of .3 would mean that bounds should be
+      +/-30% of the initial value of the parameter.
+
+    TODO: add somethign that lets you use non percentage based sampling range.
     
     sampling_method : str
       A string indicating which sampling method to use for getting values for
@@ -806,8 +808,10 @@ class SensitivityDriver(object):
     ----------
     row : dict
       One row of the sample matrix, in dict form. So like this: 
-          ``{'cmax_pft0': 108.2, 'rhq10': 34.24}``
-      with one key for each parameter name. Assumes that if ther
+
+         ``{'cmax_pft0': 108.2, 'rhq10': 34.24}``
+
+      with one key for each parameter name.
 
     idx : int
       The row index of the `sample_matrix` being worked on. Gets used to set the
