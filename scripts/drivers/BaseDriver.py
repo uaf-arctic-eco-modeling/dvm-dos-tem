@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import sys
 
 class BaseDriver(object):
 
@@ -13,6 +14,10 @@ class BaseDriver(object):
     self._seedpath = None
     self.work_dir = None
     self.__initial_params_rundir = None
+
+    # This needs to be set by the client before targets and parameters can be
+    # loaded...
+    self.cmtnum = None
 
     # handles __initial_params_rundir as well
     self.set_work_dir(work_dir)

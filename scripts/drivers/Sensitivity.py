@@ -510,7 +510,7 @@ class Sensitivity(BaseDriver):
 
       if row.pftnum >= 0 and row.pftnum < 10:
         pft_verbose_name = util.param.get_pft_verbose_name(
-          cmtnum=self.cmtnum(), pftnum=row.pftnum, 
+          cmtnum=self.cmtnum, pftnum=row.pftnum, 
           lookup_path=lookup_path,
         )
       else:
@@ -550,7 +550,7 @@ class Sensitivity(BaseDriver):
 
       '''.format(
         workdir=self.work_dir, site=self.site, 
-        pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum(),
+        pxY=self.PXy, pxX=self.PXx, cmtnum=self.cmtnum,
         sampmeth=self.sampling_method))
 
     info_str += textwrap.dedent('''\
@@ -633,6 +633,7 @@ class Sensitivity(BaseDriver):
     -------
     None
     '''
+    self.cmtnum = cmtnum
     self.sampling_method = sampling_method
 
     if os.path.isdir(self.work_dir):
@@ -717,6 +718,12 @@ class Sensitivity(BaseDriver):
     )
 
     self.params = self.params.to_dict(orient='records')
+
+    # cmtnumber should be the same for every param
+    cmtnums = [p['cmtnum'] for p in self.params]
+    if len(set(cmtnums)) != 1:
+      raise RuntimeError("Problem loading experiment! Can't figure out cmtnumber.")
+    self.cmtnum = cmtnums[0]
 
     # nan to None so that self.pftnum() function works later 
     for x in self.params:
@@ -999,33 +1006,6 @@ class Sensitivity(BaseDriver):
       results = pool.starmap(self.core_setup, args)
 
 
-
-  def cmtnum(self):
-    '''
-    Enforces that there is only one cmtnum specified
-    amongst all the param specifications in `self.params`.
-
-    Returns
-    -------
-    cmtnum : int or None
-      The cmtnum specified, or None if cmt not set.
-    
-    Raises
-    ------
-    RuntimeError - if there in valid specification of
-    cmtnum in the params list.
-    '''
-    try:
-      c = set([x['cmtnum'] for x in self.params])
-      if not (len(c) == 1):
-        raise RuntimeError("Problem with cmt specification in param_spec!")
-      c = c.pop()
-    except AttributeError:
-      c = None
-    except KeyError:
-      c = None
-    
-    return c
   
   def _ssrf_name(self, idx):
     '''generate the Sample Specific Run Folder name.'''
@@ -1064,7 +1044,7 @@ class Sensitivity(BaseDriver):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
-    opt_str = f" -l fatal --force-cmt {self.cmtnum()} --ctrl-file {ctrl_file}"
+    opt_str = f" -l fatal --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(

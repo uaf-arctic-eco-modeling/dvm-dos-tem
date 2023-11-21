@@ -140,7 +140,7 @@ and `rhq10`, which is a soil parameter, so not connected to a specific PFT.
 The driver object has methods for retrieving the cmt being used for this
 driver: 
 
-    >>> sd.cmtnum()
+    >>> sd.cmtnum
     4
 
 And now we can see that the `sample_matrix` is a Pandas DataFrame:
@@ -222,7 +222,7 @@ attributes.
     >>> sd.sampling_method == sd2.sampling_method
     True
 
-    >>> sd.cmtnum() == sd2.cmtnum()
+    >>> sd.cmtnum == sd2.cmtnum
     True
 
 We won't be using the second driver object, so we can delete it.
@@ -302,7 +302,7 @@ matrix.
     >>> import util.param
     >>> idx = 0
     >>> pfile = os.path.join(sd._ssrf_name(idx), "parameters/cmt_calparbgc.txt")
-    >>> data = util.param.get_CMT_datablock(pfile, sd.cmtnum())
+    >>> data = util.param.get_CMT_datablock(pfile, sd.cmtnum)
     >>> dd = util.param.cmtdatablock2dict(data)
 
     >>> # get the correct param spec out of the params list
