@@ -8,7 +8,7 @@ the tests here and see how Sensitivity.py might be used.
 The general idea with the the sensitivity analysis is to run the model a number
 of times, each time with a different parameter value and then look at the
 outputs and see which parameter most influences the outputs. To accomplish this,
-Sensitivity.py provides a `SensitivityDriver` class which helps setup, organize
+Sensitivity.py provides a `Sensitivity` class which helps setup, organize
 and carry out the runs.
 
 ## Get started
@@ -19,7 +19,7 @@ Load the library
 
 Instantiate a driver object:
 
-    >>> sd = drivers.Sensitivity.SensitivityDriver()
+    >>> sd = drivers.Sensitivity.Sensitivity()
 
 In order to conduct a sensitivity analysis we must consider the following:
 
@@ -31,13 +31,13 @@ In order to conduct a sensitivity analysis we must consider the following:
  - the scheme by which to modify parameter values (sampling stragegy and bounds)
  - the outputs variables upon which the analysis will be conducted
 
-The `SensitivityDriver` object has properties and methods that will allow us to
+The `Sensitivity` object has properties and methods that will allow us to
 address the issues outlined above so that we can setup and conduct an anlysis.
 
 > NOTE: at present the module is under construction, and not all of the above
 > concerns are easily modified with the API. 
 
-The `SensitivityDriver` object has the concept of a "working directory", and a
+The `Sensitivity` object has the concept of a "working directory", and a
 "seed path". The working directory is the folder where all the runs will be
 setup and carried out. Each run will have its own folder which holds the
 run-specific configuration, parameters, and output files. There is one special
@@ -52,7 +52,7 @@ working directory has parameter values that vary according to the data in the
  - the sampling scheme, and 
  - the bounds.
 
-If the working directory is not passed to the `SensitivityDriver` constructor,
+If the working directory is not passed to the `Sensitivity` constructor,
 then there is no directory set.
 
     >>> print(type(sd.work_dir), sd.work_dir)
@@ -78,7 +78,7 @@ Here we go ahead and set the seed path.
 
 If you investigate your files you will still find that there is nothing in the
 working directory. Nothing has been setup yet, no folders have been created, and
-no parameters set or copied. We have simply told the `SensitivityDriver` where
+no parameters set or copied. We have simply told the `Sensitivity` where
 we would like the files to go, but we haven't actually initialized anything yet.
 
 To finish setting up the experiment we need to create the `sample_matrix` and
@@ -120,7 +120,7 @@ run. The function takes 5 arguments:
 >     ...                      sampling_method='lhc')
 >     Traceback (most recent call last):
 >       ...
->     RuntimeError: SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an > experiment.
+>     RuntimeError: Sensitivity.work_dir is not empty! You must run Sensitivity.clean() before designing an > experiment.
 >
 > For this purpose there is a function for cleaning up:
 >
@@ -180,7 +180,7 @@ have predictable output.
 If you should like to "export" an experiment for later use or examination in
 another program, you can "save" the experiment design using a convenience
 function that will write the sample matrix and parameter properties out to
-files. This function writes two `.csv` files to the `SensitivityDriver.work_dir`
+files. This function writes two `.csv` files to the `Sensitivity.work_dir`
 folder. One file describes the `param_props` dictionary, and the other file
 holds the sample matrix data. In addition, there is a file called info.txt that
 contains the sampling method used to generate the sampling matrix.
@@ -195,7 +195,7 @@ See what we got:
 
 Now see if we can load the experiment again into a new driver:
 
-    >>> sd2 = drivers.Sensitivity.SensitivityDriver()
+    >>> sd2 = drivers.Sensitivity.Sensitivity()
 
 This new driver should not have its `work_dir` set:
 
@@ -210,7 +210,7 @@ driver by passing paths to the required files for loading:
     ...                     os.path.join(sd.work_dir, 'info.txt'))
 
 Lets make sure that loading the experiment from files results in a
-SensitivityDriver object with the same sample matrix, parameters, and other
+Sensitivity object with the same sample matrix, parameters, and other
 attributes.
 
     >>> sd.params == sd2.params
@@ -256,7 +256,7 @@ compare the model outputs with the target values to check model performance.
 
 Finally, to actually run the mode (in parallel) each run needs to have a
 dedicated folder to run in. Each run folder should have in it
-parameter files with the modified parameter values. The `SensitivityDriver`
+parameter files with the modified parameter values. The `Sensitivity`
 object provides a funciton for creating and populating these directories:
 
     >>> sd.setup_multi()
@@ -275,7 +275,7 @@ that may already exists.
     >>> sd.setup_multi()
     Traceback (most recent call last):
       ...
-    RuntimeError: SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.
+    RuntimeError: Sensitivity.work_dir is not empty! You must run Sensitivity.clean() before designing an experiment.
 
 Use the `force` argument to proceed and overwrite any existing files.
 
@@ -328,7 +328,7 @@ and sample folders but for now, we'll assume its working.
 
 Next we can check that the multi-PFT functionality works:
 
-    >>> sd = drivers.Sensitivity.SensitivityDriver(clean=True)
+    >>> sd = drivers.Sensitivity.Sensitivity(clean=True)
     >>> sd.set_work_dir('/tmp/tests-Sensitivity')
     >>> sd.set_seed_path('/work/parameters')
 

@@ -311,7 +311,7 @@ class Sensitivity(BaseDriver):
   Instantiate object, sets pixel, outputs, working directory, site selection
   (input data path)
 
-      >>> driver = SensitivityDriver()
+      >>> driver = Sensitivity()
 
   Set the working directory for the driver (using something temporary for this
   test case).
@@ -425,13 +425,13 @@ class Sensitivity(BaseDriver):
 
   def setup_outputs(self, target_names):
     '''
-    Setup the SensitivityDriver's list of output specifications based on the
+    Setup the Sensitivity driver's list of output specifications based on the
     target (observation) names.
 
     The client must have already loaded the targets
-    (``SensitivityDriver.load_target_data(...)``) for this to work.
+    (``Sensitivity.load_target_data(...)``) for this to work.
 
-    The resulting ``SensitivityDriver.outputs`` is a list of dicts, each of
+    The resulting ``Sensitivity.outputs`` is a list of dicts, each of
     which is an "output specification" which contains the information that will
     allow a mapping from the target names (as stored in calibration_targets.py)
     to the corresponding NetCDF output. Additional informations in the
@@ -717,6 +717,8 @@ class Sensitivity(BaseDriver):
         converters={'bounds': ast.literal_eval}
     )
 
+
+
     self.params = self.params.to_dict(orient='records')
 
     # cmtnumber should be the same for every param
@@ -981,7 +983,7 @@ class Sensitivity(BaseDriver):
     '''
     if not force:
       if any(os.scandir(self.work_dir)):
-        raise RuntimeError('''SensitivityDriver.work_dir is not empty! You must run SensitivityDriver.clean() before designing an experiment.''')
+        raise RuntimeError('''Sensitivity.work_dir is not empty! You must run Sensitivity.clean() before designing an experiment.''')
 
     # Start fresh...
     self.clean()
