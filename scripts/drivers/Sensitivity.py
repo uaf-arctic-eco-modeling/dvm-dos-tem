@@ -347,6 +347,18 @@ class Sensitivity(BaseDriver):
     self.targets_meta = None
 
 
+  def get_initial_params_dir(self):
+    '''
+    Assumes that the working directory will have an ``initial_params_rundir``
+    directory that will have the initial parameter values.
+
+    Returns the path to the intial parameter run directory or None if the 
+    objec't ``work_dir`` has not been set.
+    '''
+    if self.work_dir:
+      return os.path.join(self.work_dir, 'initial_params_run_dir')
+    else:
+      return None
 
   def load_observations(self):
     '''
