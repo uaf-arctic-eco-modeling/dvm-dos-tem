@@ -336,9 +336,6 @@ class Sensitivity(BaseDriver):
     super().__init__(**kwargs)
 
     self.sampling_method = sampling_method
-    if self.work_dir is not None:
-      if not os.path.isdir(self.work_dir):
-        os.mkdir(self.work_dir)
 
     # These will get setup later; client for setting them directly or using
     # other member functions for setting.
