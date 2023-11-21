@@ -155,8 +155,8 @@ def calc_metrics(results, targets):
 
 def calc_correlation(model_results, sample_matrix):
   '''
-  sample_matrix: pandas DataFrame with row per sample, one column per parameter
-  model_results: pandas DataFrame with row per sample, column per output
+  sample_matrix: pandas DataFrame with one row per sample, one column per parameter
+  model_results: pandas DataFrame with one row per sample, one column per output
   '''
   corr_mp = pd.DataFrame(columns=sample_matrix.columns, index=model_results.columns)
 
@@ -214,7 +214,8 @@ def plot_r2_mse(results, targets):
 
   plt.savefig("plots/r2_mse_mape.png")
 
-def calc_combined_score(resutls, targets):
+def calc_combined_score(results, targets):
+  '''Calculate a combination score using r^2, and normalized mse and mape.'''
 
   r2, mse, mape = calc_metrics(results, targets)
 
@@ -230,7 +231,8 @@ def calc_combined_score(resutls, targets):
 # def get_best_runs(results, targets, method)
 
 def n_top_runs(results, targets, params, N):
-  
+  '''Return the best runs.'''
+
   combined_score = calc_combined_score(results, targets)
 
   best_indices = np.argsort(combined_score)
