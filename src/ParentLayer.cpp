@@ -12,6 +12,7 @@ ParentLayer::ParentLayer(const double & thick) {
   isRock = true;
   solind = MISSING_I;
   dz = thick;
+  hcond = 0;
   updateProperty();
 };
 

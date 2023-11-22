@@ -43,6 +43,8 @@ public :
 
 private:
 
+  friend class Cohort;
+
   EnvData ed;
 
   void prepareSoilColumn(Layer *currsoill, int drainind);

@@ -637,6 +637,11 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     for(int il=0; il<MAX_SOI_LAY; il++){
       edall->daily_root_water_uptake[id][il] = soilenv.root_water_up[il];
       edall->daily_percolation[id][il] = soilenv.richards.percolation[il];
+
+      //Storing hcond in a very hacky way, to allow for output before
+      // we figure out a good way to update hydraulic conductivity post
+      // layer restructure (which happens between Richards and output).
+      edall->daily_hklayerhack[id][il] = soilenv.richards.hk[il];
     }
 
     // save the variables to daily 'edall' (Note: not PFT specified)

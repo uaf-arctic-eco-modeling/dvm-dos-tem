@@ -2275,6 +2275,63 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //HKLAYERHACK
+  map_itr = netcdf_outputs.find("HKLAYERHACK");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: HKLAYERHACK";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputHKLAYERHACK)
+    {
+      std::array<double, MAX_SOI_LAY> hklayerhack_arr;
+
+      if(curr_spec.daily){
+
+        for(int id=0; id<DINM[month]; id++){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            hklayerhack_arr[il] = cohort.edall->daily_hklayerhack[id][il];
+          }
+          outhold.hklayerhack_for_output.push_back(hklayerhack_arr);
+        }
+
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.hklayerhack_for_output[0][0], MAX_SOI_LAY, day_timestep, DINY);
+          outhold.hklayerhack_for_output.clear();
+        }
+
+      }
+      //monthly
+      if(curr_spec.monthly){
+
+        //Average daily values for monthly
+        //m_soid.hkshlw += d_soid.hkshlw/dinm;
+        std::array<double, MAX_SOI_LAY> month_hklayerhack = {0};
+
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          for(int id=0; id<DINM[month]; id++){
+            month_hklayerhack[il] += cohort.edall->daily_hklayerhack[id][il];
+          }
+          month_hklayerhack[il] /= DINM[month];
+        }
+        outhold.hklayerhack_for_output.push_back(month_hklayerhack);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.hklayerhack_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+          outhold.hklayerhack_for_output.clear();
+        }
+      }
+      //yearly
+      else if(curr_spec.yearly){
+
+        //y_soid.hkshlw += m_soid.hkshlw/12;
+        //output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->y_soid.hcond[0], MAX_SOI_LAY, year, 1);
+      }
+    }//end critical(outputHKLAYERHACK)
+
+  }//end HKLAYERHACK
+  map_itr = netcdf_outputs.end();
+
+
   //HKMINEA
   map_itr = netcdf_outputs.find("HKMINEA");
   if(map_itr != netcdf_outputs.end()){

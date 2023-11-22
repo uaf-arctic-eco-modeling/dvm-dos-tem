@@ -349,10 +349,16 @@ void Richards::computeHydraulicProperties(Layer *fstsoill, int drainind){
     s1[ind] = fmax(0.01, s1[ind]);
 
     hk[ind] = imped[ind] * ksat[ind] * pow(s1[ind], 2.0 * Bsw[ind] + 3);//hydraulic conductivity, mm/s
+    currl->hcond = hk[ind];//Storing hk for use elsewhere
     dhkdw[ind] = (2.0* Bsw[ind] + 3.0) * hk[ind] / s1[ind];//d(hk)/d(vol_liq)
     smp[ind] = -psisat[ind] * pow(s2[ind], -Bsw[ind]);//soil matric potential
     dsmpdw[ind] = (-Bsw[ind] * smp[ind] / s2[ind]) / liq_poro[ind];//d(smp)/d(vol_liq)
 
+    currl = currl->nextl;
+  }
+  //Frozen and rock layers should have no hydraulic conductivity
+  while(currl != NULL && !currl->isRock){
+    currl->hcond = 0;
     currl = currl->nextl;
   }
 }

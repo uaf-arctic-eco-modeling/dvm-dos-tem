@@ -124,6 +124,7 @@ public:
   double daily_tlayer[31][MAX_SOI_LAY];
   double daily_root_water_uptake[31][MAX_SOI_LAY];
   double daily_percolation[31][MAX_SOI_LAY];
+  double daily_hklayerhack[31][MAX_SOI_LAY];
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterion for permafrost

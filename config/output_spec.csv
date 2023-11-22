@@ -38,6 +38,7 @@ HKMINEA,Hydraulic conductivity top mineral,mm/day,,,,invalid,invalid,invalid,dou
 HKMINEB,Hydraulic conductivity middle mineral,mm/day,,,,invalid,invalid,invalid,double,
 HKMINEC,Hydraulic conductivity bottom mineral,mm/day,,,,invalid,invalid,invalid,double,
 HKSHLW,Hydraulic conductivity in fibrous horizon,mm/day,,,,invalid,invalid,invalid,double,
+HKLAYERHACK,HKLAYER directly at calculation time. Will not match LAYERTYPE etc.,mm/day,invalid,,,invalid,invalid,forced,double,
 INGPP,GPP without N limitation,g/m2/time,,,invalid,,,invalid,double,
 INNPP,NPP witout N limitation,g/m2/time,,,invalid,,,invalid,double,
 INNUPTAKE,Unlimited N uptake by plants. N uptake by happy plants when N is not limited.,g/m2/time,,,invalid,,invalid,invalid,double,
