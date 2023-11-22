@@ -2,6 +2,7 @@
 
 import os
 import sys
+import shutil
 
 def get_target_ncname(target, meta):
   '''
@@ -237,3 +238,16 @@ class BaseDriver(object):
       self.outputs.append(outspec)
 
     return None
+
+  def clean(self):
+    '''
+    Remove the entire tree at `self.work_dir`.
+
+    This function is NOT CAREFUL, so be careful using it!
+    '''
+    shutil.rmtree(self.work_dir, ignore_errors=True)
+    os.makedirs(self.work_dir)
+
+
+
+

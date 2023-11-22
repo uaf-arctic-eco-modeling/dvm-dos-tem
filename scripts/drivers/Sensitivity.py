@@ -560,16 +560,6 @@ class Sensitivity(BaseDriver):
         else:
           x['pftnum'] = int(x['pftnum'])
 
-
-  def clean(self):
-    '''
-    Remove the entire tree at `self.work_dir`.
-    
-    This function is NOT CAREFUL, so be careful using it!
-    '''
-    shutil.rmtree(self.work_dir, ignore_errors=True)
-    os.makedirs(self.work_dir)
-
   def get_sensitivity_csvs(self):
     '''
     Looks for all the sensitivity.csv files that are present in
