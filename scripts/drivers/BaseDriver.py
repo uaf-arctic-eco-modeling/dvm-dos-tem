@@ -103,9 +103,7 @@ class BaseDriver(object):
       self.clean()
 
   def set_work_dir(self, path):
-    '''Sets the working directory for the object. Assumes that the working
-    directory will have an ``initial_params_rundir`` directory that will have
-    the initial parameter values.'''
+    '''Sets the working directory for the object.'''
     if path:
       self.work_dir = path
     else:
@@ -113,8 +111,6 @@ class BaseDriver(object):
 
   def set_seed_path(self, path):
     self._seedpath = path
-
-
 
   def load_target_data(self, ref_target_path=None):
     '''
@@ -247,6 +243,9 @@ class BaseDriver(object):
     '''
     shutil.rmtree(self.work_dir, ignore_errors=True)
     os.makedirs(self.work_dir)
+
+
+
 
 
 
