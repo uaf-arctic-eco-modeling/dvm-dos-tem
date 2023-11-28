@@ -230,9 +230,64 @@ def calc_combined_score(results, targets):
 
 # def get_best_runs(results, targets, method)
 
-def n_top_runs(results, targets, params, N):
-  '''Return the best runs.'''
+def prep_mads_distributions(params):
+  '''
+  Gives you something like this:
 
+  .. code::
+
+    - Uniform(  5.9117,  26.5927)    # cmax_pft0
+    - Uniform( 46.0129, 113.4639)    # cmax_pft1
+    - Uniform( 11.7916,  77.5827)    # cmax_pft2
+
+  From B. Maglio's notebook.
+
+  Parameters
+  ----------
+  params : pandas.DataFrame
+    One row for each of the selected runs, one column for each parameter.
+    Column names are
+
+  Returns
+  -------
+  dists : string
+    A nicely formatted string with the distributions for each parameter that can be
+    pasted into the .yaml file for the next step.
+  '''
+
+  # First get the min and max for each column
+  ranges = [(params[x].min(), params[x].max(), x) for x in params]
+
+  # Then make a nice string out of it...
+  s = 'mads_paramdist:\n'
+  for MIN, MAX, comment in ranges:
+    s+= f"  - Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
+
+  return s
+
+
+def n_top_runs(results, targets, params, N):
+  '''
+  Get the best runs measured using the combined scores.
+
+  Parameters
+  ----------
+  results : pandas.DataFrame
+    One row per sample (run), one column per output variable
+  targets : pandas.DataFrame
+    Single row, one column per target values (generally there is one output
+    variable for each target)
+  params : pandas.DataFrame
+    One row per sample (run), one column per parameter. In other places in the
+    process this is referred to as the "sample matrix".
+
+  Returns
+  -------
+  top_runs : tuple of numpy.ndarrays
+    First item is the 2D array of the top results (output variables), second
+    item is the array of parameters used to generate the outputs.
+
+  '''
   combined_score = calc_combined_score(results, targets)
 
   best_indices = np.argsort(combined_score)
