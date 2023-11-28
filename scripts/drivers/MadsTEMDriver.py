@@ -32,6 +32,17 @@ class MadsTEMDriver(BaseDriver):
   '''
 
   def __init__(self, config_dict=None, **kwargs):
+    '''
+    Initialize MadsTEMDriver with optional configuration parameters.
+
+    Parameters
+    ----------
+    config_dict : dict, optional
+        A dictionary containing configuration parameters for the driver.
+
+    **kwargs
+        Additional keyword arguments to pass to the BaseDriver constructor.
+    '''
     super().__init__(**kwargs)
 
     # Don't set this here - the client should set in after instantiating 
@@ -51,6 +62,20 @@ class MadsTEMDriver(BaseDriver):
 
   @classmethod
   def fromfilename(cls, filename):
+    '''
+    Create an instance of MadsTEMDriver from a configuration file.
+
+    Parameters
+    ----------
+    filename : str
+        The path to the configuration file.
+
+    Returns
+    -------
+    MadsTEMDriver
+        An instance of MadsTEMDriver initialized with parameters from the
+        configuration file.
+    '''
     with open(filename, 'r') as config_data:
       config = yaml.safe_load(config_data)
     return cls(config)
@@ -59,8 +84,14 @@ class MadsTEMDriver(BaseDriver):
     '''
     Sets up a list of dicts mapping parameter names to values....
 
-    Assumes that various things have been setup:
-      self.cmtnum, self.paramnames, self.pftnums, self._seedpath
+    .. note::
+
+      Assumes that various things have been setup:
+
+        - ``self.cmtnum``
+        - ``self.paramnames``
+        - ``self.pftnums``
+        - ``self._seedpath``
 
     Analogous to ``Sensitivity.params_from_seed(...)`` but this one uses a
     different name in the dict ('vals' vs 'intial') and this is setup as a
@@ -70,8 +101,8 @@ class MadsTEMDriver(BaseDriver):
 
     Migrated directly from TEM.py::set_params(...)
 
-    This just makes an internal lookup structure...not sure what it is used for
-    yet...
+    This function simply modifies the objects params lookup structure. It does
+    not actually modify parameters in the run directory...
     '''
     assert len(self.paramnames) == len(self.pftnums), "params list and pftnums list must be same length!"
 
@@ -92,7 +123,14 @@ class MadsTEMDriver(BaseDriver):
     return None
 
   def setup_run_dir(self):
+    '''
+    Set up the run directory for the model using properties of the driver object
+    to control aspects of how the run directory is configured.
 
+    This method creates the working directory, adjusts the run mask for the
+    appropriate pixel, sets the output specification file, and adjusts
+    the configuration file.
+    '''
     # Make the working directory
     util.setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
@@ -159,18 +197,39 @@ class MadsTEMDriver(BaseDriver):
     .. note::
 
       This does not actually update anything the run directory. See the other
-      function for that. Maybe these functions should be combined? Is there
-      ever a reason to update the internal data structure (self.params) without
+      function for that. Maybe these functions should be combined? Is there ever
+      a reason to update the internal data structure (``self.params``) without
       writing the data to the run directory?
 
+    Parameters
+    ----------
+    vector : list
+        A list of parameter values to update.
+
+    junk : None, optional
+        Ignored parameter. Provided for compatibility.
+
+    Returns
+    -------
+    None
     '''
     assert len(vector) == len(self.params)
     for i in range(len(vector)):
       self.params[i]['val'] = vector[i]
 
   def write_params2rundir(self):
-    # Make sure that the parameters in the run dir are set to those we
-    # have in our params table
+    '''
+    Update the parameters in the run directory to match those in
+    ``self.params``.
+
+    This method iterates through the parameters in the internal params table and
+    updates the corresponding values in the run directory using the
+    `pu.update_inplace` function.
+
+    Returns
+    -------
+    None
+    '''
     for param in self.params:
       pu.update_inplace(param['val'],
                         os.path.join(self.work_dir, 'parameters'),
@@ -210,16 +269,22 @@ class MadsTEMDriver(BaseDriver):
 
   def run_wrapper(self, parameter_vector):
     '''
-    Takes in a vector of parameters; used the parameters to run the model
+    Run the model using a vector of parameters and return model outputs.
+
+    Takes in a vector of parameters; uses the parameters to run the model
     and returns a collection of outputs. Outputs are intended to be compared
     to target data. So if you have 5 targets you are comparing to, you should
     expect 5 output variables
 
-    Set the parameters in the run directory based upon the values held in
-    ``self.params``
+    Parameters
+    ----------
+    parameter_vector : list
+      A list of parameter values to use for the model run.
 
-    Run the model - using all the settings in the work_dir
-    Collect the outputs
+    Returns
+    -------
+    list
+      A collection of model outputs intended to be compared to target data.
     '''
     self.update_params(parameter_vector)
     self.write_params2rundir()
@@ -233,6 +298,23 @@ class MadsTEMDriver(BaseDriver):
 
 
   def gather_model_outputs(self):
+    '''
+    Gather and process model outputs for comparison with target data.
+
+    Migrated from TEM.py::get_calibration_outputs.py.
+
+    The implementation in TEM.py was tangled up with logic for loading target
+    data and included the unused calculation of "percent ecosystem contribution"
+    (pec) which can be used for weighting...but the pec was not being used in
+    this context, so it has been removed here. See util/qcal.py for an example
+    of its use.
+
+    Returns
+    -------
+    list
+        A list containing dictionaries with information about model outputs.
+
+    '''
     cmtkey = f'CMT{self.cmtnum:02d}'
     ref_param_dir = os.path.join(self.work_dir, 'parameters')
     final_data = []
@@ -244,8 +326,6 @@ class MadsTEMDriver(BaseDriver):
 
       dsizes, dnames = list(zip(*dims))
       if dnames == ('time','y','x'):
-        pec = pu.percent_ecosys_contribution(cmtkey, o['ctname'], 
-                                             ref_params_dir=ref_param_dir)
         truth = self.targets[o['ctname']]
         value = data[:,self.PXy,self.PXx].mean()
 
@@ -255,9 +335,6 @@ class MadsTEMDriver(BaseDriver):
       elif dnames == ('time','y','x','pft'):
         for pft in range(0,10):
           if pu.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
-            pec = pu.percent_ecosys_contribution(cmtkey, o['ctname'], 
-                                                 pftnum=pft, 
-                                                 ref_params_dir=ref_param_dir)
             truth = self.targets[o['ctname']][pft]
             value = data[:,pft,self.PXy,self.PXx].mean()
 
@@ -273,8 +350,6 @@ class MadsTEMDriver(BaseDriver):
           for cmprt in range(0,3):
             #print "analyzing... ctname {} (nc output: {}) for pft {} compartment {}".format(ctname, ncname, pft, cmprt),
             if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
-              pec = pu.percent_ecosys_contribution(
-                cmtkey, o['ctname'], pftnum=pft, compartment=clu[cmprt], ref_params_dir=ref_param_dir)
               truth = self.targets[o['ctname']][clu[cmprt]][pft]
               value = data[:,cmprt,pft,self.PXy,self.PXx].mean()
 
