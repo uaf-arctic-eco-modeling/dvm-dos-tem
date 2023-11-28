@@ -69,12 +69,24 @@ def deduce_target_type(target, meta):
   return type
 
 class BaseDriver(object):
+  '''
+  Base class for specific drivers. Specific driver classes should inherit from
+  BaseDriver. A driver object is intended to help with setting up and running
+  the dvmdostem model in a variety of patterns.
+
+  Parameters
+  ----------
+  work_dir : str or None, optional
+    The working directory for the object, by default None.
+  clean : bool, optional
+    Whether to clean the working directory, by default False.
+  opt_run_setup : str or None, optional
+    Additional options for the model run setup, by default None.
+  '''
 
   def __init__(self, work_dir=None, clean=False, opt_run_setup=None):
-    '''Create a BaseDriver object. General expectation is that you will
-    instantiate specific classes that inherit from Base.'''
 
-    # These are setup in this construction, but are declared here simply to 
+    # These are setup in this construction, but are declared here simply to
     # keep the object definition more explicit.
     self._seedpath = None
     self.work_dir = None
@@ -103,13 +115,28 @@ class BaseDriver(object):
       self.clean()
 
   def set_work_dir(self, path):
-    '''Sets the working directory for the object.'''
+    '''
+    Set the working directory for the object.
+
+    Parameters
+    ----------
+    path : str
+      The path to set as the working directory.
+    '''
     if path:
       self.work_dir = path
     else:
       self.work_dir = None
 
   def set_seed_path(self, path):
+    '''
+    Set the seed path for the object.
+
+    Parameters
+    ----------
+    path : str
+      The path to set as the seed path.
+    '''
     self._seedpath = path
 
   def load_target_data(self, ref_target_path=None):
@@ -125,24 +152,27 @@ class BaseDriver(object):
     simulation.
 
     This function reads the entire calibration_target.py file but extracts only
-    the targets for the CMTNUM of this SensitivityDriver object.
+    the targets for the CMTNUM of this driver object.
 
     Note: This function loads executable code from an arbitrary loction which is
     probably not ideal from a security standpoint. Maybe calibration_targets.py
     should be re-facotred into a data file and a set of target utilities similar
     to the parameters files.
 
-    Parameters
-    ==========
-    ref_target_path : str (path)
-      A path to a folder containing a calibration_targets.py file. 
+    Modifies/Sets: ``self.targets``, ``self.targets_meta``
 
-    Modifies/Sets
-    =============
-    self.targets, self.targets_meta
+    Parameters
+    ----------
+    ref_target_path : str (path)
+      A path to a folder containing a calibration_targets.py file.
+
+    Raises
+    ------
+    RuntimeError
+      If cmtnum is not set or if there's a problem loading targets.
 
     Returns
-    =======
+    -------
     None
     '''
     if not self.cmtnum:
@@ -188,22 +218,25 @@ class BaseDriver(object):
     allow a mapping from the target names (as stored in calibration_targets.py)
     to the corresponding NetCDF output. Additional informations in the
     specification are the resolutions desired and a type signifier allowing us
-    to differentiate between fluxes and pools, which is necessary for some 
+    to differentiate between fluxes and pools, which is necessary for some
     summary statistics that may be calculated later.
 
     This list of output specifications will be used to setup the correct outputs
     in each sample specific run folder as well as conveniences like naming
     columns in output summary files.
 
+    Sets/Modifies: ``self.outputs``
+
     Parameters
     ----------
     target_names : list of str
       The list should be strings naming targets in the calibration_targets.py
-      file. 
+      file.
 
-    Sets/Modifies
-    -------------
-    self.outputs
+    Raises
+    ------
+    RuntimeError
+      If a requested target is not found in targets dict.
 
     Returns
     -------
