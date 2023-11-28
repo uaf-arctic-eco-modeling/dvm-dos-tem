@@ -36,6 +36,8 @@ pftnums:
 
 >>> d = drivers.MadsTEMDriver.MadsTEMDriver(config_dict)
 
+>>> d.set_seed_path('/work/parameters')
+
 >>> d.set_params_from_seed()
 
 >>> d.load_target_data(ref_target_path='/work/calibration/')

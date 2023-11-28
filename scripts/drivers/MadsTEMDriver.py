@@ -34,7 +34,9 @@ class MadsTEMDriver(BaseDriver):
   def __init__(self, config_dict=None, **kwargs):
     super().__init__(**kwargs)
 
-    self.set_seed_path('/work/parameters')
+    # Don't set this here - the client should set in after instantiating 
+    # their object.
+    #self.set_seed_path('/work/parameters')
 
     self.site = config_dict['site'] 
     self.work_dir = config_dict['work_dir']
