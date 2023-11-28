@@ -367,10 +367,6 @@ class MadsTEMDriver(BaseDriver):
 
 
 
-    # Now keep going in collecting stuff from 
-    #        TEM.py::get_calibration_outputs()
-    #
-
 
 
 
