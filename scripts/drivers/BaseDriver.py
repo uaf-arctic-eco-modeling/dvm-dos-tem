@@ -207,19 +207,19 @@ class BaseDriver(object):
 
   def setup_outputs(self, target_names):
     '''
-    Setup the Sensitivity driver's list of output specifications based on the
-    target (observation) names.
+    Setup the driver's list of output specifications based on the target
+    (observation) names.
 
-    The client must have already loaded the targets
+    The client must have already loaded the targets, i.e.
     (``Sensitivity.load_target_data(...)``) for this to work.
 
-    The resulting ``Sensitivity.outputs`` is a list of dicts, each of
-    which is an "output specification" which contains the information that will
-    allow a mapping from the target names (as stored in calibration_targets.py)
-    to the corresponding NetCDF output. Additional informations in the
-    specification are the resolutions desired and a type signifier allowing us
-    to differentiate between fluxes and pools, which is necessary for some
-    summary statistics that may be calculated later.
+    The resulting ``BaseDriver.outputs`` is a list of dicts, each of which is
+    an "output specification" which contains the information that will allow a
+    mapping from the target names (as stored in calibration_targets.py) to the
+    corresponding NetCDF output. Additional informations in the specification
+    are the resolutions desired and a type signifier allowing us to
+    differentiate between fluxes and pools, which is necessary for some summary
+    statistics that may be calculated later.
 
     This list of output specifications will be used to setup the correct outputs
     in each sample specific run folder as well as conveniences like naming
