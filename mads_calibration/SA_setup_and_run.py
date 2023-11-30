@@ -83,7 +83,7 @@ if __name__ == '__main__':
   # will be carried out. Each individual run directory will be setup using
   # parameter values from the seed path, and then parameter values in the
   # run directories will be adjusted as part of the sensitivity analysis.
-  driver.set_work_dir(os.path.join(os.path.dirname(os.path.abspath(config_file_name)), 'SA'))
+  driver.set_work_dir(config['work_dir'])
 
   # Bug in some circumstances with directory not existing yet...
   pathlib.Path(driver.work_dir).mkdir(parents=True, exist_ok=True)
