@@ -12,7 +12,6 @@ import lhsmdu
 import glob
 import json
 import os
-import sys
 import ast
 import shutil
 import subprocess
@@ -468,7 +467,10 @@ class Sensitivity(BaseDriver):
 
     if os.path.isdir(self.work_dir):
       if len(os.listdir(self.work_dir)) > 0:
-        raise RuntimeError("Sensitivity.work_dir is not empty! You must run Sensitivity.clean() before designing an experiment.")
+        error_msg = textwrap.dedent(f'''\
+            Sensitivity.work_dir ({self.work_dir}) is not empty! You must run 
+            Sensitivity.clean() before designing an experiment.''')
+        raise RuntimeError(error_msg)
 
     if not percent_diffs:
       percent_diffs = np.ones(len(params)) * 0.1 # use 10% for default perturbation
