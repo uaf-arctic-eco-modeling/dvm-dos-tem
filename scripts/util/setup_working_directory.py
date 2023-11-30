@@ -108,7 +108,7 @@ def cmdline_run(args):
   mkdir_p(os.path.join(args.new_directory, 'output'))
 
   # Open the new config file
-  with open(os.path.join(args.new_directory, 'config/config.js')) as fp:
+  with open(os.path.join(args.new_directory, 'config/config.js'), encoding='utf-8') as fp:
     config = commentjson.load(fp)
 
   ####  Set up the new config file appropriately... ####
@@ -178,7 +178,7 @@ def cmdline_run(args):
   # Sort the keys in the IO section.
   config['IO'] = collections.OrderedDict(sorted(iter(config['IO'].items()), key=lambda k_v: sort_order.index(k_v[0])))
 
-  with open(os.path.join(args.new_directory, 'config/config.js'), 'w') as fp:
+  with open(os.path.join(args.new_directory, 'config/config.js'), 'w', encoding='utf-8') as fp:
     commentjson.dump(config, fp, indent=2, sort_keys=False) # sorting messes up previous sorting!
 
 
