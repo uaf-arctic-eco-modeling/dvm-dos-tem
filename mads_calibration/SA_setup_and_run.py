@@ -115,6 +115,8 @@ if __name__ == '__main__':
   # to the setup_outputs function, or add another function.
   driver.setup_outputs(config['target_names'])
 
+  driver.module_stage_settings=config['calib_mode']
+
   try:
       # add param calib  (a boolean, turns off dsl)
       driver.setup_multi() 

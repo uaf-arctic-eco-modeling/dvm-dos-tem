@@ -242,6 +242,11 @@ class Sensitivity(BaseDriver):
     CAREFUL! - this will forecfully remove the entrire tree rooted at
     `work_dir`.
 
+  module_stage_settings : str, optional, default: None
+    A string for the "calibration mode". This allows different modules to be 
+    on or off at different run stages. Options are 
+    'GPPAllIgnoringNitrogen', 'NPPAll', 'VEGC'
+
   Examples
   --------
   Instantiate object, sets pixel, outputs, working directory, site selection
@@ -265,7 +270,7 @@ class Sensitivity(BaseDriver):
       3  59.671967  2.042034  0.000171
       4  57.711999  1.968631  0.000155
   '''
-  def __init__(self, sampling_method=None, **kwargs):
+  def __init__(self, sampling_method=None, module_stage_settings=None, **kwargs):
     '''Create a Sensitivity driver object.'''
 
     # Call the constructor of the parent class...
@@ -281,6 +286,8 @@ class Sensitivity(BaseDriver):
     self.sample_matrix = None
     self.targets = None
     self.targets_meta = None
+    self.module_stage_settings = module_stage_settings
+
 
 
   def get_initial_params_dir(self):
@@ -610,15 +617,6 @@ class Sensitivity(BaseDriver):
       A flag indicating whether the folder to be setup  is the special "initial
       value" folder.
 
-    calib : bool !! NOT IMPLEMENTED !!
-      This is a stub/reminder from the process of porting from the
-      ``mads_sensitivity.``py`` implementation. In that implenntation there is a
-      flag that is passed that attempts to toggle the DSL module when ``calib``
-      is True using the ``calibration_directives.txt`` file. It is likely this
-      never worked because there isn't any evidence of folks starting
-      ``dvmdostem`` with the ``--cal-mode`` flag. Leaving this note here as a
-      reminder to implement this functionality. It should be easier when PR #628
-      is merged.
 
     Returns
     -------
@@ -727,16 +725,19 @@ class Sensitivity(BaseDriver):
     # Read the existing data into memory
     with open(CONFIG_FILE, 'r') as f:
       config = json.load(f)
-    
+
+    # we need netcdf outputs for eq stage
     config['IO']['output_nc_eq'] = 1 # Modify value...
 
-    # NOTE, TODO: 
-    # The work in progress mads_sensitivity.py has an implementation
-    # that tries to us the old calibration_directives.txt file to turn the dsl
-    # module off...while I bet it was modifying the file right, I can't find
-    # anywhere that the --cal-mode flag is being passed to dvmdostem itself...
-    # Should stub out here to use the new config settings that Ruth just made a
-    # PR for... See note in docstring for this function.
+    # customize the modules that should be on for different run stages...
+    if self.module_stage_settings:
+      if self.module_stage_settings == 'GPPAllIgnoringNitrogen':
+        config['stage_settings']['eq']["dsl"] = False
+        # TODO: turn nfeed OFF here!!!
+
+      if self.module_stage_settings in ('NPPAll', 'VEGC'):
+        config['stage_settings']['eq']["dsl"] = True
+        # TODO: turn nfeed ON here!!!
 
     # Write it back..
     with open(CONFIG_FILE, 'w') as f:
