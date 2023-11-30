@@ -46,6 +46,10 @@ def get_parser():
       help=textwrap.dedent('''Which sampling method to use for drawing parameter
         sets. 'lhc' offers better coverage, but is slow.'''))
 
+  parser.add_argument('--dry-run', action='store_true',
+      help=textwrap.dedent('''If passed, only do the setup, don't actually 
+        launch the runs.'''))
+
   parser.add_argument('-f', '--force', action='store_true', 
       help=textwrap.dedent('''Clean the working directory without warning.'''))
 
@@ -122,6 +126,11 @@ if __name__ == '__main__':
       driver.setup_multi() 
   except ValueError:
       print("Oops!  setup_multi failed.  Check the setup...")
+
+  if args.dry_run:
+    print(f"Dry Run. Stopping here so you can")
+    print(f"confirm everything is setup correctly in {driver.work_dir}")
+    exit(0)
 
   try:
       driver.run_all_samples()
