@@ -4374,6 +4374,44 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //Snowlayertemp - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SNOWLAYERTEMP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWLAYERTEMP";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSNOWLAYERTEMP)
+    {
+      std::array<double, MAX_SNW_LAY> snowlayertemp_arr;
+
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowlayertemp_arr[currL->indl-1] = currL->tem;
+        currL = currL->nextl;
+      } 
+
+      if(curr_spec.monthly){
+        outhold.snowlayertemp_for_output.push_back(snowlayertemp_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayertemp_for_output[0], MAX_SNW_LAY, month_start_idx, months_to_output);
+          outhold.snowlayertemp_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+        outhold.snowlayertemp_for_output.push_back(snowlayertemp_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayertemp_for_output[0], MAX_SNW_LAY, year_start_idx, years_to_output);
+          outhold.snowlayertemp_for_output.clear();
+        }
+      }
+
+     }//end critical(outputSNOWLAYERTEMP)
+  }//end SNOWLAYERTEMP
+  map_itr = netcdf_outputs.end();
+
+
   //SNOWSTART
   map_itr = netcdf_outputs.find("SNOWSTART");
   if(map_itr != netcdf_outputs.end()){
