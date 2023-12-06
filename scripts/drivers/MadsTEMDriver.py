@@ -68,13 +68,13 @@ class MadsTEMDriver(BaseDriver):
     Parameters
     ----------
     filename : str
-        The path to the configuration file.
+      The path to the configuration file.
 
     Returns
     -------
     MadsTEMDriver
-        An instance of MadsTEMDriver initialized with parameters from the
-        configuration file.
+      An instance of MadsTEMDriver initialized with parameters from the
+      configuration file.
     '''
     with open(filename, 'r') as config_data:
       config = yaml.safe_load(config_data)
@@ -172,9 +172,10 @@ class MadsTEMDriver(BaseDriver):
 
     # Adjust the config file
     CONFIG_FILE = os.path.join(self.work_dir, 'config/config.js')
+
     # Read the existing data into memory
-    with open(CONFIG_FILE, 'r') as f:
-      config = json.load(f)
+    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+      config =   json.load(f) # hey there...
 
     config['IO']['output_nc_eq'] = 1 # Modify value...
 
@@ -187,7 +188,7 @@ class MadsTEMDriver(BaseDriver):
     # othewise dsl on, nfeed on
 
     # Write it back..
-    with open(CONFIG_FILE, 'w') as f:
+    with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
       json.dump(config, f, indent=2)
 
   def update_params(self, vector, junk=None):
@@ -197,17 +198,17 @@ class MadsTEMDriver(BaseDriver):
     .. note::
 
       This does not actually update anything the run directory. See the other
-      function for that. Maybe these functions should be combined? Is there ever
-      a reason to update the internal data structure (``self.params``) without
-      writing the data to the run directory?
+      function, ``write_params2rundir(...)`` for that. Maybe these functions
+      should be combined? Is there ever a reason to update the internal data
+      structure (``self.params``) without writing the data to the run directory?
 
     Parameters
     ----------
     vector : list
-        A list of parameter values to update.
+      A list of parameter values to update.
 
     junk : None, optional
-        Ignored parameter. Provided for compatibility.
+      Ignored parameter. Provided for compatibility.
 
     Returns
     -------
@@ -312,7 +313,16 @@ class MadsTEMDriver(BaseDriver):
     Returns
     -------
     list
-        A list containing dictionaries with information about model outputs.
+        A list containing dictionaries with information about model outputs. For
+        example:
+
+        .. code:: 
+
+          [{'cmt': 'CMT06', 'ctname': 'GPP', 'value': 10.1, 'truth': 11.83, 'pft': 0},
+           {'cmt': 'CMT06', 'ctname': 'GPP', 'value': 29.05, 'truth': 197.8, 'pft': 1},
+          ...
+          ]
+
 
     '''
     cmtkey = f'CMT{self.cmtnum:02d}'
