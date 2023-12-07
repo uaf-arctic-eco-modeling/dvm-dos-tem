@@ -42,6 +42,19 @@ def load_dvmdostem_from_configfile(config_file_name):
   return dvmdostem
 """
 
+PyCall.py"""
+import util.metrics
+def plot_opt_fit(**kwargs):
+  '''Pass this straight thru to the python library...'''
+  util.metrics.plot_optimization_fit(
+    seed_params=kwargs['seed_params'], ig_params=kwargs['ig_params'], opt_params=kwargs['opt_params'], 
+    seed_out=kwargs['seed_out'], ig_out=kwargs['ig_out'], opt_out=kwargs['opt_out'],
+    targets=kwargs['targets'],
+    param_labels=kwargs['param_labels'],
+    out_labels=kwargs['out_labels'],
+    savefile=kwargs['savefile'],
+  )
+"""
 
 # THIS IS A JULIA FUNCTION THAT WORKS WITH A GLOBAL PYTHON OBJECT.
 # THIS JULIA FUNCTION OBJECT IS PASSED TO MADS
@@ -216,6 +229,27 @@ calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 #                ytitle="Targets",filename=prob_name*".png")
 
 #calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
+# Then finally you step the model "forward" and run it with the optimum results
+# But in our case, since the model is so expensive to run we should simply grab
+# the outputs from the last optimzation run rather than re-running the model...
+#calib_predictions = Mads.forward(md, calib_param)
+calib_predictions = dvmdostem.modeled()
+
+# Generate a list of nicely formatted labels that can be used for plotting
+# These labels are for the output variables (aka calibration targets)
+outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
+
+# Generate a plot with 3 panels:
+#   1. The seed, initial guess, and optimized parameters
+#   2. The seed, initial guess, and optimized outputs
+#   3. The residuals (modeld outputs - the targets) 
+PyCall.py"plot_opt_fit"(
+  seed_params=seed_params, ig_params=ig_params, opt_params=calib_param.vals, 
+  seed_out=seed_out, ig_out=ig_out, opt_out=calib_predictions, 
+  param_labels=param_keys,
+  out_labels=outlabels,
+  targets=targets, 
+  savefile="/data/workflows/calibration/CMT06-IMNAVIAT/analysis/plot_opt_fit_MADS.png")
 
 #forward_predictions = Mads.forward(md, calib_random_estimates)
 #Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="Targets",

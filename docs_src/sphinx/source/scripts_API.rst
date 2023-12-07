@@ -70,3 +70,11 @@ util.input
 
 .. automodule:: util.input
     :members:
+
+##########################################
+util.metrics
+##########################################
+
+.. automodule:: util.metrics
+    :members:
+
