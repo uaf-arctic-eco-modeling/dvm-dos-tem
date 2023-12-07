@@ -1,6 +1,0 @@
-Sensitivity
-===========
-
-.. automodule:: Sensitivity
-   :members:
-
