@@ -71,10 +71,7 @@ else
     println("Make sure that weight length match with targets length")
 end
 
-# build paramlog array
 mads_config = YAML.load_file(config_file)
-
-
 dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 
 # dvmdostem should be setup from the seed path and then some settings are over
@@ -97,6 +94,13 @@ dvmdostem.run()
 ig_params = dvmdostem.params_vec()
 ig_out = dvmdostem.modeled()
 
+# Do the optimization, which requires a bit more setup... 
+prob_name = mads_config["mads_problemname"]
+param_keys  = mads_config["mads_paramkey"]
+paramdist = mads_config["mads_paramdist"]
+
+# Setup: deal with which params should be log distributed...
+# Use log distributed for targets that have small values
 params=mads_config["params"]
 n_cmax=count(i->(i== "cmax"), params)
 n_nmax=count(i->(i== "nmax"), params)
@@ -117,9 +121,18 @@ ns2=count(i->(i== "kdcrawc"), params)
 ns3=count(i->(i== "kdcsoma"), params)
 ns4=count(i->(i== "kdcsompr"), params)
 ns5=count(i->(i== "kdcsomcr"), params)
-paramlog=[falses(n_cmax); falses(n_nmax); falses(n_krb); trues(n_cfall); trues(n_nfall);
-                        falses(ns1); falses(ns2); falses(ns3); falses(ns4); trues(ns5) ]
-println(paramlog)
+paramlog=[
+  falses(n_cmax);
+  falses(n_nmax);
+  falses(n_krb);
+  trues(n_cfall);    # <--
+  trues(n_nfall);    # <--
+  falses(ns1);
+  falses(ns2);
+  falses(ns3);
+  falses(ns4);
+  trues(ns5)         # <--
+]
 
 #choose a range for parameter values
 paramdist = []
