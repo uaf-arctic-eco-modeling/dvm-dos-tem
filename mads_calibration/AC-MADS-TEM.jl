@@ -202,10 +202,13 @@ md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 # Finally! Run the optimization. This can take forever...
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
-Mads.plotmatches(md, calib_param, xtitle="# of observations", 
-		      ytitle="Targets",filename=mads_config["mads_problemname"]*".png")
 
 #calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
+# Prefer not to run the Mads.plotmatches(..) function!
+# The labels on the plot are opaque and it has to run the model again which is
+# annoyingly slow. This will be replaced by plot_opt_fit below...
+#Mads.plotmatches(md, calib_param, xtitle="# of observations", 
+#                ytitle="Targets",filename=prob_name*".png")
 
 #calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 
