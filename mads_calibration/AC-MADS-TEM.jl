@@ -1,14 +1,16 @@
-# Autocalibration (AC) version 3.0
+#!/usr/bin/env julia
+
 # Wraps MADS around TEM 
-# Example: julia AC-MADS-TEM.jl /work/mads_calibration/config-step1-md1.yaml
-# Author: Elchin Jafarov
-# Date: 03/2023
+#
+# Example of use: mads_calibration/AC-MAD-TEM.jl /data/workflows/config.yaml
+#     $ mads_calibration/AC-MAD-TEM.jl /data/workflows/config.yaml
+#
+# Author: Elchin Jafarov, Tobey Carman
+# Date: 03/2023, 11/2023
 
 import Mads
-#import Pkg; Pkg.add("YAML")
 import YAML
 import PyCall
-@show pwd()
 
 PyCall.py"""
 
