@@ -3,7 +3,7 @@
 # Wraps MADS around TEM 
 #
 # Example of use: mads_calibration/AC-MAD-TEM.jl /data/workflows/config.yaml
-#     $ mads_calibration/AC-MAD-TEM.jl /data/workflows/config.yaml
+#     $ julia AC-MADS-TEM.jl /data/workflows/config.yaml
 #
 # Author: Elchin Jafarov, Tobey Carman
 # Date: 03/2023, 11/2023
@@ -42,17 +42,21 @@ def load_dvmdostem_from_configfile(config_file_name):
   return dvmdostem
 """
 
+###  ENTRY POINT...
 if ARGS==[]
-    println("ERROR: Missing config file")
-    println("syntax: julia AC-MADS-TEM.jl /work/mads_calibration/config-step1-md1.yaml")
+    println("ERROR: Missing config file!")
+    println("Example usage: ")
+    println("")
+    println("    \$ julia ", basename(@__FILE__), " /path/to/config.yaml")
+    println("")
     exit()
 else
     mads_config = YAML.load_file(ARGS[1])
     println("Reading config file:")    
     println(ARGS[1])
+    config_file = ARGS[1]
 end
 
-tem = PyCall.py"get_cofig_file"(ARGS[1])
 
 function TEM_pycall(parameters::AbstractVector)
         predictions = tem.run_TEM(parameters)
@@ -80,6 +84,14 @@ else
 end
 
 # build paramlog array
+mads_config = YAML.load_file(config_file)
+
+
+dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
+
+# dvmdostem should be setup from the seed path and then some settings are over
+# ridden from the mads config (parameter distributions, intial guesses, etc)
+
 params=mads_config["params"]
 n_cmax=count(i->(i== "cmax"), params)
 n_nmax=count(i->(i== "nmax"), params)
