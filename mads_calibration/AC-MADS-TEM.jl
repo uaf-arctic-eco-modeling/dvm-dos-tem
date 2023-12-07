@@ -12,17 +12,34 @@ import Mads
 import YAML
 import PyCall
 
+
+# THIS IS A PYTHON FUNCTION THAT RETURNS A PYTHON OBJECT THAT IS USABLE FROM
+# THE JULIA RUNTIME!
 PyCall.py"""
+import drivers.MadsTEMDriver
+def load_dvmdostem_from_configfile(config_file_name):
+  '''
+  Parameters
+  ----------
+  config_file_name :
+    the path to a config yaml file that has all the settings for the MADs CA 
+    assist steps....
 
-import sys,os
-sys.path.append(os.path.join('/work','mads_calibration'))
-import TEM
+  Returns
+  -------
+  drivers.MadsTEMDriver
+    The object has been setup according to the values in the config file.
+  '''
+  dvmdostem = drivers.MadsTEMDriver.MadsTEMDriver.fromfilename(config_file_name)
 
-def get_cofig_file(config_file_name):
-    dvmdostem=TEM.TEM_model(config_file_name)
-    dvmdostem.set_params(dvmdostem.cmtnum, dvmdostem.paramnames, dvmdostem.pftnums)
-    return dvmdostem
+  dvmdostem.set_seed_path("/work/parameters")
+  dvmdostem.set_params_from_seed()
+  dvmdostem.load_target_data("/work/calibration")
+  dvmdostem.setup_outputs(dvmdostem.target_names)
+  dvmdostem.clean()
+  dvmdostem.setup_run_dir()
 
+  return dvmdostem
 """
 
 if ARGS==[]
