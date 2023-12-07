@@ -146,7 +146,8 @@ end
 # Setup: not sure what this is...?
 obstime = 1:length(targets)
 
-# Setup: choose a range for observation values
+# Setup: choose a range for observation values.
+# Not entirely clear how/why this is used....
 obsdist = []
 mads_obsrange=mads_config["mads_obsrange"]
 if mads_obsrange == "ON"   
@@ -158,14 +159,6 @@ if mads_obsrange == "ON"
     end
 end
 
-md = Mads.createproblem(initial_guess, targets, TEM_pycall;
-    paramkey=mads_config["mads_paramkey"],
-    paramdist,
-    obstime,
-    obsweight,
-    paramlog,
-    obsdist,
-    problemname=mads_config["mads_problemname"])
 # Setup: Possibly override the parameter distributions that users sets in the
 # config file - if the user has selected mads_paramrange ON in the config file
 # then ignore the parameter distribution setting from the config and set
@@ -189,6 +182,21 @@ else
     paramdist=mads_config["mads_paramdist"]
 end
 
+
+# Setup: configure the Mads object
+md = Mads.createproblem(
+    initial_guess,        # The list of initial parameter values
+    targets,              # List of target values (trying to match these)
+    dvmdostem_wrapper;    # The callable function that runs the model
+    paramkey=param_keys,  # ?? Maybe just list of nice names for plotting?
+    paramdist,            # List of distributions to draw parameters from
+    obstime,              # ??
+    obsweight,            # vector of weights, matching targets in size
+    paramlog,             # List of vectors indicating which parameters
+                          # should be log distributed
+    obsdist,              # ??
+    problemname=prob_name # convienience handle
+)
 md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 
 Mads.showparameters(md)
