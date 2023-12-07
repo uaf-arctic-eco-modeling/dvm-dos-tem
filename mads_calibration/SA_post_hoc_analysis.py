@@ -35,6 +35,7 @@
 import numpy as np
 import pandas as pd
 import sklearn.metrics as sklm
+import scipy.stats
 import matplotlib.pyplot as plt
 
 
@@ -61,7 +62,7 @@ def plot_boxplot(results, targets):
   plt.close('all')
   fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(6,6))
   results.boxplot(ax=ax, rot=45)
-  ax.scatter(range(1,len(targets)+1), targets, color='red', zorder=1000)
+  ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
   plt.savefig("plots/results_boxplot.png")
 
 def plot_spaghetti(results, targets):
@@ -228,7 +229,41 @@ def calc_combined_score(results, targets):
 
   return combined_score
 
-# def get_best_runs(results, targets, method)
+def prep_mads_initial_guess(params):
+  '''
+  Generate MADS initial guess string based on parameter ranges. The idea is that
+  the intial guess should be the mean of the parameter range. Gives you
+  a string like this:
+
+    .. code:: 
+
+      mads_initialguess:
+        - 16.252  # cmax_pft0
+        - 79.738  # cmax_pft1
+        - 44.687  # cmax_pft2
+
+  that is intended to be copied into your ``.yaml`` config file.
+
+  Parameters
+  ----------
+  params : pandas.DataFrame
+    A DataFrame containing parameter values.
+
+  Returns
+  -------
+  str
+    MADS initial guess string.
+  '''
+  # First get the min and max for each column
+  ranges = [(params[x].min(), params[x].max(), x) for x in params]
+
+  s2 = 'mads_initialguess:\n'
+  for MIN, MAX, comment in ranges:
+    s2 += f"  - {scipy.stats.uniform(loc=MIN, scale=MAX-MIN).mean():8.3f}  # {comment}\n"
+
+  return s2
+
+
 
 def prep_mads_distributions(params):
   '''
@@ -236,9 +271,10 @@ def prep_mads_distributions(params):
 
   .. code::
 
-    - Uniform(  5.9117,  26.5927)    # cmax_pft0
-    - Uniform( 46.0129, 113.4639)    # cmax_pft1
-    - Uniform( 11.7916,  77.5827)    # cmax_pft2
+    mads_paramdist:
+      - Uniform(  5.9117,  26.5927)    # cmax_pft0
+      - Uniform( 46.0129, 113.4639)    # cmax_pft1
+      - Uniform( 11.7916,  77.5827)    # cmax_pft2
 
   From B. Maglio's notebook.
 
@@ -261,7 +297,8 @@ def prep_mads_distributions(params):
   # Then make a nice string out of it...
   s = 'mads_paramdist:\n'
   for MIN, MAX, comment in ranges:
-    s+= f"  - Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
+    s += f"  - Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
+
 
   return s
 
