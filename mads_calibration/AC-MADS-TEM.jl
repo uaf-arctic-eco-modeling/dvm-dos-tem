@@ -42,6 +42,22 @@ def load_dvmdostem_from_configfile(config_file_name):
   return dvmdostem
 """
 
+
+# THIS IS A JULIA FUNCTION THAT WORKS WITH A GLOBAL PYTHON OBJECT.
+# THIS JULIA FUNCTION OBJECT IS PASSED TO MADS
+function dvmdostem_wrapper(parameters::AbstractVector)
+  # This is similar to the dvmdostem.run_wrapper(), but it uses a less rich form
+  # of outputs.  The dvmdostem.run_wrapper() function is a list so that each
+  # record has PFT, cmtnumber, target, etc while in this case we can only handle
+  # a more simple data type (plain list). The order is infered here.
+  dvmdostem.update_params(parameters)
+  dvmdostem.write_params2rundir()
+  dvmdostem.run()
+  predictions = dvmdostem.modeled() # <-- plain vector of outputs, no labels
+  return predictions
+end
+
+
 ###  ENTRY POINT...
 if ARGS==[]
     println("ERROR: Missing config file!")
@@ -58,17 +74,11 @@ else
 end
 
 
-function TEM_pycall(parameters::AbstractVector)
-        predictions = tem.run_TEM(parameters)
-        return predictions
-end
-
 mads_config = YAML.load_file(config_file)
 dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 
 # dvmdostem should be setup from the seed path and then some settings are over
 # ridden from the mads config (parameter distributions, intial guesses, etc)
-
 
 # Save the targets...
 targets = dvmdostem.observed()
