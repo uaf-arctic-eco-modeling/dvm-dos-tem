@@ -63,18 +63,6 @@ function TEM_pycall(parameters::AbstractVector)
         return predictions
 end
 
-initial_guess=mads_config["mads_initial_guess"]
-
-targets=tem.get_targets(1)
-n_o=length(targets)
-#check if number of targets is zero
-if n_o == 0
-   y_init=tem.run_TEM(initial_guess)
-   targets=tem.get_targets(1)
-   n_o=length(targets)
-end
-obstime=1:n_o 
-
 # check for obsweight
 obsweight=mads_config["mads_obsweight"]
 if isnothing(obsweight)
@@ -91,6 +79,23 @@ dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 
 # dvmdostem should be setup from the seed path and then some settings are over
 # ridden from the mads config (parameter distributions, intial guesses, etc)
+
+
+# Save the targets...
+targets = dvmdostem.observed()
+
+# Do the seed run and keep the results
+dvmdostem.run()
+seed_params = dvmdostem.params_vec()
+seed_out = dvmdostem.modeled()
+
+# Do the initial guess run and keep the results
+initial_guess = mads_config["mads_initialguess"]
+dvmdostem.update_params(initial_guess)
+dvmdostem.write_params2rundir()  
+dvmdostem.run()
+ig_params = dvmdostem.params_vec()
+ig_out = dvmdostem.modeled()
 
 params=mads_config["params"]
 n_cmax=count(i->(i== "cmax"), params)
