@@ -182,7 +182,7 @@ obstime = 1:length(targets)
 # Not entirely clear how/why this is used....
 obsdist = []
 mads_obsrange=mads_config["mads_obsrange"]
-if mads_obsrange == "ON"   
+if mads_obsrange == "ON"
     var=mads_config["mads_obs_percent_variance"]
     for i in eachindex(targets)
         min_r = max.(targets[i] .- targets[i] .* (var / 100), 0)
@@ -241,14 +241,12 @@ calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 #    an OptimBase.MultivariateOptimizationResults object with a bunch of 
 #    metadata about the optimization process
 
-#calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
 # Prefer not to run the Mads.plotmatches(..) function!
 # The labels on the plot are opaque and it has to run the model again which is
 # annoyingly slow. This will be replaced by plot_opt_fit below...
 #Mads.plotmatches(md, calib_param, xtitle="# of observations", 
 #                ytitle="Targets",filename=prob_name*".png")
 
-#calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
 # Then finally you step the model "forward" and run it with the optimum results
 # But in our case, since the model is so expensive to run we should simply grab
 # the outputs from the last optimzation run rather than re-running the model...
@@ -271,8 +269,8 @@ PyCall.py"plot_opt_fit"(
   targets=targets, 
   savefile="/data/workflows/calibration/CMT06-IMNAVIAT/analysis/plot_opt_fit_MADS.png")
 
-#forward_predictions = Mads.forward(md, calib_random_estimates)
-#Mads.spaghettiplot(md, forward_predictions, xtitle="# of observations", ytitle="Targets",
-#		       filename=mads_config["mads_problemname"]*".png")
 
-
+# Not sure what these are for..?
+# Maybe the Mads Problem "paramdist" list is used to seed these??
+#calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
+#calib_random_estimates = hcat(map(i->collect(values(calib_random_results[i,3])), 1:10)...)
