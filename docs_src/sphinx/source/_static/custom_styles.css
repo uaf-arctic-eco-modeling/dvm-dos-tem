@@ -17,3 +17,14 @@ details.working {
 details.partial {
   background-color: rgb(247, 247, 194);
 }
+
+figcaption {
+  padding: 10px;
+  background-color: rgb(242, 242, 242);
+  margin-bottom: 54px;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0;
+  font-family: PT Serif Caption;
+  font-style: italic;
+}
