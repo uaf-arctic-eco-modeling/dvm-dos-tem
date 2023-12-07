@@ -45,9 +45,7 @@ def load_dvmdostem_from_configfile(config_file_name):
   dvmdostem.setup_run_dir()
 
   return dvmdostem
-"""
 
-PyCall.py"""
 import util.metrics
 def plot_opt_fit(**kwargs):
   '''
@@ -58,8 +56,12 @@ def plot_opt_fit(**kwargs):
       PyCall.py"util.metrics.plot_optimization_fit"(...)?
   '''
   util.metrics.plot_optimization_fit(
-    seed_params=kwargs['seed_params'], ig_params=kwargs['ig_params'], opt_params=kwargs['opt_params'], 
-    seed_out=kwargs['seed_out'], ig_out=kwargs['ig_out'], opt_out=kwargs['opt_out'],
+    seed_params=kwargs['seed_params'],
+    ig_params=kwargs['ig_params'],
+    opt_params=kwargs['opt_params'],
+    seed_out=kwargs['seed_out'],
+    ig_out=kwargs['ig_out'],
+    opt_out=kwargs['opt_out'],
     targets=kwargs['targets'],
     param_labels=kwargs['param_labels'],
     out_labels=kwargs['out_labels'],
@@ -166,9 +168,9 @@ paramlog=[
 ]
 
 # Setup: set a vector of weights for the observations
-obsweight=mads_config["mads_obsweight"]
+obsweight = mads_config["mads_obsweight"]
 if isnothing(obsweight)
-    obsweight = ones(Int8, length(targets)) * 100
+  obsweight = ones(Int8, length(targets)) * 100
 else
     println("Make sure that weight length match with targets length")
 end
