@@ -86,14 +86,13 @@ dvmdostem.run()
 ig_params = dvmdostem.params_vec()
 ig_out = dvmdostem.modeled()
 
-# Do the optimization, which requires a bit more setup... 
+#####    SETUP FOR THE OPTIMIZATION   #####
 prob_name = mads_config["mads_problemname"]
-param_keys  = mads_config["mads_paramkey"]
-paramdist = mads_config["mads_paramdist"]
+param_keys = mads_config["mads_paramkey"]
+params = mads_config["params"]
 
 # Setup: deal with which params should be log distributed...
 # Use log distributed for targets that have small values
-params=mads_config["params"]
 n_cmax=count(i->(i== "cmax"), params)
 n_nmax=count(i->(i== "nmax"), params)
 n_krb0=count(i->(i== "krb(0)"), params)
@@ -126,27 +125,11 @@ paramlog=[
   trues(ns5)         # <--
 ]
 
-#choose a range for parameter values
-paramdist = []
-mads_paramrange=mads_config["mads_paramrange"]
-if mads_paramrange == "ON"
-    var=mads_config["mads_param_percent_variance"]
-    for i in eachindex(initial_guess)
- 	if initial_guess[i]>0
-            min_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
-            max_r = initial_guess[i] + initial_guess[i] .* (var / 100)
-        else
-            max_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
-            min_r = initial_guess[i] + initial_guess[i] .* (var / 100)     
-        end  
-        push!(paramdist, "Uniform($(min_r), $(max_r))")
-    end
 # Setup: set a vector of weights for the observations
 obsweight=mads_config["mads_obsweight"]
 if isnothing(obsweight)
     obsweight = ones(Int8, length(targets)) * 100
 else
-    paramdist=mads_config["mads_paramdist"]
     println("Make sure that weight length match with targets length")
 end
 
@@ -173,6 +156,28 @@ md = Mads.createproblem(initial_guess, targets, TEM_pycall;
     paramlog,
     obsdist,
     problemname=mads_config["mads_problemname"])
+# Setup: Possibly override the parameter distributions that users sets in the
+# config file - if the user has selected mads_paramrange ON in the config file
+# then ignore the parameter distribution setting from the config and set
+# new values here based on config file variance spec and intial guess.
+# Not sure what the use case is for this, but leaving here for now...
+paramdist = []
+mads_paramrange=mads_config["mads_paramrange"]
+if mads_paramrange == "ON"
+    var=mads_config["mads_param_percent_variance"]
+    for i in eachindex(initial_guess)
+ 	      if initial_guess[i] > 0
+            min_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
+            max_r = initial_guess[i] + initial_guess[i] .* (var / 100)
+        else
+            max_r = initial_guess[i] .- initial_guess[i] .* (var / 100)
+            min_r = initial_guess[i] + initial_guess[i] .* (var / 100)
+        end
+        push!(paramdist, "Uniform($(min_r), $(max_r))")
+    end
+else
+    paramdist=mads_config["mads_paramdist"]
+end
 
 md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 
