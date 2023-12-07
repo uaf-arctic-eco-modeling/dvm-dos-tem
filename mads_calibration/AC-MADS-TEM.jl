@@ -79,7 +79,7 @@ function dvmdostem_wrapper(parameters::AbstractVector)
   dvmdostem.update_params(parameters)
   dvmdostem.write_params2rundir()
   dvmdostem.run()
-  predictions = dvmdostem.modeled() # <-- plain vector of outputs, no labels
+  predictions = dvmdostem.modeled_vec() # <-- plain vector of outputs, no labels
   return predictions
 end
 
@@ -107,13 +107,13 @@ dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 # ridden from the mads config (parameter distributions, intial guesses, etc)
 
 # Save the targets...
-targets = dvmdostem.observed()
+targets = dvmdostem.observed_vec()
 
 # Do the seed run and keep the results
 println("Performing seed run...")
 dvmdostem.run()
 seed_params = dvmdostem.params_vec()
-seed_out = dvmdostem.modeled()
+seed_out = dvmdostem.modeled_vec()
 
 # Do the initial guess run and keep the results
 initial_guess = mads_config["mads_initialguess"]
@@ -122,7 +122,7 @@ dvmdostem.write_params2rundir()
 println("Performing initial guess run...")
 dvmdostem.run()
 ig_params = dvmdostem.params_vec()
-ig_out = dvmdostem.modeled()
+ig_out = dvmdostem.modeled_vec()
 
 #####    SETUP FOR THE OPTIMIZATION   #####
 prob_name = mads_config["mads_problemname"]
@@ -251,7 +251,7 @@ calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 # But in our case, since the model is so expensive to run we should simply grab
 # the outputs from the last optimzation run rather than re-running the model...
 #calib_predictions = Mads.forward(md, calib_param)
-calib_predictions = dvmdostem.modeled()
+calib_predictions = dvmdostem.modeled_vec()
 
 # Generate a list of nicely formatted labels that can be used for plotting
 # These labels are for the output variables (aka calibration targets)

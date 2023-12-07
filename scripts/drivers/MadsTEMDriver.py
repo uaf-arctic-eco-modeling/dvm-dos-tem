@@ -4,6 +4,7 @@ import yaml
 import json
 import subprocess
 import shutil
+import pandas as pd
 
 import util.param as pu
 import util.setup_working_directory
@@ -121,6 +122,7 @@ class MadsTEMDriver(BaseDriver):
       self.params.append(dict(name=pname, val=p_val, cmtnum=self.cmtnum, pftnum=pftnum))
 
     return None
+
 
   def setup_run_dir(self):
     '''
@@ -266,6 +268,35 @@ class MadsTEMDriver(BaseDriver):
       print(completed_process.stderr)
 
     return None
+
+  # Helper functions that facilitate working with Mads. Many of the the Mads
+  def params_vec(self):
+    '''Return a flat list of the parameter values.'''
+    return [p['val'] for p in self.params]
+
+  def modeled_vec(self):
+    '''Return a flat list of the model output values.'''
+    fd = pd.DataFrame(self.gather_model_outputs())
+    return list(fd['value'])
+
+  def observed_vec(self):
+    '''Return a flat list of the observation values (aka targets).'''
+    # The target values are included in the model output data structures, and
+    # could be accessed exactly like the modeled_vec function but
+    # if you have not yet run the model you don't have outputs ready and
+    # therefore can't read them. There are cases where you would like to
+    # see the target values without running the model, so we will assemble
+    # them another way here.
+    pftnums = [i['pftnum'] for i in self.params]
+    for o in self.outputs:
+      ct = o['ctname']
+      # Not 100% sure this will work all the time?? PFTs? compartments???
+      # Likely going to need something like
+      # if type(self.targets[ct]) is dict:
+      #   sefl.targets[ct]['Leaf'][PFT]
+      targets = [self.targets[ct][PFT] for PFT in range(10) if PFT in pftnums]
+      return targets
+
 
 
   def run_wrapper(self, parameter_vector):
