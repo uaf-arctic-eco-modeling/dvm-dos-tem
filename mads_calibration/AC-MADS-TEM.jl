@@ -199,8 +199,7 @@ md = Mads.createproblem(
 )
 md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 
-Mads.showparameters(md)
-Mads.showobservations(md)
+# Finally! Run the optimization. This can take forever...
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
 Mads.plotmatches(md, calib_param, xtitle="# of observations", 
