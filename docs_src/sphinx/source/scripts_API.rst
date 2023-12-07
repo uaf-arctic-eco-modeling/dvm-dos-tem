@@ -9,12 +9,36 @@ The content in these section has been auto-generated from the python
 ``docstrings`` in the project.
 
 
+
+###############################
+drivers.BaseDriver
+###############################
+
+.. automodule:: drivers.BaseDriver
+    :members:
+    :show-inheritance:
+
 #####################
 drivers.Sensitivity
 #####################
 
 .. automodule:: drivers.Sensitivity
     :members:
+    :show-inheritance:
+    :inherited-members:
+
+
+
+#####################
+drivers.MadsTEMDriver
+#####################
+
+.. automodule:: drivers.MadsTEMDriver
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
+
 
 
 ##########################################
