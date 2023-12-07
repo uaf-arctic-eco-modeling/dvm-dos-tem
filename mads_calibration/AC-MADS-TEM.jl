@@ -1,6 +1,8 @@
 #!/usr/bin/env julia
 
-# Wraps MADS around TEM 
+# Wraps MADS around TEM. Uses Mads to "calibrate" TEM, meaning that Mads is
+# solving an optimization problem, attempting to find a parameter set that 
+# minimizes the difference between TEM model outputs and TEM target data.
 #
 # Example of use: mads_calibration/AC-MAD-TEM.jl /data/workflows/config.yaml
 #     $ julia AC-MADS-TEM.jl /data/workflows/config.yaml
@@ -19,6 +21,9 @@ PyCall.py"""
 import drivers.MadsTEMDriver
 def load_dvmdostem_from_configfile(config_file_name):
   '''
+  Sets up and returns a driver object that can be manipulated from the 
+  ecapsulating Julia program.
+
   Parameters
   ----------
   config_file_name :
@@ -45,7 +50,13 @@ def load_dvmdostem_from_configfile(config_file_name):
 PyCall.py"""
 import util.metrics
 def plot_opt_fit(**kwargs):
-  '''Pass this straight thru to the python library...'''
+  '''
+  Pass this straight thru to the python library...
+
+  Maybe this wrapper is unnecessary, you could directly call the function like
+  this:
+      PyCall.py"util.metrics.plot_optimization_fit"(...)?
+  '''
   util.metrics.plot_optimization_fit(
     seed_params=kwargs['seed_params'], ig_params=kwargs['ig_params'], opt_params=kwargs['opt_params'], 
     seed_out=kwargs['seed_out'], ig_out=kwargs['ig_out'], opt_out=kwargs['opt_out'],
@@ -60,9 +71,9 @@ def plot_opt_fit(**kwargs):
 # THIS JULIA FUNCTION OBJECT IS PASSED TO MADS
 function dvmdostem_wrapper(parameters::AbstractVector)
   # This is similar to the dvmdostem.run_wrapper(), but it uses a less rich form
-  # of outputs.  The dvmdostem.run_wrapper() function is a list so that each
-  # record has PFT, cmtnumber, target, etc while in this case we can only handle
-  # a more simple data type (plain list). The order is infered here.
+  # of outputs.  The dvmdostem.run_wrapper() function returns a list of dicts so
+  # each record has PFT, cmtnumber, target, etc while in this case we can only
+  # handle a more simple data type (plain list). The order is infered here.
   dvmdostem.update_params(parameters)
   dvmdostem.write_params2rundir()
   dvmdostem.run()
@@ -97,6 +108,7 @@ dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 targets = dvmdostem.observed()
 
 # Do the seed run and keep the results
+println("Performing seed run...")
 dvmdostem.run()
 seed_params = dvmdostem.params_vec()
 seed_out = dvmdostem.modeled()
@@ -105,6 +117,7 @@ seed_out = dvmdostem.modeled()
 initial_guess = mads_config["mads_initialguess"]
 dvmdostem.update_params(initial_guess)
 dvmdostem.write_params2rundir()  
+println("Performing initial guess run...")
 dvmdostem.run()
 ig_params = dvmdostem.params_vec()
 ig_out = dvmdostem.modeled()
@@ -114,8 +127,12 @@ prob_name = mads_config["mads_problemname"]
 param_keys = mads_config["mads_paramkey"]
 params = mads_config["params"]
 
-# Setup: deal with which params should be log distributed...
-# Use log distributed for targets that have small values
+# Setup: Which parameters should be log distributed?
+# Use log distributed for parameters that have small values
+# Builds a 2D list of booleans indicating which parameters will be treated as
+# log distributed. 
+# Not sure if this is used in all calbration cases, or only when doing 
+# somekind or random sampling calibration...
 n_cmax=count(i->(i== "cmax"), params)
 n_nmax=count(i->(i== "nmax"), params)
 n_krb0=count(i->(i== "krb(0)"), params)
@@ -213,6 +230,7 @@ md = Mads.createproblem(
 md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 
 # Finally! Run the optimization. This can take forever...
+println("Performing calibration (optimization) runs...")
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
 # calib_param:
