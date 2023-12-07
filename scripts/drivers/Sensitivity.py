@@ -735,11 +735,12 @@ class Sensitivity(BaseDriver):
     if self.module_stage_settings:
       if self.module_stage_settings == 'GPPAllIgnoringNitrogen':
         config['stage_settings']['eq']["dsl"] = False
-        # TODO: turn nfeed OFF here!!!
+        config['stage_settings']['eq']["nfeed"] = False
 
+      # I believe these default to on, but just in case, set them here...
       if self.module_stage_settings in ('NPPAll', 'VEGC'):
         config['stage_settings']['eq']["dsl"] = True
-        # TODO: turn nfeed ON here!!!
+        config['stage_settings']['eq']["nfeed"] = True
 
     # Write it back..
     with open(CONFIG_FILE, 'w') as f:
