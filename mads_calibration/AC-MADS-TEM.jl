@@ -202,6 +202,11 @@ md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 # Finally! Run the optimization. This can take forever...
 calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
+# calib_param:
+#    an OrderedCollections.OrderedDict of optimum parameter values
+# calib_information:
+#    an OptimBase.MultivariateOptimizationResults object with a bunch of 
+#    metadata about the optimization process
 
 #calib_random_results = Mads.calibraterandom(md, 10;  all=true, tolOF=0.01, tolOFcount=4)
 # Prefer not to run the Mads.plotmatches(..) function!
