@@ -154,6 +154,10 @@ WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
 
+# ==== IMAGE FOR RUNNING JULIA/MADS AUTO CALIBRATION STUFF ====================
+# Basically the dev image with Julia and MADS installed. Julia and MADS add
+# significantly to the build time and size, so they are split out to a separate
+# image here.
 FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-autocal
 ARG UNAME
 ARG UID
@@ -175,6 +179,9 @@ RUN echo 'using Pkg; Pkg.add("PyCall")' | julia
 RUN echo 'using Pkg; Pkg.add("DataFrames")' | julia
 RUN echo 'using Pkg; Pkg.add("DataStructures")' | julia
 RUN echo 'using Pkg; Pkg.add("CSV")' | julia
+RUN echo 'using Pkg; Pkg.add("YAML")' | julia
+
+ENV PYTHONPATH="/work/scripts:/work/mads_calibration"
 
 
 # === IMAGE FOR BUILDING (COMPILING) DVMDOSTEM ================================
