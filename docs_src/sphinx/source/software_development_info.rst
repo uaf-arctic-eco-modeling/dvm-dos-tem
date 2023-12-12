@@ -724,3 +724,28 @@ Setting up with Ubuntu
 .. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
 .. _Github Issues: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues
 .. _Semantic Versioning: https://semver.org
+
+*********************
+Debugging strategies
+*********************
+
+For problems with running `dvmdostem` itself, the first thing to do is generally
+run with a higher log level. This is available as a command line flag with both
+long and short forms (``--log-level``, ``-l``).
+
+You will imediately notice that with the more verbose levels the amount of stuff
+printed to your console will be overwhelming and likely saturate your scrollback
+buffer, making it impossible to read messages from the beginning of the run,
+which is where you usually want to look to diagnose initialization errors. One
+trick to overcome this is to redirect the standard output (``stdout``, ``1``)
+and standard error (``stderr``, ``2```) streams to a file which you can search
+thru post-hoc using ``less`` or a text editor. For example:
+
+.. code:: shell
+
+    $ dvmdostem --log-level debug > MY_OUTPUT.txt 2>&1
+
+Nothing will be output to your console and you should have a file that you 
+can search through when the run is done. See the ``tee`` command if you want to 
+see the output on your console as well as save it to a file.
+
