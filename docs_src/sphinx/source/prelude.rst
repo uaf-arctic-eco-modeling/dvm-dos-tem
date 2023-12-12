@@ -343,6 +343,13 @@ Git Gui (for making commits) are perfectly sufficient, and these are
 readily available on most systems. At the end of the day you are likely to 
 use a combination of the command line interface and a graphical frontend tool.
 
+The Gitk interface looks like this and can be adjusted in myriad ways to suit 
+your needs:
+
+.. image:: images/prelude/example_gitk.png
+  :width: 300
+  :alt: Example of gitk visual interface.
+
 
 Setup
 ============
