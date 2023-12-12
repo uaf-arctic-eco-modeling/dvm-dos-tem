@@ -5,7 +5,10 @@ tags:
   - Python
   - ecology
   - permafrost
-  - dynamics
+  - vegetation dynamics
+  - soil thermal dynamics
+  - arctic
+  - carbon cycle
 
 authors:
   - name: Tobey B Carman
@@ -37,30 +40,30 @@ bibliography: paper.bib
 Questions about the evolution of ecosystems under a changing climate are
 pressing in many fields. Terrestrial Biosphere Models (TBMs) seek to answer
 questions about changing ecosystems at a scale somewhere between the Global
-Circulation Models smaller point or process specific models. The ``DVMDOSTEM``
+Circulation Models and smaller point or process specific models. The ``DVMDOSTEM``
 model is a TBM focused on C and N cycling through vegetation and soil as well as
 soil thermal dynamics. The ``DVMDOSTEM`` model has been primarlily used thus
 far for high latitude ecosystems, but with work put into the parameterizations,
 it could be used elsewhere.
 
-DVM-DOS-TEM is an advanced ecological mechanistic model tailored to capture the intricacies of vegetation and soil thermal dynamics in cold regions. Designed to study ecosystem responses to climate changes and disturbances, it has a particular focus on boreal, arctic, and alpine landscapes. The model integrates vegetation dynamics (DVM) and soil biogeochemistry (DOS-TEM) to simulate processes on monthly and yearly scales, with some components operating at an even finer granularity. Its versatility allows for site-specific to regional simulations, making it valuable for predicting shifts in permafrost, vegetation, and carbon dynamics.
+DVM-DOS-TEM is an advanced ecological process model tailored to capture the intricacies of vegetation and soil thermal dynamics for multiple vegeation types and multiple soil layers. Designed to study ecosystem responses to climate changes and disturbances, it has a particular focus on boreal, arctic, and alpine landscapes. The model integrates vegetation dynamics (DVM) and soil biogeochemistry (DOS-TEM) to simulate processes on monthly and yearly scales, with some components operating at an even finer granularity. Its versatility allows for site-specific to regional simulations, making it valuable for predicting shifts in permafrost, vegetation, and carbon dynamics.
 
 Key Features:
 
-* Vegetation Dynamics: Simulates the lifecycle of various plant functional types, influenced by climatic conditions.
-* Carbon and Nitrogen Cycling: Captures ecosystem carbon and nitrogen fluxes and reservoirs, incorporating processes such as photosynthesis, respiration, and decomposition.
-* Soil Thermal Dynamics: Provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover.
-* Disturbance Modules: Accounts for ecological disturbances, including wildfires, insect infestations, and anthropogenic activities.
+* Vegetation Dynamics: Simulates the lifecycle of various plant functional types, influenced by climatic conditions and including competition between plant functional types.
+* Carbon and Nitrogen Cycling: Captures ecosystem carbon and nitrogen fluxes and pools, incorporating processes such as photosynthesis, respiration, and decomposition.
+* Soil Thermal Dynamics: Provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover and vegetation.
+* Disturbance Modules: Accounts for ecological disturbances, including wildfires and permafrost thaw.
 
 # Statement of need
 
-The permafrost regions, repositories of a colossal 1,440-1,600 Pg of organic carbon in soils, embody nearly half of the world’s soil organic carbon pool, underpinning the global climate system (Hugelius et al., 2014; Schuur et al., 2022). Accelerated Arctic warming catalyzing permafrost thawing, introduces a potent threat of decomposing and releasing a substantial portion of this stored carbon as greenhouse gases, thereby exerting formidable pressures on global climate dynamics (Schuur et al., 2022; Natali et al., 2021; Treharne et al., 2022). An imperative demand exists to explore the uncertainties of modeling permafrost carbon feedback, utilizing models that integrate cryo-hydrological processes with ecosystem carbon cycling.
+The permafrost regions, repositories of a colossal 1,440-1,600 Pg of organic carbon in soils, embody nearly half of the world’s soil organic carbon pool, underpinning the global climate system (Hugelius et al., 2014; Schuur et al., 2022). Accelerated Arctic warming is catalyzing permafrost thaw and introduces a potent threat in the form of accelerated  decomposition and release of a substantial portion of this stored carbon as greenhouse gases, thereby exerting formidable pressures on global climate dynamics (Schuur et al., 2022; Natali et al., 2021; Treharne et al., 2022). An imperative demand exists to utilize models that integrate cryo-hydrological processes with ecosystem carbon cycling and to explore the uncertainties of modeling the permafrost carbon feedback.
 
-The evolution and refinement of the DVM-DOS-TEM (Terrestrial Ecosystem Model with Dynamic Vegetation and Dynamic Organic Soil Layers) model have been shaped by extensive research and application, marked by a strong focus on simulating biophysical and biogeochemical interactions amongst the soil, vegetation, and atmosphere, particularly in high-latitude ecosystems. Developed to encapsulate carbon and nitrogen cycles, and influenced by a myriad of factors ranging from climatic variables, disturbances, to varied biophysical processes, the model's trajectory has aimed to offer nuanced insights into these complex interplays across both seasonal and centennial scales (Genet et al., 2013, 2018). This model is designed to be computationally efficient while incorporating the necessary physics to study carbon cycling in frozen ground.
+The evolution and refinement of the DVM-DOS-TEM (Terrestrial Ecosystem Model with Dynamic Vegetation and Dynamic Organic Soil Layers) model has been shaped by extensive research and application, marked by a strong focus on simulating biophysical and biogeochemical interactions amongst the soil, vegetation, and atmosphere, particularly in high-latitude ecosystems. Developed to encapsulate carbon and nitrogen cycles, and influenced by a myriad of factors ranging from climatic variables, disturbances, to varied biophysical processes, the model's trajectory has aimed to offer nuanced insights into these complex interplays across both seasonal and centennial scales (Genet et al., 2013, 2018). This model is designed to be computationally efficient while incorporating the necessary physics to study carbon cycling in frozen ground.
 
 The DVM-DOS-TEM uses coupled soil thermal and hydrological dynamics, including snow cover and canopy development (Zhuang et al., 2002; Euskirchen et al., 2006, 2014; Yi et al., 2009; McGuire et al., 2018). Detailed structuring of vegetation into multiple plant functional types and compartmentalization, alongside soil stratification into various horizons and layers, have enabled meticulous simulations of carbon, nitrogen, temperature, and water content across diverse sub-components of the ecosystem.
 
-The model leveraged the two-directional Stefan Algorithm and the Richards equation, ensuring precise predictions of freezing/thawing fronts and calculating soil moisture changes in the unfrozen layers respectively (Yi et al., 2009, 2010; Zhuang et al., 2002). The intrinsic links between thermal and hydraulic properties of soil layers and their water content further shaped the DVM-DOS-TEM’s functionality and application, ensuring a holistic representation of underlying ecological processes, including carbon and nitrogen dynamics across the vegetation community and each layer of the soil column, driven by climate, atmospheric chemistry, soil and canopy environment, and wildfire occurrences. The model has a vast history of application in both Arctic and Boreal ecosystems across permafrost and non-permafrost regions, reinforcing its capability and reliability in studying and simulating complex ecosystem dynamics (Genet et al., 2013; Jafarov et al., 2013; Yi et al., 2010, 2009; Euskirchen et al., 2022). 
+The model leverages the two-directional Stefan Algorithm and the Richards equation, ensuring precise predictions of freezing/thawing fronts and calculating soil moisture changes in the unfrozen layers respectively (Yi et al., 2009, 2010; Zhuang et al., 2002). The intrinsic links between thermal and hydraulic properties of soil layers and their water content further shaped the DVM-DOS-TEM’s functionality and application, ensuring a holistic representation of underlying ecological processes, including carbon and nitrogen dynamics across the vegetation community and each layer of the soil column, driven by climate, atmospheric chemistry, soil and canopy environment, and wildfire occurrences. The model has a vast history of application in both Arctic and Boreal ecosystems across permafrost and non-permafrost regions, reinforcing its capability and reliability in studying and simulating complex ecosystem dynamics (Genet et al., 2013; Jafarov et al., 2013; Yi et al., 2010, 2009; Euskirchen et al., 2022). 
 
 
 # Mathematics
