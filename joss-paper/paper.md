@@ -71,7 +71,7 @@ The model leverages the two-directional Stefan Algorithm and the Richards equati
 
 # Mathematics
 
-The fundamental equation includes carbon cycling, surface and subsurface energy balance, and hydrology. In addition to these equations, the model includes the dynamics of the organic layer and fire disturbance processes. 
+The fundamental equations include carbon cycling, surface and subsurface energy balance, and hydrology. In addition to these equations, the model includes the dynamics of the organic layer and fire disturbance processes. 
 
 ### Carbon Cycling:
 
