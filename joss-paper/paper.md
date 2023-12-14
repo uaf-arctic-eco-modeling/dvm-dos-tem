@@ -42,11 +42,12 @@ pressing in many fields. Terrestrial Biosphere Models (TBMs) seek to answer
 questions about changing ecosystems at a scale somewhere between the Global
 Circulation Models and smaller point or process specific models. The ``DVMDOSTEM``
 model is a TBM focused on C and N cycling through vegetation and soil as well as
-soil thermal dynamics. The ``DVMDOSTEM`` model has been primarlily used thus
-far for high latitude ecosystems, but with work put into the parameterizations,
-it could be used elsewhere.
+soil thermal dynamics. 
 
-DVM-DOS-TEM is an advanced ecological process model tailored to capture the intricacies of vegetation and soil thermal dynamics for multiple vegeation types and multiple soil layers. Designed to study ecosystem responses to climate changes and disturbances, it has a particular focus on boreal, arctic, and alpine landscapes. The model integrates vegetation dynamics (DVM) and soil biogeochemistry (DOS-TEM) to simulate processes on monthly and yearly scales, with some components operating at an even finer granularity. Its versatility allows for site-specific to regional simulations, making it valuable for predicting shifts in permafrost, vegetation, and carbon dynamics.
+``DVMDOSTEM`` is an advanced ecological process model tailored to capture the intricacies of vegetation and soil thermal dynamics for multiple vegeation types and multiple soil layers. Designed to study ecosystem responses to climate changes and disturbances, it has a particular focus on boreal, arctic, and alpine landscapes. The model integrates vegetation dynamics (DVM) and soil biogeochemistry (DOS) to simulate processes on monthly and yearly scales, with some components operating at an even finer granularity. Its versatility allows for site-specific to regional simulations, making it valuable for predicting shifts in permafrost, vegetation, and carbon dynamics.
+
+The ``DVMDOSTEM`` model has thus far been primarlily used for high latitude ecosystems, but with work put into the parameterizations, it could be used elsewhere.
+
 
 Key Features:
 
