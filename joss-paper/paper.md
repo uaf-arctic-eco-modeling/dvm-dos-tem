@@ -68,12 +68,20 @@ The evolution and refinement of ``DVMDOSTEM`` (Dynamic Vegetation, Dynamic Organ
 
 The model leverages the two-directional Stefan Algorithm and the Richards equation, ensuring precise predictions of freezing/thawing fronts and calculating soil moisture changes in the unfrozen layers respectively (Yi et al., 2009, 2010; Zhuang et al., 2002). The intrinsic links between thermal and hydraulic properties of soil layers and their water content further shaped ``DVMDOSTEM``’s functionality and application, ensuring a holistic representation of underlying ecological processes, including carbon and nitrogen dynamics across the vegetation community and each layer of the soil column, driven by climate, atmospheric chemistry, soil and canopy environment, and wildfire occurrences. The model has a vast history of application in both Arctic and Boreal ecosystems across permafrost and non-permafrost regions, reinforcing its capability and reliability in studying and simulating complex ecosystem dynamics (Genet et al., 2013; Jafarov et al., 2013; Yi et al., 2010, 2009; Euskirchen et al., 2022). 
 
+# Model Design
 
-# Mathematics
+<!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
+![Overview of DVMDOSTEM spatial structure. DVMDOSTEM is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
+
+<!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
+![Overview of DVMDOSTEM soil and vegetation structure. On the left is the soil structure showing the layers, and different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal to layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-10-09.jpg)
+
+
+# Summary of Mathematics
 
 The fundamental equations include carbon cycling, surface and subsurface energy balance, and hydrology. In addition to these equations, the model includes the dynamics of the organic layer and fire disturbance processes. 
 
-### Carbon Cycling:
+## Carbon Cycling:
 
 1. **Net Primary Production (NPP):**
    $$NPP = GPP - R_a$$
@@ -86,7 +94,7 @@ The fundamental equations include carbon cycling, surface and subsurface energy 
 3. **Carbon Stock Change:**
    $$\Delta C = \text{Input} - (\text{Decomposition} + \text{Leaching})$$
 
-### Permafrost Energy Balance:
+## Permafrost Energy Balance:
 
 1. **Conductive Heat Flux:**
    $$Q = -k \cdot \frac{\Delta T}{\Delta z}$$
@@ -96,7 +104,7 @@ The fundamental equations include carbon cycling, surface and subsurface energy 
    $$G = (1 - \alpha) \cdot SW_{\downarrow} + LW_{\downarrow} - LW_{\uparrow} - H - LE$$
    where $\alpha$ is albedo, $SW_{\downarrow}$ is downward shortwave radiation, $LW_{\downarrow}$ is downward longwave radiation, $LW_{\uparrow}$ is upward longwave radiation, $H$ is sensible heat flux, and $LE$ is latent heat flux.
 
-### Hydrology:
+## Hydrology:
 
 1. **Water Balance Equation:**
    $$P = Q + ET + \Delta S$$
@@ -126,13 +134,12 @@ You can also use plain \LaTeX for equations
 \end{equation}
 and refer to \autoref{eq:fourier} from text. -->
 
-# Model Architecture
+# Software Design
 
-# Input Data
+
 
 # Demo
 
-# Conclusion
 
 # Citations
 
@@ -148,22 +155,12 @@ For a quick reference, the following citation commands can be used:
 - `[@author:2001]` -> "(Author et al., 2001)"
 - `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)" -->
 
-# Figures
-
-<!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
-![Overview of DVMDOSTEM spatial structure. DVMDOSTEM is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
-
-<!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
-![Overview of DVMDOSTEM soil and vegetation structure. On the left is the soil structure showing the layers, different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal to layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-10-09.jpg)
 
 
 <!-- Figures can be included like this:
 ![Caption for example figure.\label{fig:example}](figure.png)
 
 and referenced from text using \autoref{fig:example}.
-
-
-
 
 Figure sizes can be customized by adding an optional second parameter:
 ![Caption for example figure.](figure.png){ width=20% } -->
