@@ -136,9 +136,9 @@ and refer to \autoref{eq:fourier} from text. -->
 
 # Software Design
 
-While the core ``DVMDOSTEM`` executable is a stand alone compiled C++ program, the ``dvm-dos-tem`` Git repository includes the source code for the main model executable and a wide variety of supporting tooling including the documentation system, the build system, container system and various scripts that help with model input/output processing and various analyses.
+While the core ``DVMDOSTEM`` executable is a stand alone compiled C++ program, the ``dvm-dos-tem`` Git repository includes the source code for the main model executable and a wide variety of supporting tooling including the documentation system, the container system and various scripts that help with model input/output processing and various analyses.
 
-While ``DVMDOSTEM`` C++ core stands by itself as the embodiment of the model described in \autoref{heading:Model Design}, it would be difficult to use ``DVMDOSTEM`` without the surrounding tooling that ships with the repository. 
+The ``DVMDOSTEM`` C++ core stands by itself as the embodiment of the model described in \autoref{heading:Model Design},  but it would be difficult to use ``DVMDOSTEM`` without the surrounding tooling that ships with the repository. 
 
 ## Developer User
 
