@@ -136,6 +136,39 @@ and refer to \autoref{eq:fourier} from text. -->
 
 # Software Design
 
+While the core ``DVMDOSTEM`` executable is a stand alone compiled C++ program, the ``dvm-dos-tem`` Git repository includes the source code for the main model executable and a wide variety of supporting tooling including the documentation system, the build system, container system and various scripts that help with model input/output processing and various analyses.
+
+While ``DVMDOSTEM`` C++ core stands by itself as the embodiment of the model described in \autoref{heading:Model Design}, it would be difficult to use ``DVMDOSTEM`` without the surrounding tooling that ships with the repository. 
+
+## Developer User
+
+We have found that research software is different from other types of software in that:
+
+ - the software is in a constante state of flux as researchers pursue different interests and
+ - the need for reproducibility and traceability is very high. 
+
+The software flux is at odds with the needs for reproducibility and traceability which has led to challenges in finding a system of development that uses modern software engineering practices while not unduly hindereing research progress. To this end ``DVMDOSTEM`` is designed primarly for a "developer user". In otherwords there is not (currently) a meaningful way to use most of the tools in the repository without familiarity with the basics of a software development workflow centered around using the Git version control system, and to a lesser extent the Docker {ref?} container system.
+
+Following is a description of the major pieces of the ``dvm-dos-tem`` repostitory. Complete and up-to-date documentation for the project can be found here: http://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/.
+
+
+## C++ model core
+
+The C++ code is kept in the ``src/`` directory, and headers are in the ``include/`` directory. There is a Makefile with the project. The final executable is linked against dependencies for NetCDF {ref?}, several Boost {ref?} libraries, a json parsing library and the lapacke linear algebra solver. The code is multithreaded using OpenMP's ?????. The code can be built against MPI, but there is not currently an MPI implementation in use. The C++ code employs some object oriented concepts but encapsulation and compartmentalization could be improved.
+
+## Documentation
+
+The public facing documentation (published on the web) is maintained using the Python Sphinx {ref?} tool. The Sphinx system allows for standalone narrative documnetation as well as auto-generated documentation built from the structure of the code itself. The project's narrative documentaton is managed with Sphinx as well as the auto-generated documentaton for the Python tooling. Some documentation for the C++ model core can be auto-generated using the Doxygen {ref?} tool. The Doxygen outputs are not published.
+
+## Container system
+
+The project is using Docker containers to compartmentalize specific build environments which increases portability. An added side benefit is that workflows can more easily be standardized and shared amongst developers. This is achieved using Docker's volume mounts that share host system folders with guest containers. Each user is then free to organize files as they wish on their host system, but paths and software within the containers are standarized. The project's Docker files specify containers for building, running and supporing ``dvmdostem`` as well as a Docker Compose {ref?} file that can start containers using the aforementioned volume mounts.
+ 
+## Auxiliary scripts
+
+The scripts are structured as...
+  - a major script is the calibraiton which is structured as...
+
 
 
 # Demo
