@@ -185,6 +185,11 @@ The scripts are structured as...
 
 # Demo
 
+# Acknowledgements
+ * WCRC
+ * UAF
+ * NGEE?
+ * DOE project
 
 # Citations
 
@@ -210,7 +215,4 @@ and referenced from text using \autoref{fig:example}.
 Figure sizes can be customized by adding an optional second parameter:
 ![Caption for example figure.](figure.png){ width=20% } -->
 
-# Acknowledgements
 
-
-# References
