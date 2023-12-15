@@ -82,8 +82,13 @@ The model leverages the two-directional Stefan Algorithm and the Richards equati
 
 # Model Design
 
+Write this.....basically describe the diagram below...
+
 <!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
 ![Overview of DVMDOSTEM spatial structure. DVMDOSTEM is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
+
+
+Write this....sort of a more verbose version of the caption below.
 
 <!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
 ![Overview of DVMDOSTEM soil and vegetation structure. On the left is the soil structure showing the layers, and different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal to layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-10-09.jpg)
@@ -178,12 +183,39 @@ The project is using Docker containers to compartmentalize specific build enviro
  
 ## Auxiliary scripts
 
-The scripts are structured as...
-  - a major script is the calibraiton which is structured as...
+The projet ``scripts`` directory is a catch all for the various interperted language tools that researchers have built over the project history. The majority of the auxiliary scripts are written in Python. There are scripts for the following major tasks:
 
+ - diagnostics (assesing closure of the C balance)
+ - input preparation
+ - manual calibration
+ - MADS assisted calibration
+
+with the MADS assisted calibration being the most developed.
+
+The diagnostics tools accomplish...
+
+The input preparation is designed to work with ...
+
+The manual calibration is achieved like
+
+The MADS assisted calibraiton is special because...
 
 
 # Demo
+
+Assuming you have downloaded/cloned the repo and you have built docker images, then you should be able to run the following:
+
+    $ dvmdostem --log-level err -p 10 -e 100 -s 200 -t 115 -n 85
+
+And end up with the following files in your output directory:
+
+    $ ls output/
+
+From which you should be able to make the following plot (basic timeseries of GPP):
+
+
+![Timeseries of historic and projected GPP for a single pixel of the demonstration data shipped with the codebase. Toolik Lake Alaska. \label{fig:soil_veg_structure}](figures/create_this_image.jpg)
+
 
 # Acknowledgements
  * WCRC
