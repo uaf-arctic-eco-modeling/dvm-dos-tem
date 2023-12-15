@@ -12,6 +12,7 @@ tags:
 
 authors:
   - name: Tobey B Carman
+    corresponding: true
     equal-contrib: true
     affiliation: 1
   - name: Ruth A Rutter
@@ -24,8 +25,19 @@ authors:
     equal-contrib: true
     affiliation: 1
   - name: Elchin Jafarov
-    corresponding: true
+    equal-contrib: true
     affiliation: 2
+  - name: Ben Maglio
+    affiliation: 1
+  - name: Joy Clein
+    affiliation: 1
+  - name: Valeria Briones
+    affiliation: 2
+  - name: Andrew Mullen
+    affiliation: 1
+  - name: Aiza Kaber
+    affiliation: 2
+
 affiliations:
   - name: Institute of Arctic Biology, University of Alaska Fairbanks
     index: 1
