@@ -130,7 +130,17 @@ class BaseDriver(object):
 
   def set_seed_path(self, path):
     '''
-    Set the seed path for the object.
+    Set the seed path for the object. 
+
+    Seed path is where the default parameter values for all the runs will be
+    read from. Subsequent steps may modify select parameters for individual
+    runs, but the original source values will be set from the seed path.
+
+    .. note::
+
+      Should changing the seed path force a clean? If the seed path is set or
+      changed, this should probably trigger a re-build of all the working
+      directories.... or warn the user...?
 
     Parameters
     ----------

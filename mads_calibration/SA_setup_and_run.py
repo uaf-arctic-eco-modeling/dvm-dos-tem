@@ -38,6 +38,15 @@ def get_parser():
   parser.add_argument("configfile", type=config_file_validator,
       help=textwrap.dedent('''The config file to use.'''))
 
+  parser.add_argument("--custom-seed",
+                      help=textwrap.dedent('''A user specified location for the
+                          seed path. The seed path is the folder where parameter
+                          values are sourced when setting up runs. The bulk
+                          (all) of the parameters for each run will be set from
+                          the seed path. Then the Sensitivity driver will modify
+                          some of the parameters in place in each run directory.
+                          '''))
+
   parser.add_argument('--N', type=int, default=10,
       help=textwrap.dedent('''The number of samples that should be run.'''))
 
@@ -78,6 +87,9 @@ if __name__ == '__main__':
   # Set the "seed" path. This is the directory where initial parameter values
   # will be read from.
   driver.set_seed_path('/work/parameters/')
+  if args.custom_seed:
+     # should validate it is a proper director first?
+     driver.set_seed_path(args.custom_seed)
 
   # Set the working directory. This is the folder where all the individual runs
   # will be carried out. Each individual run directory will be setup using
