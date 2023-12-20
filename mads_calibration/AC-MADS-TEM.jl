@@ -260,7 +260,7 @@ outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_o
 # Generate a plot with 3 panels:
 #   1. The seed, initial guess, and optimized parameters
 #   2. The seed, initial guess, and optimized outputs
-#   3. The residuals (modeld outputs - the targets) 
+#   3. The residuals (modeled outputs - the targets) 
 PyCall.py"plot_opt_fit"(
   seed_params=seed_params, ig_params=ig_params, opt_params=calib_param.vals, 
   seed_out=seed_out, ig_out=ig_out, opt_out=calib_predictions, 
