@@ -267,7 +267,20 @@ PyCall.py"plot_opt_fit"(
   param_labels=param_keys,
   out_labels=outlabels,
   targets=targets, 
-  savefile="/data/workflows/calibration/CMT06-IMNAVIAT/analysis/plot_opt_fit_MADS.png")
+
+
+# Retrieve the mads metadata files....
+# Not sure where these should default to going...??? 
+# Same problem with plot above...
+mv(
+  pwd() * "/" * mads_config["mads_problemname"] * ".iterationresults", 
+  mads_config["work_dir"] * "/" * mads_config["mads_problemname"] * ".iterationresults"
+)
+mv(
+  pwd() * "/"*mads_config["mads_problemname"] * ".finalresults", 
+  mads_config["work_dir"] * "/" * mads_config["mads_problemname"] * ".finalresults"
+)
+
 
 
 # Not sure what these are for..?
