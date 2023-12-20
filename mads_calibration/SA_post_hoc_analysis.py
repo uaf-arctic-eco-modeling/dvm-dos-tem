@@ -334,6 +334,54 @@ def n_top_runs(results, targets, params, N):
 
   return sorted_results[:N], sorted_params[:N]
 
+def read_mads_iterationresults(iterationresults_file):
+  '''
+  Parse a Mads .iterationresults file and return data as 3 python lists.
+
+  Example of the input file: 
+
+  .. code::
+
+    OrderedCollections.OrderedDict("cmax_pft0" => 26.245, "cmax_pft1" => ... )
+    OF: 1.985656773338984e8
+    lambda: 4.0e9
+    OrderedCollections.OrderedDict("cmax_pft0" => 26.245, "cmax_pft1" => ... )
+    OF: 1.6545342e4353453e6
+    lambda: 1.4e6
+  '''
+
+  with open(iterationresults_file) as f:
+    data = f.readlines()
+
+  OF = []
+  OPT = []
+  LAM = []
+  for i in data:
+    if 'OF:' in i:
+      OF.append(i.strip())
+    if 'OrderedCollections.OrderedDict' in i:
+      OPT.append(i.strip())
+    if 'lambda:' in i:
+      LAM.append(i.strip())
+
+  def pyobjfromjl(a):
+    '''
+    This is a dangerous function!
+
+    Use at your own risk and make sure your inputs are good!
+    '''
+    a = a.replace('=>','=')
+    a = a.replace('OrderedCollections.OrderedDict', 'dict')
+    a = a.replace('"','')
+    return eval(a)
+
+  OPT = [pyobjfromjl(x) for x in OPT]
+  OF = [dict(OF=float(x.strip().split(':')[1].strip())) for x in OF]
+  LAM = [dict(lam=float(x.strip().split(':')[1].strip())) for x in LAM]
+
+  return OPT, OF, LAM
+
+
 def get_parser():
   pass
 
@@ -347,6 +395,8 @@ def cmdline_entry():
   pass
 
 if __name__ == '__main__':
+
+  # EXAMPLES HERE OF WHAT YOUR IPYTHON SESSION MIGHT LOOK LIKE.....
 
   # Load data
   param_props = pd.read_csv('SA/param_props.csv')
