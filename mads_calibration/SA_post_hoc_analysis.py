@@ -229,6 +229,10 @@ def calc_combined_score(results, targets):
 
   return combined_score
 
+def generate_ca_config():
+  '''Maybe we should auto-generate the yaml config files?'''
+  pass  
+
 def prep_mads_initial_guess(params):
   '''
   Generate MADS initial guess string based on parameter ranges. The idea is that
