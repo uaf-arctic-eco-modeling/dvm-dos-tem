@@ -148,9 +148,15 @@ def plot_match(results, targets):
 # This stuff is all about revising (tightening parameter ranges) leads into blue box
 def calc_metrics(results, targets):
   '''Calculate a bunch of sklearn regression metrics.'''
-  r2 = [sklm.r2_score(targets.T, sample) for i,sample in results.iterrows()]
+  # This is gonna need some help...not seeming to pick the right stuff.\
+  # not sure if weights should be passed to metrics function, like this:
+  #
+  #    weights_by_targets = targets.values[0]/targets.sum(axis=1)[0]
+  #    r2 = [sklm.r2_score(targets.T, sample, sample_weight=weights_by_targets) for i,sample in results.iterrows()]
+
+  r2 = [sklm.r2_score(targets.T, sample) for i,sample in results.iterrows()] 
   mse = [sklm.mean_squared_error(targets.T, sample) for i,sample in results.iterrows()]
-  mape = [sklm.mean_absolute_percentage_error(targets.T, sample) for i, sample in results.iterrows()]
+  mape = [sklm.mean_absolute_percentage_error(targets.T, sample) for i,sample in results.iterrows()]
 
   return r2, mse, mape
 
@@ -310,6 +316,23 @@ def prep_mads_distributions(params):
 def n_top_runs(results, targets, params, N):
   '''
   Get the best runs measured using the combined scores.
+
+  .. note:: 
+
+    Encountering problems with selecting the best runs. Thinking that something 
+    is wrong with the calc_combined_score function. Perhaps adding 
+    weights to the r2, mse and mape calculations?
+
+    Maybe calculate weights on 'percent ecosystem contribution"? 
+    Or probably better to weight by the output/target values...i.e. 
+
+    Maybe this needs to be passed to the sklearn functions?
+
+    .. code:: 
+
+      # weights by targets
+      targets.values[0]/targets.sum(axis=1)[0] # <-- this works
+
 
   Parameters
   ----------
