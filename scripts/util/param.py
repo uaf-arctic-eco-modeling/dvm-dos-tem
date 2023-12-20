@@ -274,6 +274,12 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
 
 
       for f in os.listdir(param_dir):
+        #
+        # NOTE NEED TO ADD SOMETHING HERE TO COPY 
+        #   foslburn_sev*
+        #   propftos
+        # For some reason they are being skipped.
+        #
         pfile = os.path.join(param_dir, f)
         print(pfile)
         if isParamFile(pfile):
@@ -390,6 +396,8 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
      - VegStructuralNitrogen:Leaf, etc
    - PFT names <= 12 characters long
    - consistent CMT names
+   - all variables being present
+   - no extraneous 'CMT' strings in file!
   
   Parameters
   ==========
@@ -510,6 +518,9 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
   for reffile in os.listdir(ref_directory):
     print(reffile)
 
+    # if 'firepar' in reffile:
+    #   from IPython import embed; embed()
+
     relevant_pft_vars = list(filter(lambda x: reffile in x['file'], pft_data))
     relevant_nonpft_vars = list(filter(lambda x: reffile in x['file'], nonpft_data))
     relevant_meta = list(filter(lambda x: reffile in x['file'], meta))
@@ -543,7 +554,7 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
         # line above...
         s = '  '
         for i in range(0,10):
-          s += smart_format(p[str(i)])
+          s += f"{p[str(i)]:>12} "
         s += '// {}: {} // {} // {} // {}\n'.format(p['name'], p['units'], p['description'], p['comment'], p['refs'])
         full_string += s
 
@@ -551,7 +562,7 @@ def csv2fwt_v1(csv_file, ref_directory='../parameters',
         n = n[0]
         # is is a non-pft variable...
         s = '{val} // {name}: {units} // {desc} // {comment} // {refs}\n'
-        s = s.format(val=smart_format(n['value']), name=n['name'], units=n['units'],
+        s = s.format(val=f"{n['value']:>12} ", name=n['name'], units=n['units'],
           desc=n['description'], comment=n['comment'], refs=n['refs'])
         full_string += s
     if overwrite_files:
@@ -601,6 +612,10 @@ def smart_format(x, n=6, basefmt='{:12.4f} ', toolongfmt='{:12.3e} '):
     return toolongfmt.format(float(x))
   else:
     return basefmt.format(float(x))
+  
+# Need to implement check on which version is shorter (original or scientific)
+# and return the shorter one.
+
 
 
 def csv_v1_specification():
