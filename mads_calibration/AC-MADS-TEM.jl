@@ -169,7 +169,7 @@ paramlog=[
 
 # Setup: set a vector of weights for the observations
 obsweight = mads_config["mads_obsweight"]
-if isnothing(obsweight)
+if obsweight == "OFF"
   obsweight = ones(Int8, length(targets)) * 100
 else
     println("Make sure that weight length match with targets length")
