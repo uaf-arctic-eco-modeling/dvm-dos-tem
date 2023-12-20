@@ -1,5 +1,5 @@
 ---
-title: 'DVMDOSTEM: A terrestrial biosphere model focused on arctic vegetation and soil dynamics'
+title: 'DVMDOSTEM: A terrestrial biosphere model focused on Arctic vegetation and soil dynamics'
 tags:
   - C++
   - Python
@@ -7,7 +7,7 @@ tags:
   - permafrost
   - vegetation dynamics
   - soil thermal dynamics
-  - arctic
+  - Arctic
   - carbon cycle
 
 authors:
@@ -51,7 +51,7 @@ bibliography: paper.bib
 
 Questions about the evolution of ecosystems under a changing climate are
 pressing in many fields. Terrestrial Biosphere Models (TBMs) seek to answer
-questions about changing ecosystems at a scale somewhere between the Global
+questions about changing ecosystems at a scale between the Global
 Circulation Models and smaller point or process specific models. The ``DVMDOSTEM``
 model is a TBM focused on C and N cycling through vegetation and soil as well as
 soil thermal dynamics. 
@@ -63,10 +63,10 @@ The ``DVMDOSTEM`` model has thus far been primarlily used for high latitude ecos
 
 Key Features:
 
-* Vegetation Dynamics: Simulates the lifecycle of various plant functional types, influenced by climatic conditions and including competition between plant functional types.
-* Carbon and Nitrogen Cycling: Captures ecosystem carbon and nitrogen fluxes and pools, incorporating processes such as photosynthesis, respiration, and decomposition.
-* Soil Thermal Dynamics: Provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover and vegetation.
-* Disturbance Modules: Accounts for ecological disturbances, including wildfires and permafrost thaw.
+* Vegetation Dynamics: simulates the lifecycle of various plant functional types, influenced by climatic conditions and including competition between plant functional types.
+* Carbon and Nitrogen Cycling: captures ecosystem carbon and nitrogen fluxes and pools, incorporating processes such as photosynthesis, respiration, and decomposition.
+* Soil Thermal Dynamics: provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover and vegetation.
+* Disturbance Modules: accounts for ecological disturbances, including wildfires and permafrost thaw.
 
 # Statement of need
 
@@ -74,7 +74,7 @@ The permafrost regions, repositories of a colossal 1,440-1,600 Pg of organic car
 
 An imperative demand exists to utilize models that integrate cryo-hydrological processes with ecosystem carbon cycling and to explore the uncertainties of modeling the permafrost carbon feedback.
 
-The evolution and refinement of ``DVMDOSTEM`` (Dynamic Vegetation, Dynamic Organic Soil Terrestrial Ecosystem Model) has been shaped by extensive research and application, marked by a strong focus on simulating biophysical and biogeochemical interactions amongst the soil, vegetation, and atmosphere, particularly in high-latitude ecosystems. Developed to encapsulate carbon and nitrogen cycles, and influenced by a myriad of factors ranging from climatic variables and disturbances, to varied biophysical processes, the model's trajectory has aimed to offer nuanced insights into these complex interplays across both seasonal and centennial scales (Genet et al., 2013, 2018). This model is designed to be computationally efficient while incorporating the necessary physics to study carbon cycling in frozen ground.
+The evolution and refinement of ``DVMDOSTEM`` (Dynamic Vegetation, Dynamic Organic Soil Terrestrial Ecosystem Model) has been shaped by extensive research and application, marked by a strong focus on simulating biophysical and biogeochemical interactions amongst the soil, vegetation, and atmosphere, particularly in high-latitude ecosystems. Developed to encapsulate carbon and nitrogen cycles, as influenced by a myriad of factors ranging from climatic variables and disturbances, to varied biophysical processes, the model's trajectory of development has offered nuanced insights into these complex interplays across both seasonal and centennial scales (Genet et al., 2013, 2018). This model is designed to be computationally efficient while incorporating the necessary physics to study carbon cycling in frozen ground.
 
 ``DVMDOSTEM`` uses coupled soil thermal and hydrological dynamics, including snow cover and canopy development (Zhuang et al., 2002; Euskirchen et al., 2006, 2014; Yi et al., 2009; McGuire et al., 2018). Detailed structuring of vegetation into multiple plant functional types (PFTs) and leaf/stem/root compartments within each PFT, alongside soil stratification into various horizons and layers, has enabled meticulous simulations of carbon, nitrogen, temperature, and water content across diverse sub-components of the ecosystem.
 
