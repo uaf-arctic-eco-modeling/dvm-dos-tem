@@ -183,25 +183,48 @@ The project is using Docker containers to compartmentalize specific build enviro
  
 ## Auxiliary scripts
 
-The projet ``scripts`` directory is a catch all for the various interperted language tools that researchers have built over the project history. The majority of the auxiliary scripts are written in Python. There are scripts for the following major tasks:
+The project ``scripts`` directory is a catch all for the various interperted language tools that researchers have built over the project history. The majority of the auxiliary scripts are written in Python. There are scripts for the following major tasks:
 
- - diagnostics (assesing closure of the C balance)
- - input preparation
- - manual calibration
- - MADS assisted calibration
+ - diagnostics (assesing "closure" of the C balance),
+ - input and output processing,
+ - calibration,
+   - manual, and 
+   - MADS assisted,
 
 with the MADS assisted calibration being the most developed.
 
-The diagnostics tools accomplish...
+### Diagnostics
 
-The input preparation is designed to work with ...
-
-The manual calibration is achieved like
-
-The MADS assisted calibraiton is special because...
+Write this...
 
 
-# Demo
+### I/O
+
+Write this...
+
+### Calibration
+
+Calibration is the process of adjusting model parameters such that there is acceptable agreement between measured field data and model predicitons (outputs). Due to the large number and non-linear nature of parameters available with ``DVMDOSTEM`` calibration is a significant hurdle.
+
+#### Manual Calibration
+
+The manual calibration process relies on an expert user to run ``DVMDOSTEM`` with special settings that allow for control and adjustment of the model during run-time in response to the user's assessment of the model outputs and behavior. In this mode ``DVMDOSTEM`` produces additional outputs in ``.json`` format that shadow the NetCDF outputs. The ``.json`` outputs are used by a dynamic plotting program that updates as new data becomes available. The user then stops the model, turns setting on/off, and adjustst parameters until they achieve the desired agreement between model outputs and target values. The graphical plotting program is named ``calibration_viewer.py`` and uses ``matplotlib`` {ref?} to build and display the interactive plot.
+
+#### Mads Assisted Calibration
+
+The Mads assisted calibration uses numerical methods to help find optimum parameter values. The proccess is not fully automated and requires a skilled operator to carry out the steps and interpert the results. However using the numerical methods provides a much more organized and repeatable way to explore the parameter space.
+
+The Mads assisted calibration begins with a sensitivity analysis to find the most important parameters and is followed by an optimization step which used the MADS {ref?} library to optimize parameters. 
+
+The sensitivity analysis effectively samples from the parameter space and carries out many runs with modifications to the parameters from across the parameter space. Then outputs are analyzed to look for parameters that have the most impact on model outputs. The user is then able to choose a more appropriate range for the parameter space that is fed to the optimiaiton step.
+
+The optimizaitn step, with the MADS library, is using levenberg marquart gradient descent {ref?} to find parameters that result in model outputs most closely agreeing with the target values.
+
+Due to the number of parameters and the entangled nature of the processes implemented in ``DVMDOSTEM``, we have had the most luck with interatively engaging in the calibration process (sensitivity analysis followed by optimizaiton) for different combination of variables.
+
+Tools to assist this process exist in the ``scripts/drivers``, ``scripts/util``, and ``mads_calibration`` directories.
+
+# Demonstration
 
 Assuming you have downloaded/cloned the repo and you have built docker images, then you should be able to run the following:
 
@@ -214,7 +237,7 @@ And end up with the following files in your output directory:
 From which you should be able to make the following plot (basic timeseries of GPP):
 
 
-![Timeseries of historic and projected GPP for a single pixel of the demonstration data shipped with the codebase. Toolik Lake Alaska. \label{fig:soil_veg_structure}](figures/create_this_image.jpg)
+![Timeseries of historic and projected GPP for a single pixel of the demonstration data shipped with the codebase. Toolik Lake Alaska. \label{fig:some image}](figures/create_this_image.jpg)
 
 
 # Acknowledgements
