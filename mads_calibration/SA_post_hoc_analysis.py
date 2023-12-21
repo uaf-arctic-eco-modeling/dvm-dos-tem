@@ -192,24 +192,42 @@ def plot_corr_heatmap(df_corr):
   plt.xlabel("Parameters", fontsize=14)
   plt.savefig("plots/correlation_heatmap.png")
 
-def plot_output_target_scatter(results, targets):
+def plot_output_target_scatter(results, targets, sample_matrix=None, ntop=None):
   '''
   Makes a plot with one axes for each column in ``results``. Each axes shows
   scatter plots of the output value on the Y axis and the sample # on the X
   axis.
 
   '''
-  fig, axes = plt.subplots(nrows=len(results.columns), ncols=1, figsize=(8, 3*len(results.columns)))
+  # This is not a good check...
+  if sample_matrix is None or ntop is None:
+    raise RuntimeError("Pass both!")
+
+  # If the user wants to highlight best matches, then we need to load them...
+  if ntop is not None and sample_matrix is not None:
+    best_outputs, best_params = n_top_runs(results, targets, sample_matrix, ntop)
+
+  # Figure out how many sub plots we need (one per column in results)
+  N = len(results.columns)
+
+  fig, axes = plt.subplots(nrows=N, ncols=1, figsize=(8, 3*N))
+
   for i, col in enumerate(results.columns):
 
     # Plot the output dots
-    axes[i].plot(results[col], 'C0o') # <- color specification
+    axes[i].plot(results[col], 'C0o') # <- color, marker specification
 
     # Plot a line for the target value
     axes[i].axhline(targets[col][0], color='k', linestyle='--', alpha=0.5 )
 
+    # User wants to highlight best matches...
+    if ntop:
+      axes[i].plot(best_outputs[col], linewidth=0, marker='o', color='orange')
+
     axes[i].set_ylabel(col)
 
+
+  plt.savefig('output_target_scatter.png')
 def plot_r2_mse(results, targets):
   '''
   Plot ???
