@@ -196,8 +196,35 @@ def plot_output_target_scatter(results, targets, sample_matrix=None, ntop=None):
   '''
   Makes a plot with one axes for each column in ``results``. Each axes shows
   scatter plots of the output value on the Y axis and the sample # on the X
-  axis.
+  axis. The target value is shown as a dashed gray line.
 
+  The "best" runs may optionally be highlighted by passing both the ``ntop``
+  argument and the ``sample_matrix`` argument.
+
+  .. image:: /images/SA_post_hoc_analysis/output_target_scatter.png
+
+  .. note::
+
+    Not sure if this approach of putting everything in one giant figure will
+    scale up with number of output variables very well...
+
+  Parameters
+  ==========
+  results : pandas.DataFrame
+    One column for each output variable, one row for each sample run.
+
+  targets : pandas.DataFrame
+    One column for each output (target) variable, single row with target value.
+
+  sample_matrix : pandas.DataFrame
+    One column for each parameter, one row for each sample run.
+
+  ntop : int, optional
+    The number of top runs to highlight.
+
+  Returns
+  =======
+  None
   '''
   # This is not a good check...
   if sample_matrix is None or ntop is None:
