@@ -63,10 +63,10 @@ The ``DVMDOSTEM`` model has thus far been primarlily used for high latitude ecos
 
 Key Features:
 
-* Vegetation Dynamics: simulates the lifecycle of various plant functional types, influenced by climatic conditions and including competition between plant functional types.
-* Carbon and Nitrogen Cycling: captures ecosystem carbon and nitrogen fluxes and pools, incorporating processes such as photosynthesis, respiration, and decomposition.
-* Soil Thermal Dynamics: provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover and vegetation.
-* Disturbance Modules: accounts for ecological disturbances, including wildfires and permafrost thaw.
+* **Vegetation Dynamics**: simulates the lifecycle of various plant functional types, influenced by climatic conditions and including competition between plant functional types.
+* **Carbon and Nitrogen Cycling**: captures ecosystem carbon and nitrogen fluxes and pools, incorporating processes such as photosynthesis, respiration, and decomposition.
+* **Soil Thermal Dynamics**: provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover and vegetation.
+* **Disturbance Modules**: accounts for ecological disturbances, including wildfires and permafrost thaw.
 
 # Statement of need
 
