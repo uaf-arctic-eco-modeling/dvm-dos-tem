@@ -193,12 +193,14 @@ def plot_corr_heatmap(df_corr):
   plt.savefig("plots/correlation_heatmap.png")
 
 def plot_output_target_scatter(results, targets):
-    for i, col in enumerate(results.columns):
-        plt.figure()
-        plt.plot(results[col], 'C0o')
-        #plt.plot(np.linspace(0, len(results[col]), len(results[col])), np.ones(len(results[col]))*targets.iloc[0,i], 'k--', alpha=0.5)
-        plt.title(col)
-        plt.savefig("output_target_scatter.png")
+  '''
+  '''
+  for i, col in enumerate(results.columns):
+    plt.figure()
+    plt.plot(results[col], 'C0o')
+    #plt.plot(np.linspace(0, len(results[col]), len(results[col])), np.ones(len(results[col]))*targets.iloc[0,i], 'k--', alpha=0.5)
+    plt.title(col)
+    plt.savefig("output_target_scatter.png")
 
 def plot_r2_mse(results, targets):
   '''
