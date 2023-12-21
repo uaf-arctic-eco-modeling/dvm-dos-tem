@@ -255,6 +255,15 @@ If the original Google Drawing is updated, then the drawing seen in the wiki
 will be updated too. Take caution with the permissions granted for editing 
 on the original drawing!
 
+.. warning::
+
+   When you are editing an image that is embedded, the edits are automatically
+   live on the published website! This is fine for quick edits such as fixing a
+   typo, but for anything more substantial, it is reccomended that you make a
+   duplicate of the Google Drawing, edit the duplicate and then copy it back
+   over the original. This will keep your edits from showing up on the live site
+   until you are done with them!
+
 .. warning:: 
    
    Soure drawings for this document should probably be stored in the 
