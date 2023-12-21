@@ -195,12 +195,12 @@ def plot_corr_heatmap(df_corr):
 def plot_output_target_scatter(results, targets):
   '''
   '''
+  fig, axes = plt.subplots(nrows=len(results.columns), ncols=1, figsize=(8, 3*len(results.columns)))
   for i, col in enumerate(results.columns):
-    plt.figure()
-    plt.plot(results[col], 'C0o')
+    axes[i].plot(results[col], 'C0o') # <- color specification
+
     #plt.plot(np.linspace(0, len(results[col]), len(results[col])), np.ones(len(results[col]))*targets.iloc[0,i], 'k--', alpha=0.5)
-    plt.title(col)
-    plt.savefig("output_target_scatter.png")
+    axes[i].set_ylabel(col)
 
 def plot_r2_mse(results, targets):
   '''
