@@ -82,17 +82,89 @@ The model leverages the two-directional Stefan Algorithm and the Richards equati
 
 # Model Design
 
-Write this.....basically describe the diagram below...
+``DVMDOSTEM`` is a process-based biosphere model designed to simulate biophysical and biogeochemical processes between the soil, the vegetation and the atmosphere. The model is spatially explicit and focuses on representing carbon and nitrogen cycles in high latitude ecosystems and how they are affected at seasonal (i.e. monthly) to centennial scales by climate, disturbances and biophysical processes such as permafrost, soil thermal and hydrological regimes, snow cover or canopy development.
 
-<!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
-![Overview of DVMDOSTEM spatial structure. DVMDOSTEM is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
+Conceptually there are four core groups of processes in ``DVMDOSTEM`` that act upon the structure of the model:  
 
+ - vegetation growth (and death), 
+ - soil thermal and hydrologic changes, 
+ - soil C and N fluxes, and 
+ - alteration of the vegetation and or soil structure (disturbance). 
 
-Write this....sort of a more verbose version of the caption below.
+The processes are linked because the C and N pools of the vegetation exist both on top of and in the soil column. Properties of the soil thermal environment are used to govern the C and N fluxes associated with vegetation growth (and death), thereby changing the C and N pools that exist in, and on top of the soil column. Properties of the vegetation are used to influence the soil thermal and hydrologic regeimes. 
+
+Each site, (grid cell, or pixel) that the model simulates is represented by the soil and vegetation structure described here. Running a simulation consists of stepping this structure thru the processes for some number of timesteps.
+
+## Soil structure and processes
+
+The soil column is modeled as a series of layers. The number, and type of layers may change throughout the simulation based on vegeation, thermal, and hydrologic properties that are calculated at each time step (Zhuang et al., 2002; Euskirchen et al., 2006, 2014; Yi et al., 2009; McGuire et al., 2018). The model uses the two-directional Stefan Algorithm and the Richards equation, to predict freezing/thawing fronts, and soil moisture changes in the unfrozen layers respectively (Yi et al., 2009, 2010; Zhuang et al., 2002). The intrinsic links between thermal and hydraulic properties of soil layers and their water content further shaped ``DVMDOSTEM``’s functionality and application, ensuring a holistic representation of underlying ecological processes, including carbon and nitrogen dynamics across the vegetation community and each layer of the soil column, driven by climate, atmospheric chemistry, soil and canopy environment, and wildfire occurrences. 
+
+## Vegetation structure and processes
+
+The vegetation is modeled using a detailed structure that can consider up to ten distinct vegetation types (plant functional types or PFTs), each of which may have up to three compartments: leaf, stem, and root. Vegetation C and N fluxes are calcluated at each time step based on environmental factors, and soil properties.
+
+TODO: write more info here about vegetation structure and processes - link between C and N cycles for example...
 
 <!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
-![Overview of DVMDOSTEM soil and vegetation structure. On the left is the soil structure showing the layers, and different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal to layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-10-09.jpg)
+![Overview of ``DVMDOSTEM`` soil and vegetation structure. On the left is the soil structure showing the layers, and different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal of layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-12-20.png)
 
+## Disturbance structure and processes
+
+The ``DVMDOSTEM`` disturbance concept is extended to wildfire at this time. There is room to implement other disturbance types. 
+
+Wild fire is conceptualized in two ways: using a "fire return interval" (FRI), or using explicit fire. When driven by FRI burning happens at a fixed frequency that is set in the FRI input file. When driven explicitly the fire is perscribed based on the inputs. Thus a user can prepare inputs that are reflective of real world fire data.
+
+When a fire burns in ``DVMDOSTEM`` it affects the soil thermal regime as well as the vegetation in both above and below ground pools. Each fire is  described by a severity classificaiton (1-5), a julian date of burn, and a burn area. These classificaitons affect the extent to which the fire affects the modeled processes and behavior.
+
+## Run stages
+
+``DVMDOSTEM`` is a temporal model in the sense that a run operates processes at consecutive time-steps. In addition, with ``DVMDOSTEM``, the concept of a “run stage” is used to run the model over different climatic periods of generally increasing complexity. There are 5 possible “run stages”:
+
+ * Pre-run (pr)
+ * Equilibrium (eq)
+ * Spinup (sp)
+ * Transient (tr)
+ * Scenario (sc)
+
+The primary difference between the run stages is the nature of the input climate dataset, and specifically whether there is annual variability in the driving climate data that the model uses. A complete, future-projecting, simulation is usually only made after advancing the model through several of the previous run stages to stabilize the system. Typically the ending state from each stage is used as the beginning state for each subsequent stage. A complete run utilizes all 5 stages. It is possible to work with any subset of the stages.
+
+### pre-run (pr)
+
+The pre-run is an equilibrium run for only the physical variables of the model. It is typically 100 years, uses constant climate (typically monthly average computed from the [1901-1930] period).
+
+### equilibrium (eq)
+
+In the equilibrium stage, the climate is fixed. That is, the climate does not vary from year to year. There will be intra-annual variability to represent the seasons, but from year to year the calculations will be carried out using the same annual cycles. Equilibrium run stage is used in the calibration mode, and is typically the first stage run for any complete simulation. During the eq stage, the annual climate inputs used are actually calculated as the mean of the first 30 years of the historic climate dataset, so the mean of the values from 1901-1930.
+
+### spinup (sp)
+
+In the spinup stage, the climate is not fixed. In the sp stage, the driving climate is used from the first 30 years of the historic climate dataset. Should the spstage be set to run longer than 30 years, the 30 year climate period is re-used. Another difference between eq and sp stages is that the sp stage is set to run for a fixed number of years, regardless of the internal state that the model reaches. In the sp stage the fire date is fixed, occuring at an interval equal to the Fire Recurrence Interval (FRI).
+
+### transient (tr)
+
+In the transient stage, the climate varies from year to year. The tr stage is used to run the model over the period of historical record. The input climate data for the tr stage should be the historic climate. This is typically the climate data for the 20th century, so roughly 1901-2009.
+
+### scenario (sc)
+
+In the scenario stage, the climate also varies from year to year, but rather than observed variability, a predicted climate scenario is used.
+
+
+
+
+## Spatial considerations
+
+When considered regionally, ``DVMDOSTEM`` uses the concept of a grid cell. The spatial domain is broken into grid cells, each of which contains the model structure for that point. Each grid cell is driven to a different state as a result of the input values that are used for that grid cell. A land cover map is used to classify each grid cell, and the classificaitons have different assembleages of PFTs and different soil properties as well as different driving climates, soil parameterizations, disturbance charachteristics, and topography. There is not communication between grid cells and the grid cell classification is currently fixed throughout the simulation although there is active reserarch interest in being able to modifiy the land cover classification during a simulation {ref?}.
+
+<!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
+![Overview of ``DVMDOSTEM`` spatial structure. ``DVMDOSTEM`` is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
+
+## Inputs and outputs
+
+``DVMDOSTEM`` uses NetCDF files for both inputs and outputs. The input variables that are used to drive ``DVMDOSTEM`` are: drainage classification, vegetation classification, topographic (slope, aspect, elevation), soil texture, atmospheric co2 concentration, four climate variables (air temperature, precipitation, vapor pressure, and incoming shortwave radiation), atmospheric $CO_2$ concentration, and fire classification.
+
+The $CO_2$, climate and fire include a temporal dimension, while the others do not. The $CO_2$ driving input must be yearly resolution, and the climate and fire must be monthly resolution.
+
+The output files that ``DVMDOSTEM`` produces are also NetCDF format and attempt to conform with the CF Conventions {verison?} {ref?}. There is one output file per variable and various resolutions available depending on the variable. Many soil output can be requested by layer, and many vegetation outputs can be requested by PFT and even compartment. Higher resolution outputs can be very costly in terms of compute time and space, so care must be given to output selection in the experiment design.
 
 # Summary of Mathematics
 
@@ -135,6 +207,9 @@ The fundamental equations include carbon cycling, surface and subsurface energy 
    $$\frac{\partial \theta}{\partial t} = \nabla \cdot [K(\theta) \cdot \nabla h] + S(\theta)$$
    where $\theta$ is the volumetric water content, $t$ is time, $K(\theta)$ is the hydraulic conductivity as a function of $\theta$, $h$ is the matric potential, and $S(\theta)$ is a source/sink term.
 
+.. note::
+
+  NEED TO ADD Stephan equation? referenced in soil structure section above...
 
 <!-- Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
 
