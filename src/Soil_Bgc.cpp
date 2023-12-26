@@ -127,6 +127,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double D[numsoill]; // BM: relating to lower boundary conditions
   double V[numsoill]; // BM: V[il] = s[il] * currl->ch4 + s[il] * dt 
   double diff[numsoill];  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient
+  double diff_tmp[numsoill];
   double r[numsoill]; // BM: 2 + s[il] relating to sigma in Crank-Nicholson / trisolver   
   double s[numsoill]; // BM: currl->dz * currl->dz / (diff[il] * dt); this is sigma!
 
@@ -139,6 +140,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     D[ii] = 0.0;
     V[ii] = 0.0;
     diff[ii] = 0.0;
+    diff_tmp[ii] = 0.0;
     r[ii] = 0.0;
     s[ii] = 0.0;
   }
@@ -214,31 +216,55 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //CH4 diffusion coefficient Dg, m2/h - Fan 2013 Eq. 11
       //tortuosity - Fan 2013 Eq. 12 calculated depending on watertable position
       //layer above water table
-      if (ed->d_sois.watertab > (currl->z + currl->dz)){
-        torty_tmp = currl->getVolAir(); //air content
+      // if (ed->d_sois.watertab > (currl->z + currl->dz)){
+      //   torty_tmp = currl->getVolAir(); //air content
+      //   if (torty_tmp < 0.05) {
+      //     torty_tmp = 0.05;
+      //   }
+
+      //   torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
+      //   diff[il] = CH4DIFFA * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+      // }
+      // //layer contains water table
+      // // else if(currl->z < ed->d_sois.watertab < (currl->z + currl->dz)){
+      // //   double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
+      // //   torty = 
+      // //   diff[il] = 
+      // //   //need to add torty_sat and torty_unsat
+      // //   //then diffusion depending on sat unsat and then averaged diffusion coefficient
+      // // }
+      // //layer below water table
+      // else {
+      //   torty = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
+      //   diff[il] = CH4DIFFW * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
+
+      //   //Example for one layer loop construction:
+      //   //Factor = saturated fraction
+      //   //tortuosity_sat, tortuosity_unsat
+      //   //torty = (Factor)*(0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0)) + (1-Factor)(torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3)
+      // }
+
+      //If the layer contains the water table this provides a scaling fraction to define proportion above and below water table
+      double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
+      //If the layer is above the water table saturated_fraction is forced to 0.0
+      if (saturated_fraction <= 0.0){
+        saturated_fraction = 0.0;
+      } 
+      //If the layer is below the water table saturated_fraction is forced to 1.0
+      else if (saturated_fraction > 0.0){
+        saturated_fraction = 1.0;
+      }
+
+      torty_tmp = currl->getVolAir(); //air content
         if (torty_tmp < 0.05) {
           torty_tmp = 0.05;
         }
 
-        torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3
-        diff[il] = CH4DIFFA * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
-      }
-      //layer contains water table
-      // else if(currl->z < ed->d_sois.watertab < (currl->z + currl->dz)){
-      //   double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
-      //   //need to add torty_sat and torty_unsat
-      //   //then diffusion depending on sat unsat and then averaged diffusion coefficient
-      // }
-      //layer below water table
-      else {
-        torty = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
-        diff[il] = CH4DIFFW * torty * pow((currl->tem + 273.15) / 293.15, 1.75);
-
-        //Example for one layer loop construction:
-        //Factor = saturated fraction
-        //tortuosity_sat, tortuosity_unsat
-        //torty = (Factor)*(0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0)) + (1-Factor)(torty = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0); //(12-m)/3, m=3)
-      }
+      double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
+      double tortuosity_unsat = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0);
+      double tortuosity = saturated_fraction * tortuosity_sat + (1 - saturated_fraction) * tortuosity_unsat;
+      double ch4_diffusion_coefficient = saturated_fraction * CH4DIFFW + (1 - saturated_fraction) * CH4DIFFA;
+      diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
 
       //In order to prevent NaNs in the calculation of s[]
       if(diff[il] == 0){
