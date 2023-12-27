@@ -155,10 +155,10 @@ def calc_metrics(results, targets):
   #    r2 = [sklm.r2_score(targets.T, sample, sample_weight=weights_by_targets) for i,sample in results.iterrows()]
 
   r2 = [sklm.r2_score(targets.T, sample) for i,sample in results.iterrows()] 
-  mse = [sklm.mean_squared_error(targets.T, sample) for i,sample in results.iterrows()]
+  rmse = [sklm.mean_squared_error(targets.T, sample, squared=False) for i,sample in results.iterrows()]
   mape = [sklm.mean_absolute_percentage_error(targets.T, sample) for i,sample in results.iterrows()]
 
-  return r2, mse, mape
+  return r2, rmse, mape
 
 def calc_correlation(model_results, sample_matrix):
   '''
@@ -192,16 +192,14 @@ def plot_corr_heatmap(df_corr):
   plt.xlabel("Parameters", fontsize=14)
   plt.savefig("plots/correlation_heatmap.png")
 
-def plot_output_target_scatter(results, targets, sample_matrix=None, ntop=None):
+def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None):
   '''
-  Makes a plot with one axes for each column in ``results``. Each axes shows
+  Create subplots for each column in ``results``. Each subplot shows
   scatter plots of the output value on the Y axis and the sample # on the X
-  axis. The target value is shown as a dashed gray line.
+  axis. The target value is shown as a dashed line.
 
-  The "best" runs may optionally be highlighted by passing both the ``ntop``
-  argument and the ``sample_matrix`` argument.
-
-  .. image:: /images/SA_post_hoc_analysis/output_target_scatter.png
+  Optionally, ``results`` may be limited by R^2, RMSE, and/or MAPE by providing
+  limits using r2lim, rmselim, and mapelim respectively.
 
   .. note::
 
@@ -216,46 +214,72 @@ def plot_output_target_scatter(results, targets, sample_matrix=None, ntop=None):
   targets : pandas.DataFrame
     One column for each output (target) variable, single row with target value.
 
-  sample_matrix : pandas.DataFrame
-    One column for each parameter, one row for each sample run.
+  r2lim : float, optional
+    Lower R^2 limit for output.
 
-  ntop : int, optional
-    The number of top runs to highlight.
+  rmse2lim : float, optional
+    Upper RMSE limit for output.
+
+  mape2lim : float, optional
+    Upper MAPE limit for output.
 
   Returns
   =======
   None
   '''
-  # This is not a good check...
-  if sample_matrix is None or ntop is None:
-    raise RuntimeError("Pass both!")
+  # Calculate r2, rmse, mape metrics and create pandas data series
+  r2, rmse, mape = calc_metrics(results, targets)
+  df_r2 = pd.Series( r2,  name = '$R^2$'  )
+  df_rmse = pd.Series( rmse,  name = 'RMSE'  )
+  df_mape = pd.Series( mape,  name = 'MAPE'  )
 
-  # If the user wants to highlight best matches, then we need to load them...
-  if ntop is not None and sample_matrix is not None:
-    best_outputs, best_params = n_top_runs(results, targets, sample_matrix, ntop)
+  # Create a square of subplots based on the square root of number of columns
+  fig_size = int(np.ceil(np.sqrt(len(results.columns))))
+  # Create indices for looping through subplots
+  fig_indices = np.linspace(0, fig_size - 1, fig_size).astype(int)
+  # Create subplots
+  fig, ax = plt.subplots(fig_size, fig_size)
+    
+  # Counter for results column number during subplot looping
+  count = 0
+    
+  # Looping through rows and columns in subplot square
+  for row in fig_indices:
 
-  # Figure out how many sub plots we need (one per column in results)
-  N = len(results.columns)
+       
+      # Break loop if we reach maximum number of columns before number of subplots
+      if count > len(results.columns):
+          break
 
-  fig, axes = plt.subplots(nrows=N, ncols=1, figsize=(8, 3*N))
+      for col in fig_indices:
+          # Plot target line across number of samples
+          ax[row, col].plot(results.index, np.ones(len(results.index)) * targets[targets.columns[count]].values, 'k--')
+          # Scatter plots for results from all samples
+          ax[row, col].scatter(results.index,results[results.columns[count]])
+          # Title each subplot with output variable, pft, compartment
+          ax[row, col].set_title(results.columns[count])
+          # If an R^2 limit is given plot all results above that value
+          if r2lim != None:
+              ax[row, col].scatter(results[df_r2>r2lim].index, results[df_r2>r2lim][results.columns[count]], label=f"R$^2$>{r2lim}")
+          # If an RMSE limit is given plot all results below that value
+          if rmselim != None:
+              ax[row, col].scatter(results[df_rmse<rmselim].index, results[df_rmse<rmselim][results.columns[count]], label=f"RMSE<{rmselim}")
+          # If a MAPE limit is given plot all results below that value
+          if mapelim != None:
+              ax[row, col].scatter(results[df_mape<mapelim].index, results[df_mape<mapelim][results.columns[count]], label=f"MAPE<{mapelim}")
+          # Go to next output variable
+          count+=1
+  # Create a single legend with all handles provided outside of subplots
+  handles, labels = plt.gca().get_legend_handles_labels()
+  plt.legend(handles=handles, bbox_to_anchor=(1.05, 1.0), loc="upper left", fontsize=10)
+  # Adjust spacing between subplots
+  plt.subplots_adjust(left=None, bottom=None, right=1, top=1.2, wspace=None, hspace=None)
+  # Add mutual x axis label
+  plt.setp(ax[-1, :], xlabel='Years')
+  # Save figure
+  plt.savefig('plots/output_target_scatter.png')
 
-  for i, col in enumerate(results.columns):
-
-    # Plot the output dots
-    axes[i].plot(results[col], 'C0o') # <- color, marker specification
-
-    # Plot a line for the target value
-    axes[i].axhline(targets[col][0], color='k', linestyle='--', alpha=0.5 )
-
-    # User wants to highlight best matches...
-    if ntop:
-      axes[i].plot(best_outputs[col], linewidth=0, marker='o', color='orange')
-
-    axes[i].set_ylabel(col)
-
-
-  plt.savefig('output_target_scatter.png')
-def plot_r2_mse(results, targets):
+def plot_r2_rmse(results, targets):
   '''
   Plot ???
 
@@ -263,14 +287,14 @@ def plot_r2_mse(results, targets):
 
   '''
 
-  r2, mse, mape = calc_metrics(results, targets)
+  r2, rmse, mape = calc_metrics(results, targets)
 
   plt.close('all')
   fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12,12))
 
-  axes[0].plot(r2,mse, 'o', alpha=.5)
+  axes[0].plot(r2,rmse, 'o', alpha=.5)
   axes[0].set_xlabel('r2')
-  axes[0].set_ylabel('mse')
+  axes[0].set_ylabel('rmse')
   #axes[0].set_yscale('log')
 
   axes[1].plot(r2, mape, 'o', alpha=0.25)
@@ -279,19 +303,19 @@ def plot_r2_mse(results, targets):
 
   plt.legend()
 
-  plt.savefig("plots/r2_mse_mape.png")
+  plt.savefig("plots/r2_rmse_mape.png")
 
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
 
-  r2, mse, mape = calc_metrics(results, targets)
+  r2, rmse, mape = calc_metrics(results, targets)
 
   # normalize mse and mape to be between 0 and 1
-  norm_mse = (mse - np.nanmin(mse)) / (np.nanmax(mse) - np.nanmin(mse))
+  norm_rmse = (rmse - np.nanmin(rmse)) / (np.nanmax(rmse) - np.nanmin(rmse))
   norm_mape = (mape - np.nanmin(mape)) / (np.nanmax(mape) - np.nanmin(mape))
 
   # combined accuracy by substracting average of mse and mape from r2
-  combined_score = r2 - np.mean([norm_mse, norm_mape])
+  combined_score = r2 - np.mean([norm_rmse, norm_mape])
 
   return combined_score
 
