@@ -31,7 +31,7 @@ def get_parser():
       description=textwrap.dedent('''\
         This script runs a special Sensitivity Analysis that is used as
         as the initial part of a the calibration process. This is the left 
-        (orange) half of the diagram.     
+        (orange) half of the diagram in the MADS Assisted Calibration section.    
         '''.format("")),
   )
 
@@ -39,21 +39,23 @@ def get_parser():
       help=textwrap.dedent('''The config file to use.'''))
 
   parser.add_argument("--custom-seed",
-                      help=textwrap.dedent('''A user specified location for the
-                          seed path. The seed path is the folder where parameter
-                          values are sourced when setting up runs. The bulk
-                          (all) of the parameters for each run will be set from
-                          the seed path. Then the Sensitivity driver will modify
-                          some of the parameters in place in each run directory.
-                          '''))
+                      help=textwrap.dedent('''\ 
+                        A user specified location for the seed path. The seed
+                        path is the folder where parameter values are sourced
+                        when setting up runs. The bulk (all) of the parameters
+                        for each run will be set from the seed path. Then the
+                        Sensitivity driver will modify some of the parameters in
+                        place in each run directory.
+                      '''))
 
   parser.add_argument('--N', type=int, default=10,
       help=textwrap.dedent('''The number of samples that should be run.'''))
 
   parser.add_argument('--sampling-method', default='uniform',
       choices=['uniform','lhc'],
-      help=textwrap.dedent('''Which sampling method to use for drawing parameter
-        sets. 'lhc' offers better coverage, but is slow.'''))
+      help=textwrap.dedent('''\
+          Which sampling method to use for drawing parameter sets. 'lhc' offers
+          better coverage, but is slower.'''))
 
   parser.add_argument('--dry-run', action='store_true',
       help=textwrap.dedent('''If passed, only do the setup, don't actually 
