@@ -3,6 +3,7 @@
 import os
 import sys
 import shutil
+import yaml
 
 def get_target_ncname(target, meta):
   '''
@@ -84,35 +85,77 @@ class BaseDriver(object):
     Additional options for the model run setup, by default None.
   '''
 
-  def __init__(self, work_dir=None, clean=False, opt_run_setup=None):
+  def __init__(self, config=None, clean=False, **kwargs):
 
-    # These are setup in this construction, but are declared here simply to
-    # keep the object definition more explicit.
+    # Default a bunch of stuff to None
     self._seedpath = None
     self.work_dir = None
-
-    # This needs to be set by the client before targets and parameters can be
-    # loaded...
     self.cmtnum = None
-
-    # handles __initial_params_rundir as well
-    self.set_work_dir(work_dir)
-
-    self.site = '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10'
-    self.PXx = 0
-    self.PXy = 0
+    self.PXx = None
+    self.PXy = None
+    self.opt_run_setup = ''
+    self.site = None
     self.outputs = [
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
     ]
-    self.opt_run_setup = opt_run_setup
+
+    # Override if client has provided in the config...
+    if 'seed_path' in config.keys():
+      self._seedpath = config['seed_path']
+
+    if 'work_dir' in config.keys():
+      self.work_dir = config['work_dir']
+
+    # NOTE: cmt must be set before targets and parameters can be loaded!
+    if 'cmtnum' in config.keys():
+      self.cmtnum = config['cmtnum']
+
+    # handles __initial_params_rundir as well
+    if 'work_dir' in config.keys():
+      self.set_work_dir(config['work_dir'])
+
+    if 'site' in config.keys():
+      self.site = config['site']
+
+    if 'PXx' in config.keys():
+      self.PXx = config['PXx']
+
+    if 'PXy' in config.keys():
+      self.PXy = config['PXy']
+
+    if 'outputs' in config.keys():
+      self.outputs = config['outputs']
+
+    if 'opt_run_setup' in config.keys():
+      self.opt_run_setup = config['opt_run_setup']
 
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
         os.mkdir(self.work_dir)
 
-    if clean and work_dir is not None:
+    if clean and self.work_dir is not None:
       self.clean()
+
+  @classmethod
+  def fromfilename(cls, filename):
+    '''
+    Create an instance of BaseDriver from a configuration file.
+
+    Parameters
+    ----------
+    filename : str
+      The path to the configuration file.
+
+    Returns
+    -------
+    BaseDriver
+      An instance of BaseDriver initialized with parameters from the
+      configuration file.
+    '''
+    with open(filename, 'r') as config_file:
+      config = yaml.safe_load(config_file)
+    return cls(config)
 
   def set_work_dir(self, path):
     '''

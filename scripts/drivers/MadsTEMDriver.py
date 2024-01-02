@@ -32,54 +32,30 @@ class MadsTEMDriver(BaseDriver):
       Additional keyword arguments to pass to the BaseDriver constructor.
   '''
 
-  def __init__(self, config_dict=None, **kwargs):
+  def __init__(self, config=None, **kwargs):
     '''
     Initialize MadsTEMDriver with optional configuration parameters.
 
     Parameters
     ----------
-    config_dict : dict, optional
+    config : dict, optional
         A dictionary containing configuration parameters for the driver.
 
     **kwargs
         Additional keyword arguments to pass to the BaseDriver constructor.
     '''
-    super().__init__(**kwargs)
+    super().__init__(config, **kwargs)
 
     # Don't set this here - the client should set in after instantiating 
     # their object.
     #self.set_seed_path('/work/parameters')
 
-    self.site = config_dict['site'] 
-    self.work_dir = config_dict['work_dir']
-    self.calib_mode = config_dict['calib_mode']
-    self.opt_run_setup = config_dict['opt_run_setup']
-    self.cmtnum = config_dict['cmtnum']
-    self.pftnums = config_dict['pftnums']
-    self.paramnames = config_dict['params']
-    self.target_names = config_dict['target_names']
+    self.calib_mode = config['calib_mode']
+    self.pftnums = config['pftnums']
+    self.paramnames = config['params']
+    self.target_names = config['target_names']
 
     # will present key error if config dict is missing keys!
-
-  @classmethod
-  def fromfilename(cls, filename):
-    '''
-    Create an instance of MadsTEMDriver from a configuration file.
-
-    Parameters
-    ----------
-    filename : str
-      The path to the configuration file.
-
-    Returns
-    -------
-    MadsTEMDriver
-      An instance of MadsTEMDriver initialized with parameters from the
-      configuration file.
-    '''
-    with open(filename, 'r') as config_data:
-      config = yaml.safe_load(config_data)
-    return cls(config)
 
   def set_params_from_seed(self):
     '''

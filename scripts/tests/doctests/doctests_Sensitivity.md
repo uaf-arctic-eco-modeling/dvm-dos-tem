@@ -19,7 +19,8 @@ Load the library
 
 Instantiate a driver object:
 
-    >>> sd = drivers.Sensitivity.Sensitivity()
+    >>> config_dict = dict(site='/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', PXx=0, PXy=0)
+    >>> sd = drivers.Sensitivity.Sensitivity(config=config_dict)
 
 In order to conduct a sensitivity analysis we must consider the following:
 
@@ -195,7 +196,7 @@ See what we got:
 
 Now see if we can load the experiment again into a new driver:
 
-    >>> sd2 = drivers.Sensitivity.Sensitivity()
+    >>> sd2 = drivers.Sensitivity.Sensitivity(config=dict())
 
 This new driver should not have its `work_dir` set:
 
@@ -328,7 +329,7 @@ and sample folders but for now, we'll assume its working.
 
 Next we can check that the multi-PFT functionality works:
 
-    >>> sd = drivers.Sensitivity.Sensitivity(clean=True)
+    >>> sd = drivers.Sensitivity.Sensitivity(config=config_dict)
     >>> sd.set_work_dir('/tmp/tests-Sensitivity')
     >>> sd.set_seed_path('/work/parameters')
 

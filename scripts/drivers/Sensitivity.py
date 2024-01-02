@@ -269,11 +269,11 @@ class Sensitivity(BaseDriver):
       3  59.671967  2.042034  0.000171
       4  57.711999  1.968631  0.000155
   '''
-  def __init__(self, sampling_method=None, module_stage_settings=None, **kwargs):
+  def __init__(self, config, sampling_method=None, module_stage_settings=None, **kwargs):
     '''Create a Sensitivity driver object.'''
 
     # Call the constructor of the parent class...
-    super().__init__(**kwargs)
+    super().__init__(config, **kwargs)
 
     self.sampling_method = sampling_method
 
