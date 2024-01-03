@@ -269,24 +269,72 @@ class Sensitivity(BaseDriver):
       3  59.671967  2.042034  0.000171
       4  57.711999  1.968631  0.000155
   '''
-  def __init__(self, config, sampling_method=None, module_stage_settings=None, **kwargs):
+  def __init__(self, config):
     '''Create a Sensitivity driver object.'''
 
     # Call the constructor of the parent class...
-    super().__init__(config, **kwargs)
+    super().__init__(config)
 
-    self.sampling_method = sampling_method
-
-    # These will get setup later; client for setting them directly or using
-    # other member functions for setting.
-    # TODO: finish exposing these to client and or make client interface
-    # more consistent.
+    # This is stuff that is specific to the sensitivity analysis
     self.params = None
     self.sample_matrix = None
     self.targets = None
-    self.targets_meta = None
-    self.module_stage_settings = module_stage_settings
+    self.targets_meta = None # can't remember what this is used for?
+    self.sampling_method = None
+    self.module_stage_settings = None
 
+    # A whole bunch of these are required and the object will fail to
+    # instantiate the the config dict is missing the right data!!
+
+    # Set if the user has provided them in the config
+    if 'sampling_method' in config.keys():
+      self.sampling_method = config['sampling_method']
+
+    if 'module_stage_settings' in config.keys():
+      self.module_stage_settings = config['module_stage_settings']
+
+    if 'N_samples' in config.keys():
+      N_samples = config['N_samples']
+
+    if 'cmtnum' in config.keys():
+      self.cmtnum = config['cmtnum']
+
+    if 'params' not in config.keys():
+      raise RuntimeError("What the fuck do you think you  are doing??")
+
+    if not ('percent_diffs' in config.keys()):
+      # use +/-10% for default perturbation
+      percent_diffs = np.ones(len(config['params'])) * 0.1 
+
+    if 'params' in config.keys() and 'pftnums' in config.keys():
+      self.params = params_from_seed(seedpath=self._seedpath, 
+                                     params=config['params'], 
+                                     pftnums=config['pftnums'], 
+                                     percent_diffs=percent_diffs, 
+                                     cmtnum=self.cmtnum)
+
+    # Order matters here - gotta load the target data before we
+    # setup the outputs...
+    if 'observations' in config.keys():
+      self.load_target_data(config['observations'])
+
+    if 'target_names' in config.keys():
+      self.setup_outputs(config['target_names'])
+
+    # TODO: Handle naming the sample matrix columns??
+    if self.sampling_method == 'lhc':
+      self.sample_matrix = generate_lhc(N_samples, self.params)
+    elif self.sampling_method == 'uniform':
+      self.sample_matrix = generate_uniform(N_samples, self.params)
+    else:
+      raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
+
+    if os.path.isdir(self.work_dir):
+      if len(os.listdir(self.work_dir)) > 0:
+        error_msg = textwrap.dedent(f'''\
+            Sensitivity.work_dir ({self.work_dir}) is not empty! You must run 
+            Sensitivity.clean() before designing an experiment.''')
+        raise RuntimeError(error_msg)
 
 
   def get_initial_params_dir(self):
@@ -410,6 +458,9 @@ class Sensitivity(BaseDriver):
   def design_experiment(self, Nsamples, cmtnum, params, pftnums, 
       percent_diffs=None, sampling_method='lhc'):
     '''
+    .. deprecated::
+      Implemented in default constructor.
+
     Builds bounds based on initial values found in dvmdostem parameter files
     (cmt_*.txt files) and the `percent_diffs` array. The `percent_diffs` array
     gets used to figure out how far the bounds should be from the initial value.
