@@ -251,7 +251,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         saturated_fraction = 0.0;
       } 
       //If the layer is below the water table saturated_fraction is forced to 1.0
-      else if (saturated_fraction > 0.0){
+      else if (saturated_fraction >= 1.0){
         saturated_fraction = 1.0;
       }
 
@@ -262,8 +262,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
       double tortuosity_unsat = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0);
-      double tortuosity = saturated_fraction * tortuosity_sat + (1 - saturated_fraction) * tortuosity_unsat;
-      double ch4_diffusion_coefficient = saturated_fraction * CH4DIFFW + (1 - saturated_fraction) * CH4DIFFA;
+      // double tortuosity = saturated_fraction * tortuosity_sat + (1 - saturated_fraction) * tortuosity_unsat;
+      double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
+      // double ch4_diffusion_coefficient = saturated_fraction * CH4DIFFW + (1 - saturated_fraction) * CH4DIFFA;
+      double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
       diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
 
       //In order to prevent NaNs in the calculation of s[]
