@@ -68,20 +68,16 @@ def get_parser():
 
 if __name__ == '__main__':
   
-  import argparse
-  import textwrap
-
   parser = get_parser()
 
   args = parser.parse_args()
   
-
   config_file_name = args.configfile
 
   print(f"The filename you provided is: {config_file_name}")
 
   with open(config_file_name, 'r') as config_data:
-      config = yaml.safe_load(config_data)
+    config = yaml.safe_load(config_data)
 
   # Make an instance of the driver object
   driver = drivers.Sensitivity.Sensitivity()
@@ -90,8 +86,8 @@ if __name__ == '__main__':
   # will be read from.
   driver.set_seed_path('/work/parameters/')
   if args.custom_seed:
-     # should validate it is a proper director first?
-     driver.set_seed_path(args.custom_seed)
+    # should validate it is a proper director first?
+    driver.set_seed_path(args.custom_seed)
 
   # Set the working directory. This is the folder where all the individual runs
   # will be carried out. Each individual run directory will be setup using
@@ -136,10 +132,10 @@ if __name__ == '__main__':
   driver.module_stage_settings=config['calib_mode']
 
   try:
-      # add param calib  (a boolean, turns off dsl)
-      driver.setup_multi() 
+    # add param calib  (a boolean, turns off dsl)
+    driver.setup_multi() 
   except ValueError:
-      print("Oops!  setup_multi failed.  Check the setup...")
+    print("Oops!  setup_multi failed.  Check the setup...")
 
   if args.dry_run:
     print(f"Dry Run. Stopping here so you can")
@@ -147,9 +143,9 @@ if __name__ == '__main__':
     exit(0)
 
   try:
-      driver.run_all_samples()
+    driver.run_all_samples()
   except ValueError:
-      print("Oops!  run_all_samples failed.  Check the sample folders...")
+    print("Oops!  run_all_samples failed.  Check the sample folders...")
 
   # Gather up all the results into one place.
   driver.collate_results()
