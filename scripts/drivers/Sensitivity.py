@@ -303,8 +303,10 @@ class Sensitivity(BaseDriver):
       raise RuntimeError("What the fuck do you think you  are doing??")
 
     if not ('percent_diffs' in config.keys()):
-      # use +/-10% for default perturbation
-      percent_diffs = np.ones(len(config['params'])) * 0.1 
+      # use +/-90% for default perturbation
+      percent_diffs = np.ones(len(config['params'])) * 0.9
+    else:
+      percent_diffs = config['percent_diffs']
 
     if 'params' in config.keys() and 'pftnums' in config.keys():
       self.params = params_from_seed(seedpath=self._seedpath, 
@@ -329,12 +331,6 @@ class Sensitivity(BaseDriver):
     else:
       raise RuntimeError(f"{self.sampling_method} is not implemented as a sampling method.")
 
-    if os.path.isdir(self.work_dir):
-      if len(os.listdir(self.work_dir)) > 0:
-        error_msg = textwrap.dedent(f'''\
-            Sensitivity.work_dir ({self.work_dir}) is not empty! You must run 
-            Sensitivity.clean() before designing an experiment.''')
-        raise RuntimeError(error_msg)
 
 
   def get_initial_params_dir(self):
@@ -859,6 +855,8 @@ class Sensitivity(BaseDriver):
     # Save the metadata type stuff
     self.save_experiment()
 
+    self.plot_sensitivity_matrix(save=True)
+
     # Make a special directory for the "initial values" run.
     # row and idx args are ignored when setting up initial value run. 
     self.core_setup(row={'ignore this and idx':None}, idx=324234, initial=True)
@@ -1377,8 +1375,11 @@ class Sensitivity(BaseDriver):
       ax[2].set_ylim(ax[0].get_ylim())
       
     plt.tight_layout()
+
     if save:
-      plt.savefig(self.work_dir + "sample_matrix_distributions.png")
+      savename = os.path.join(self.work_dir, "sample_matrix_distributions.png")
+      print(f"Saving plot {savename}")
+      plt.savefig(savename)
 
 if __name__ == '__main__':
   import doctest
