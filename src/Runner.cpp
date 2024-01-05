@@ -1861,7 +1861,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //by PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> eet_arr;
+        std::array<double, NUM_PFT> eet_arr{};
 
         //daily
         if(curr_spec.daily){
@@ -2671,7 +2671,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERDEPTH)
     {
-      std::array<double, MAX_SOI_LAY> layerdepth_arr;
+      std::array<double, MAX_SOI_LAY> layerdepth_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -2710,7 +2710,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERDZ)
     {
-      std::array<double, MAX_SOI_LAY> layerdz_arr;
+      std::array<double, MAX_SOI_LAY> layerdz_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -2749,7 +2749,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERTYPE)
     {
-      std::array<int, MAX_SOI_LAY> layertype_arr;
+      std::array<int, MAX_SOI_LAY> layertype_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -3727,7 +3727,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //by PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> pet_arr;
+        std::array<double, NUM_PFT> pet_arr{};
 
         //daily
         if(curr_spec.daily){
@@ -4068,7 +4068,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-        std::array<double, MAX_SOI_LAY> rh_arr;
+        std::array<double, MAX_SOI_LAY> rh_arr{};
 
         //monthly
         if(curr_spec.monthly){
@@ -4833,7 +4833,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputTLAYER)
     {
-      std::array<double, MAX_SOI_LAY> tlayer_arr;
+      std::array<double, MAX_SOI_LAY> tlayer_arr{};
 
       //daily
       if(curr_spec.daily){
@@ -4963,9 +4963,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> d_trans_arr;
-        std::array<double, NUM_PFT> m_trans_arr;
-        std::array<double, NUM_PFT> y_trans_arr;
+        std::array<double, NUM_PFT> d_trans_arr{};
+        std::array<double, NUM_PFT> m_trans_arr{};
+        std::array<double, NUM_PFT> y_trans_arr{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           d_trans_arr[ip] = cohort.ed[ip].d_v2a.tran;
@@ -5310,7 +5310,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     curr_spec = map_itr->second;
     #pragma omp critical(outputVWCLAYER)
     {
-      std::array<double, MAX_SOI_LAY> vwclayer_arr;
+      std::array<double, MAX_SOI_LAY> vwclayer_arr{};
 
       if(curr_spec.monthly){
         for(int il=0; il<MAX_SOI_LAY; il++){
