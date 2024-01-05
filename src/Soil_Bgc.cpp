@@ -103,7 +103,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   double Prod=0.0, Ebul=0.0, Oxid=0.0;//, Plant=0.0;
   //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
-  double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_m=0.0;
+  double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_gm2hr=0.0;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
 
@@ -145,7 +145,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     s[ii] = 0.0;
   }
   //BM: New definitions to force a compile
-  double open_porosity[MAX_SOI_LAY] = {0};
   double plant_ch4_sum_l[MAX_SOI_LAY] = {0};
   double rhrawc_ch4[MAX_SOI_LAY] = {0};
   double rhsoma_ch4[MAX_SOI_LAY] = {0};
@@ -255,16 +254,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         saturated_fraction = 1.0;
       }
 
-      torty_tmp = currl->getVolAir(); //air content
-        if (torty_tmp < 0.05) {
-          torty_tmp = 0.05;
-        }
-
+      //Logarithmic interpolation between tortuosity and diffusion coefficient due to large
+      //magnitude difference between liquid and air
       double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
-      double tortuosity_unsat = 0.66 * torty_tmp * pow(torty_tmp / currl->poro, 3.0);
-      // double tortuosity = saturated_fraction * tortuosity_sat + (1 - saturated_fraction) * tortuosity_unsat;
+      double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
       double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
-      // double ch4_diffusion_coefficient = saturated_fraction * CH4DIFFW + (1 - saturated_fraction) * CH4DIFFA;
       double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
       diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
 
@@ -280,6 +274,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //Equations from Helene Genet to replace the ones from peat-dos-tem
       //HG: Why >= -2.0? and why 0.25?
+      //BM: https://doi.org/10.1073/pnas.1420797112 ?
+      // ^^ I don't think this is the one, but probably some kind of winter Q10
       if(currl->tem >= -2.0 && currl->tem < 0.000001){
         TResp_unsat = getRhq10(-2.1) * 0.25;
         TResp_sat = getRhq10(-6.0) * 0.25;
@@ -293,21 +289,30 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         TResp_sat = getRhq10(currl->tem - 6.0);
       }
 
+      //Fan 2013 Eq 18 - calculating oxidation
+      //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
+      //set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
+      //BM: does 5 and 20 need to be a parameter in param files? yes
+      Oxid = (1 - saturated_fraction)*(5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
+
+      // again do we need poro? we think it should be air content? test this
+      // _m refers to unit conversion: 
+        // oxid is in units mu mol L^-1 hr^-1
+        // 1 mu mol of C = 12e-6 g, ( * 12e-6)
+        // L^-1 = 1000 m^-3 ( * 1000)
+        // m^2 = m * m^-3 ( * dz) 
+        // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
+      Oxid_gm2hr = Oxid * currl->poro * currl->dz * 0.012;
+
       //Layer above water table
       if (ed->d_sois.watertab > (currl->z + currl->dz)) { 
-
-        open_porosity[il] = currl->getVolAir(); //air content
-        if(open_porosity[il] < 0.05){
-          open_porosity[il] = 0.05;
-        } 
 
         //Fan 2013 Eq 18 for layers above the water table
         //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
         //  set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
 
-        //BM: does 5 and 20 need to be a parameter in param files? yes
-        Oxid = 5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4);
-        Oxid_m = Oxid * currl->poro * currl->dz * 12.0;
+        // Oxid = 5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4);
+        // Oxid_m = Oxid * currl->poro * currl->dz * 12.0;
         // Not sure whether currl->poro is required, and why not used in oxid, plant_ch4_sum but only "_m" variables
         if (ed->d_sois.ts[il] > 0.0) {
           Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
@@ -421,7 +426,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         //Fan 2013 Eq 18 for layers below the water table
         Oxid = 0.0;
-        Oxid_m = 0.0;
+        Oxid_gm2hr = 0.0;
 
         //Should this be porosity or LWC? - cannot find the reason for this but it is below the water table and likely a unit conversion
         if (currl->tem > 0.0) {
@@ -433,7 +438,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //Accumulating ebullitions per layer across timesteps for output
       ch4_ebul_layer[il] += Ebul_m;
-      ch4_oxid_layer[il] += Oxid_m;
+      ch4_oxid_layer[il] += Oxid_gm2hr;
 
       totPlant = totPlant + plant_ch4_sum; //cumulated over 1 day, 24 time steps, Y.MI
       totPlant_m += Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
@@ -446,7 +451,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
       // tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
-      totOxid_m = totOxid_m + Oxid_m; //cumulated over 1 day, 24 time steps, Y.MI
+      totOxid_m = totOxid_m + Oxid_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
       ed->d_soid.oxid = totOxid_m;
 
       if (Oxid<0.000001) {
