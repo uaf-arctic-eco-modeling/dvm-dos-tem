@@ -4344,7 +4344,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputSNOWLAYERDZ)
     {
-      std::array<double, MAX_SNW_LAY> snowlayerdz_arr;
+      std::array<double, MAX_SNW_LAY> snowlayerdz_arr{};
 
       Layer* currL = cohort.ground.toplayer;
       while(currL->isSnow){
@@ -4382,7 +4382,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputSNOWLAYERTEMP)
     {
-      std::array<double, MAX_SNW_LAY> snowlayertemp_arr;
+      std::array<double, MAX_SNW_LAY> snowlayertemp_arr{};
 
       Layer* currL = cohort.ground.toplayer;
       while(currL->isSnow){
