@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
-# Sensitivity adapted for the calibration type output
-# uses calibration configuration file as an input
-# Example: python3 run_mads_sensitivity.py /work/mads_calibration/config-step1-md1.yaml
-# Author: Elchin Jafarov 
-# Date: 03/27/2023
+# Wrapper script that assists in setting up and running a sensitivity analysis
+# using the Python Sensitivity driver class.
+#
+# Author: Elchin Jafarov, Tobey Carman
+# Date: 03/27/2023, Winter 2023/2024
 
 import os
-import yaml
-import numpy as np
 import argparse
 import pathlib
 import textwrap
@@ -33,6 +31,13 @@ def get_parser():
         as the initial part of a the calibration process. This is the left 
         (orange) half of the diagram in the MADS Assisted Calibration section.
 
+        The general idea is that the user provides a config file (yaml) with a 
+        bunch of settings. This script and the Sensitivity driver class then 
+        use those settings to draw a bunch of sample parameter values and then 
+        setup one run folder for each set of parameter samples. The model is run
+        in each sample folder and at the end the results are collected 
+        summarized into a tabular format that can be further analyzed.
+
         Most of the settings should be set in the config file, but some of them
         can be overridden with command line arguments to this script.
         '''.format("")),
@@ -43,7 +48,10 @@ def get_parser():
 
   parser.add_argument('--dry-run', action='store_true',
       help=textwrap.dedent('''If passed, only do the setup, don't actually 
-        launch the runs.'''))
+        launch the runs. The setup can still take some time as the parameter
+        sampling scheme can be computationally intensive. Additionally, the 
+        the actual creation of all the sample run folders is not particularly
+        effecient.'''))
 
   parser.add_argument('-f', '--force', action='store_true', 
       help=textwrap.dedent('''Clean the working directory without warning.'''))
@@ -62,7 +70,7 @@ if __name__ == '__main__':
 
   # If user provides stuff on comand line, then we need to open the config file
   # overwrite the appropriate keys and then save the file before passing it to
-  # the Sensitivity ctor!
+  # the Sensitivity constructor!
 
   # Make an instance of the driver object based on the config file...
   driver = drivers.Sensitivity.Sensitivity.fromfilename(config_file_name)
@@ -98,8 +106,4 @@ if __name__ == '__main__':
   d0 = driver.summarize_ssrf(os.path.join(driver._ssrf_names()[0], 'output'))
   driver.ssrf_targets2csv(d0, os.path.join(driver.work_dir, 'targets.csv'))
 
-  # TODO: keep working on implementing the dsl on/off toggle correctly. This
-  # existed in the mads_sensitivity.py, but I don't think it was doing anything.
-  # (no evidence of ever calling dvmdostem with --cal-mode, so calibration
-  # directives file was likely never being read or executed.)
 
