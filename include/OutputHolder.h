@@ -57,6 +57,9 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
+  std::vector<std::array<double, MAX_SNW_LAY>> snowlayerdz_for_output;
+  std::vector<std::array<double, MAX_SNW_LAY>> snowlayertemp_for_output;
+
   //Variables by PFT
   std::vector<double> eet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> eet_for_output;
