@@ -31,7 +31,7 @@
 
 # driver.setup_outputs(config['target_names'])
 
-
+import os
 import numpy as np
 import pandas as pd
 import sklearn.metrics as sklm
@@ -492,6 +492,29 @@ def read_mads_iterationresults(iterationresults_file):
 
   return OPT, OF, LAM
 
+def load(path):
+  '''
+  Load up pandas.DataFrames for all the various things that you will want to
+  analyze. This includes the parameter properties used for the SA, the
+  sample matrix, the target data and the model results.
+
+  Parameters
+  ----------
+  path: str
+    A file path to a directory that is expected to have the following files:
+    param_props.csv, sample_matrix.csv, targets.csv, results.csv.
+
+  Returns
+  -------
+  param_props, sample_matrix, targets, results
+  '''
+
+  param_props = pd.read_csv(os.path.join(path, 'param_props.csv'))
+  sample_matrix = pd.read_csv(os.path.join(path, 'sample_matrix.csv'))
+  targets = pd.read_csv(os.path.join(path, 'targets.csv'), skiprows=1)
+  results = pd.read_csv(os.path.join(path, 'results.csv'))
+
+  return param_props, sample_matrix, targets, results
 
 def get_parser():
   pass
