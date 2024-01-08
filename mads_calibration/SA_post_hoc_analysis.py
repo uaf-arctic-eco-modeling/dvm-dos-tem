@@ -162,9 +162,21 @@ def calc_metrics(results, targets):
 
 def calc_correlation(model_results, sample_matrix):
   '''
-  sample_matrix: pandas DataFrame with one row per sample, one column per parameter
-  model_results: pandas DataFrame with one row per sample, one column per output
+  Generate a correlation matrix between parameters and model outputs.
+
+  Parameters
+  ----------
+  sample_matrix: pandas.DataFrame
+    with one row per sample, one column per parameter
+  model_results: pandas.DataFrame
+    with one row per sample, one column per output
+
+  Returns
+  -------
+  corr_mp: pandas.DataFrame
+    One column for each parameter, one row for each model output.
   '''
+  # correlation between model outputs and parameters
   corr_mp = pd.DataFrame(columns=sample_matrix.columns, index=model_results.columns)
 
   for model_col in model_results.columns:
@@ -175,6 +187,44 @@ def calc_correlation(model_results, sample_matrix):
   corr_mp = corr_mp.astype(float)
 
   return corr_mp
+
+def plot_relationships(model_results, sample_matrix, corr_threshold=0.5):
+  '''
+  Look at the model outputs and the parameters, calculate the corrleation
+  between the two, and then make one plot for each instance where the
+  correlation exceeds the threshold.
+
+  Parameters
+  ----------
+  model_results: pandas.DataFrame
+    One row per sample, one column per output.
+  sample_matrix: pandas.DataFrame
+    One row per sample, one column per parameter.
+  corr_threshold: float
+
+  Returns
+  -------
+  None
+
+  '''
+  corr = calc_correlation(model_results, sample_matrix)
+
+  corr_mask =  ( (corr > corr_threshold) | (corr < (-1*corr_threshold)) )
+
+  for param in corr_mask.columns:
+    for mo in corr_mask.index:
+      if corr_mask.loc[mo, param]:
+        #print(f"should plot {param} vs {mo}, correlation ({corr.loc[mo, param]}) is above {corr_threshold}")
+        plt.close()
+        plt.plot(sample_matrix[param], model_results[mo], marker='o', alpha=.25, linewidth=0)
+        plt.title(f"Correlation={corr.loc[mo, param]:0.4f}")
+        plt.xlabel(param)
+        plt.ylabel(mo)
+        plt.savefig(f"relationship_{param}_{mo}.png")
+      else:
+        pass
+        #print(f"Ignoring {param} vs {mo}, correlation ({corr.loc[mo, param]}) is too below {corr_threshold}")
+
 
 def plot_corr_heatmap(df_corr):
   '''
