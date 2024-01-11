@@ -37,6 +37,8 @@ import pandas as pd
 import sklearn.metrics as sklm
 import scipy.stats
 import matplotlib.pyplot as plt
+# import Line2D to manually create legend handles
+from matplotlib.lines import Line2D
 
 
 # This stuff is diamond box in SA (orange half)
@@ -188,7 +190,7 @@ def calc_correlation(model_results, sample_matrix):
 
   return corr_mp
 
-def plot_relationships(model_results, sample_matrix, corr_threshold=0.5):
+def plot_relationships(results, sample_matrix, targets, variables=None, parameters=None, corr_threshold=None, save=None):
   '''
   Look at the model outputs and the parameters, calculate the corrleation
   between the two, and then make one plot for each instance where the
@@ -196,35 +198,108 @@ def plot_relationships(model_results, sample_matrix, corr_threshold=0.5):
 
   Parameters
   ----------
-  model_results: pandas.DataFrame
+  results: pandas.DataFrame
     One row per sample, one column per output.
   sample_matrix: pandas.DataFrame
     One row per sample, one column per parameter.
-  corr_threshold: float
+  targets: pandas.DataFrame
+    One row with one column per target value.
+  variables: list, optional
+    Strings referencing variables of interest in results
+  parameter: list, optional
+    Strings referencing parameers of interest in sample_matrix
+  corr_threshold: float, optional
+    Lower threshold for correlation to plot
+  save: optional
+    Saves all subplots (can be a lot) if != None
 
   Returns
   -------
   None
 
+  .. image:: /images//INGPP_pft0-cmax_pft0-cmax_pft3.png
+
   '''
-  corr = calc_correlation(model_results, sample_matrix)
+  # if variables/parameters are None plot all variables/parameters
+  if variables == None:
+    variables = list(results.columns.values)
+  if parameters == None:
+    parameters = list(sample_matrix.columns.values)
+    
+  # Calculate correlation
+  corr = calc_correlation(results, sample_matrix)
 
-  corr_mask =  ( (corr > corr_threshold) | (corr < (-1*corr_threshold)) )
+  # loop through variables and create set of subplots for each
+  for vars in variables:
+    # Create a square of subplots from square root of number of parameters per variable
+    fig_size = int(np.ceil(np.sqrt(len(parameters))))
+    # Create indices for looping through subplot columns
+    col_indices = np.linspace(0, fig_size - 1, fig_size).astype(int)
+    # Create subplots
+    if len(parameters) < 3:
+      fig, ax = plt.subplots(1, fig_size)
+      # Create indices for looping through subplot rows
+      row_indices = [1]
+    else:
+      fig, ax = plt.subplots(fig_size, fig_size)
+      # Create indices for looping through subplot rows
+      row_indices = np.linspace(0, fig_size - 1, fig_size).astype(int)
+        
+    # Counter for results column number during subplot looping
+    count = 0
 
-  for param in corr_mask.columns:
-    for mo in corr_mask.index:
-      if corr_mask.loc[mo, param]:
-        #print(f"should plot {param} vs {mo}, correlation ({corr.loc[mo, param]}) is above {corr_threshold}")
-        plt.close()
-        plt.plot(sample_matrix[param], model_results[mo], marker='o', alpha=.25, linewidth=0)
-        plt.title(f"Correlation={corr.loc[mo, param]:0.4f}")
-        plt.xlabel(param)
-        plt.ylabel(mo)
-        plt.savefig(f"relationship_{param}_{mo}.png")
-      else:
-        pass
-        #print(f"Ignoring {param} vs {mo}, correlation ({corr.loc[mo, param]}) is too below {corr_threshold}")
+    # Looping through rows and columns in subplot square
+    for row in row_indices:  
+      for col in col_indices:
+        # Catch if only looking at a single row of subplots
+        if len(row_indices) <= 1:
+          axis = ax[col]
+          plt.setp(ax[0], ylabel=vars)
+        else:
+          axis = ax[row, col]
+          plt.setp(ax[:, 0], ylabel=vars)
 
+        if corr_threshold != None:
+          if corr.loc[vars, parameters[count]] < corr_threshold:
+            # Setting title (corr) 
+            axis.set_title(corr.loc[vars, parameters[count]])
+            # Setting xlabel (parameter name) 
+            axis.set_xlabel(parameters[count])
+            #Do not plot as below correlation threshold
+            break
+          elif corr.loc[vars, parameters[count]] >= corr_threshold:
+            # Plotting scatter of parameter, variable relationship
+            axis.scatter(sample_matrix[parameters[count]], results[vars])
+            # Plotting target value line
+            axis.plot(sample_matrix[parameters[count]], targets[vars].values*np.ones(len(sample_matrix[parameters[count]])), 'k--')
+            # Setting xlabel (parameter name) 
+            axis.set_xlabel(parameters[count])
+            # Setting title (corr) 
+            axis.set_title(corr.loc[vars, parameters[count]])
+            # Go to next output variable
+            count+=1
+        else:
+          # Plotting scatter of parameter, variable relationship
+          axis.scatter(sample_matrix[parameters[count]], results[vars])
+          # Plotting target value line
+          axis.plot(sample_matrix[parameters[count]], targets[vars].values*np.ones(len(sample_matrix[parameters[count]])), 'k--')
+          # Setting xlabel (parameter name) 
+          axis.set_xlabel(parameters[count])
+          # Go to next output variable
+          count+=1
+          # Break loop if we reach maximum number of columns before number of subplots
+          if count > (len(parameters) - 1):
+            break
+      # Create a single legend with all handles provided outside of subplots
+      legend_info = [Line2D([0], [0], color='k', linewidth=3, linestyle='--'),
+                     Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C0', markerfacecolor='C0', linestyle='')]
+      legend_labels = ["Observations", "Model"]
+      plt.legend(legend_info, legend_labels, bbox_to_anchor=(1.05, 1.0), loc="upper left", fontsize=10)
+      # Adjust spacing between subplots
+      plt.subplots_adjust(left=None, bottom=None, right=1, top=1.2, wspace=None, hspace=None)
+      # Save figure if enabled - may create a large number of figures
+      if save != None:
+        plt.savefig(f"plots/{vars}-{'-'.join(parameters)}.png", bbox_inches="tight")
 
 def plot_corr_heatmap(df_corr):
   '''
@@ -276,6 +351,8 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
   Returns
   =======
   None
+
+  .. image:: /images/SA_post_hoc_analysis/output_target_scatter.png
   '''
   # Calculate r2, rmse, mape metrics and create pandas data series
   r2, rmse, mape = calc_metrics(results, targets)
@@ -294,38 +371,41 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
   count = 0
     
   # Looping through rows and columns in subplot square
-  for row in fig_indices:
+  for row in fig_indices:     
+    # Break loop if we reach maximum number of columns before number of subplots
+    if count > len(results.columns):
+      break
 
-       
-      # Break loop if we reach maximum number of columns before number of subplots
-      if count > len(results.columns):
-          break
-
-      for col in fig_indices:
-          # Plot target line across number of samples
-          ax[row, col].plot(results.index, np.ones(len(results.index)) * targets[targets.columns[count]].values, 'k--')
-          # Scatter plots for results from all samples
-          ax[row, col].scatter(results.index,results[results.columns[count]])
-          # Title each subplot with output variable, pft, compartment
-          ax[row, col].set_title(results.columns[count])
-          # If an R^2 limit is given plot all results above that value
-          if r2lim != None:
-              ax[row, col].scatter(results[df_r2>r2lim].index, results[df_r2>r2lim][results.columns[count]], label=f"R$^2$>{r2lim}")
-          # If an RMSE limit is given plot all results below that value
-          if rmselim != None:
-              ax[row, col].scatter(results[df_rmse<rmselim].index, results[df_rmse<rmselim][results.columns[count]], label=f"RMSE<{rmselim}")
-          # If a MAPE limit is given plot all results below that value
-          if mapelim != None:
-              ax[row, col].scatter(results[df_mape<mapelim].index, results[df_mape<mapelim][results.columns[count]], label=f"MAPE<{mapelim}")
-          # Go to next output variable
-          count+=1
+    for col in fig_indices:
+      # Plot target line across number of samples
+      ax[row, col].plot(results.index, np.ones(len(results.index)) * targets[targets.columns[count]].values, 'k--')
+      # Scatter plots for results from all samples
+      ax[row, col].scatter(results.index,results[results.columns[count]])
+      # Title each subplot with output variable, pft, compartment
+      ax[row, col].set_ylabel(results.columns[count])
+      # If an R^2 limit is given plot all results above that value
+      if r2lim != None:
+        ax[row, col].scatter(results[df_r2>r2lim].index, results[df_r2>r2lim][results.columns[count]])
+      # If an RMSE limit is given plot all results below that value
+      if rmselim != None:
+        ax[row, col].scatter(results[df_rmse<rmselim].index, results[df_rmse<rmselim][results.columns[count]])
+      # If a MAPE limit is given plot all results below that value
+      if mapelim != None:
+        ax[row, col].scatter(results[df_mape<mapelim].index, results[df_mape<mapelim][results.columns[count]])
+      # Go to next output variable
+      count+=1
   # Create a single legend with all handles provided outside of subplots
-  handles, labels = plt.gca().get_legend_handles_labels()
-  plt.legend(handles=handles, bbox_to_anchor=(1.05, 1.0), loc="upper left", fontsize=10)
+  legend_info = [Line2D([0], [0], color='k', linewidth=3, linestyle='--'),
+                 Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C0', markerfacecolor='C0', linestyle=''),
+                 Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C1', markerfacecolor='C1', linestyle=''),
+                 Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C2', markerfacecolor='C2', linestyle=''),
+                 Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C3', markerfacecolor='C3', linestyle='')]
+  legend_labels = ['Observations', 'Model', f'R$^2$>{r2lim}',f'RMSE<{rmselim}', f'MAPE<{mapelim}']
+  plt.legend(legend_info, legend_labels, bbox_to_anchor=(1.05, 1.0), loc="upper left", fontsize=10)
   # Adjust spacing between subplots
-  plt.subplots_adjust(left=None, bottom=None, right=1, top=1.2, wspace=None, hspace=None)
+  plt.subplots_adjust(left=None, bottom=None, right=1.2, top=1.2, wspace=None, hspace=None)
   # Add mutual x axis label
-  plt.setp(ax[-1, :], xlabel='Years')
+  plt.setp(ax[-1, :], xlabel='Sample number')
   # Save figure
   plt.savefig('plots/output_target_scatter.png')
 
@@ -403,11 +483,9 @@ def prep_mads_initial_guess(params):
 
   s2 = 'mads_initialguess:\n'
   for MIN, MAX, comment in ranges:
-    s2 += f"  - {scipy.stats.uniform(loc=MIN, scale=MAX-MIN).mean():8.3f}  # {comment}\n"
+    s2 += f"- {scipy.stats.uniform(loc=MIN, scale=MAX-MIN).mean():8.3f}  # {comment}\n"
 
   return s2
-
-
 
 def prep_mads_distributions(params):
   '''
@@ -441,59 +519,59 @@ def prep_mads_distributions(params):
   # Then make a nice string out of it...
   s = 'mads_paramdist:\n'
   for MIN, MAX, comment in ranges:
-    s += f"  - Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
+    s += f"- Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
 
 
   return s
 
-
-def n_top_runs(results, targets, params, N):
+def n_top_runs(results, targets, params, r2lim, N=None):
   '''
-  Get the best runs measured using the combined scores.
-
-  .. note:: 
-
-    Encountering problems with selecting the best runs. Thinking that something 
-    is wrong with the calc_combined_score function. Perhaps adding 
-    weights to the r2, mse and mape calculations?
-
-    Maybe calculate weights on 'percent ecosystem contribution"? 
-    Or probably better to weight by the output/target values...i.e. 
-
-    Maybe this needs to be passed to the sklearn functions?
-
-    .. code:: 
-
-      # weights by targets
-      targets.values[0]/targets.sum(axis=1)[0] # <-- this works
-
+  Get the best runs measured using R^2, if N is present sort and return
+  N top runs.
 
   Parameters
-  ----------
+  ==========
   results : pandas.DataFrame
-    One row per sample (run), one column per output variable
+    One column for each output variable, one row for each sample run.
+
   targets : pandas.DataFrame
-    Single row, one column per target values (generally there is one output
-    variable for each target)
+    One column for each output (target) variable, single row with target value.
+
   params : pandas.DataFrame
-    One row per sample (run), one column per parameter. In other places in the
-    process this is referred to as the "sample matrix".
+    One row for each of the selected runs, one column for each parameter.
+
+  r2lim : float
+    Lower R^2 limit for output.
+  
+  N : integer, optional
+    Number of sorted results to return
 
   Returns
   -------
-  top_runs : tuple of numpy.ndarrays
-    First item is the 2D array of the top results (output variables), second
-    item is the array of parameters used to generate the outputs.
+  best_params : pandas.DataFrame
+    parameters returning variables above R^2 threshold from target value, sorted 
+    top N number if None!=None
+
+  best_results : pandas.DataFrame
+    results above R^2 threshold from target value, sorted
+    top N number if None!=None
 
   '''
-  combined_score = calc_combined_score(results, targets)
+  # Calculate r2, rmse, mape metrics and create pandas data series
+  r2, rmse, mape = calc_metrics(results, targets)
+  df_r2 = pd.Series( r2,  name = '$R^2$'  )
 
-  best_indices = np.argsort(combined_score)
+  if N != None:
+      best_indices = np.argsort(df_r2)
+      sorted_params = params.iloc[best_indices]
+      sorted_results = results.iloc[best_indices]
+      best_params = sorted_params[:N]
+      best_results = sorted_results[:N]
+  else:
+      best_params = params[df_r2>r2lim]
+      best_results = results[df_r2>r2lim]
 
-  sorted_results = results.iloc[best_indices]
-  sorted_params = params.iloc[best_indices]
-
-  return sorted_results[:N], sorted_params[:N]
+  return best_params, best_results
 
 def read_mads_iterationresults(iterationresults_file):
   '''
