@@ -84,8 +84,10 @@ if __name__ == '__main__':
   try:
     # add param calib  (a boolean, turns off dsl)
     driver.setup_multi() 
-  except ValueError:
+  except ValueError as value_error:
     print("Oops!  setup_multi failed.  Check the setup...")
+    print(f"Error: {value_error}")
+    exit(-1)
 
   if args.dry_run:
     print(f"Dry Run. Stopping here so you can")
