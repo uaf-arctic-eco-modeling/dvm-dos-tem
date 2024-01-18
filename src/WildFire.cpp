@@ -234,13 +234,21 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
  *  Should this be moved?  The private functions don't seem to be in a particular place.*/
 bool WildFire::isFireReturnDate(const int yr, const int midx)
 {
+  BOOST_LOG_SEV(glg, debug) << "Entering WildFire::isFireReturnDate()."
+  BOOST_LOG_SEV(glg, debug) << "yr = " << yr << "midx =" << midx
+  BOOST_LOG_SEV(glg, debug) << "yr > 0" << (yr > 0)
+  
   // The original conditional will fail with a divide by zero error when yr = 0:
   //if ((yr % this->fri) == 0 && yr > 0)
   // This is safe:
   if (yr > 0 && (yr % this->fri) == 0)
   {
+    BOOST_LOG_SEV(glg, debug) << "Passed 1st if()."
+    
     if (midx == temutil::doy2month(this->fri_jday_of_burn))
     {
+      BOOST_LOG_SEV(glg, debug) << "Passed 2nd if()."
+      
       return true;
     }
     // Do nothing: correct year, wrong month.
