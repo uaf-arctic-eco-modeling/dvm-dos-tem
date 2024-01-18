@@ -348,10 +348,10 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
   r2lim : float, optional
     Lower R^2 limit for output.
 
-  rmse2lim : float, optional
+  rmselim : float, optional
     Upper RMSE limit for output.
 
-  mape2lim : float, optional
+  mapelim : float, optional
     Upper MAPE limit for output.
 
   Returns
@@ -386,19 +386,26 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
         # Plot target line across number of samples
         ax[row, col].plot(results.index, np.ones(len(results.index)) * targets[targets.columns[count]].values[0], 'k--')
         # Scatter plots for results from all samples
-        ax[row, col].scatter(results.index,results[results.columns[count]])
+        ax[row, col].scatter(results.index,results[results.columns[count]],
+                             alpha=0.4, linewidth=0)
         # label each subplot with output variable, pft, compartment, sample number
         ax[row, col].set_ylabel(results.columns[count])
         ax[row, col].set_xlabel("Sample number")
         # If an R^2 limit is given plot all results above that value
         if r2lim != None:
-          ax[row, col].scatter(results[df_r2>r2lim].index, results[df_r2>r2lim][results.columns[count]])
+          ax[row, col].scatter(results[df_r2>r2lim].index,
+                               results[df_r2>r2lim][results.columns[count]],
+                               alpha=0.4, linewidth=0)
         # If an RMSE limit is given plot all results below that value
         if rmselim != None:
-          ax[row, col].scatter(results[df_rmse<rmselim].index, results[df_rmse<rmselim][results.columns[count]])
+          ax[row, col].scatter(results[df_rmse<rmselim].index,
+                               results[df_rmse<rmselim][results.columns[count]],
+                               alpha=0.4, linewidth=0)
         # If a MAPE limit is given plot all results below that value
         if mapelim != None:
-          ax[row, col].scatter(results[df_mape<mapelim].index, results[df_mape<mapelim][results.columns[count]])
+          ax[row, col].scatter(results[df_mape<mapelim].index,
+                               results[df_mape<mapelim][results.columns[count]],
+                               alpha=0.4, linewidth=0)
         # Go to next output variable
         count+=1    
   # Create a single legend with all handles provided outside of subplots
