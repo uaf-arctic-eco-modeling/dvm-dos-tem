@@ -234,7 +234,10 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
  *  Should this be moved?  The private functions don't seem to be in a particular place.*/
 bool WildFire::isFireReturnDate(const int yr, const int midx)
 {
-  if ((yr % this->fri) == 0 && yr > 0)
+  // The original conditional will fail with a divide by zero error when yr = 0:
+  //if ((yr % this->fri) == 0 && yr > 0)
+  // This is safe:
+  if (yr > 0 && (yr % this->fri) == 0)
   {
     if (midx == temutil::doy2month(this->fri_jday_of_burn))
     {
