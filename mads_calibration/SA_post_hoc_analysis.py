@@ -40,7 +40,6 @@ import matplotlib.pyplot as plt
 # import Line2D to manually create legend handles
 from matplotlib.lines import Line2D
 
-
 # This stuff is diamond box in SA (orange half)
 def plot_boxplot(results, targets):
   '''
@@ -236,7 +235,10 @@ def plot_relationships(results, sample_matrix, targets, variables=None, paramete
     # Create indices for looping through subplot columns
     col_indices = np.linspace(0, fig_size - 1, fig_size).astype(int)
     # Create subplots
-    if len(parameters) < 3:
+    if len(parameters) < 2:
+      fig, ax = plt.subplots()
+      row_indices = [None]
+    elif len(parameters) < 3:
       fig, ax = plt.subplots(1, fig_size)
       # Create indices for looping through subplot rows
       row_indices = [1]
@@ -253,8 +255,12 @@ def plot_relationships(results, sample_matrix, targets, variables=None, paramete
       for col in col_indices:
         # Catch if only looking at a single row of subplots
         if len(row_indices) <= 1:
-          axis = ax[col]
-          plt.setp(ax[0], ylabel=vars)
+          if row==None:
+            axis = ax
+            plt.setp(ax, ylabel=vars)
+          else:
+            axis = ax[col]
+            plt.setp(ax[0], ylabel=vars)
         else:
           axis = ax[row, col]
           plt.setp(ax[:, 0], ylabel=vars)
@@ -366,34 +372,35 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
   fig_indices = np.linspace(0, fig_size - 1, fig_size).astype(int)
   # Create subplots
   fig, ax = plt.subplots(fig_size, fig_size)
-    
+  
   # Counter for results column number during subplot looping
   count = 0
-    
+  
   # Looping through rows and columns in subplot square
-  for row in fig_indices:     
-    # Break loop if we reach maximum number of columns before number of subplots
-    if count > len(results.columns):
-      break
-
+  for row in fig_indices:
     for col in fig_indices:
-      # Plot target line across number of samples
-      ax[row, col].plot(results.index, np.ones(len(results.index)) * targets[targets.columns[count]].values, 'k--')
-      # Scatter plots for results from all samples
-      ax[row, col].scatter(results.index,results[results.columns[count]])
-      # Title each subplot with output variable, pft, compartment
-      ax[row, col].set_ylabel(results.columns[count])
-      # If an R^2 limit is given plot all results above that value
-      if r2lim != None:
-        ax[row, col].scatter(results[df_r2>r2lim].index, results[df_r2>r2lim][results.columns[count]])
-      # If an RMSE limit is given plot all results below that value
-      if rmselim != None:
-        ax[row, col].scatter(results[df_rmse<rmselim].index, results[df_rmse<rmselim][results.columns[count]])
-      # If a MAPE limit is given plot all results below that value
-      if mapelim != None:
-        ax[row, col].scatter(results[df_mape<mapelim].index, results[df_mape<mapelim][results.columns[count]])
-      # Go to next output variable
-      count+=1
+      # Break loop if we reach maximum number of columns before number of subplots
+      if count >= len(results.columns):
+        ax[row,col].set_axis_off()
+      else:
+        # Plot target line across number of samples
+        ax[row, col].plot(results.index, np.ones(len(results.index)) * targets[targets.columns[count]].values[0], 'k--')
+        # Scatter plots for results from all samples
+        ax[row, col].scatter(results.index,results[results.columns[count]])
+        # label each subplot with output variable, pft, compartment, sample number
+        ax[row, col].set_ylabel(results.columns[count])
+        ax[row, col].set_xlabel("Sample number")
+        # If an R^2 limit is given plot all results above that value
+        if r2lim != None:
+          ax[row, col].scatter(results[df_r2>r2lim].index, results[df_r2>r2lim][results.columns[count]])
+        # If an RMSE limit is given plot all results below that value
+        if rmselim != None:
+          ax[row, col].scatter(results[df_rmse<rmselim].index, results[df_rmse<rmselim][results.columns[count]])
+        # If a MAPE limit is given plot all results below that value
+        if mapelim != None:
+          ax[row, col].scatter(results[df_mape<mapelim].index, results[df_mape<mapelim][results.columns[count]])
+        # Go to next output variable
+        count+=1    
   # Create a single legend with all handles provided outside of subplots
   legend_info = [Line2D([0], [0], color='k', linewidth=3, linestyle='--'),
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C0', markerfacecolor='C0', linestyle=''),
@@ -401,13 +408,12 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C2', markerfacecolor='C2', linestyle=''),
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C3', markerfacecolor='C3', linestyle='')]
   legend_labels = ['Observations', 'Model', f'R$^2$>{r2lim}',f'RMSE<{rmselim}', f'MAPE<{mapelim}']
-  plt.legend(legend_info, legend_labels, bbox_to_anchor=(1.05, 1.0), loc="upper left", fontsize=10)
-  # Adjust spacing between subplots
-  plt.subplots_adjust(left=None, bottom=None, right=1.2, top=1.2, wspace=None, hspace=None)
-  # Add mutual x axis label
-  plt.setp(ax[-1, :], xlabel='Sample number')
+  # Apply legend
+  lgd = fig.legend(legend_info, legend_labels, bbox_to_anchor=(1., 1.), loc="upper left", fontsize=10)
+  # Apply tight layout
+  plt.tight_layout()
   # Save figure
-  plt.savefig('plots/output_target_scatter.png')
+  fig.savefig('plots/output_target_scatter.png', bbox_inches='tight')
 
 def plot_r2_rmse(results, targets):
   '''
