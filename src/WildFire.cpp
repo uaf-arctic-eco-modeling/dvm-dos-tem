@@ -235,13 +235,15 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 bool WildFire::isFireReturnDate(const int yr, const int midx)
 {
   BOOST_LOG_SEV(glg, debug) << "Entering WildFire::isFireReturnDate().";
-  BOOST_LOG_SEV(glg, debug) << "yr = " << yr << "midx =" << midx;
-  BOOST_LOG_SEV(glg, debug) << "yr > 0" << (yr > 0);
+  BOOST_LOG_SEV(glg, debug) << "yr =" << yr << ", midx =" << midx;
+  BOOST_LOG_SEV(glg, debug) << "yr > 0 " << (yr > 0);
+  BOOST_LOG_SEV(glg, debug) << "this->fri " << this->fri;
+  BOOST_LOG_SEV(glg, debug) << "this->fri_jday_of_burn " << this->fri_jday_of_burn
   
   // The original conditional will fail with a divide by zero error when yr = 0:
   //if ((yr % this->fri) == 0 && yr > 0)
   // This is safe:
-  if (yr > 0 && (yr % this->fri) == 0)
+  if (yr > 0 && midx > 0 && (yr % this->fri) == 0)
   {
     BOOST_LOG_SEV(glg, debug) << "Passed 1st if().";
     
@@ -253,6 +255,7 @@ bool WildFire::isFireReturnDate(const int yr, const int midx)
     }
     // Do nothing: correct year, wrong month.
   }
+  BOOST_LOG_SEV(glg, debug) << "Completing WildFire::isFireReturnDate().";
   return false;
 }// FW_MOD_END.
 
