@@ -138,7 +138,6 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 */
 //bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
 bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage,
-                             //const ModelData md) {// FW_MOD: Add ModelData. Pointer?
                              const ModelData* md) {// FW_MOD
 
   BOOST_LOG_SEV(glg, note) << "determining fire ignition for yr:" << yr
@@ -170,7 +169,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 //       // do nothing: correct year, wrong month.
 //     }
     // Extracted to:
-    if (isFireReturnDate(yr, midx))
+    if (this->isFireReturnDate(yr, midx))
     {
       ignite = true;
     }
@@ -180,8 +179,6 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
   else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
             (stage.compare("sc-run") == 0 && md->fire_on_SC) )
   {
-    //this->fri_derived = false;
-    
     switch (md->fire_ignition_mode)
     {
       case 0:// Default (old) fire behavior, use explicit fire from input file:
@@ -200,16 +197,16 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       case 1:// Use fire return interval:
       {
         this->fri_derived = true;
-        BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
-        if (isFireReturnDate(yr, midx))
+        BOOST_LOG_SEV(glg, debug) << "fire_ignition_mode = 1. Determine fire from FRI.";
+        if (this->isFireReturnDate(yr, midx))
         {
           ignite = true;
         }
         break;
       }
-      case 2://Placeholder for future dynamic ignition mode...
+      case 2://Placeholder for future dynamic ignition mode:
       {
-        BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 1.";
+        BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 0 or 1.";
         // Should probably terminate here.
         this->fri_derived = false;
         ignite = false;
@@ -237,13 +234,13 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
  *  Should this be moved?  The private functions don't seem to be in a particular place.*/
 bool WildFire::isFireReturnDate(const int yr, const int midx)
 {
-  if ( (yr % this->fri) == 0 && yr > 0 )
+  if ((yr % this->fri) == 0 && yr > 0)
   {
     if (midx == temutil::doy2month(this->fri_jday_of_burn))
     {
       return true;
     }
-    // do nothing: correct year, wrong month.
+    // Do nothing: correct year, wrong month.
   }
   return false;
 }// FW_MOD_END.
