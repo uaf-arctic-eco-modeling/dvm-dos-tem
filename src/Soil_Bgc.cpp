@@ -101,9 +101,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double dt = 1.0 / time_steps; 
   //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
   double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
-  double Prod=0.0, Ebul=0.0, Oxid=0.0;//, Plant=0.0;
+  double Prod=0.0, Ebul=0.0, oxid=0.0;//, Plant=0.0;
   //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
-  double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, Oxid_gm2hr=0.0;
+  double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, oxid_gm2hr=0.0;
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
 
@@ -293,7 +293,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
       //set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
       //BM: does 5 and 20 need to be a parameter in param files? yes
-      Oxid = (1 - saturated_fraction)*(5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
+      oxid = (1 - saturated_fraction)*(5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
+      //Code below was used for testing whether the partially saturated layer had a significant effect on oxidation
+      //which it appears to - we are confident that this is correct
+      // if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
+      //   Oxid = 0.0;
+      // }
+      
+
 
       // again do we need poro? we think it should be air content? test this
       // _m refers to unit conversion: 
@@ -302,7 +309,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // L^-1 = 1000 m^-3 ( * 1000)
         // m^2 = m * m^-3 ( * dz) 
         // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
-      Oxid_gm2hr = Oxid * currl->poro * currl->dz * 0.012;
+      oxid_gm2hr = oxid * currl->poro * currl->dz * 0.012;
 
       //Layer above water table
       if (ed->d_sois.watertab > (currl->z + currl->dz)) { 
@@ -425,8 +432,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         }
 
         //Fan 2013 Eq 18 for layers below the water table
-        Oxid = 0.0;
-        Oxid_gm2hr = 0.0;
+        // Oxid = 0.0;
+        // Oxid_gm2hr = 0.0;
 
         //Should this be porosity or LWC? - cannot find the reason for this but it is below the water table and likely a unit conversion
         if (currl->tem > 0.0) {
@@ -454,9 +461,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       totOxid_m = totOxid_m + Oxid_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
       ed->d_soid.oxid = totOxid_m;
 
-      if (Oxid<0.000001) {
-        Oxid = 0.0;
-      }
+      // if (Oxid<0.000001) {
+      //   Oxid = 0.0;
+      // }
 
       if (plant_ch4_sum < 0.000001) {
         plant_ch4_sum = 0.0;
@@ -467,7 +474,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // - Ebullition - Oxidation - CH4 emitted through plant process
       //This does not specifically include diff[] right now - see
       // calculation of V[] below
-      SS = Prod - Ebul - Oxid - plant_ch4_sum;
+      SS = Prod - Ebul - oxid - plant_ch4_sum;
 
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
@@ -530,7 +537,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   currl = ground->fstshlwl; //reset currl to top of the soil stack
   il = 1; //reset manual layer index tracker.
   while(currl && currl->isSoil){
-    ed->daily_ch4_pool[id][il] = currl->ch4;
+    ed->daily_ch4_pool[id][il] = currl->ch4; // UNITS: these should be in g m^2
     il++;
     currl = currl->nextl;
   }
