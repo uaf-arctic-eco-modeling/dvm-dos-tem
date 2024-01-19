@@ -37,9 +37,9 @@ def load_dvmdostem_from_configfile(config_file_name):
   '''
   dvmdostem = drivers.MadsTEMDriver.MadsTEMDriver.fromfilename(config_file_name)
 
-  dvmdostem.set_seed_path("/work/parameters")
+  dvmdostem.set_seed_path("/work/parameters") # <-- now set from config - this should probably not be here...
   dvmdostem.set_params_from_seed()
-  dvmdostem.load_target_data("/work/calibration")
+  dvmdostem.load_target_data("/work/calibration") # <-- now set from config I think?
   dvmdostem.setup_outputs(dvmdostem.target_names)
   dvmdostem.clean()
   dvmdostem.setup_run_dir()
@@ -261,26 +261,35 @@ outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_o
 #   1. The seed, initial guess, and optimized parameters
 #   2. The seed, initial guess, and optimized outputs
 #   3. The residuals (modeled outputs - the targets) 
+plot_file_name = joinpath(mads_config["work_dir"], "plot_optimization_fit.png")
 PyCall.py"plot_opt_fit"(
   seed_params=seed_params, ig_params=ig_params, opt_params=calib_param.vals, 
   seed_out=seed_out, ig_out=ig_out, opt_out=calib_predictions, 
   param_labels=param_keys,
   out_labels=outlabels,
   targets=targets, 
-
+  savefile=plot_file_name
+)
 
 # Retrieve the mads metadata files....
 # Not sure where these should default to going...??? 
-# Same problem with plot above...
+# Same problem with plot above...for now putting them in the work_dir, but this
+# is not ideal because they get cleaned up if you make another driver instance
+# The use case for another driver instance is to analyze a run that has already
+# taken place without waiting for the optimization run to happen again...
 mv(
-  pwd() * "/" * mads_config["mads_problemname"] * ".iterationresults", 
-  mads_config["work_dir"] * "/" * mads_config["mads_problemname"] * ".iterationresults"
+  mads_config["mads_problemname"] * ".iterationresults",
+  joinpath(mads_config["work_dir"], mads_config["mads_problemname"] * ".iterationresults")
 )
 mv(
-  pwd() * "/"*mads_config["mads_problemname"] * ".finalresults", 
-  mads_config["work_dir"] * "/" * mads_config["mads_problemname"] * ".finalresults"
+  mads_config["mads_problemname"] * ".finalresults",
+  joinpath(mads_config["work_dir"], mads_config["mads_problemname"] * ".finalresults")
 )
 
+# One issue is that when doing the seed run (or any of the other runs for that
+# matter) it will totally clean out the working directory
+# (mads_config["work_dir"]), which will clear out the plots or iteration
+# results...
 
 
 # Not sure what these are for..?
