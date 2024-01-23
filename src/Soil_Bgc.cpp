@@ -101,9 +101,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double dt = 1.0 / time_steps; 
   //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
   double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
-  double Prod=0.0, Ebul=0.0, oxid=0.0;//, Plant=0.0;
+  // Individual layer fluxes
+  double Prod=0.0, Ebul=0.0, oxid=0.0, plant=0.0;
   //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
-  double Ebul_m=0.0, Plant_m=0.0, totFlux_m=0.0, oxid_gm2hr=0.0;
+  // Individual layer fluxes in units of g m^2 hr^1
+  double Ebul_m=0.0, plant_gm2hr=0.0, totFlux_m=0.0, oxid_gm2hr=0.0;
+  // total flux cumulated over a day - is this for all layers??
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
 
@@ -144,8 +147,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     r[ii] = 0.0;
     s[ii] = 0.0;
   }
-  //BM: New definitions to force a compile
-  double plant_ch4_sum_l[MAX_SOI_LAY] = {0};
+
   double rhrawc_ch4[MAX_SOI_LAY] = {0};
   double rhsoma_ch4[MAX_SOI_LAY] = {0};
   double rhsompr_ch4[MAX_SOI_LAY] = {0};
@@ -186,8 +188,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ksompr_ch4 = bgcpar.kdsompr_ch4[il];
       ksomcr_ch4 = bgcpar.kdsomcr_ch4[il];
 
-      double plant_ch4_movement[NUM_PFT] = {0};
-      double plant_ch4_sum = 0.0;
+      double pft_transport[NUM_PFT] = {0};
 
       for(int ip=0; ip<NUM_PFT; ip++){
         double layer_pft_froot = cd->m_soil.frootfrac[il][ip];
@@ -197,16 +198,29 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //but depths given in cm whereas we are using meters 
         double rate_parameter_kp = 0.01; 
         //See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] for pft transport capacity 
-        plant_ch4_movement[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
-        plant_ch4_sum += plant_ch4_movement[ip];
+        pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
+        plant += pft_transport[ip];
 
         //Storing plant transport values for output
-        ed->output_ch4_transport[il][ip] = plant_ch4_movement[ip];
+        ed->output_ch4_transport[il][ip] = pft_transport[ip];
       }
 
       //BM: plant_ch4_sum_l is per layer summed for pfts - think about the names of these
       //  plant_ch4_sum_l might be used as an array for output  
-      plant_ch4_sum_l[il] = plant_ch4_sum;
+      //  plant_transport[il] = plant_ch4_sum;
+
+      //TESTING moving plant out of IF/ELSE
+      if (ed->d_sois.ts[il] > 0.0) {
+        plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
+      } else {
+        plant_gm2hr = 0.0;
+      }
+
+      // if (currl->tem > 0.0) {
+      //   Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
+      // } else {
+      //   Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+      // }
 
       //Tortuosity models vary, see (Pingintha, 2010 10.1111/j.1600-0889.2009.00445.x) 
       //and (Fan, 2014 10.1007/s10533-014-0012-0)
@@ -296,12 +310,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       oxid = (1 - saturated_fraction)*(5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
       //Code below was used for testing whether the partially saturated layer had a significant effect on oxidation
       //which it appears to - we are confident that this is correct
-      // if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
-      //   Oxid = 0.0;
-      // }
+      if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
+        oxid = 0.0;
+      }
       
-
-
       // again do we need poro? we think it should be air content? test this
       // _m refers to unit conversion: 
         // oxid is in units mu mol L^-1 hr^-1
@@ -321,11 +333,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // Oxid = 5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4);
         // Oxid_m = Oxid * currl->poro * currl->dz * 12.0;
         // Not sure whether currl->poro is required, and why not used in oxid, plant_ch4_sum but only "_m" variables
-        if (ed->d_sois.ts[il] > 0.0) {
-          Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
-        } else {
-          Plant_m = 0.0;
-        }
+        // if (ed->d_sois.ts[il] > 0.0) {
+        //   Plant_m = plant_ch4_sum * currl->poro * currl->dz * 1000.0;
+        // } else {
+        //   Plant_m = 0.0;
+        // }
 
         //Fan 2013 Eq. 17 if layers are above the water table
         Ebul = 0.0; // added by Y.Mi, Jan 2015
@@ -436,19 +448,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // Oxid_gm2hr = 0.0;
 
         //Should this be porosity or LWC? - cannot find the reason for this but it is below the water table and likely a unit conversion
-        if (currl->tem > 0.0) {
-          Plant_m = plant_ch4_sum * currl->poro * layer_sat_dz * 1000.0;
-        } else {
-          Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
-        }
+        // if (currl->tem > 0.0) {
+        //   Plant_m = plant_ch4_sum * currl->poro * layer_sat_dz * 1000.0;
+        // } else {
+        //   Plant_m = 0.0;  //Plant * ed->d_soid.alllwc[il] * ed->m_sois.dz[il] * 1000.0;
+        // }
       }//end of layer below water table
 
       //Accumulating ebullitions per layer across timesteps for output
       ch4_ebul_layer[il] += Ebul_m;
-      ch4_oxid_layer[il] += Oxid_gm2hr;
+      ch4_oxid_layer[il] += oxid_gm2hr;
 
-      totPlant = totPlant + plant_ch4_sum; //cumulated over 1 day, 24 time steps, Y.MI
-      totPlant_m += Plant_m; //cumulated over 1 day, 24 time steps, Y.MI
+      totPlant = totPlant + plant; //cumulated over 1 day, 24 time steps, Y.MI
+      totPlant_m += plant_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
 //            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
 //            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
 //
@@ -458,15 +470,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
       // tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
-      totOxid_m = totOxid_m + Oxid_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
+      totOxid_m = totOxid_m + oxid_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
       ed->d_soid.oxid = totOxid_m;
 
       // if (Oxid<0.000001) {
       //   Oxid = 0.0;
       // }
 
-      if (plant_ch4_sum < 0.000001) {
-        plant_ch4_sum = 0.0;
+      if (plant < 0.000001) {
+        plant = 0.0;
       }
 
       //Fan Eq. 8 (mostly?)
@@ -474,7 +486,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // - Ebullition - Oxidation - CH4 emitted through plant process
       //This does not specifically include diff[] right now - see
       // calculation of V[] below
-      SS = Prod - Ebul - oxid - plant_ch4_sum;
+      SS = Prod - Ebul - oxid - plant;
 
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
