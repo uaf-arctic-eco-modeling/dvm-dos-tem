@@ -101,8 +101,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double dt = 1.0 / time_steps; 
   //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
   double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
-  // Individual layer fluxes
-  double Prod=0.0, Ebul=0.0, oxid=0.0, plant=0.0;
+  // Individual layer fluxes - plant has to be defined within layer loop 
+  double Prod=0.0, Ebul=0.0, oxid=0.0
   //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
   // Individual layer fluxes in units of g m^2 hr^1
   double Ebul_m=0.0, plant_gm2hr=0.0, totFlux_m=0.0, oxid_gm2hr=0.0;
@@ -181,6 +181,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     double ksomcr_ch4 = 0.0;
     double TResp = 0.0; //BM: Respiration temperature dependence - better name
 
+
+
     while(!currl->isMoss){
 
       krawc_ch4 = bgcpar.kdrawc_ch4[il];
@@ -189,6 +191,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ksomcr_ch4 = bgcpar.kdsomcr_ch4[il];
 
       double pft_transport[NUM_PFT] = {0};
+      double plant = 0.0;
 
       for(int ip=0; ip<NUM_PFT; ip++){
         double layer_pft_froot = cd->m_soil.frootfrac[il][ip];
