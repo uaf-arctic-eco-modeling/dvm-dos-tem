@@ -102,10 +102,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
   double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   // Individual layer fluxes - plant has to be defined within layer loop 
-  double Prod=0.0, Ebul=0.0, oxid=0.0;
+  double prod=0.0, ebul=0.0, oxid=0.0;
   //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
   // Individual layer fluxes in units of g m^2 hr^1
-  double Ebul_m=0.0, plant_gm2hr=0.0, totFlux_m=0.0, oxid_gm2hr=0.0;
+  double ebul_gm2hr=0.0, plant_gm2hr=0.0, totFlux_m=0.0, oxid_gm2hr=0.0, prod_gm2hr = 0.0;
   // total flux cumulated over a day - is this for all layers??
   double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
   double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
@@ -354,12 +354,92 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         rhsomcr_ch4[il] = 0.0;
       }
 
+      //Fan 2013 Eq. 9 for layers below the water table 
+      //The f(Tc,i) and Cs,i are included in the _ch4 values - calculated prior
+      //dz is in meters
+      //The /12 is from the conversion from grams to mol. 1 mol C = 12g
+      //We actually want micro-mols (10^6 micro-mol)
+      //Also converts m^3 to liters (10^-3 m^3)
+      //U (unit conversion) = (1/12) * 10^6 * 10^-3
+      //This rhrawc_ch4 has different units than the corresponding CO2.
+      //rhrawc doesn't make sense for this - it's not heterotrophic respiration
+      //this is the rate, but modified by temperature and carbon content - rename the "rh" part to something relevant
+      //it is hourly
+
+      // prod = saturated_fraction * (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
+
       if (saturated_fraction > 0.0){
-        Prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
+        prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
       }
       else{
-        Prod=0.0;
+        prod=0.0;
       }
+
+      // adding production in units of g m^2 hr^1 for output and comparison analysis
+      prod_gm2hr = prod * currl->getVolLiq() * currl->dz * 1000.0;
+
+
+
+
+      //Fan 2013 Eq. 15. Bunsen solubility coefficient
+      bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
+
+      //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
+      Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
+      bun_sol_mass = Pressure * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+
+      //This should be Fan 2013 Eq. 17 for if layers are below the water table
+      //Fan does not explicitly limit it to layers with temp greater than 1 (at least
+      // not at the equation).
+
+      double rate_parameter_kh = 1.0; 
+
+      if (saturated_fraction > 0.0){
+        if(currl->tem > 1.0){
+          ebul = (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
+        }
+        else{
+          ebul = 0.0;
+        }
+
+        if (ebul < 0.0000001) {
+          ebul = 0.0;
+        }
+      }
+      else{
+        ebul=0.0;
+      }
+
+      // if (currl->tem > 1.0){
+      //   ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
+      // }
+      // else{
+      //   ebul=0.0;
+      // }
+      
+
+      //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
+        //  we're in a time loop)
+        //currl->liq units are kg m^-2
+        //currl->dz units are m
+        //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit) - These units are actually: umol m^-2 hr^-1
+        //L^-1 = 0.001m^-3   
+
+        // Scaling by the LWC here could actually have relevance when scaled up to the /m2, as:
+        //    This assump- tion is supported by the fact that wetland soils are generally very porous, 
+        //    the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
+        //    and the finding that the velocity of bubbles ascending in pure water lies in the order of 
+        //    1- 10 cm s -1 [e.g. Shafer and Zare, 1991 ].  
+
+        //BUT - shouldn't this be applied to Ebul?
+
+        ebul_gm2hr = ebul * currl->getVolLiq() * currl->dz * 1000.0;
+        totEbul = totEbul + ebul; //cumulated over 1 time step, 1 hour Y.MI - BM: so per day (rather than per hour - see m = 24 declaration)
+        totEbul_m += ebul_gm2hr; //cumulated over 1 time step, 1 hour
+
+        if (currl->tem < 0.0) {
+          totEbul_m = 0.0;
+        }
 
       //Layer above water table
       if (ed->d_sois.watertab > (currl->z + currl->dz)) { 
@@ -378,8 +458,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // }
 
         //Fan 2013 Eq. 17 if layers are above the water table
-        Ebul = 0.0; // added by Y.Mi, Jan 2015
-        Ebul_m = 0.0; //Y.Mi
+        // Ebul = 0.0; // added by Y.Mi, Jan 2015
+        // Ebul_m = 0.0; //Y.Mi
       }
 
       //Layer below the water table (and containing the water table for now)
@@ -387,11 +467,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         //if below, is currl->dz
         //if contains, is thickness of saturated part --> these need to go into where a partially saturated layer is
-        double layer_sat_dz = currl->dz;
-        double layer_sat_z = currl->z;
-        double layer_sat_liq = currl->getVolLiq();
+        // double layer_sat_dz = currl->dz;
+        // double layer_sat_z = currl->z;
+        // double layer_sat_liq = currl->getVolLiq();
 
-        double layer_sat_ch4 = currl->ch4;
+        // double layer_sat_ch4 = currl->ch4;
 
         // if(tmp_sois.rawc[il] > 0.0){
         //   rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
@@ -435,51 +515,51 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz) / 12.0;
   
         //Fan 2013 Eq. 15. Bunsen solubility coefficient
-        bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
+        // bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
 
-        //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-        Pressure = DENLIQ * G * (layer_sat_z + layer_sat_dz / 2.0) + Pstd;
-        bun_sol_mass = Pressure * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+        // //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
+        // Pressure = DENLIQ * G * (layer_sat_z + layer_sat_dz / 2.0) + Pstd;
+        // bun_sol_mass = Pressure * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
 
-        //This should be Fan 2013 Eq. 17 for if layers are below the water table
-        //Fan does not explicitly limit it to layers with temp greater than 1 (at least
-        // not at the equation).
+        // //This should be Fan 2013 Eq. 17 for if layers are below the water table
+        // //Fan does not explicitly limit it to layers with temp greater than 1 (at least
+        // // not at the equation).
 
-        double rate_parameter_kh = 1.0; 
+        // double rate_parameter_kh = 1.0; 
 
-        if(currl->tem > 1.0){
-          Ebul = (layer_sat_ch4 - bun_sol_mass) * rate_parameter_kh;
-        }
-        else{
-          Ebul = 0.0;
-        }
+        // if(currl->tem > 1.0){
+        //   Ebul = (layer_sat_ch4 - bun_sol_mass) * rate_parameter_kh;
+        // }
+        // else{
+        //   Ebul = 0.0;
+        // }
 
-        if (Ebul < 0.0000001) {
-          Ebul = 0.0;
-        }
+        // if (Ebul < 0.0000001) {
+        //   Ebul = 0.0;
+        // }
 
-        //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
-        //  we're in a time loop)
-        //currl->liq units are kg m^-2
-        //currl->dz units are m
-        //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit) - These units are actually: umol m^-2 hr^-1
-        //L^-1 = 0.001m^-3   
+        // //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
+        // //  we're in a time loop)
+        // //currl->liq units are kg m^-2
+        // //currl->dz units are m
+        // //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit) - These units are actually: umol m^-2 hr^-1
+        // //L^-1 = 0.001m^-3   
 
-        // Scaling by the LWC here could actually have relevance when scaled up to the /m2, as:
-        //    This assump- tion is supported by the fact that wetland soils are generally very porous, 
-        //    the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
-        //    and the finding that the velocity of bubbles ascending in pure water lies in the order of 
-        //    1- 10 cm s -1 [e.g. Shafer and Zare, 1991 ].  
+        // // Scaling by the LWC here could actually have relevance when scaled up to the /m2, as:
+        // //    This assump- tion is supported by the fact that wetland soils are generally very porous, 
+        // //    the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
+        // //    and the finding that the velocity of bubbles ascending in pure water lies in the order of 
+        // //    1- 10 cm s -1 [e.g. Shafer and Zare, 1991 ].  
 
-        //BUT - shouldn't this be applied to Ebul?
+        // //BUT - shouldn't this be applied to Ebul?
 
-        Ebul_m = Ebul * layer_sat_liq * layer_sat_dz * 1000.0;
-        totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI - BM: so per day (rather than per hour - see m = 24 declaration)
-        totEbul_m += Ebul_m; //cumulated over 1 time step, 1 hour
+        // Ebul_m = Ebul * layer_sat_liq * layer_sat_dz * 1000.0;
+        // totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour Y.MI - BM: so per day (rather than per hour - see m = 24 declaration)
+        // totEbul_m += Ebul_m; //cumulated over 1 time step, 1 hour
 
-        if (currl->tem < 0.0) {
-          totEbul_m = 0.0;
-        }
+        // if (currl->tem < 0.0) {
+        //   totEbul_m = 0.0;
+        // }
 
         //Fan 2013 Eq 18 for layers below the water table
         // Oxid = 0.0;
@@ -494,7 +574,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }//end of layer below water table
 
       //Accumulating ebullitions per layer across timesteps for output
-      ch4_ebul_layer[il] += Ebul_m;
+      ch4_ebul_layer[il] += ebul_gm2hr;
       ch4_oxid_layer[il] += oxid_gm2hr;
 
       totPlant = totPlant + plant; //cumulated over 1 day, 24 time steps, Y.MI
@@ -524,7 +604,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // - Ebullition - Oxidation - CH4 emitted through plant process
       //This does not specifically include diff[] right now - see
       // calculation of V[] below
-      SS = Prod - Ebul - oxid - plant;
+      SS = prod - ebul - oxid - plant;
 
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
