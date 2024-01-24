@@ -102,7 +102,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
   double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
   // Individual layer fluxes - plant has to be defined within layer loop 
-  double Prod=0.0, Ebul=0.0, oxid=0.0
+  double Prod=0.0, Ebul=0.0, oxid=0.0;
   //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
   // Individual layer fluxes in units of g m^2 hr^1
   double Ebul_m=0.0, plant_gm2hr=0.0, totFlux_m=0.0, oxid_gm2hr=0.0;
@@ -326,6 +326,41 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
       oxid_gm2hr = oxid * currl->poro * currl->dz * 0.012;
 
+      if(tmp_sois.rawc[il] > 0.0){
+        rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
+      }
+      else{
+        rhrawc_ch4[il] = 0.0;
+      }
+
+      if(tmp_sois.soma[il] > 0.0){
+        rhsoma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
+      }
+      else{
+        rhsoma_ch4[il] = 0.0;
+      }
+
+      if(tmp_sois.sompr[il] > 0.0){
+        rhsompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
+      }
+      else{
+        rhsompr_ch4[il] = 0.0;
+      }
+
+      if(tmp_sois.somcr[il] > 0.0){
+        rhsomcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
+      }
+      else{
+        rhsomcr_ch4[il] = 0.0;
+      }
+
+      if (saturated_fraction > 0.0){
+        Prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
+      }
+      else{
+        Prod=0.0;
+      }
+
       //Layer above water table
       if (ed->d_sois.watertab > (currl->z + currl->dz)) { 
 
@@ -358,33 +393,33 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         double layer_sat_ch4 = currl->ch4;
 
-        if(tmp_sois.rawc[il] > 0.0){
-          rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
-        }
-        else{
-          rhrawc_ch4[il] = 0.0;
-        }
+        // if(tmp_sois.rawc[il] > 0.0){
+        //   rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
+        // }
+        // else{
+        //   rhrawc_ch4[il] = 0.0;
+        // }
 
-        if(tmp_sois.soma[il] > 0.0){
-          rhsoma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
-        }
-        else{
-          rhsoma_ch4[il] = 0.0;
-        }
+        // if(tmp_sois.soma[il] > 0.0){
+        //   rhsoma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
+        // }
+        // else{
+        //   rhsoma_ch4[il] = 0.0;
+        // }
 
-        if(tmp_sois.sompr[il] > 0.0){
-          rhsompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
-        }
-        else{
-          rhsompr_ch4[il] = 0.0;
-        }
+        // if(tmp_sois.sompr[il] > 0.0){
+        //   rhsompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
+        // }
+        // else{
+        //   rhsompr_ch4[il] = 0.0;
+        // }
 
-        if(tmp_sois.somcr[il] > 0.0){
-          rhsomcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
-        }
-        else{
-          rhsomcr_ch4[il] = 0.0;
-        }
+        // if(tmp_sois.somcr[il] > 0.0){
+        //   rhsomcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
+        // }
+        // else{
+        //   rhsomcr_ch4[il] = 0.0;
+        // }
 
         //Fan 2013 Eq. 9 for layers below the water table 
         //The f(Tc,i) and Cs,i are included in the _ch4 values - calculated prior
@@ -397,7 +432,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //rhrawc doesn't make sense for this - it's not heterotrophic respiration
         //this is the rate, but modified by temperature and carbon content - rename the "rh" part to something relevant
         //it is hourly
-        Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz) / 12.0;
+        // Prod = 1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (layer_sat_dz) / 12.0;
   
         //Fan 2013 Eq. 15. Bunsen solubility coefficient
         bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
