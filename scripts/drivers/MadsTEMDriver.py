@@ -157,13 +157,18 @@ class MadsTEMDriver(BaseDriver):
 
     config['IO']['output_nc_eq'] = 1 # Modify value...
 
-    # NOTE, TODO: 
-    # The TEM.py file has an implementation that sets values in the 
-    # calibration_directives.txt...this should be modified to use the
-    # stuff recently added to the dvmdostem config file.
-    # Need to turn dsl off, nfeed on depending on calib_mode
-    # if doing GPPAllIgnoringNitrogen, then dsl off, nfeed off, 
-    # othewise dsl on, nfeed on
+    # Turn modules/settings on/off based on calib_mode setting
+    # This is duplicated in Sensitivity.py, maybe it should be migrated
+    # to the BaseDriver class?
+    if self.calib_mode:
+      if self.calib_mode == 'GPPAllIgnoringNitrogen':
+        config['stage_settings']['eq']["dsl"] = False
+        config['stage_settings']['eq']["nfeed"] = False
+
+      # I believe these default to on, but just in case, set them here...
+      if self.calib_mode in ('NPPAll', 'VEGC'):
+        config['stage_settings']['eq']["dsl"] = True
+        config['stage_settings']['eq']["nfeed"] = True
 
     # Write it back..
     with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
