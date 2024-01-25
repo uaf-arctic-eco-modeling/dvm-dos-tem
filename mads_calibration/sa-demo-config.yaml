@@ -36,9 +36,11 @@ PXx: 0
 PXy: 0
 
 # Control over which modules are turned on for which stage.
-# Used to be called "calib_mode". When using 'GPPAllIgnoringNitrogen', this will
-# run dvmdostem with nfeed and dsl OFF for the equlibrium stage.
-module_stage_settings: GPPAllIgnoringNitrogen
+# The modes are:
+#  - False/None/0: dvmdostem default which is dsl and nfeed on for eq, sp, tr, sc stages
+#  - GPPALLIgnoringNitrogen: turns dsl and nfeed OFF for eq stage
+#  - VEGC or NPPAll: turns dsl and nfeed ON for eq (and subsequent) stages
+calib_mode: GPPALLIgnoringNitrogen
 
 # What mathematical scheme to use to choose samples based on bounds, 
 # and perturbations...

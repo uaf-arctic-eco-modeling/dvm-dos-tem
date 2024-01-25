@@ -241,10 +241,10 @@ class Sensitivity(BaseDriver):
     CAREFUL! - this will forecfully remove the entrire tree rooted at
     `work_dir`.
 
-  module_stage_settings : str, optional, default: None
+  calib_mode : str, optional, default: None
     A string for the "calibration mode". This allows different modules to be 
     on or off at different run stages. Options are 
-    'GPPAllIgnoringNitrogen', 'NPPAll', 'VEGC'
+    'GPPAllIgnoringNitrogen', 'NPPAll', 'VEGC'.
 
   Examples
   --------
@@ -281,7 +281,7 @@ class Sensitivity(BaseDriver):
     self.targets = None
     self.targets_meta = None # can't remember what this is used for?
     self.sampling_method = None
-    self.module_stage_settings = None
+    self.calib_mode = None
 
     # A whole bunch of these are required and the object will fail to
     # instantiate the the config dict is missing the right data!!
@@ -290,8 +290,8 @@ class Sensitivity(BaseDriver):
     if 'sampling_method' in config.keys():
       self.sampling_method = config['sampling_method']
 
-    if 'module_stage_settings' in config.keys():
-      self.module_stage_settings = config['module_stage_settings']
+    if 'calib_mode' in config.keys():
+      self.calib_mode = config['calib_mode']
 
     if 'N_samples' in config.keys():
       N_samples = config['N_samples']
@@ -779,13 +779,13 @@ class Sensitivity(BaseDriver):
     config['IO']['output_nc_eq'] = 1 # Modify value...
 
     # customize the modules that should be on for different run stages...
-    if self.module_stage_settings:
-      if self.module_stage_settings == 'GPPAllIgnoringNitrogen':
+    if self.calib_mode:
+      if self.calib_mode == 'GPPAllIgnoringNitrogen':
         config['stage_settings']['eq']["dsl"] = False
         config['stage_settings']['eq']["nfeed"] = False
 
       # I believe these default to on, but just in case, set them here...
-      if self.module_stage_settings in ('NPPAll', 'VEGC'):
+      if self.calib_mode in ('NPPAll', 'VEGC'):
         config['stage_settings']['eq']["dsl"] = True
         config['stage_settings']['eq']["nfeed"] = True
 
