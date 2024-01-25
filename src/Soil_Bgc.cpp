@@ -313,9 +313,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       oxid = (1 - saturated_fraction)*(5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
       //Code below was used for testing whether the partially saturated layer had a significant effect on oxidation
       //which it appears to - we are confident that this is correct
-      if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
-        oxid = 0.0;
-      }
+
+      // if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
+      //   oxid = 0.0;
+      // }
       
       // again do we need poro? we think it should be air content? test this
       // _m refers to unit conversion: 
@@ -366,14 +367,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //this is the rate, but modified by temperature and carbon content - rename the "rh" part to something relevant
       //it is hourly
 
-      // prod = saturated_fraction * (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
+      prod = saturated_fraction * (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
 
-      if (saturated_fraction > 0.0){
-        prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
-      }
-      else{
-        prod=0.0;
-      }
+      // if (saturated_fraction > 0.0){
+      //   prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
+      // }
+      // else{
+      //   prod=0.0;
+      // }
 
       // adding production in units of g m^2 hr^1 for output and comparison analysis
       prod_gm2hr = prod * currl->getVolLiq() * currl->dz * 1000.0;
@@ -394,30 +395,29 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       double rate_parameter_kh = 1.0; 
 
-      if (saturated_fraction > 0.0){
-        if(currl->tem > 1.0){
-          ebul = (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
-        }
-        else{
-          ebul = 0.0;
-        }
-
-        if (ebul < 0.0000001) {
-          ebul = 0.0;
-        }
+      if (currl->tem > 1.0){
+        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
       }
       else{
         ebul=0.0;
       }
 
-      // if (currl->tem > 1.0){
-      //   ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
+      // if (saturated_fraction > 0.0){
+      //   if(currl->tem > 1.0){
+      //     ebul = (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
+      //   }
+      //   else{
+      //     ebul = 0.0;
+      //   }
+
+      //   if (ebul < 0.0000001) {
+      //     ebul = 0.0;
+      //   }
       // }
       // else{
       //   ebul=0.0;
       // }
-      
-
+    
       //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
         //  we're in a time loop)
         //currl->liq units are kg m^-2
