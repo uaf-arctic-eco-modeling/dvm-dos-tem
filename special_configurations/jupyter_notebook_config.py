@@ -5,14 +5,16 @@
 # when a user is running a notebook server, this feature is
 # enabled...
 
-import os
-import subprocess
+# EXAMPLE 
+# Saved a sidecar .py file anytime .ipynb file is saved.
+# import os
+# import subprocess
 
-def post_save(model, os_path, contents_manager):
-    '''post-save hook for converting notebooks to .py scripts'''
-    if model['type'] != 'notebook':
-        return # only do this for notebooks
-    d, fname = os.path.split(os_path)
-    cp = subprocess.run(['jupyter', 'nbconvert', '--no-prompt', '--to', 'script', fname], capture_output=True, check=True, cwd=d)
+# def post_save(model, os_path, contents_manager):
+#     '''post-save hook for converting notebooks to .py scripts'''
+#     if model['type'] != 'notebook':
+#         return # only do this for notebooks
+#     d, fname = os.path.split(os_path)
+#     cp = subprocess.run(['jupyter', 'nbconvert', '--no-prompt', '--to', 'script', fname], capture_output=True, check=True, cwd=d)
 
-c.FileContentsManager.post_save_hook = post_save
+# c.FileContentsManager.post_save_hook = post_save
