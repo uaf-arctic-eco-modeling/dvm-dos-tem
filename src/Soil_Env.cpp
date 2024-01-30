@@ -281,7 +281,7 @@ void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
 
   if (ground->toplayer->isSoil) {
     //when there is an abrupt change of surface status, reduce timestep
-    if((ground->fstsoill->frozen==1 and tsurface>0.0)
+    if((ground->fstsoill->frozen==1 and tsurface>-2.0)
         || (ground->fstsoill->frozen==-1 and tsurface<0.0)
         || ground->fstsoill->frozen==0) {
       nstep = 24;
@@ -397,7 +397,7 @@ void Soil_Env::updateDailySoilThermal4Growth(Layer* fstsoill,
           unfrzrtdep+=currl->dz;
         } else if(currl->frozen==0) { //with front
           if(currl->prevl==NULL) {
-            if (tsurface>0.) {
+            if (tsurface>-2.0) {
               unfrzrtdep +=(currl->frozenfrac*currl->dz);
             }
           } else if (currl->prevl->frozen==-1) {
