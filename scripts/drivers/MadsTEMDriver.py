@@ -22,14 +22,6 @@ class MadsTEMDriver(BaseDriver):
   This class extends the functionality of the BaseDriver class and includes
   methods for setting up the run directory, updating parameters, running the
   model, and gathering model outputs.
-
-  Parameters
-  ----------
-  config_dict : dict, optional
-      A dictionary containing configuration parameters for the driver.
-
-  **kwargs
-      Additional keyword arguments to pass to the BaseDriver constructor.
   '''
 
   def __init__(self, config=None, **kwargs):
@@ -38,11 +30,22 @@ class MadsTEMDriver(BaseDriver):
 
     Parameters
     ----------
-    config : dict, optional
+    config : dict
         A dictionary containing configuration parameters for the driver.
 
     **kwargs
         Additional keyword arguments to pass to the BaseDriver constructor.
+
+    Required keys for config dict
+    ------------------------------
+    calib_mode : string, {'GPPAllIgnoringNitrogen','VegC'}
+    pftnums : list of ints
+      List of the PFTs that will be used
+    params : list of strings, parameter names
+      List of the parameters that will be used. Must match pftnums in length. In
+      other words one parameter name for each PFT that is being assessed.
+    target_names : list of strings
+      List of the optimization target names.
     '''
     super().__init__(config, **kwargs)
 
@@ -50,6 +53,7 @@ class MadsTEMDriver(BaseDriver):
     # their object.
     #self.set_seed_path('/work/parameters')
 
+    # These are required to be in config...
     self.calib_mode = config['calib_mode']
     self.pftnums = config['pftnums']
     self.paramnames = config['params']

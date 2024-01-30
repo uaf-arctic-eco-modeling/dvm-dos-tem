@@ -71,30 +71,50 @@ def deduce_target_type(target, meta):
 
 class BaseDriver(object):
   '''
-  Base class for specific drivers. Specific driver classes should inherit from
+  Base class for driver objects. Specific driver classes should inherit from
   BaseDriver. A driver object is intended to help with setting up and running
-  the dvmdostem model in a variety of patterns.
-
-  Parameters
-  ----------
-  work_dir : str or None, optional
-    The working directory for the object, by default None.
-  clean : bool, optional
-    Whether to clean the working directory, by default False.
-  opt_run_setup : str or None, optional
-    Additional options for the model run setup, by default None.
+  the dvmdostem model in a variety of patterns. 
   '''
 
   def __init__(self, config=None, clean=False, **kwargs):
+    '''
+    Parameters
+    ----------
+    config : dict
+      A dictionary of configuration values.
+    **kwargs : additional key word arguments
+      Valid keywords are:
 
+    Keys for the config dict 
+    ------------------------   
+    seed_path : string 
+      A path to the directory where initial parameters will be read from.
+    work_dir : string
+      A path to a location where run folders, outputs and other data will be
+      stored.
+    cmtnum : int
+      Community Type number (CMT; land cover classification)
+    PXx : int
+      The pixel number to run from the input dataset. 
+    PXy : int
+      The pixel number to run from the input dataset.
+    site : string
+      The path to the input dataset.
+    opt_run_setup : string
+      Additional command line parameters that will be passed to dvmdostem
+    outputs : list of dicts
+      List of dicts that specify outputs to turn of for dvmdostem. Each should
+      have the following keys: name, type. The name key is for the NetCDF output
+      name, and type specified "flux" or "pool".
+    '''
     # Default a bunch of stuff to None
     self._seedpath = None
     self.work_dir = None
     self.cmtnum = None
     self.PXx = None
     self.PXy = None
-    self.opt_run_setup = ''
     self.site = None
+    self.opt_run_setup = ''
     self.outputs = [
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
@@ -264,10 +284,10 @@ class BaseDriver(object):
     (observation) names.
 
     The client must have already loaded the targets, i.e.
-    (``Sensitivity.load_target_data(...)``) for this to work.
+    (``load_target_data(...)``) for this to work.
 
-    The resulting ``BaseDriver.outputs`` is a list of dicts, each of which is
-    an "output specification" which contains the information that will allow a
+    The resulting ``BaseDriver.outputs`` is a list of dicts, each of which is an
+    "output specification" which contains the information that will allow a
     mapping from the target names (as stored in calibration_targets.py) to the
     corresponding NetCDF output. Additional informations in the specification
     are the resolutions desired and a type signifier allowing us to

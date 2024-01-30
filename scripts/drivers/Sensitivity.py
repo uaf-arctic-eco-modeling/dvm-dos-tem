@@ -213,67 +213,47 @@ class Sensitivity(BaseDriver):
   '''
   Sensitivity Analysis Driver class.
 
-  Driver class for conducting ``dvmdostem`` SensitivityAnalysis. Methods for
+  Driver class for conducting a ``dvmdostem`` sensitivity analysis. Methods for
   cleaning, setup, running model, collecting outputs.
 
   Basic overview of use is like this:
 
-    1. Instantiate driver object.
-    2. Setup/design the experiment (working directory, seed path, parameters to
-       use, number of samples, etc)
+    1. Design your experiment by choosing working directory, seed path,
+       parameters to use, number of samples, etc.
+    2. Instantiate driver object. 
     3. Use driver object to setup the run folders.
     4. Use driver object to carry out model runs.
     5. Use driver object to summarize/collect outputs.
-    6. Use driver object to make plots, do analysis.
-
-  Parameters
-  ----------
-  work_dir : str, optional
-    The working directory path of the driver object.
-
-  sampling_method : { None, 'lhc', 'uniform' }
-    Method that should be used to draw samples from the specified ranges in
-    order to construct the sample matrix. `lhc` will use the Latin Hyper Cube
-    sampling method and `uniform` will draw from a uniform distribution. The
-    default `None` is simply a placeholder.
-
-  clean : bool, default=False
-    CAREFUL! - this will forecfully remove the entrire tree rooted at
-    `work_dir`.
-
-  calib_mode : str, optional, default: None
-    A string for the "calibration mode". This allows different modules to be 
-    on or off at different run stages. Options are 
-    'GPPAllIgnoringNitrogen', 'NPPAll', 'VEGC'.
-
-  Examples
-  --------
-  Instantiate object, sets pixel, outputs, working directory, site selection
-  (input data path)
-
-      >>> driver = Sensitivity()
-
-  Set the working directory for the driver (using something temporary for this
-  test case).
-
-      >>> driver.work_dir = '/tmp/Sensitivity-inline-test'
-
-  Show info about the driver object:
-
-      >>> driver.design_experiment(5, 4, params=['cmax','rhq10','nfall(1)'], pftnums=[2,None,2])
-      >>> driver.sample_matrix
-              cmax     rhq10  nfall(1)
-      0  63.536594  1.919504  0.000162
-      1  62.528847  2.161819  0.000159
-      2  67.606747  1.834203  0.000145
-      3  59.671967  2.042034  0.000171
-      4  57.711999  1.968631  0.000155
+    6. Use SA_post_hoc_analysis script to make plots and anaylsis.
   '''
   def __init__(self, config):
-    '''Create a Sensitivity driver object.'''
+    '''
+    Create a Sensitivity driver object.
 
     # Call the constructor of the parent class...
     super().__init__(config)
+    Parameters
+    ----------
+    config : dict
+      A dictionary of configuration keys for setting up the object. 
+    **kwargs :
+      Optional extra arugments (nothing implemented at this time)
+
+    Required keys for connfig dict
+    ------------------------------
+    params : list of strings
+      The list of parameters that should be analyzed.
+    sampling_method : string, {'uniform','lhc'}
+      Which method to use for drawing parameter samples from sampling space.
+    pftnums : list of ints
+      The list of PFT numbers that should be analyzed. Length must match params.
+    seed_path : string
+      Path to a directory to use for see parameters.
+    cmtnum : int
+      The Community Type number (CMT) to use.
+    N_samples : int
+      The number of samples that the sensitivity analysis should run.
+    '''
 
     # This is stuff that is specific to the sensitivity analysis
     self.params = None
