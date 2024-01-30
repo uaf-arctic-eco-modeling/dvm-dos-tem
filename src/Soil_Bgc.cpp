@@ -94,69 +94,74 @@ void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, doubl
 
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
-  //Initial atmospheric CH4 concentration upper boundary condition
-  //as in Fan et al. 2010 supplement Eq. 13. Units: umol L-1
-  const double ub = 0.076;//rename:u_bound
-  const int time_steps = HR_IN_DAY;
-  double dt = 1.0 / time_steps; 
-  //RENAME: SS->partial_delta_ch4, torty_tmp->"restricted"_vol_air, tmp_flux->diff_efflux, Flux2A->daily_diff_efflux,Flux2A_m->daily_diff_efflux_m2   
-  double SS, torty, torty_tmp, tmp_flux, Flux2A = 0.0, Flux2A_m = 0.0;
-  // Individual layer fluxes - plant has to be defined within layer loop 
+  // Initial atmospheric CH4 concentration upper boundary condition
+  // Fan et al. 2010 supplement Eq. 13. Units: umol L^-1
+  const double upper_bound = 0.076;
+  // Defining hourly time step
+  double dt = 1.0 / HR_IN_DAY;
+  // From Fan Eq. 8, components of CH4 mass balance prior to solver 
+  // equal to prod-oxid-ebul-plant, units : umol L^-1 hr^-1 
+  double partial_delta_ch4;
+  // Diffusion-specific efflux from top soil layer to atmosphere 
+  // in units umolL^-1hr^-1, umolL^-1day^-1, gm^-2day^-1 respectively
+  double diff_efflux, daily_diff_efflux = 0.0, daily_diff_efflux_gm2hr = 0.0;
+  // Individual layer fluxes production, ebullition, oxidation
+  // plant-mediated transport declared in loop to sum pfts 
   double prod=0.0, ebul=0.0, oxid=0.0;
-  //RENAME: Ebul_m2, plant_m2, etc, maybe rearrange based on chronology
-  // Individual layer fluxes in units of g m^2 hr^1
-  double ebul_gm2hr=0.0, plant_gm2hr=0.0, totFlux_m=0.0, oxid_gm2hr=0.0, prod_gm2hr = 0.0;
-  // total flux cumulated over a day - is this for all layers??
-  double totPlant = 0.0, totEbul = 0.0, totPlant_m = 0.0, totEbul_m = 0.0, totOxid_m = 0.0;
-  double tottotEbul = 0.0, tottotEbul_m = 0.0; //Added by Y.Mi
+  // Individual layer fluxes and efflux in units of g m^-2 hr^-1
+  double prod_gm2hr = 0.0, ebul_gm2hr=0.0, oxid_gm2hr=0.0, plant_gm2hr=0.0, efflux_gm2hr=0.0;
+  // Flux components cumulated over a day in units of umol L^-1 day^-1
+  double daily_plant = 0.0, daily_ebul = 0.0; 
+  // Flux components cumulated over a day in units of g m^-2 day^-1
+  // >>> we might want to change the name of this as the units are no longer gm2hr but gm2d
+  double daily_plant_gm2hr = 0.0, daily_ebul_gm2hr = 0.0, daily_oxid_gm2hr = 0.0;
 
   //Bunsen solubility coefficient (SB). Fan et al. 2010 supplement Eq. 15.
   //Mass-based Bunsen solubility coefficient (SM). Fan et al. 2010 supplement Eq. 16.  
   double bun_sol, bun_sol_mass;
 
-  // double check equation for pressure
-  double Pressure;
+  // Partial pressure of ch4 used in Fan Eq. 16 for ebullition calculation
+  double partial_pressure_ch4;
 
   updateKdyrly4all();
 
-  //For storing methane movement data for output
+  //For storing methane movement data by layer for output
   double ch4_ebul_layer[MAX_SOI_LAY] = {0};
   double ch4_oxid_layer[MAX_SOI_LAY] = {0};
   double ch4_flux_layer[MAX_SOI_LAY] = {0};
 
   int numsoill = cd->m_soil.numsl;
-  //BM: used in trisolver - need new names (Crank-Nicholson Method)
+  // >>> BM: used in trisolver - need new names (Crank-Nicholson Method)
   double C[numsoill]; // BM: relating to upper boundary conditions 
   double D[numsoill]; // BM: relating to lower boundary conditions
   double V[numsoill]; // BM: V[il] = s[il] * currl->ch4 + s[il] * dt 
   double diff[numsoill];  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient
-  double diff_tmp[numsoill];
   double r[numsoill]; // BM: 2 + s[il] relating to sigma in Crank-Nicholson / trisolver   
   double s[numsoill]; // BM: currl->dz * currl->dz / (diff[il] * dt); this is sigma!
 
-  //These are for testing:
-  double ch4_pool_prev[numsoill]; //BM: Setting these to check the change before and after TriSolver - ch4_pool_tmp is assigned to in the layer loop
-  double ch4_diffusion[numsoill];  //BM: ch4_diffusion will take the difference between V (post trisolver) and ch4_pool_prev to determine changes from trisolver
-
+  // >>> can we define these in declaration similarly to lines 129-131?
   for(int ii=0; ii<numsoill; ii++){
     C[ii] = 0.0;
     D[ii] = 0.0;
     V[ii] = 0.0;
     diff[ii] = 0.0;
-    diff_tmp[ii] = 0.0;
     r[ii] = 0.0;
     s[ii] = 0.0;
   }
 
+  // ch4 production responses, Fan Eq. 9 
+  // kdc_ch4 * Temperature response (q10) * SOM pool
   double rhrawc_ch4[MAX_SOI_LAY] = {0};
   double rhsoma_ch4[MAX_SOI_LAY] = {0};
   double rhsompr_ch4[MAX_SOI_LAY] = {0};
   double rhsomcr_ch4[MAX_SOI_LAY] = {0};
+  // Temperature response (q10) for unsaturated and saturated layers
   double TResp_unsat = 0;
   double TResp_sat = 0;
 
+  // Function of LAI to describe relative plant size ch4 transport capacity
   double fLAI[NUM_PFT];
-  //Looping through pfts and assigning fgrow (0-1) from Fan equation 20
+  //Looping through pfts and assigning fgrow (0-1) Fan Eq. 20
   for(int ip=0; ip<NUM_PFT; ip++){
     if(cd->m_vegd.ffoliage[ip]<=0){
       fLAI[ip] = 0;
@@ -166,22 +171,22 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     }
   }
 
+  // Setting soil oxidation to zero >>> not sure if this is needed or syntax convention to follow
   ed->d_soid.oxid = 0.0;
   
   Layer* currl;
   int il; //manual layer index tracker
-  for (int j = 1; j <= time_steps; j++) { //loop through time steps
+  for (int j = 1; j <= HR_IN_DAY; j++) { //loop through time steps
 
     currl = ground->lstsoill; //reset currl to bottom of the soil stack
     il = numsoill-1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
 
+    // zeroing rate-limiters before loading from parameter files
     double krawc_ch4 = 0.0;
     double ksoma_ch4 = 0.0;
     double ksompr_ch4 = 0.0;
     double ksomcr_ch4 = 0.0;
-    double TResp = 0.0; //BM: Respiration temperature dependence - better name
-
-
+    double TResp = 0.0; // >>> do we want to rename these?
 
     while(!currl->isMoss){
 
@@ -386,8 +391,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
 
       //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-      Pressure = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
-      bun_sol_mass = Pressure * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+      partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
+      bun_sol_mass = partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
 
       //This should be Fan 2013 Eq. 17 for if layers are below the water table
       //Fan does not explicitly limit it to layers with temp greater than 1 (at least
@@ -434,11 +439,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         //BUT - shouldn't this be applied to Ebul?
 
         ebul_gm2hr = ebul * currl->getVolLiq() * currl->dz * 1000.0;
-        totEbul = totEbul + ebul; //cumulated over 1 time step, 1 hour Y.MI - BM: so per day (rather than per hour - see m = 24 declaration)
-        totEbul_m += ebul_gm2hr; //cumulated over 1 time step, 1 hour
+        daily_ebul = daily_ebul + ebul; //cumulated over 1 time step, 1 hour Y.MI - BM: so per day (rather than per hour - see m = 24 declaration)
+        daily_ebul_gm2hr += ebul_gm2hr; //cumulated over 1 time step, 1 hour
 
         if (currl->tem < 0.0) {
-          totEbul_m = 0.0;
+          daily_ebul_gm2hr = 0.0;
         }
 
       //Layer above water table
@@ -577,8 +582,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ch4_ebul_layer[il] += ebul_gm2hr;
       ch4_oxid_layer[il] += oxid_gm2hr;
 
-      totPlant = totPlant + plant; //cumulated over 1 day, 24 time steps, Y.MI
-      totPlant_m += plant_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
+      daily_plant = daily_plant + plant; //cumulated over 1 day, 24 time steps, Y.MI
+      daily_plant_gm2hr += plant_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
 //            totEbul = totEbul + Ebul; //cumulated over 1 time step, 1 hour, Y.MI
 //            totEbul_m = totEbul_m + Ebul_m; //cumulated over 1 time step, 1 hour, Y.MI
 //
@@ -588,8 +593,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // tottotEbul = tottotEbul + Ebul; //cumulated over 1 day, 24 time steps, Y.MI
       // tottotEbul_m = tottotEbul_m + Ebul_m; //cumulated over 1 day, 24 time steps, Y.MI
-      totOxid_m = totOxid_m + oxid_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
-      ed->d_soid.oxid = totOxid_m;
+      daily_oxid_gm2hr = daily_oxid_gm2hr + oxid_gm2hr; //cumulated over 1 day, 24 time steps, Y.MI
+      ed->d_soid.oxid = daily_oxid_gm2hr;
 
       // if (Oxid<0.000001) {
       //   Oxid = 0.0;
@@ -604,7 +609,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // - Ebullition - Oxidation - CH4 emitted through plant process
       //This does not specifically include diff[] right now - see
       // calculation of V[] below
-      SS = prod - ebul - oxid - plant;
+      partial_delta_ch4 = prod - ebul - oxid - plant;
 
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
@@ -613,19 +618,17 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
 
       if (il == 1) {
-        C[il] = -1.0 - ub;
+        C[il] = -1.0 - upper_bound;
       } else {
         C[il] = -1.0;
       }
 
       //V is a delta from equation 8, based on previous methane state and current fluxes
-      V[il] = s[il] * currl->ch4 + s[il] * dt * SS;
+      V[il] = s[il] * currl->ch4 + s[il] * dt * partial_delta_ch4;
 
       if (V[il] < 0.0000001) {
         V[il] = 0.0;
       }
-      //Temporary testing datastructure to observe methane pool
-      ch4_pool_prev[il] = currl->ch4; 
 
       currl = currl->prevl;
       il--; //Incrementing manual layer index tracker
@@ -638,22 +641,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     while(currl && currl->isSoil){
 
-      //Temporary testing datastructure to observe methane change at each time step
-      ch4_diffusion[il] = V[il] - ch4_pool_prev[il];
-
       currl->ch4 = V[il];
 
       currl = currl->nextl;
       il++;
     }
 
-    tmp_flux = diff[1] * (ground->fstshlwl->ch4 - ub) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
+    diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
 
-    if (tmp_flux < 0.000001) {
-      tmp_flux = 0.0;
+    if (diff_efflux < 0.000001) {
+      diff_efflux = 0.0;
     }
 
-    Flux2A = Flux2A + tmp_flux; //flux cumulated over 1 day, 24 time steps, Y.MI
+    daily_diff_efflux = daily_diff_efflux + diff_efflux; //flux cumulated over 1 day, 24 time steps, Y.MI
   } // end of time steps looping
 
   //Storing daily CH4 movement for output
@@ -674,45 +674,38 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   Layer* topsoil = ground->fstshlwl;
 
-  //BM: Torty_tmp again below vvv
-  tmp_flux = topsoil->getVolAir(); //air content
-
-  if (tmp_flux < 0.05) {
-    tmp_flux = 0.05;
-  }
-
   //Fan Eq. 21
 
   // BM: Flux2A_m seems to be  a unit conversion and total diffusion related efflux
   //     totFlux_m is the final efflux including plant-mediated, ebullition (if flooded) and diffusion
 
-  Flux2A_m = Flux2A * tmp_flux * topsoil->dz * 1000.0;
+  daily_diff_efflux_gm2hr = daily_diff_efflux * topsoil->getVolAir() * topsoil->dz * 1000.0;
 
   //Fan 2013 supplement "it is assumed that 50% of CH4 transported by plant is oxidized by rhizospheric oxidation before 
   //being released into the atmosphere" hence 0.5
   //ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
-  totFlux_m = 0.5 * totPlant_m + Flux2A_m + totEbul_m;
+  efflux_gm2hr = 0.5 * daily_plant_gm2hr + daily_diff_efflux_gm2hr + daily_ebul_gm2hr;
 
   //Store ebullition and veg flux values (mostly for output)
-  ed->d_soid.ch4ebul = totEbul_m;
-  ed->daily_total_plant_ch4[id] = totPlant_m;
+  ed->d_soid.ch4ebul = daily_ebul_gm2hr;
+  ed->daily_total_plant_ch4[id] = daily_plant_gm2hr;
 
-  Flux2A = 0.0; //Y.Mi
-  totPlant_m =0.0; //Y.Mi
-  totEbul_m = 0.0; //Y.Mi
+  daily_diff_efflux = 0.0; //Y.Mi
+  daily_plant_gm2hr =0.0; //Y.Mi
+  daily_ebul_gm2hr = 0.0; //Y.Mi
 
   //BM: below looks like the precentage of diffusion efflux - not sure this is a necessary variable
   //    can be calculated from general outputs      
-  if (totFlux_m < 0.000001) {
-    totFlux_m = 0.0;
+  if (efflux_gm2hr < 0.000001) {
+    efflux_gm2hr = 0.0;
     ed->d_soid.dfratio = 0.0;
   } else {
-    ed->d_soid.dfratio = Flux2A_m / totFlux_m * 100.0;
+    ed->d_soid.dfratio = daily_diff_efflux_gm2hr / efflux_gm2hr * 100.0;
   }
 
   // The 0.012 is to convert umol to grams - looks like this reverses the conversion done in Prod equation
   // TODO check: should probably be 0.000012
-  ed->d_soid.ch4flux = 0.012 * totFlux_m;
+  ed->d_soid.ch4flux = 0.012 * efflux_gm2hr;
 
   //Store daily efflux value for output
   ed->daily_ch4_efflux[id] = ed->d_soid.ch4flux;
