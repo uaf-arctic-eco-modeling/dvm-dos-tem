@@ -8,8 +8,9 @@ the tests here and see how Sensitivity.py might be used.
 The general idea with the the sensitivity analysis is to run the model a number
 of times, each time with a different parameter value and then look at the
 outputs and see which parameter most influences the outputs. To accomplish this,
-Sensitivity.py provides a `Sensitivity` class which helps setup, organize
-and carry out the runs.
+Sensitivity.py provides a `Sensitivity` class which helps setup, organize and
+carry out the runs. The `Sensitivity` class inherits from a `BaseDriver` class
+that provides a lot of the common operations amongst drivers.
 
 ## Get started
 
@@ -17,23 +18,34 @@ Load the library
 
     >>> import drivers.Sensitivity
 
-Instantiate a driver object:
-
-    >>> config_dict = dict(site='/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', PXx=0, PXy=0)
-    >>> sd = drivers.Sensitivity.Sensitivity(config=config_dict)
-
 In order to conduct a sensitivity analysis we must consider the following:
 
  - the location where the runs and outputs will be stored
- - the source for the initial parameter values
+ - the source for the initial parameter values (seed values)
  - the list of parameters that should be tested
  - for each parameter, which PFT should be tested
  - the community type that should be analyzed
  - the scheme by which to modify parameter values (sampling stragegy and bounds)
  - the outputs variables upon which the analysis will be conducted
 
+The driver object constructor requires a configuration dict which allows for
+providing data to answer the above questions.
+ 
+    >>> config_dict = dict(
+    ... site='/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
+    ... PXx=0, PXy=0, 
+    ... params=['cmax', 'cmax'], 
+    ... pftnums=[0,1],
+    ... sampling_method='uniform',
+    ... seed_path='/work/parameters',
+    ... cmtnum=6,
+    ... N_samples=10
+    ... )
+    >>> sd = drivers.Sensitivity.Sensitivity(config=config_dict)
+
 The `Sensitivity` object has properties and methods that will allow us to
-address the issues outlined above so that we can setup and conduct an anlysis.
+further address the issues outlined above so that we can setup and conduct an
+anlysis.
 
 > NOTE: at present the module is under construction, and not all of the above
 > concerns are easily modified with the API. 
@@ -52,6 +64,9 @@ working directory has parameter values that vary according to the data in the
  - the parameters and PFTs under analysis,
  - the sampling scheme, and 
  - the bounds.
+
+> NOTE: The paths given here for site, seed path and work dir assume that you
+> are working inside the docker containers for the project.
 
 If the working directory is not passed to the `Sensitivity` constructor,
 then there is no directory set.
@@ -86,7 +101,7 @@ To finish setting up the experiment we need to create the `sample_matrix` and
 have all the individual sample run directories be setup with the correct
 parameter values from the sample matrix. In addition, the
 `initial_params_run_dir` should be setup with parameter values from the
-`seed_path`. All the runs should have common configuration interms of which
+`seed_path`. All the runs should have common configuration in terms of which
 pixel to run, which outputs are enabled, how many years to run, etc. 
 
 Lets start by using the convienience function for setting up an experiment that
@@ -194,9 +209,21 @@ See what we got:
     >>> sorted(os.listdir(sd.work_dir))
     ['info.txt', 'param_props.csv', 'sample_matrix.csv']
 
-Now see if we can load the experiment again into a new driver:
+Now see if we can load the experiment again into a new driver. In this case we
+provide a bunch of garbage in the config dict because we are assuming it will
+be overwritten when we run the ``load_experiment`` function on the new driver.
 
-    >>> sd2 = drivers.Sensitivity.Sensitivity(config=dict())
+    >>> junk_config = dict(
+    ... site='/junk',
+    ... PXx=0, PXy=0, 
+    ... params=['krb(0)', 'micbnup'], 
+    ... pftnums=[6,7],
+    ... sampling_method='lhc',
+    ... seed_path='/work/parameters',
+    ... cmtnum=2,
+    ... N_samples=1
+    ... )
+    >>> sd2 = drivers.Sensitivity.Sensitivity(config=junk_config)
 
 This new driver should not have its `work_dir` set:
 
@@ -261,6 +288,7 @@ parameter files with the modified parameter values. The `Sensitivity`
 object provides a funciton for creating and populating these directories:
 
     >>> sd.setup_multi()
+    Saving plot /tmp/tests-Sensitivity/sample_matrix_distributions.png
 
 After this runs, we should have, within the `work_dir`, a bunch of new folders.
 There should be one folder for each sample run (row in the sample matrix) and
@@ -268,7 +296,7 @@ one folder for the intial value run as well as the files that are written when
 the experiment is saved:
 
     >>> sorted(os.listdir(sd.work_dir))
-    ['info.txt', 'initial_params_run_dir', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv']
+    ['info.txt', 'initial_params_run_dir', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv', 'sample_matrix_distributions.png']
 
 If we try to run the setup function again, it will fail complaining about output
 that may already exists. 
@@ -285,11 +313,12 @@ Use the `force` argument to proceed and overwrite any existing files.
 > stuff if you are not careful!
     
     >>> sd.setup_multi(force=True)
+    Saving plot /tmp/tests-Sensitivity/sample_matrix_distributions.png
 
 Now we should have the same files we had the first time:
 
     >>> sorted(os.listdir(sd.work_dir))
-    ['info.txt', 'initial_params_run_dir', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv']
+    ['info.txt', 'initial_params_run_dir', 'param_props.csv', 'sample_000000000', 'sample_000000001', 'sample_000000002', 'sample_000000003', 'sample_000000004', 'sample_matrix.csv', 'sample_matrix_distributions.png']
 
 With all the sample directories setup, we can now spot check a couple parameter
 values in the sample folders to see that they were set according to the sample
