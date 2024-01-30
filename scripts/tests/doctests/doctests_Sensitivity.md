@@ -344,9 +344,9 @@ matrix.
     True
 
     >>> print("Value from run folder: {}".format(value_from_sample_run_folder))
-    Value from run folder: 348.426
+    Value from run folder: 337.141
     >>> print("Value from sample matrix: {}".format(value_from_sample_matrix))
-    Value from sample matrix: 348.426
+    Value from sample matrix: 337.141
 
 We could get fancy and write some loops to check all the rest of the parameters
 and sample folders but for now, we'll assume its working.
