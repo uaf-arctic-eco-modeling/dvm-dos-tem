@@ -47,6 +47,7 @@ class MadsTEMDriver(BaseDriver):
     target_names : list of strings
       List of the optimization target names.
     '''
+    #print(f"MadsTEMDriver ctor\n{self=}\n{config=}\n{kwargs=}\n")
     super().__init__(config, **kwargs)
 
     # Don't set this here - the client should set in after instantiating 

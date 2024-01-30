@@ -76,7 +76,7 @@ class BaseDriver(object):
   the dvmdostem model in a variety of patterns. 
   '''
 
-  def __init__(self, config=None, clean=False, **kwargs):
+  def __init__(self, config=None, **kwargs):
     '''
     Parameters
     ----------
@@ -84,6 +84,7 @@ class BaseDriver(object):
       A dictionary of configuration values.
     **kwargs : additional key word arguments
       Valid keywords are:
+      clean: bool, whether or not to forcefully create the ``work_dir``
 
     Keys for the config dict 
     ------------------------   
@@ -107,6 +108,7 @@ class BaseDriver(object):
       have the following keys: name, type. The name key is for the NetCDF output
       name, and type specified "flux" or "pool".
     '''
+    #print(f"BaseDriver ctor\n{self=}\n{config=}\n{kwargs=}\n")
     # Default a bunch of stuff to None
     self._seedpath = None
     self.work_dir = None
@@ -125,18 +127,11 @@ class BaseDriver(object):
       self._seedpath = config['seed_path']
 
     if 'work_dir' in config.keys():
-      self.work_dir = config['work_dir']
+      self.set_work_dir(config['work_dir'])
 
     # NOTE: cmt must be set before targets and parameters can be loaded!
     if 'cmtnum' in config.keys():
       self.cmtnum = config['cmtnum']
-
-    # handles __initial_params_rundir as well
-    if 'work_dir' in config.keys():
-      self.set_work_dir(config['work_dir'])
-
-    if 'site' in config.keys():
-      self.site = config['site']
 
     if 'PXx' in config.keys():
       self.PXx = config['PXx']
@@ -144,18 +139,22 @@ class BaseDriver(object):
     if 'PXy' in config.keys():
       self.PXy = config['PXy']
 
-    if 'outputs' in config.keys():
-      self.outputs = config['outputs']
+    if 'site' in config.keys():
+      self.site = config['site']
 
     if 'opt_run_setup' in config.keys():
       self.opt_run_setup = config['opt_run_setup']
+
+    if 'outputs' in config.keys():
+      self.outputs = config['outputs']
 
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
         os.mkdir(self.work_dir)
 
-    if clean and self.work_dir is not None:
-      self.clean()
+    if 'clean' in kwargs.keys() and kwargs['clean']:
+      if self.work_dir is not None:
+        self.clean()
 
   @classmethod
   def fromfilename(cls, filename):

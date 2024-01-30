@@ -226,12 +226,10 @@ class Sensitivity(BaseDriver):
     5. Use driver object to summarize/collect outputs.
     6. Use SA_post_hoc_analysis script to make plots and anaylsis.
   '''
-  def __init__(self, config):
+  def __init__(self, config, **kwargs):
     '''
     Create a Sensitivity driver object.
 
-    # Call the constructor of the parent class...
-    super().__init__(config)
     Parameters
     ----------
     config : dict
@@ -254,6 +252,10 @@ class Sensitivity(BaseDriver):
     N_samples : int
       The number of samples that the sensitivity analysis should run.
     '''
+    #print(f"Sensitivity ctor\n{self=}\n{config=}\n{kwargs=}\n")
+    super().__init__(config, **kwargs)
+
+    # Handle kwargs here if necessary...
 
     # This is stuff that is specific to the sensitivity analysis
     self.params = None
