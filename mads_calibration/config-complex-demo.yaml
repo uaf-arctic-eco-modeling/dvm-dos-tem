@@ -1,230 +1,87 @@
-# This file configures TEM and MADS parameters for STEP4 of the calibration 
-# EJ 03/02/23
-calib_mode: VEGC
-# Calibration cases from the calibration/calibration_targets.py
-# The output will be selected based on this cases
+# Example configuration file for a MADS assisted calibration (optimization)
+
+# This is used to name the .iterationresults and .finalresults files at the end
+mads_problemname: last_test
+
+# The location where your model run will be conducted and where your 
+# iteration and final results will be copied to at the end of the run(s)
+work_dir: /data/workflows/calibration/CMT06-IMNAVIAT/output/cmax_gppallignoringnitrogen/ca
+
+# The path to the "seed" directory that parameter will be read from. This could
+# be the main repository (/work/parameters if you are working inside the 
+# project's standard docker containers. In many cases, you will probably want
+# to set this to be a custom directory that you maintain somewhere inside 
+# the strucutre of the calibration project you are working on. 
+seed_path: /work/parameters
+
+# The path to the driving input data set that will be used
+site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
+
+# The pixel from the driving inputs that iwll be used.
+PXx: 0
+PXy: 0
+
+# Control over which modules are turned on for which stage.
+# The modes are:
+#  - False/None/0: dvmdostem default which is dsl and nfeed on for eq, sp, tr, sc stages
+#  - GPPALLIgnoringNitrogen: turns dsl and nfeed OFF for eq stage
+#  - VEGC or NPPAll: turns dsl and nfeed ON for eq (and subsequent) stages
+calib_mode: GPPALLIgnoringNitrogen
+
+# The name of the target variables that will be optimized for. These are names
+# of variables that are found in the dvmdostem calibration_targets.py file.
 target_names: 
-#- GPPAllIgnoringNitrogen
-#- NPPAllIgnoringNitrogen
-- NPPAll
-- VegCarbon
-- VegStructuralNitrogen
-#- MossDeathC
-- CarbonShallow
-- CarbonDeep
-- CarbonMineralSum
-#- OrganicNitrogenSum
-- AvailableNitrogenSum
-cmtnum: 1
-opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
-params:
-- nmax 
-- nmax
-- nmax
-- nmax
-- krb(0)
-- krb(0)
-- krb(0)
-- krb(0)
-- krb(1)
-- krb(1)
-- krb(1)
-- krb(2)
-- krb(2)
-- krb(2)
-- cfall(0)
-- cfall(0)
-- cfall(0)
-- cfall(0)
-- cfall(1)
-- cfall(1)
-- cfall(1)
-- cfall(2)
-- cfall(2)
-- cfall(2)
-- nfall(0)
-- nfall(0)
-- nfall(0)
-- nfall(0)
-- nfall(1)
-- nfall(1)
-- nfall(1)
-- nfall(2)
-- nfall(2)
-- nfall(2)
-- micbnup 
-- kdcrawc 
-- kdcsoma 
-- kdcsompr
-- kdcsomcr
-pftnums:
-- 0
-- 1
-- 2
-- 3
-- 0
-- 1
-- 2
-- 3
-- 0
-- 1
-- 2
-- 0
-- 1
-- 2
-- 0
-- 1
-- 2
-- 3
-- 0
-- 1
-- 2
-- 0
-- 1
-- 2
-- 0
-- 1
-- 2
-- 3
-- 0
-- 1
-- 2
-- 0
-- 1
-- 2
-- None
-- None
-- None
-- None
-- None
-site: /data/input-catalog/cru-ts40_ar5_rcp85_mri-cgcm3_MurphyDome_10x10
-work_dir: /data/workflows/test-step4-cr
-mads_initial_guess:
-- 2.95
-- 1.45
-- 1.07 
-- 2.1
-- -6.0
-- -3.45 
-- -2.95 
-- -4.65
-- -4.88
-- -5.15
-- -6.65
-- -8.2 
-- -6.2
-- -3.2
-- 0.0018
-- 0.065
-- 0.074
-- 0.014
-- 0.0045
-- 0.0033
-- 0.004    
-- 0.013
-- 0.0029 
-- 0.023
-- 0.011
-- 0.028
-- 0.028
-- 0.009 
-- 0.001
-- 0.001
-- 0.006 
-- 0.011
-- 0.008
-- 0.008
-- 0.4495   # micbnup: parameter for soil microbial immobialization of N  .64 
-- 0.654    # kdcrawc: raw-material (litter) C decompositin rates at reference condition   .654
-- 0.58     # kdcsoma:   0.58
-- 0.003    # kdcsompr:   
-- 0.000025 # kdcsomcr:
-# NOTE: Kdcraw > Kdcactive > Kdcpr > Kdccr
+- GPPAllIgnoringNitrogen
+
+# The community number that is being optimized
+cmtnum: 6
+
+# Additional options that are passed to dvmdostem
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+
+# The list of parameters that will be adjusted in order to optimize toward the
+# targets.
+params: [cmax, cmax, cmax, cmax, cmax, cmax, cmax]
+
+# The list of PFTs. The length of this list should match the list of params.
+# If you are working on a non-PFT parameter, then in the PFT list provide "None"
+# for that parameter. 
+pftnums: [0, 1, 2, 3, 4, 5, 6]
+
+# The initial guess and distributions of parameters that MADs will use for
+# beginning it's optimizaiton routine. These are generally suggested by the 
+# preceding sensitivity analysys and the the SA_post_hoc_analysis.py has functions
+# that can generate these lists nicely formatted as show here
+mads_initialguess:
+-   23.620  # cmax_pft0
+-  370.942  # cmax_pft1
+-   95.010  # cmax_pft2
+-   38.409  # cmax_pft3
+-    8.009  # cmax_pft4
+-   19.460  # cmax_pft5
+-   27.993  # cmax_pft6
 mads_paramdist:
-- Uniform(1, 5)
-- Uniform(1, 5)
-- Uniform(1, 5)
-- Uniform(1, 5)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(-20, -0.1)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.2)
-- Uniform(0.00001, 0.09)
-- Uniform(0.00001, 0.09)
-- Uniform(0.00001, 0.09)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.2)
-- Uniform(1e-7, 0.09)
-- Uniform(1e-7, 0.09)
-- Uniform(1e-7, 0.09)
-- Uniform(1e-1, 2.0)
-- Uniform(1e-3, 0.99)
-- Uniform(5e-3, 0.6)
-- Uniform(1e-3, 0.25)
-- Uniform(1e-7, 1e-4)
+- Uniform(   5.087,   42.153)    # cmax_pft0
+- Uniform( 334.496,  407.389)    # cmax_pft1
+- Uniform(  66.771,  123.249)    # cmax_pft2
+- Uniform(   3.970,   72.847)    # cmax_pft3
+- Uniform(   2.106,   13.912)    # cmax_pft4
+- Uniform(   3.293,   35.626)    # cmax_pft5
+- Uniform(   3.787,   52.198)    # cmax_pft6
+
+# Not sure what this is for.....but I think it should use the form 
+# that is above in the comment for paramdist and intiailguess
 mads_paramkey:
-- nmax0
-- nmax1
-- nmax2
-- nmax3
-- krb00
-- krb01
-- krb02
-- krb03
-- krb10
-- krb11
-- krb12
-- krb20
-- krb21
-- krb22
-- cfall00
-- cfall01
-- cfall02
-- cfall03
-- cfall10
-- cfall11
-- cfall12
-- cfall20
-- cfall21
-- cfall22
-- nfall00
-- nfall01
-- nfall02
-- nfall03
-- nfall10
-- nfall11
-- nfall12
-- nfall20
-- nfall21
-- nfall22
-- micbnup
-- kdcrawc
-- kdcsoma
-- kdcsompr
-- kdcsomcr
-mads_obsweight:
-# mads_obsrange (ON, OFF) sets ranges for observations
-mads_obsrange: 'OFF'
-mads_obs_percent_variance: 1
-# mads_paramrange (ON, OFF) sets ranges for parameters
-mads_paramrange: 'OFF'
-mads_param_percent_variance: 70
-mads_problemname: STEP4-MD1-CR-EJ
+- cmax_pft0
+- cmax_pft1
+- cmax_pft2
+- cmax_pft3
+- cmax_pft4
+- cmax_pft5
+- cmax_pft6
+
+# Write comments for these...
+mads_obsweight: OFF
+mads_obsrange: OFF
+mads_paramrange: OFF
+
