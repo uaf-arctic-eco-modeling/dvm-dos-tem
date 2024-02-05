@@ -203,7 +203,7 @@ def get_optimal_sets_of_params(filename):
   params = {}
   for sub in lines:
     for key, val in sub.items(): 
-      params.setdefault(key, []).append(round(float(val),2))
+      params.setdefault(key, []).append(round(float(val),8))
   return params
 
 def merge_parameter(p1,p2):

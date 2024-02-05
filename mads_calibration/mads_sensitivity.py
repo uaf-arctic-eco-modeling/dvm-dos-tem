@@ -122,13 +122,15 @@ class SensitivityDriver(object):
         self.pftnums = config['pftnums']
         self.paramnames = config['params']
         self.target_names = config['target_names']
-        
+        self.PXx =config['PXx']
+        self.PXy = config['PXy']
+
     self.__initial_params = '/work/parameters'
 
     #self.work_dir = work_dir 
     #self.site = '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Toolik_LTER_10x10/'
-    self.PXx = 1
-    self.PXy = 0
+    #self.PXx =config['PXx'] 
+    #self.PXy = config['PXy']
     self.outputs = [
       { 'name': 'GPP', 'type': 'flux',},
       { 'name': 'VEGC','type': 'pool',},
@@ -791,8 +793,8 @@ class SensitivityDriver(object):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
-    #opt_str = ' -l err --force-cmt {} --ctrl-file {}'.format(self.get_cmtnum(), ctrl_file)
-    opt_str = ' -l fatal --force-cmt {} --ctrl-file {}'.format(self.get_cmtnum(), ctrl_file)
+    opt_str = ' -l err --force-cmt {} --ctrl-file {}'.format(self.get_cmtnum(), ctrl_file)
+    #opt_str = ' -l fatal --force-cmt {} --ctrl-file {}'.format(self.get_cmtnum(), ctrl_file)
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     with log_wrapper(cmdline, tag='run') as lw:
       completed_process = subprocess.run(
@@ -869,7 +871,7 @@ class SensitivityDriver(object):
     # check if CMTNUM_yearly_eq.nc exists
     if not(os.path.exists(nc_file)):
         return ''
-
+    #print(nc_file)
     with nc.Dataset(nc_file, 'r') as ds:
         data = ds.variables['CMTNUM'][-last_N_yrs:,self.PXy,self.PXx]
 

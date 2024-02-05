@@ -1,0 +1,62 @@
+# This file configures TEM and MADS parameters for STEP4 of the calibration 
+# EJ 03/02/23
+calib_mode: VEGC
+PXx: 0
+PXy: 3
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+#- NPPAll
+#- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+- OrganicNitrogenSum
+- AvailableNitrogenSum
+cmtnum: 14
+opt_run_setup: --pr-yrs 100 --eq-yrs 1000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- micbnup 
+- kdcrawc 
+- kdcsoma 
+- kdcsompr
+- kdcsomcr
+pftnums:
+- None
+- None
+- None
+- None
+- None
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/BONA-Birch-STEP4-SA
+mads_initial_guess:
+- 0.0892754   # micbnup: parameter for soil microbial immobialization of N  .64 
+- 0.892754    # kdcrawc: raw-material (litter) C decompositin rates at reference condition   .654
+- 0.371875     # kdcsoma:   0.58
+- 0.159663    # kdcsompr:   
+- 0.000007 # kdcsomcr:
+# NOTE: Kdcraw > Kdcactive > Kdcpr > Kdccr
+mads_paramdist:
+- Uniform(0.01, 0.9)
+- Uniform(0.8, 0.95)
+- Uniform(0.3, 0.4)
+- Uniform(0.1, 0.2)
+- Uniform(1e-10, 1e-5)
+mads_paramkey:
+- micbnup
+- kdcrawc
+- kdcsoma
+- kdcsompr
+- kdcsomcr
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 10
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'OFF'
+mads_param_percent_variance: 70
+mads_problemname: STEP4-BONA-Birch-R-AM

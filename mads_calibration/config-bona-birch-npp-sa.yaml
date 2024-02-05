@@ -1,0 +1,106 @@
+# This file configures TEM and MADS parameters for STEP2 of the calibration 
+# EJ 03/02/23
+calib_mode: NPPVEGC
+PXx: 0
+PXy: 3
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+#- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 14
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)  
+- krb(1)
+- krb(1)
+- krb(1)
+- krb(1)  
+- krb(2)
+- krb(2)
+- krb(2)
+- krb(2)
+
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 1  
+- 2
+- 4  
+- 0
+- 1  
+- 2
+- 4
+
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/BONA-Birch-NPP-SA
+mads_initial_guess:
+- -9.730715
+- -4.510782
+- -27.495035
+- -5.426462
+- -0.725610
+- -6.779478
+- -7.740691
+- -5.300961
+- -8.781548
+- -2.726087
+- -5.758234
+- -22.755016
+- -26.184126
+
+mads_paramdist:
+- Uniform(-9, -7.5) 
+- Uniform(-.8, -0.01)
+- Uniform(-22.0, -18) 
+- Uniform(-6, -4.5) 
+- Uniform(-4, -1.5) 
+- Uniform(-8.0, -5.0) 
+- Uniform(-6, -1) 
+- Uniform(-20, -15) 
+- Uniform(-12, -8) 
+- Uniform(-8, -3.0) 
+- Uniform(-8, -3.0) 
+- Uniform(-20, -10) 
+- Uniform(-20, -15) 
+
+mads_paramkey:
+- krb00
+- krb01
+- krb02
+- krb03
+- krb04
+- krb10
+- krb11
+- krb12
+- krb14
+- krb20
+- krb21
+- krb22
+- krb24
+
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 20
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'ON'
+mads_param_percent_variance: 70
+mads_problemname: BONA-Birch-R-NPP-AM

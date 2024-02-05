@@ -1,0 +1,129 @@
+# This file configures TEM and MADS parameters for STEP2 of the calibration 
+# EJ 03/02/23
+calib_mode: NPPVEGC
+PXx: 0
+PXy: 3
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+#- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 14
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- nmax
+- nmax
+- nmax
+- nmax
+- nmax  
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)  
+- krb(1)
+- krb(1)
+- krb(1)
+- krb(1)  
+- krb(2)
+- krb(2)
+- krb(2)
+- krb(2)  
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 1  
+- 2
+- 4  
+- 0
+- 1  
+- 2
+- 4  
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/BONA-Birch-STEP2-NPP-SA
+mads_initial_guess:
+- 6.309390814732796
+- 4.52054180456459
+- 0.8765841193949677
+- 3.4685474011019166
+- 7.582944997442114
+- -4.773970898642298
+- -4.647295913863658
+- -1.4665350952575331
+- -5.871763648355154
+- -4.01359877423472
+- -11.554282571998097
+- -5.538288822671208
+- -4.8057046326563535
+- -2.5386365873712764
+- -4.699030724677701
+- -4.0
+- -4.0
+- -4.0
+
+mads_paramdist:
+- Uniform(2, 10)
+- Uniform(1, 8)
+- Uniform(1, 6)
+- Uniform(3, 7)
+- Uniform(5, 7)
+- Uniform(-5.0, -3.0)
+- Uniform(-4.0, -3.0)
+- Uniform(-7.0, -1.0)
+- Uniform(-20, -1.0)
+- Uniform(-3.8, -2.5)
+- Uniform(-20.0, -16.0)
+- Uniform(-10.0, -1)
+- Uniform(-5, -4.0)
+- Uniform(-3.5, -0.05)
+- Uniform(-10, -2.0)
+- Uniform(-10, -2.0)
+- Uniform(-10, -2.0)
+- Uniform(-10, -2.0)
+
+mads_paramkey:
+- nmax0
+- nmax1
+- nmax2
+- nmax3
+- nmax4
+- krb00
+- krb01
+- krb02
+- krb03
+- krb04
+- krb10
+- krb11
+- krb12
+- krb14
+- krb20
+- krb21
+- krb22
+- krb24
+
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 20
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'ON'
+mads_param_percent_variance: 70
+mads_problemname: STEP2-BONA-Birch-R-NPP-AM

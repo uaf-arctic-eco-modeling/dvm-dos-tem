@@ -1,0 +1,61 @@
+# This file configures TEM and MADS parameters for STEP1 of the calibration 
+# EJ 03/02/23
+calib_mode: GPPAllIgnoringNitrogen
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+#- NPPAll
+#- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 15 
+PXx: 0
+PXy: 3
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0 
+params:
+- cmax
+- cmax
+- cmax
+- cmax
+- cmax
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/BONA-BS-STEP1-SA
+mads_initial_guess:
+- 439.33
+- 339.69
+- 299.98
+- 150.53
+- 15.31  
+mads_paramdist:
+- Uniform(1, 500)
+- Uniform(1, 200)
+- Uniform(1, 300)
+- Uniform(1, 200)
+- Uniform(1, 100)  
+mads_paramkey:
+- cmax0
+- cmax1
+- cmax2
+- cmax3
+- cmax4  
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'OFF'
+mads_obs_percent_variance: 1
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'OFF'
+mads_param_percent_variance: 70
+mads_problemname: STEP1-BONA-Birch-R-AM

@@ -1,0 +1,212 @@
+# This file configures TEM and MADS parameters for STEP2 of the calibration 
+# EJ 03/02/23
+calib_mode: NPPVEGC
+PXx: 0
+PXy: 3
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 14
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- krb(0)
+- krb(0)
+#- krb(0)
+#- krb(0)
+#- krb(0)  
+- krb(1)
+- krb(1)
+#- krb(1)
+#- krb(1)  
+- krb(2)
+- krb(2)
+#- krb(2)
+- krb(2)
+- cfall(0)
+- cfall(0)
+#- cfall(0)
+#- cfall(0)
+#- cfall(0)
+- cfall(1)
+- cfall(1)
+#- cfall(1)
+#- cfall(1)
+- cfall(2)
+- cfall(2)
+#- cfall(2)
+#- cfall(2)
+
+pftnums:
+- 0
+- 1
+#- 2
+#- 3
+#- 4  
+- 0
+- 1  
+#- 2
+#- 4  
+- 0
+- 1  
+#- 2
+- 4
+- 0
+- 1
+#- 2
+#- 3
+#- 4
+- 0
+- 1
+#- 2
+#- 4
+- 0
+- 1
+#- 2
+#- 4
+
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/BONA-Birch-NPP-VegC-Understory
+mads_initial_guess:
+- -8.10202596
+- -0.07231107
+#- -4.55224948
+#- -3.02425572
+- -5.15681155
+- -5.45521316
+#- -10.22976097
+- -7.75814675
+- -7.2612678
+- -19.24611591
+- 0.01110883
+- 0.34663175
+#- 0.00879982
+#- 0.08928906
+- 0.00021547
+- 1.291e-05
+#- 8.562e-05
+- 0.00038822
+- 9.11e-06
+#- 3.391e-05    
+#- -7.845341538921621
+#- -0.356528898890423
+#- -18.468654037287685
+#- -5.208281837556569
+#- -2.705925429005082
+#- -6.266368755677273
+#- -2.253423224287828
+#- -15.176547605857696
+#- -11.705746583136936
+#- -7.732826988044914
+#- -3.312248312963307
+#- -14.70124374481794
+#- -16.92548492716532
+#- 0.0104121180079736
+#- 0.1549851924171959
+#- 0.0155936981899546
+#- 0.0082416739352657
+#- 0.0255851660746406
+#- 0.0003756153207055
+#- 0.0003190017697623
+#- 0.0042894290309653
+#- 0.000882294096873
+#- 0.0013576422804899
+#- 0.0002985274501389
+#- 0.0077439767160071
+#- 0.0006806975215243
+
+mads_paramdist:
+- Uniform(-12.30202596,-4.00202596)
+- Uniform(-1.09231107,-0.0005231107)
+#- Uniform(-4.75224948,-4.35224948)
+#- Uniform(-3.32425572,-2.82425572)
+- Uniform(-8.35681155,-2.05681155)
+- Uniform(-8.65521316,-2.25521316)
+#- Uniform(-10.42976097,-10.02976097)
+- Uniform(-9.95814675,-5.55814675)
+- Uniform(-9.4612678,-5.0612678)
+- Uniform(-20.54611591,-14.04611591)
+- Uniform(0.009110883,0.01210883)
+- Uniform(0.32663175,0.36663175)
+#- Uniform(0.00859982,0.00899982)
+#- Uniform(0.08728906,0.09128906)
+- Uniform(0.00020547,0.00023547)
+- Uniform(1.091e-05,1.591e-05)
+#- Uniform(8.362e-05,8.862e-05)
+- Uniform(0.00036822,0.00040822)
+- Uniform(9.01e-06,9.51e-06)
+#- Uniform(3.3e-05,3.5e-05)
+
+#- Uniform(-9, -7.5) 
+#- Uniform(-.8, -0.01)
+#- Uniform(-22.0, -18) 
+#- Uniform(-6, -4.5) 
+#- Uniform(-4, -1.5) 
+#- Uniform(-8.0, -5.0) 
+#- Uniform(-6, -1) 
+#- Uniform(-20, -15) 
+#- Uniform(-12, -8) 
+#- Uniform(-8, -3.0) 
+#- Uniform(-8, -3.0) 
+#- Uniform(-20, -10) 
+#- Uniform(-20, -15) 
+#- Uniform(0.008, 0.013) 
+#- Uniform(0.24, 0.40) 
+#- Uniform(0.01, 0.025) 
+#- Uniform(0.006, 0.009) 
+#- Uniform(0.01, 0.09) 
+#- Uniform(0.0001, 0.001) 
+#- Uniform(0.0000005, 0.0005) 
+#- Uniform(0.004, 0.008) 
+#- Uniform(0.00001, 0.001) 
+#- Uniform(0.0001, 0.005) 
+#- Uniform(0.000005, 0.0005) 
+#- Uniform(0.004, 0.008) 
+#- Uniform(0.000008, 0.001)
+
+mads_paramkey:
+- krb00
+- krb01
+#- krb02
+#- krb03
+#- krb04
+- krb10
+- krb11
+#- krb12
+#- krb14
+- krb20
+- krb21
+#- krb22
+- krb24
+- cfall00
+- cfall01
+#- cfall02
+#- cfall03
+#- cfall04
+- cfall10
+- cfall11
+#- cfall12
+#- cfall14
+- cfall20
+- cfall21
+#- cfall22
+#- cfall24
+
+mads_obsweight: [200,200,10,200,200,200,200,200,200,200,200,10,10,10,200,200,200,200]
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 20
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'ON'
+mads_param_percent_variance: 70
+mads_problemname: BONA-Birch-R-NPP-VegC-Understory-AM

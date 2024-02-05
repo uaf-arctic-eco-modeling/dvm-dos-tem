@@ -30,7 +30,7 @@ def save_file(filename,data):
     np.savetxt(filename,data,delimiter =", ",fmt ='% s')
     return
 
-fl=['../mads_calibration/STEP3-US-Prr-R-AM-final.finalresults']
+fl=['../mads_calibration/BONA-Birch-R-NPP-VegC-Understory-constrained.finalresults']
 
 #get the list of initial conditions from the finalresults file
 a=ut.get_optimal_sets_of_params(fl[0]) 
@@ -39,7 +39,7 @@ for i in fl[1:]:
 
 d=list(a.keys())
 ic_list= [[val[i] for key, val in a.items()] for i in range(len(a[d[0]]))]
-print(ic_list)
+#print(ic_list)
 
 tem=get_cofig_file(config_file_name)
 
@@ -51,10 +51,11 @@ for item in ic_list:
         new_list.append(item)
     else:
         pass
-
-save_file('param-20230626-step3.csv',new_list)
+new_list=new_list[-6:]
+print(new_list)
+save_file('param-20231030-bona-npp-vegc-understory.csv',new_list)
 y=[tem.run_TEM(ig) for ig in new_list] 
 y.append(tem.get_targets(1))
-print(y)
-save_file('out-20230626-step3.csv',y)
+#print(y)
+save_file('out-param-20231030-bona-npp-vegc-understory.csv',y)
 

@@ -1,0 +1,171 @@
+# This file configures TEM and MADS parameters for STEP2 of the calibration 
+# EJ 03/02/23
+calib_mode: NPPVEGC
+PXx: 0
+PXy: 3
+# Calibration cases from the calibration/calibration_targets.py
+# The output will be selected based on this cases
+target_names: 
+#- GPPAllIgnoringNitrogen
+#- NPPAllIgnoringNitrogen
+- NPPAll
+- VegCarbon
+#- VegStructuralNitrogen
+#- MossDeathC
+#- CarbonShallow
+#- CarbonDeep
+#- CarbonMineralSum
+#- OrganicNitrogenSum
+#- AvailableNitrogenSum
+cmtnum: 14
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+params:
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)
+- krb(0)  
+- krb(1)
+- krb(1)
+- krb(1)
+- krb(1)  
+- krb(2)
+- krb(2)
+- krb(2)
+- krb(2)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(0)
+- cfall(1)
+- cfall(1)
+- cfall(1)
+- cfall(1)
+- cfall(2)
+- cfall(2)
+- cfall(2)
+- cfall(2)
+
+pftnums:
+- 0
+- 1
+- 2
+- 3
+- 4  
+- 0
+- 1  
+- 2
+- 4  
+- 0
+- 1  
+- 2
+- 4
+- 0
+- 1
+- 2
+- 3
+- 4
+- 0
+- 1
+- 2
+- 4
+- 0
+- 1
+- 2
+- 4
+
+site: /data/input-catalog/caribou-poker
+work_dir: /data/workflows/BONA-Birch-NPP-VegC-SA
+mads_initial_guess:
+- -7.6780328944727065 
+- -3.620576222507488 
+- -19.358700926027495 
+- -4.772679739626552 
+- -0.5586413634198202 
+- -5.372977372301685 
+- -5.999856600762515 
+- -16.761363707009416 
+- -10.311370620471713 
+- -3.4128305488677118 
+- -7.696468778184386 
+- -15.371053524214233 
+- -17.67168402306142 
+- 0.010417100760838169 
+- 0.20005297217695558 
+- 0.01663628410828213 
+- 0.008999886290959451 
+- 0.06488355630452777 
+- 0.00037285236595521385 
+- 0.07005951958126679 
+- 0.0046663679218319565  
+- 0.0017703779576471363 #
+- 0.004782043748954443 
+- 0.09769188438514512 
+- 0.004177413790672136 
+- 0.004718569239467809
+
+mads_paramdist:
+- Uniform(-9, -7.5)
+- Uniform(-3.8, -0.5)
+- Uniform(-22.0, -18)
+- Uniform(-6, -4.5)
+- Uniform(-1.0, -.3)
+- Uniform(-8.0, -5.0)
+- Uniform(-6, -1)
+- Uniform(-20, -15)
+- Uniform(-12, -8)
+- Uniform(-8, -3.0)
+- Uniform(-8, -3.0)
+- Uniform(-20, -10)
+- Uniform(-20, -15)
+- Uniform(0.008, 0.013)
+- Uniform(0.19, 0.30)
+- Uniform(0.001, 0.02)
+- Uniform(0.006, 0.009)
+- Uniform(0.06, 0.07)
+- Uniform(0.0001, 0.001)
+- Uniform(0.01, 0.8)
+- Uniform(0.004, 0.008)
+- Uniform(0.0015, 0.008)
+- Uniform(0.0001, 0.005)
+- Uniform(0.01, 0.1)
+- Uniform(0.004, 0.008)
+- Uniform(0.004, 0.008)
+
+mads_paramkey:
+- krb00
+- krb01
+- krb02
+- krb03
+- krb04
+- krb10
+- krb11
+- krb12
+- krb14
+- krb20
+- krb21
+- krb22
+- krb24
+- cfall00
+- cfall01
+- cfall02
+- cfall03
+- cfall04
+- cfall10
+- cfall11
+- cfall12
+- cfall14
+- cfall20
+- cfall21
+- cfall22
+- cfall24
+
+mads_obsweight:
+# mads_obsrange (ON, OFF) sets ranges for observations
+mads_obsrange: 'ON'
+mads_obs_percent_variance: 20
+# mads_paramrange (ON, OFF) sets ranges for parameters
+mads_paramrange: 'OFF'
+mads_param_percent_variance: 70
+mads_problemname: BONA-Birch-R-NPP-VegC-AM
