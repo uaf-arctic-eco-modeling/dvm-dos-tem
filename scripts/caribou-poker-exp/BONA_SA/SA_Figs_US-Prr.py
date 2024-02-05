@@ -15,14 +15,8 @@ from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
 
 STEP = 2
 
-#STEP1_results = '/data/workflows/US-Prr-STEP1-SA/results.csv'
-#STEP1_sample_matrix = '/data/workflows/US-Prr-STEP1-SA/sample_matrix.csv'
-
 STEP1_results = '/data/workflows/BONA-Birch-STEP1-SA/results.csv'
 STEP1_sample_matrix = '/data/workflows/BONA-Birch-STEP1-SA/sample_matrix.csv'
-
-#STEP2_results = '/data/workflows/US-Prr-STEP2-SA/results.csv'
-#STEP2_sample_matrix = '/data/workflows/US-Prr-STEP2-SA/sample_matrix.csv'
 
 STEP2_results = '/data/workflows/BONA-Birch-STEP2-NPP-SA/results.csv'
 STEP2_sample_matrix = '/data/workflows/BONA-Birch-STEP2-NPP-SA/sample_matrix.csv'
@@ -73,92 +67,6 @@ if STEP == 2:
 #                    ['krb(2)','krb(2).1','krb(2).2']]
 #    
 #    vars_nopft  = ['NPPAll', 'VegCarbonLeaf', 'VegCarbonStem', 'VegCarbonRoot']
-    
-if STEP == 3:
-    target_vars = [
-                   'VegCarbonLeaf1', 'VegCarbonStem1', 'VegCarbonRoot1', 'VegCarbonLeaf2', 'VegCarbonLeaf3',
-                   'VegCarbonStem3', 'VegCarbonRoot3', 'VegCarbonLeaf4',
-                   'VegCarbonRoot4', 'VegCarbonLeaf5',
-                   'VegNitrogenLeaf1', 'VegNitrogenStem1', 'VegNitrogenRoot1', 'VegNitrogenLeaf2', 'VegNitrogenLeaf3',
-                   'VegNitrogenStem3', 'VegNitrogenRoot3', 'VegNitrogenLeaf4',
-                   'VegNitrogenRoot4', 'VegNitrogenLeaf5']
-    
-    calib_params = [
-                    ['cfall(0)','cfall(0).1','cfall(0).2','cfall(0).3','cfall(0).4'],
-                    ['cfall(1)','cfall(1).1'],
-                    ['cfall(2)','cfall(2).1','cfall(2).2'],
-                    ['nfall(0)','nfall(0).1','nfall(0).2','nfall(0).3','nfall(0).4'],
-                    ['nfall(1)','nfall(1).1'],
-                    ['nfall(2)','nfall(2).1','nfall(2).2']]
-    calib_params_flat=[
-                    'cfall(0)','cfall(0).1','cfall(0).2','cfall(0).3','cfall(0).4',
-                    'cfall(1)','cfall(1).1',
-                    'cfall(2)','cfall(2).1','sudocfall(2).2',
-                    'nfall(0)','nfall(0).1','nfall(0).2','nfall(0).3','nfall(0).4',
-                    'nfall(1)','nfall(1).1',
-                    'nfall(2)','nfall(2).1','nfall(2).2']
-    
-if STEP == 3:
-    target_vars = ['NPPAll1', 'NPPAll2', 'NPPAll3', 'NPPAll4', 'NPPAll5',
-                   'VegCarbonLeaf1', 'VegCarbonStem1', 'VegCarbonRoot1', 'VegCarbonLeaf2', 'VegCarbonLeaf3',
-                   'VegCarbonStem3', 'VegCarbonRoot3', 'VegCarbonLeaf4',
-                   'VegCarbonRoot4', 'VegCarbonLeaf5',
-                   'VegNitrogenLeaf1', 'VegNitrogenStem1', 'VegNitrogenRoot1', 'VegNitrogenLeaf2', 'VegNitrogenLeaf3',
-                   'VegNitrogenStem3', 'VegNitrogenRoot3', 'VegNitrogenLeaf4',
-                   'VegNitrogenRoot4', 'VegNitrogenLeaf5']
-    
-    calib_params = [['nmax', 'nmax.1', 'nmax.2', 'nmax.3', 'nmax.4'], # here for reference
-                    ['krb(0)','krb(0).1','krb(0).2','krb(0).3','krb(0).4'],
-                    ['krb(1)','krb(1).1'],
-                    ['krb(2)','krb(2).1','krb(2).2'],
-                    ['cfall(0)','cfall(0).1','cfall(0).2','cfall(0).3','cfall(0).4'],
-                    ['cfall(1)','cfall(1).1'],
-                    ['cfall(2)','cfall(2).1','cfall(2).2'],
-                    ['nfall(0)','nfall(0).1','nfall(0).2','nfall(0).3','nfall(0).4'],
-                    ['nfall(1)','nfall(1).1'],
-                    ['nfall(2)','nfall(2).1','nfall(2).2']]
-    calib_params_flat=['nmax', 'nmax.1', 'nmax.2', 'nmax.3', 'nmax.4', # here for reference
-                    'krb(0)','krb(0).1','krb(0).2','krb(0).3','krb(0).4',
-                    'krb(1)','krb(1).1',
-                    'krb(2)','krb(2).1','krb(2).2',
-                    'cfall(0)','cfall(0).1','cfall(0).2','cfall(0).3','cfall(0).4',
-                    'cfall(1)','cfall(1).1',
-                    'cfall(2)','cfall(2).1','cfall(2).2',
-                    'nfall(0)','nfall(0).1','nfall(0).2','nfall(0).3','nfall(0).4',
-                    'nfall(1)','nfall(1).1',
-                    'nfall(2)','nfall(2).1','nfall(2).2']
-    
-    vars_nopft  = ['NPPAll', 'VegCarbonLeaf', 'VegCarbonStem', 'VegCarbonRoot', 'VegNitrogenLeaf', 'VegNitrogenStem', 'VegNitrogenRoot']
-    
-if STEP == 4:
-    target_vars = ['CarbonShallow', 'CarbonDeep', 'CarbonMineralSum', 'OrganicNitrogenSum', 'AvailableNitrogenSum']
-    
-    calib_params = [['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr']] # here for reference
-    calib_params_flat = ['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr']
-    vars_nopft= ['CarbonShallow', 'CarbonDeep', 'CarbonMineralSum', 'OrganicNitrogenSum', 'AvailableNitrogenSum']
-
-
-#if number of pfts != 5 you will have to adjust these values
-
-if STEP == 1:
-    target_vars = ['GPP1', 'GPP2', 'GPP3', 'GPP4', 'GPP5']
-    
-    calib_params = [['cmax', 'cmax.1', 'cmax.2', 'cmax.3', 'cmax.4']] # here for reference
-    
-    vars_nopft= ['GPP']
-
-if STEP == 2:
-    target_vars = ['NPPAll1', 'NPPAll2', 'NPPAll3', 'NPPAll4', 'NPPAll5',
-                   'VegCarbonLeaf1', 'VegCarbonStem1', 'VegCarbonRoot1', 'VegCarbonLeaf2', 'VegCarbonLeaf3',
-                   'VegCarbonStem3', 'VegCarbonRoot3', 'VegCarbonLeaf4',
-                   'VegCarbonRoot4', 'VegCarbonLeaf5']
-    
-    calib_params = [['nmax', 'nmax.1', 'nmax.2', 'nmax.3', 'nmax.4'], # here for reference
-                    ['krb(0)','krb(0).1','krb(0).2','krb(0).3','krb(0).4'],
-                    ['krb(1)','krb(1).1'],
-                    ['krb(2)','krb(2).1','krb(2).2']]
-    
-    vars_nopft  = ['NPPAll', 'VegCarbonLeaf', 'VegCarbonStem', 'VegCarbonRoot']
     
 if STEP == 3:
     target_vars = [
@@ -385,31 +293,31 @@ if STEP == 2:
     sns.scatterplot(data = results, x='nmax', y='NPPAll1', ax=axes[0,0], hue='krb(0)', alpha=0.3,legend=False)
     sns.scatterplot(data = results.iloc[top], x='nmax', y='NPPAll1', ax=axes[0,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nmax', y='NPPAll1', ax=axes[0,0], color='yellow',legend=False)
-    axes[0,0].title.set_text('Black Spruce')
+    axes[0,0].title.set_text('EvrTree')
 
     axes[0,1].axhline(targets['NPPAll2'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='nmax.1', y='NPPAll2', ax=axes[0,1], hue='krb(0).1', legend=False, alpha=0.3)
     sns.scatterplot(data = results.iloc[top], x='nmax.1', y='NPPAll2', ax=axes[0,1], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nmax.1', y='NPPAll2', ax=axes[0,1], color='yellow',legend=False)
-    axes[0,1].title.set_text('Moss (Sphagnum dominant)')
+    axes[0,1].title.set_text('DecidShrub')
 
     axes[0,2].axhline(targets['NPPAll3'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='nmax.2', y='NPPAll3', ax=axes[0,2], hue='krb(0).2', legend=False, alpha=0.3)
     sns.scatterplot(data = results.iloc[top], x='nmax.2', y='NPPAll3', ax=axes[0,2], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nmax.2', y='NPPAll3', ax=axes[0,2], color='yellow',legend=False)
-    axes[0,2].title.set_text('Shrubs (Evergreen Dominant)')
+    axes[0,2].title.set_text('DecidTree')
 
     axes[1,0].axhline(targets['NPPAll4'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='nmax.3', y='NPPAll4', ax=axes[1,0], hue='krb(0).3', legend=False, alpha=0.3)
     sns.scatterplot(data = results.iloc[top], x='nmax.3', y='NPPAll4', ax=axes[1,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nmax.3', y='NPPAll4', ax=axes[1,0], color='yellow',legend=False)
-    axes[1,0].title.set_text('Tussock Cottongrass')
+    axes[1,0].title.set_text('Moss')
 
     axes[1,1].axhline(targets['NPPAll5'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='nmax.4', y='NPPAll5', ax=axes[1,1], hue='krb(0).4', legend=True, alpha=0.3)
     sns.scatterplot(data = results.iloc[top], x='nmax.4', y='NPPAll5', ax=axes[1,1], color='red',label='Top 15 runs')
     sns.scatterplot(data = results.iloc[first], x='nmax.4', y='NPPAll5', ax=axes[1,1], color='yellow',label='Top run')
-    axes[1,1].title.set_text('Reindeer Lichen')
+    axes[1,1].title.set_text('EvrShrub')
 
     axes[1,1].legend(loc='lower right', bbox_to_anchor=(0,-.5), title='krb(0)')
 
@@ -421,34 +329,34 @@ if STEP == 2:
     fig.suptitle('STEP 2 krb vs NPPAll for each PFT')
 
     axes[0,0].axhline(targets['NPPAll1'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='krb(0)', y='NPPAll1', ax=axes[0,0], hue='krb(0)', alpha=0.3,legend=False)
-    sns.scatterplot(data = results.iloc[top], x='nmax', y='NPPAll1', ax=axes[0,0], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nmax', y='NPPAll1', ax=axes[0,0], color='yellow',legend=False)
-    axes[0,0].title.set_text('Black Spruce')
+    sns.scatterplot(data = results, x='krb(0)', y='NPPAll1', ax=axes[0,0], alpha=0.3,legend=False)
+    sns.scatterplot(data = results.iloc[top], x='krb(0)', y='NPPAll1', ax=axes[0,0], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='krb(0)', y='NPPAll1', ax=axes[0,0], color='yellow',legend=False)
+    axes[0,0].title.set_text('EvrTree')
 
     axes[0,1].axhline(targets['NPPAll2'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nmax.1', y='NPPAll2', ax=axes[0,1], hue='krb(0).1', legend=False, alpha=0.3)
-    sns.scatterplot(data = results.iloc[top], x='nmax.1', y='NPPAll2', ax=axes[0,1], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nmax.1', y='NPPAll2', ax=axes[0,1], color='yellow',legend=False)
-    axes[0,1].title.set_text('Moss (Sphagnum dominant)')
+    sns.scatterplot(data = results, x='krb(0).1', y='NPPAll2', ax=axes[0,1], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='krb(0).1', y='NPPAll2', ax=axes[0,1], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='krb(0).1', y='NPPAll2', ax=axes[0,1], color='yellow',legend=False)
+    axes[0,1].title.set_text('DecidShrub')
 
     axes[0,2].axhline(targets['NPPAll3'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nmax.2', y='NPPAll3', ax=axes[0,2], hue='krb(0).2', legend=False, alpha=0.3)
-    sns.scatterplot(data = results.iloc[top], x='nmax.2', y='NPPAll3', ax=axes[0,2], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nmax.2', y='NPPAll3', ax=axes[0,2], color='yellow',legend=False)
-    axes[0,2].title.set_text('Shrubs (Evergreen Dominant)')
+    sns.scatterplot(data = results, x='krb(0).2', y='NPPAll3', ax=axes[0,2], legend=False, alpha=0.3)
+    sns.scatterplot(data = results.iloc[top], x='krb(0).2', y='NPPAll3', ax=axes[0,2], color='red',legend=False)
+    sns.scatterplot(data = results.iloc[first], x='krb(0).2', y='NPPAll3', ax=axes[0,2], color='yellow',legend=False)
+    axes[0,2].title.set_text('DecidTree')
 
     axes[1,0].axhline(targets['NPPAll4'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nmax.3', y='NPPAll4', ax=axes[1,0], hue='krb(0).3', legend=False, alpha=0.3)
+    sns.scatterplot(data = results, x='krb(0).3', y='NPPAll4', ax=axes[1,0], hue='krb(0).3', legend=False, alpha=0.3)
     sns.scatterplot(data = results.iloc[top], x='nmax.3', y='NPPAll4', ax=axes[1,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nmax.3', y='NPPAll4', ax=axes[1,0], color='yellow',legend=False)
-    axes[1,0].title.set_text('Tussock Cottongrass')
+    axes[1,0].title.set_text('Moss')
 
     axes[1,1].axhline(targets['NPPAll5'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='nmax.4', y='NPPAll5', ax=axes[1,1], hue='krb(0).4', legend=True, alpha=0.3)
     sns.scatterplot(data = results.iloc[top], x='nmax.4', y='NPPAll5', ax=axes[1,1], color='red',label='Top 15 runs')
     sns.scatterplot(data = results.iloc[first], x='nmax.4', y='NPPAll5', ax=axes[1,1], color='yellow',label='Top run')
-    axes[1,1].title.set_text('Reindeer Lichen')
+    axes[1,1].title.set_text('EvrShrub')
 
     axes[1,1].legend(loc='lower right', bbox_to_anchor=(0,-.5), title='krb(0)')
 

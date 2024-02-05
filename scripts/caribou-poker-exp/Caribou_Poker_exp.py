@@ -106,7 +106,7 @@ print(drainage)
 drainage['drainage_class'][:]
 
 
-path_to_soil_input='/data/input-catalog/caribou-poker_merged/soil-texture.nc'
+path_to_soil_input='/data/input-catalog/caribou-poker/soil-texture.nc'
 soil_dataset = nc.Dataset(path_to_soil_input)
 print(soil_dataset)
 print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct_clay'][y_x[0], y_x[1]], 
@@ -236,7 +236,7 @@ get_ipython().system('scripts/outspec_utils.py --list-vars ../data/workflows/pok
 get_ipython().run_line_magic('cd', '/data/workflows/poker_flats_merged_data')
 
 
-get_ipython().system("dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=500")
+get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=500")
 #!dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=0 --sp-yrs=0 --eq-yrs=1000
 
 
