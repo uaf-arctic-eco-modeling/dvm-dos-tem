@@ -222,6 +222,26 @@
 0.0995             // coefminea:
 0.7078             // coefmineb:
 //===========================================================
+// CMT15 // Boreal Black Spruce //Calibrated for Caribou Creek.
+// Snow characteristics
+250                // snwdenmax:  max. snow density (kg/m3)
+120                // snwdennew:  new (min.) snow density (kg/m3)
+0.                 // initsnwthick: initial snow thickness (m)
+0.                 // initsnwdense: initial snow density (kg/m3)
+// moss characteristics
+0.035              // maxmossthick: max. dead moss thickness (m)
+0.02               // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
+// soil characteristics
+0.036              // initfibthick: meters
+0.10              // inithumthick:
+0.04              // coefshlwa:
+1.475              // coefshlwb:
+0.06              // coefdeepa:
+1.145              // coefdeepb:
+0.0995             // coefminea:
+0.8978             // coefmineb:
+//===========================================================
 // CMT20 // EML Shrub Tundra
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)

@@ -212,7 +212,7 @@
 11.153826          // initavln: from 6.153826 then 11.153862
 //===========================================================
 // CMT14 // Boreal Birch Forest // AM Calibrated for Caribou Creek.
-2.0               // rhq10:
+2.9               // rhq10:
 2.0               // rhq10_w:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -230,6 +230,27 @@
 2307.0           // initdeepc:
 33481.0           // initminec:
 1876.0            // initsoln:
+3.41               // initavln:
+//===========================================================
+// CMT15 // Boreal Black Spruce // AM Calibrated for Caribou Creek.
+1.86              // rhq10:
+1.5               // rhq10_w:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+44.               // lcclnc:
+0.3717            // fsoma:
+0.6112            // fsompr:
+0.0171            // fsomcr:
+0.25            // som2co2:
+0.0042            // kn2:
+30.            // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+2768.09             // initshlwc:
+8765.64           // initdeepc:
+63294.0           // initminec:
+2981.04            // initsoln:
 3.41               // initavln:
 //===========================================================
 // CMT20 // EML Shrub Tundra
