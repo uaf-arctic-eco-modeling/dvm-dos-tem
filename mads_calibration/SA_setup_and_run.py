@@ -101,6 +101,7 @@ if __name__ == '__main__':
 
   # Gather up all the results into one place.
   driver.collate_results()
+  driver.collate_eq_metrics()
 
   # Make the targets file in the work dir too. This API needs to change slightly
   # as it required using the private _ssrf_names() function inorder to make

@@ -4,8 +4,80 @@
 
 # Metrics used to evaluate dvmdostem performance in various ways.
 
+import scipy.stats
+import numpy as np
 import matplotlib.pyplot as plt
 
+import util.output
+import util.param
+
+def eq_quality(var, fileprefix='', cmtkey='', PXx=None, PXy=None, pref=''):
+  '''
+  Draft ... experimenting with measuring eq state...
+  '''
+
+  data, dims = util.output.get_last_n_eq(var, timeres='yearly', 
+                                         fileprefix=fileprefix, n=30)
+
+  def measure(data):
+
+    x = np.indices(data.shape)[0]
+    #x = np.arange(data.shape[0])
+    slope, intercept, r, p, std_err = scipy.stats.linregress(x, data)
+    cv = 100 * data.std() / data.mean()
+
+    return dict(slope=slope, 
+                #intercept=intercept, 
+                #r=r, 
+                p=p, 
+                #std_err=std_err,
+                cv=cv)
+
+  dsizes, dnames = list(zip(*dims))
+
+  final_data = {}
+
+  if dnames == ('time','y','x'):
+    values = data[:,PXy,PXx]
+    d = dict(**measure(values))
+    d = {f"{var}_eq_{key}":val for key, val in d.items()}
+    final_data = {**final_data, **d}
+    #print(d)
+    #final_data.append(d)
+    #final_data.append(d)
+
+  elif dnames == ('time','y','x','pft'):
+    for pft in range(0,10):
+      if util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=pref):
+        values = data[:,pft,PXy,PXx]
+        d = dict(**measure(values))
+        d = {f"{var}_pft{pft}_eq_{key}":val for key, val in d.items() }
+        final_data = {**final_data, **d}
+        #print(d)
+        #final_data.append(d)
+      else:
+        pass #print "  -> Failed" # contributor test! Ignoring pft:{}, caltarget:{}, output:{}".format(pft, ctname, ncname)
+
+  elif dnames == ('time','y','x','pft','pftpart'):
+    for pft in range(0,10):
+      clu = {0:'Leaf', 1:'Stem', 2:'Root'}
+      for cmprt in range(0,3):
+        if util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=pref):
+          values = data[:,cmprt,pft,PXy,PXx]
+          d = dict(**measure(values))
+          d = {f"{var}_pft{pft}_{cmprt}_eq_{key}":val for key, val in d.items() }
+          final_data = {**final_data, **d}
+          #final_data.append(measure(values))
+        else:
+          pass #print "  -> Failed! "#contributor test! Ignoring pft:{}, compartment:{}, caltarget:{}, output:{}".format(pft, cmprt, ctname, ofname)
+
+  elif 'layer' in dnames:
+    print("LAYER VARIABLES NOT IMPLEMENTED YET!")
+
+  else:
+      raise RuntimeError(f"Unexpeceted dimensions for variable {var}")
+
+  return final_data
 
 def plot_optimization_fit(seed_params=None, ig_params=None, opt_params=None,
                           seed_out=None, ig_out=None, opt_out=None,

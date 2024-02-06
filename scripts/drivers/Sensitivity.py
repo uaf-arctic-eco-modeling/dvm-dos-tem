@@ -19,6 +19,7 @@ from contextlib import contextmanager
 
 from drivers.BaseDriver import BaseDriver
 
+import util.metrics
 import util.param
 import util.output
 import util.setup_working_directory
@@ -237,7 +238,7 @@ class Sensitivity(BaseDriver):
     **kwargs :
       Optional extra arugments (nothing implemented at this time)
 
-    Required keys for connfig dict
+    Required keys for config dict
     ------------------------------
     params : list of strings
       The list of parameters that should be analyzed.
@@ -282,7 +283,7 @@ class Sensitivity(BaseDriver):
       self.cmtnum = config['cmtnum']
 
     if 'params' not in config.keys():
-      raise RuntimeError("What the fuck do you think you  are doing??")
+      raise RuntimeError("You must have params to instantiate a Sensitivity driver!")
 
     if not ('percent_diffs' in config.keys()):
       # use +/-90% for default perturbation
@@ -557,8 +558,14 @@ class Sensitivity(BaseDriver):
     self.sample_matrix.to_csv(sm_fname, index=False)
     pd.DataFrame(self.params).to_csv(pp_fname, index=False)
     with open(info_fname, 'w') as f:
-      f.writelines("sampling_method: {}\n".format(self.sampling_method))
-      f.writelines("initial_params_seedpath: {}\n".format(self._seedpath))
+      f.writelines(f"sampling_method: {self.sampling_method}\n")
+      f.writelines(f"initial_params_seedpath: {self._seedpath}\n")
+      f.writelines(f"site: {self.site}\n")
+      f.writelines(f"PXx: {self.PXx}\n")
+      f.writelines(f"PXy: {self.PXy}\n")
+      f.writelines(f"--opt-run: {self.opt_run_setup}\n")
+      f.writelines(f"outputs: {self.outputs}\n")
+
 
   def load_experiment(self, param_props_path, sample_matrix_path, info_path):
     '''Load parameter properties and sample matrix from files.'''
@@ -918,6 +925,21 @@ class Sensitivity(BaseDriver):
     with open(os.path.join(rundirectory, 'results.csv'), 'w') as outfile:
       outfile.writelines(csv_data)
 
+    # Make a csv file summarizing equlibrium state for each variable
+    # has several columns per PFT with a few equlibrium metrics...
+    for var in self.outputs:
+      res = util.metrics.eq_quality(
+          var['ncname'],
+          cmtkey=f"CMT{self.cmtnum:02d}",
+          PXx=self.PXx,
+          PXy=self.PXy,
+          fileprefix=os.path.join(rundirectory, 'output'),
+          pref=os.path.join(rundirectory, 'parameters'),
+      )
+      with open(os.path.join(rundirectory, f"eq_{var['ncname']}_quality.csv"), 'w') as outfile:
+        csv_data = pd.DataFrame(res, index=[0]).to_csv(index=False)
+        outfile.writelines(csv_data)
+
     return None
 
   def first_steps_sensitivity_analysis(self):
@@ -1046,6 +1068,12 @@ class Sensitivity(BaseDriver):
     with open(os.path.join(self.work_dir, 'results.csv'), 'w') as f:
       f.write(df.to_csv(index=False))
 
+  def collate_eq_metrics(self):
+    for var in self.outputs:
+      results = [os.path.join(ssrf, f"eq_{var['ncname']}_quality.csv") for ssrf in self._ssrf_names()]
+      df = pd.concat(map(pd.read_csv, results), ignore_index=True)
+      with open(os.path.join(self.work_dir, f"eq_{var['ncname']}_quality.csv"), 'w') as f:
+        f.write(df.to_csv(index=False))
 
   def summarize_ssrf(self, output_directory_path):
     '''
