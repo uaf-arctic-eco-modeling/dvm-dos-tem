@@ -52,6 +52,19 @@ public:
   std::vector<double> rh_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> rh_for_output;
 
+  std::vector<double> ch4diff_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4diff_layer_for_output;
+
+  std::vector<double> ch4ebul_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4ebul_layer_for_output;
+
+  std::vector<double> ch4oxid_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4oxid_layer_for_output;
+
+  std::vector<double> ch4transport_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4transport_layer_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, MAX_SOI_LAY>> ch4transport_for_output; 
+
   std::vector<std::array<double, MAX_SOI_LAY>> layerdepth_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
