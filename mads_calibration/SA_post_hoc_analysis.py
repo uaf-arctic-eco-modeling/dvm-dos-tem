@@ -307,6 +307,70 @@ def plot_relationships(results, sample_matrix, targets, variables=None, paramete
       if save != None:
         plt.savefig(f"plots/{vars}-{'-'.join(parameters)}.png", bbox_inches="tight")
 
+def plot_pft_matrix(results, sample_matrix, targets, save=None):
+  '''
+  Look at the model outputs and the parameters, and plot all parameters
+  against each variable for 10 potential pfts
+
+  Parameters
+  ----------
+  results: pandas.DataFrame
+    One row per sample, one column per output.
+  sample_matrix: pandas.DataFrame
+    One row per sample, one column per parameter.
+  targets: pandas.DataFrame
+    One row with one column per target value.
+  save: optional
+    Saves all subplots (can be a lot) if != None
+
+  Returns
+  -------
+  None
+
+  .. image:: 
+
+  '''
+  variables = list(results.columns.values)
+  parameters = list(sample_matrix.columns.values)
+  target_values = list(targets.columns.values)
+
+  param_types = []; pft_nums = []
+  for p in parameters:
+    param_types.append(p.split("_")[0])
+    pft_nums.append(p.split("_")[-1])
+  param_set = list(set(param_types)); param_set.sort()
+  pft_nums_set = list(set(pft_nums)); pft_nums_set.sort()
+
+  print(pft_nums_set)
+
+  for v in range(0,len(variables)):
+    
+    ncols = 10
+    nrows = len(param_set)
+    fig, ax = plt.subplots(nrows, ncols, figsize=(24, len(param_set)*2))
+    
+    for i in range(0, len(param_set)):
+
+      for j in range(0, len(pft_nums_set)):
+                 
+        if len(param_set) > 1:
+          axis = ax[i,j]
+        else:
+          axis = ax[j]
+        
+        p = param_set[i]+"_"+pft_nums_set[j]
+        if any(p in s for s in parameters):
+          axis.scatter(sample_matrix[p], results[variables[v]])
+          axis.plot(sample_matrix[p], targets[variables[v]].values*np.ones(len(sample_matrix[p])), 'k--')
+          axis.set_title(p, fontsize=10)
+          axis.tick_params(labelsize=10)
+            
+    plt.tight_layout()
+    plt.suptitle(variables[v], fontsize=12, y=1.0)
+    # Save figure if enabled - may create a large number of figures
+    if save != None:
+        plt.savefig(f"plots/{variables[v]}_pft_plot.pdf", format="pdf", bbox_inches="tight")
+
 def plot_corr_heatmap(df_corr):
   '''
   ??? Write something...
