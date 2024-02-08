@@ -77,7 +77,8 @@ def plot_spaghetti(results, targets, saveprefix=''):
   '''
   Plots one line for each sample (row) in ``results``. Plots targets as dots.
   X axis of plot are for different columns in ``results``. Makes 2 plots, the 
-  right one uses a log scale for the y axis.
+  right one uses a log scale for the y axis. The right plot also has a mean line
+  (blue).
 
   Useful for seeing if the range of model outputs produced by running each row
   in the sample matrix contains the target values.
@@ -105,7 +106,8 @@ def plot_spaghetti(results, targets, saveprefix=''):
   for i, sample in results.iterrows():
     ax1.plot(sample, color='gray', alpha=0.1)
 
-  # ax1.plot(results.mean(), color='blue')
+  ax1.plot(results.mean(), color='blue')
+
   # ax1.fill_between(range(len(results.T)),
   #                 results.mean() - results.std(), 
   #                 results.mean() + results.std(),
@@ -115,9 +117,10 @@ def plot_spaghetti(results, targets, saveprefix=''):
   #                 results.max(),
   #                 color='gray', alpha=.25, linewidth=0)
 
-  ax2.plot(results.mean(), color='blue')
   for i, sample in results.iterrows():
     ax2.plot(sample, color='gray', alpha=0.1)
+
+  ax2.plot(results.mean(), color='blue')
 
   # Targets
   for ax in [ax1, ax2]:
