@@ -28,15 +28,29 @@ import util.outspec
 
 
 @contextmanager
-def log_wrapper(message,tag=''):
+def log_wrapper(message):
   '''
-  Likely will abandon or repurpose this function.
-  Not super helpful as a log printer.'''
-  print('[SA:{}] {}'.format(tag, message))
+  Print the ``message`` with the process name at the beginning.
+
+  Use via a context manager, for example:
+
+    .. code:
+
+      with log_wrapper("my message") as _: pass
+
+  To get something like this:
+
+    .. code:
+
+      ForkPoolWorker-4: my message
+
+  '''
+  pin = multiprocessing.current_process().name
+  print(f'{pin}: {message}', flush=True)
   try:
     yield
   finally:
-    print()
+    pass
 
 def generate_uniform(N, param_props):
   '''
@@ -660,8 +674,7 @@ class Sensitivity(BaseDriver):
     -------
     None
     '''
-    #print("PROC:{}  ".format(multiprocessing.current_process()), row)
-
+    #with log_wrapper(f"In core_setup, {row=}") as _: pass
     def rowkey2pdict(key):
       '''
       Takes a key such as 'rhq10' or 'cmax_pft1' and returns the parameter
@@ -794,11 +807,13 @@ class Sensitivity(BaseDriver):
     #      {'name': 'cmax', 'bounds': [2.28, 43.32], 'initial': 22.8, 'cmtnum': 6, 'pftnum': 0}
     # 
     for rowkey, pval in row.items():
+      #with log_wrapper(f"parameter modification loop: {rowkey=} {pval=}") as _: pass
       pname, pft = rowkey2pdict(rowkey)
       for pdict in self.params:
+        #with log_wrapper(f"inner loop over self.params {pdict=}") as _: pass
         if pname == pdict['name']:
           if not pft and pdict['pftnum'] is None:
-            #print("This is NOT a PFT one...", rowkey, pval, pname, pft, pdict, flush=True)
+            #with log_wrapper(f"Updating a non-PFT param {rowkey=} {pval=} {pname=} {pft=} {pdict=}") as _: pass
             util.param.update_inplace(
               pval, os.path.join(sample_specific_folder, 'parameters'), 
               pdict['name'], pdict['cmtnum'], pft
@@ -806,7 +821,7 @@ class Sensitivity(BaseDriver):
           if pft and 'pftnum' in pdict.keys():
             if pdict['pftnum'] is not None:
               if int(pft) == int(pdict['pftnum']):
-                #print("This IS a PFT one...", rowkey, pval, pname, pft, pdict, flush=True)
+                #with log_wrapper(f"Updating a PFT param {rowkey=} {pval=} {pname=} {pft=} {pdict=}") as _: pass
                 util.param.update_inplace(
                   pval, os.path.join(sample_specific_folder, 'parameters'), 
                   pdict['name'], pdict['cmtnum'], pft
@@ -903,18 +918,19 @@ class Sensitivity(BaseDriver):
     ctrl_file = os.path.join(rundirectory, 'config','config.js')
     opt_str = f" -l fatal --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
     cmdline = program + ' ' + self.opt_run_setup + opt_str
-    with log_wrapper(cmdline, tag='run') as lw:
-      completed_process = subprocess.run(
-        cmdline,             # The program + options 
-        shell=True,          # must be used if passing options as str and not list
-        check=True,          # raise CalledProcessError on failure
-        #capture_output=True,# collect stdout and stderr; causes memory problems I think
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        cwd=rundirectory)    # control context
-      if not completed_process.returncode == 0:
-        print(completed_process.stdout)
-        print(completed_process.stderr)
+    with log_wrapper(f"{cmdline=}") as _: pass
+
+    completed_process = subprocess.run(
+      cmdline,             # The program + options 
+      shell=True,          # must be used if passing options as str and not list
+      check=True,          # raise CalledProcessError on failure
+      #capture_output=True,# collect stdout and stderr; causes memory problems I think
+      stdout=subprocess.DEVNULL,
+      stderr=subprocess.DEVNULL,
+      cwd=rundirectory)    # control context
+    if not completed_process.returncode == 0:
+      print(completed_process.stdout)
+      print(completed_process.stderr)
 
     # Run the extraction of data from NetCDF to csv for outputs.
     summary_data = self.summarize_ssrf(os.path.join(rundirectory, 'output'))
@@ -1367,7 +1383,6 @@ class Sensitivity(BaseDriver):
     save : bool
       True saves plot in ``work_dir`` with name
       ``sample_matrix_distributions.png``
-
 
     Returns
     -------
