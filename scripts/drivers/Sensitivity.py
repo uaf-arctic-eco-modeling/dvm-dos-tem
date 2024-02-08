@@ -52,6 +52,46 @@ def log_wrapper(message):
   finally:
     pass
 
+
+def make_col_name(pdict):
+  '''
+  Make standardized column names for parameters.
+
+  Expects ``pdict`` to be a dictionary of items related to a parameter, e.g.:
+
+  .. code:
+
+    {'name': 'micbnup',
+    'bounds': '[0.0729, 1.387]',
+    'initial': 0.73,
+    'cmtnum': 6,
+    'pftnum': nan}
+
+
+  Returns
+  =======
+  col_name : str
+    A string to use for the sample_matrix column name. Should be simply the
+    parameter name for non-PFT parameters and for PFT parameters, the name
+    should be suffixe with _pftN where N is the PFT number.
+  '''
+  s = f"{pdict['name']}"
+  if 'pftnum' in pdict.keys():
+    tests = [#np.isnan(pdict['pftnum']), # can't handle string
+             pdict['pftnum'] == '',
+             pdict['pftnum'] == 'Nan',
+             pdict['pftnum'] == 'NaN',
+             pdict['pftnum'] == 'nan',
+             pd.isna(pdict['pftnum']), # handles strings, etc
+             pd.isnull(pdict['pftnum']),
+             pdict['pftnum'] is None, ]
+    if any(tests):
+      pass
+    else:
+      s+= f"_pft{pdict['pftnum']}"
+  return s
+
+
 def generate_uniform(N, param_props):
   '''
   Generate sample matrix using uniform method.
@@ -106,7 +146,7 @@ def generate_uniform(N, param_props):
 
   sm = l * spreads + lows
 
-  return pd.DataFrame(sm, columns=[p['name'] for p in param_props])
+  return pd.DataFrame(sm, columns=[make_col_name(p) for p in param_props])
 
 
 def generate_lhc(N, param_props):
@@ -165,7 +205,9 @@ def generate_lhc(N, param_props):
   # ??
   sample_matrix = l * mat_diff + lo_bounds
 
-  return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
+  names = [make_col_name(p) for p in param_props]
+
+  return pd.DataFrame(sample_matrix, columns=names)
 
 
 def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
