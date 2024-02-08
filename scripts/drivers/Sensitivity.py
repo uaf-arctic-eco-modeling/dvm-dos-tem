@@ -1398,6 +1398,7 @@ class Sensitivity(BaseDriver):
 
     for i, (p, ax) in enumerate(zip(self.params, axes)):
       ax[0].plot(self.sample_matrix.iloc[:, i], marker='.', linewidth=0, alpha=.5)
+      ax[0].plot(0, p['initial'], marker='o', color='orange', alpha=.5,)
       ax[0].set_ylabel(f"{p['name']}_{p['pftnum']}")
       ax[0].hlines(p['bounds'], 0, len(self.sample_matrix)-1, linestyles='dotted', colors='red')
       ax[1].hist(self.sample_matrix.iloc[:, i], range=sorted(p['bounds']), orientation='horizontal', alpha=0.75, rwidth=0.8)
