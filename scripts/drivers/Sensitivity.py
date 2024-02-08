@@ -719,6 +719,20 @@ class Sensitivity(BaseDriver):
       sample_specific_folder
     ])
 
+    # Strip all extra CMTs from parameter files
+    util.param.cmdline_entry([
+      '--extract-cmt',
+      os.path.join(sample_specific_folder, 'parameters'),
+      f'CMT{self.cmtnum:02d}',
+      sample_specific_folder
+    ])
+    # The above creates a directory e.g. CMT01, in the sample folder
+    # so here we delete the parameters folder and move one that we just
+    # created to parameters
+    shutil.rmtree(os.path.join(sample_specific_folder, "parameters/"))
+    os.rename(os.path.join(sample_specific_folder, f'CMT{self.cmtnum:02d}'),
+              os.path.join(sample_specific_folder, 'parameters'))
+
     # Adjust run mask for appropriate pixel
     util.runmask.cmdline_entry([
       '--reset',
