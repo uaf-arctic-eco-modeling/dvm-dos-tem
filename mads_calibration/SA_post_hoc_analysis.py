@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 # This stuff is diamond box in SA (orange half)
-def plot_boxplot(results, targets):
+def plot_boxplot(results, targets, saveprefix=''):
   '''
   Plots a box and whiskers for each column in ``results``. Plots a dot for
   each target value.
@@ -59,14 +59,21 @@ def plot_boxplot(results, targets):
 
   targets : pandas.DataFrame
     One column for each target (truth, or observation) value. One row.
+
+  saveprefix : str
+    A string that is prepended to the saved filename 'results_boxplot.png'
+
+  Returns
+  -------
+  None
   '''
   plt.close('all')
   fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(6,6))
   results.boxplot(ax=ax, rot=45)
   ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
-  plt.savefig("plots/results_boxplot.png")
+  plt.savefig(saveprefix + "results_boxplot.png")
 
-def plot_spaghetti(results, targets):
+def plot_spaghetti(results, targets, saveprefix=''):
   '''
   Plots one line for each sample (row) in ``results``. Plots targets as dots.
   X axis of plot are for different columns in ``results``. Makes 2 plots, the 
@@ -84,6 +91,13 @@ def plot_spaghetti(results, targets):
   
   targets : pandas.DataFrame
     Single row, one column for each target (truth, or observation) value.
+
+  saveprefix : str
+    A string that is prepended to the saved filename 'spaghetti_plot.png'
+
+  Returns
+  -------
+  None
   '''
   plt.close('all')
   fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2,figsize=(24,6))
@@ -111,16 +125,15 @@ def plot_spaghetti(results, targets):
                marker='o', color='red', zorder=1000)
 
   ax2.set_yscale('log')
+  plt.savefig(saveprefix + "spaghetti_plot.png")
 
-  plt.savefig("plots/spaghetti_plot.png")
-
-def plot_match(results, targets):
+def plot_match(results, targets, saveprefix=''):
   '''
   Plot targets vs model outputs (results). Dashed diagonal is line of perfect 
   agreement between the model output and the targets. Plot dot or marker for
   each model output. Targets are on the y axis, model outputs on the x axis.
 
-  The result a horizontal collection of markers for each column in results.
+  There is a horizontal collection of markers for each column in results.
   If the collection of markers crosses the dashed 1:1 line, then the model
   is capable of producing target values somewhere in the sample set. If the
   collection of markers for a given column (model output) is all to the left
@@ -130,16 +143,29 @@ def plot_match(results, targets):
 
   .. image:: /images/SA_post_hoc_analysis/one2one_match.png
   
+  Parameters
+  ----------
+  results : pandas.DataFrame
+    One row for each run (sample), one column for each model output variable.
+  
+  targets : pandas.DataFrame
+    Single row, one column for each target (truth, or observation) value.
+
+  saveprefix : str
+    A string that is prepended to the saved filename 'results_boxplot.png'
+
+  Returns
+  -------
+  None
   '''
   # "One to one match plot"
-  plt.close('all')
   fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12,12))
 
   x = np.linspace(targets.min(axis=1), targets.max(axis=1), 10)
   ax.plot(x,x, 'b--')
   ax.scatter(results, [targets for i in range(len(results))], alpha=.1)
 
-  plt.savefig("plots/one2one_match.png")
+  plt.savefig(saveprefix + "one2one_match.png")
 
 
 
@@ -189,7 +215,9 @@ def calc_correlation(model_results, sample_matrix):
 
   return corr_mp
 
-def plot_relationships(results, sample_matrix, targets, variables=None, parameters=None, corr_threshold=None, save=None):
+def plot_relationships(results, sample_matrix, targets, variables=None, 
+                       parameters=None, corr_threshold=None, save=None,
+                       saveprefix=''):
   '''
   Look at the model outputs and the parameters, calculate the corrleation
   between the two, and then make one plot for each instance where the
@@ -211,6 +239,8 @@ def plot_relationships(results, sample_matrix, targets, variables=None, paramete
     Lower threshold for correlation to plot
   save: optional
     Saves all subplots (can be a lot) if != None
+  saveprefix : str
+    A string that is prepended to the saved filename '{var}-{parameters}.png'
 
   Returns
   -------
@@ -305,9 +335,10 @@ def plot_relationships(results, sample_matrix, targets, variables=None, paramete
       plt.subplots_adjust(left=None, bottom=None, right=1, top=1.2, wspace=None, hspace=None)
       # Save figure if enabled - may create a large number of figures
       if save != None:
-        plt.savefig(f"plots/{vars}-{'-'.join(parameters)}.png", bbox_inches="tight")
+        name = saveprefix + f"{vars}-{'-'.join(parameters)}.png"
+        plt.savefig(name, bbox_inches="tight")
 
-def plot_pft_matrix(results, sample_matrix, targets, save=None):
+def plot_pft_matrix(results, sample_matrix, targets, save=None, saveprefix=''):
   '''
   Look at the model outputs and the parameters, and plot all parameters
   against each variable for 10 potential pfts
@@ -322,6 +353,9 @@ def plot_pft_matrix(results, sample_matrix, targets, save=None):
     One row with one column per target value.
   save: optional
     Saves all subplots (can be a lot) if != None
+  saveprefix : str
+    A string that is prepended to the saved filename '{var}_pft_plot.pdf'
+
 
   Returns
   -------
@@ -369,9 +403,10 @@ def plot_pft_matrix(results, sample_matrix, targets, save=None):
     plt.suptitle(variables[v], fontsize=12, y=1.0)
     # Save figure if enabled - may create a large number of figures
     if save != None:
-        plt.savefig(f"plots/{variables[v]}_pft_plot.pdf", format="pdf", bbox_inches="tight")
+        name = saveprefix + f"{variables[v]}_pft_plot.pdf"
+        plt.savefig(name, format="pdf", bbox_inches="tight")
 
-def plot_corr_heatmap(df_corr):
+def plot_corr_heatmap(df_corr, saveprefix):
   '''
   ??? Write something...
 
@@ -385,9 +420,11 @@ def plot_corr_heatmap(df_corr):
   plt.title("Correlation Matrix [Results vs Parameters]", fontsize=16)
   plt.ylabel("Model Results", fontsize=14)
   plt.xlabel("Parameters", fontsize=14)
-  plt.savefig("plots/correlation_heatmap.png")
+  plt.savefig(saveprefix + "correlation_heatmap.png")
 
-def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None):
+def plot_output_scatter(results, targets,
+                        r2lim=None, rmselim=None, mapelim=None,
+                        saveprefix=''):
   '''
   Create subplots for each column in ``results``. Each subplot shows
   scatter plots of the output value on the Y axis and the sample # on the X
@@ -417,6 +454,9 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
 
   mapelim : float, optional
     Upper MAPE limit for output.
+  
+  saveprefix: str
+    A prefix to be prepended to the saved file name 'output_target_scatter.png'
 
   Returns
   =======
@@ -484,9 +524,9 @@ def plot_output_scatter(results, targets, r2lim=None, rmselim=None, mapelim=None
   # Apply tight layout
   plt.tight_layout()
   # Save figure
-  fig.savefig('plots/output_target_scatter.png', bbox_inches='tight')
+  fig.savefig(saveprefix + 'output_target_scatter.png', bbox_inches='tight')
 
-def plot_r2_rmse(results, targets):
+def plot_r2_rmse(results, targets, saveprefix=''):
   '''
   Plot ???
 
@@ -510,7 +550,7 @@ def plot_r2_rmse(results, targets):
 
   plt.legend()
 
-  plt.savefig("plots/r2_rmse_mape.png")
+  plt.savefig(saveprefix + "r2_rmse_mape.png")
 
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
