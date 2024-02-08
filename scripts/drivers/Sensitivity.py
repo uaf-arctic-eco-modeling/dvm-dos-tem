@@ -165,16 +165,7 @@ def generate_lhc(N, param_props):
   # ??
   sample_matrix = l * mat_diff + lo_bounds
 
-  def make_col_name(pdict):
-    '''Given a parameter, returns a column name like 'rhq10' or 'cmax_1', 
-    depending on whether the parameter is specified by PFT or not...'''
-    s = f"{pdict['name']}"
-    if 'pftnum' in pdict.keys():
-      s+= f"_pft{pdict['pftnum']}"
-    return s
-
-
-  return pd.DataFrame(sample_matrix, columns=[make_col_name(p) for p in param_props])
+  return pd.DataFrame(sample_matrix, columns=[p['name'] for p in param_props])
 
 
 def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
