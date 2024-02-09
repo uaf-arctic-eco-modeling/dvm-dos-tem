@@ -99,6 +99,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   const double upper_bound = 0.076;
   // Defining hourly time step
   double dt = 1.0 / HR_IN_DAY;
+  // Unit conversion factors
+  // converting umol L^-1 to g m^-3
+  double convert_umolL_to_gm3 = 0.012;
+  // converting g m^-3 to umol L^-1
+  double convert_gm3_to_umolL = 1 / 0.012;
   // From Fan Eq. 8, components of CH4 mass balance prior to solver 
   // equal to prod-oxid-ebul-plant, units : umol L^-1 hr^-1 
   double partial_delta_ch4;
@@ -123,6 +128,23 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Partial pressure of ch4 used in Fan Eq. 16 for ebullition calculation
   double partial_pressure_ch4;
 
+  // NOTE on unit conversion:
+  // All rates should be in umol L^-1 hr^-1 unless otherwise stated in variable name
+  // Conversion between umol L^-1 hr^-1 and g C m^-2 hr^-1 follows:
+  // 1 umol C = 12e-6 g C
+  // 1 L      = 0.001 m^3
+  // 1 L^-1   = 1000  m^-3
+  // 1 umol C L^-1 = 12e-3 g C m^-3
+  // 1 m ^-2 = 1 * dz m^-3
+  // 1 umol C L^-1 = 12e-3 * dz g C m^-2
+  // 1 umol C L^-1 hr^-1 = 12e-3 * dz g C m^-2 hr^-1
+
+  // umol C L^-1 -> g C m^-2
+  // x 12e-3 * dz
+  //  g C m^-2 -> umol C L^-1
+  // / 12e-3 * dz
+
+
   updateKdyrly4all();
 
   //For storing methane movement data by layer for output
@@ -140,17 +162,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   double diff[numsoill] = {0};  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient 
   
-
-  // >>> can we define these in declaration similarly to lines 129-131?
-  // for(int ii=0; ii<numsoill; ii++){
-  //   C[ii] = 0.0;
-  //   D[ii] = 0.0;
-  //   V[ii] = 0.0;
-  //   diff[ii] = 0.0;
-  //   r[ii] = 0.0;
-  //   s[ii] = 0.0;
-  // }
-
   // ch4 production responses, Fan Eq. 9 
   // kdc_ch4 * Temperature response (q10) * SOM pool
   double rhrawc_ch4[MAX_SOI_LAY] = {0};
@@ -223,7 +234,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // Only allow plant-mediated transport if layers are unfrozen - might need to address partiall frozen
       if (ed->d_sois.ts[il] > 0.0) {
-        plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
+        // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
+        plant_gm2hr = plant * currl->poro * currl->dz * convert_umolL_to_gm3;
       } else {
         plant_gm2hr = 0.0;
       }
@@ -299,7 +311,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // L^-1 = 1000 m^-3 ( * 1000)
       // m^2 = m * m^-3 ( * dz) 
       // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
-      oxid_gm2hr = oxid * currl->poro * currl->dz * 0.012;
+      oxid_gm2hr = oxid * currl->poro * currl->dz * convert_umolL_to_gm3;
 
       //Production:
 
@@ -343,7 +355,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //this is the rate, but modified by temperature and carbon content - rename the "rh" part to something relevant
       //it is hourly : rh = respiration heterotrophic. methanogenesis mg, methane production mp? 
 
-      prod = saturated_fraction * (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
+      // rh_ch4's are in g m^-2
+      // divide by dz to get g m^-3
+      // to get umol L^-1 /12 /0.001
+      prod = saturated_fraction * (convert_gm3_to_umolL / currl->dz) * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]);
       // testing effect of partially saturated layer
       // if (saturated_fraction > 0.0){
       //   prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
@@ -353,18 +368,22 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // }
 
       // adding production in units of g m^2 hr^1 for output and comparison analysis
-      prod_gm2hr = prod * currl->getVolLiq() * currl->dz * 1000.0;
+      prod_gm2hr = prod * currl->getVolLiq() * currl->dz * convert_umolL_to_gm3;
 
       //Ebullition:
 
-      //Fan 2013 Eq. 15. Bunsen solubility coefficient
+      // Fan 2013 Eq. 15. Bunsen solubility coefficient
+      // THE SOLUBILITY OF GASES IN LIQUIDS
+      // Introductory Information
+      // C. L. Young, R. Battino, and H. L. Clever
       bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
 
       //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-      partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
-      bun_sol_mass = partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+      // partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
+      partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0 - ed->d_sois.watertab) + Pstd;
+      bun_sol_mass = 1e-6 * partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
 
-      double rate_parameter_kh = 1.0; 
+      double rate_parameter_kh = 1.0;
       //HG: This should be Fan 2013 Eq. 17 for if layers are below the water table
       //Fan does not explicitly limit it to layers with temp greater than 1 (at least
       // not at the equation).
@@ -403,7 +422,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
       // and the finding that the velocity of bubbles ascending in pure water lies in the order of 
       // 1- 10 cm s -1 [e.g. Shafer and Zare, 1991].  
-      ebul_gm2hr = ebul * currl->getVolLiq() * currl->dz * 1000.0;
+      ebul_gm2hr = ebul * currl->getVolLiq() * currl->dz * convert_umolL_to_gm3;
+
       ebul_daily += ebul; //cumulated over 1 time step, 1 hour Y.MI
       ebul_gm2day += ebul_gm2hr; //cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
 
@@ -467,7 +487,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
 
-    if (diff_efflux < 0.000001) {
+    if (diff_efflux < 0.000001) { //This can be negative
       diff_efflux = 0.0;
     }
 
