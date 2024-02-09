@@ -1818,6 +1818,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
 
         }
+
+        if(curr_spec.monthly){
+          output_nc_5dim(&curr_spec, file_stage_suffix, &cohort.edall->output_ch4_transport[0], MAX_SOI_LAY, NUM_PFT, month_timestep, 1);
+        }
+
       }
       else{ //sum
 
