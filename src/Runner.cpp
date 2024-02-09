@@ -1747,10 +1747,23 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //By layer
       if(curr_spec.layer){
 
-        if(curr_spec.daily){
+        std::array<double, MAX_SOI_LAY> ch4pool_arr{};
 
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_ch4_pool[0][0], MAX_SOI_LAY, doy, dinm);
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4pool_arr[il] = cohort.edall->daily_ch4_pool[id][il];
+            }
+            outhold.ch4pool_layer_for_output.push_back(ch4pool_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4pool_layer_for_output.clear();
+          }
+          //output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_ch4_pool[0][0], MAX_SOI_LAY, doy, dinm);
         }
+
         else if(curr_spec.monthly){
           output_nc_4dim(&curr_spec, file_stage_suffix, &ch4_output[0], MAX_SOI_LAY, month_timestep, 1);
         }

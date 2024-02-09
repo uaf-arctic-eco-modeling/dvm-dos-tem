@@ -61,6 +61,8 @@ public:
   std::vector<double> ch4oxid_sum_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> ch4oxid_layer_for_output;
 
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4pool_layer_for_output;
+
   std::vector<double> ch4transport_sum_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> ch4transport_layer_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, MAX_SOI_LAY>> ch4transport_for_output; 
