@@ -27,9 +27,9 @@ struct vegdiag_dim {
 
   double fleaf[NUM_PFT]; //(current) normalized (scalar) foliage growth
                          //  index based on current and previous EET
-  double unnormleaf[NUM_PFT]; // (current) un-normarlized fleaf
+  double unnormleaf[NUM_PFT]; // (current) unnormalized fleaf
   double eetmx[NUM_PFT]; // (yearly) max. month eet
-  double unnormleafmx[NUM_PFT]; // (yearly max.) un-normarlized fleaf
+  double unnormleafmx[NUM_PFT]; // (yearly max.) unnormalized fleaf
   double topt[NUM_PFT]; //(yearly) evolving optimium temperature for
                         //  temperature-scalar of GPP
 
