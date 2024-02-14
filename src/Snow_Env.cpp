@@ -16,7 +16,7 @@ void Snow_Env::updateDailyM(const double & tdrv) {
                                                     //  been adjusted by FPC
                   + (1.0 - cd->m_vegd.fpcsum) * ed->d_a2l.snfl;
 
-  //Note unit converstion: 1 mm H2O = 1 kgH2O/m2
+  //Note unit conversion: 1 mm H2O = 1 kgH2O/m2
   bool slchg1 = false;
 
   if (!ground->toplayer->isSnow && ground->toplayer->tem>0.01) {
@@ -46,7 +46,7 @@ void Snow_Env::updateDailyM(const double & tdrv) {
 
   //here 'dsmass' is for snow-melting and sublimating
   dsmass = ed->d_snw2a.sublim + ed->d_snw2soi.melt;
-  //Note unit converstion: 1 mm H2O = 1 kgH2O/m2
+  //Note unit conversion: 1 mm H2O = 1 kgH2O/m2
 
   //removal of melted snow layers
   slchg2 = ground->constructSnowLayers(-dsmass, tsurface);
