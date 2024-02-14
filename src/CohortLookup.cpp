@@ -145,7 +145,7 @@ std::string CohortLookup::calparbgc2str() {
   s << "    kra[2] (fraction of available NPP (GPP after rm))\n";
   s << "// soil calibrated parameters\n";
   s << this->micbnup << " // micbnup: parameter for soil microbial immobialization of N\n";
-  s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decompositin rates at reference condition\n";
+  s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decomposition rates at reference condition\n";
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
