@@ -420,7 +420,7 @@ void Ground::initSnowSoilLayers() {
     BOOST_LOG_SEV(glg, debug)<<"No moss thickness specified";
   }
 
-  // only ONE snow layer input assummed, if any
+  // only ONE snow layer input assumed, if any
   if(snow.thick > 0) {
     SnowLayer* sl = new SnowLayer();
     sl->dz = snow.thick;
