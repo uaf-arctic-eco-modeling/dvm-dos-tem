@@ -30,7 +30,7 @@ struct vegdiag_dim {
   double unnormleaf[NUM_PFT]; // (current) unnormalized fleaf
   double eetmx[NUM_PFT]; // (yearly) max. month eet
   double unnormleafmx[NUM_PFT]; // (yearly max.) unnormalized fleaf
-  double topt[NUM_PFT]; //(yearly) evolving optimium temperature for
+  double topt[NUM_PFT]; //(yearly) evolving optimum temperature for
                         //  temperature-scalar of GPP
 
   double ffoliage[NUM_PFT]; //(current)foliage growth index (scalar) based
