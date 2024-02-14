@@ -44,7 +44,7 @@ struct JsonOutputTypes {
     jcoef_archive(_jca), jcoef_daily(_jcd), jcoef_monthly(_jcm), jcoef_yearly(_jcy) {}
 };
 
-/** Holds the ouput volume estimate for a run-stage. Notes:
+/** Holds the output volume estimate for a run-stage. Notes:
  *   - sizes are in bytes
  *   - for all years represented by runyears
  *   - for one cell

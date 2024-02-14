@@ -418,7 +418,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   BOOST_LOG_SEV(glg, debug) << "Synchronize the RestartData object with the model's state...";
   this->set_restartdata_from_state();
-  BOOST_LOG_SEV(glg, debug) << "TODO: ouput some data!";
+  BOOST_LOG_SEV(glg, debug) << "TODO: output some data!";
 };
 
 /////////////////////////////////////////////////////////////////////////////////
