@@ -143,17 +143,18 @@ Check on one of the command line reporting fuctions:
 
 Run the functionality that pulls out a single CMT from all files.
 
-    >>> util.param.cmdline_entry(["--extract-cmt", "parameters", "cmt04"])
+    >>> util.param.cmdline_entry(["--extract-cmt", "parameters", "cmt04", "/tmp/doctest_param"])
     0
 
-When the above is complete, there should be a new folder in the parameters directory, named with the CMT key with a bunch of files in it.
+When the above is complete, there should be a new folder in the parameters
+directory, named with the CMT key with a bunch of files in it.
 
-    >>> 'CMT04' in os.listdir('parameters')
+    >>> 'CMT04' in os.listdir('/tmp/doctest_param')
     True
 
 Check that the CMT exists in each new file:
 
-    In [16]: util.param.cmdline_entry(['--report-cmt-names', 'parameters/CMT04', '4'])
+    In [16]: util.param.cmdline_entry(['--report-cmt-names', '/tmp/doctest_param/CMT04', '4'])
                                         file name  cmt key   long name
               parameters/CMT04/cmt_bgcsoil.txt    CMT04   Shrub Tundra
         parameters/CMT04/cmt_bgcvegetation.txt    CMT04   Shrub Tundra
@@ -167,7 +168,7 @@ Check that the CMT exists in each new file:
 
 And that some of the other CMTs don't exist:
 
-    In [18]: util.param.cmdline_entry(['--report-cmt-names', 'parameters/CMT04', '1'])
+    In [18]: util.param.cmdline_entry(['--report-cmt-names', '/tmp/doctest_param/CMT01', '1'])
                                         file name  cmt key   long name
               parameters/CMT04/cmt_bgcsoil.txt      n/a   n/a
         parameters/CMT04/cmt_bgcvegetation.txt      n/a   n/a
@@ -178,11 +179,6 @@ And that some of the other CMTs don't exist:
             parameters/CMT04/cmt_envground.txt      n/a   n/a
               parameters/CMT04/cmt_firepar.txt      n/a   n/a
     Out[18]: 0
-
-Cleanup:
-
-    >>> import shutil
-    >>> shutil.rmtree('parameters/CMT04')
 
 Work with the smartformat() function. This function is used to try and control
 the way things are formatted when printing the fixed width text parameter files.
