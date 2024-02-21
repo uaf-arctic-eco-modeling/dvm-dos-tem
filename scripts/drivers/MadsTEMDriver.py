@@ -153,6 +153,20 @@ class MadsTEMDriver(BaseDriver):
       '--on','CMTNUM','y'
     ])
 
+    # Strip all extra CMTs from parameter files
+    util.param.cmdline_entry([
+      '--extract-cmt',
+      os.path.join(run_dir, 'parameters'),
+      f'CMT{self.cmtnum:02d}',
+      run_dir
+    ])
+    # The above creates a directory e.g. CMT01, in the sample folder
+    # so here we delete the parameters folder and move one that we just
+    # created to parameters
+    shutil.rmtree(os.path.join(run_dir, "parameters/"))
+    os.rename(os.path.join(run_dir, f'CMT{self.cmtnum:02d}'),
+              os.path.join(run_dir, 'parameters'))
+
     # Adjust the config file
     CONFIG_FILE = os.path.join(self.work_dir, 'config/config.js')
 
