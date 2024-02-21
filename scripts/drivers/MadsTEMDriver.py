@@ -114,17 +114,19 @@ class MadsTEMDriver(BaseDriver):
     appropriate pixel, sets the output specification file, and adjusts
     the configuration file.
     '''
+    run_dir = os.path.join(self.work_dir, 'run')
+
     # Make the working directory
     util.setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
-      self.work_dir
+      run_dir
     ])
 
     # Adjust run mask for appropriate pixel
     util.runmask.cmdline_entry([
       '--reset',
       '--yx',self.PXy, self.PXx,
-      '{}/run-mask.nc'.format(self.work_dir)
+      '{}/run-mask.nc'.format(run_dir)
     ])
 
     # First clear the file incase the user has funky modifications in their repo's
@@ -132,14 +134,14 @@ class MadsTEMDriver(BaseDriver):
     # maybe a flag should be added to setup_working_directory.py that can
     # enforce starting with an empty outspec file...
     util.outspec.cmdline_entry([
-      '{}/config/output_spec.csv'.format(self.work_dir),
+      '{}/config/output_spec.csv'.format(run_dir),
       '--empty',
     ])
 
     # Next run thru the requested outputs toggling them on in the file.
     for output_spec in self.outputs:
       util.outspec.cmdline_entry([
-        '{}/config/output_spec.csv'.format(self.work_dir),
+        '{}/config/output_spec.csv'.format(run_dir),
         '--on', output_spec['ncname'], 
         output_spec['timeres'],
         output_spec['pftres'],
@@ -149,7 +151,7 @@ class MadsTEMDriver(BaseDriver):
 
     # Make sure CMTNUM output is on
     util.outspec.cmdline_entry([
-      '{}/config/output_spec.csv'.format(self.work_dir),
+      '{}/config/output_spec.csv'.format(run_dir),
       '--on','CMTNUM','y'
     ])
 
@@ -168,7 +170,7 @@ class MadsTEMDriver(BaseDriver):
               os.path.join(run_dir, 'parameters'))
 
     # Adjust the config file
-    CONFIG_FILE = os.path.join(self.work_dir, 'config/config.js')
+    CONFIG_FILE = os.path.join(run_dir, 'config/config.js')
 
     # Read the existing data into memory
     with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
@@ -235,7 +237,7 @@ class MadsTEMDriver(BaseDriver):
     '''
     for param in self.params:
       pu.update_inplace(param['val'],
-                        os.path.join(self.work_dir, 'parameters'),
+                        os.path.join(self.work_dir, 'run', 'parameters'),
                         param['name'],
                         param['cmtnum'],
                         param['pftnum'])
@@ -245,14 +247,14 @@ class MadsTEMDriver(BaseDriver):
     '''
     Run the model according to the setup.
 
-    Assumes everything is setup in the self.work_dir
+    Assumes everything is setup in the ``run`` subdirectory of ``self.work_dir``
 
     Returns
     -------
     None
     '''
     program = '/work/dvmdostem'
-    ctrl_file = os.path.join(self.work_dir, 'config','config.js')
+    ctrl_file = os.path.join(self.work_dir, 'run', 'config','config.js')
     opt_str = f" -l err --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     completed_process = subprocess.run(
@@ -262,7 +264,7 @@ class MadsTEMDriver(BaseDriver):
       #capture_output=True,# collect stdout and stderr; causes memory problems I think
       stdout=subprocess.DEVNULL,
       stderr=subprocess.DEVNULL,
-      cwd=self.work_dir)    # control context
+      cwd=os.path.join(self.work_dir, 'run'))    # control context
     if not completed_process.returncode == 0:
       print(completed_process.stdout)
       print(completed_process.stderr)
@@ -321,8 +323,8 @@ class MadsTEMDriver(BaseDriver):
     self.update_params(parameter_vector)
     self.write_params2rundir()
 
-    if os.path.exists(os.path.join(self.work_dir, 'output')):
-      shutil.rmtree(os.path.join(self.work_dir, 'output'))
+    if os.path.exists(os.path.join(self.work_dir, 'run', 'output')):
+      shutil.rmtree(os.path.join(self.work_dir, 'run', 'output'))
 
     self.run()
 
@@ -357,12 +359,12 @@ class MadsTEMDriver(BaseDriver):
 
     '''
     cmtkey = f'CMT{self.cmtnum:02d}'
-    ref_param_dir = os.path.join(self.work_dir, 'parameters')
+    ref_param_dir = os.path.join(self.work_dir, 'run', 'parameters')
     final_data = []
     for o in self.outputs:
       data, dims = util.output.get_last_n_eq(o['ncname'],
                                              'yearly',
-                                             self.work_dir+'/output',
+                                             os.path.join(self.work_dir, 'run', 'output'),
                                              n=10)
 
       dsizes, dnames = list(zip(*dims))
