@@ -337,6 +337,7 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
       # Adjust spacing between subplots
       plt.subplots_adjust(left=None, bottom=None, right=1, top=1.2, wspace=None, hspace=None)
       # Save figure if enabled - may create a large number of figures
+      plt.tight_layout()
       if save != None:
         name = saveprefix + f"{vars}-{'-'.join(parameters)}.png"
         plt.savefig(name, bbox_inches="tight")
