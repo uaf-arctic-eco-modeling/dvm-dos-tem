@@ -37,12 +37,12 @@ def load_dvmdostem_from_configfile(config_file_name):
   '''
   dvmdostem = drivers.MadsTEMDriver.MadsTEMDriver.fromfilename(config_file_name)
 
-  dvmdostem.set_seed_path("/work/parameters") # <-- now set from config - this should probably not be here...
   dvmdostem.set_params_from_seed()
   dvmdostem.load_target_data("/work/calibration") # <-- now set from config I think?
   dvmdostem.setup_outputs(dvmdostem.target_names)
   dvmdostem.clean()
   dvmdostem.setup_run_dir()
+  # Maybe need to dvmdostem.write_params2rundir(...) here???
 
   return dvmdostem
 
@@ -68,6 +68,7 @@ def plot_opt_fit(**kwargs):
     savefile=kwargs['savefile'],
   )
 """
+
 
 # THIS IS A JULIA FUNCTION THAT WORKS WITH A GLOBAL PYTHON OBJECT.
 # THIS JULIA FUNCTION OBJECT IS PASSED TO MADS
@@ -180,6 +181,7 @@ obstime = 1:length(targets)
 
 # Setup: choose a range for observation values.
 # Not entirely clear how/why this is used....
+# This can take into account uncertaintay in the targets/observations
 obsdist = []
 mads_obsrange=mads_config["mads_obsrange"]
 if mads_obsrange == "ON"
@@ -253,23 +255,23 @@ calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 #calib_predictions = Mads.forward(md, calib_param)
 calib_predictions = dvmdostem.modeled_vec()
 
+# Print a bunch of stuff out so that you can save it (copy paste from terminal?)
+# and later run the plotting function without waiting for Mads to import or any
+# of the dvmdostem runs to commence.
+println("seed_params=np.array(", seed_params, ")")
+println("param_keys=np.array(", param_keys, ")")
+println("ig_params=np.array(", ig_params, ")")
+println("seed_out=np.array(", seed_out, ")")
+println("ig_out=np.array(", ig_out, ")")
+println("opt_out=np.array(", calib_predictions, ")")
+println("param_labels=", param_keys)
+println("targets=np.array(", targets, ")")
+
 # Generate a list of nicely formatted labels that can be used for plotting
 # These labels are for the output variables (aka calibration targets)
 outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
+println("out_labels=", outlabels)
 
-# Generate a plot with 3 panels:
-#   1. The seed, initial guess, and optimized parameters
-#   2. The seed, initial guess, and optimized outputs
-#   3. The residuals (modeled outputs - the targets) 
-plot_file_name = joinpath(mads_config["work_dir"], "plot_optimization_fit.png")
-PyCall.py"plot_opt_fit"(
-  seed_params=seed_params, ig_params=ig_params, opt_params=calib_param.vals, 
-  seed_out=seed_out, ig_out=ig_out, opt_out=calib_predictions, 
-  param_labels=param_keys,
-  out_labels=outlabels,
-  targets=targets, 
-  savefile=plot_file_name
-)
 
 # Retrieve the mads metadata files....
 # Not sure where these should default to going...??? 
@@ -285,6 +287,22 @@ mv(
   mads_config["mads_problemname"] * ".finalresults",
   joinpath(mads_config["work_dir"], mads_config["mads_problemname"] * ".finalresults")
 )
+
+# Generate a plot with 3 panels:
+#   1. The seed, initial guess, and optimized parameters
+#   2. The seed, initial guess, and optimized outputs
+#   3. The residuals (modeled outputs - the targets) 
+plot_file_name = joinpath(mads_config["work_dir"], "plot_optimization_fit.png")
+PyCall.py"plot_opt_fit"(
+  seed_params=seed_params, ig_params=ig_params, opt_params=opt_params, 
+  seed_out=seed_out, ig_out=ig_out, opt_out=calib_predictions, 
+  param_labels=param_keys,
+  out_labels=outlabels,
+  targets=targets, 
+  savefile=plot_file_name
+)
+
+
 
 # One issue is that when doing the seed run (or any of the other runs for that
 # matter) it will totally clean out the working directory
