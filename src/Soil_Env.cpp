@@ -106,21 +106,22 @@ void Soil_Env::initializeState() {
           currl->frozen = -1;
         }
         else if (-2. < currl->tem <= 0.){//implementing Hinzman temperature window
-          if ((0.5*vwc*currl->dz*DENLIQ)>currl->maxliq){
+
+          if ((0.5*vwc*currl->dz*DENLIQ)>currl->maxliq){ //Do we want to use lwc here intead of vwc?
             currl->liq = currl->maxliq;
-          } else if((0.5*vwc*currl->dz*DENLIQ)<currl->minliq){
+          } 
+          else if((0.5*vwc*currl->dz*DENLIQ)<currl->minliq){
             currl->liq = currl->minliq;
-          } else{
+          } 
+          else{
             currl->liq = 0.5*vwc*currl->dz*DENLIQ;
           }
-
           if ((0.5*vwc*currl->dz*DENICE)>currl->maxice){
             currl->ice = currl->maxice;
           }
           else{
             currl->ice = 0.5*vwc*currl->dz*DENICE;
           }
-          
           currl->frozen = 0;
         }         
         else {
@@ -162,12 +163,38 @@ void Soil_Env::initializeState() {
                             fmax(currl->maxliq, vwc*currl->dz*DENLIQ));
           currl->ice = 0.0;
           currl->frozen = -1;
-        } else {                // Below freezing
+        }
+        else if (-2. < currl->tem <= 0.){ //Do we want to use lwc here intead of vwc?
+
+          if ((0.5 * vwc * currl->dz * DENLIQ) > currl->maxliq)
+          {
+            currl->liq = currl->maxliq;
+          }
+          else if ((0.5 * vwc * currl->dz * DENLIQ) < currl->minliq)
+          {
+            currl->liq = currl->minliq;
+          }
+          else
+          {
+            currl->liq = 0.5 * vwc * currl->dz * DENLIQ;
+          }
+
+          if ((0.5 * vwc * currl->dz * DENICE) > currl->maxice)
+          {
+            currl->ice = currl->maxice;
+          }
+          else
+          {
+            currl->ice = 0.5 * vwc * currl->dz * DENICE;
+          }
+          currl->frozen = 0.0;
+        }
+        else
+        { // Below freezing
           currl->ice = fmax(0.0, fmax(currl->maxice, vwc*currl->dz*DENICE));
           currl->liq = 0.0;
           currl->frozen = 1;
         }
-
         currl->age = 0;
         currl->rho = 0;    //soil layer's actual density NOT used in model
       } else if (currl->isRock) {
@@ -180,7 +207,6 @@ void Soil_Env::initializeState() {
       } else {
         break;
       }
-
       currl = currl->nextl;
     }
   }
@@ -266,11 +292,13 @@ void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
 };
 
 // Ground (snow-soil) thermal process
-void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
+void Soil_Env::updateDailyGroundT(const double &tdrv, const double &dayl)
+{
   double tsurface;
   tsurface = tdrv * ed->d_soid.nfactor;
 
-  if(ground->toplayer->isSoil) {
+  if (ground->toplayer->isSoil)
+  {
     updateDailySurfFlux(ground->toplayer, dayl);
     ed->d_snw2a.swrefl = 0.0;
     ed->d_snw2a.sublim = 0.0;
@@ -279,56 +307,52 @@ void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
   // solution for snow-soil column thermal process
   int nstep = 1;
 
-  if (ground->toplayer->isSoil) {
-    //when there is an abrupt change of surface status, reduce timestep
-    if((ground->fstsoill->frozen==1 and tsurface>-2.0)
-        || (ground->fstsoill->frozen==-1 and tsurface<0.0)
-        || ground->fstsoill->frozen==0) {
+  if (ground->toplayer->isSoil)
+  {
+    // when there is an abrupt change of surface status, reduce timestep
+    if ((ground->fstsoill->frozen == 1 and tsurface > 0.0) || (ground->fstsoill->frozen == -1 and tsurface < 0.0) || ground->fstsoill->frozen == 0)
+    {
       nstep = 24;
     }
   }
 
-  double timestep=86400.0/nstep;
-  bool meltsnow =false;
+  double timestep = 86400.0 / nstep;
+  bool meltsnow = false;
 
-  if (ed->d_snw2soi.melt>0.) {
-    meltsnow = true; //So, 'snow melting in snow water process'
-                     //  must be done prior to this
+  if (ed->d_snw2soi.melt > 0.)
+  {
+    meltsnow = true; // So, 'snow melting in snow water process'
+                     //   must be done prior to this
   }
 
   stefan.initpce();
 
-  for (int i=0; i<nstep ; i++) {
+  for (int i = 0; i < nstep; i++)
+  {
     // 1) find the thawing/freezing fronts
     int tstate = ground->ststate;
 
-    if(ground->fstfntl==NULL && ground->lstfntl==NULL ) {  // no front
-      if((tstate == 1 && tsurface>0) // frozen soil and above-zero air
-         || (tstate == -1 && tsurface<0) // unfrozen soil and below-zero air
-         ||  tstate == 0) { // partially frozen soil column
+    if (ground->fstfntl == NULL && ground->lstfntl == NULL)
+    {                                       // no front
+      if ((tstate == 1 && tsurface > 0)     // frozen soil and above-zero air
+          || (tstate == -1 && tsurface < 0) // unfrozen soil and below-zero air
+          || tstate == 0)
+      { // partially frozen soil column
         stefan.updateFronts(tsurface, timestep);
       }
-    } else {
+    }
+    else
+    {
       stefan.updateFronts(tsurface, timestep);
     }
 
     // 2) ground (snow/soil) temperature solution
-    ground->setFstLstFrontLayers(); // this must be called before the following
-    tempupdator.updateTemps(tsurface, ground->toplayer, ground->botlayer,
-                            ground->fstsoill, ground->fstfntl, ground->lstfntl,
-                            timestep, meltsnow);
-    // checking
-    ground->checkWaterValidity();
-  }
-
-  ground->updateWholeFrozenStatus(); //for the whole column
-  //3) at end of each day, 'ed' should be updated for thermal properties
-  updateDailySoilThermal4Growth(ground->fstsoill, tsurface); //this is needed for growing
-  updateLayerStateAfterThermal(ground->fstsoill, ground->lstsoill,
-                               ground->botlayer); //this shall be done
-                                                  //  before the following
-  retrieveDailyFronts(); //update 'ed' with new soil thawing/freezing
-                         //  fronts, and daily 'ald', 'cld'
+    ground->setFstLstFrontLayers(); // thisinitpcell, tsurface); // this is needed for growing
+    updateLayerStateAfterThermal(ground->fstsoill, ground->lstsoill,
+                                 ground->botlayer); // this shall be done
+                                                    //   before the following
+    retrieveDailyFronts();                          // update 'ed' with new soil thawing/freezing
+                                                    //   fronts, and daily 'ald', 'cld'
 };
 
 void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl) {
@@ -378,54 +402,76 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl) {
   }
 };
 
-void Soil_Env::updateDailySoilThermal4Growth(Layer* fstsoill,
-                                             const double &tsurface) {
-  Layer* currl = fstsoill;
-  double toprtdep = 0.; //top root zone depth
-  double toptsrtdep  = 0.; // top root zone soil temperature
+void Soil_Env::updateDailySoilThermal4Growth(Layer *fstsoill,
+                                             const double &tsurface)
+{
+  Layer *currl = fstsoill;
+  double toprtdep = 0.;   // top root zone depth
+  double toptsrtdep = 0.; // top root zone soil temperature
   double unfrzrtdep = 0.;
 
-  while (currl!=NULL) {
-    if(currl->isSoil) {
-      if(toprtdep<envpar.rtdp4gdd) {
-        double restrtdz = fmax(0., envpar.rtdp4gdd-toprtdep);
+  while (currl != NULL)
+  {
+    if (currl->isSoil)
+    {
+      if (toprtdep < envpar.rtdp4gdd)
+      {
+        double restrtdz = fmax(0., envpar.rtdp4gdd - toprtdep);
         toprtdep += fmin(currl->dz, restrtdz);
-        toptsrtdep += currl->tem *fmin(currl->dz, restrtdz);
+        toptsrtdep += currl->tem * fmin(currl->dz, restrtdz);
 
         // unfrozen thickness of root zone
-        if(currl->frozen==-1) { //unfrozen
-          unfrzrtdep+=currl->dz;
-        } else if(currl->frozen==0) { //with front
-          if(currl->prevl==NULL) {
-            if (tsurface>-2.0) {
-              unfrzrtdep +=(currl->frozenfrac*currl->dz);
+        if (currl->frozen == -1)
+        { // unfrozen
+          unfrzrtdep += currl->dz;
+        }
+        else if (currl->frozen == 0)
+        { // with front
+          if (currl->prevl == NULL)
+          {
+            if (tsurface > 0.)
+            {
+              unfrzrtdep += (currl->frozenfrac * currl->dz);
             }
-          } else if (currl->prevl->frozen==-1) {
-            unfrzrtdep +=(currl->frozenfrac*currl->dz);
+          }
+          else if (currl->prevl->frozen == -1)
+          {
+            unfrzrtdep += (currl->frozenfrac * currl->dz);
           }
         }
       }
-    } else {
+    }
+    else
+    {
       break;
     }
 
-    currl =currl->nextl;
+    currl = currl->nextl;
   }
 
-  if (toprtdep > 0.) {
-    ed->d_soid.rtdpts = toptsrtdep/toprtdep;
-  } else {
+  if (toprtdep > 0.)
+  {
+    ed->d_soid.rtdpts = toptsrtdep / toprtdep;
+  }
+  else
+  {
     ed->d_soid.rtdpts = MISSING_D;
   }
 
-  //if(unfrzrtdep>=envpar.rtdp4growpct){  // Apparently this will not consistent with 'tsrtdp' (because if tsrt>0., not whole toprtzone unfrozen)
-  if (ed->d_soid.rtdpts!=MISSING_D) {
-    if(ed->d_soid.rtdpts>=0.10 ) {
-      ed->d_soid.rtdpthawpct =1.;
-    } else {
-      ed->d_soid.rtdpthawpct =0.;
+  // if(unfrzrtdep>=envpar.rtdp4growpct){  // Apparently this will not consistent with 'tsrtdp' (because if tsrt>0., not whole toprtzone unfrozen)
+  if (ed->d_soid.rtdpts != MISSING_D)
+  {
+    if (ed->d_soid.rtdpts >= 0.10)
+    {
+      ed->d_soid.rtdpthawpct = 1.;
     }
-  } else {
+    else
+    {
+      ed->d_soid.rtdpthawpct = 0.;
+    }
+  }
+  else
+  {
     ed->d_soid.rtdpthawpct = MISSING_D;
   }
 };
@@ -449,8 +495,8 @@ void Soil_Env::updateLayerStateAfterThermal(Layer* fstsoill, Layer *lstsoill,
   ed->d_soid.unfrzcolumn = unfrzcolumn;
   ed->d_soid.tbotrock = botlayer->tem;
 
-  if(lstsoill->frozen==-1) { //Yuan: -1 should be unfrozen
-    ed->d_soid.permafrost =0;
+  if(lstsoill->frozen==-1) { //Yuan: -1 should be unfrozen BM>>> if !- 1: i.e. unfrozen or only partially frozen
+    ed->d_soid.permafrost =0;//                                  also, this does not hold for deep soil column with geothermal gradient
   } else {
     ed->d_soid.permafrost =1;
   }
