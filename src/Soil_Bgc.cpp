@@ -138,6 +138,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   updateKdyrly4all();
 
+  //Some declarations for testing CH4 balance conservation
+  double prev_pool[MAX_SOI_LAY] = {0};
+  double curr_pool[MAX_SOI_LAY] = {0};
+  double delta_pool[MAX_SOI_LAY] = {0};
+  double delta_pool_sum = 0;
+
   //For storing methane movement data by layer for output  >>> may need to add more of these
   double ch4_ebul_layer[MAX_SOI_LAY] = {0};
   double ch4_oxid_layer[MAX_SOI_LAY] = {0};
@@ -218,7 +224,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // 10.1029/2004GB002239, but depths given in cm whereas we are using meters
         double rate_parameter_kp = 0.01; // >>> should be in cmt_calparbgc
         //See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] for pft transport capacity 
-        pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
+        pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip]; // currl->poro *
         plant += pft_transport[ip];
 
         //Storing plant transport values for output
@@ -229,10 +235,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         plant = 0.0;
       }
 
-      // Only allow plant-mediated transport if layers are unfrozen - might need to address partiall frozen
+      // Only allow plant-mediated transport if layers are thawed
       if (ed->d_sois.ts[il] > 0.0) {
         // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
-        plant_gm2hr = plant * currl->poro * convert_umolL_to_gm2;
+        plant_gm2hr = plant * convert_umolL_to_gm2;
       } else {
         plant_gm2hr = 0.0;
       }
@@ -291,7 +297,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //From paper: V max and k m are the Michaelis-Menten kinetics parameter and
       //set to 5 µmol L^-1 h^-1 and 20 µmol L^-1 (Walter & Heimann, 2000), respectively.
       //BM: does 5 and 20 need to be a parameter in param files? yes
-      oxid = (1 - saturated_fraction)*(5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
+      oxid = (1 - saturated_fraction) * (5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4)); // currl->getVolAir() * 
       //Code below was used for testing effect of partially saturated layer on oxidation
       // if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
       //   oxid = 0.0;
@@ -308,7 +314,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // L^-1 = 1000 m^-3 ( * 1000)
       // m^2 = m * m^-3 ( * dz) 
       // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
-      oxid_gm2hr = oxid * currl->poro * convert_umolL_to_gm2;
+      oxid_gm2hr = oxid * convert_umolL_to_gm2;
 
       //Production:
 
@@ -356,7 +362,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // rh_ch4's are in g m^-2
       // divide by dz to get g m^-3
       // to get umol L^-1 /12 /0.001
-      prod = saturated_fraction * (convert_gm2_to_umolL) * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]);
+      prod = saturated_fraction * (convert_gm2_to_umolL) * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]); //currl->getVolLiq() * 
+
       // testing effect of partially saturated layer
       // if (saturated_fraction > 0.0){
       //   prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
@@ -366,7 +373,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // }
 
       // adding production in units of g m^2 hr^1 for output and comparison analysis
-      prod_gm2hr = prod * currl->getVolLiq() * convert_umolL_to_gm2;
+      prod_gm2hr = prod * convert_umolL_to_gm2;
 
       // Ebullition:
 
@@ -390,7 +397,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // >>> Fan does not explicitly limit it to layers with temp greater than 1
       // >>> I think this should be if layer is not frozen
       if (currl->tem > 1.0) {
-        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() *
+        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() * 
       }
       else {
         ebul = 0.0;
@@ -419,7 +426,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
       // and the finding that the velocity of bubbles ascending in pure water lies in the order of 
       // 1- 10 cm s -1 [e.g. Shafer and Zare, 1991].  
-      ebul_gm2hr = ebul * currl->getVolLiq() * convert_umolL_to_gm2;
+      ebul_gm2hr = ebul * convert_umolL_to_gm2;
 
       ebul_daily += ebul; //cumulated over 1 time step, 1 hour Y.MI
       ebul_gm2day += ebul_gm2hr; //cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
@@ -465,12 +472,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         V[il] = 0.0;
       }
 
+      prev_pool[il] = currl->ch4;
+      delta_pool[il] = currl->ch4;
+
       currl = currl->prevl;
       il--; //Incrementing manual layer index tracker
     } //end of bottom up layer loop
 
-    TriSolver(numsoill - 1, C, D, C, V, V);
-        //TriSolver(matrix_size, *A, *D, *C, *B, *X)
+    TriSolver(numsoill - 1,   C,  D,  C,  V,  V);
+    //TriSolver(matrix_size, *A, *D, *C, *B, *X)
 
     // Matrix equation: A X = B, X = A^-1 B
 
@@ -516,11 +526,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       currl->ch4 = V[il];
 
+      // For testing CH4 balance conservation
+      curr_pool[il] = V[il];
+      delta_pool[il] -= V[il];
+      delta_pool_sum += delta_pool[il];
+
       currl = currl->nextl;
       il++;
+
     }
 
     diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
+
+    delta_pool_sum = 0.0;
 
     if (diff_efflux < 0.000001) { //This can be negative
       diff_efflux = 0.0;
@@ -549,7 +567,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   Layer* topsoil = ground->fstshlwl;
 
   // diffusion efflux unit conversion - g m^-2 d^-1
-  diff_efflux_gm2day = diff_efflux_daily * topsoil->getVolAir() * topsoil->dz * 1000.0;
+  diff_efflux_gm2day = diff_efflux_daily * topsoil->dz * 1000.0; // topsoil->getVolAir() * >>> should be needed as tortuosity considered
 
   //Fan Eq. 21
   //Fan 2013 supplement "it is assumed that 50% of CH4 transported by plant is oxidized by rhizospheric oxidation before 
