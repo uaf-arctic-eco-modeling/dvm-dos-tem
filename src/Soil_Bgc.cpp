@@ -76,7 +76,15 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
 
 
 void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, double *B,double *X) {
-//TriSolver(                numsoill - 1,         C,         D,         C,         V,        V);
+// B is known state, X is solution, A, D, C are used to construct tridiagonal matrix
+// note: commonly a, b, and c are in first matrix, here b and d are reversed
+// |  d1  c1  0   0  .  0  |   | x1 |   | b1 |
+// |  a2  d2  c2  0  .  0  |   | x2 |   | b2 |
+// |  0  a3  d3  c3  0  0  |   | x3 |   | b3 |
+// |  .  .              .  | x | .. | = | .. |
+// |  .  .             .   |   | .. |   | .. |
+// |  .  .             cn  |   | .. |   | .. |
+// |  0  0  0  0   an  dn  |   | xn |   | bn |
 	int i;
 	double xmult;
 
@@ -96,58 +104,41 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // Initial atmospheric CH4 concentration upper boundary condition
   // Fan et al. 2010 supplement Eq. 13. Units: umol L^-1
-  const double upper_bound = 0.076;
+  const double upper_bound = 0.076; // >>> This should be input forcing 
   // Defining hourly time step
   double dt = 1.0 / HR_IN_DAY;
   // Unit conversion factors
+  // Rates are in umol L^-1 hr^-1 unless stated in variable name
+  // To convert from umol L^-1 hr^-1 to g C m^-3 hr^-1:
+  // 1 umol C = 12e-6 g C
+  // 1 L^-1   = 1000  m^-3
+  // multiplying by the layer thickness dz gives m^-2
   // converting umol L^-1 to g m^-3
   double convert_umolL_to_gm3 = 0.012;
-  // converting g m^-3 to umol L^-1
-  double convert_gm3_to_umolL = 1 / 0.012;
   // From Fan Eq. 8, components of CH4 mass balance prior to solver 
   // equal to prod-oxid-ebul-plant, units : umol L^-1 hr^-1 
   double partial_delta_ch4;
   // Diffusion-specific efflux from top soil layer to atmosphere 
   // in units umolL^-1hr^-1, umolL^-1day^-1, gm^-2day^-1 respectively
-  double diff_efflux, diff_efflux_daily = 0.0, diff_efflux_gm2day = 0.0; 
+  double diff_efflux, diff_efflux_daily, diff_efflux_gm2day = 0.0;
   // Individual layer fluxes production, ebullition, oxidation
   // plant-mediated transport declared in loop to sum pfts - umol L^-1 hr^-1 
-  double prod=0.0, ebul=0.0, oxid=0.0;
+  double prod, ebul, oxid = 0.0;
   // Individual layer fluxes and efflux in units of g m^-2 hr^-1
-  double prod_gm2hr = 0.0, ebul_gm2hr=0.0, oxid_gm2hr=0.0, plant_gm2hr=0.0, efflux_gm2hr=0.0;
+  double prod_gm2hr, ebul_gm2hr, oxid_gm2hr, plant_gm2hr, efflux_gm2hr = 0.0;
   // Flux components cumulated over a day in units of umol L^-1 day^-1
-  double plant_daily = 0.0, ebul_daily = 0.0;
+  double plant_daily, ebul_daily = 0.0;
   // Flux components cumulated over a day in units of g m^-2 day^-1
-  // >>> we might want to change the name of this as the units are no longer gm2hr but gm2d
-  double plant_gm2day = 0.0, ebul_gm2day = 0.0, oxid_gm2day = 0.0;
-
+  double plant_gm2day, ebul_gm2day, oxid_gm2day = 0.0;
   //Bunsen solubility coefficient (SB). Fan et al. 2010 supplement Eq. 15.
   //Mass-based Bunsen solubility coefficient (SM). Fan et al. 2010 supplement Eq. 16.  
   double bun_sol, bun_sol_mass;
-
   // Partial pressure of ch4 used in Fan Eq. 16 for ebullition calculation
   double partial_pressure_ch4;
 
-  // NOTE on unit conversion:
-  // All rates should be in umol L^-1 hr^-1 unless otherwise stated in variable name
-  // Conversion between umol L^-1 hr^-1 and g C m^-2 hr^-1 follows:
-  // 1 umol C = 12e-6 g C
-  // 1 L      = 0.001 m^3
-  // 1 L^-1   = 1000  m^-3
-  // 1 umol C L^-1 = 12e-3 g C m^-3
-  // 1 m ^-2 = 1 * dz m^-3
-  // 1 umol C L^-1 = 12e-3 * dz g C m^-2
-  // 1 umol C L^-1 hr^-1 = 12e-3 * dz g C m^-2 hr^-1
-
-  // umol C L^-1 -> g C m^-2
-  // x 12e-3 * dz
-  //  g C m^-2 -> umol C L^-1
-  // / 12e-3 * dz
-
-
   updateKdyrly4all();
 
-  //For storing methane movement data by layer for output
+  //For storing methane movement data by layer for output  >>> may need to add more of these
   double ch4_ebul_layer[MAX_SOI_LAY] = {0};
   double ch4_oxid_layer[MAX_SOI_LAY] = {0};
   double ch4_flux_layer[MAX_SOI_LAY] = {0};
@@ -162,15 +153,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   double diff[numsoill] = {0};  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient 
   
-  // ch4 production responses, Fan Eq. 9 
-  // kdc_ch4 * Temperature response (q10) * SOM pool
+  // ch4 production responses: kdc_ch4 * Tresp(q10) * SOM pool, Fan Eq. 9
   double rhrawc_ch4[MAX_SOI_LAY] = {0};
   double rhsoma_ch4[MAX_SOI_LAY] = {0};
   double rhsompr_ch4[MAX_SOI_LAY] = {0};
   double rhsomcr_ch4[MAX_SOI_LAY] = {0};
+
   // Temperature response (q10) for unsaturated and saturated layers
-  double TResp_unsat = 0;
-  double TResp_sat = 0;
+  double TResp_unsat, TResp_sat = 0;
 
   // Function of LAI to describe relative plant size ch4 transport capacity
   double fLAI[NUM_PFT];
@@ -195,13 +185,20 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     il = numsoill-1; //reset manual layer index tracker. From 1 to allow future moss layer inclusion
 
     // zeroing rate-limiters before loading from parameter files
-    double krawc_ch4 = 0.0;
-    double ksoma_ch4 = 0.0;
-    double ksompr_ch4 = 0.0;
-    double ksomcr_ch4 = 0.0;
-    double TResp = 0.0; // >>> do we want to rename these?
+    double krawc_ch4, ksoma_ch4, ksompr_ch4, ksomcr_ch4 = 0.0;
 
     while(!currl->isMoss){
+
+      // Unit conversion factors
+      // Rates are in umol L^-1 hr^-1 unless stated in variable name
+      // To convert from umol L^-1 hr^-1 to g C m^-3 hr^-1:
+      // 1 umol C = 12e-6 g C
+      // 1 L^-1   = 1000  m^-3
+      // multiplying by the layer thickness dz gives m^-2
+      // converting umol L^-1 to g m^-3
+      double convert_umolL_to_gm2 = convert_umolL_to_gm3 * currl->dz;
+      // converting g m^-3 to umol L^-1
+      double convert_gm2_to_umolL = 1 / convert_umolL_to_gm2;
 
       krawc_ch4 = bgcpar.kdrawc_ch4[il];
       ksoma_ch4 = bgcpar.kdsoma_ch4[il];
@@ -216,10 +213,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       for(int ip=0; ip<NUM_PFT; ip++){
         double layer_pft_froot = cd->m_soil.frootfrac[il][ip];
 
-        //Fan 2013, Eq 19
-        //rate constant for plant-aided CH4 transport (hr^-1), 1.0 in (Zhuang, 2004) 10.1029/2004GB002239, 
+        // Fan 2013, Eq 19, rate constant for plant-aided CH4 transport (hr^-1) = 1.0 in (Zhuang, 2004)
         //but depths given in cm whereas we are using meters 
-        double rate_parameter_kp = 0.01; 
+        // 10.1029/2004GB002239, but depths given in cm whereas we are using meters
+        double rate_parameter_kp = 0.01; // >>> should be in cmt_calparbgc
         //See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] for pft transport capacity 
         pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
         plant += pft_transport[ip];
@@ -235,7 +232,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // Only allow plant-mediated transport if layers are unfrozen - might need to address partiall frozen
       if (ed->d_sois.ts[il] > 0.0) {
         // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
-        plant_gm2hr = plant * currl->poro * currl->dz * convert_umolL_to_gm3;
+        plant_gm2hr = plant * currl->poro * convert_umolL_to_gm2;
       } else {
         plant_gm2hr = 0.0;
       }
@@ -280,7 +277,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       if(currl->tem >= -2.0 && currl->tem < 0.000001){
         TResp_unsat = getRhq10(-2.1) * 0.25;
         TResp_sat = getRhq10(-6.0) * 0.25;
-      }
+      }// >>> get Rhq10 is heterotrophic respiration, need ch4 based q10?
       else if(currl->tem < -2.0){
         TResp_unsat = 0.0;
         TResp_sat = 0.0;
@@ -311,11 +308,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // L^-1 = 1000 m^-3 ( * 1000)
       // m^2 = m * m^-3 ( * dz) 
       // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
-      oxid_gm2hr = oxid * currl->poro * currl->dz * convert_umolL_to_gm3;
+      oxid_gm2hr = oxid * currl->poro * convert_umolL_to_gm2;
 
       //Production:
 
-      // Fan Eq. 9: rate constant * carbon pool * Q10
+      // Fan Eq. 9: rate constant * carbon pool * Q10 >>> could be replaced with fmax?
+      // >>> rename rh to mp (methane production?)
       if(tmp_sois.rawc[il] > 0.0){
         rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
       }
@@ -358,7 +356,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // rh_ch4's are in g m^-2
       // divide by dz to get g m^-3
       // to get umol L^-1 /12 /0.001
-      prod = saturated_fraction * (convert_gm3_to_umolL / currl->dz) * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]);
+      prod = saturated_fraction * (convert_gm2_to_umolL) * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]);
       // testing effect of partially saturated layer
       // if (saturated_fraction > 0.0){
       //   prod = (1000.0 * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]) / (currl->dz) / 12.0);
@@ -368,61 +366,60 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // }
 
       // adding production in units of g m^2 hr^1 for output and comparison analysis
-      prod_gm2hr = prod * currl->getVolLiq() * currl->dz * convert_umolL_to_gm3;
+      prod_gm2hr = prod * currl->getVolLiq() * convert_umolL_to_gm2;
 
-      //Ebullition:
+      // Ebullition:
 
       // Fan 2013 Eq. 15. Bunsen solubility coefficient
-      // THE SOLUBILITY OF GASES IN LIQUIDS
-      // Introductory Information
-      // C. L. Young, R. Battino, and H. L. Clever
-      bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; //volume
+      // Yamamoto, S. - Solubility of Methane in Distilled Water and Seawater
+      // Journal of Chemical and Engineering Data, Vol. 21, No. 1, 1976
+      // Weiss, R. F. - The solubility of nitrogen, oxygen and argon in water and seawater
+      // Deep-Sea Research, 1970, Vol. 17, pp. 721 to 735
+      // bun sol is a dimensionless quantity based on a least squares fit of empirical data
+      // "the volume of saturating gas, V1, reduced to T° = 273.15 K, p° = 1 bar, which is absorbed
+      // by unit volume V2* of pure solvent at the temperature of measurement and partial pressure of 1 bar."
+      // Sazonov, V P; Shaw, DG (2006). "Introduction to the Solubility Data Series: 1.5.2. Physicochemical Quantities
+      // and Units, A note on nomenclature, points 10 and 11"
+      bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; // dimensionless
 
-      //Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-      // partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0) + Pstd;
-      partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0 - ed->d_sois.watertab) + Pstd;
-      bun_sol_mass = 1e-6 * partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15)); //mass, n=PV/RT
+      // Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
+      partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0 - ed->d_sois.watertab) + Pstd; // Pa = kgm^-1s^-2
+      bun_sol_mass = 1e3 * partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15));          // mol m^3 ( * 1e3 -> umol L^-1)
 
-      double rate_parameter_kh = 1.0;
-      //HG: This should be Fan 2013 Eq. 17 for if layers are below the water table
-      //Fan does not explicitly limit it to layers with temp greater than 1 (at least
-      // not at the equation).
-      if (currl->tem > 1.0){
-        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
+      double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
+      // >>> Fan does not explicitly limit it to layers with temp greater than 1
+      // >>> I think this should be if layer is not frozen
+      if (currl->tem > 1.0) {
+        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() *
       }
-      else{
-        ebul=0.0;
+      else {
+        ebul = 0.0;
       }
-      // Testing partially saturated layer:
+
+      if (ebul <= 0.0) {
+        ebul = 0.0;
+      }
+
+      // Code below was used for testing effect of partially saturated layer on ebullition
       // if (saturated_fraction > 0.0){
       //   if(currl->tem > 1.0){
       //     ebul = (currl->ch4 - bun_sol_mass) * rate_parameter_kh;
-      //   }
-      //   else{
+      //   } else{
       //     ebul = 0.0;
       //   }
-
       //   if (ebul < 0.0000001) {
       //     ebul = 0.0;
       //   }
-      // }
-      // else{
+      // } else{
       //   ebul=0.0;
       // }
-    
-      //Ebul units are umol L^-1 hr^-1 (the hour is implicit since
-      //  we're in a time loop)
-      //currl->liq units are kg m^-2
-      //currl->dz units are m
-      //Ebul_m units are then mmol m^-1 hr^-1 (again hour is implicit) - These units are actually: umol m^-2 hr^-1
-      //L^-1 = 0.001m^-3   
 
       // HG: Scaling by the LWC here could actually have relevance when scaled up to the /m2, as:
       // This assump- tion is supported by the fact that wetland soils are generally very porous, 
       // the relative pore volume being often greater than 90% [Scheffer and Schachtschabel, 1982],
       // and the finding that the velocity of bubbles ascending in pure water lies in the order of 
       // 1- 10 cm s -1 [e.g. Shafer and Zare, 1991].  
-      ebul_gm2hr = ebul * currl->getVolLiq() * currl->dz * convert_umolL_to_gm3;
+      ebul_gm2hr = ebul * currl->getVolLiq() * convert_umolL_to_gm2;
 
       ebul_daily += ebul; //cumulated over 1 time step, 1 hour Y.MI
       ebul_gm2day += ebul_gm2hr; //cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
@@ -448,13 +445,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // calculation of V[] below
       partial_delta_ch4 = prod - ebul - oxid - plant;
 
-      // Solver boundary conditions
+      // Main diagnonal
       if (il == (numsoill - 1)) {
         D[il] = r[il] - 1.0;
       } else {
         D[il] = r[il];
       }
-
+      // upper and lower sub diagonals
       if (il == 1) {
         C[il] = -1.0 - upper_bound;
       } else {
@@ -464,7 +461,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //V is a delta from equation 8, based on previous methane state and current fluxes
       V[il] = s[il] * currl->ch4 + s[il] * dt * partial_delta_ch4;
 
-      if (V[il] < 0.0000001) {
+      if (V[il] < 0.0000001) {// can V be negative? uptake?
         V[il] = 0.0;
       }
 
@@ -473,6 +470,44 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     } //end of bottom up layer loop
 
     TriSolver(numsoill - 1, C, D, C, V, V);
+        //TriSolver(matrix_size, *A, *D, *C, *B, *X)
+
+    // Matrix equation: A X = B, X = A^-1 B
+
+    // |  d1  c1  0   0  .  0  |   | x1 |   | b1 |
+    // |  a2  d2  c2  0  .  0  |   | x2 |   | b2 |
+    // |  0  a3  d3  c3  0  0  |   | x3 |   | b3 |
+    // |  .  .              .  | x | .. | = | .. |
+    // |  .  .              .  |   | .. |   | .. |
+    // |  .  .             cn  |   | .. |   | .. |
+    // |  0  0  0  0   an  dn  |   | xn |   | bn |
+
+    // B (or V) is known state, X (or V replaced) is solution,
+    // A, D, C are used to construct tridiagonal matrix
+    // A and C are equal subdiagonals
+    // D is the main diagonal
+
+    // generally for crank nicolson discretization:
+    //  r = dt / (dx)^2
+    //  a = -r/2, c = -r/2
+    //  d = (1 + r)
+    //  b = (r/2) (x^n_i+1) + (1-r)(x^n_i) + (r/2)(x^n_i-1)
+    //  assuming dCh4/dt = d^2Ch4/dx^2
+    //  see: https://www.quantstart.com/articles/Crank-Nicholson-Implicit-Scheme/
+    
+    // In our case this is not simply linear diffusion as 
+    // we have our partial_delta_ch4 term which adds/subtracts
+    // from our layer concentrations, and a varying diffusion
+    // coefficient, and these must be considered
+    // when we find our solution BUT while still using a 
+    // standard version of the tridiagonal matrix algorithm
+
+    // Therefore we have a larger matrix equation which must be
+    // first condensed into a standard tridiagonal form
+    // See: https://georg.io/2013/12/03/Crank_Nicolson for
+    // matrix setup, assuming dCh4/dt = d^2Ch4/dx^2 + f(u, x)
+
+    //...in progress
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
     il = 1; //Reset manual layer index tracker. From 1 to allow moss layer in future
