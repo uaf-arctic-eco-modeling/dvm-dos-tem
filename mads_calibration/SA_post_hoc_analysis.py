@@ -34,6 +34,7 @@
 import os
 import numpy as np
 import pandas as pd
+import netCDF4 as nc
 import sklearn.metrics as sklm
 import scipy.stats
 import matplotlib.pyplot as plt
@@ -613,6 +614,75 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
 
   if save:
     plt.savefig(saveprefix + "r2_rmse_mape.png", bbox_inches='tight')
+
+def plot_nitrogen_check(path='', save=False, saveprefix=''):
+  '''
+  Plots INGPP : GPP ratio to examine nitrogen limitation
+  and compares to expected ranges for boreal and tundra
+  ecosystems. 
+
+  Note: this requires auxiliary variables INGPP, GPP, and
+  AVLN to be specified in config file. If calib_mode is set
+  to GPPAllIgnoringNitrogen this will not produce meaningful 
+  results.
+
+  Parameters
+  ==========
+  path : str
+    Specifies path to sensitivity sample run directory
+  
+  Returns
+    None
+
+  .. image:: /images/SA_post_hoc_analysis/nitrogen-check.png
+  
+  '''
+  os.chdir(path)
+  samples = len([name for name in os.listdir(".") if os.path.isdir(name)]) - 1
+  ratio = []
+
+  for i in range(0, samples):
+      if i < 10:
+          dir_path = path+f'sample_00000000{i}/output/'
+      elif i < 100:
+          dir_path = path+f'sample_0000000{i}/output/'
+      else:
+          dir_path = path+f'sample_000000{i}/output/'
+
+    gpp = np.sum(nc.Dataset(dir_path+'GPP_yearly_eq.nc').variables["GPP"][:].data[:,:,0,0], axis=1)
+    ingpp = np.sum(nc.Dataset(dir_path+'INGPP_yearly_eq.nc').variables["INGPP"][:].data[:,:,0,0], axis=1)
+
+    nlim = ingpp/gpp
+    
+    plt.plot(nlim, 'k', alpha=0.15)
+
+    ratio.append(np.mean(nlim[-10:])) 
+
+  plt.plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--', label='Boreal')
+  plt.fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.5, color='g')
+  plt.plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--', label='Tundra')
+  plt.fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.5, color='c')
+
+  if np.mean(ratio) < 1.15:
+      boreal_string = "Failed - micnup too low"
+  elif np.mean(ratio) >1.35:
+      boreal_string = "Failed - micnup too high"
+  else:
+      boreal_string = "Passed"
+
+  if np.mean(ratio) < 1.4:
+      tundra_string = "Failed - micnup too low"
+  elif np.mean(ratio) >1.6:
+      tundra_string = "Failed - micnup too high"
+  else:
+      tundra_string = "Passed"
+
+  plt.title(f"Boreal-check: {boreal_string}, Tundra-check: {tundra_string}", fontsize=10)
+  plt.xlabel("Equilibrium years", fontsize=12)
+  plt.ylabel("INGPP : GPP", fontsize=12)
+  plt.legend(loc='best', fontsize=10)
+  if save:
+    plt.savefig(saveprefix + "nitrogen-check-plot.png", bbox_inches='tight')
 
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
