@@ -76,7 +76,7 @@ def plot_boxplot(results, targets, save=False, saveprefix=''):
   results.boxplot(ax=ax, rot=45)
   ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
   if save:
-    plt.savefig(saveprefix + "results_boxplot.png")
+    plt.savefig(saveprefix + "results_boxplot.png", bbox_inches='tight')
 
 def plot_spaghetti(results, targets, save=False, saveprefix=''):
   '''
@@ -138,7 +138,7 @@ def plot_spaghetti(results, targets, save=False, saveprefix=''):
 
   ax2.set_yscale('log')
   if save:
-    plt.savefig(saveprefix + "spaghetti_plot.png")
+    plt.savefig(saveprefix + "spaghetti_plot.png", bbox_inches='tight')
 
 def plot_match(results, targets, save=False, saveprefix=''):
   '''
@@ -182,7 +182,7 @@ def plot_match(results, targets, save=False, saveprefix=''):
   ax.plot(x,x, 'b--')
   ax.scatter(results, [targets for i in range(len(results))], alpha=.1)
   if save:
-    plt.savefig(saveprefix + "one2one_match.png")
+    plt.savefig(saveprefix + "one2one_match.png", bbox_inches='tight')
 
 
 
@@ -452,7 +452,7 @@ def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   plt.ylabel("Model Results", fontsize=14)
   plt.xlabel("Parameters", fontsize=14)
   if save:
-    plt.savefig(saveprefix + "correlation_heatmap.png")
+    plt.savefig(saveprefix + "correlation_heatmap.png", bbox_inches='tight')
 
 def plot_output_scatter(results, targets,
                         r2lim=None, rmselim=None, mapelim=None,
@@ -612,7 +612,7 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
   plt.legend()
 
   if save:
-    plt.savefig(saveprefix + "r2_rmse_mape.png")
+    plt.savefig(saveprefix + "r2_rmse_mape.png", bbox_inches='tight')
 
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
