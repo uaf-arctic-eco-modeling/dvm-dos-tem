@@ -26,7 +26,7 @@ PXy: 0
 #  - False/None/0: dvmdostem default which is dsl and nfeed on for eq, sp, tr, sc stages
 #  - GPPALLIgnoringNitrogen: turns dsl and nfeed OFF for eq stage
 #  - VEGC or NPPAll: turns dsl and nfeed ON for eq (and subsequent) stages
-calib_mode: GPPALLIgnoringNitrogen
+calib_mode: GPPAllIgnoringNitrogen
 
 # The name of the target variables that will be optimized for. These are names
 # of variables that are found in the dvmdostem calibration_targets.py file.

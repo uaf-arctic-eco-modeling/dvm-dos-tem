@@ -183,12 +183,12 @@ class MadsTEMDriver(BaseDriver):
     # This is duplicated in Sensitivity.py, maybe it should be migrated
     # to the BaseDriver class?
     if self.calib_mode:
-      if self.calib_mode == 'GPPAllIgnoringNitrogen':
+      if self.calib_mode.lower() == 'gppallignoringnitrogen':
         config['stage_settings']['eq']["dsl"] = False
         config['stage_settings']['eq']["nfeed"] = False
 
       # I believe these default to on, but just in case, set them here...
-      if self.calib_mode in ('NPPAll', 'VEGC'):
+      if self.calib_mode.lower() in ('nppall', 'vegc'):
         config['stage_settings']['eq']["dsl"] = True
         config['stage_settings']['eq']["nfeed"] = True
 
