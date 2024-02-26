@@ -33,6 +33,18 @@ calib_mode: GPPAllIgnoringNitrogen
 target_names: 
 - GPPAllIgnoringNitrogen
 
+# If you want additional outputs beyond the ones needed for the target
+# comparison (optimization) then you can specify them here. In this case use the
+# NetCDF names.
+# WARNING you should make sure that you don't explicity change the resolution
+# for a variable that is one of your target variables.
+#aux_outputs:
+# - VEGC p m
+# - AVLN y
+# - GPP y p c
+# - INGPP m p 
+# - TLAYER m l
+
 # The community number that is being optimized
 cmtnum: 6
 

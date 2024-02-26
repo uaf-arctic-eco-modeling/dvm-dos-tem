@@ -53,9 +53,22 @@ calib_mode: GPPAllIgnoringNitrogen
 sampling_method: lhc
 
 # The target variables that will be tested. Outputs are enabled based on 
-# this setting...
+# this setting...Note that here the names should match the names in the 
+# calibration_targets.py file. Internally the program looks up the correct 
+# NetCDF output to enable.
 target_names: 
 - GPPAllIgnoringNitrogen
+
+# If you want additional outputs beyond the ones needed for the target
+# comparison then you can specify them here. In this case use the NetCDF names.
+# WARNING you should make sure that you don't explicity change the resolution
+# for a variable that is one of your target variables. This will make the
+# plotting in SA_post_hoc_analysis not work.
+# aux_outputs:
+# - VEGC p m
+# - AVLN y
+# - GPP y p c 
+# - TLAYER m l
 
 # The community number that is being calibrated.
 cmtnum: 6

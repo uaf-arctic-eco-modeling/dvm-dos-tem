@@ -148,6 +148,11 @@ class BaseDriver(object):
     if 'outputs' in config.keys():
       self.outputs = config['outputs']
 
+    if 'aux_outputs' in config.keys():
+      self.setup_aux_outputs(config['aux_outputs'])
+    else:
+      self.aux_outputs = []
+
     if self.work_dir is not None:
       if not os.path.isdir(self.work_dir):
         os.mkdir(self.work_dir)
@@ -339,6 +344,51 @@ class BaseDriver(object):
       self.outputs.append(outspec)
 
     return None
+
+  def setup_aux_outputs(self, aux_outputs):
+    self.aux_outputs = []
+    for aux in aux_outputs:
+      fields = aux.split(' ')
+
+      # Name is always the first one, other resolution specificaitons could
+      # be in any order
+      ncname = fields[0]
+
+      # not sure how to handle type yet...
+      t_type=''
+
+      # Default to yearly, no pft or layers
+      timeres='y'
+      pftres=''
+      cpartres=''
+      layerres=''
+
+      # other resolution specs could be in any order
+      if any(x in fields for x in ['yearly', 'y', 'yr']):
+        timeres='y'
+
+      if any(x in fields for x in ['monthly', 'm', 'mly']):
+        timeres='m'
+
+      if any(x in fields for x in ['p','pft','PFT']):
+        pftres='p'
+
+      if any(x in fields for x in ['c','cpart','cmprt']):
+        pftres='p'
+
+      if any(x in fields for x in ['l','layer']):
+        pftres='p'
+
+      outspec = dict( ncname=ncname,
+                      ctname='', # <-- ?? always??
+                      type=t_type,
+                      timeres=timeres,
+                      pftres=pftres,
+                      cpartres=cpartres,
+                      layerres=layerres )
+
+      self.aux_outputs.append(outspec)
+
 
   def clean(self):
     '''

@@ -150,6 +150,18 @@ class MadsTEMDriver(BaseDriver):
         output_spec['layerres'],
       ])
 
+    # Setup all the auxillary outputs...
+    for output_spec in self.aux_outputs:
+      util.outspec.cmdline_entry([
+        '{}/config/output_spec.csv'.format(run_dir),
+        '--on', output_spec['ncname'], 
+        output_spec['timeres'],
+        output_spec['pftres'],
+        output_spec['cpartres'],
+        output_spec['layerres'],
+      ])
+
+
     # Make sure CMTNUM output is on
     util.outspec.cmdline_entry([
       '{}/config/output_spec.csv'.format(run_dir),
