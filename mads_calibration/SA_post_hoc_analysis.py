@@ -637,17 +637,12 @@ def plot_nitrogen_check(path='', save=False, saveprefix=''):
   .. image:: /images/SA_post_hoc_analysis/nitrogen-check.png
   
   '''
-  os.chdir(path)
-  samples = len([name for name in os.listdir(".") if os.path.isdir(name)]) - 1
+  n_samples = len([name for name in os.listdir(".") if os.path.isdir(name)]) - 1
   ratio = []
   fig, ax = plt.subplots(1, 2, figsize=(10,10))
-  for i in range(0, samples):
-    if i < 10:
-      dir_path = path+f'sample_00000000{i}/output/'
-    elif i < 100:
-      dir_path = path+f'sample_0000000{i}/output/'
-    else:
-      dir_path = path+f'sample_000000{i}/output/'
+  for i in range(0, n_samples):
+
+    dir_path = path+f'sample_{i:09d}/output/'
 
     avln = nc.Dataset(dir_path+'AVLN_yearly_eq.nc').variables["AVLN"][:].data[:,0,0]
     gpp = nc.Dataset(dir_path+'GPP_yearly_eq.nc').variables["GPP"][:].data[:,0,0]
