@@ -330,8 +330,18 @@ class Sensitivity(BaseDriver):
       self.cmtnum = config['cmtnum']
 
     if 'params' not in config.keys():
-      raise RuntimeError("You must have params to instantiate a Sensitivity driver!")
+      raise RuntimeError("You must have ``params`` to instantiate a Sensitivity driver!")
 
+    if 'pftnums' not in config.keys():
+      raise RuntimeError("You must specifiy the ``pftnums`` array. Use ``None`` for non-PFT parameters.")
+
+    if 'percent_diffs' in config.keys() and 'p_bounds' in config.keys():
+      raise RuntimeError("You musn't specify both percent_diffs and p_bounds at the same time. Choose one.")
+
+    # Ok this is slightly awkward - basically even if the user specified 
+    # p_bounds, it ends up being easiest to setup the params structure using
+    # the percent_diffs concept and then overwrite the bounds... alternatively
+    # we could modify the params_from_seed function...
     if not ('percent_diffs' in config.keys()):
       # use +/-90% for default perturbation
       percent_diffs = np.ones(len(config['params'])) * 0.9
@@ -344,6 +354,11 @@ class Sensitivity(BaseDriver):
                                      pftnums=config['pftnums'], 
                                      percent_diffs=percent_diffs, 
                                      cmtnum=self.cmtnum)
+
+    if 'p_bounds' in config.keys():
+      assert len(self.params) == len(config['p_bounds']), f"Length of params array and p_bounds array must be the same."
+      for par, bnds in zip(self.params, config['p_bounds']): 
+        par['bounds'] = bnds
 
     # Order matters here - gotta load the target data before we
     # setup the outputs...

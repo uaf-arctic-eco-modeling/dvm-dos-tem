@@ -28,6 +28,12 @@ pftnums: [0, 1, 2, 3, 4, 5, 6]
 # The "perturbations" around the initial parameter values
 percent_diffs: [.1, .1, .1, .1, .1, .1, .1]
 
+# Manually set parameter bounds. This option should be mutually exclusive 
+# with percent_diffs. In other words only specify one of percent_diffs or 
+# p_bounds. For each parameter specify the min and max. Must use square 
+# brackets for yaml to parse it correctly.
+#p_bounds: [[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1]]
+
 # The path to the driving input data that will be used.
 site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
 
