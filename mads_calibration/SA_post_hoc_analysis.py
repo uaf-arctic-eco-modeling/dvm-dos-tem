@@ -640,28 +640,31 @@ def plot_nitrogen_check(path='', save=False, saveprefix=''):
   os.chdir(path)
   samples = len([name for name in os.listdir(".") if os.path.isdir(name)]) - 1
   ratio = []
-
+  fig, ax = plt.subplots(1, 2, figsize=(10,10))
   for i in range(0, samples):
-      if i < 10:
-          dir_path = path+f'sample_00000000{i}/output/'
-      elif i < 100:
-          dir_path = path+f'sample_0000000{i}/output/'
-      else:
-          dir_path = path+f'sample_000000{i}/output/'
+    if i < 10:
+      dir_path = path+f'sample_00000000{i}/output/'
+    elif i < 100:
+      dir_path = path+f'sample_0000000{i}/output/'
+    else:
+      dir_path = path+f'sample_000000{i}/output/'
 
-    gpp = np.sum(nc.Dataset(dir_path+'GPP_yearly_eq.nc').variables["GPP"][:].data[:,:,0,0], axis=1)
-    ingpp = np.sum(nc.Dataset(dir_path+'INGPP_yearly_eq.nc').variables["INGPP"][:].data[:,:,0,0], axis=1)
+    avln = nc.Dataset(dir_path+'AVLN_yearly_eq.nc').variables["AVLN"][:].data[:,0,0]
+    gpp = nc.Dataset(dir_path+'GPP_yearly_eq.nc').variables["GPP"][:].data[:,0,0]
+    ingpp = nc.Dataset(dir_path+'INGPP_yearly_eq.nc').variables["INGPP"][:].data[:,0,0]
 
     nlim = ingpp/gpp
     
-    plt.plot(nlim, 'k', alpha=0.15)
+    ax[0].plot(nlim, color='gray', alpha=0.1)
 
     ratio.append(np.mean(nlim[-10:])) 
 
-  plt.plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--', label='Boreal')
-  plt.fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.5, color='g')
-  plt.plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--', label='Tundra')
-  plt.fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.5, color='c')
+  ax[0].plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--', label='Boreal')
+  ax[0].fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.5, color='g')
+  ax[0].plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--', label='Tundra')
+  ax[0].fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.5, color='c')
+
+  ax[1].plot(avln, color='gray', alpha=0.1)
 
   if np.mean(ratio) < 1.15:
       boreal_string = "Failed - micnup too low"
@@ -677,10 +680,15 @@ def plot_nitrogen_check(path='', save=False, saveprefix=''):
   else:
       tundra_string = "Passed"
 
-  plt.title(f"Boreal-check: {boreal_string}, Tundra-check: {tundra_string}", fontsize=10)
-  plt.xlabel("Equilibrium years", fontsize=12)
-  plt.ylabel("INGPP : GPP", fontsize=12)
-  plt.legend(loc='best', fontsize=10)
+  ax[0].set_title(f"Boreal-check: {boreal_string}, Tundra-check: {tundra_string}", fontsize=10)
+  ax[0].set_xlabel("Equilibrium years", fontsize=12)
+  ax[0].set_ylabel("INGPP : GPP", fontsize=12)
+  ax[0].legend(loc='best', fontsize=10)
+
+  ax[1].set_title("Is AVLN in this plot what you expect?", fontsize=10)
+  ax[1].set_xlabel("Equilibrium years", fontsize=12)
+  ax[1].set_ylabel("AVLN [g m$^{-2}$]", fontsize=12)
+
   if save:
     plt.savefig(saveprefix + "nitrogen-check-plot.png", bbox_inches='tight')
 
