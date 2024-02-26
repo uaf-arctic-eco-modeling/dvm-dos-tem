@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 # This stuff is diamond box in SA (orange half)
-def plot_boxplot(results, targets, saveprefix=''):
+def plot_boxplot(results, targets, save=False, saveprefix=''):
   '''
   Plots a box and whiskers for each column in ``results``. Plots a dot for
   each target value.
@@ -60,6 +60,10 @@ def plot_boxplot(results, targets, saveprefix=''):
   targets : pandas.DataFrame
     One column for each target (truth, or observation) value. One row.
 
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
+
   saveprefix : str
     A string that is prepended to the saved filename 'results_boxplot.png'
 
@@ -71,9 +75,10 @@ def plot_boxplot(results, targets, saveprefix=''):
   fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(6,6))
   results.boxplot(ax=ax, rot=45)
   ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
-  plt.savefig(saveprefix + "results_boxplot.png")
+  if save:
+    plt.savefig(saveprefix + "results_boxplot.png")
 
-def plot_spaghetti(results, targets, saveprefix=''):
+def plot_spaghetti(results, targets, save=False, saveprefix=''):
   '''
   Plots one line for each sample (row) in ``results``. Plots targets as dots.
   X axis of plot are for different columns in ``results``. Makes 2 plots, the 
@@ -92,6 +97,10 @@ def plot_spaghetti(results, targets, saveprefix=''):
   
   targets : pandas.DataFrame
     Single row, one column for each target (truth, or observation) value.
+
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
 
   saveprefix : str
     A string that is prepended to the saved filename 'spaghetti_plot.png'
@@ -128,9 +137,10 @@ def plot_spaghetti(results, targets, saveprefix=''):
                marker='o', color='red', zorder=1000)
 
   ax2.set_yscale('log')
-  plt.savefig(saveprefix + "spaghetti_plot.png")
+  if save:
+    plt.savefig(saveprefix + "spaghetti_plot.png")
 
-def plot_match(results, targets, saveprefix=''):
+def plot_match(results, targets, save=False, saveprefix=''):
   '''
   Plot targets vs model outputs (results). Dashed diagonal is line of perfect 
   agreement between the model output and the targets. Plot dot or marker for
@@ -154,6 +164,10 @@ def plot_match(results, targets, saveprefix=''):
   targets : pandas.DataFrame
     Single row, one column for each target (truth, or observation) value.
 
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
+
   saveprefix : str
     A string that is prepended to the saved filename 'results_boxplot.png'
 
@@ -167,8 +181,8 @@ def plot_match(results, targets, saveprefix=''):
   x = np.linspace(targets.min(axis=1), targets.max(axis=1), 10)
   ax.plot(x,x, 'b--')
   ax.scatter(results, [targets for i in range(len(results))], alpha=.1)
-
-  plt.savefig(saveprefix + "one2one_match.png")
+  if save:
+    plt.savefig(saveprefix + "one2one_match.png")
 
 
 
@@ -219,8 +233,7 @@ def calc_correlation(model_results, sample_matrix):
   return corr_mp
 
 def plot_relationships(results, sample_matrix, targets, variables=None, 
-                       parameters=None, corr_threshold=None, save=None,
-                       saveprefix=''):
+                       parameters=None, corr_threshold=None, save=False, saveprefix=''):
   '''
   Look at the model outputs and the parameters, calculate the corrleation
   between the two, and then make one plot for each instance where the
@@ -230,18 +243,27 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
   ----------
   results: pandas.DataFrame
     One row per sample, one column per output.
+
   sample_matrix: pandas.DataFrame
     One row per sample, one column per parameter.
+
   targets: pandas.DataFrame
     One row with one column per target value.
+
   variables: list, optional
     Strings referencing variables of interest in results
+
   parameter: list, optional
     Strings referencing parameers of interest in sample_matrix
+
   corr_threshold: float, optional
     Lower threshold for correlation to plot
-  save: optional
+
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
     Saves all subplots (can be a lot) if != None
+
   saveprefix : str
     A string that is prepended to the saved filename '{var}-{parameters}.png'
 
@@ -338,11 +360,11 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
       plt.subplots_adjust(left=None, bottom=None, right=1, top=1.2, wspace=None, hspace=None)
       # Save figure if enabled - may create a large number of figures
       plt.tight_layout()
-      if save != None:
+      if save:
         name = saveprefix + f"{vars}-{'-'.join(parameters)}.png"
         plt.savefig(name, bbox_inches="tight")
 
-def plot_pft_matrix(results, sample_matrix, targets, save=None, saveprefix=''):
+def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
   '''
   Look at the model outputs and the parameters, and plot all parameters
   against each variable for 10 potential pfts
@@ -351,12 +373,17 @@ def plot_pft_matrix(results, sample_matrix, targets, save=None, saveprefix=''):
   ----------
   results: pandas.DataFrame
     One row per sample, one column per output.
+
   sample_matrix: pandas.DataFrame
     One row per sample, one column per parameter.
+
   targets: pandas.DataFrame
     One row with one column per target value.
-  save: optional
-    Saves all subplots (can be a lot) if != None
+
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
+
   saveprefix : str
     A string that is prepended to the saved filename '{var}_pft_plot.pdf'
 
@@ -406,11 +433,11 @@ def plot_pft_matrix(results, sample_matrix, targets, save=None, saveprefix=''):
     plt.tight_layout()
     plt.suptitle(variables[v], fontsize=12, y=1.0)
     # Save figure if enabled - may create a large number of figures
-    if save != None:
-        name = saveprefix + f"{variables[v]}_pft_plot.pdf"
-        plt.savefig(name, format="pdf", bbox_inches="tight")
+    if save:
+      name = saveprefix + f"{variables[v]}_pft_plot.pdf"
+      plt.savefig(name, format="pdf", bbox_inches="tight")
 
-def plot_corr_heatmap(df_corr, saveprefix):
+def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   '''
   ??? Write something...
 
@@ -424,11 +451,12 @@ def plot_corr_heatmap(df_corr, saveprefix):
   plt.title("Correlation Matrix [Results vs Parameters]", fontsize=16)
   plt.ylabel("Model Results", fontsize=14)
   plt.xlabel("Parameters", fontsize=14)
-  plt.savefig(saveprefix + "correlation_heatmap.png")
+  if save:
+    plt.savefig(saveprefix + "correlation_heatmap.png")
 
 def plot_output_scatter(results, targets,
                         r2lim=None, rmselim=None, mapelim=None,
-                        saveprefix=''):
+                        save=False, saveprefix=''):
   '''
   Create subplots for each column in ``results``. Each subplot shows
   scatter plots of the output value on the Y axis and the sample # on the X
@@ -458,7 +486,11 @@ def plot_output_scatter(results, targets,
 
   mapelim : float, optional
     Upper MAPE limit for output.
-  
+
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
+
   saveprefix: str
     A prefix to be prepended to the saved file name 'output_target_scatter.png'
 
@@ -528,11 +560,36 @@ def plot_output_scatter(results, targets,
   # Apply tight layout
   plt.tight_layout()
   # Save figure
-  fig.savefig(saveprefix + 'output_target_scatter.png', bbox_inches='tight')
+  if save:
+    fig.savefig(saveprefix + 'output_target_scatter.png', bbox_inches='tight')
 
-def plot_r2_rmse(results, targets, saveprefix=''):
+def plot_r2_rmse(results, targets, save=False, saveprefix=''):
   '''
-  Plot ???
+
+  Plot R^2 against RMSE as a scatter plot for all runs
+
+  Parameters
+  ----------
+  results: pandas.DataFrame
+    One row per sample, one column per output.
+
+  sample_matrix: pandas.DataFrame
+    One row per sample, one column per parameter.
+
+  targets: pandas.DataFrame
+    One row with one column per target value.
+
+  save : bool
+    Assumes False so plot will not be saved. If set to true it will plot
+    in current directory unless saveprefix is specified
+
+  saveprefix : str
+    A string that is prepended to the saved filename '{var}_pft_plot.pdf'
+
+
+  Returns
+  -------
+  None
 
   .. image:: /images/SA_post_hoc_analysis/r2_mse_mape.png
 
@@ -554,7 +611,8 @@ def plot_r2_rmse(results, targets, saveprefix=''):
 
   plt.legend()
 
-  plt.savefig(saveprefix + "r2_rmse_mape.png")
+  if save:
+    plt.savefig(saveprefix + "r2_rmse_mape.png")
 
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
