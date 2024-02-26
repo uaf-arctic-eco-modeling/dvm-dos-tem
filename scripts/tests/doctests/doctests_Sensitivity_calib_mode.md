@@ -22,7 +22,7 @@ to remember to clean it up at the end.
     ... observations: /work/calibration # (also called targets)
     ... N_samples: 5
     ... work_dir: /tmp/nmax_krb_npp/sa-N5
-    ... site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
+    ... site: /work/testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
     ... PXx: 0
     ... PXy: 0
     ... calib_mode: OFF
