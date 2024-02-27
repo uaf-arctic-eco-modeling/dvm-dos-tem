@@ -74,11 +74,9 @@ double SoilLayer::getUnfThermCond() {
 
 double SoilLayer::getMatricPotential() {
   double psi;
-  double lf = 3.337e5 ;// latent heat of fusion J/kg
-  double g =9.8;
 
   if(tem<0) {
-    psi =1000. * lf/g *(tem/(tem+273.16));
+    psi =1000. * LHFUS/G *(tem/(tem+273.16));
 
     if (psi<-1.e8) {
       psi=-1.e8;

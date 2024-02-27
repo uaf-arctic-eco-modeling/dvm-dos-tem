@@ -544,7 +544,7 @@ double Stefan::getPartialDepth(const double & volwat, const double & tk,
    */
   double partd;
   double effvolwat = volwat;
-  double lhfv = 3.34e8;
+  double lhfv = LHFUS * 1000;//Converting units
   double firstp = tk * sumresabv;
   double second1 = tk * tk * sumresabv * sumresabv;
   double second2 = 2 * tk * dse/(lhfv * effvolwat);
