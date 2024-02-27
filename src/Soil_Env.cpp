@@ -193,6 +193,32 @@ void Soil_Env::initializeState()
           currl->ice = 0.0;
           currl->frozen = -1;
         }
+        else if (-2. < currl->tem <= 0.)
+        { // Do we want to use lwc here intead of vwc?
+
+          if ((0.5 * vwc * currl->dz * DENLIQ) > currl->maxliq)
+          {
+            currl->liq = currl->maxliq;
+          }
+          else if ((0.5 * vwc * currl->dz * DENLIQ) < currl->minliq)
+          {
+            currl->liq = currl->minliq;
+          }
+          else
+          {
+            currl->liq = 0.5 * vwc * currl->dz * DENLIQ;
+          }
+
+          if ((0.5 * vwc * currl->dz * DENICE) > currl->maxice)
+          {
+            currl->ice = currl->maxice;
+          }
+          else
+          {
+            currl->ice = 0.5 * vwc * currl->dz * DENICE;
+          }
+          currl->frozen = 0.0;
+        }
         else
         { // Below freezing
           currl->ice = fmax(0.0, fmax(currl->maxice, vwc * currl->dz * DENICE));
