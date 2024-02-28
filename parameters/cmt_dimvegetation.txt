@@ -392,18 +392,18 @@
 0.0          0.7          0.0          0.7          0.5          0.0          2.00         2.00         0.7          0           // static_lai[11]:
 //===========================================================
 // CMT13 // Black Spruce Peatland
-//BlackSpr   Moss        Shrub         Sedge        Lichen       PFT5         PFT6         PFT7         PFT8         PFT9      pftnames:
+//BlackSpr   Moss        Shrub         Sedge        Lichen       PFT5         PFT6         PFT7         PFT8         PFT9      // pftnames:
 1            1            1            1            1            0            0            0            0            0             // vegfrac:
 1            0            1            0            0            0            0            0            0            0             // ifwoody:
 0            0            1            0            0            0            0            0            0            0             // ifdeciwoody:
 1            1            1            1            1            0            0            0            0            0             // ifperenial:
 0            1            0            0            3            0            0            0            0            0             // nonvascular:
 0.004843     0.0285       0.0102       0.0078       0.0072       0            0            0            0            0             // sla:
-0.5         0.05         0.26          0.15         0.05         0            0            0            0            0             // klai: was 0.5, 0.05, 0.26, 0.15, 0.05
-0.5          0.5      0.5       0.5       0.5       0.5            0            0            0            0             // minleaf:
-0.42893      0.42893      0.42893      0.42893     0.42893      0            0            0            0            0             // aleaf:
+0.5          0.05         0.26         0.15         0.05         0            0            0            0            0             // klai: was 0.5, 0.05, 0.26, 0.15, 0.05
+0.5          0.5          0.5          0.5          0.5          0.5          0            0            0            0             // minleaf:
+0.42893      0.42893      0.42893      0.42893      0.42893      0            0            0            0            0             // aleaf:
 0.33295      0.33295      0.33295      0.33295      0.33295      0            0            0            0            0             // bleaf:
-0.32228     0.32228      0.32228     0.32228     0.32228     0            0            0            0            0             // cleaf:
+0.32228      0.32228      0.32228      0.32228      0.32228      0            0            0            0            0             // cleaf:
 1.6662       1.6662       1.6662       1.6662       1.6662       0            0            0            0            0             // kfoliage:
 -0.001571   -0.10975     -0.165       -0.40625      -0.076       0            0            0            0            0             // cov:
 19.62        15.206      15.206       15.206        15.206       0            0            0            0            0             // m1:
@@ -484,7 +484,7 @@
 0            1            0            0           0      0      0      0      0      0    // ifdeciwoody: deciduous woodland (1) or not (0)
 1            1            1            1           1      0      0      0      0      0    // ifperenial: perenial (1) or not (0)
 0            0            0            1           3      0      0      0      0      0    // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
-0.004843     0.0144425    0.01848      0.026855    0.048 0.0    0.0    0.0    0.0    0.0  // sla: specific leaf area (m2/gC) evertree: 0.004843 decid shrub: 0.0144425 evrshrub: 0.01848 moss 0.026855
+0.004843     0.0144425    0.01848      0.026855    0.048 0.0    0.0    0.0    0.0    0.0  // sla: specific leaf area (m2/gC) evertree 0.004843 decid shrub 0.0144425 evrshrub 0.01848 moss 0.026855
 0.55         0.35         0.15         0.1         0.1    0.0    0.0    0.0    0.0    0.0  // klai: extinction coeff for conversion from lai to fpc
 0.5          0.5          0.5          0.5         0.5    0.0    0.0    0.0    0.0    0.0  // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
 0.42893      0.42893      0.42893      0.42893     0.4289 0.0    0.0    0.0    0.0    0.0  // aleaf:
@@ -509,7 +509,7 @@
 2.8          0.2405       0.15         0.3         0.2    0.0    0.0    0.0    0.0    0.0  // initial_lai: starting value for Leaf Area Index
 1.56         0.0          0.08         0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[0]: monthly LAI for a year, used for static input of LAI
 1.56         0.0          0.08         0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[1]:
-1.56         0.0          0.08         0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[2]:moss: 8, lichen: 3.5
+1.56         0.0          0.08         0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[2]:moss 8, lichen 3.5
 1.56         0.0481       0.09         0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[3]:
 1.7          0.0770       0.1          0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[4]:
 2.4          0.1732       0.12         0.3         0.2   0.0    0.0    0.0    0.0    0.0  // static_lai[5]:

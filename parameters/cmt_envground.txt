@@ -448,9 +448,9 @@
 25000              // bulkden(m): bulk density for moss (g/m3)
 50000              // bulkden(f): bulk density for fibric (g/m3)
 117000             // bulkden(h): bulk density for humic (g/m3)
-0.1               // 0.15 hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.1               // 0.28 hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // 0.002 hksat(h): hydraulic conductivity at saturation for humic
+0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
+0.28               // hksat(f): hydraulic conductivity at saturation for fibric
+0.002              // hksat(h): hydraulic conductivity at saturation for humic
 1.5                // nfactor(s): Summer nfactor
 1.0                // nfactor(w): Winter nfactor
 -1.0               // initsnwtem: initial snow temperature (oC)
@@ -475,7 +475,7 @@
 0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT15 // Boreal Birch Forest // Calibrated for Caribou Creek.
+// CMT15 // Boreal Black Spruce Forest // Calibrated for Caribou Creek.
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.50e7             // psimax:
@@ -491,9 +491,9 @@
 25000              // bulkden(m): bulk density for moss (g/m3)
 200000              // bulkden(f): bulk density for fibric (g/m3)
 700000             // bulkden(h): bulk density for humic (g/m3)
-0.1               // 0.15 hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.1               // 0.28 hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // 0.002 hksat(h): hydraulic conductivity at saturation for humic
+0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
+0.28               // hksat(f): hydraulic conductivity at saturation for fibric
+0.002              // hksat(h): hydraulic conductivity at saturation for humic
 1.5                // nfactor(s): Summer nfactor
 1.0            // nfactor(w): Winter nfactor
 -1.0               // initsnwtem: initial snow temperature (oC)
