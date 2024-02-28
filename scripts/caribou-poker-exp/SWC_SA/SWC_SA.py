@@ -7,8 +7,6 @@ import os
 sys.path.append('/work/scripts')
 import pandas as pd
 import seaborn as sns
-
-
 import Sensitivity as sa
 import output_utils as ou
 
@@ -130,12 +128,12 @@ driver.site = '/data/input-catalog/caribou-poker_merged/'
 driver.opt_run_setup = opt_run_setup
 
 #US-Prr
-#driver.PXx ='1'
-#driver.PXy='0'
+driver.PXx ='1'
+driver.PXy='0'
 #
 #BONA
-driver.PXx ='0'
-driver.PXy='3'
+#driver.PXx ='0'
+#driver.PXy='3'
 #
 
 params = ['hksat(m)','hksat(f)','hksat(h)',
@@ -147,18 +145,18 @@ params = ['hksat(m)','hksat(f)','hksat(h)',
 #.25-.35
 #.01-0.33
 #US-Prr
-#bounds = [[0.0005056, 0.003922], [0.0000539, 0.004125], [0.000040, 0.000620], #[0.000040, ]
-#          [0.005, 0.5], [0.005, 0.5], [0.02, 2],
-#          [0.83, 0.98], [0.8, 0.83], [0.7, 0.8],
-#          [0.2, 2.5], [0.1, 1],
-#          [1.6, 2.4]]#, [1.6, 2.4]]
-
-#BONA-Black-Spruce
 bounds = [[0.0005056, 0.003922], [0.0000539, 0.004125], [0.000040, 0.000620], #[0.000040, ]
           [0.005, 0.5], [0.005, 0.5], [0.02, 2],
           [0.83, 0.98], [0.8, 0.83], [0.7, 0.8],
           [0.2, 2.5], [0.1, 1],
           [1.6, 2.4]]#, [1.6, 2.4]]
+
+#BONA-Black-Spruce
+#bounds = [[0.0005056, 0.003922], [0.0000539, 0.004125], [0.000040, 0.000620], #[0.000040, ]
+#          [0.005, 0.5], [0.005, 0.5], [0.02, 2],
+#          [0.83, 0.98], [0.8, 0.83], [0.7, 0.8],
+#          [0.2, 2.5], [0.1, 1],
+#          [1.6, 2.4]]#, [1.6, 2.4]]
 
 
 driver.logparams = [1, 1, 1,
@@ -179,18 +177,19 @@ driver.outputs = [
       { 'name': 'LAYERTYPE','type': 'layer'},
     ]
 
-driver.design_experiment(Nsamples = 28, cmtnum = 15, params = params,
+driver.design_experiment(Nsamples = 28, cmtnum = 13, params = params,
                          bounds=bounds, pftnums = [None]*len(params), sampling_method='uniform')
 
 
 driver.clean()
 driver.setup_multi()
+driver.run_all_samples()
 
 
 driver.sample_matrix
 
 
-driver.run_all_samples()
+
 
 
 

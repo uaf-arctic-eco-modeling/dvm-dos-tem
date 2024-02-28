@@ -29,7 +29,8 @@ station_lat = 65.15401 #caribou creek
 station_lon = -147.50258 #caribou creek
 
 #get netcdf coordinates from runmask
-runmask = nc.Dataset('/data/workflows/BONA-birch/run-mask.nc')
+#runmask = nc.Dataset('/data/workflows/BONA-birch/run-mask.nc') #original climate dataset
+runmask = nc.Dataset('/data/input-catalog/cpcrw_towers_downscaled/run-mask.nc') #downscaled climate dataset
 lats=runmask.variables['lat'][:]
 lons=runmask.variables['lon'][:]
 
@@ -51,8 +52,14 @@ get_ipython().system('rm -r /data/workflows/BONA-birch/')
 get_ipython().run_line_magic('cd', '/work')
 
 
-#set working directory
-get_ipython().system('scripts/setup_working_directory.py  --input-data-path /data/input-catalog/caribou-poker_merged/  /data/workflows/BONA-birch/')
+#set working directory, original input
+#!scripts/setup_working_directory.py \
+#--input-data-path /data/input-catalog/caribou-poker_merged/ \
+#/data/workflows/BONA-birch/
+
+
+#set working directory, downscaled input
+get_ipython().system('scripts/setup_working_directory.py  --input-data-path /data/input-catalog/cpcrw_towers_downscaled/  /data/workflows/BONA-birch/')
 
 
 # Adjust the config file
@@ -69,9 +76,10 @@ with open(CONFIG_FILE, 'w') as f:
 
 
 #poker flats: 0, 1
-#caribou creek: 3, 0
+#caribou creek: 3, 0 # original climate
+#caribou creek: 0, 0, #downscaled climate
 # setup runmask
-get_ipython().system('runmask-util.py --reset  --yx 3 0  --show  /data/workflows/BONA-birch/run-mask.nc')
+get_ipython().system('runmask-util.py --reset  --yx 0 0  --show  /data/workflows/BONA-birch/run-mask.nc')
 
 
 path_to_soil_input='/data/input-catalog/caribou-poker_merged/soil-texture.nc'
@@ -100,7 +108,7 @@ get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/conf
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on RH monthly layer')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on RM monthly compartment')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on NPP monthly')
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on ALD monthly')
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on ALD yearly')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on SHLWC yearly monthly')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on DEEPC yearly')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on MINEC yearly')
@@ -115,12 +123,13 @@ get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/conf
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on TRANSPIRATION monthly PFT')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on LAI monthly PFT')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on VEGC monthly PFT compartment')
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-birch/config/output_spec.csv --on BURNVEG2AIRC monthly')
 
 
 get_ipython().run_line_magic('cd', '/data/workflows/BONA-birch')
 
 
-get_ipython().system("dvmdostem --force-cmt=14 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=121 --sc-yrs=10")
+get_ipython().system("dvmdostem --force-cmt=14 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
 
 
 get_ipython().system('ls /data/workflows/BONA-birch/output/')
@@ -135,7 +144,13 @@ get_ipython().system('rm -r /data/workflows/BONA-black-spruce/')
 
 
 #set working directory
-get_ipython().system('scripts/setup_working_directory.py  --input-data-path /data/input-catalog/caribou-poker_merged/  /data/workflows/BONA-black-spruce/')
+#!scripts/setup_working_directory.py \
+#--input-data-path /data/input-catalog/caribou-poker_merged/ \
+#/data/workflows/BONA-black-spruce/
+
+
+#set working directory, downscaled input
+get_ipython().system('scripts/setup_working_directory.py  --input-data-path /data/input-catalog/cpcrw_towers_downscaled/  /data/workflows/BONA-black-spruce/')
 
 
 # Adjust the config file
@@ -153,8 +168,9 @@ with open(CONFIG_FILE, 'w') as f:
 
 #poker flats: 0, 1
 #caribou creek: 3, 0
+#caribou creek downscaled: 0, 0
 # setup runmask
-get_ipython().system('runmask-util.py --reset  --yx 3 0  --show  /data/workflows/BONA-black-spruce/run-mask.nc')
+get_ipython().system('runmask-util.py --reset  --yx 0 0  --show  /data/workflows/BONA-black-spruce/run-mask.nc')
 
 
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --empty')
@@ -164,7 +180,7 @@ get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spru
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on RH monthly layer')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on RM monthly compartment')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on NPP monthly')
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on ALD monthly')
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on ALD yearly')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on SHLWC yearly monthly')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on DEEPC yearly')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on MINEC yearly')
@@ -179,13 +195,14 @@ get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spru
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on TRANSPIRATION monthly PFT')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on LAI monthly PFT')
 get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on VEGC monthly PFT compartment')
+get_ipython().system('scripts/outspec_utils.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on BURNVEG2AIRC monthly')
 
 
 get_ipython().run_line_magic('cd', '/data/workflows/BONA-black-spruce')
 
 
 #!dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=115 --sc-yrs=10
-get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=121 --sc-yrs=10")
+get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
 
 
 get_ipython().system('ls /data/workflows/BONA-black-spruce/output/')

@@ -489,7 +489,7 @@ plt.ylabel('Value')
 results
 
 
-#sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
+sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
 sns.lineplot(results[target_vars].iloc[32].T, legend=False, alpha=0.6)
 sns.scatterplot(targets.T, color='red')
 plt.xticks(rotation=90)
@@ -535,6 +535,8 @@ sns.scatterplot(data = results.iloc[first], x='kdcsomcr', y='CarbonMineralSum', 
 axes[2,2].axhline(targets['CarbonMineralSum'], color='grey', alpha=0.5)
 sns.scatterplot(data = results, x='kdcsompr', y='CarbonMineralSum', ax=axes[2,2], alpha=0.3,legend=False)
 sns.scatterplot(data = results.iloc[first], x='kdcsompr', y='CarbonMineralSum', ax=axes[2,2], color='yellow',legend=False)
+
+fig.tight_layout()
 
 
 targets

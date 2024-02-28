@@ -11,7 +11,7 @@ import seaborn as sns
 import xarray as xr
 
 
-cell_y_coord=3
+cell_y_coord=0
 cell_x_coord=0
 
 
@@ -56,6 +56,8 @@ shlwc_tr = 'SHLWC_monthly_tr.nc'
 shlwc_eq = 'SHLWC_monthly_eq.nc'
 deepc_eq = 'DEEPC_yearly_eq.nc'
 
+burnveg_tr = 'BURNVEG2AIRC_monthly_tr.nc'
+
 
 #GPP
 gpp_bs_tr = xr.open_dataset(black_spruce_dir+gpp_tr)
@@ -63,46 +65,51 @@ tr_dates = gpp_bs_tr.indexes['time'].to_datetimeindex()
 gpp_bs_tr = gpp_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 gpp_bs_tr = gpp_bs_tr.variables['GPP'][:, cell_y_coord, cell_x_coord]
 
-gpp_bs_sc = xr.open_dataset(black_spruce_dir+gpp_sc)
-sc_dates = gpp_bs_sc.indexes['time'].to_datetimeindex()
-gpp_bs_sc = gpp_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-gpp_bs_sc = gpp_bs_sc.variables['GPP'][:, cell_y_coord, cell_x_coord]
+#Burn
+burn_bs_tr = xr.open_dataset(black_spruce_dir+burnveg_tr)
+burn_bs_tr = burn_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
+burn_bs_tr = burn_bs_tr.variables['BURNVEG2AIRC'][:, cell_y_coord, cell_x_coord]
+
+#gpp_bs_sc = xr.open_dataset(black_spruce_dir+gpp_sc)
+#sc_dates = gpp_bs_sc.indexes['time'].to_datetimeindex()
+#gpp_bs_sc = gpp_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#gpp_bs_sc = gpp_bs_sc.variables['GPP'][:, cell_y_coord, cell_x_coord]
 
 #NPP
 npp_bs_tr = xr.open_dataset(black_spruce_dir+npp_tr)
 npp_bs_tr = npp_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 npp_bs_tr = npp_bs_tr.variables['NPP'][:, cell_y_coord, cell_x_coord]
 
-npp_bs_sc = xr.open_dataset(black_spruce_dir+npp_sc)
-npp_bs_sc = npp_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-npp_bs_sc = npp_bs_sc.variables['NPP'][:, cell_y_coord, cell_x_coord]
+#npp_bs_sc = xr.open_dataset(black_spruce_dir+npp_sc)
+#npp_bs_sc = npp_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#npp_bs_sc = npp_bs_sc.variables['NPP'][:, cell_y_coord, cell_x_coord]
 
 #ALD
 ald_bs_tr = xr.open_dataset(black_spruce_dir+ald_tr)
 ald_bs_tr = ald_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 ald_bs_tr = ald_bs_tr.variables['ALD'][:, cell_y_coord, cell_x_coord]
 
-ald_bs_sc = xr.open_dataset(black_spruce_dir+ald_sc)
-ald_bs_sc = ald_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-ald_bs_sc = ald_bs_sc.variables['ALD'][:, cell_y_coord, cell_x_coord]
+#ald_bs_sc = xr.open_dataset(black_spruce_dir+ald_sc)
+#ald_bs_sc = ald_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#ald_bs_sc = ald_bs_sc.variables['ALD'][:, cell_y_coord, cell_x_coord]
 
 #RM
 rm_bs_tr = xr.open_dataset(black_spruce_dir+rm_tr)
 rm_bs_tr = rm_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 rm_bs_tr = rm_bs_tr.variables['RM'][:, :, :5, cell_y_coord, cell_x_coord]
 
-rm_bs_sc = xr.open_dataset(black_spruce_dir+rm_sc)
-rm_bs_sc = rm_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-rm_bs_sc = rm_bs_sc.variables['RM'][:, :, :5, cell_y_coord, cell_x_coord]
+#rm_bs_sc = xr.open_dataset(black_spruce_dir+rm_sc)
+#rm_bs_sc = rm_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#rm_bs_sc = rm_bs_sc.variables['RM'][:, :, :5, cell_y_coord, cell_x_coord]
 
 #RG
 rg_bs_tr = xr.open_dataset(black_spruce_dir+rg_tr)
 rg_bs_tr = rg_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 rg_bs_tr = rg_bs_tr.variables['RG'][:, :, :5, cell_y_coord, cell_x_coord]
 
-rg_bs_sc = xr.open_dataset(black_spruce_dir+rg_sc)
-rg_bs_sc = rg_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-rg_bs_sc = rg_bs_sc.variables['RG'][:, :, :5, cell_y_coord, cell_x_coord]
+#rg_bs_sc = xr.open_dataset(black_spruce_dir+rg_sc)
+#rg_bs_sc = rg_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#rg_bs_sc = rg_bs_sc.variables['RG'][:, :, :5, cell_y_coord, cell_x_coord]
 
 #RH
 rh_bs_tr_layer = xr.open_dataset(black_spruce_dir+rh_tr)
@@ -110,28 +117,28 @@ rh_bs_tr_layer = rh_bs_tr_layer.convert_calendar('standard', use_cftime=True, al
 rh_bs_tr_layer = rh_bs_tr_layer.variables['RH'][:, :, cell_y_coord, cell_x_coord]
 rh_bs_tr = rh_bs_tr_layer.sum(axis=1)
 
-rh_bs_sc_layer = xr.open_dataset(black_spruce_dir+rh_sc)
-rh_bs_sc_layer = rh_bs_sc_layer.convert_calendar('standard', use_cftime=True, align_on='date')
-rh_bs_sc_layer = rh_bs_sc_layer.variables['RH'][:, :, cell_y_coord, cell_x_coord]
-rh_bs_sc = rh_bs_sc_layer.sum(axis=1)
+#rh_bs_sc_layer = xr.open_dataset(black_spruce_dir+rh_sc)
+#rh_bs_sc_layer = rh_bs_sc_layer.convert_calendar('standard', use_cftime=True, align_on='date')
+#rh_bs_sc_layer = rh_bs_sc_layer.variables['RH'][:, :, cell_y_coord, cell_x_coord]
+#rh_bs_sc = rh_bs_sc_layer.sum(axis=1)
 
 #LWCLAYER
 lwclayer_bs_tr = xr.open_dataset(black_spruce_dir+lwclayer_tr)
 lwclayer_bs_tr = lwclayer_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 lwclayer_bs_tr = lwclayer_bs_tr.variables['LWCLAYER'][:,:, cell_y_coord, cell_x_coord]
 
-lwclayer_bs_sc = xr.open_dataset(black_spruce_dir+lwclayer_sc)
-lwclayer_bs_sc = lwclayer_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-lwclayer_bs_sc = lwclayer_bs_sc.variables['LWCLAYER'][:,:, cell_y_coord, cell_x_coord]
+#lwclayer_bs_sc = xr.open_dataset(black_spruce_dir+lwclayer_sc)
+#lwclayer_bs_sc = lwclayer_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#lwclayer_bs_sc = lwclayer_bs_sc.variables['LWCLAYER'][:,:, cell_y_coord, cell_x_coord]
 
 #TLAYER
 tlayer_bs_tr = xr.open_dataset(black_spruce_dir+tlayer_tr)
 tlayer_bs_tr = tlayer_bs_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 tlayer_bs_tr = tlayer_bs_tr.variables['TLAYER'][:,:,cell_y_coord, cell_x_coord]
 
-tlayer_bs_sc = xr.open_dataset(black_spruce_dir+tlayer_sc)
-tlayer_bs_sc = tlayer_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-tlayer_bs_sc = tlayer_bs_sc.variables['TLAYER'][:,:,cell_y_coord, cell_x_coord]
+#tlayer_bs_sc = xr.open_dataset(black_spruce_dir+tlayer_sc)
+#tlayer_bs_sc = tlayer_bs_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#tlayer_bs_sc = tlayer_bs_sc.variables['TLAYER'][:,:,cell_y_coord, cell_x_coord]
 
 #VEGC
 vegc_bs_eq = xr.open_dataset(black_spruce_dir+vegc_eq)
@@ -187,20 +194,20 @@ xr.open_dataset(black_spruce_dir+rh_tr)
 rm_bs_tr_root = rm_bs_tr[:, 2, :].sum(axis=1)
 rm_bs_tr = rm_bs_tr.sum(axis=2).sum(axis=1)
 
-rm_bs_sc_root = rm_bs_sc[:, 2, :].sum(axis=1)
-rm_bs_sc = rm_bs_sc.sum(axis=2).sum(axis=1)
+#rm_bs_sc_root = rm_bs_sc[:, 2, :].sum(axis=1)
+#rm_bs_sc = rm_bs_sc.sum(axis=2).sum(axis=1)
 
 rg_bs_tr_root = rg_bs_tr[:, 2, :].sum(axis=1)
 rg_bs_tr = rg_bs_tr.sum(axis=2).sum(axis=1)
 
-rg_bs_sc_root = rg_bs_sc[:, 2, :].sum(axis=1)
-rg_bs_sc = rg_bs_sc.sum(axis=2).sum(axis=1)
+#rg_bs_sc_root = rg_bs_sc[:, 2, :].sum(axis=1)
+#rg_bs_sc = rg_bs_sc.sum(axis=2).sum(axis=1)
 
 
 rh_bs_tr
 
 
-df_bs_tr = pd.DataFrame({'date': tr_dates, 'GPP': gpp_bs_tr, 'NPP': npp_bs_tr, 'RG': rg_bs_tr, 'RG_root': rg_bs_tr_root, 'RH': rh_bs_tr, 'RM': rm_bs_tr, 'RM_root': rm_bs_tr_root, 'LWC_top': lwclayer_bs_tr[:,1], 'TLAYER_top': tlayer_bs_tr[:,1], 'EET': eet_bs_tr, 'TRANSPIRATION': transpiration_bs_tr, 'LAI': lai_bs_tr_sum})
+df_bs_tr = pd.DataFrame({'date': tr_dates, 'GPP': gpp_bs_tr, 'NPP': npp_bs_tr, 'RG': rg_bs_tr, 'RG_root': rg_bs_tr_root, 'RH': rh_bs_tr, 'RM': rm_bs_tr, 'RM_root': rm_bs_tr_root, 'LWC_top': lwclayer_bs_tr[:,1], 'TLAYER_top': tlayer_bs_tr[:,1], 'EET': eet_bs_tr, 'TRANSPIRATION': transpiration_bs_tr, 'LAI': lai_bs_tr_sum, 'BURN': burn_bs_tr})
 #df_bs_sc = pd.DataFrame({'date': sc_dates, 'GPP': gpp_bs_sc, 'NPP': npp_bs_sc, 'RG': rg_bs_sc, 'RH': rh_bs_sc, 'RM': rm_bs_sc, 'LWC_top': lwclayer_bs_sc, 'TLAYER_top': tlayer_bs_sc})
 df_bs = pd.concat([df_bs_tr])
 df_bs['RECO'] = df_bs['RG'] + df_bs['RM'] + df_bs['RH']
@@ -209,7 +216,8 @@ df_bs['year'] = df_bs['date'].dt.year
 df_bs_yearly = df_bs.groupby(by=['year']).sum()
 
 
-
+cell_y_coord=0
+cell_x_coord=0
 
 
 #GPP
@@ -218,46 +226,51 @@ tr_dates = gpp_br_tr.indexes['time'].to_datetimeindex()
 gpp_br_tr = gpp_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 gpp_br_tr = gpp_br_tr.variables['GPP'][:, cell_y_coord, cell_x_coord]
 
-gpp_br_sc = xr.open_dataset(birch_dir+gpp_sc)
-sc_dates = gpp_br_sc.indexes['time'].to_datetimeindex()
-gpp_br_sc = gpp_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-gpp_br_sc = gpp_br_sc.variables['GPP'][:, cell_y_coord, cell_x_coord]
+#Burn
+burn_br_tr = xr.open_dataset(birch_dir+burnveg_tr)
+burn_br_tr = burn_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
+burn_br_tr = burn_br_tr.variables['BURNVEG2AIRC'][:, cell_y_coord, cell_x_coord]
+
+#gpp_br_sc = xr.open_dataset(birch_dir+gpp_sc)
+#sc_dates = gpp_br_sc.indexes['time'].to_datetimeindex()
+#gpp_br_sc = gpp_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#gpp_br_sc = gpp_br_sc.variables['GPP'][:, cell_y_coord, cell_x_coord]
 
 #NPP
 npp_br_tr = xr.open_dataset(birch_dir+npp_tr)
 npp_br_tr = npp_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 npp_br_tr = npp_br_tr.variables['NPP'][:, cell_y_coord, cell_x_coord]
 
-npp_br_sc = xr.open_dataset(birch_dir+npp_sc)
-npp_br_sc = npp_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-npp_br_sc = npp_br_sc.variables['NPP'][:, cell_y_coord, cell_x_coord]
+#npp_br_sc = xr.open_dataset(birch_dir+npp_sc)
+#npp_br_sc = npp_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#npp_br_sc = npp_br_sc.variables['NPP'][:, cell_y_coord, cell_x_coord]
 
 #ALD
 ald_br_tr = xr.open_dataset(birch_dir+ald_tr)
 ald_br_tr = ald_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 ald_br_tr = ald_br_tr.variables['ALD'][:, cell_y_coord, cell_x_coord]
 
-ald_br_sc = xr.open_dataset(birch_dir+ald_sc)
-ald_br_sc = ald_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-ald_br_sc = ald_br_sc.variables['ALD'][:, cell_y_coord, cell_x_coord]
+#ald_br_sc = xr.open_dataset(birch_dir+ald_sc)
+#ald_br_sc = ald_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#ald_br_sc = ald_br_sc.variables['ALD'][:, cell_y_coord, cell_x_coord]
 
 #RM
 rm_br_tr = xr.open_dataset(birch_dir+rm_tr)
 rm_br_tr = rm_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 rm_br_tr = rm_br_tr.variables['RM'][:, :, :, cell_y_coord, cell_x_coord]
 
-rm_br_sc = xr.open_dataset(birch_dir+rm_sc)
-rm_br_sc = rm_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-rm_br_sc = rm_br_sc.variables['RM'][:, :, :, cell_y_coord, cell_x_coord]
+#rm_br_sc = xr.open_dataset(birch_dir+rm_sc)
+#rm_br_sc = rm_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#rm_br_sc = rm_br_sc.variables['RM'][:, :, :, cell_y_coord, cell_x_coord]
 
 #RG
 rg_br_tr = xr.open_dataset(birch_dir+rg_tr)
 rg_br_tr = rg_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 rg_br_tr = rg_br_tr.variables['RG'][:, :, :, cell_y_coord, cell_x_coord]
 
-rg_br_sc = xr.open_dataset(birch_dir+rg_sc)
-rg_br_sc = rg_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-rg_br_sc = rg_br_sc.variables['RG'][:, :, :, cell_y_coord, cell_x_coord]
+#rg_br_sc = xr.open_dataset(birch_dir+rg_sc)
+#rg_br_sc = rg_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#rg_br_sc = rg_br_sc.variables['RG'][:, :, :, cell_y_coord, cell_x_coord]
 
 #RH
 rh_br_tr_layer = xr.open_dataset(birch_dir+rh_tr)
@@ -265,28 +278,28 @@ rh_br_tr_layer = rh_br_tr_layer.convert_calendar('standard', use_cftime=True, al
 rh_br_tr_layer = rh_br_tr_layer.variables['RH'][:,:,cell_y_coord, cell_x_coord]
 rh_br_tr = rh_br_tr_layer.sum(axis=1)
 
-rh_br_sc_layer = xr.open_dataset(birch_dir+rh_sc)
-rh_br_sc_layer = rh_br_sc_layer.convert_calendar('standard', use_cftime=True, align_on='date')
-rh_br_sc_layer = rh_br_sc_layer.variables['RH'][:,:,cell_y_coord, cell_x_coord]
-rh_br_sc = rh_br_sc_layer.sum(axis=1)
+#rh_br_sc_layer = xr.open_dataset(birch_dir+rh_sc)
+#rh_br_sc_layer = rh_br_sc_layer.convert_calendar('standard', use_cftime=True, align_on='date')
+#rh_br_sc_layer = rh_br_sc_layer.variables['RH'][:,:,cell_y_coord, cell_x_coord]
+#rh_br_sc = rh_br_sc_layer.sum(axis=1)
 
 #LWCLAYER
 lwclayer_br_tr = xr.open_dataset(birch_dir+lwclayer_tr)
 lwclayer_br_tr = lwclayer_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 lwclayer_br_tr = lwclayer_br_tr.variables['LWCLAYER'][:,:,cell_y_coord, cell_x_coord]
 
-lwclayer_br_sc = xr.open_dataset(birch_dir+lwclayer_sc)
-lwclayer_br_sc = lwclayer_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-lwclayer_br_sc = lwclayer_br_sc.variables['LWCLAYER'][:,:,cell_y_coord, cell_x_coord]
+#lwclayer_br_sc = xr.open_dataset(birch_dir+lwclayer_sc)
+#lwclayer_br_sc = lwclayer_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#lwclayer_br_sc = lwclayer_br_sc.variables['LWCLAYER'][:,:,cell_y_coord, cell_x_coord]
 
 #TLAYER
 tlayer_br_tr = xr.open_dataset(birch_dir+tlayer_tr)
 tlayer_br_tr = tlayer_br_tr.convert_calendar('standard', use_cftime=True, align_on='date')
 tlayer_br_tr = tlayer_br_tr.variables['TLAYER'][:,:,cell_y_coord, cell_x_coord]
 
-tlayer_br_sc = xr.open_dataset(birch_dir+tlayer_sc)
-tlayer_br_sc = tlayer_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
-tlayer_br_sc = tlayer_br_sc.variables['TLAYER'][:,:,cell_y_coord, cell_x_coord]
+#tlayer_br_sc = xr.open_dataset(birch_dir+tlayer_sc)
+#tlayer_br_sc = tlayer_br_sc.convert_calendar('standard', use_cftime=True, align_on='date')
+#tlayer_br_sc = tlayer_br_sc.variables['TLAYER'][:,:,cell_y_coord, cell_x_coord]
 
 #VEGC
 vegc_br_eq = xr.open_dataset(birch_dir+vegc_eq)
@@ -334,17 +347,17 @@ deepc_br_eq = deepc_br_eq.loc[(deepc_br_eq['y']==cell_y_coord) & (deepc_br_eq['x
 rm_br_tr_root = rm_br_tr[:, 2, :].sum(axis=1)
 rm_br_tr = rm_br_tr.sum(axis=2).sum(axis=1)
 
-rm_br_sc_root = rm_br_sc[:, 2, :].sum(axis=1)
-rm_br_sc = rm_br_sc.sum(axis=2).sum(axis=1)
+#rm_br_sc_root = rm_br_sc[:, 2, :].sum(axis=1)
+#rm_br_sc = rm_br_sc.sum(axis=2).sum(axis=1)
 
 rg_br_tr_root = rg_br_tr[:, 2, :].sum(axis=1)
 rg_br_tr = rg_br_tr.sum(axis=2).sum(axis=1)
 
-rg_br_sc_root = rg_br_sc[:, 2, :].sum(axis=1)
-rg_br_sc = rg_br_sc.sum(axis=2).sum(axis=1)
+#rg_br_sc_root = rg_br_sc[:, 2, :].sum(axis=1)
+#rg_br_sc = rg_br_sc.sum(axis=2).sum(axis=1)
 
 
-df_br_tr = pd.DataFrame({'date': tr_dates, 'GPP': gpp_br_tr, 'NPP': npp_br_tr, 'RG': rg_br_tr, 'RG_root': rg_br_tr_root, 'RH': rh_br_tr, 'RM': rm_br_tr, 'RM_root': rm_br_tr_root, 'LWC_top': lwclayer_br_tr[:,1], 'TLAYER_top': tlayer_br_tr[:,1], 'EET': eet_br_tr, 'TRANSPIRATION': transpiration_br_tr, 'LAI': lai_br_tr_sum})
+df_br_tr = pd.DataFrame({'date': tr_dates, 'GPP': gpp_br_tr, 'NPP': npp_br_tr, 'RG': rg_br_tr, 'RG_root': rg_br_tr_root, 'RH': rh_br_tr, 'RM': rm_br_tr, 'RM_root': rm_br_tr_root, 'LWC_top': lwclayer_br_tr[:,1], 'TLAYER_top': tlayer_br_tr[:,1], 'EET': eet_br_tr, 'TRANSPIRATION': transpiration_br_tr, 'LAI': lai_br_tr_sum, 'BURN': burn_br_tr})
 #df_br_sc = pd.DataFrame({'date': sc_dates, 'GPP': gpp_br_sc, 'NPP': npp_br_sc, 'RG': rg_br_sc, 'RH': rh_br_sc, 'RM': rm_br_sc, 'LWC_top': lwclayer_br_sc, 'TLAYER_top': tlayer_br_sc})
 df_br = pd.concat([df_br_tr])
 df_br['RECO'] = df_br['RG'] + df_br['RM'] + df_br['RH']
@@ -434,6 +447,27 @@ sns.lineplot(data=vegc_bs_tr.loc[(vegc_bs_tr['pft']==1)], x='time', y='VEGC', hu
 sns.lineplot(data=vegc_bs_tr.loc[vegc_bs_tr['pft']==2], x='time', y='VEGC', hue='pftpart', ax=axes[2], legend=False, palette=palette)
 sns.lineplot(data=vegc_bs_tr.loc[vegc_bs_tr['pft']==3], x='time', y='VEGC', hue='pftpart', ax=axes[3], legend=False, palette=palette)
 sns.lineplot(data=vegc_bs_tr.loc[vegc_bs_tr['pft']==4], x='time', y='VEGC', hue='pftpart', ax=axes[4], legend=False, palette=palette)
+fig.tight_layout()
+
+
+fig, axes = plt.subplots(5,1, figsize=(8,10))
+palette=sns.color_palette(['#336600', '#662200', '#ff9966'])
+sns.lineplot(data=vegc_br_tr.loc[vegc_br_tr['pft']==0], x='time', y='VEGC', hue='pftpart', ax=axes[0], legend=False, palette=palette)
+sns.lineplot(data=vegc_br_tr.loc[(vegc_br_tr['pft']==1)], x='time', y='VEGC', hue='pftpart', ax=axes[1], legend=False, palette=palette)
+sns.lineplot(data=vegc_br_tr.loc[vegc_br_tr['pft']==2], x='time', y='VEGC', hue='pftpart', ax=axes[2], legend=False, palette=palette)
+sns.lineplot(data=vegc_br_tr.loc[vegc_br_tr['pft']==3], x='time', y='VEGC', hue='pftpart', ax=axes[3], legend=False, palette=palette)
+sns.lineplot(data=vegc_br_tr.loc[vegc_br_tr['pft']==4], x='time', y='VEGC', hue='pftpart', ax=axes[4], legend=False, palette=palette)
+fig.tight_layout()
+
+
+fig, axes = plt.subplots(2,1, figsize=(8,10))
+palette=sns.color_palette(['#336600', '#662200', '#ff9966'])
+sns.lineplot(data=df_bs_tr, x='date', y='BURN', ax=axes[0], legend=False, palette=palette)
+sns.lineplot(data=df_br_tr, x='date', y='BURN', ax=axes[1], legend=False, palette=palette)
+
+axes[0].set_ylabel('Burn VegC to Air')
+axes[1].set_ylabel('Burn VegC to Air')
+
 fig.tight_layout()
 
 
@@ -806,6 +840,12 @@ sns.lineplot(data=df_br_yearly[(df_br_yearly.index>2010) & (df_br_yearly.index<2
 a = 'sdaf/adfadsfa/asdfa/fs.tif'
 b = '/'.join(a.split('/')[:-1]) + '/fused_landcover.tif'
 b
+
+
+
+
+
+
 
 
 
