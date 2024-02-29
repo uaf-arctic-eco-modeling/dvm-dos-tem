@@ -771,7 +771,8 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
   }
 
   // see if it is an appropriate time to burn
-  if ( fire.should_ignite(year, midx, stage) ) {
+  //if ( fire.should_ignite(year, midx, stage) ) {
+  if ( fire.should_ignite(year, midx, stage, md) ) {//FW_MOD.
 
     BOOST_LOG_SEV(glg, debug) << "Right before fire.burn(..)  " << ground.layer_report_string();
 

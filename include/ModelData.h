@@ -105,6 +105,20 @@ public:
   bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
 
+  // FW_MOD_START:
+  // Switches to turn fire off (0) or on (1) for each run stage:
+  bool fire_on_PR;
+  bool fire_on_EQ;
+  bool fire_on_SP;
+  bool fire_on_TR;
+  bool fire_on_SC;
+  // Wildfire ignitions modes: [Note: In development.  Numbers will likely change!]
+  // 0: Default/old:  FRI for PR/EQ/SP, explicit for TR/SC.
+  // 1: Use fire return interval for all stages with fire on.
+  // 2; Revised (placeholder only currently)
+  int fire_ignition_mode;
+  // FW_MOD_END.
+
   bool outSiteDay;
 
   bool get_envmodule();
