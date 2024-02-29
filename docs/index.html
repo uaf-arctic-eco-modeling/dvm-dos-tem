@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="#" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
@@ -64,11 +64,14 @@
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
@@ -77,10 +80,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -280,7 +287,7 @@ executable does not have hyphens.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Calibration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="calibration.html#what-is-calibration-for-dvmdostem">7.1. What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="calibration.html#when-to-conduct-a-calibration">7.2. When to conduct a calibration?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="calibration.html#how-to-conduct-a-calibration">7.3. How to conduct a calibration?</a><ul>
@@ -296,7 +303,7 @@ executable does not have hyphens.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="calibration.html#calibration-process">7.4. Calibration Process</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="calibration.html#calibration-process-conceptual">7.4. Calibration Process - Conceptual</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="calibration.html#calibrate-vegetation-parameters-without-n-limitation">7.4.1. Calibrate vegetation parameters <strong>without</strong> N limitation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="calibration.html#calibrate-vegetation-parameters-with-n-limitation">7.4.2. Calibrate vegetation parameters <strong>with</strong> N limitation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="calibration.html#calibrate-soil-parameters">7.4.3. Calibrate soil parameters</a></li>
@@ -413,19 +420,25 @@ executable does not have hyphens.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/make_contribution.html#single-person-topic-branch-and-pull-request-process">6.1. Single person topic branch and pull request process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/make_contribution.html#multi-person-topic-branch-process">6.2. Multi-person topic branch process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html">7. MADS Assisted Calibration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html#sensitivity-analysis-sa">7.1. Sensitivity Analysis (SA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html#mads-assisted-calibration-ca">7.2. MADS Assisted Calibration (CA)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#repository-hosting-organizations">7.1. Repository Hosting, Organizations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#code-browsing">7.2. Code Browsing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#releases">7.3. Releases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#documentation">7.4. Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#pull-requests">7.5. Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#issue-tracker">7.6. Issue tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#tools-we-have-not-used-yet">7.7. Tools we have not used (yet)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">8. Contributing to the Codebase</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/make_contribution.html#single-person-topic-branch-and-pull-request-process">8.1. Single person topic branch and pull request process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/make_contribution.html#multi-person-topic-branch-process">8.2. Multi-person topic branch process</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">9. Using Github’s Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#repository-hosting-organizations">9.1. Repository Hosting, Organizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#code-browsing">9.2. Code Browsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#releases">9.3. Releases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#documentation">9.4. Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#pull-requests">9.5. Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#issue-tracker">9.6. Issue tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/using_github_features.html#tools-we-have-not-used-yet">9.7. Tools we have not used (yet)</a></li>
 </ul>
 </li>
 </ul>
@@ -433,6 +446,11 @@ executable does not have hyphens.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html#positional-arguments">Positional Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html#named-arguments">Named Arguments</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/param.html#named-arguments">Named Arguments</a></li>
 </ul>
@@ -482,10 +500,14 @@ executable does not have hyphens.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 </div>
 </section>

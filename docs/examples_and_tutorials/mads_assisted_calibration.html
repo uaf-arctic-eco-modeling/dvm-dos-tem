@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7. MADS Assisted Calibration &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom_styles.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="8. Contributing to the Codebase" href="make_contribution.html" />
+    <link rel="prev" title="6. Manual Calibration" href="manual_calibration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> dvmdostem
+          </a>
+              <div class="version">
+                v0.7.0-342-gf1c1e5fa
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../model_overview.html">1. Model Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running_dvmdostem.html">2. Running</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../software_development_info.html">3. Dev Info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">8. References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. MADS Assisted Calibration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sensitivity-analysis-sa">7.1. Sensitivity Analysis (SA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mads-assisted-calibration-ca">7.2. MADS Assisted Calibration (CA)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">9. Using Github’s Features</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/param.html">param.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/runmask.html">runmask.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/input.html">input.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/qcal.html">qcal.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/outspec.html">outspec.py</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.metrics">util.metrics</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvmdostem</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">7. </span>MADS Assisted Calibration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples_and_tutorials/mads_assisted_calibration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mads-assisted-calibration">
+<h1><span class="section-number">7. </span>MADS Assisted Calibration<a class="headerlink" href="#mads-assisted-calibration" title="Permalink to this heading"></a></h1>
+<p>This is an new and evolving approach to calibraton. The process described here
+generally follows the conceptual outline described in the <a class="reference internal" href="../calibration.html#calibration-process-conceptual"><span class="std std-ref">Calibration
+Process</span></a> section, but with some
+portions being done iteratively and or in an automated fashion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The MADS Assisted Calibration process has been a group effort led by <a class="reference external" href="https://www.woodwellclimate.org/staff/elchin-jafarov/">Elchin
+Jafarov</a> with contributions and testing from the team at
+<a class="reference external" href="https://www.woodwellclimate.org/">Woodwell Climate Research Center</a> as well as the UAF Arctic
+Ecosystem Modeling group, including:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Tobey Carman</p></li>
+<li><p>Helene Genet</p></li>
+<li><p>Ruth Rutter</p></li>
+<li><p>Aiza Kabeer</p></li>
+<li><p>Andrew Mullen</p></li>
+<li><p>Ben Maglio</p></li>
+<li><p>Joy Clein</p></li>
+<li><p>Valeria Briones</p></li>
+<li><p>Eugenie Euskirchen</p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>The description in the <a class="reference internal" href="../calibration.html#calibration-process-conceptual"><span class="std std-ref">Calibration Process</span></a> section is a guideline from the most susccessful of the
+manual calibration efforts. The new part of the approach presented here involves
+using the following flow diagram to carry out each step of the process.</p>
+<!-- From shared drawing: Documentation Embed Images "SA-CA-workflow"-->
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vS-qINFX6KDS8nkX8JtXav_5LKSsg4tX27zP3uNxlChEPRQn9nHALp1tnZbFXiV3NHk_xw_qtjvuObF/pub?w=1852&amp;h=1200">
+
+<figcaption>Fig 1. Overview of Sensitivty and Calibration workflow.</figcaption><p>There are two distinct parts of the workflow: the Sensitivity Analysis (SA;
+orange boxes, left side) and the MADS Assist (MADS; blue boxes, right side). In
+many cases it is reccomened to use Sensitivity Analysis before MADS to better
+constrain the search space. Conducting a full calibration of a new site will
+involve going through this flow chart many times with different config files
+and settings that increase the ecosystem complexity - following the steps in
+<a class="reference internal" href="../calibration.html#calibration-process-conceptual"><span class="std std-ref">Calibration Process</span></a>.</p>
+<section id="sensitivity-analysis-sa">
+<h2><span class="section-number">7.1. </span>Sensitivity Analysis (SA)<a class="headerlink" href="#sensitivity-analysis-sa" title="Permalink to this heading"></a></h2>
+<!-- From shared drawing: Documentation Emebd images "SA-workflow-annotated"-->
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vSTCt5ajys-SvFIz8Kqkgx2O-cN28rN3UwozPBJ32v4yID5RnyZyj1y1kYwwwntkKI1sz36jiLL52N1/pub?w=1257&amp;h=798">
+
+<figcaption>
+  Fig 2. Sensitivty Analysis detail. Smiley face icon indicates that user
+  interaction or input is required.
+</figcaption><p>The first part of the SA is to setup your config file. The config file is where
+you will choose which parameters to run the analysis for and which targets
+(outputs) you will need for comparison. Additionally in the config file you will
+specify the PFTs that will be used for each of the PFT specific parameters (and
+targets).</p>
+<p>There are other settings available to you as well concerning the number of years
+to run each stages , the site to run, and the working directory to you would like
+the runs to take place in.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We are working on defining a reccomended directory structure for organizing
+your work.</p>
+</div>
+<p>Once you have adjusted the config file to your liking, then next step is using
+the <code class="docutils literal notranslate"><span class="pre">SA_setup_and_run.py</span></code> tool. There are several command line options with
+this script allowing you to control the number of samples and the sampling
+method used to generate the parameter samples.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">SA_setup_and_run.py</span></code> tool has completed, you will have the following
+files:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>sample_matrix.csv</p></li>
+<li><p>targets.csv</p></li>
+<li><p>param_props.csv</p></li>
+<li><p>results.csv</p></li>
+</ul>
+</div></blockquote>
+<p>With the above files in hand the user can conduct an equlibrium check and any
+other pos hoc analysis using the <code class="docutils literal notranslate"><span class="pre">SA_post_hoc_analysis.py</span></code> tool. The tool
+provides a number of plotting functions that will help the user assess whether
+or not the modeled output is within acceptable range of the targets.</p>
+<p>See <a class="reference internal" href="../scripts_API.html#module-SA_post_hoc_analysis"><span class="std std-ref">here</span></a> for examples.</p>
+</section>
+<section id="mads-assisted-calibration-ca">
+<h2><span class="section-number">7.2. </span>MADS Assisted Calibration (CA)<a class="headerlink" href="#mads-assisted-calibration-ca" title="Permalink to this heading"></a></h2>
+<p>Once you have completed the SA portion, you can move on to the CA (calibration)
+portion of the workflow. In this step you use a minimization algrorithm to find
+an optimal set of parameters such that the discrepancy between model outputs and
+target (observed) values is minimized.</p>
+<p>The actual minimization alrorightm is provided by the <a class="reference external" href="https://www.madsjulia.github.io">Mads Library</a>.</p>
+<p>Simiar to the SA part of the workflow you will provide your settings in a config
+file and then feed that file to a script that will carry out the optimization.
+At the end you will have an optimal set of parameters as well as some metadata
+about the optimizaiton process that you can use to reason about the quality of
+the optimization.</p>
+<!-- From shared drawing: Documentation Embed images "CA-workflow-annotated"-->
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vRoEgpbmkV89HfoX7-MaTQmQBPcQFvWVMGWQUbG7mK2JrioFBVRMyEyekE8LGG7NoHaO2X9_cVMayM4/pub?w=1252&amp;h=796">
+
+<figcaption>
+  Fig 3. Mads Calibration detail. Smiley face icon indicates that user
+  interaction or input is required.
+</figcaption></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="manual_calibration.html" class="btn btn-neutral float-left" title="6. Manual Calibration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="make_contribution.html" class="btn btn-neutral float-right" title="8. Contributing to the Codebase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

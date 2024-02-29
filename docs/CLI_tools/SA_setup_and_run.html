@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>runmask.py &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
+  <title>SA_setup_and_run.py &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="input.py" href="input.html" />
-    <link rel="prev" title="param.py" href="param.html" /> 
+    <link rel="next" title="param.py" href="param.html" />
+    <link rel="prev" title="9. Using Github’s Features" href="../examples_and_tutorials/using_github_features.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -72,13 +72,13 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="param.html">param.py</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">runmask.py</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SA_setup_and_run.py</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="param.html">param.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="input.html">input.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="qcal.html">qcal.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="outspec.html">outspec.py</a></li>
@@ -109,9 +109,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">runmask.py</li>
+      <li class="breadcrumb-item active">SA_setup_and_run.py</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/CLI_tools/runmask.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/CLI_tools/SA_setup_and_run.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -119,70 +119,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="runmask-py">
-<h1>runmask.py<a class="headerlink" href="#runmask-py" title="Permalink to this heading"></a></h1>
-<p><p>Helper script for modifying a dvm-dos-tem runmask netcdf file.</p>
+  <section id="sa-setup-and-run-py">
+<h1>SA_setup_and_run.py<a class="headerlink" href="#sa-setup-and-run-py" title="Permalink to this heading"></a></h1>
+<p><p>This script runs a special Sensitivity Analysis that is used as
+as the initial part of a the calibration process. This is the left 
+(orange) half of the diagram in the MADS Assisted Calibration section.</p>
+<p>The general idea is that the user provides a config file (yaml) with a 
+bunch of settings. This script and the Sensitivity driver class then 
+use those settings to draw a bunch of sample parameter values and then 
+setup one run folder for each set of parameter samples. The model is run
+in each sample folder and at the end the results are collected 
+summarized into a tabular format that can be further analyzed.</p>
+<p>Most of the settings should be set in the config file, but some of them
+can be overridden with command line arguments to this script.</p>
 </p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">runmask</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reset</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">on</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span><span class="o">-</span><span class="n">off</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">show</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">inputs</span> <span class="n">FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
-                  <span class="p">[</span><span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
-                  <span class="p">[</span><span class="n">FILE</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">SA_setup_and_run</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span><span class="p">]</span> <span class="n">configfile</span>
 </pre></div>
 </div>
 <section id="positional-arguments">
 <h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
 <dl class="option-list">
-<dt><kbd>FILE</kbd></dt>
-<dd><p>The runmask.nc file to operate on.</p>
+<dt><kbd>configfile</kbd></dt>
+<dd><p>The config file to use.</p>
 </dd>
 </dl>
 </section>
 <section id="named-arguments">
 <h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
 <dl class="option-list">
-<dt><kbd>--verbose</kbd></dt>
-<dd><p>Print info to stdout when script runs.</p>
-<p>Default: False</p>
-</dd>
-<dt><kbd>--reset</kbd></dt>
-<dd><p>Set all pixels to zero (don’t run).</p>
-<p>Default: False</p>
-</dd>
-<dt><kbd>--all-on</kbd></dt>
-<dd><p>Set all pixels to 1 (run). Inverse of –reset.</p>
-<p>Default: False</p>
-</dd>
-<dt><kbd>--yx</kbd></dt>
-<dd><p>The y, x  (row, col) position of the pixel to turn on.</p>
-</dd>
-<dt><kbd>--yx-off</kbd></dt>
-<dd><p>The y, x  (row, col) position of the pixel to turn OFF.</p>
-</dd>
-<dt><kbd>--show</kbd></dt>
-<dd><p>Print the mask after modification.</p>
-<p>Default: False</p>
-</dd>
-<dt><kbd>--conform-mask-to-inputs</kbd></dt>
+<dt><kbd>--dry-run</kbd></dt>
 <dd><dl class="simple">
-<dt>Operate on the run-mask and conform it to all the</dt><dd><p>input files in FOLDER. Makes sure that the run-mask will disable
-any pixel (set to 0) where any of the input files contain bad or
-missing data. NOTE!!: modifies run-mask.nc found in FOLDER, and
-ignores the files specified ‘FILE’ argument!</p>
+<dt>If passed, only do the setup, don’t actually</dt><dd><p>launch the runs. The setup can still take some time as the parameter
+sampling scheme can be computationally intensive. Additionally, the
+the actual creation of all the sample run folders is not particularly
+effecient.</p>
 </dd>
 </dl>
+<p>Default: False</p>
 </dd>
-<dt><kbd>--select-only-cmt</kbd></dt>
-<dd><dl class="simple">
-<dt>Select only pixels with a certain CMT number. This</dt><dd><p>will honor any pixels that are alreay masked in the run-mask. As such,
-you should probably conform the mask to the inputs before running the
-script again with this option to select only certain CMTs.</p>
-</dd>
-</dl>
-</dd>
-<dt><kbd>--mask-out-cmt</kbd></dt>
-<dd><dl class="simple">
-<dt>Mask out pixels with a certain CMT. This will</dt><dd><p>maintain any pixels already masked.</p>
-</dd>
-</dl>
+<dt><kbd>-f, --force</kbd></dt>
+<dd><p>Clean the working directory without warning.</p>
+<p>Default: False</p>
 </dd>
 </dl>
 </section>
@@ -192,8 +169,8 @@ script again with this option to select only certain CMTs.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="param.html" class="btn btn-neutral float-left" title="param.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="input.html" class="btn btn-neutral float-right" title="input.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../examples_and_tutorials/using_github_features.html" class="btn btn-neutral float-left" title="9. Using Github’s Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="param.html" class="btn btn-neutral float-right" title="param.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

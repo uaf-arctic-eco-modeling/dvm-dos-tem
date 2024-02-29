@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7. Manual Calibration &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>7. Calibration &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -56,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Manual Calibration</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Calibration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-calibration-for-dvmdostem">7.1. What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#when-to-conduct-a-calibration">7.2. When to conduct a calibration?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-conduct-a-calibration">7.3. How to conduct a calibration?</a><ul>
@@ -72,7 +72,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#calibration-process">7.4. Calibration Process</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#calibration-process-conceptual">7.4. Calibration Process - Conceptual</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-without-n-limitation">7.4.1. Calibrate vegetation parameters <strong>without</strong> N limitation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#calibrate-vegetation-parameters-with-n-limitation">7.4.2. Calibrate vegetation parameters <strong>with</strong> N limitation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#calibrate-soil-parameters">7.4.3. Calibrate soil parameters</a></li>
@@ -90,11 +90,14 @@
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
@@ -103,10 +106,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -123,7 +130,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active"><span class="section-number">7. </span>Manual Calibration</li>
+      <li class="breadcrumb-item active"><span class="section-number">7. </span>Calibration</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/calibration.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -133,8 +140,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="manual-calibration">
-<h1><span class="section-number">7. </span>Manual Calibration<a class="headerlink" href="#manual-calibration" title="Permalink to this heading"></a></h1>
+  <section id="calibration">
+<h1><span class="section-number">7. </span>Calibration<a class="headerlink" href="#calibration" title="Permalink to this heading"></a></h1>
 <section id="what-is-calibration-for-dvmdostem">
 <h2><span class="section-number">7.1. </span>What is calibration for <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>?<a class="headerlink" href="#what-is-calibration-for-dvmdostem" title="Permalink to this heading"></a></h2>
 <blockquote>
@@ -314,8 +321,15 @@ is. Therefore:</p>
 </section>
 </section>
 </section>
-<section id="calibration-process">
-<h2><span class="section-number">7.4. </span>Calibration Process<a class="headerlink" href="#calibration-process" title="Permalink to this heading"></a></h2>
+<section id="calibration-process-conceptual">
+<h2><span class="section-number">7.4. </span>Calibration Process - Conceptual<a class="headerlink" href="#calibration-process-conceptual" title="Permalink to this heading"></a></h2>
+<p>This is a general descrpiption of the modeling steps that have been most
+successfully used for finding optimal parameter sets (calibration in other
+words). For technical specifics of using various software tools to carry out
+the process see the examples for
+<a class="reference internal" href="examples_and_tutorials/manual_calibration.html#manual-calibration"><span class="std std-ref">manual calibration</span></a>
+and
+<a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html#mads-assisted-calibration"><span class="std std-ref">MADS assisted calibration</span></a>.</p>
 <p>Calibration is done in equilibrium simulation and in calibration mode. Because
 biogeochemical turn-overs in the vegetation are faster than in the soil,
 vegetation-related variables reach equilibrium sooner than soil-related

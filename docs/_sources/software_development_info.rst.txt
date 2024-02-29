@@ -98,18 +98,6 @@ To build the Sphinx documentation (this document) locally, then do the following
     $ cd docs_src/sphinx
     $ make clean && make html
 
-.. warning::
-
-    Note that we need to set the ``PYTHONPATH`` in order for the ``qcal.py`` to
-    be imported and documented during this build process. Not sure the best way
-    /place to set this yet, so showing an example here:
-
-    .. code:: shell
-
-      $ make clean
-      $ PYTHONPATH="/work:/work/calibration:$PYTHONPATH" make html
-
-
 The resulting files are in the ``docs_src/sphinx/build/html`` directory and can
 be viewed locally with a web browser.
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>Index &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -34,7 +34,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -52,7 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
@@ -62,11 +62,14 @@
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
@@ -75,10 +78,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -119,6 +126,8 @@
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -141,6 +150,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.input.BadInputFilesValueError">BadInputFilesValueError</a>
 </li>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver">BaseDriver (class in drivers.BaseDriver)</a>
+</li>
       <li><a href="scripts_API.html#util.output.boxplot_by_pft">boxplot_by_pft() (in module util.output)</a>
 </li>
   </ul></td>
@@ -157,10 +168,22 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.calc_combined_score">calc_combined_score() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.calc_correlation">calc_correlation() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.calc_metrics">calc_metrics() (in module SA_post_hoc_analysis)</a>
+</li>
       <li><a href="scripts_API.html#util.output.check_files">check_files() (in module util.output)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.clean">clean() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver.clean">clean() (drivers.BaseDriver.BaseDriver method)</a>
+
+      <ul>
+        <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.clean">(drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
+        <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.clean">(drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      </ul></li>
       <li><a href="scripts_API.html#util.input.climate_gap_count_plot">climate_gap_count_plot() (in module util.input)</a>
 </li>
       <li><a href="scripts_API.html#util.input.climate_ts_plot">climate_ts_plot() (in module util.input)</a>
@@ -175,17 +198,17 @@
 </li>
       <li><a href="scripts_API.html#util.param.cmtdatablock2dict">cmtdatablock2dict() (in module util.param)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.cmtnum">cmtnum() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.collate_results">collate_results() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.param.comment_splitter">comment_splitter() (in module util.param)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.param.compare_CMTs">compare_CMTs() (in module util.param)</a>
 </li>
       <li><a href="scripts_API.html#util.param.converter">converter() (in module util.param)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.core_setup">core_setup() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.core_setup">core_setup() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.input.crop_attr_string">crop_attr_string() (in module util.input)</a>
 </li>
@@ -217,12 +240,28 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.design_experiment">design_experiment() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.BaseDriver.deduce_target_type">deduce_target_type() (in module drivers.BaseDriver)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.design_experiment">design_experiment() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.param.detect_block_with_pft_info">detect_block_with_pft_info() (in module util.param)</a>
 </li>
+      <li>
+    drivers.BaseDriver
+
+      <ul>
+        <li><a href="scripts_API.html#module-drivers.BaseDriver">module</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    drivers.MadsTEMDriver
+
+      <ul>
+        <li><a href="scripts_API.html#module-drivers.MadsTEMDriver">module</a>
+</li>
+      </ul></li>
       <li>
     drivers.Sensitivity
 
@@ -238,11 +277,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.param.enforce_initvegc_split">enforce_initvegc_split() (in module util.param)</a>
 </li>
+      <li><a href="scripts_API.html#util.metrics.eq_quality">eq_quality() (in module util.metrics)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.param.error_exit">error_exit() (in module util.param)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis">extract_data_for_sensitivity_analysis() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.extract_data_for_sensitivity_analysis">extract_data_for_sensitivity_analysis() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -252,14 +293,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.param.find_cmt_start_idx">find_cmt_start_idx() (in module util.param)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis">first_steps_sensitivity_analysis() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.first_steps_sensitivity_analysis">first_steps_sensitivity_analysis() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.param.format_CMTdatadict">format_CMTdatadict() (in module util.param)</a>
 </li>
       <li><a href="scripts_API.html#util.param.format_section_csv_v0">format_section_csv_v0() (in module util.param)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver.fromfilename">fromfilename() (drivers.BaseDriver.BaseDriver class method)</a>
+
+      <ul>
+        <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.fromfilename">(drivers.MadsTEMDriver.MadsTEMDriver class method)</a>
+</li>
+        <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.fromfilename">(drivers.Sensitivity.Sensitivity class method)</a>
+</li>
+      </ul></li>
       <li><a href="scripts_API.html#util.param.fwt2csv_v1">fwt2csv_v1() (in module util.param)</a>
 </li>
   </ul></td>
@@ -268,6 +317,10 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.gather_model_outputs">gather_model_outputs() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.generate_ca_config">generate_ca_config() (in module SA_post_hoc_analysis)</a>
+</li>
       <li><a href="scripts_API.html#drivers.Sensitivity.generate_lhc">generate_lhc() (in module drivers.Sensitivity)</a>
 </li>
       <li><a href="scripts_API.html#util.param.generate_reference_order">generate_reference_order() (in module util.param)</a>
@@ -278,19 +331,21 @@
 </li>
       <li><a href="scripts_API.html#util.param.get_CMT_datablock">get_CMT_datablock() (in module util.param)</a>
 </li>
-      <li><a href="scripts_API.html#util.param.get_CMTs_in_file">get_CMTs_in_file() (in module util.param)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#util.param.get_CMTs_in_file">get_CMTs_in_file() (in module util.param)</a>
+</li>
       <li><a href="scripts_API.html#util.param.get_datablock_pftkeys">get_datablock_pftkeys() (in module util.param)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.get_initial_params_dir">get_initial_params_dir() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.get_initial_params_dir">get_initial_params_dir() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.output.get_last_n_eq">get_last_n_eq() (in module util.output)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.get_sensitivity_csvs">get_sensitivity_csvs() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.get_sensitivity_csvs">get_sensitivity_csvs() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.output.get_start_end">get_start_end() (in module util.output)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.BaseDriver.get_target_ncname">get_target_ncname() (in module drivers.BaseDriver)</a>
 </li>
       <li><a href="scripts_API.html#util.param.ParamUtilSpeedHelper.get_value">get_value() (util.param.ParamUtilSpeedHelper method)</a>
 </li>
@@ -300,7 +355,7 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.info">info() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.info">info() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.param.is_CMT_divider_line">is_CMT_divider_line() (in module util.param)</a>
 </li>
@@ -328,10 +383,22 @@
 </li>
       <li><a href="scripts_API.html#util.param.ParamUtilSpeedHelper.list_params">list_params() (util.param.ParamUtilSpeedHelper method)</a>
 </li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.load">load() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.load_experiment">load_experiment() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.load_observations">load_observations() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.load_experiment">load_experiment() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver.load_target_data">load_target_data() (drivers.BaseDriver.BaseDriver method)</a>
+
+      <ul>
+        <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.load_target_data">(drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
+        <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.load_target_data">(drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      </ul></li>
       <li><a href="scripts_API.html#util.output.load_trsc_dataframe">load_trsc_dataframe() (in module util.output)</a>
 </li>
       <li><a href="scripts_API.html#drivers.Sensitivity.log_wrapper">log_wrapper() (in module drivers.Sensitivity)</a>
@@ -342,7 +409,11 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.make_cool_plot_2">make_cool_plot_2() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver">MadsTEMDriver (class in drivers.MadsTEMDriver)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.make_col_name">make_col_name() (in module drivers.Sensitivity)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.make_cool_plot_2">make_cool_plot_2() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.output.mask_by_cmt">mask_by_cmt() (in module util.output)</a>
 </li>
@@ -352,22 +423,48 @@
 </li>
       <li><a href="scripts_API.html#util.input.mkdir_p">mkdir_p() (in module util.input)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.modeled_vec">modeled_vec() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
       <li>
     module
 
       <ul>
+        <li><a href="scripts_API.html#module-drivers.BaseDriver">drivers.BaseDriver</a>
+</li>
+        <li><a href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a>
+</li>
         <li><a href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a>
 </li>
+        <li><a href="scripts_API.html#module-SA_post_hoc_analysis">SA_post_hoc_analysis</a>
+</li>
         <li><a href="scripts_API.html#module-util.input">util.input</a>
+</li>
+        <li><a href="scripts_API.html#module-util.metrics">util.metrics</a>
 </li>
         <li><a href="scripts_API.html#module-util.output">util.output</a>
 </li>
         <li><a href="scripts_API.html#module-util.param">util.param</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.input.MustSupplyPixelCoordsError">MustSupplyPixelCoordsError</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.n_top_runs">n_top_runs() (in module SA_post_hoc_analysis)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.observed_vec">observed_vec() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -377,25 +474,53 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#drivers.Sensitivity.params_from_seed">params_from_seed() (in module drivers.Sensitivity)</a>
 </li>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.params_vec">params_vec() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
       <li><a href="scripts_API.html#util.param.ParamUtilSpeedHelper">ParamUtilSpeedHelper (class in util.param)</a>
 </li>
       <li><a href="scripts_API.html#util.param.parse_header_line">parse_header_line() (in module util.param)</a>
 </li>
       <li><a href="scripts_API.html#util.output.plot_basic_timeseries">plot_basic_timeseries() (in module util.output)</a>
 </li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_boxplot">plot_boxplot() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_corr_heatmap">plot_corr_heatmap() (in module SA_post_hoc_analysis)</a>
+</li>
       <li><a href="scripts_API.html#util.output.plot_fronts">plot_fronts() (in module util.output)</a>
 </li>
       <li><a href="scripts_API.html#util.output.plot_inputs">plot_inputs() (in module util.output)</a>
 </li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_match">plot_match() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_nitrogen_check">plot_nitrogen_check() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#util.metrics.plot_optimization_fit">plot_optimization_fit() (in module util.metrics)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_output_scatter">plot_output_scatter() (in module SA_post_hoc_analysis)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.plot_sensitivity_matrix">plot_sensitivity_matrix() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_pft_matrix">plot_pft_matrix() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_r2_rmse">plot_r2_rmse() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_relationships">plot_relationships() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.plot_sensitivity_matrix">plot_sensitivity_matrix() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
       <li><a href="scripts_API.html#util.output.plot_soil_layers">plot_soil_layers() (in module util.output)</a>
 </li>
       <li><a href="scripts_API.html#util.output.plot_soil_layers2">plot_soil_layers2() (in module util.output)</a>
 </li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.plot_spaghetti">plot_spaghetti() (in module SA_post_hoc_analysis)</a>
+</li>
       <li><a href="scripts_API.html#util.output.plot_spatial_summary_timeseries">plot_spatial_summary_timeseries() (in module util.output)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.post_hoc_build_all">post_hoc_build_all() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.prep_mads_distributions">prep_mads_distributions() (in module SA_post_hoc_analysis)</a>
+</li>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.prep_mads_initial_guess">prep_mads_initial_guess() (in module SA_post_hoc_analysis)</a>
 </li>
       <li><a href="scripts_API.html#util.output.print_soil_table">print_soil_table() (in module util.output)</a>
 </li>
@@ -407,15 +532,21 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#SA_post_hoc_analysis.read_mads_iterationresults">read_mads_iterationresults() (in module SA_post_hoc_analysis)</a>
+</li>
       <li><a href="scripts_API.html#util.param.read_paramfile">read_paramfile() (in module util.param)</a>
 </li>
       <li><a href="scripts_API.html#util.param.replace_CMT_data">replace_CMT_data() (in module util.param)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.run_all_samples">run_all_samples() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.run">run() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.run_model">run_model() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.run_all_samples">run_all_samples() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.run_model">run_model() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.run_wrapper">run_wrapper() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -423,18 +554,55 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.save_experiment">save_experiment() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li>
+    SA_post_hoc_analysis
+
+      <ul>
+        <li><a href="scripts_API.html#module-SA_post_hoc_analysis">module</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver">SensitivityDriver (class in drivers.Sensitivity)</a>
+      </ul></li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.save_experiment">save_experiment() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.set_work_dir">set_work_dir() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity">Sensitivity (class in drivers.Sensitivity)</a>
 </li>
-      <li><a href="scripts_API.html#drivers.Sensitivity.SensitivityDriver.setup_multi">setup_multi() (drivers.Sensitivity.SensitivityDriver method)</a>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.set_params_from_seed">set_params_from_seed() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver.set_seed_path">set_seed_path() (drivers.BaseDriver.BaseDriver method)</a>
+
+      <ul>
+        <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.set_seed_path">(drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
+        <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.set_seed_path">(drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      </ul></li>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver.set_work_dir">set_work_dir() (drivers.BaseDriver.BaseDriver method)</a>
+
+      <ul>
+        <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.set_work_dir">(drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
+        <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.set_work_dir">(drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      </ul></li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.setup_multi">setup_multi() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.BaseDriver.BaseDriver.setup_outputs">setup_outputs() (drivers.BaseDriver.BaseDriver method)</a>
+
+      <ul>
+        <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.setup_outputs">(drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
+        <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.setup_outputs">(drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.setup_run_dir">setup_run_dir() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
       <li><a href="scripts_API.html#util.param.smart_format">smart_format() (in module util.param)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.ssrf_summary2csv">ssrf_summary2csv() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.ssrf_targets2csv">ssrf_targets2csv() (drivers.Sensitivity.Sensitivity method)</a>
+</li>
       <li><a href="scripts_API.html#util.param.standardize_pftnames">standardize_pftnames() (in module util.param)</a>
 </li>
       <li><a href="scripts_API.html#util.output.stitch_stages">stitch_stages() (in module util.output)</a>
@@ -446,6 +614,8 @@
       <li><a href="scripts_API.html#util.output.sum_across_pfts">sum_across_pfts() (in module util.output)</a>
 </li>
       <li><a href="scripts_API.html#util.output.sum_monthly_flux_to_yearly">sum_monthly_flux_to_yearly() (in module util.output)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.Sensitivity.Sensitivity.summarize_ssrf">summarize_ssrf() (drivers.Sensitivity.Sensitivity method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -463,11 +633,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.param.update_inplace">update_inplace() (in module util.param)</a>
 </li>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.update_params">update_params() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
+</li>
       <li>
     util.input
 
       <ul>
         <li><a href="scripts_API.html#module-util.input">module</a>
+</li>
+      </ul></li>
+      <li>
+    util.metrics
+
+      <ul>
+        <li><a href="scripts_API.html#module-util.metrics">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -505,6 +684,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="scripts_API.html#util.output.workhorse_spatial_summary_plot">workhorse_spatial_summary_plot() (in module util.output)</a>
+</li>
+      <li><a href="scripts_API.html#drivers.MadsTEMDriver.MadsTEMDriver.write_params2rundir">write_params2rundir() (drivers.MadsTEMDriver.MadsTEMDriver method)</a>
 </li>
   </ul></td>
 </tr></table>

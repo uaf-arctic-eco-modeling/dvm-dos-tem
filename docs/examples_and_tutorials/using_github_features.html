@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7. Using Github’s Features &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>9. Using Github’s Features &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="param.py" href="../CLI_tools/param.html" />
-    <link rel="prev" title="6. Contributing to the Codebase" href="make_contribution.html" /> 
+    <link rel="next" title="SA_setup_and_run.py" href="../CLI_tools/SA_setup_and_run.html" />
+    <link rel="prev" title="8. Contributing to the Codebase" href="make_contribution.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
@@ -65,20 +65,23 @@
 <li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Using Github’s Features</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#repository-hosting-organizations">7.1. Repository Hosting, Organizations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#code-browsing">7.2. Code Browsing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#releases">7.3. Releases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#documentation">7.4. Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pull-requests">7.5. Pull requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#issue-tracker">7.6. Issue tracker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tools-we-have-not-used-yet">7.7. Tools we have not used (yet)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">9. Using Github’s Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#repository-hosting-organizations">9.1. Repository Hosting, Organizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#code-browsing">9.2. Code Browsing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#releases">9.3. Releases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">9.4. Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pull-requests">9.5. Pull requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#issue-tracker">9.6. Issue tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tools-we-have-not-used-yet">9.7. Tools we have not used (yet)</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/input.html">input.py</a></li>
@@ -87,10 +90,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -107,7 +114,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active"><span class="section-number">7. </span>Using Github’s Features</li>
+      <li class="breadcrumb-item active"><span class="section-number">9. </span>Using Github’s Features</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/examples_and_tutorials/using_github_features.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -118,7 +125,7 @@
            <div itemprop="articleBody">
              
   <section id="using-github-s-features">
-<h1><span class="section-number">7. </span>Using Github’s Features<a class="headerlink" href="#using-github-s-features" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">9. </span>Using Github’s Features<a class="headerlink" href="#using-github-s-features" title="Permalink to this heading"></a></h1>
 <p>Github has grown into a multi-featured platform with offerings for many aspects
 of the software development process. This mini guide will describe some of the
 features that the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project is using.</p>
@@ -129,7 +136,7 @@ features that the <code class="docutils literal notranslate"><span class="pre">d
 look different from any images shown here.</p>
 </div>
 <section id="repository-hosting-organizations">
-<h2><span class="section-number">7.1. </span>Repository Hosting, Organizations<a class="headerlink" href="#repository-hosting-organizations" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.1. </span>Repository Hosting, Organizations<a class="headerlink" href="#repository-hosting-organizations" title="Permalink to this heading"></a></h2>
 <p>Code hosting was the original core offering from Github. They store a Git repo
 in the cloud and manage access to it. Most of the other tools are built around
 this core service. One of the tools is the ability to create organizations, or
@@ -141,7 +148,7 @@ Alaska Fairbanks that has been driving the primary TEM development for the last
 10 years or so.</p>
 </section>
 <section id="code-browsing">
-<h2><span class="section-number">7.2. </span>Code Browsing<a class="headerlink" href="#code-browsing" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.2. </span>Code Browsing<a class="headerlink" href="#code-browsing" title="Permalink to this heading"></a></h2>
 <p>The website is very convenient for browsing the code in its current form and at
 other points in the history of the project.  Notice that the landing page
 usually shows you the list of files in the project as well as a way to switch
@@ -153,7 +160,7 @@ general location (such as a branch) or a specific commit. Pay attention to this
 if you are trying to direct someone to a particlar place in the code/history.</p>
 </section>
 <section id="releases">
-<h2><span class="section-number">7.3. </span>Releases<a class="headerlink" href="#releases" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.3. </span>Releases<a class="headerlink" href="#releases" title="Permalink to this heading"></a></h2>
 <p>We are using Github’s “Releases” feature primarily to facilitate DOI creation
 and make it easier to cite the project. This works through a webhook that sends
 a notification to <a class="reference external" href="https://zenodo.org">https://zenodo.org</a> which is an organization that can mint DOI
@@ -178,7 +185,7 @@ version control and you won’t have access to any of the other project history
 </div>
 </section>
 <section id="documentation">
-<h2><span class="section-number">7.4. </span>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.4. </span>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading"></a></h2>
 <p>Github has several major features that the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project is using to
 help with documentation:</p>
 <blockquote>
@@ -213,7 +220,7 @@ handles the hosting and serving of these files as well as the domain name
 resolution, making the files publicly viewable.</p>
 </section>
 <section id="pull-requests">
-<h2><span class="section-number">7.5. </span>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.5. </span>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading"></a></h2>
 <p>We are using the “Pull Request” (PR) feature as a way to manage and organize the
 addition or modification of the project’s code. From <a class="reference external" href="https://docs.github.com/en/get-started/quickstart/github-glossary#pull-request">Github</a>
 :</p>
@@ -251,7 +258,7 @@ provides a level of organization that allows users to easily see and trust what
 code is included in the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch.</p>
 </section>
 <section id="issue-tracker">
-<h2><span class="section-number">7.6. </span>Issue tracker<a class="headerlink" href="#issue-tracker" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.6. </span>Issue tracker<a class="headerlink" href="#issue-tracker" title="Permalink to this heading"></a></h2>
 <p>Github also provides an Issue Tracker (bug tracker) database. This database
 allows adding a variety of flags or labels to each issue and conveniently links
 to the Pull Request list.</p>
@@ -277,7 +284,7 @@ with as many details (images, code, discussions of setup, etc) as necessary for
 other folks to be able to understand the context.</p>
 </section>
 <section id="tools-we-have-not-used-yet">
-<h2><span class="section-number">7.7. </span>Tools we have not used (yet)<a class="headerlink" href="#tools-we-have-not-used-yet" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">9.7. </span>Tools we have not used (yet)<a class="headerlink" href="#tools-we-have-not-used-yet" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>“Discussions”
 * we’ve been using slack</p></li>
@@ -292,8 +299,8 @@ other folks to be able to understand the context.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="make_contribution.html" class="btn btn-neutral float-left" title="6. Contributing to the Codebase" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../CLI_tools/param.html" class="btn btn-neutral float-right" title="param.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="make_contribution.html" class="btn btn-neutral float-left" title="8. Contributing to the Codebase" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../CLI_tools/SA_setup_and_run.html" class="btn btn-neutral float-right" title="SA_setup_and_run.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

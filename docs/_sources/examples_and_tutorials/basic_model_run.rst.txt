@@ -404,13 +404,18 @@ To launch the containers, use the following command:
   $ docker compose up -d
 
 You should get something like the following, and then running ``$ docker ps``
-you should see that two of the containers are running. For our use case, we do
+you should see that some of the containers are running. For our use case, we do
 not need the ``cpp-dev`` or the ``dvmdostem-build`` containers to keep running.
 They exit immediately, and that is OK.
 
 .. image:: ../images/examples_and_tutorials/basic_model_run/docker_containers.png
    :width: 600
    :alt: docker containers
+
+Note that ``docker compse up`` with no additional arugments will start all the
+containers specified in the compose file. If you wish you can bring up specific
+services by naming them on the command line, i.e. ``docker compose up -d
+dvmdostem-autocal``, which will start only the auto-calibration service.
 
 With a running container, the most basic thing you can do is log in and poke
 around. Try this now by running:

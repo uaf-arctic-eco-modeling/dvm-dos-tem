@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
@@ -85,11 +85,14 @@
 <li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">7. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/input.html">input.py</a></li>
@@ -98,10 +101,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -478,10 +485,14 @@ variable to this location.</p>
 </pre></div>
 </div>
 <p>You should get something like the following, and then running <code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">docker</span> <span class="pre">ps</span></code>
-you should see that two of the containers are running. For our use case, we do
+you should see that some of the containers are running. For our use case, we do
 not need the <code class="docutils literal notranslate"><span class="pre">cpp-dev</span></code> or the <code class="docutils literal notranslate"><span class="pre">dvmdostem-build</span></code> containers to keep running.
 They exit immediately, and that is OK.</p>
 <a class="reference internal image-reference" href="../_images/docker_containers.png"><img alt="docker containers" src="../_images/docker_containers.png" style="width: 600px;" /></a>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compse</span> <span class="pre">up</span></code> with no additional arugments will start all the
+containers specified in the compose file. If you wish you can bring up specific
+services by naming them on the command line, i.e. <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">up</span> <span class="pre">-d</span>
+<span class="pre">dvmdostem-autocal</span></code>, which will start only the auto-calibration service.</p>
 <p>With a running container, the most basic thing you can do is log in and poke
 around. Try this now by running:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>bash

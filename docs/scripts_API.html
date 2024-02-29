@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>drivers.Sensitivity &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>drivers.BaseDriver &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">7. Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
@@ -64,11 +64,14 @@
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">6. Contributing to the Codebase</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">7. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples_and_tutorials/using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
@@ -77,10 +80,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">drivers.Sensitivity</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -97,7 +104,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">drivers.Sensitivity</li>
+      <li class="breadcrumb-item active">drivers.BaseDriver</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/scripts_API.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -109,116 +116,257 @@
              
   <p>The content in these section has been auto-generated from the python
 <code class="docutils literal notranslate"><span class="pre">docstrings</span></code> in the project.</p>
-<section id="module-drivers.Sensitivity">
-<span id="drivers-sensitivity"></span><h1>drivers.Sensitivity<a class="headerlink" href="#module-drivers.Sensitivity" title="Permalink to this heading"></a></h1>
+<section id="module-drivers.BaseDriver">
+<span id="drivers-basedriver"></span><h1>drivers.BaseDriver<a class="headerlink" href="#module-drivers.BaseDriver" title="Permalink to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">SensitivityDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_run_setup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver" title="Permalink to this definition"></a></dt>
-<dd><p>Sensitivity Analysis Driver class.</p>
-<p>Driver class for conducting <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> SensitivityAnalysis. Methods for
-cleaning, setup, running model, collecting outputs.</p>
-<p>Basic overview of use is like this:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Instantiate driver object.</p></li>
-<li><p>Setup/design the experiment (working directory, seed path, parameters to
-use, number of samples, etc)</p></li>
-<li><p>Use driver object to setup the run folders.</p></li>
-<li><p>Use driver object to carry out model runs.</p></li>
-<li><p>Use driver object to summarize/collect outputs.</p></li>
-<li><p>Use driver object to make plots, do analysis.</p></li>
-</ol>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>work_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – The working directory path of the driver object.</p></li>
-<li><p><strong>sampling_method</strong> (<em>{ None</em><em>, </em><em>'lhc'</em><em>, </em><em>'uniform' }</em>) – Method that should be used to draw samples from the specified ranges in
-order to construct the sample matrix. <cite>lhc</cite> will use the Latin Hyper Cube
-sampling method and <cite>uniform</cite> will draw from a uniform distribution. The
-default <cite>None</cite> is simply a placeholder.</p></li>
-<li><p><strong>clean</strong> (<em>bool</em><em>, </em><em>default=False</em>) – CAREFUL! - this will forecfully remove the entrire tree rooted at
-<cite>work_dir</cite>.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>Instantiate object, sets pixel, outputs, working directory, site selection
-(input data path)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span> <span class="o">=</span> <span class="n">SensitivityDriver</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Set the working directory for the driver (using something temporary for this
-test case).</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="s1">&#39;/tmp/Sensitivity-inline-test&#39;</span>
-</pre></div>
-</div>
-<p>Show info about the driver object:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span><span class="o">.</span><span class="n">design_experiment</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmax&#39;</span><span class="p">,</span><span class="s1">&#39;rhq10&#39;</span><span class="p">,</span><span class="s1">&#39;nfall(1)&#39;</span><span class="p">],</span> <span class="n">pftnums</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">driver</span><span class="o">.</span><span class="n">sample_matrix</span>
-<span class="go">        cmax     rhq10  nfall(1)</span>
-<span class="go">0  63.536594  1.919504  0.000162</span>
-<span class="go">1  62.528847  2.161819  0.000159</span>
-<span class="go">2  67.606747  1.834203  0.000145</span>
-<span class="go">3  59.671967  2.042034  0.000171</span>
-<span class="go">4  57.711999  1.968631  0.000155</span>
-</pre></div>
-</div>
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drivers.BaseDriver.</span></span><span class="sig-name descname"><span class="pre">BaseDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for driver objects. Specific driver classes should inherit from
+BaseDriver. A driver object is intended to help with setting up and running
+the dvmdostem model in a variety of patterns.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.clean">
-<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.clean" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver.clean" title="Permalink to this definition"></a></dt>
 <dd><p>Remove the entire tree at <cite>self.work_dir</cite>.</p>
 <p>This function is NOT CAREFUL, so be careful using it!</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.cmtnum">
-<span class="sig-name descname"><span class="pre">cmtnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.cmtnum" title="Permalink to this definition"></a></dt>
-<dd><p>Enforces that there is only one cmtnum specified
-amongst all the param specifications in <cite>self.params</cite>.</p>
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver.fromfilename">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromfilename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver.fromfilename" title="Permalink to this definition"></a></dt>
+<dd><p>Create an instance of BaseDriver from a configuration file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>cmtnum</strong> – The cmtnum specified, or None if cmt not set.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path to the configuration file.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>int or None</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An instance of BaseDriver initialized with parameters from the
+configuration file.</p>
 </dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>RuntimeError - if there in valid specification of</strong> – </p></li>
-<li><p><strong>cmtnum in the params list.</strong> – </p></li>
-</ul>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#drivers.BaseDriver.BaseDriver" title="drivers.BaseDriver.BaseDriver">BaseDriver</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.core_setup">
-<span class="sig-name descname"><span class="pre">core_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.core_setup" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver.load_target_data">
+<span class="sig-name descname"><span class="pre">load_target_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_target_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver.load_target_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load a set of target values from a calibration_targets.py file. When the
+function is done, the targets will be available as a dictionary that is a
+data member of the Driver object. There will be an
+additional dict named <code class="docutils literal notranslate"><span class="pre">targets_meta</span></code> that has the metadata about the
+targets, for example the corresponding NetCDF name, the units, etc.</p>
+<p>Targets could also be referred to as “observations”. I.e. data that was
+measured in the field and that model should be able to produce by
+simulation.</p>
+<p>This function reads the entire calibration_target.py file but extracts only
+the targets for the CMTNUM of this driver object.</p>
+<p>Note: This function loads executable code from an arbitrary loction which is
+probably not ideal from a security standpoint. Maybe calibration_targets.py
+should be re-facotred into a data file and a set of target utilities similar
+to the parameters files.</p>
+<p>Modifies/Sets: <code class="docutils literal notranslate"><span class="pre">self.targets</span></code>, <code class="docutils literal notranslate"><span class="pre">self.targets_meta</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ref_target_path</strong> (<em>str</em><em> (</em><em>path</em><em>)</em>) – A path to a folder containing a calibration_targets.py file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If cmtnum is not set or if there’s a problem loading targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver.set_seed_path">
+<span class="sig-name descname"><span class="pre">set_seed_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver.set_seed_path" title="Permalink to this definition"></a></dt>
+<dd><p>Set the seed path for the object.</p>
+<p>Seed path is where the default parameter values for all the runs will be
+read from. Subsequent steps may modify select parameters for individual
+runs, but the original source values will be set from the seed path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Should changing the seed path force a clean? If the seed path is set or
+changed, this should probably trigger a re-build of all the working
+directories…. or warn the user…?</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to set as the seed path.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver.set_work_dir">
+<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver.set_work_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Set the working directory for the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to set as the working directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.BaseDriver.BaseDriver.setup_outputs">
+<span class="sig-name descname"><span class="pre">setup_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.BaseDriver.setup_outputs" title="Permalink to this definition"></a></dt>
+<dd><p>Setup the driver’s list of output specifications based on the target
+(observation) names.</p>
+<p>The client must have already loaded the targets, i.e.
+(<code class="docutils literal notranslate"><span class="pre">load_target_data(...)</span></code>) for this to work.</p>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">BaseDriver.outputs</span></code> is a list of dicts, each of which is an
+“output specification” which contains the information that will allow a
+mapping from the target names (as stored in calibration_targets.py) to the
+corresponding NetCDF output. Additional informations in the specification
+are the resolutions desired and a type signifier allowing us to
+differentiate between fluxes and pools, which is necessary for some summary
+statistics that may be calculated later.</p>
+<p>This list of output specifications will be used to setup the correct outputs
+in each sample specific run folder as well as conveniences like naming
+columns in output summary files.</p>
+<p>Sets/Modifies: <code class="docutils literal notranslate"><span class="pre">self.outputs</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_names</strong> (<em>list of str</em>) – The list should be strings naming targets in the calibration_targets.py
+file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If a requested target is not found in targets dict.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drivers.BaseDriver.deduce_target_type">
+<span class="sig-prename descclassname"><span class="pre">drivers.BaseDriver.</span></span><span class="sig-name descname"><span class="pre">deduce_target_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.deduce_target_type" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to figure out wheter a target is a flux or a pool by
+inspecting the metadata for a target.</p>
+<p>TODO: Handle monthly or daily cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>str</em>) – The name of a target value that can be found in the calibration_targets.py
+file. This name should also be a key in the <code class="docutils literal notranslate"><span class="pre">meta</span></code> argument.</p></li>
+<li><p><strong>meta</strong> (<em>dict</em>) – A dictionary of metadata describing calibration targets from the
+calibration_targets.py file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>type</strong> – ‘flux’ or ‘pool’</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drivers.BaseDriver.get_target_ncname">
+<span class="sig-prename descclassname"><span class="pre">drivers.BaseDriver.</span></span><span class="sig-name descname"><span class="pre">get_target_ncname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.BaseDriver.get_target_ncname" title="Permalink to this definition"></a></dt>
+<dd><p>Looks up the NetCDF output name based on the target name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>str</em>) – The name of a target value that can be found in the calibration_targets.py
+file. This name should also be a key in the <code class="docutils literal notranslate"><span class="pre">meta</span></code> argument.</p></li>
+<li><p><strong>meta</strong> (<em>dict</em>) – A dictionary of metadata describing calibration targets from the
+calibration_targets.py file. Must include a key for the ncname (NetCDF
+name).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-drivers.Sensitivity">
+<span id="drivers-sensitivity"></span><h1>drivers.Sensitivity<a class="headerlink" href="#module-drivers.Sensitivity" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">Sensitivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#drivers.BaseDriver.BaseDriver" title="drivers.BaseDriver.BaseDriver"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDriver</span></code></a></p>
+<p>Sensitivity Analysis Driver class.</p>
+<p>Driver class for conducting a <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> sensitivity analysis. Methods for
+cleaning, setup, running model, collecting outputs.</p>
+<p>Basic overview of use is like this:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Design your experiment by choosing working directory, seed path,
+parameters to use, number of samples, etc.</p></li>
+<li><p>Instantiate driver object.</p></li>
+<li><p>Use driver object to setup the run folders.</p></li>
+<li><p>Use driver object to carry out model runs.</p></li>
+<li><p>Use driver object to summarize/collect outputs.</p></li>
+<li><p>Use SA_post_hoc_analysis script to make plots and anaylsis.</p></li>
+</ol>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Remove the entire tree at <cite>self.work_dir</cite>.</p>
+<p>This function is NOT CAREFUL, so be careful using it!</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.collate_results">
+<span class="sig-name descname"><span class="pre">collate_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.collate_results" title="Permalink to this definition"></a></dt>
+<dd><p>Gathers up all the results.csv files from individual ssrf folders and
+stuffs them into one giant csv file. Number of rows should match rows in
+sample matrix.</p>
+<p>Writes file “results.csv” to the work dir.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.core_setup">
+<span class="sig-name descname"><span class="pre">core_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.core_setup" title="Permalink to this definition"></a></dt>
 <dd><p>Sets up a sample run folder for the given <code class="docutils literal notranslate"><span class="pre">idx</span></code> and <code class="docutils literal notranslate"><span class="pre">row</span></code>.</p>
 <p>The following things are assumed:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>you have called set_working_directory()</p></li>
 <li><p>you have called set_seed_path()</p></li>
-<li><p>you have called designe experiment - OR you at least have:</p></li>
-<li><p>you have a sample_matrix</p></li>
-<li><p>you have a list of param specs</p></li>
+<li><dl class="simple">
+<dt>you have called design experiment OR you at least have:</dt><dd><ul>
+<li><p>a sample_matrix</p></li>
+<li><p>a list of param specs</p></li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </div></blockquote>
-<p>Do all the work to setup and configure a model run.
-Uses the <cite>row</cite> parameter (one row of the sample matrix) to
-set the parameter values for the run.</p>
-<p>Currently relies on command line API for various <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
-helper scripts. Would be nice to transition to using a Python
-API for all these helper scripts (modules).</p>
+<p>Do all the work to setup and configure a model run. Uses the <cite>row</cite> parameter
+(one row of the sample matrix) to set the parameter values for the run.</p>
+<p>Currently relies on command line API for various <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> helper
+scripts. Would be nice to transition to using a Python API for all these
+helper scripts (modules).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>row</strong> (<em>dict</em>) – One row of the sample matrix, in dict form. So like this:
-<cite>{‘cmax’: 108.2, ‘rhq10’: 34.24}</cite> with one key for each parameter name.</p></li>
-<li><p><strong>idx</strong> (<em>int</em>) – The row index of the <cite>sample_matrix</cite> being worked on. Gets
-used to set the run specific folder name, i.e. sample_000001.</p></li>
+<li><p><strong>row</strong> (<em>dict</em>) – <p>One row of the sample matrix, in dict form. So like this:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">{'cmax_pft0':</span> <span class="pre">108.2,</span> <span class="pre">'rhq10':</span> <span class="pre">34.24}</span></code></p>
+</div></blockquote>
+<p>with one key for each parameter name.</p>
+</p></li>
+<li><p><strong>idx</strong> (<em>int</em>) – The row index of the <cite>sample_matrix</cite> being worked on. Gets used to set the
+run specific folder name, i.e. sample_000001.</p></li>
+<li><p><strong>initial</strong> (<em>bool</em>) – A flag indicating whether the folder to be setup  is the special “initial
+value” folder.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -228,9 +376,12 @@ used to set the run specific folder name, i.e. sample_000001.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.design_experiment">
-<span class="sig-name descname"><span class="pre">design_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lhc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.design_experiment" title="Permalink to this definition"></a></dt>
-<dd><p>Builds bounds based on initial values found in dvmdostem parameter files
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.design_experiment">
+<span class="sig-name descname"><span class="pre">design_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nsamples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pftnums</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent_diffs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lhc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.design_experiment" title="Permalink to this definition"></a></dt>
+<dd><div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version Implemented: </span>in default constructor.</p>
+</div>
+<p>Builds bounds based on initial values found in dvmdostem parameter files
 (cmt_*.txt files) and the <cite>percent_diffs</cite> array. The <cite>percent_diffs</cite> array
 gets used to figure out how far the bounds should be from the initial value.
 Defaults to initial value +/-10%.</p>
@@ -260,10 +411,11 @@ then the corresponding parameter will be setup for each PFT in the list.
 If the list item is None, then the parameter is assumed to be a soil
 parameter and no PFT info is set or needed.</p>
 </p></li>
-<li><p><strong>percent_diffs</strong> (<em>list of floats</em>) – List values, one for each parameter in <cite>params</cite>. The value is used to the
-bounds with respect to the intial parameter value. I.e. passing a value in
-the percent_diff array of .3 would mean that bounds should be +/-30% of
-the initial value of the parameter.</p></li>
+<li><p><strong>percent_diffs</strong> (<em>list of floats</em>) – List values, one for each parameter in <cite>params</cite>. The value is used to set
+the bounds with respect to the intial parameter value. I.e. passing a
+value in the percent_diff array of .3 would mean that bounds should be
++/-30% of the initial value of the parameter.</p></li>
+<li><p><strong>TODO</strong> (<em>add somethign that lets you use non percentage based sampling range.</em>) – </p></li>
 <li><p><strong>sampling_method</strong> (<em>str</em>) – A string indicating which sampling method to use for getting values for
 the sample matrix. Currently the options are ‘lhc’ or ‘uniform’.</p></li>
 </ul>
@@ -275,8 +427,8 @@ the sample matrix. Currently the options are ‘lhc’ or ‘uniform’.</p></li
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis">
-<span class="sig-name descname"><span class="pre">extract_data_for_sensitivity_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posthoc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.extract_data_for_sensitivity_analysis" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.extract_data_for_sensitivity_analysis">
+<span class="sig-name descname"><span class="pre">extract_data_for_sensitivity_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posthoc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.extract_data_for_sensitivity_analysis" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a csv file in each run directory that summarizes the run’s
 parameters and outut. The csv file will look something like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p_cmax</span><span class="p">,</span>  <span class="n">p_rhq10</span><span class="p">,</span>   <span class="n">p_micbnup</span><span class="p">,</span>   <span class="n">o_GPP</span><span class="p">,</span>  <span class="n">o_VEGC</span>
@@ -309,8 +461,8 @@ of the run before the next run overwrites it.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis">
-<span class="sig-name descname"><span class="pre">first_steps_sensitivity_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.first_steps_sensitivity_analysis" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.first_steps_sensitivity_analysis">
+<span class="sig-name descname"><span class="pre">first_steps_sensitivity_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.first_steps_sensitivity_analysis" title="Permalink to this definition"></a></dt>
 <dd><p>Grab the summarized sensitivity csvs and glue them
 together, then make correlation matrix. When glued together,
 the data will look like this, with one row for each sample,
@@ -333,14 +485,35 @@ each output:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.get_initial_params_dir">
-<span class="sig-name descname"><span class="pre">get_initial_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.get_initial_params_dir" title="Permalink to this definition"></a></dt>
-<dd><p>Read only accessor to private member variable.</p>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.fromfilename">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromfilename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.fromfilename" title="Permalink to this definition"></a></dt>
+<dd><p>Create an instance of BaseDriver from a configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path to the configuration file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An instance of BaseDriver initialized with parameters from the
+configuration file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#drivers.BaseDriver.BaseDriver" title="drivers.BaseDriver.BaseDriver">BaseDriver</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.get_sensitivity_csvs">
-<span class="sig-name descname"><span class="pre">get_sensitivity_csvs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.get_sensitivity_csvs" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.get_initial_params_dir">
+<span class="sig-name descname"><span class="pre">get_initial_params_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.get_initial_params_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Assumes that the working directory will have an <code class="docutils literal notranslate"><span class="pre">initial_params_rundir</span></code>
+directory that will have the initial parameter values.</p>
+<p>Returns the path to the intial parameter run directory or None if the
+objec’t <code class="docutils literal notranslate"><span class="pre">work_dir</span></code> has not been set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.get_sensitivity_csvs">
+<span class="sig-name descname"><span class="pre">get_sensitivity_csvs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.get_sensitivity_csvs" title="Permalink to this definition"></a></dt>
 <dd><p>Looks for all the sensitivity.csv files that are present in
 the run directories. The sensitivity.csv files are created
 using the extract_data_for_sensitivity_analysis(..) funciton.</p>
@@ -355,8 +528,8 @@ using the extract_data_for_sensitivity_analysis(..) funciton.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.info">
-<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.info" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.info" title="Permalink to this definition"></a></dt>
 <dd><p>Print some summary info about the SensitivityDriver object.</p>
 <p>Not sure how to best handle the summary of outputs yet. Maybe
 a separate method. The problem is that existing outputs may
@@ -372,14 +545,53 @@ to re-create.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.load_experiment">
-<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_props_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.load_experiment" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.load_experiment">
+<span class="sig-name descname"><span class="pre">load_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_props_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.load_experiment" title="Permalink to this definition"></a></dt>
 <dd><p>Load parameter properties and sample matrix from files.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.make_cool_plot_2">
-<span class="sig-name descname"><span class="pre">make_cool_plot_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.make_cool_plot_2" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.load_observations">
+<span class="sig-name descname"><span class="pre">load_observations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.load_observations" title="Permalink to this definition"></a></dt>
+<dd><p>Might want this to handle obs for data that are not in the
+calibration_targets.py file. This would need to be tied in with the
+setup_outputs(…) function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.load_target_data">
+<span class="sig-name descname"><span class="pre">load_target_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_target_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.load_target_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load a set of target values from a calibration_targets.py file. When the
+function is done, the targets will be available as a dictionary that is a
+data member of the Driver object. There will be an
+additional dict named <code class="docutils literal notranslate"><span class="pre">targets_meta</span></code> that has the metadata about the
+targets, for example the corresponding NetCDF name, the units, etc.</p>
+<p>Targets could also be referred to as “observations”. I.e. data that was
+measured in the field and that model should be able to produce by
+simulation.</p>
+<p>This function reads the entire calibration_target.py file but extracts only
+the targets for the CMTNUM of this driver object.</p>
+<p>Note: This function loads executable code from an arbitrary loction which is
+probably not ideal from a security standpoint. Maybe calibration_targets.py
+should be re-facotred into a data file and a set of target utilities similar
+to the parameters files.</p>
+<p>Modifies/Sets: <code class="docutils literal notranslate"><span class="pre">self.targets</span></code>, <code class="docutils literal notranslate"><span class="pre">self.targets_meta</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ref_target_path</strong> (<em>str</em><em> (</em><em>path</em><em>)</em>) – A path to a folder containing a calibration_targets.py file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If cmtnum is not set or if there’s a problem loading targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.make_cool_plot_2">
+<span class="sig-name descname"><span class="pre">make_cool_plot_2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.make_cool_plot_2" title="Permalink to this definition"></a></dt>
 <dd><p>stitches all run stages together and plots one
 line for each sample run.</p>
 <dl class="field-list simple">
@@ -390,29 +602,61 @@ line for each sample run.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.plot_sensitivity_matrix">
-<span class="sig-name descname"><span class="pre">plot_sensitivity_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.plot_sensitivity_matrix" title="Permalink to this definition"></a></dt>
-<dd><p>Make a quick plot showing the properties of the sensitivity matrix.</p>
-<dl class="simple">
-<dt>One row for each parameter:</dt><dd><p>Left column is sample values with bounds marked in red.
-Middle column is histogram of sample values.
-Right column is boxplot of sample values</p>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.plot_sensitivity_matrix">
+<span class="sig-name descname"><span class="pre">plot_sensitivity_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.plot_sensitivity_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Make a set of plots showing the properties of the sensitivity matrix. This
+plot allows you to check that the sampling strategy is producing a
+reasonable distribution of samples across the range. Usually you want to see
+that the whole range is sampled evenly between the bounds and that no
+samples are falling outside the bounds.</p>
+<p>Shows one row of plots for each parameter with 3 different ways of viewing
+the sample distributions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Left column is sample values with bounds marked in red.</p></li>
+<li><p>Middle column is a histogram of sample values.</p></li>
+<li><p>Right column is boxplot of sample values</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>save</strong> (<em>bool</em>) – True saves plot in <code class="docutils literal notranslate"><span class="pre">work_dir</span></code> with name
+<code class="docutils literal notranslate"><span class="pre">sample_matrix_distributions.png</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.run_all_samples">
-<span class="sig-name descname"><span class="pre">run_all_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.run_all_samples" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.post_hoc_build_all">
+<span class="sig-name descname"><span class="pre">post_hoc_build_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.post_hoc_build_all" title="Permalink to this definition"></a></dt>
+<dd><p>After the run is done, go make all the ssrf results.csv files…</p>
+<p>Typically these are created on-the-fly in the run_model(…) function, but
+in some cases it is nice to build them again later.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.run_all_samples">
+<span class="sig-name descname"><span class="pre">run_all_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.run_all_samples" title="Permalink to this definition"></a></dt>
 <dd><p>Starts run in each Sample Specific Run Folder.</p>
 <p>Wrapper around <cite>run_model(..)</cite> that allows for parallelization.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.run_model">
-<span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rundirectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.run_model" title="Permalink to this definition"></a></dt>
-<dd><p>Run the model.</p>
-<p>Assumes everything is setup in a “Sample Specific Run Folder”.</p>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.run_model">
+<span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rundirectory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.run_model" title="Permalink to this definition"></a></dt>
+<dd><p>Run the model according to the setup.</p>
+<p>Assumes everything is setup in a “Sample Specific Run Folder” (SSRF).</p>
+<p>When the run is complete, summarize the output data into a csv file that
+is written into the SSRF. The csv file has one column for each output.
+The csv file should have only one row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>None</p>
@@ -421,28 +665,171 @@ Right column is boxplot of sample values</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.save_experiment">
-<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.save_experiment" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.save_experiment">
+<span class="sig-name descname"><span class="pre">save_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.save_experiment" title="Permalink to this definition"></a></dt>
 <dd><p>Write the parameter properties and sensitivity matrix to files.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.set_work_dir">
-<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.set_work_dir" title="Permalink to this definition"></a></dt>
-<dd><p>Sets the working directory for the object. Assumes that the working
-directory will have an <code class="docutils literal notranslate"><span class="pre">initial_params_rundir</span></code> directory that will have
-the initial parameter values.</p>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.set_seed_path">
+<span class="sig-name descname"><span class="pre">set_seed_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.set_seed_path" title="Permalink to this definition"></a></dt>
+<dd><p>Set the seed path for the object.</p>
+<p>Seed path is where the default parameter values for all the runs will be
+read from. Subsequent steps may modify select parameters for individual
+runs, but the original source values will be set from the seed path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Should changing the seed path force a clean? If the seed path is set or
+changed, this should probably trigger a re-build of all the working
+directories…. or warn the user…?</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to set as the seed path.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="drivers.Sensitivity.SensitivityDriver.setup_multi">
-<span class="sig-name descname"><span class="pre">setup_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.SensitivityDriver.setup_multi" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.set_work_dir">
+<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.set_work_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Set the working directory for the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to set as the working directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.setup_multi">
+<span class="sig-name descname"><span class="pre">setup_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.setup_multi" title="Permalink to this definition"></a></dt>
 <dd><p>Makes one run directory for each row in sample matrix.</p>
 <p>This is essentially a wrapper around <cite>core_setup(..)</cite>
 that allows for parallelization.</p>
+<p>As a result of this function, multiple sample folders will be created in
+the object’s <code class="docutils literal notranslate"><span class="pre">work_dir</span></code>. There will be one sample folder for each row
+of the <code class="docutils literal notranslate"><span class="pre">sample_matrix</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.setup_outputs">
+<span class="sig-name descname"><span class="pre">setup_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.setup_outputs" title="Permalink to this definition"></a></dt>
+<dd><p>Setup the driver’s list of output specifications based on the target
+(observation) names.</p>
+<p>The client must have already loaded the targets, i.e.
+(<code class="docutils literal notranslate"><span class="pre">load_target_data(...)</span></code>) for this to work.</p>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">BaseDriver.outputs</span></code> is a list of dicts, each of which is an
+“output specification” which contains the information that will allow a
+mapping from the target names (as stored in calibration_targets.py) to the
+corresponding NetCDF output. Additional informations in the specification
+are the resolutions desired and a type signifier allowing us to
+differentiate between fluxes and pools, which is necessary for some summary
+statistics that may be calculated later.</p>
+<p>This list of output specifications will be used to setup the correct outputs
+in each sample specific run folder as well as conveniences like naming
+columns in output summary files.</p>
+<p>Sets/Modifies: <code class="docutils literal notranslate"><span class="pre">self.outputs</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_names</strong> (<em>list of str</em>) – The list should be strings naming targets in the calibration_targets.py
+file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If a requested target is not found in targets dict.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.ssrf_summary2csv">
+<span class="sig-name descname"><span class="pre">ssrf_summary2csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.ssrf_summary2csv" title="Permalink to this definition"></a></dt>
+<dd><p>Transforms a list of dicts with output data into a csv.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>list_of_data</strong> (<em>list of dicts</em>) – List of dicts as produced by <code class="docutils literal notranslate"><span class="pre">summarize_ssrf(..)</span></code>. Keys should be
+cmt, ncname, ctname, modeled_value, target_value and pft and compartment
+when applicable</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> – data will be a string that is a csv file with column names being output
+variable (with PFT and compartment if applicable) and data will be the
+modeled value for that output. The csv will should have one header line
+and one data line.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str, formatted csv file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.ssrf_targets2csv">
+<span class="sig-name descname"><span class="pre">ssrf_targets2csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.ssrf_targets2csv" title="Permalink to this definition"></a></dt>
+<dd><p>Write a nicely formatted csv file with the target values. The column names
+are the NetCDF variable names with PFT and compartment if applicable. The
+calibration target names (names that are used for target values in the
+calibration_targets.py file) are included as a commented out line at the top
+of the file.</p>
+<p>Including the comment line with calibration target names precludes following
+the API pattern of the ssrf_summary2csv(..) function, so here rather than
+returing the csv string, we require a path name and we write data to the
+file.</p>
+<p>Writes file to <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list of dicts</em>) – <p>Something like this:</p>
+<dl class="simple">
+<dt>[ {‘cmt’: ‘CMT06’,</dt><dd><p>’ncname’: ‘INGPP’, ‘ctname’: ‘GPPAllIgnoringNitrogen’, ‘pft’: 0
+‘modeled_value’: 8.8399451693811, ‘target_value’: 11.833, }, … ]</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.Sensitivity.Sensitivity.summarize_ssrf">
+<span class="sig-name descname"><span class="pre">summarize_ssrf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_directory_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.Sensitivity.summarize_ssrf" title="Permalink to this definition"></a></dt>
+<dd><p>Grabs the modeled data from the run and collates it into a list of dicts
+that can then be easily transformed into other formats. The intention here
+is to create a list of dicts that can be fed directly into a
+<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with labeled columns.</p>
+<p>And there should be one dict in the list for each variable the outputs list.</p>
+<p>NOTE: This function takes extract the data from the output netcdf files and
+takes the mean over the last 10 timesteps!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>output_directory_path</strong> (<em>str</em><em> (</em><em>path</em><em>)</em>) – Path to a Sample Specific Run Folder (ssrf).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>data</strong> – One dict for each output that is specified. The keys in the dicts will be
+cmt, ncname, ctname, modeled_value, target_value and pft and compartment
+when applicable. For example:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>{ ‘cmt’: ‘CMT06’,</dt><dd><p>’ncname’: ‘INGPP’, ‘ctname’: ‘GPPAllIgnoringNitrogen’,
+‘modeled_value’: 6.743048039242422, ‘target_value’: 11.833, ‘pft’: 0 }</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>There will be one dict in the returned list for each output variable.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>[{…}, … {…}], list of dicts</p>
 </dd>
 </dl>
 </dd></dl>
@@ -533,9 +920,31 @@ with at least the following:
 
 <dl class="py function">
 <dt class="sig sig-object py" id="drivers.Sensitivity.log_wrapper">
-<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">log_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.log_wrapper" title="Permalink to this definition"></a></dt>
-<dd><p>Likely will abandon or repurpose this function.
-Not super helpful as a log printer.</p>
+<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">log_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.log_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Print the <code class="docutils literal notranslate"><span class="pre">message</span></code> with the process name at the beginning.</p>
+<p>Use via a context manager, for example:</p>
+<blockquote>
+<div></div></blockquote>
+<p>To get something like this:</p>
+<blockquote>
+<div></div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="drivers.Sensitivity.make_col_name">
+<span class="sig-prename descclassname"><span class="pre">drivers.Sensitivity.</span></span><span class="sig-name descname"><span class="pre">make_col_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.Sensitivity.make_col_name" title="Permalink to this definition"></a></dt>
+<dd><p>Make standardized column names for parameters.</p>
+<p>Expects <code class="docutils literal notranslate"><span class="pre">pdict</span></code> to be a dictionary of items related to a parameter, e.g.:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>col_name</strong> – A string to use for the sample_matrix column name. Should be simply the
+parameter name for non-PFT parameters and for PFT parameters, the name
+should be suffixe with _pftN where N is the PFT number.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -545,6 +954,674 @@ Not super helpful as a log printer.</p>
 for params specified in <cite>params</cite> for the pfts specified in <cite>pftnums</cite> and the
 Community specified in <cite>cmtnum</cite>. Sets bounds based on the intial values
 found in the <cite>seedpath</cite> and according to the percent_diffs.</p>
+<p>NOTE: What happens for negative numbers? Do the bounds need to be reversed?</p>
+</dd></dl>
+
+</section>
+<section id="module-drivers.MadsTEMDriver">
+<span id="drivers-madstemdriver"></span><h1>drivers.MadsTEMDriver<a class="headerlink" href="#module-drivers.MadsTEMDriver" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">drivers.MadsTEMDriver.</span></span><span class="sig-name descname"><span class="pre">MadsTEMDriver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#drivers.BaseDriver.BaseDriver" title="drivers.BaseDriver.BaseDriver"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseDriver</span></code></a></p>
+<p>MadsTEMDriver class for controlling and running the driving the dvmdostem
+model from a Julia script with the Mads package.</p>
+<p>This class extends the functionality of the BaseDriver class and includes
+methods for setting up the run directory, updating parameters, running the
+model, and gathering model outputs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Remove the entire tree at <cite>self.work_dir</cite>.</p>
+<p>This function is NOT CAREFUL, so be careful using it!</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.fromfilename">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromfilename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.fromfilename" title="Permalink to this definition"></a></dt>
+<dd><p>Create an instance of BaseDriver from a configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path to the configuration file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An instance of BaseDriver initialized with parameters from the
+configuration file.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#drivers.BaseDriver.BaseDriver" title="drivers.BaseDriver.BaseDriver">BaseDriver</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.gather_model_outputs">
+<span class="sig-name descname"><span class="pre">gather_model_outputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.gather_model_outputs" title="Permalink to this definition"></a></dt>
+<dd><p>Gather and process model outputs for comparison with target data.</p>
+<p>Migrated from TEM.py::get_calibration_outputs.py.</p>
+<p>The implementation in TEM.py was tangled up with logic for loading target
+data and included the unused calculation of “percent ecosystem contribution”
+(pec) which can be used for weighting…but the pec was not being used in
+this context, so it has been removed here. See util/qcal.py for an example
+of its use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>A list containing dictionaries with information about model outputs. For
+example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[{</span><span class="s1">&#39;cmt&#39;</span><span class="p">:</span> <span class="s1">&#39;CMT06&#39;</span><span class="p">,</span> <span class="s1">&#39;ctname&#39;</span><span class="p">:</span> <span class="s1">&#39;GPP&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mf">10.1</span><span class="p">,</span> <span class="s1">&#39;truth&#39;</span><span class="p">:</span> <span class="mf">11.83</span><span class="p">,</span> <span class="s1">&#39;pft&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+ <span class="p">{</span><span class="s1">&#39;cmt&#39;</span><span class="p">:</span> <span class="s1">&#39;CMT06&#39;</span><span class="p">,</span> <span class="s1">&#39;ctname&#39;</span><span class="p">:</span> <span class="s1">&#39;GPP&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mf">29.05</span><span class="p">,</span> <span class="s1">&#39;truth&#39;</span><span class="p">:</span> <span class="mf">197.8</span><span class="p">,</span> <span class="s1">&#39;pft&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+<span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.load_target_data">
+<span class="sig-name descname"><span class="pre">load_target_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_target_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.load_target_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load a set of target values from a calibration_targets.py file. When the
+function is done, the targets will be available as a dictionary that is a
+data member of the Driver object. There will be an
+additional dict named <code class="docutils literal notranslate"><span class="pre">targets_meta</span></code> that has the metadata about the
+targets, for example the corresponding NetCDF name, the units, etc.</p>
+<p>Targets could also be referred to as “observations”. I.e. data that was
+measured in the field and that model should be able to produce by
+simulation.</p>
+<p>This function reads the entire calibration_target.py file but extracts only
+the targets for the CMTNUM of this driver object.</p>
+<p>Note: This function loads executable code from an arbitrary loction which is
+probably not ideal from a security standpoint. Maybe calibration_targets.py
+should be re-facotred into a data file and a set of target utilities similar
+to the parameters files.</p>
+<p>Modifies/Sets: <code class="docutils literal notranslate"><span class="pre">self.targets</span></code>, <code class="docutils literal notranslate"><span class="pre">self.targets_meta</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ref_target_path</strong> (<em>str</em><em> (</em><em>path</em><em>)</em>) – A path to a folder containing a calibration_targets.py file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If cmtnum is not set or if there’s a problem loading targets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.modeled_vec">
+<span class="sig-name descname"><span class="pre">modeled_vec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.modeled_vec" title="Permalink to this definition"></a></dt>
+<dd><p>Return a flat list of the model output values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.observed_vec">
+<span class="sig-name descname"><span class="pre">observed_vec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.observed_vec" title="Permalink to this definition"></a></dt>
+<dd><p>Return a flat list of the observation values (aka targets).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.params_vec">
+<span class="sig-name descname"><span class="pre">params_vec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.params_vec" title="Permalink to this definition"></a></dt>
+<dd><p>Return a flat list of the parameter values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run the model according to the setup.</p>
+<p>Assumes everything is setup in the <code class="docutils literal notranslate"><span class="pre">run</span></code> subdirectory of <code class="docutils literal notranslate"><span class="pre">self.work_dir</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.run_wrapper">
+<span class="sig-name descname"><span class="pre">run_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter_vector</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.run_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Run the model using a vector of parameters and return model outputs.</p>
+<p>Takes in a vector of parameters; uses the parameters to run the model
+and returns a collection of outputs. Outputs are intended to be compared
+to target data. So if you have 5 targets you are comparing to, you should
+expect 5 output variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameter_vector</strong> (<em>list</em>) – A list of parameter values to use for the model run.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A collection of model outputs intended to be compared to target data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.set_params_from_seed">
+<span class="sig-name descname"><span class="pre">set_params_from_seed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.set_params_from_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Sets up a list of dicts mapping parameter names to values….</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Assumes that various things have been setup:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.cmtnum</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.paramnames</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.pftnums</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self._seedpath</span></code></p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>Analogous to <code class="docutils literal notranslate"><span class="pre">Sensitivity.params_from_seed(...)</span></code> but this one uses a
+different name in the dict (‘vals’ vs ‘intial’) and this is setup as a
+member function that modifies/updates a member variable (self.params)
+whereas in Sensitivity, it is a stand alone module function… Would be
+great to combine these…</p>
+<p>Migrated directly from TEM.py::set_params(…)</p>
+<p>This function simply modifies the objects params lookup structure. It does
+not actually modify parameters in the run directory…</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.set_seed_path">
+<span class="sig-name descname"><span class="pre">set_seed_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.set_seed_path" title="Permalink to this definition"></a></dt>
+<dd><p>Set the seed path for the object.</p>
+<p>Seed path is where the default parameter values for all the runs will be
+read from. Subsequent steps may modify select parameters for individual
+runs, but the original source values will be set from the seed path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Should changing the seed path force a clean? If the seed path is set or
+changed, this should probably trigger a re-build of all the working
+directories…. or warn the user…?</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to set as the seed path.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.set_work_dir">
+<span class="sig-name descname"><span class="pre">set_work_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.set_work_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Set the working directory for the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to set as the working directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.setup_outputs">
+<span class="sig-name descname"><span class="pre">setup_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.setup_outputs" title="Permalink to this definition"></a></dt>
+<dd><p>Setup the driver’s list of output specifications based on the target
+(observation) names.</p>
+<p>The client must have already loaded the targets, i.e.
+(<code class="docutils literal notranslate"><span class="pre">load_target_data(...)</span></code>) for this to work.</p>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">BaseDriver.outputs</span></code> is a list of dicts, each of which is an
+“output specification” which contains the information that will allow a
+mapping from the target names (as stored in calibration_targets.py) to the
+corresponding NetCDF output. Additional informations in the specification
+are the resolutions desired and a type signifier allowing us to
+differentiate between fluxes and pools, which is necessary for some summary
+statistics that may be calculated later.</p>
+<p>This list of output specifications will be used to setup the correct outputs
+in each sample specific run folder as well as conveniences like naming
+columns in output summary files.</p>
+<p>Sets/Modifies: <code class="docutils literal notranslate"><span class="pre">self.outputs</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_names</strong> (<em>list of str</em>) – The list should be strings naming targets in the calibration_targets.py
+file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If a requested target is not found in targets dict.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.setup_run_dir">
+<span class="sig-name descname"><span class="pre">setup_run_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.setup_run_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Set up the run directory for the model using properties of the driver object
+to control aspects of how the run directory is configured.</p>
+<p>This method creates the working directory, adjusts the run mask for the
+appropriate pixel, sets the output specification file, and adjusts
+the configuration file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.update_params">
+<span class="sig-name descname"><span class="pre">update_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">junk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.update_params" title="Permalink to this definition"></a></dt>
+<dd><p>Update the values in <code class="docutils literal notranslate"><span class="pre">self.params</span></code> with values in <code class="docutils literal notranslate"><span class="pre">vector</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This does not actually update anything the run directory. See the other
+function, <code class="docutils literal notranslate"><span class="pre">write_params2rundir(...)</span></code> for that. Maybe these functions
+should be combined? Is there ever a reason to update the internal data
+structure (<code class="docutils literal notranslate"><span class="pre">self.params</span></code>) without writing the data to the run directory?</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> (<em>list</em>) – A list of parameter values to update.</p></li>
+<li><p><strong>junk</strong> (<em>None</em><em>, </em><em>optional</em>) – Ignored parameter. Provided for compatibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.write_params2rundir">
+<span class="sig-name descname"><span class="pre">write_params2rundir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.write_params2rundir" title="Permalink to this definition"></a></dt>
+<dd><p>Update the parameters in the run directory to match those in
+<code class="docutils literal notranslate"><span class="pre">self.params</span></code>.</p>
+<p>This method iterates through the parameters in the internal params table and
+updates the corresponding values in the run directory using the
+<cite>pu.update_inplace</cite> function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-SA_post_hoc_analysis">
+<span id="mads-calibration-sa-post-hoc-analysis"></span><h1>mads_calibration.SA_post_hoc_analysis<a class="headerlink" href="#module-SA_post_hoc_analysis" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.calc_combined_score">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">calc_combined_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.calc_combined_score" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate a combination score using r^2, and normalized mse and mape.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.calc_correlation">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">calc_correlation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.calc_correlation" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a correlation matrix between parameters and model outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_matrix</strong> (<em>pandas.DataFrame</em>) – with one row per sample, one column per parameter</p></li>
+<li><p><strong>model_results</strong> (<em>pandas.DataFrame</em>) – with one row per sample, one column per output</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>corr_mp</strong> – One column for each parameter, one row for each model output.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.calc_metrics">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">calc_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.calc_metrics" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate a bunch of sklearn regression metrics.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.generate_ca_config">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">generate_ca_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.generate_ca_config" title="Permalink to this definition"></a></dt>
+<dd><p>Maybe we should auto-generate the yaml config files?</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.load">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.load" title="Permalink to this definition"></a></dt>
+<dd><p>Load up pandas.DataFrames for all the various things that you will want to
+analyze. This includes the parameter properties used for the SA, the
+sample matrix, the target data and the model results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – A file path to a directory that is expected to have the following files:
+param_props.csv, sample_matrix.csv, targets.csv, results.csv.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>param_props, sample_matrix, targets, results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.n_top_runs">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">n_top_runs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2lim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.n_top_runs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the best runs measured using R^2, if N is present sort and return
+N top runs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One column for each output variable, one row for each sample run.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – One column for each output (target) variable, single row with target value.</p></li>
+<li><p><strong>params</strong> (<em>pandas.DataFrame</em>) – One row for each of the selected runs, one column for each parameter.</p></li>
+<li><p><strong>r2lim</strong> (<em>float</em>) – Lower R^2 limit for output.</p></li>
+<li><p><strong>N</strong> (<em>integer</em><em>, </em><em>optional</em>) – Number of sorted results to return</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>best_params</strong> (<em>pandas.DataFrame</em>) – parameters returning variables above R^2 threshold from target value, sorted
+top N number if None!=None</p></li>
+<li><p><strong>best_results</strong> (<em>pandas.DataFrame</em>) – results above R^2 threshold from target value, sorted
+top N number if None!=None</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_boxplot">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_boxplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_boxplot" title="Permalink to this definition"></a></dt>
+<dd><p>Plots a box and whiskers for each column in <code class="docutils literal notranslate"><span class="pre">results</span></code>. Plots a dot for
+each target value.</p>
+<p>Useful for seeing if the range of model outputs produced by running each row
+in the sample matrix contains the target values.</p>
+<a class="reference internal image-reference" href="_images/results_boxplot.png"><img alt="_images/results_boxplot.png" src="_images/results_boxplot.png" style="width: 80%;" /></a>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One column for each model ouput variable, one row for each run (sample)</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – One column for each target (truth, or observation) value. One row.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A string that is prepended to the saved filename ‘results_boxplot.png’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_corr_heatmap">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_corr_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_corr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_corr_heatmap" title="Permalink to this definition"></a></dt>
+<dd><p>??? Write something…</p>
+<img alt="_images/correlation_heatmap.png" src="_images/correlation_heatmap.png" />
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_match">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_match" title="Permalink to this definition"></a></dt>
+<dd><p>Plot targets vs model outputs (results). Dashed diagonal is line of perfect
+agreement between the model output and the targets. Plot dot or marker for
+each model output. Targets are on the y axis, model outputs on the x axis.</p>
+<p>There is a horizontal collection of markers for each column in results.
+If the collection of markers crosses the dashed 1:1 line, then the model
+is capable of producing target values somewhere in the sample set. If the
+collection of markers for a given column (model output) is all to the left
+of the 1:1 line, then the modeled values are all too low. If the collection of
+markers is all to the right of the 1:1 line then the modeled values are too
+high.</p>
+<img alt="_images/one2one_match.png" src="_images/one2one_match.png" />
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One row for each run (sample), one column for each model output variable.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – Single row, one column for each target (truth, or observation) value.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A string that is prepended to the saved filename ‘results_boxplot.png’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_nitrogen_check">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_nitrogen_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_nitrogen_check" title="Permalink to this definition"></a></dt>
+<dd><p>Plots INGPP : GPP ratio to examine nitrogen limitation
+and compares to expected ranges for boreal and tundra
+ecosystems.</p>
+<p>Note: this requires auxiliary variables INGPP, GPP, and
+AVLN to be specified in config file. If calib_mode is set
+to GPPAllIgnoringNitrogen this will not produce meaningful
+results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Specifies path to sensitivity sample run directory</p></li>
+<li><p><strong>Returns</strong> – None</p></li>
+<li><p><strong>image:</strong> (<em>..</em>) – /images/SA_post_hoc_analysis/nitrogen-check.png:</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_output_scatter">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_output_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmselim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapelim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_output_scatter" title="Permalink to this definition"></a></dt>
+<dd><p>Create subplots for each column in <code class="docutils literal notranslate"><span class="pre">results</span></code>. Each subplot shows
+scatter plots of the output value on the Y axis and the sample # on the X
+axis. The target value is shown as a dashed line.</p>
+<p>Optionally, <code class="docutils literal notranslate"><span class="pre">results</span></code> may be limited by R^2, RMSE, and/or MAPE by providing
+limits using r2lim, rmselim, and mapelim respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not sure if this approach of putting everything in one giant figure will
+scale up with number of output variables very well…</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One column for each output variable, one row for each sample run.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – One column for each output (target) variable, single row with target value.</p></li>
+<li><p><strong>r2lim</strong> (<em>float</em><em>, </em><em>optional</em>) – Lower R^2 limit for output.</p></li>
+<li><p><strong>rmselim</strong> (<em>float</em><em>, </em><em>optional</em>) – Upper RMSE limit for output.</p></li>
+<li><p><strong>mapelim</strong> (<em>float</em><em>, </em><em>optional</em>) – Upper MAPE limit for output.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A prefix to be prepended to the saved file name ‘output_target_scatter.png’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>None</em></p></li>
+<li><p><em>.. image:: /images/SA_post_hoc_analysis/output_target_scatter.png</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_pft_matrix">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_pft_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_pft_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Look at the model outputs and the parameters, and plot all parameters
+against each variable for 10 potential pfts</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One row per sample, one column per output.</p></li>
+<li><p><strong>sample_matrix</strong> (<em>pandas.DataFrame</em>) – One row per sample, one column per parameter.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – One row with one column per target value.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A string that is prepended to the saved filename ‘{var}_pft_plot.pdf’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>None</em></p></li>
+<li><p><em>.. image::</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_r2_rmse">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_r2_rmse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_r2_rmse" title="Permalink to this definition"></a></dt>
+<dd><p>Plot R^2 against RMSE as a scatter plot for all runs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One row per sample, one column per output.</p></li>
+<li><p><strong>sample_matrix</strong> (<em>pandas.DataFrame</em>) – One row per sample, one column per parameter.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – One row with one column per target value.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A string that is prepended to the saved filename ‘{var}_pft_plot.pdf’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>None</em></p></li>
+<li><p><em>.. image:: /images/SA_post_hoc_analysis/r2_mse_mape.png</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_relationships">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_relationships</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corr_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_relationships" title="Permalink to this definition"></a></dt>
+<dd><p>Look at the model outputs and the parameters, calculate the corrleation
+between the two, and then make one plot for each instance where the
+correlation exceeds the threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One row per sample, one column per output.</p></li>
+<li><p><strong>sample_matrix</strong> (<em>pandas.DataFrame</em>) – One row per sample, one column per parameter.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – One row with one column per target value.</p></li>
+<li><p><strong>variables</strong> (<em>list</em><em>, </em><em>optional</em>) – Strings referencing variables of interest in results</p></li>
+<li><p><strong>parameter</strong> (<em>list</em><em>, </em><em>optional</em>) – Strings referencing parameers of interest in sample_matrix</p></li>
+<li><p><strong>corr_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Lower threshold for correlation to plot</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified
+Saves all subplots (can be a lot) if != None</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A string that is prepended to the saved filename ‘{var}-{parameters}.png’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>None</em></p></li>
+<li><p><em>.. image:: /images//INGPP_pft0-cmax_pft0-cmax_pft3.png</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_spaghetti">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_spaghetti</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_spaghetti" title="Permalink to this definition"></a></dt>
+<dd><p>Plots one line for each sample (row) in <code class="docutils literal notranslate"><span class="pre">results</span></code>. Plots targets as dots.
+X axis of plot are for different columns in <code class="docutils literal notranslate"><span class="pre">results</span></code>. Makes 2 plots, the
+right one uses a log scale for the y axis. The right plot also has a mean line
+(blue).</p>
+<p>Useful for seeing if the range of model outputs produced by running each row
+in the sample matrix contains the target values.</p>
+<img alt="_images/spaghetti_plot.png" src="_images/spaghetti_plot.png" />
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>pandas.DataFrame</em>) – One row for each run (sample), one column for each model output variable.</p></li>
+<li><p><strong>targets</strong> (<em>pandas.DataFrame</em>) – Single row, one column for each target (truth, or observation) value.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Assumes False so plot will not be saved. If set to true it will plot
+in current directory unless saveprefix is specified</p></li>
+<li><p><strong>saveprefix</strong> (<em>str</em>) – A string that is prepended to the saved filename ‘spaghetti_plot.png’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.prep_mads_distributions">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">prep_mads_distributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.prep_mads_distributions" title="Permalink to this definition"></a></dt>
+<dd><p>Gives you something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mads_paramdist</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">Uniform</span><span class="p">(</span>  <span class="mf">5.9117</span><span class="p">,</span>  <span class="mf">26.5927</span><span class="p">)</span>    <span class="c1"># cmax_pft0</span>
+  <span class="o">-</span> <span class="n">Uniform</span><span class="p">(</span> <span class="mf">46.0129</span><span class="p">,</span> <span class="mf">113.4639</span><span class="p">)</span>    <span class="c1"># cmax_pft1</span>
+  <span class="o">-</span> <span class="n">Uniform</span><span class="p">(</span> <span class="mf">11.7916</span><span class="p">,</span>  <span class="mf">77.5827</span><span class="p">)</span>    <span class="c1"># cmax_pft2</span>
+</pre></div>
+</div>
+<p>From B. Maglio’s notebook.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>pandas.DataFrame</em>) – One row for each of the selected runs, one column for each parameter.
+Column names are</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dists</strong> – A nicely formatted string with the distributions for each parameter that can be
+pasted into the .yaml file for the next step.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.prep_mads_initial_guess">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">prep_mads_initial_guess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.prep_mads_initial_guess" title="Permalink to this definition"></a></dt>
+<dd><p>Generate MADS initial guess string based on parameter ranges. The idea is that
+the intial guess should be the mean of the parameter range. Gives you
+a string like this:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mads_initialguess</span><span class="p">:</span>
+  <span class="o">-</span> <span class="mf">16.252</span>  <span class="c1"># cmax_pft0</span>
+  <span class="o">-</span> <span class="mf">79.738</span>  <span class="c1"># cmax_pft1</span>
+  <span class="o">-</span> <span class="mf">44.687</span>  <span class="c1"># cmax_pft2</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>that is intended to be copied into your <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing parameter values.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MADS initial guess string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.read_mads_iterationresults">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">read_mads_iterationresults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterationresults_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.read_mads_iterationresults" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a Mads .iterationresults file and return data as 3 python lists.</p>
+<p>Example of the input file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OrderedCollections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span><span class="s2">&quot;cmax_pft0&quot;</span> <span class="o">=&gt;</span> <span class="mf">26.245</span><span class="p">,</span> <span class="s2">&quot;cmax_pft1&quot;</span> <span class="o">=&gt;</span> <span class="o">...</span> <span class="p">)</span>
+<span class="n">OF</span><span class="p">:</span> <span class="mf">1.985656773338984e8</span>
+<span class="k">lambda</span><span class="p">:</span> <span class="mf">4.0e9</span>
+<span class="n">OrderedCollections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span><span class="s2">&quot;cmax_pft0&quot;</span> <span class="o">=&gt;</span> <span class="mf">26.245</span><span class="p">,</span> <span class="s2">&quot;cmax_pft1&quot;</span> <span class="o">=&gt;</span> <span class="o">...</span> <span class="p">)</span>
+<span class="n">OF</span><span class="p">:</span> <span class="mf">1.6545342e4353453</span><span class="n">e6</span>
+<span class="k">lambda</span><span class="p">:</span> <span class="mf">1.4e6</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <p>These are general purpose utility scripts for working with <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>.</p>
@@ -2101,6 +3178,27 @@ Code from Unidata’s Python Workshop:
 <dd class="field-odd"><p>None</p>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="module-util.metrics">
+<span id="util-metrics"></span><h1>util.metrics<a class="headerlink" href="#module-util.metrics" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="util.metrics.eq_quality">
+<span class="sig-prename descclassname"><span class="pre">util.metrics.</span></span><span class="sig-name descname"><span class="pre">eq_quality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmtkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PXx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PXy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.metrics.eq_quality" title="Permalink to this definition"></a></dt>
+<dd><p>Draft … experimenting with measuring eq state…</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="util.metrics.plot_optimization_fit">
+<span class="sig-prename descclassname"><span class="pre">util.metrics.</span></span><span class="sig-name descname"><span class="pre">plot_optimization_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ig_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ig_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savefile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.metrics.plot_optimization_fit" title="Permalink to this definition"></a></dt>
+<dd><p>Make a plot with three axes allowing an overview of optimization performance.</p>
+<p>The first set of axes shows the parameter values use for the seed run, the
+initial guess run, and the optimized run.</p>
+<p>The second set of axes shows the model outputs for the seed run, the initial
+guess run, and the optimizied run. The target values are shown as red dots.</p>
+<p>The third set of axes show the “residulas” or model outputs - targets.</p>
+<a class="reference internal image-reference" href="_images/metrics.plot_optimization_fit.png"><img alt="_images/metrics.plot_optimization_fit.png" src="_images/metrics.plot_optimization_fit.png" style="width: 80%;" /></a>
 </dd></dl>
 
 </section>

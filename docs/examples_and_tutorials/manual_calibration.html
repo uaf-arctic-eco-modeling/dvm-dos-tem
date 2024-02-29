@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qcal.py &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
+  <title>6. Manual Calibration &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="outspec.py" href="outspec.html" />
-    <link rel="prev" title="input.py" href="input.html" /> 
+    <link rel="next" title="7. MADS Assisted Calibration" href="mads_assisted_calibration.html" />
+    <link rel="prev" title="5. Plotting" href="plotting_discussion.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,29 +59,25 @@
 <li class="toctree-l1"><a class="reference internal" href="../references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prelude.html">1. Prelude</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/basic_model_run.html">2. Basic Model Setup and Run</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/data_summary_processing.html">4. Data Summary and Processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/manual_calibration.html">6. Manual Calibration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/make_contribution.html">8. Contributing to the Codebase</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples_and_tutorials/using_github_features.html">9. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_model_run.html">2. Basic Model Setup and Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_contribution.html">8. Contributing to the Codebase</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="param.html">param.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runmask.html">runmask.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="input.html">input.py</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">qcal.py</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#positional-arguments">Positional Arguments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="outspec.html">outspec.py</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/param.html">param.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/runmask.html">runmask.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/input.html">input.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/qcal.html">qcal.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/outspec.html">outspec.py</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
@@ -109,9 +105,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">qcal.py</li>
+      <li class="breadcrumb-item active"><span class="section-number">6. </span>Manual Calibration</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/CLI_tools/qcal.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/examples_and_tutorials/manual_calibration.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -119,46 +115,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="qcal-py">
-<h1>qcal.py<a class="headerlink" href="#qcal-py" title="Permalink to this heading"></a></h1>
-<p><p>Still working on this…</p>
-</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">qcal</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">targets</span> <span class="n">REF_TARGETS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">params</span> <span class="n">REF_PARAMS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">runmask</span> <span class="n">REF_RUNMASK</span><span class="p">]</span> <span class="n">calfolder</span>
-</pre></div>
-</div>
-<section id="positional-arguments">
-<h2>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this heading"></a></h2>
-<dl class="option-list">
-<dt><kbd>calfolder</kbd></dt>
-<dd><p>The folder where the program should look for calibration outputs from dvm-dos-tem</p>
-</dd>
-</dl>
-</section>
-<section id="named-arguments">
-<h2>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h2>
-<dl class="option-list">
-<dt><kbd>--ref-targets</kbd></dt>
-<dd><p>Path to a folder containing a calibration_targets.py file.</p>
-<p>Default: calibration/</p>
-</dd>
-<dt><kbd>--ref-params</kbd></dt>
-<dd><p>Path to a folder of parameter files. (cmt_*.txt)</p>
-<p>Default: parameters/</p>
-</dd>
-<dt><kbd>--ref-runmask</kbd></dt>
-<dd><p>Path to a folder with a run-mask.nc file in it.</p>
-<p>Default: .</p>
-</dd>
-</dl>
-</section>
+  <section id="manual-calibration">
+<h1><span class="section-number">6. </span>Manual Calibration<a class="headerlink" href="#manual-calibration" title="Permalink to this heading"></a></h1>
+<p>This should be a description of using the dynamic plotter and manually
+adjusting parameters with the <code class="docutils literal notranslate"><span class="pre">--cal-mode</span></code> flag.</p>
+<p>This section of text will describe the technical side of setting up and using
+the tools to carry out the process described in
+<a class="reference internal" href="../calibration.html#calibration-process-conceptual"><span class="std std-ref">Calibration Process</span></a>.</p>
+<p>This is from a software perspective - how to setup the tools and use them together
+to carry out the process.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>netcdf and json files</p></li>
+<li><p>background</p></li>
+<li><p>cal mode</p></li>
+<li><p>calibration viewer</p></li>
+<li><p>targets</p></li>
+<li><p>modifying parameters while model is running</p></li>
+</ul>
+</div></blockquote>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="input.html" class="btn btn-neutral float-left" title="input.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="outspec.html" class="btn btn-neutral float-right" title="outspec.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="plotting_discussion.html" class="btn btn-neutral float-left" title="5. Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mads_assisted_calibration.html" class="btn btn-neutral float-right" title="7. MADS Assisted Calibration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

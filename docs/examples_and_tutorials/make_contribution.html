@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>6. Contributing to the Codebase &mdash; dvmdostem v0.7.0-66-gb3a5fe1b documentation</title>
+  <title>8. Contributing to the Codebase &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="7. Using Github’s Features" href="using_github_features.html" />
-    <link rel="prev" title="5. Plotting" href="plotting_discussion.html" /> 
+    <link rel="next" title="9. Using Github’s Features" href="using_github_features.html" />
+    <link rel="prev" title="7. MADS Assisted Calibration" href="mads_assisted_calibration.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-66-gb3a5fe1b
+                v0.7.0-342-gf1c1e5fa
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../SA_UQ.html">4. SA and UQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../command_cheat_sheet.html">5. Command Cheat Sheet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../common_acronyms.html">6. Common Project Acronyms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration.html">7. Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">8. References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples and Tutorials</span></p>
@@ -65,15 +65,18 @@
 <li class="toctree-l1"><a class="reference internal" href="example_experiment_0.html">3. EE 0 - Single Site Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_summary_processing.html">4. Data Summary and Processing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting_discussion.html">5. Plotting</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Contributing to the Codebase</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#single-person-topic-branch-and-pull-request-process">6.1. Single person topic branch and pull request process</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#multi-person-topic-branch-process">6.2. Multi-person topic branch process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_calibration.html">6. Manual Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mads_assisted_calibration.html">7. MADS Assisted Calibration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">8. Contributing to the Codebase</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#single-person-topic-branch-and-pull-request-process">8.1. Single person topic branch and pull request process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multi-person-topic-branch-process">8.2. Multi-person topic branch process</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">7. Using Github’s Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_github_features.html">9. Using Github’s Features</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/param.html">param.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/runmask.html">runmask.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CLI_tools/input.html">input.py</a></li>
@@ -82,10 +85,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.BaseDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.param">util.param</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.output">util.output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.metrics">util.metrics</a></li>
 </ul>
 
         </div>
@@ -102,7 +109,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active"><span class="section-number">6. </span>Contributing to the Codebase</li>
+      <li class="breadcrumb-item active"><span class="section-number">8. </span>Contributing to the Codebase</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/examples_and_tutorials/make_contribution.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -113,7 +120,7 @@
            <div itemprop="articleBody">
              
   <section id="contributing-to-the-codebase">
-<h1><span class="section-number">6. </span>Contributing to the Codebase<a class="headerlink" href="#contributing-to-the-codebase" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">8. </span>Contributing to the Codebase<a class="headerlink" href="#contributing-to-the-codebase" title="Permalink to this heading"></a></h1>
 <p>This lab takes you through one possible workflow using Git and Github to make a
 modification to the codebase and have it included upstream. This is a somewhat
 simplified case and does not cover every situation you will run into. This is
@@ -144,7 +151,7 @@ remote repositories, and Git vs Github.</p></li>
 <p>Begin by reading the <a class="reference internal" href="../software_development_info.html#version-management"><span class="std std-ref">Version Management</span></a> section of this document for an overview of how the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
 project uses Git and Github.</p>
 <section id="single-person-topic-branch-and-pull-request-process">
-<h2><span class="section-number">6.1. </span>Single person topic branch and pull request process<a class="headerlink" href="#single-person-topic-branch-and-pull-request-process" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">8.1. </span>Single person topic branch and pull request process<a class="headerlink" href="#single-person-topic-branch-and-pull-request-process" title="Permalink to this heading"></a></h2>
 <p>This part of the tutorial is designed to walk you through a basic case of making
 a small modification to the code and getting that change merged into the
 upstream codebase. Understand that in the “real world” as you are working on
@@ -220,7 +227,7 @@ the changes: <code class="docutils literal notranslate"><span class="pre">git</s
 </div></blockquote>
 </section>
 <section id="multi-person-topic-branch-process">
-<h2><span class="section-number">6.2. </span>Multi-person topic branch process<a class="headerlink" href="#multi-person-topic-branch-process" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">8.2. </span>Multi-person topic branch process<a class="headerlink" href="#multi-person-topic-branch-process" title="Permalink to this heading"></a></h2>
 <p>See accompanying slides (above) ~29-39.</p>
 <p>Lets have two people: Y and Z who are both working on the project, and in fact
 they both need to work on the same topic branch. This example is harder to write
@@ -301,8 +308,8 @@ people, “over committing” can be a real problem.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="plotting_discussion.html" class="btn btn-neutral float-left" title="5. Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="using_github_features.html" class="btn btn-neutral float-right" title="7. Using Github’s Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mads_assisted_calibration.html" class="btn btn-neutral float-left" title="7. MADS Assisted Calibration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="using_github_features.html" class="btn btn-neutral float-right" title="9. Using Github’s Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
