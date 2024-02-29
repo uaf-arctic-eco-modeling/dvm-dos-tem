@@ -45,6 +45,7 @@ class ArgHandler {
   std::string log_level;
   std::string log_scope;
 
+  bool print_sha;
   bool help;
 
 
@@ -79,6 +80,7 @@ public:
   inline const std::string get_log_level(){return log_level;};
   inline const std::string get_log_scope(){return log_scope;};
 
-	inline const bool get_help(){return help;};
+  inline const bool get_help(){return help;};
+  inline const bool get_print_sha(){return print_sha;};
 };
 #endif /* _ARGHANDLER_H */

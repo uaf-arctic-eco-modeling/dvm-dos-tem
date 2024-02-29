@@ -76,8 +76,8 @@ While the ``$PATH`` variable is setup in the development docker container:
 
 .. code:: 
 
-    develop@d146768bfaac:/data/workflows$ runmask-util.py -h
-    usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+    develop@d146768bfaac:/data/workflows$ runmask.py -h
+    usage: runmask.py [-h] [--verbose] [--reset] [--all-on] ...
                         [FILE]
 
 
@@ -85,8 +85,8 @@ many of the examples still show things using the absolute path:
 
 .. code::
 
-    develop@d146768bfaac:/data/workflows$ /work/scripts/runmask-util.py --help
-    usage: runmask-util.py [-h] [--verbose] [--reset] [--all-on] ...
+    develop@d146768bfaac:/data/workflows$ /work/scripts/runmask.py --help
+    usage: runmask.py [-h] [--verbose] [--reset] [--all-on] ...
                         [FILE]
 
 
@@ -130,8 +130,8 @@ at the expense of:
  * Easy handling of metadata such as CMT names, PFT names, parameter names, 
    units, comments, and references
 
-The ``param_util.py`` script has many functions to help manipulate ``dvmdostem``
-parameter files. Included in ``param_util.py`` are functions that can help
+The ``util/param.py`` script has many functions to help manipulate ``dvmdostem``
+parameter files. Included in ``util/param.py`` are functions that can help
 convert from the custom fixed width text (fwt) format to Command Separated Value
 (csv) and back. Certain edits (such as adding and updating metadata) are much
 easier to accomplish in a spreadhsheet program. The metadata in the existing FWT
@@ -140,7 +140,7 @@ users convert to CSV, work on the files, updating values (i.e. through
 calibration, new observations or further literature review), and updating
 metadata and then convert the files back to FWT before comitting to the repository.
 
-``param_utils.py`` also has facilities for converting from FWT to json and back.
+``util/param.py`` also has facilities for converting from FWT to json and back.
 These functions had thus far been most useful in integrating ``dvmdostem`` with 
 other software such as `PEcAn`_
 

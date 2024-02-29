@@ -1338,7 +1338,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //yearly
       else if(curr_spec.yearly){
-        outhold.burnveg2airc_for_output.push_back(cohort.fd->fire_v2a.orgc);
+        double yearly_v2a_orgc = 0.0;
+        for(int im=0; im<MINY; im++){
+          yearly_v2a_orgc += cohort.year_fd[im].fire_v2a.orgc;
+        }
+        outhold.burnveg2airc_for_output.push_back(yearly_v2a_orgc);
 
         if(output_this_timestep){
           output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2airc_for_output[0], 1, year_start_idx, years_to_output);
@@ -1857,7 +1861,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //by PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> eet_arr;
+        std::array<double, NUM_PFT> eet_arr{};
 
         //daily
         if(curr_spec.daily){
@@ -2667,7 +2671,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERDEPTH)
     {
-      std::array<double, MAX_SOI_LAY> layerdepth_arr;
+      std::array<double, MAX_SOI_LAY> layerdepth_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -2706,7 +2710,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERDZ)
     {
-      std::array<double, MAX_SOI_LAY> layerdz_arr;
+      std::array<double, MAX_SOI_LAY> layerdz_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -2745,7 +2749,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERTYPE)
     {
-      std::array<int, MAX_SOI_LAY> layertype_arr;
+      std::array<int, MAX_SOI_LAY> layertype_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -3723,7 +3727,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //by PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> pet_arr;
+        std::array<double, NUM_PFT> pet_arr{};
 
         //daily
         if(curr_spec.daily){
@@ -4064,7 +4068,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-        std::array<double, MAX_SOI_LAY> rh_arr;
+        std::array<double, MAX_SOI_LAY> rh_arr{};
 
         //monthly
         if(curr_spec.monthly){
@@ -4329,6 +4333,82 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputSNOWFALL)
   }//end SNOWFALL
+  map_itr = netcdf_outputs.end();
+
+
+  //Snowlayerdz - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SNOWLAYERDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWLAYERDZ";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSNOWLAYERDZ)
+    {
+      std::array<double, MAX_SNW_LAY> snowlayerdz_arr{};
+
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowlayerdz_arr[currL->indl-1] = currL->dz;
+        currL = currL->nextl;
+      } 
+
+      if(curr_spec.monthly){
+        outhold.snowlayerdz_for_output.push_back(snowlayerdz_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayerdz_for_output[0], MAX_SNW_LAY, month_start_idx, months_to_output);
+          outhold.snowlayerdz_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+        outhold.snowlayerdz_for_output.push_back(snowlayerdz_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayerdz_for_output[0], MAX_SNW_LAY, year_start_idx, years_to_output);
+          outhold.snowlayerdz_for_output.clear();
+        }
+      }
+
+     }//end critical(outputSNOWLAYERDZ)
+  }//end SNOWLAYERDZ
+  map_itr = netcdf_outputs.end();
+
+
+  //Snowlayertemp - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SNOWLAYERTEMP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWLAYERTEMP";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSNOWLAYERTEMP)
+    {
+      std::array<double, MAX_SNW_LAY> snowlayertemp_arr{};
+
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowlayertemp_arr[currL->indl-1] = currL->tem;
+        currL = currL->nextl;
+      } 
+
+      if(curr_spec.monthly){
+        outhold.snowlayertemp_for_output.push_back(snowlayertemp_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayertemp_for_output[0], MAX_SNW_LAY, month_start_idx, months_to_output);
+          outhold.snowlayertemp_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+        outhold.snowlayertemp_for_output.push_back(snowlayertemp_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayertemp_for_output[0], MAX_SNW_LAY, year_start_idx, years_to_output);
+          outhold.snowlayertemp_for_output.clear();
+        }
+      }
+
+     }//end critical(outputSNOWLAYERTEMP)
+  }//end SNOWLAYERTEMP
   map_itr = netcdf_outputs.end();
 
 
@@ -4753,7 +4833,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputTLAYER)
     {
-      std::array<double, MAX_SOI_LAY> tlayer_arr;
+      std::array<double, MAX_SOI_LAY> tlayer_arr{};
 
       //daily
       if(curr_spec.daily){
@@ -4883,9 +4963,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> d_trans_arr;
-        std::array<double, NUM_PFT> m_trans_arr;
-        std::array<double, NUM_PFT> y_trans_arr;
+        std::array<double, NUM_PFT> d_trans_arr{};
+        std::array<double, NUM_PFT> m_trans_arr{};
+        std::array<double, NUM_PFT> y_trans_arr{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           d_trans_arr[ip] = cohort.ed[ip].d_v2a.tran;
@@ -5230,7 +5310,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     curr_spec = map_itr->second;
     #pragma omp critical(outputVWCLAYER)
     {
-      std::array<double, MAX_SOI_LAY> vwclayer_arr;
+      std::array<double, MAX_SOI_LAY> vwclayer_arr{};
 
       if(curr_spec.monthly){
         for(int il=0; il<MAX_SOI_LAY; il++){

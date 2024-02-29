@@ -62,7 +62,7 @@ get_ipython().system('docker compose exec dvmdostem-dev rm -r /data/workflows/te
 # In[9]:
 
 
-get_ipython().system('docker compose exec dvmdostem-dev scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/ /data/workflows/testcase_0001')
+get_ipython().system('docker compose exec dvmdostem-dev scripts/util/setup_working_directory.py  --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/  /data/workflows/testcase_0001')
 
 
 # Now note that if you investigate **from your host** (i.e. not inside the docker container) you can see the new directory you just created (in my case, I keep the workflows up two directories from my dvm-dos-tem repo; your paths might be different):
@@ -87,7 +87,7 @@ get_ipython().system('docker compose exec dvmdostem-dev ls /data/workflows/testc
 # In[12]:
 
 
-get_ipython().system('docker compose exec dvmdostem-dev runmask-util.py --reset --yx 0 0 --show /data/workflows/testcase_0001/run-mask.nc')
+get_ipython().system('docker compose exec dvmdostem-dev /work/scripts/util/runmask.py --reset  --yx 0 0  --show  /data/workflows/testcase_0001/run-mask.nc')
 
 
 # ## Choose output variables
@@ -97,7 +97,7 @@ get_ipython().system('docker compose exec dvmdostem-dev runmask-util.py --reset 
 # In[13]:
 
 
-get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py -s /data/workflows/testcase_0001/config/output_spec.csv')
+get_ipython().system('docker compose exec dvmdostem-dev outspec.py -s /data/workflows/testcase_0001/config/output_spec.csv')
 
 
 # This is super annoying because it needs a wider screen to display this table nicely. But we can use `pandas` to display nicely in this notebook.
@@ -112,12 +112,9 @@ outspec.head(15)
 
 # Now use the utility helper script to change the file:
 
-# In[15]:
+get_ipython().system('docker compose exec dvmdostem-dev outspec.py  /data/workflows/testcase_0001/config/output_spec.csv  --on GPP p m')
 
-
-get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py /data/workflows/testcase_0001/config/output_spec.csv --on GPP p m')
-
-get_ipython().system('docker compose exec dvmdostem-dev outspec_utils.py /data/workflows/testcase_0001/config/output_spec.csv --on CMTNUM y')
+get_ipython().system('docker compose exec dvmdostem-dev outspec.py  /data/workflows/testcase_0001/config/output_spec.csv  --on CMTNUM y')
 
 
 # ## Adjust other settings
@@ -152,7 +149,7 @@ with open(CONFIG_FILE, 'w') as f:
 # In[17]:
 
 
-get_ipython().system('docker compose exec --workdir /data/workflows/testcase_0001 dvmdostem-dev dvmdostem -p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt 4')
+get_ipython().system('docker compose exec --workdir /data/workflows/testcase_0001 dvmdostem-dev  dvmdostem -p 50 -e 200 -s 0 -t 0 -n 0 -l err --force-cmt 4')
 
 
 # Thats it! If we look in the output directory, we expect to see one output file for the equlibrium stage, GPP:
@@ -177,11 +174,11 @@ get_ipython().system('ncdump ../dvmdostem-workflows/testcase_0001/output/run_sta
 
 
 import netCDF4 as nc
-import scripts.output_utils as ou
+import util.output
 import matplotlib.pyplot as plt
 
 
-# The output_utils script has a bunch of unfinished plotting tools in it and some useful funcitons for summarizing outputs (i.e. summing PFTs or converting monthly outputs to yearly).
+# The ``util.output`` script has a bunch of unfinished plotting tools in it and some useful funcitons for summarizing outputs (i.e. summing PFTs or converting monthly outputs to yearly).
 # 
 # First just see what output files we have to work with:
 
@@ -198,7 +195,7 @@ get_ipython().system('ls ../dvmdostem-workflows/testcase_0001/output/')
 
 ds = nc.Dataset("../dvmdostem-workflows/testcase_0001/output/GPP_monthly_eq.nc")
 gpp = ds.variables['GPP'][:]
-yrly_gpp = ou.sum_monthly_flux_to_yearly(gpp)
+yrly_gpp = util.output.sum_monthly_flux_to_yearly(gpp)
 for pft in range(0,5):
     plt.plot(yrly_gpp[:,pft,0,0], label='pft{}'.format(pft))
 plt.xlabel('run year')
@@ -210,8 +207,7 @@ _ = plt.legend()
 
 # In[23]:
 
-
-plt.plot(ou.sum_across_pfts(yrly_gpp)[:,0,0], label='all pfts')
+plt.plot(util.output.sum_across_pfts(yrly_gpp)[:,0,0], label='all pfts')
 plt.xlabel('run year')
 _ = plt.ylabel('GPP (g/m2/year)')
 
@@ -231,15 +227,9 @@ plt.ylabel('GPP ({})'.format(ds.variables['GPP'].units))
 _ = plt.legend()
 
 
-# ### Unfinished output_utils.py plot function
+# ### Unfinished util/output.py plot function
 
-# In[25]:
-
-
-ou.plot_basic_timeseries(['GPP'],0,0,'monthly',['eq'],'../dvmdostem-workflows/testcase_0001/output/')
-
-
-# In[ ]:
+util.output.plot_basic_timeseries(['GPP'],0,0,'monthly',['eq'],'../dvmdostem-workflows/testcase_0001/output/')
 
 
 

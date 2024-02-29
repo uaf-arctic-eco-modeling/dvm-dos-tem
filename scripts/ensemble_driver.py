@@ -47,7 +47,7 @@ def adjust_mask(workflows_dir, exe_path):
 
 
 def adjust_outvars(ens_folder_list, exe_path):
-  ''' add code here to use the outspec_utils.py script '''
+  ''' add code here to use the util/outspec.py script '''
   pass
 
 def run(workflows_dir, exe_path):

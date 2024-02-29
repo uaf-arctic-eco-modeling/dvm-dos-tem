@@ -78,7 +78,7 @@ volumes:
   sourcecode:
     driver_opts:
       type: none
-      device: '${PWD}'
+      device: "${PWD}"
       o: bind
   inputcatalog:
     driver_opts:
