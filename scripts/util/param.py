@@ -2094,18 +2094,9 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   with open(f, 'w') as updated_file:
     updated_file.write('\n'.join(formatted))  
 
+def cmdline_define():
+  '''Define the command line interface and return the parser object.'''
 
-def cmdline_parse(argv=None):
-  '''
-  Define and parse the command line interface.
-
-  When argv is None, the parser will evaluate sys.argv[1:]
-
-  Return
-  ------
-  args : Namespace
-    A Namespace object with all the arguments and associated values.
-  '''
   parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
     description=textwrap.dedent('''
@@ -2176,11 +2167,10 @@ def cmdline_parse(argv=None):
         the seasonality. Looks a 'cmt_dimvegetation.txt file in the
         INFOLDER.'''))
 
-  parser.add_argument('--extract-cmt', nargs=2, metavar=('INFOLDER','CMTKEY'),
+  parser.add_argument('--extract-cmt', nargs=3, metavar=('INFOLDER','CMTKEY', 'DST'),
       help=textwrap.dedent('''Given a folder of parameter files, and a CMT
         number, this will open each file, copy the block of data for the CMT 
-        and paste that block in to a new file named CMTKEY_cmt_*.txt, 
-        i.e: CMT04_cmt_calparbgc.txt'''))
+        and paste that block in to a new file named DST/cmt_*.txt.'''))
 
   parser.add_argument('--csv-v1-spec', action='store_true',
       help='Print the specification for the supported csv files, v1.')
@@ -2218,6 +2208,21 @@ def cmdline_parse(argv=None):
   parser.add_argument('--params2csv-v0', nargs=2, metavar=('PARAMFOLDER','CMTKEY'),
       help=textwrap.dedent('''(DEPRECATED!!) Dumps a parameter file to csv format.'''))
 
+  return parser
+
+
+def cmdline_parse(argv=None):
+  '''
+  Define and parse the command line interface.
+
+  When argv is None, the parser will evaluate sys.argv[1:]
+
+  Return
+  ------
+  args : Namespace
+    A Namespace object with all the arguments and associated values.
+  '''
+  parser = cmdline_define()
   args = parser.parse_args(argv)
 
   return args
@@ -2349,7 +2354,7 @@ def cmdline_run(args):
         print(l)
 
   if args.extract_cmt:
-    folder, cmtkey = args.extract_cmt
+    folder, cmtkey, dst = args.extract_cmt
     if not isCMTkey(cmtkey):
       print("Invalid CMT key! Aborting.")
       return -1
@@ -2364,7 +2369,8 @@ def cmdline_run(args):
     for f in param_files:
       if isParamFile(f):
         db = get_CMT_datablock(f, int(cmtkey[3:]))
-        new_fname = os.path.join(os.path.dirname(f), cmtkey.upper(), '{}'.format(os.path.basename(f)))
+        new_fname = os.path.join(dst, cmtkey.upper(), '{}'.format(os.path.basename(f)))
+        #new_fname = os.path.join(cmtkey.upper(), '{}'.format(os.path.basename(f)))
         if not os.path.exists(os.path.dirname(new_fname)):
           os.makedirs(os.path.dirname(new_fname))
         with open(new_fname, 'w') as fp:

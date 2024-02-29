@@ -11,6 +11,9 @@ import errno
 import numpy as np
 import netCDF4 as nc
 
+import argparse
+import textwrap
+
 # Add dvm-dos-tem directory to path so that we can import various scripts, 
 # classes from the calibration directory, and the calibration targets.
 # Assumes that this script, (qcal.py) is living in the dvm-dos-tem/scripts/
@@ -445,12 +448,8 @@ def ref_runmask_validator(arg_ref_runmask_path):
   '''Not implemented yet...'''
   return arg_ref_runmask_path
 
-
-
-if __name__ == '__main__':
-  
-  import argparse
-  import textwrap
+def cmdline_define():
+  '''Define the command line interface and return the parser object.'''
 
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
@@ -473,6 +472,12 @@ if __name__ == '__main__':
 
   parser.add_argument("calfolder", type=cal_folder_validator, 
       help=textwrap.dedent('''The folder where the program should look for calibration outputs from dvm-dos-tem'''))
+
+  return parser
+
+if __name__ == '__main__':
+
+  parser = cmdline_define()
 
   args = parser.parse_args()
   

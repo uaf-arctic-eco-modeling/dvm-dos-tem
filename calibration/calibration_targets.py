@@ -8,26 +8,26 @@ calibration_targets = {
   # can be handled in the fixed width text parameter files as well as the csv
   # parameter files.
   "meta": {
-    'GPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'GPP without N limitation', 'comment': 'ingpp', 'ref': ''},
-    'NPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'NPP without N limitation', 'comment': 'innpp', 'ref': ''},
-    'NPPAll': {'units': 'g/m2/year', 'desc': 'NPP with N limitation', 'comment': 'npp', 'ref': ''},
-    'Nuptake': {'units': 'g/m2/year', 'desc': '', 'comment': 'nuptake', 'ref': ''},
+    'GPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'GPP without N limitation', 'comment': 'ingpp', 'ref': '', 'ncname': 'INGPP'},
+    'NPPAllIgnoringNitrogen': {'units': 'g/m2/year', 'desc': 'NPP without N limitation', 'comment': 'innpp', 'ref': '', 'ncname': 'INNPP'},
+    'NPPAll': {'units': 'g/m2/year', 'desc': 'NPP with N limitation', 'comment': 'npp', 'ref': '', 'ncname': 'NPP'},
+    'Nuptake': {'units': 'g/m2/year', 'desc': '', 'comment': 'nuptake', 'ref': '','ncname': '?'},
     'VegCarbon': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegcl', 'ref': ''},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegcw', 'ref': ''},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegcr', 'ref': ''},
+      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegcl', 'ref': '', 'ncname': 'VEGC'},
+      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegcw', 'ref': '', 'ncname': 'VEGC'},
+      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegcr', 'ref': '', 'ncname': 'VEGC'},
     },
     'VegStructuralNitrogen': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': ''},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': ''},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': ''},
+      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': '', 'ncname': 'VEGN'},
+      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': '', 'ncname': 'VEGN'},
+      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': '', 'ncname': 'VEGN'},
     },
-    'MossDeathC': {'units': '', 'desc': '', 'comment': 'dmossc', 'ref': ''},
-    'CarbonShallow': {'units': '', 'desc': '', 'comment': 'shlwc', 'ref': ''},
-    'CarbonDeep': {'units': '', 'desc': '', 'comment': 'deep', 'ref': ''},
-    'CarbonMineralSum': {'units': '', 'desc': '', 'comment': 'minec', 'ref': ''},
-    'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': ''},
-    'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': ''},
+    'MossDeathC': {'units': 'g/m2', 'desc': '', 'comment': 'dmossc', 'ref': '', 'ncname': 'MOSSDEATHC'},
+    'CarbonShallow': {'units': 'g/m2', 'desc': '', 'comment': 'shlwc', 'ref': '', 'ncname': 'SHLWC'},
+    'CarbonDeep': {'units': 'g/m2', 'desc': '', 'comment': 'deep', 'ref': '', 'ncname': 'DEEPC'},
+    'CarbonMineralSum': {'units': 'g/m2', 'desc': '', 'comment': 'minec', 'ref': '', 'ncname': 'MINEC'},
+    'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': '', 'ncname': 'ORGN'},
+    'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': '', 'ncname': 'AVLN'},
   },
 
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!

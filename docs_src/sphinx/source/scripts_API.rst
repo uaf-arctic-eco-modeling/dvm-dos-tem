@@ -5,45 +5,76 @@
    ^, for subsubsections
    ", for paragraphs
 
-################
-Python API Docs
-################
-
 The content in these section has been auto-generated from the python
 ``docstrings`` in the project.
 
-**************************
-Sensitivity Analysis Tools
-**************************
 
-These are tools and APIs for carrying out Sensitivity Analysis.
+
+###############################
+drivers.BaseDriver
+###############################
+
+.. automodule:: drivers.BaseDriver
+    :members:
+    :show-inheritance:
+
+#####################
+drivers.Sensitivity
+#####################
 
 .. automodule:: drivers.Sensitivity
     :members:
+    :show-inheritance:
+    :inherited-members:
 
-******************
-General Utilities
-******************
+
+
+#####################
+drivers.MadsTEMDriver
+#####################
+
+.. automodule:: drivers.MadsTEMDriver
+    :members:
+    :show-inheritance:
+    :inherited-members:
+
+
+
+
+##########################################
+mads_calibration.SA_post_hoc_analysis
+##########################################
+
+.. automodule:: SA_post_hoc_analysis
+    :members:
 
 These are general purpose utility scripts for working with ``dvmdostem``.
 
-==================
-param.py
-==================
+##########################################
+util.param
+##########################################
 
 .. automodule:: util.param
     :members:
 
-================
-output.py
-================
+##########################################
+util.output
+##########################################
 
 .. automodule:: util.output
     :members:
 
-================
-input.py
-================
+##########################################
+util.input
+##########################################
 
 .. automodule:: util.input
     :members:
+
+##########################################
+util.metrics
+##########################################
+
+.. automodule:: util.metrics
+    :members:
+
