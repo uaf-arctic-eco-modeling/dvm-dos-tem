@@ -38,7 +38,7 @@ def load_dvmdostem_from_configfile(config_file_name):
   dvmdostem = drivers.MadsTEMDriver.MadsTEMDriver.fromfilename(config_file_name)
 
   dvmdostem.set_params_from_seed()
-  dvmdostem.load_target_data("/work/calibration") # <-- now set from config I think?
+  dvmdostem.load_target_data("/work/calibration") # <- should be overridden later with data from config seed targets?
   dvmdostem.setup_outputs(dvmdostem.target_names)
   dvmdostem.clean()
   dvmdostem.setup_run_dir()
@@ -235,9 +235,9 @@ md["Problem"] = Dict{Any,Any}("ssdr"=>true)
 
 # Finally! Run the optimization. This can take forever...
 println("Performing calibration (optimization) runs...")
-calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
+calib_params, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 
-# calib_param:
+# calib_params:
 #    an OrderedCollections.OrderedDict of optimum parameter values
 # calib_information:
 #    an OptimBase.MultivariateOptimizationResults object with a bunch of 
@@ -246,32 +246,42 @@ calib_param, calib_information = Mads.calibrate(md, tolOF=0.01, tolOFcount=4)
 # Prefer not to run the Mads.plotmatches(..) function!
 # The labels on the plot are opaque and it has to run the model again which is
 # annoyingly slow. This will be replaced by plot_opt_fit below...
-#Mads.plotmatches(md, calib_param, xtitle="# of observations", 
+#Mads.plotmatches(md, calib_params, xtitle="# of observations", 
 #                ytitle="Targets",filename=prob_name*".png")
 
 # Then finally you step the model "forward" and run it with the optimum results
 # But in our case, since the model is so expensive to run we should simply grab
 # the outputs from the last optimzation run rather than re-running the model...
-#calib_predictions = Mads.forward(md, calib_param)
+#calib_predictions = Mads.forward(md, calib_params)
 calib_predictions = dvmdostem.modeled_vec()
 
 # Print a bunch of stuff out so that you can save it (copy paste from terminal?)
 # and later run the plotting function without waiting for Mads to import or any
 # of the dvmdostem runs to commence.
-println("seed_params=np.array(", seed_params, ")")
-println("param_keys=np.array(", param_keys, ")")
-println("ig_params=np.array(", ig_params, ")")
-println("seed_out=np.array(", seed_out, ")")
-println("ig_out=np.array(", ig_out, ")")
-println("opt_out=np.array(", calib_predictions, ")")
-println("param_labels=", param_keys)
-println("targets=np.array(", targets, ")")
+
+# For consistent naming below, do the following:
+opt_params = calib_params.vals
+
+println("seed_params=np.array(", seed_params, "),")
+println("ig_params=np.array(", ig_params, "),")
+println("opt_params=", opt_params, ",")
+println("seed_out=np.array(", seed_out, "),")
+println("ig_out=np.array(", ig_out, "),")
+println("opt_out=np.array(", calib_predictions, "),")
+println("param_labels=", param_keys, ",")
+println("targets=np.array(", targets, "),")
 
 # Generate a list of nicely formatted labels that can be used for plotting
 # These labels are for the output variables (aka calibration targets)
 outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
 println("out_labels=", outlabels)
+println("")
 
+# Or if you need to lookup the optimum parameter values after the run from a 
+# Python script this will work:
+#    import SA_post_hoc_analysis as sap
+#    iteration_params, OF, LAM = sap.read_mads_iterationresults("/path/to/your/mads.iterationresults")
+#    opt_params = [v for k, v in iteration_params[-1].item()]
 
 # Retrieve the mads metadata files....
 # Not sure where these should default to going...??? 
