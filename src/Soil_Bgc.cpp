@@ -570,6 +570,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       curr_pool[il] = diff_react[il];
       delta_pool[il] -= diff_react[il];
       delta_pool_sum += delta_pool[il];
+      diffusion[il] = prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il]; 
 
       currl = currl->nextl;
       il++;
