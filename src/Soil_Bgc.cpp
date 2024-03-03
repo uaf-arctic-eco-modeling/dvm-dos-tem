@@ -141,6 +141,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //Some declarations for testing CH4 balance conservation
   double prev_pool[MAX_SOI_LAY] = {0};
   double curr_pool[MAX_SOI_LAY] = {0};
+
+  double production[MAX_SOI_LAY] = {0};
+  double ebullition[MAX_SOI_LAY] = {0};
+  double oxidation[MAX_SOI_LAY] = {0};
+  double plant_transport[MAX_SOI_LAY] = {0};
+  double diffusion[MAX_SOI_LAY] = {0};
+
   double delta_pool[MAX_SOI_LAY] = {0};
   double delta_pool_sum = 0;
 
@@ -150,20 +157,28 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double ch4_flux_layer[MAX_SOI_LAY] = {0};
 
   int numsoill = cd->m_soil.numsl;
-  // >>> BM: used in trisolver - need new names (Crank-Nicholson Method)
-  double C[numsoill] = {0}; // BM: relating to upper boundary conditions - solver_u_bound
-  double D[numsoill] = {0}; // BM: relating to lower boundary conditions - solver_l_bound
-  double s[numsoill] = {0}; // BM: currl->dz * currl->dz / (diff[il] * dt); this is sigma! -  maybe_sigma - solver_
-  double V[numsoill] = {0}; // BM: V[il] = s[il] * currl->ch4 + s[il] * dt - solver_ - write out units
-  double r[numsoill] = {0}; // BM: 2 + s[il] relating to sigma in Crank-Nicholson / trisolver 
+  // Tridiagonal matrix algorithm inputs
+  // Main diagonal
+  double main_diag[numsoill] = {0}; // BM: relating to lower boundary conditions - solver_l_bound
+  // Sub-diagonals
+  double sub_diag[numsoill] = {0}; 
 
-  double diff[numsoill] = {0};  // BM: diff[il] = diff_tmp * torty * pow((currl->tem + 273.15) / 293.15, 1.75) diffusion coefficient 
+  // Crank Nicolson discretization relations
+  // Inverted sigma : Dg dt / dx^2
+  double inv_sigma[numsoill] = {0};
+  // Right hand side of tridiagonal matrix formulation
+  // equal to the reaction-diffusion term needed for
+  // solving - current pool + (prod - oxid - plant - ebul)
+  double diff_react[numsoill] = {0};
+
+  // diffusion coefficient
+  double diff[numsoill] = {0};
   
   // ch4 production responses: kdc_ch4 * Tresp(q10) * SOM pool, Fan Eq. 9
-  double rhrawc_ch4[MAX_SOI_LAY] = {0};
-  double rhsoma_ch4[MAX_SOI_LAY] = {0};
-  double rhsompr_ch4[MAX_SOI_LAY] = {0};
-  double rhsomcr_ch4[MAX_SOI_LAY] = {0};
+  double prod_rawc_ch4[MAX_SOI_LAY] = {0};
+  double prod_soma_ch4[MAX_SOI_LAY] = {0};
+  double prod_sompr_ch4[MAX_SOI_LAY] = {0};
+  double prod_somcr_ch4[MAX_SOI_LAY] = {0};
 
   // Temperature response (q10) for unsaturated and saturated layers
   double TResp_unsat, TResp_sat = 0;
@@ -235,6 +250,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         plant = 0.0;
       }
 
+      plant_transport[il] = plant;
+
       // Only allow plant-mediated transport if layers are thawed
       if (ed->d_sois.ts[il] > 0.0) {
         // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
@@ -266,13 +283,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //In order to prevent NaNs in the calculation of s[]
       if(diff[il] == 0){
-        s[il] = 0;
+        inv_sigma[il] = 0;
       }
       else{
-        s[il] = currl->dz * currl->dz / (diff[il] * dt);
+        inv_sigma[il] = currl->dz * currl->dz / (diff[il] * dt);
       }
-
-      r[il] = 2 + s[il];
 
       //Oxidation:
 
@@ -281,7 +296,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //BM: https://doi.org/10.1073/pnas.1420797112 ?
       // ^^ I don't think this is the one, but probably some kind of winter Q10
       if(currl->tem >= -2.0 && currl->tem < 0.000001){
-        TResp_unsat = getRhq10(-2.1) * 0.25;
+        TResp_unsat = getRhq10(-2.1) * 0.25; //>>> getq10 - non-specific RH/ methanogenesis
         TResp_sat = getRhq10(-6.0) * 0.25;
       }// >>> get Rhq10 is heterotrophic respiration, need ch4 based q10?
       else if(currl->tem < -2.0){
@@ -306,46 +321,48 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       if (oxid<0.000001) {
         oxid = 0.0;
       }
-      
-      // HG: again do we need poro? we think it should be air content? test this
-      // _gm2hr refers to unit conversion: 
-      // oxid is in units mu mol L^-1 hr^-1
-      // 1 mu mol of C = 12e-6 g, ( * 12e-6)
-      // L^-1 = 1000 m^-3 ( * 1000)
-      // m^2 = m * m^-3 ( * dz) 
-      // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
-      oxid_gm2hr = oxid * convert_umolL_to_gm2;
+
+      oxidation[il] = oxid;
+
+          // HG: again do we need poro? we think it should be air content? test this
+          // _gm2hr refers to unit conversion:
+          // oxid is in units mu mol L^-1 hr^-1
+          // 1 mu mol of C = 12e-6 g, ( * 12e-6)
+          // L^-1 = 1000 m^-3 ( * 1000)
+          // m^2 = m * m^-3 ( * dz)
+          // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
+          oxid_gm2hr = oxid * convert_umolL_to_gm2;
 
       //Production:
 
       // Fan Eq. 9: rate constant * carbon pool * Q10 >>> could be replaced with fmax?
       // >>> rename rh to mp (methane production?)
       if(tmp_sois.rawc[il] > 0.0){
-        rhrawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
+        prod_rawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
       }
       else{
-        rhrawc_ch4[il] = 0.0;
+        prod_rawc_ch4[il] = 0.0;
       }
 
       if(tmp_sois.soma[il] > 0.0){
-        rhsoma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
+        prod_soma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
       }
       else{
-        rhsoma_ch4[il] = 0.0;
+        prod_soma_ch4[il] = 0.0;
       }
 
       if(tmp_sois.sompr[il] > 0.0){
-        rhsompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
+        prod_sompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
       }
       else{
-        rhsompr_ch4[il] = 0.0;
+        prod_sompr_ch4[il] = 0.0;
       }
 
       if(tmp_sois.somcr[il] > 0.0){
-        rhsomcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
+        prod_somcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
       }
       else{
-        rhsomcr_ch4[il] = 0.0;
+        prod_somcr_ch4[il] = 0.0;
       }
 
       //Fan 2013 Eq. 9 for layers below the water table 
@@ -362,7 +379,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // rh_ch4's are in g m^-2
       // divide by dz to get g m^-3
       // to get umol L^-1 /12 /0.001
-      prod = saturated_fraction * (convert_gm2_to_umolL) * (rhrawc_ch4[il] + rhsoma_ch4[il] + rhsompr_ch4[il] + rhsomcr_ch4[il]); //currl->getVolLiq() * 
+      prod = saturated_fraction * (convert_gm2_to_umolL) * (prod_rawc_ch4[il] + prod_soma_ch4[il] + prod_sompr_ch4[il] + prod_somcr_ch4[il]); //currl->getVolLiq() * 
+
+      production[il] = prod;
 
       // testing effect of partially saturated layer
       // if (saturated_fraction > 0.0){
@@ -407,6 +426,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         ebul = 0.0;
       }
 
+      ebullition[il] = ebul;
+      
       // Code below was used for testing effect of partially saturated layer on ebullition
       // if (saturated_fraction > 0.0){
       //   if(currl->tem > 1.0){
@@ -454,22 +475,30 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // Main diagnonal
       if (il == (numsoill - 1)) {
-        D[il] = r[il] - 1.0;
+        main_diag[il] = 1 + inv_sigma[il];
       } else {
-        D[il] = r[il];
+        main_diag[il] = 2 + inv_sigma[il];
       }
       // upper and lower sub diagonals
       if (il == 1) {
-        C[il] = -1.0 - upper_bound;
+        sub_diag[il] = -1.0 - upper_bound;
       } else {
-        C[il] = -1.0;
+        sub_diag[il] = -1.0;
       }
 
-      //V is a delta from equation 8, based on previous methane state and current fluxes
-      V[il] = s[il] * currl->ch4 + s[il] * dt * partial_delta_ch4;
+      // Right hand side of tridiagonal matrix algorithm formula
+      // This is determined from the crank nicolson discretization
+      // for the reaction-diffusion equation as well as some
+      // rearranging to bring across s (or 1 / sigma, where
+      // typically sigma = Dg dt/dx^2, see below TriSolver() call
+      // for additional details).
+      // Relates to the diffusion-reaction term considering
+      // the current pool ch4, and the partial delta from prod
+      // oxid, plant, and ebul
+      diff_react[il] = inv_sigma[il] * currl->ch4 + inv_sigma[il] * dt * partial_delta_ch4;
 
-      if (V[il] < 0.0000001) {// can V be negative? uptake?
-        V[il] = 0.0;
+      if (diff_react[il] < 0.0000001) {
+        diff_react[il] = 0.0;
       }
 
       prev_pool[il] = currl->ch4;
@@ -479,7 +508,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       il--; //Incrementing manual layer index tracker
     } //end of bottom up layer loop
 
-    TriSolver(numsoill - 1,   C,  D,  C,  V,  V);
+    TriSolver(numsoill - 1,   sub_diag,  main_diag,  sub_diag,  diff_react,  diff_react);
     //TriSolver(matrix_size, *A, *D, *C, *B, *X)
 
     // Matrix equation: A X = B, X = A^-1 B
@@ -505,30 +534,41 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     //  assuming dCh4/dt = d^2Ch4/dx^2
     //  see: https://www.quantstart.com/articles/Crank-Nicholson-Implicit-Scheme/
     
-    // In our case this is not simply linear diffusion as 
-    // we have our partial_delta_ch4 term which adds/subtracts
+    // In our case this is not simply linear diffusion as
+    // we have production, oxidation, plant-transport, and
+    // ebullition transport processes. This is called the 
+    // Reaction-Diffusion equation, and is considered  by our 
+    // partial_delta_ch4 term which adds/subtracts
     // from our layer concentrations, and a varying diffusion
     // coefficient, and these must be considered
-    // when we find our solution BUT while still using a 
-    // standard version of the tridiagonal matrix algorithm
+    // when we find our solution.
 
-    // Therefore we have a larger matrix equation which must be
-    // first condensed into a standard tridiagonal form
-    // See: https://georg.io/2013/12/03/Crank_Nicolson for
-    // matrix setup, assuming dCh4/dt = d^2Ch4/dx^2 + f(u, x)
+    // Assuming the reaction-diffusion equation is
+    // dCh4/dt = d^2Ch4/dx^2 + f(u, x)
+    // >>> ... add crank nicolson discretization
 
-    //...in progress
+    // In our matrix form this looks similarly to 
+    // A X = B + f(u,x)
+    // where f(u,x) = dt * (prod - oxid - plant - ebul)
+    // to be converted to a pool for comparison with
+    // current ch4 pool distribution. A is our 
+    // tridiagonal matrix which we can remove a factor
+    // r / sigma from 
+    // Dg dt/dx**2 A X = B + f(u,x)
+    // A X = (B + f(u,x)) * dx**2 / Dg * dt
+    // where diagonals of matrix A become factors of
+    // the inverse of r or sigma.
 
     currl = ground->fstshlwl; //reset currl to top of the soil stack
     il = 1; //Reset manual layer index tracker. From 1 to allow moss layer in future
 
     while(currl && currl->isSoil){
 
-      currl->ch4 = V[il];
+      currl->ch4 = diff_react[il];
 
       // For testing CH4 balance conservation
-      curr_pool[il] = V[il];
-      delta_pool[il] -= V[il];
+      curr_pool[il] = diff_react[il];
+      delta_pool[il] -= diff_react[il];
       delta_pool_sum += delta_pool[il];
 
       currl = currl->nextl;
