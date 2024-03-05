@@ -51,200 +51,78 @@ void Soil_Env::initializeParameter()
   envpar.rtdp4gdd = chtlu->rtdp4gdd;
 };
 
-void Soil_Env::initializeState()
-{
-  bool sitein = false;
+void Soil_Env::initializeState(){
 
-  if (sitein)
+  Layer *currl = ground->fstsoill;
+
+  while (currl != NULL)
   {
-    // in 'chtlu', intial soil tem and vwc are in each 10 cm
-    //   thickness of layers for at most 10 layers
-    // here, these 10 layers of 10 cm are thickness-weightedly assigned
-    //   to the soil structure already set in 'ground.cpp'
-    //   (which already in cd->m_soil)
-    double Zsoil[10];
-    double TSsoil[10];
-    double VWCsoil[10];
-
-    for (int i = 0; i < 10; i++)
+    if (currl->isSoil)
     {
-      Zsoil[i] = i * 0.10;
-      TSsoil[i] = chtlu->initts[i];
-      VWCsoil[i] = chtlu->initvwc[i];
-    }
+      double psifc = -2.e6; // filed capacity of -2MPsi
+      psifc /= currl->psisat;
+      double vwc = pow(abs(psifc), -1.0 / currl->bsw);
 
-    Layer *currl = ground->fstsoill;
-    int ilint = 0;
+      currl->tem = ed->d_atms.ta; // <== PROBLEM: what if ed->d_atms.ta is not set yet !??
 
-    while (currl != NULL)
-    {
-      if (currl->isSoil)
-      {
-        double ts = 0.;
-        double vwc = 0.;
-        double dzleft = currl->dz;
-
-        while (dzleft > 0.)
-        {
-          if (currl->z <= Zsoil[ilint] && currl->z <= Zsoil[ilint] + 0.10)
-          {
-            double dzdone = fmin(currl->dz, (Zsoil[ilint] + 0.10) - currl->z);
-            ts += TSsoil[ilint] * dzdone / currl->dz;
-            vwc += VWCsoil[ilint] * dzdone / currl->dz;
-            dzleft -= dzdone;
-          }
-          else
-          {
-            ilint++;
-
-            if (ilint >= 9)
-            {
-              ilint = 9; // assuming the 1.0m below is same
-                         //   Ts/VWCsoil as the last 10 cm' input
-              ts = TSsoil[ilint];
-              vwc = VWCsoil[ilint];
-              dzleft = 0.;
-            }
-          }
-        }
-
-        currl->tem = ts;
-
-        if (currl->tem > 0.)
-        {
-          currl->liq = fmax(currl->minliq, fmax(currl->maxliq,
-                                                vwc * currl->dz * DENLIQ));
-          currl->ice = 0.;
-          currl->frozen = -1;
-        }
-        else if (-2. < currl->tem <= 0.)
-        { // Do we want to use lwc here intead of vwc?
-
-          if ((0.5 * vwc * currl->dz * DENLIQ) > currl->maxliq)
-          {
-            currl->liq = currl->maxliq;
-          }
-          else if ((0.5 * vwc * currl->dz * DENLIQ) < currl->minliq)
-          {
-            currl->liq = currl->minliq;
-          }
-          else
-          {
-            currl->liq = 0.5 * vwc * currl->dz * DENLIQ;
-          }
-
-          if ((0.5 * vwc * currl->dz * DENICE) > currl->maxice)
-          {
-            currl->ice = currl->maxice;
-          }
-          else
-          {
-            currl->ice = 0.5 * vwc * currl->dz * DENICE;
-          }
-          currl->frozen = 0.0;
-        }
-        else
-        {
-          currl->ice = fmax(0., fmax(currl->maxice, vwc * currl->dz * DENICE));
-          currl->liq = 0.;
-          currl->frozen = 1;
-        }
-
-        currl->age = 0;
-        currl->rho = 0; // soil layer's actual density NOT used in model
+      if (currl->tem > 0.0)
+      { // Above freezing
+        currl->liq = fmax(currl->minliq,
+                          fmax(currl->maxliq, vwc * currl->dz * DENLIQ));
+        currl->ice = 0.0;
+        currl->frozen = -1;
       }
-      else if (currl->isRock)
-      {
-        currl->tem = currl->prevl->tem;
-        currl->liq = currl->prevl->liq;
-        currl->ice = currl->prevl->ice;
-        currl->frozen = currl->prevl->frozen;
-        currl->age = MISSING_I;
-        currl->rho = MISSING_D;
-      }
+      // else if (-2. < currl->tem <= 0.)
+      // { // Do we want to use lwc here intead of vwc?
+
+      //   if ((0.5 * vwc * currl->dz * DENLIQ) > currl->maxliq)
+      //   {
+      //     currl->liq = currl->maxliq;
+      //   }
+      //   else if ((0.5 * vwc * currl->dz * DENLIQ) < currl->minliq)
+      //   {
+      //     currl->liq = currl->minliq;
+      //   }
+      //   else
+      //   {
+      //     currl->liq = 0.5 * vwc * currl->dz * DENLIQ;
+      //   }
+
+      //   if ((0.5 * vwc * currl->dz * DENICE) > currl->maxice)
+      //   {
+      //     currl->ice = currl->maxice;
+      //   }
+      //   else
+      //   {
+      //     currl->ice = 0.5 * vwc * currl->dz * DENICE;
+      //   }
+      //   currl->frozen = 0.0;
+      // }
       else
-      {
-        break;
+      { // Below freezing
+        currl->ice = fmax(0.0, fmax(currl->maxice, vwc * currl->dz * DENICE));
+        currl->liq = 0.0;
+        currl->frozen = 1;
       }
 
-      currl = currl->nextl;
+      currl->age = 0;
+      currl->rho = 0; // soil layer's actual density NOT used in model
     }
-
-    // end of 'sitein'
-  }
-  else
-  {
-    Layer *currl = ground->fstsoill;
-
-    while (currl != NULL)
+    else if (currl->isRock)
     {
-      if (currl->isSoil)
-      {
-        double psifc = -2.e6; // filed capacity of -2MPsi
-        psifc /= currl->psisat;
-        double vwc = pow(abs(psifc), -1.0 / currl->bsw);
-
-        currl->tem = ed->d_atms.ta; // <== PROBLEM: what if ed->d_atms.ta is not set yet !??
-
-        if (currl->tem > 0.0)
-        { // Above freezing
-          currl->liq = fmax(currl->minliq,
-                            fmax(currl->maxliq, vwc * currl->dz * DENLIQ));
-          currl->ice = 0.0;
-          currl->frozen = -1;
-        }
-        else if (-2. < currl->tem <= 0.)
-        { // Do we want to use lwc here intead of vwc?
-
-          if ((0.5 * vwc * currl->dz * DENLIQ) > currl->maxliq)
-          {
-            currl->liq = currl->maxliq;
-          }
-          else if ((0.5 * vwc * currl->dz * DENLIQ) < currl->minliq)
-          {
-            currl->liq = currl->minliq;
-          }
-          else
-          {
-            currl->liq = 0.5 * vwc * currl->dz * DENLIQ;
-          }
-
-          if ((0.5 * vwc * currl->dz * DENICE) > currl->maxice)
-          {
-            currl->ice = currl->maxice;
-          }
-          else
-          {
-            currl->ice = 0.5 * vwc * currl->dz * DENICE;
-          }
-          currl->frozen = 0.0;
-        }
-        else
-        { // Below freezing
-          currl->ice = fmax(0.0, fmax(currl->maxice, vwc * currl->dz * DENICE));
-          currl->liq = 0.0;
-          currl->frozen = 1;
-        }
-
-        currl->age = 0;
-        currl->rho = 0; // soil layer's actual density NOT used in model
-      }
-      else if (currl->isRock)
-      {
-        currl->tem = currl->prevl->tem;
-        currl->liq = currl->prevl->liq;
-        currl->ice = currl->prevl->ice;
-        currl->frozen = currl->prevl->frozen;
-        currl->age = MISSING_I;
-        currl->rho = MISSING_D;
-      }
-      else
-      {
-        break;
-      }
-
-      currl = currl->nextl;
+      currl->tem = currl->prevl->tem;
+      currl->liq = currl->prevl->liq;
+      currl->ice = currl->prevl->ice;
+      currl->frozen = currl->prevl->frozen;
+      currl->age = MISSING_I;
+      currl->rho = MISSING_D;
     }
+    else
+    {
+      break;
+    }
+
+    currl = currl->nextl;
   }
 
   // fronts initialization, if any
@@ -254,7 +132,7 @@ void Soil_Env::initializeState()
   double frontZ[MAX_NUM_FNT];
   std::fill_n(frontFT, MAX_NUM_FNT, -9999);
   std::fill_n(frontZ, MAX_NUM_FNT, -9999.0);
-  Layer *currl = ground->toplayer;
+  currl = ground->toplayer;
   int ilint = 0;
 
   while (currl != NULL)

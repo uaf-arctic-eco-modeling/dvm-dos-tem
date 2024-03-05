@@ -66,6 +66,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
     tkunf = currl->getUnfThermCond();
     tkfrz = currl->getFrzThermCond();
+    // need to add tkmix = pow(tkfrz, frozenfrac) * pow(tkunf, 1-frozenfrac);
 
     if(tdrv1<0.0) {
       tkres   = tkfrz;
