@@ -1255,12 +1255,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
 
   //Burned soil nitrogen 
-  map_itr = netcdf_outputs.find("BURNSOILN");
+  map_itr = netcdf_outputs.find("BURNSOIL2AIRN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOILN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIL2AIRN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNSOILN)
+    #pragma omp critical(outputBURNSOIL2AIRN)
     {
       //By layer
       if(curr_spec.layer){
@@ -1281,8 +1281,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           output_nc_3dim(&curr_spec, file_stage_suffix, &burnSoilN, 1, year, 1);
         }
       }
-    }//end critical(outputBURNSOILN)
-  }//end BURNSOILN
+    }//end critical(outputBURNSOIL2AIRN)
+  }//end BURNSOIL2AIRN
   map_itr = netcdf_outputs.end();
 
 

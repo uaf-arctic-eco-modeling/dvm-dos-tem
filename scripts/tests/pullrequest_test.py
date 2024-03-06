@@ -53,7 +53,7 @@ test_output_set = [
   "AVLN y m l",
   "BURNAIR2SOIN y m",
   "BURNSOIL2AIRC y m",
-  "BURNSOILN y m",
+  "BURNSOIL2AIRN y m",
   "BURNTHICK y m",
   "BURNVEG2AIRC y m",
   "BURNVEG2AIRN y m",
