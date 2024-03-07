@@ -1458,13 +1458,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIABVN
-  map_itr = netcdf_outputs.find("BURNVEG2SOIABVN");
+  //BURNVEG2SOILABVN
+  map_itr = netcdf_outputs.find("BURNVEG2SOILABVN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILABVN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIABVN)
+    #pragma omp critical(outputBURNVEG2SOILABVN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1474,8 +1474,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(curr_spec.yearly){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.abvn, 1, year, 1);
       }
-    }//end critical(outputBURNVEG2SOIABVN)
-  }//end BURNVEG2SOIABVN
+    }//end critical(outputBURNVEG2SOILABVN)
+  }//end BURNVEG2SOILABVN
   map_itr = netcdf_outputs.end();
 
 
@@ -1510,13 +1510,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIBLWN
-  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWN");
+  //BURNVEG2SOILBLWN
+  map_itr = netcdf_outputs.find("BURNVEG2SOILBLWN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILBLWN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIBLWN)
+    #pragma omp critical(outputBURNVEG2SOILBLWN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1526,8 +1526,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(curr_spec.yearly){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.blwn, 1, year, 1);
       }
-    }//end critical(outputBURNVEG2SOIBLWN)
-  }//end BURNVEG2SOIBLWN
+    }//end critical(outputBURNVEG2SOILBLWN)
+  }//end BURNVEG2SOILBLWN
   map_itr = netcdf_outputs.end();
 
   //Community Type Code (CMT NUMBER)
