@@ -51,7 +51,7 @@ test_cases = {
 test_output_set = [
   "ALD y",
   "AVLN y m l",
-  "BURNAIR2SOIN y m",
+  "BURNAIR2SOILN y m",
   "BURNSOIL2AIRC y m",
   "BURNSOIL2AIRN y m",
   "BURNTHICK y m",

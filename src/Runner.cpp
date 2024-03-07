@@ -518,7 +518,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["BurnVeg2SoiBlwVegN"] = cohort.year_fd[month].fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.year_fd[month].fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.year_fd[month].fire_soi2a.orgn;
-  data["BurnAir2SoiN"] = cohort.year_fd[month].fire_a2soi.orgn;
+  data["BurnAir2SoilN"] = cohort.year_fd[month].fire_a2soi.orgn;
   data["BurnAbvVeg2DeadC"] = cohort.year_fd[month].fire_v2dead.vegC;
   data["BurnAbvVeg2DeadN"] = cohort.year_fd[month].fire_v2dead.strN;
   data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
@@ -795,7 +795,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["BurnVeg2SoiBlwVegC"] = veg2soiblwvegc;
   data["BurnSoi2AirC"] = soi2airc;
   data["BurnSoi2AirN"] = soi2airn;
-  data["BurnAir2SoiN"] = air2soin;
+  data["BurnAir2SoilN"] = air2soin;
   data["BurnAbvVeg2DeadC"] = veg2deadc;
   data["BurnAbvVeg2DeadN"] = veg2deadn;
 
@@ -1188,12 +1188,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  map_itr = netcdf_outputs.find("BURNAIR2SOIN");
+  map_itr = netcdf_outputs.find("BURNAIR2SOILN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOIN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOILN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNAIR2SOIN)
+    #pragma omp critical(outputBURNAIR2SOILN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1201,14 +1201,14 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //yearly
       else if(curr_spec.yearly){
-        double burnair2soin = 0.;
+        double burnair2soiln = 0.;
         for(int im=0; im<12; im++){
-          burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
+          burnair2soiln += cohort.year_fd[im].fire_a2soi.orgn;
         }
-        output_nc_3dim(&curr_spec, file_stage_suffix, &burnair2soin, 1, year, 1);
+        output_nc_3dim(&curr_spec, file_stage_suffix, &burnair2soiln, 1, year, 1);
       }
-    }//end critical(outputBURNAIR2SOIN)
-  }//end BURNAIR2SOIN
+    }//end critical(outputBURNAIR2SOILN)
+  }//end BURNAIR2SOILN
   map_itr = netcdf_outputs.end();
 
 

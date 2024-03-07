@@ -705,7 +705,7 @@ ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Ca
 VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LTRFALN']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series')
 
-VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','DWDRH', 'BURNAIR2SOIN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
+VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','DWDRH', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series')
 
 VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
