@@ -15,6 +15,9 @@
 
 extern src::severity_logger< severity_level > glg;
 
+double SNOW_WINTER_WARMING_FAC = 1.0;
+double CANOPY_SUMMER_WARMING_FAC = 1.0;
+
 CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
 };
@@ -230,7 +233,7 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_dimground.txt", temutil::cmtcode2num(this->cmtcode), 15
+      dircmt + "cmt_dimground.txt", temutil::cmtcode2num(this->cmtcode), 16
   );
 
   // pop each line off the front of the list
@@ -239,6 +242,7 @@ void CohortLookup::assignGroundDimension(string &dircmt) {
   temutil::pfll2data(l, snwdennew);
   temutil::pfll2data(l, initsnwthick);
   temutil::pfll2data(l, initsnwdense);
+  temutil::pfll2data(l, SNOW_WINTER_WARMING_FAC);
 
   temutil::pfll2data(l, maxdmossthick);
   temutil::pfll2data(l, initdmossthick);
@@ -274,7 +278,7 @@ void CohortLookup::assignEnv4Canopy(string &dir) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dir + "cmt_envcanopy.txt", temutil::cmtcode2num(this->cmtcode), 12
+      dir + "cmt_envcanopy.txt", temutil::cmtcode2num(this->cmtcode), 13
   );
 
   // pop each line off the front of the list
@@ -291,6 +295,7 @@ void CohortLookup::assignEnv4Canopy(string &dir) {
   temutil::pfll2data_pft(l, ppfd50);
   temutil::pfll2data_pft(l, initvegwater);
   temutil::pfll2data_pft(l, initvegsnow);
+  temutil::pfll2data(l, CANOPY_SUMMER_WARMING_FAC);
   
 }
 

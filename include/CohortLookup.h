@@ -13,6 +13,9 @@ using namespace std;
 #include "timeconst.h"
 #include "layerconst.h"
 
+extern double SNOW_WINTER_WARMING_FAC;
+extern double CANOPY_SUMMER_WARMING_FAC;
+
 class CohortLookup {
 public:
   CohortLookup();

@@ -18,6 +18,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/18/20 JSC  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree  DecidShrub  DecidTree    Moss        PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
@@ -33,6 +34,7 @@
 75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
 0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 JSC  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 //EverTree  DecidShrub  DecidTree    Moss        PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
@@ -48,6 +50,7 @@
 75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
 0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // 7/7/20 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree  DecidShrub  DecidTree    Moss        PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
@@ -63,6 +66,7 @@
 75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
 0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9             // pftnames:
@@ -78,6 +82,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 //Betula    Decid       EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9             // pftnames:
@@ -93,6 +98,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9             // pftnames
@@ -108,6 +114,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT07 // Heath Tundra
 //Decid     EGreen      Forbs        Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9             // pftnames:
@@ -123,6 +130,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 //DecShrub   EvrShrub     DecTree      EvrTree       Forbs       Gram       Feather       Lichen      Equisetum      PFT9             // pftnames:
@@ -138,6 +146,7 @@
 75           75           75           75           75           75           75           75           75           75               // ppfd50:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT20 // EML Shrub Tundra 
 //Betnan    Carex       Ericoid      Feather      Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3            // names: comments
@@ -153,6 +162,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
 //Decidsh   Egreensh     Sedge      Forbs       Lichen        OMoss        Sphag         PFT7         PFT8         PFT9             // names: comments
@@ -168,6 +178,7 @@
 75          75          75           75           75           75           0.0          75           0.0          0.0              // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT31 // Boreal Bog
 //Sphagnum  Sedge       DecShrub     EvrShrub     Forbs        Moss         PFT6         PFT7         PFT8         PFT9             // names: comments
@@ -183,6 +194,7 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 //Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9             // pftnames:
@@ -198,3 +210,4 @@
 75          75          75           75           75           75           75           75           75           75               // ppfd50:
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
 0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+1.0 // summerwarmingfac: summer warming experiment factor 

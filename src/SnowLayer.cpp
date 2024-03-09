@@ -6,6 +6,9 @@
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
+extern double SNOW_WINTER_WARMING_FAC;
+extern double CANOPY_SUMMER_WARMING_FAC;
+
 SnowLayer::SnowLayer() {
   BOOST_LOG_SEV(glg, debug) << "==> Creating a SnowLayer layer object...";
   tkey = I_SNOW;
@@ -84,6 +87,8 @@ double SnowLayer::getThermCond5Sturm() {
   return tc;
 };
 
+/** Returns snow thermal conductivity based on Goodrich 1982
+ */
 double SnowLayer::getThermCond() {
   double tc=0;
 
@@ -93,7 +98,13 @@ double SnowLayer::getThermCond() {
   //From Goodrich 1982
   //Shuhua's notes indicate that Goodrich should be used
   // for snow, but not for soil.
-  tc = 2.9*1.e-6 * rho*rho;
+  //Warming factor implemented March 2024 to mimic snow fence experiment
+  // with spring snow removal (to represent shoveling) i.e. increase in
+  // snow cover and associated insulation without impacting water input
+  // to the soil during snowmelt.
+  // Natali, Schuur, Rubin 2012. Journal of Ecology
+  // https://doi.org/10.1111/j.1365-2745.2011.01925.x
+  tc = SNOW_WINTER_WARMING_FAC * 2.9 * 1.e-6 * rho * rho;
 
   if(tc<0.04) {
     tc =0.04;

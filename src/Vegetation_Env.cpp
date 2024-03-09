@@ -251,7 +251,11 @@ double Vegetation_Env::getPenMonET(const double & ta, const double& vpd,
   /*resistance to latent heat transfer rv*/
   /*combined resistance to convectie and radiative heat transfer,
    * parallel resistances:rhr= (rh*rr)/(rh+rr)*/
-  double rhr = (rh*rr)/(rh+rr);
+  //Added summer warming factor March 2024 to replicate Open Top Chamber
+  // warming experiments. Modifying canopy resistance will mimic the
+  // effect of increased surface temperature on vegetation and align
+  // with the approach used by coupled land surface models.
+  double rhr = CANOPY_SUMMER_WARMING_FAC * (rh*rr)/(rh+rr);
   /*latent heat of vaporization as a function of ta*/
   double lhvap = 2.5023e6 -2430.54 *ta;
   double dt =0.2;
