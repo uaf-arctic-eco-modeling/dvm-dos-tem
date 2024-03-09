@@ -14,9 +14,10 @@ snow cover or canopy development.
 
 The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem
 
-.. image:: images/dvmdostem-overview_fromhg.png
-   :width: 600
-   :alt: dvmdostem overview drawing
+.. raw:: html
+
+   <!-- From UAF Shared Drive > Documentation Embed Images google drawing "dvmdostem-overview"-->
+   <img src="https://docs.google.com/drawings/d/e/2PACX-1vRpiX_EOtsiDn-rG1SAy15WwpgEBEdA5NoGKVUhq6C8OXruev31PL8erEpqpx35nu-bHKiG6mYNd_H1/pub?w=960&amp;h=720">
 
 
 .. note:: What’s with the name?
