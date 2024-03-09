@@ -166,10 +166,10 @@ if __name__ == '__main__':
 
           fig, axes = plt.subplots(number_subplots, 1,  sharex=args.sharex, sharey=args.sharey)
 
-          # Use a dicrete map with one color for each layer
+          # Use a discrete map with one color for each layer
           # Helpful to have it be a sequential map also so that you can 
           # intuit layer depth from the color
-          custom_cmap = plt.cm.get_cmap('plasma_r', len(layers))
+          custom_cmap = matplotlib.colormaps['plasma_r'].resampled(len(layers))
 
           if args.layer_sum and not args.hide_individual_layers:
             sum_ax = axes[0]
