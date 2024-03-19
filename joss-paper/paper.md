@@ -194,12 +194,7 @@ The ``DVMDOSTEM`` C++ core stands by itself as the embodiment of the model descr
 
 ## Target User
 
-We have found that research software is different from other types of software in that:
-
- - the software is in a constant state of flux as researchers pursue different interests and
- - the need for reproducibility and traceability is very high. 
-
-The software flux is at odds with the needs for reproducibility and traceability which has led to challenges in finding a system of development that uses modern software engineering practices while not unduly slowing experimentation and research progress. To this end ``DVMDOSTEM`` is designed primarly for a "developer user". In otherwords there is not (currently) a meaningful way to use most of the tools in the repository without familiarity with the basics of a software development workflow centered around using the Git version control system, and to a lesser extent the Docker {ref?} container system.
+``DVMDOSTEM`` is designed primarly for a "developer user". In other words there is not (currently) a meaningful way to use most of the tools in the repository without familiarity with the basics of a software development workflow centered around using the Git version control system, and to a lesser extent the Docker {ref?} container system.
 
 Following is a description of the major pieces of the ``dvm-dos-tem`` repostitory. More complete and up-to-date documentation for the project can be found here: http://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/.
 
