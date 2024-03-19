@@ -705,7 +705,7 @@ def generate_ca_config():
   '''Maybe we should auto-generate the yaml config files?'''
   pass  
 
-def prep_mads_initial_guess(params):
+def prep_mads_initial_guess(params, fmt=None):
   '''
   Generate MADS initial guess string based on parameter ranges. The idea is that
   the intial guess should be the mean of the parameter range. Gives you
@@ -724,6 +724,10 @@ def prep_mads_initial_guess(params):
   ----------
   params : pandas.DataFrame
     A DataFrame containing parameter values.
+  fmt : str
+    A user supplied format string specification. Should be something that
+    you would find on the right side of the colon in an f string format spec,
+    for example something like: '8.3f' or '3.5f'
 
   Returns
   -------
@@ -735,11 +739,16 @@ def prep_mads_initial_guess(params):
 
   s2 = 'mads_initialguess:\n'
   for MIN, MAX, comment in ranges:
-    s2 += f"- {scipy.stats.uniform(loc=MIN, scale=MAX-MIN).mean():8.3f}  # {comment}\n"
+    ig = scipy.stats.uniform(loc=MIN, scale=MAX-MIN).mean()
+    if fmt:
+      s_tmp = '- {ig:' + f'{fmt}' + '}' + f'   # {comment}\n'
+      s2 += s_tmp.format(ig=ig)
+    else:
+      s2 += f"- {ig:8.3f}  # {comment}\n"
 
   return s2
 
-def prep_mads_distributions(params):
+def prep_mads_distributions(params, fmt=None):
   '''
   Gives you something like this:
 
@@ -757,6 +766,10 @@ def prep_mads_distributions(params):
   params : pandas.DataFrame
     One row for each of the selected runs, one column for each parameter.
     Column names are
+  fmt : str
+    A user supplied format string specification. Should be something that
+    you would find on the right side of the colon in an f string format spec,
+    for example something like: '8.3f' or '3.5f'
 
   Returns
   -------
@@ -771,8 +784,11 @@ def prep_mads_distributions(params):
   # Then make a nice string out of it...
   s = 'mads_paramdist:\n'
   for MIN, MAX, comment in ranges:
-    s += f"- Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
-
+    if fmt:
+      s_tmp = "- Uniform({MIN:" + f'{fmt}' + '}, {MAX:' + f'{fmt}' + '})   '+f'# {comment}\n'
+      s += s_tmp.format(MIN=MIN, MAX=MAX, comment=comment)
+    else:
+      s += f"- Uniform({MIN:8.3f}, {MAX:8.3f})    # {comment}\n"
 
   return s
 
@@ -813,7 +829,7 @@ def n_top_runs(results, targets, params, r2lim, N=None):
   r2, rmse, mape = calc_metrics(results, targets)
   df_r2 = pd.Series( r2,  name = '$R^2$'  )
 
-  if N != None:
+  if N is not None:
       best_indices = np.argsort(df_r2)
       sorted_params = params.iloc[best_indices]
       sorted_results = results.iloc[best_indices]
