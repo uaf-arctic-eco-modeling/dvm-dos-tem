@@ -201,15 +201,15 @@ Following is a description of the major pieces of the ``dvm-dos-tem`` repostitor
 
 ## C++ model core
 
-The C++ code is kept in the ``src/`` directory, and headers are in the ``include/`` directory. There is a Makefile with the project. The final executable is linked against dependencies for NetCDF {ref?}, several Boost {ref?} libraries, a json parsing library and the lapacke linear algebra solver {ref?}. The code is multithreaded using OpenMP's ?????. The code can be built against MPI, but there is not currently an MPI implementation in use. Parallelism is achievd using a parallel file system, and the parallel NetCDF library coupled with scripts that can split and merge a single larger run. The C++ code employs some object oriented concepts but encapsulation and compartmentalization could be improved.
+The C++ code is kept in the ``src/`` directory, and headers are in the ``include/`` directory. There is a Makefile with the project. The final executable is linked against dependencies for NetCDF {ref?}, several Boost {ref?} libraries, a json parsing library and the lapacke linear algebra solver {ref?}. Parallelism is achievd using a combination of MPI, a parallel file system, the parallel NetCDF library and scripts that can split and merge a single larger run into batches. The C++ code employs some object oriented concepts but encapsulation and compartmentalization could be improved.
 
 ## Documentation
 
-The public facing documentation (published on the web) is maintained using the Python Sphinx {ref?} tool. The Sphinx system allows for standalone narrative documnetation as well as auto-generated documentation built from the structure of the code itself. The project's narrative documentaton is managed with Sphinx as well as the auto-generated documentaton for the Python tooling. Some documentation for the C++ model core can be auto-generated using the Doxygen {ref?} tool. The Doxygen outputs are not published.
+The public facing documentation (published on the web) is maintained using the Python Sphinx {ref?} tool. The project's narrative documentaton is managed with Sphinx as well as the auto-generated documentaton for the Python tooling. Some documentation for the C++ model core can be auto-generated using the Doxygen {ref?} tool. The Doxygen outputs are not published.
 
 ## Container system
 
-The project is using Docker {ref?} containers to compartmentalize specific build environments which increases portability. An added side benefit is that workflows can more easily be standardized and shared amongst developers. This is achieved using Docker's volume mounts which enable sharing host system folders with guest containers. Each user is then free to organize files as they wish on their host system, but paths and software within the containers are standarized. The project's Docker files specify containers for building, running and supporing ``dvmdostem`` as well as a Docker Compose {ref?} file that can start containers using standard volume mounts for the project.
+The project is using Docker {ref?} containers to compartmentalize build and running environments. This is achieved using Docker's volume mounts which enable sharing host system folders with guest containers. Each user is then free to organize files as they wish on their host system, but paths and software within the containers are standarized. The project's Docker files specify containers for building, running and supporing ``dvmdostem`` as well as a Docker Compose {ref?} file that can start containers using standard volume mounts for the project.
  
 ## Auxiliary scripts
 
@@ -238,7 +238,7 @@ Calibration is the process of adjusting model parameters such that there is acce
 
 #### Manual Calibration
 
-The manual calibration process relies on an expert user to run ``DVMDOSTEM`` with special settings that allow for control and adjustment of the model during run-time in response to the user's assessment of the model outputs and behavior. In this mode ``DVMDOSTEM`` produces additional outputs in ``.json`` format that shadow the NetCDF outputs. The ``.json`` outputs are used by a dynamic plotting program that updates as new data becomes available. The user then stops the model, turns setting on/off, and adjustst parameters until they achieve the desired agreement between model outputs and target values. The graphical plotting program is named ``calibration_viewer.py`` and uses ``matplotlib`` {ref?} to build and display the interactive plot.
+The manual calibration process relies on an expert user to run ``DVMDOSTEM`` with special settings that allow for control and adjustment of the model during run-time in response to the user's assessment of the model outputs and behavior. In this mode ``DVMDOSTEM`` produces additional outputs in ``.json`` format that shadow the NetCDF outputs. The ``.json`` outputs are used by a dynamic plotting program that updates as new data becomes available. The user then stops the model, turns settings on/off, and adjustst parameters until they achieve the desired agreement between model outputs and target values. The graphical plotting program is named ``calibration_viewer.py`` and uses ``matplotlib`` {ref?} to build and display the interactive plot.
 
 #### MADS Assisted Calibration
 
