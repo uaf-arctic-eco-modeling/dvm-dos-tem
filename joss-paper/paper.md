@@ -186,53 +186,16 @@ You can also use plain \LaTeX for equations
 \end{equation}
 and refer to \autoref{eq:fourier} from text. -->
 
-# Software Design
 
-While the core ``DVMDOSTEM`` executable is a stand alone compiled C++ program, the ``dvm-dos-tem`` Git repository includes the source code for the main model executable and a wide variety of supporting tooling including various scripts that help with analyses, input/output processing, the documentation system, and the container system.
-
-The ``DVMDOSTEM`` C++ core stands by itself as the embodiment of the model described in \autoref{heading:Model Design},  but it would be difficult to use ``DVMDOSTEM`` without the surrounding tooling that ships with the repository.
-
-## Target User
-
-``DVMDOSTEM`` is designed primarly for a "developer user". In other words there is not (currently) a meaningful way to use most of the tools in the repository without familiarity with the basics of a software development workflow centered around using the Git version control system, and to a lesser extent the Docker {ref?} container system.
-
-Following is a description of the major pieces of the ``dvm-dos-tem`` repostitory. More complete and up-to-date documentation for the project can be found here: http://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/.
-
-
-## C++ model core
-
-The C++ code is kept in the ``src/`` directory, and headers are in the ``include/`` directory. There is a Makefile with the project. The final executable is linked against dependencies for NetCDF {ref?}, several Boost {ref?} libraries, a json parsing library and the lapacke linear algebra solver {ref?}. Parallelism is achievd using a combination of MPI, a parallel file system, the parallel NetCDF library and scripts that can split and merge a single larger run into batches. The C++ code employs some object oriented concepts but encapsulation and compartmentalization could be improved.
-
-## Documentation
-
-The public facing documentation (published on the web) is maintained using the Python Sphinx {ref?} tool. The project's narrative documentaton is managed with Sphinx as well as the auto-generated documentaton for the Python tooling. Some documentation for the C++ model core can be auto-generated using the Doxygen {ref?} tool. The Doxygen outputs are not published.
-
-## Container system
-
-The project is using Docker {ref?} containers to compartmentalize build and running environments. This is achieved using Docker's volume mounts which enable sharing host system folders with guest containers. Each user is then free to organize files as they wish on their host system, but paths and software within the containers are standarized. The project's Docker files specify containers for building, running and supporing ``dvmdostem`` as well as a Docker Compose {ref?} file that can start containers using standard volume mounts for the project.
- 
-## Auxiliary scripts
-
-The project ``scripts`` directory is a catch all for the various interperted language tools that researchers have built over the project history. The majority of the auxiliary scripts are written in Python. There are scripts for the following major tasks:
-
- - diagnostics (assesing "closure" of the C balance),
- - input and output processing,
- - calibration,
-   - manual, and 
-   - MADS assisted,
-
-with the MADS assisted calibration being the most developed.
-
-
-### Calibration
+# Calibration
 
 Calibration is the process of adjusting model parameters such that there is acceptable agreement between measured field data and model predicitons (outputs). Due to the large number and non-linear nature of parameters available with ``DVMDOSTEM`` calibration is a significant hurdle.
 
-#### Manual Calibration
+## Manual Calibration
 
 The manual calibration process relies on an expert user to run ``DVMDOSTEM`` with special settings that allow for control and adjustment of the model during run-time in response to the user's assessment of the model outputs and behavior. In this mode ``DVMDOSTEM`` produces additional outputs in ``.json`` format that shadow the NetCDF outputs. The ``.json`` outputs are used by a dynamic plotting program that updates as new data becomes available. The user then stops the model, turns settings on/off, and adjustst parameters until they achieve the desired agreement between model outputs and target values. The graphical plotting program is named ``calibration_viewer.py`` and uses ``matplotlib`` {ref?} to build and display the interactive plot.
 
-#### MADS Assisted Calibration
+## MADS Assisted Calibration
 
 The MADS assisted calibration uses numerical methods to help find optimum parameter values. The proccess is not fully automated and requires a skilled operator to carry out the steps and interpert the results. However using the numerical methods provides a much more organized and repeatable way to explore the parameter space.
 
