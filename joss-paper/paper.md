@@ -112,28 +112,6 @@ TODO: write more info here about vegetation structure and processes - link betwe
 
 The primary difference between the run stages is the nature of the input climate dataset, and specifically whether there is annual variability in the driving climate data that the model uses. A complete, future-projecting, simulation is usually only made after advancing the model through several of the previous run stages to stabilize the system. Typically the ending state from each stage is used as the beginning state for each subsequent stage. A complete run utilizes all 5 stages. It is possible to work with any subset of the stages.
 
-### pre-run (pr)
-
-The pre-run is an equilibrium run for only the physical variables of the model. It is typically 100 years, uses constant climate (typically monthly average computed from the [1901-1930] period).
-
-### equilibrium (eq)
-
-In the equilibrium stage, the climate is fixed. That is, the climate does not vary from year to year. There will be intra-annual variability to represent the seasons, but from year to year the calculations will be carried out using the same annual cycles. Equilibrium run stage is used in the calibration mode, and is typically the first stage run for any complete simulation. During the eq stage, the annual climate inputs used are actually calculated as the mean of the first 30 years of the historic climate dataset, so the mean of the values from 1901-1930.
-
-### spinup (sp)
-
-In the spinup stage, the climate is not fixed. In the sp stage, the driving climate is used from the first 30 years of the historic climate dataset. Should the spstage be set to run longer than 30 years, the 30 year climate period is re-used. Another difference between eq and sp stages is that the sp stage is set to run for a fixed number of years, regardless of the internal state that the model reaches. In the sp stage the fire date is fixed, occuring at an interval equal to the Fire Recurrence Interval (FRI).
-
-### transient (tr)
-
-In the transient stage, the climate varies from year to year. The tr stage is used to run the model over the period of historical record. The input climate data for the tr stage should be the historic climate. This is typically the climate data for the 20th century, so roughly 1901-2009.
-
-### scenario (sc)
-
-In the scenario stage, the climate also varies from year to year, but rather than observed variability, a predicted climate scenario is used.
-
-
-
 
 ## Spatial considerations
 
