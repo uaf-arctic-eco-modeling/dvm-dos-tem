@@ -1462,7 +1462,8 @@ class Sensitivity(BaseDriver):
     None
     '''
 
-    fig, axes = plt.subplots(len(self.params),3, figsize=(10,3*len(self.params)))
+    fig, axes = plt.subplots(len(self.params), 3, 
+                             figsize=(10, 3*len(self.params)), squeeze=False)
 
     for i, (p, ax) in enumerate(zip(self.params, axes)):
       ax[0].plot(self.sample_matrix.iloc[:, i], marker='.', linewidth=0, alpha=.5)
