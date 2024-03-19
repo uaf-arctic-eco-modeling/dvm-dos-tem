@@ -223,14 +223,6 @@ The project ``scripts`` directory is a catch all for the various interperted lan
 
 with the MADS assisted calibration being the most developed.
 
-### Diagnostics
-
-Write this...
-
-
-### I/O
-
-Write this...
 
 ### Calibration
 
