@@ -84,7 +84,7 @@ Conceptually there are four core groups of processes in ``DVMDOSTEM`` that act u
 
 The processes are linked because the C and N pools of the vegetation exist both on top of and in the soil column. Properties of the soil thermal environment are used to govern the C and N fluxes associated with vegetation growth (and death), thereby changing the C and N pools that exist in, and on top of the soil column. Properties of the vegetation are used to influence the soil thermal and hydrologic regeimes. 
 
-Each site, (grid cell, or pixel) that the model simulates is represented by the soil and vegetation structure described here. Running a simulation consists of stepping this structure thru the processes for some number of timesteps.
+Each site, (grid cell, or pixel) that the model simulates is represented by the soil and vegetation structure described here. Running a simulation consists of stepping this structure through the processes for a series of timesteps.
 
 ## Soil structure and processes
 
@@ -144,7 +144,7 @@ In the scenario stage, the climate also varies from year to year, but rather tha
 
 ## Spatial considerations
 
-When considered regionally, ``DVMDOSTEM`` uses the concept of a grid cell. The spatial domain is broken into grid cells, each of which contains the model structure for that point. Each grid cell is driven to a different state as a result of the input values that are used for that grid cell. A land cover map is used to classify each grid cell, and the classificaitons have different assembleages of PFTs and different soil properties as well as different driving climates, soil parameterizations, disturbance charachteristics, and topography. There is not communication between grid cells and the grid cell classification is currently fixed throughout the simulation although there is active reserarch interest in being able to modifiy the land cover classification during a simulation {ref?}.
+When considered regionally, ``DVMDOSTEM`` uses the concept of a grid cell. The spatial domain is broken into grid cells, each of which contains the model structure for that point. Each grid cell is driven to a different state as a result of the input values that are used for that grid cell. A land cover map is used to classify each grid cell, and the classifications have different assembleages of PFTs and different soil properties as well as different driving climates, soil parameterizations, disturbance charachteristics, and topography. There is not communication between grid cells and the grid cell classification is currently fixed throughout the simulation although there is active reserarch interest in being able to modifiy the land cover classification during a simulation {ref?}.
 
 <!-- Exported from Tobey Carman's Google Drawing "dvmdostem-general-idea-science"-->
 ![Overview of ``DVMDOSTEM`` spatial structure. ``DVMDOSTEM`` is a process based spatially explicit model.\label{fig:structural_overview}](figures/dvmdostem-general-idea-science-export_2023-10-09.jpg)
@@ -276,13 +276,13 @@ Calibration is the process of adjusting model parameters such that there is acce
 
 The manual calibration process relies on an expert user to run ``DVMDOSTEM`` with special settings that allow for control and adjustment of the model during run-time in response to the user's assessment of the model outputs and behavior. In this mode ``DVMDOSTEM`` produces additional outputs in ``.json`` format that shadow the NetCDF outputs. The ``.json`` outputs are used by a dynamic plotting program that updates as new data becomes available. The user then stops the model, turns setting on/off, and adjustst parameters until they achieve the desired agreement between model outputs and target values. The graphical plotting program is named ``calibration_viewer.py`` and uses ``matplotlib`` {ref?} to build and display the interactive plot.
 
-#### Mads Assisted Calibration
+#### MADS Assisted Calibration
 
-The Mads assisted calibration uses numerical methods to help find optimum parameter values. The proccess is not fully automated and requires a skilled operator to carry out the steps and interpert the results. However using the numerical methods provides a much more organized and repeatable way to explore the parameter space.
+The MADS assisted calibration uses numerical methods to help find optimum parameter values. The proccess is not fully automated and requires a skilled operator to carry out the steps and interpert the results. However using the numerical methods provides a much more organized and repeatable way to explore the parameter space.
 
-The Mads assisted calibration begins with a sensitivity analysis to find the most important parameters and is followed by an optimization step which used the MADS {ref?} library to optimize parameters. 
+The MADS assisted calibration begins with a sensitivity analysis to find the most important parameters and is followed by an optimization step which used the MADS {ref?} library to optimize parameters. 
 
-The sensitivity analysis effectively samples from the parameter space and carries out many runs with modifications to the parameters from across the parameter space. Then outputs are analyzed to look for parameters that have the most impact on model outputs. The user is then able to choose a more appropriate range for the parameter space that is fed to the optimiaiton step.
+The sensitivity analysis samples from the parameter space and carries out many runs with modifications to the parameters from across the parameter space. Then outputs are analyzed to look for parameters that have the most impact on model outputs. The user is then able to choose a more appropriate range for the parameter space that is fed to the optimiaiton step.
 
 The optimizaitn step, with the MADS library, is using levenberg marquart gradient descent {ref?} to find parameters that result in model outputs most closely agreeing with the target values.
 
