@@ -99,13 +99,6 @@ TODO: write more info here about vegetation structure and processes - link betwe
 <!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
 ![Overview of ``DVMDOSTEM`` soil and vegetation structure. On the left is the soil structure showing the layers, and different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal of layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-12-20.png)
 
-## Disturbance structure and processes
-
-The ``DVMDOSTEM`` disturbance concept is extended to wildfire at this time. There is room to implement other disturbance types. 
-
-Wild fire is conceptualized in two ways: using a "fire return interval" (FRI), or using explicit fire. When driven by FRI burning happens at a fixed frequency that is set in the FRI input file. When driven explicitly the fire is perscribed based on the inputs. Thus a user can prepare inputs that are reflective of real world fire data.
-
-When a fire burns in ``DVMDOSTEM`` it affects the soil thermal regime as well as the vegetation in both above and below ground pools. Each fire is  described by a severity classificaiton (1-5), a julian date of burn, and a burn area. These classificaitons affect the extent to which the fire affects the modeled processes and behavior.
 
 ## Run stages
 
