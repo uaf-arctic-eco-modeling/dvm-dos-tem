@@ -60,14 +60,6 @@ soil thermal dynamics.
 
 The ``DVMDOSTEM`` model has thus far been primarlily used for high latitude ecosystems, but with work put into the parameterizations, it could be used elsewhere.
 
-
-Key Features:
-
-* **Vegetation Dynamics**: simulates the lifecycle of various plant functional types, influenced by climatic conditions and including competition between plant functional types.
-* **Carbon and Nitrogen Cycling**: captures ecosystem carbon and nitrogen fluxes and pools, incorporating processes such as photosynthesis, respiration, and decomposition.
-* **Soil Thermal Dynamics**: provides detailed insights into soil thermal conditions, including permafrost dynamics and active layer thickness, influenced by external factors like snow cover and vegetation.
-* **Disturbance Modules**: accounts for ecological disturbances, including wildfires and permafrost thaw.
-
 # Statement of need
 
 The permafrost regions, repositories of a colossal 1,440-1,600 Pg of organic carbon in soils, embody nearly half of the world’s soil organic carbon pool, underpinning the global climate system (Hugelius et al., 2014; Schuur et al., 2022). Arctic warming is catalyzing permafrost thaw and leading to the accelerated decomposition and release of a substantial portion of the soil-stored carbon as greenhouse gases which will exert formidable pressure on global climate dynamics (Schuur et al., 2022; Natali et al., 2021; Treharne et al., 2022). 
