@@ -94,8 +94,6 @@ The soil column is modeled as a series of layers. The number, and type of layers
 
 The vegetation is modeled using a detailed structure that can consider up to ten distinct vegetation types (plant functional types or PFTs), each of which may have up to three compartments: leaf, stem, and root. Vegetation C and N fluxes are calcluated at each time step based on environmental factors, and soil properties.
 
-TODO: write more info here about vegetation structure and processes - link between C and N cycles for example...
-
 <!-- Exported from UAF Shared Drive > Documentation Embed Images > "dvmdostem-overview" Google Drawing -->
 ![Overview of ``DVMDOSTEM`` soil and vegetation structure. On the left is the soil structure showing the layers, and different properties that are tracked (purple bubble; Carbon, Nitrogen, Temperature, Volumetric Water Content, Ice). Each of the layers with properties described above, is also categorized as Organic (fibric or humic) or Mineral (shallow or deep). Additionally the model simulates snow layers and the removal of layers due to processes such as fire.  On the right is the vegetation structure showing the Plant Functional Types (PFTs) and the associated pools and fluxes of Carbon and Nitrogen. Each PFT is split into compartments (Leaf, Stem and Root) which track their own C and N content and associated fluxes. The fluxes are represented with red text while the pools are black. In addition there is competition among the PFTs shown with the purple arrow in the top center.\label{fig:soil_veg_structure}](figures/dvmdostem-overview-export_2023-12-20.png)
 
