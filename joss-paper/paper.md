@@ -124,7 +124,7 @@ When considered regionally, ``DVMDOSTEM`` uses the concept of a grid cell. The s
 
 The $CO_2$, climate and fire include a temporal dimension, while the others do not. The $CO_2$ driving input must be yearly resolution, and the climate and fire must be monthly resolution.
 
-The output files that ``DVMDOSTEM`` produces are also NetCDF format and attempt to conform with the CF Conventions {verison?} {ref?}. There is one output file per variable and various resolutions available depending on the variable. Many soil output can be requested by layer, and many vegetation outputs can be requested by PFT and even compartment. Higher resolution outputs can be very costly in terms of compute time and space, so care must be given to output selection in the experiment design.
+The output files that ``DVMDOSTEM`` produces are also NetCDF format and attempt to conform with the CF Conventions {verison?} {ref?}. There is one output file per variable and various resolutions available depending on the variable. Many soil output can be requested by layer, and many vegetation outputs can be requested by PFT and even compartment.
 
 # Summary of Mathematics
 
