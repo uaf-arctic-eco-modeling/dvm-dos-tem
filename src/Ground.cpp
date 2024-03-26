@@ -561,8 +561,8 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
 
   for(int ifnt = 0; ifnt<MAX_NUM_FNT; ifnt++) {
     if(frontZ[ifnt]>0.) {
-      frontsz.push_front(frontZ[ifnt]);
-      frontstype.push_front(frontFT[ifnt]);
+      frontsz.push_back(frontZ[ifnt]);
+      frontstype.push_back(frontFT[ifnt]);
     }
   }
 
