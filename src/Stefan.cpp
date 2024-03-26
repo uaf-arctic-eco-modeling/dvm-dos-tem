@@ -66,7 +66,8 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
     tkunf = currl->getUnfThermCond();
     tkfrz = currl->getFrzThermCond();
-    // need to add tkmix = pow(tkfrz, frozenfrac) * pow(tkunf, 1-frozenfrac);
+    //BM: need to add tkmix = pow(tkfrz, frozenfrac) * pow(tkunf, 1-frozenfrac);
+    //BM: tkfront should be either frozen or unfrozen, and tkres should always be mixed based on above
 
     if(tdrv1<0.0) {
       tkres   = tkfrz;
@@ -190,7 +191,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
     dz = 0.0001*sl->dz;
   }
 
-  dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
+  dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum); //BM: tkfront either frozen or unfrozen but tkres always mixed?
   if(sl->tem < 0){ //if layer below 0, include energy needed to bring layer to 0 before thawing
     dsn += abs(sl->tem)*timestep;
   }
@@ -726,7 +727,7 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
         if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out
           currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing.
         }
-        else{
+        else{// BM: add temperature window here - i.e. only completely frozen IF <-2 (or a parameter defining this for a CMT)
           if (currl->tem>0.) {
             currl->frozen = -1;
           }

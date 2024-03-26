@@ -1819,8 +1819,8 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
   if (fntnum<=0) { // no fronts exist, use temp to assign frozen status
     if (soill->tem > 0.) {
       soill->frozen = -1;
-      soill->frozenfrac = 0.;
-    } else {
+      soill->frozenfrac = 0.;//BM: add temperature window (this may mess with front calculations)
+    } else {                 // though this is likely not to happen as there should already be a front
       soill->frozen = 1;
       soill->frozenfrac = 1.;
     }
@@ -1839,7 +1839,7 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
         if (frontsz[fntind]<=soill->z) { // cycle through any fronts above layer; the lowest one will give the correct status
           soill->frozen = -frontstype[fntind];
           if (soill->frozen==1) {
-            soill->frozenfrac = 1.0;
+            soill->frozenfrac = 1.0;//BM: else if frozen==0, frozenfrac interpolation
           } else {
             soill->frozenfrac = 0.0;
           }
@@ -1847,7 +1847,7 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
         if (frontsz[fntind]>soill->z+soill->dz) { // for any fronts below layer
           soill->frozen = frontstype[fntind];
           if (soill->frozen==1){
-            soill->frozenfrac = 1.0;
+            soill->frozenfrac = 1.0;//BM: else if frozen==0, frozenfrac interpolation, although unlikely as assigned below
           } else {
             soill->frozenfrac = 0.0;
           }

@@ -26,7 +26,7 @@ double SoilLayer::getUnfVolHeatCapa() {
 };
 
 //Yuan: unfrozen/frozen put together
-double SoilLayer::getMixVolHeatCapa() {
+double SoilLayer::getMixVolHeatCapa() { //BM: Not sure this calculation is correct, I think we want exp interpolation between two
   double vhc = vhcsolid * (1-poro) + liq/dz *SHCLIQ+ice/dz *SHCICE;
   return vhc;
 };
@@ -122,7 +122,7 @@ double SoilLayer::getAlbedoNir() {
 // called when porosity/thickness is changed
 void SoilLayer::derivePhysicalProperty() {
   //hydraulic properties
-  minliq = 0.05*poro * DENLIQ * dz;
+  minliq = 0.05*poro * DENLIQ * dz; //BM: minliq could be parameterized here to equate to our unfrozen water content?
   maxliq = poro * DENLIQ * dz;
   maxice = poro * DENICE * dz;
   //thermal properties
