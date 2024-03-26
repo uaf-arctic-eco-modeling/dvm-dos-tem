@@ -1486,6 +1486,7 @@ void Cohort::set_restartdata_from_state() {
     restartdata.ICEsoil[il]   = edall->d_sois.ice[il];
     restartdata.FROZENsoil[il]= edall->d_sois.frozen[il];
     restartdata.FROZENFRACsoil[il]= edall->d_sois.frozenfrac[il];
+    restartdata.TCsoil[il]= edall->d_sois.tc[il];
   }
 
   for(int il =0; il<MAX_ROC_LAY; il++) {

@@ -211,6 +211,7 @@ void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
   double ICEsoil[MAX_SOI_LAY];
   int FROZENsoil[MAX_SOI_LAY];
   double FROZENFRACsoil[MAX_SOI_LAY];
+  double TCsoil[MAX_SOI_LAY];
 
   for (int i=0; i<MAX_SOI_LAY; i++) {
     TSsoil[i] = rdata.TSsoil[i];
@@ -218,6 +219,7 @@ void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
     ICEsoil[i] = rdata.ICEsoil[i];
     FROZENsoil[i] = rdata.FROZENsoil[i];
     FROZENFRACsoil[i] = rdata.FROZENFRACsoil[i];
+    TCsoil[i] = rdata.TCsoil[i];
   }
 
   Layer* currl = ground->fstsoill;
@@ -231,6 +233,7 @@ void Soil_Env::set_state_from_restartdata(const RestartData & rdata) {
       currl->ice = ICEsoil[slind];
       currl->frozenfrac = FROZENFRACsoil[slind];
       currl->frozen = FROZENsoil[slind];
+      currl->tcond = TCsoil[slind];
     } else {
       break;
     }

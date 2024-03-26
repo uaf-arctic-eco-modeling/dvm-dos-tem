@@ -211,6 +211,8 @@ struct soistate_env {
                               //(for monthly/yearly)
   double frozenfrac[MAX_SOI_LAY]; //totally frozen: 1.0, totally unfrozen: 0.0,
                                   //partially frozen: 0 - 1.0
+  double tc[MAX_SOI_LAY]; //thermal conductivity
+
   double ts[MAX_SOI_LAY];
   double liq[MAX_SOI_LAY]; // soil liquid water content kg/m2 (or 1 mm liq. H2O)
   double ice[MAX_SOI_LAY]; // soil ice content kg/m2 (or 1 mm liq. H2O)

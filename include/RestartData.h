@@ -122,6 +122,7 @@ public :
   int FROZENsoil[MAX_SOI_LAY];
   double FROZENFRACsoil[MAX_SOI_LAY];
   int TEXTUREsoil[MAX_SOI_LAY];
+  double TCsoil[MAX_SOI_LAY];
 
   double TSrock[MAX_ROC_LAY];
   double DZrock[MAX_ROC_LAY];

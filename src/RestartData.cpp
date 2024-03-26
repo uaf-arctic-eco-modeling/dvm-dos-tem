@@ -104,6 +104,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MAX_SOI_LAY, // double ICEsoil[MAX_SOI_LAY];
     MAX_SOI_LAY, // int FROZENsoil[MAX_SOI_LAY];
     MAX_SOI_LAY, // double FROZENFRACsoil[MAX_SOI_LAY];
+    MAX_SOI_LAY, // double TCsoil[MAX_SOI_LAY];
     
     MAX_ROC_LAY, // double TSrock[MAX_ROC_LAY];
     MAX_ROC_LAY, // double DZrock[MAX_ROC_LAY];
@@ -176,6 +177,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double ICEsoil[MAX_SOI_LAY];
     MPI_INT, // int FROZENsoil[MAX_SOI_LAY];
     MPI_DOUBLE, // double FROZENFRACsoil[MAX_SOI_LAY];
+    MPI_DOUBLE, // double TCsoil[MAX_SOI_LAY];
     MPI_DOUBLE, // double TSrock[MAX_ROC_LAY];
     MPI_DOUBLE, // double DZrock[MAX_ROC_LAY];
     MPI_DOUBLE, // double frontZ[MAX_NUM_FNT];
@@ -241,6 +243,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, ICEsoil),
     offsetof(RestartData, FROZENsoil),
     offsetof(RestartData, FROZENFRACsoil),
+    offsetof(RestartData, TCsoil),
     offsetof(RestartData, TSrock),
     offsetof(RestartData, DZrock),
     offsetof(RestartData, frontZ),
@@ -353,6 +356,7 @@ void RestartData::reinitValue() {
     ICEsoil[il]  = MISSING_D;
     FROZENsoil[il]= MISSING_I;
     FROZENFRACsoil[il]= MISSING_D;
+    TCsoil[il]= MISSING_D;
   }
 
   for(int il =0; il<MAX_ROC_LAY; il++) {
@@ -524,6 +528,7 @@ void RestartData::verify_logical_values(){
     check_bounds("ICEsoil", ICEsoil[ii]);
     check_bounds("FROZENsoil", FROZENsoil[ii]);
     check_bounds("FROZENFRACsoil", FROZENFRACsoil[ii]);
+    check_bounds("TCsoil", TCsoil[ii]);
     check_bounds("rawc", rawc[ii]);
     check_bounds("soma", soma[ii]);
     check_bounds("sompr", sompr[ii]);
@@ -799,6 +804,8 @@ void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &ICEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "TCsoil", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &TCsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &rawc[0]) );
   temutil::nc( nc_inq_varid(ncid, "soma", &cv) );
@@ -1128,6 +1135,7 @@ void RestartData::create_empty_file(const std::string& fname,
   int LIQsoilV;
   int ICEsoilV;
   int FROZENFRACsoilV;
+  int TCsoilV;
   int rawcV;
   int somaV;
   int somprV;
@@ -1144,6 +1152,8 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_double(ncid, ICEsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "FROZENFRACsoil", NC_DOUBLE, 3, vartype3D_dimids, &FROZENFRACsoilV) );
   temutil::nc( nc_put_att_double(ncid, FROZENFRACsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+  temutil::nc( nc_def_var(ncid, "TCsoil", NC_DOUBLE, 3, vartype3D_dimids, &TCsoilV) );
+  temutil::nc( nc_put_att_double(ncid, TCsoilV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "rawc", NC_DOUBLE, 3, vartype3D_dimids, &rawcV) );
   temutil::nc( nc_put_att_double(ncid, rawcV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "soma", NC_DOUBLE, 3, vartype3D_dimids, &somaV) );
@@ -1553,6 +1563,8 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &ICEsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "FROZENFRACsoil", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &FROZENFRACsoil[0]) );
+  temutil::nc( nc_inq_varid(ncid, "TCsoil", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &TCsoil[0]) );
   temutil::nc( nc_inq_varid(ncid, "rawc", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &rawc[0]) );
   temutil::nc( nc_inq_varid(ncid, "soma", &cv) );
@@ -1769,6 +1781,7 @@ void RestartData::restartdata_to_log(){
     BOOST_LOG_SEV(glg, debug) << "ICEsoil[" << ii << "]: " << ICEsoil[ii];
     BOOST_LOG_SEV(glg, debug) << "FROZENsoil[" << ii << "]: " << FROZENsoil[ii];
     BOOST_LOG_SEV(glg, debug) << "FROZENFRACsoil[" << ii << "]: " << FROZENFRACsoil[ii];
+    BOOST_LOG_SEV(glg, debug) << "TCsoil[" << ii << "]: " << TCsoil[ii];
     BOOST_LOG_SEV(glg, debug) << "rawc[" << ii << "]: " << rawc[ii];
     BOOST_LOG_SEV(glg, debug) << "soma[" << ii << "]: " << soma[ii];
     BOOST_LOG_SEV(glg, debug) << "sompr[" << ii << "]: " << sompr[ii];
