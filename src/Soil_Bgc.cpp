@@ -338,28 +338,28 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // Fan Eq. 9: rate constant * carbon pool * Q10 >>> could be replaced with fmax?
       // >>> rename rh to mp (methane production?)
       if(tmp_sois.rawc[il] > 0.0){
-        prod_rawc_ch4[il] = (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
+        prod_rawc_ch4[il] = saturated_fraction * (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
       }
       else{
         prod_rawc_ch4[il] = 0.0;
       }
 
       if(tmp_sois.soma[il] > 0.0){
-        prod_soma_ch4[il] = (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
+        prod_soma_ch4[il] = saturated_fraction * (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
       }
       else{
         prod_soma_ch4[il] = 0.0;
       }
 
       if(tmp_sois.sompr[il] > 0.0){
-        prod_sompr_ch4[il] = (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
+        prod_sompr_ch4[il] = saturated_fraction * (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
       }
       else{
         prod_sompr_ch4[il] = 0.0;
       }
 
       if(tmp_sois.somcr[il] > 0.0){
-        prod_somcr_ch4[il] = (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
+        prod_somcr_ch4[il] = saturated_fraction * (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
       }
       else{
         prod_somcr_ch4[il] = 0.0;
@@ -376,10 +376,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //this is the rate, but modified by temperature and carbon content - rename the "rh" part to something relevant
       //it is hourly : rh = respiration heterotrophic. methanogenesis mg, methane production mp? 
 
+      // accounting for carbon loss from SOM pools
+      // I.e. som2prod = rawc - prod_rawc_ch4
+
       // rh_ch4's are in g m^-2
       // divide by dz to get g m^-3
       // to get umol L^-1 /12 /0.001
-      prod = saturated_fraction * (convert_gm2_to_umolL) * (prod_rawc_ch4[il] + prod_soma_ch4[il] + prod_sompr_ch4[il] + prod_somcr_ch4[il]); //currl->getVolLiq() * 
+      prod = (convert_gm2_to_umolL) * (prod_rawc_ch4[il] + prod_soma_ch4[il] + prod_sompr_ch4[il] + prod_somcr_ch4[il]); //currl->getVolLiq() * 
 
       production[il] = prod;
 
