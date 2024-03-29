@@ -825,6 +825,439 @@ def n_top_runs(results, targets, params, r2lim, N=None):
 
   return best_params, best_results
 
+def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
+  '''
+  Plots equilibrium metrics against certain quality thresholds
+  for a target variable
+  
+  Parameters
+  ==========
+  eq_params : Pandas DataFrame
+    equilibrium quality dataframe for a single target variable
+  targets : Pandas DataFrame
+    Used to read in target variable names
+  cv_lim : float
+    coefficient of variation threshold as a %
+  p_lim : float
+    p-value threshold as a %
+  slope_lim : float
+    slope threshold as a fraction of target variable
+  save : bool
+    saves figure if True
+  saveprefix : string
+    path to use if saving is enabled
+    
+  Returns
+    None
+  
+  .. image:: /images/SA_post_hoc_analysis/eq_metrics_plot.png
+  
+  '''
+
+  # splitting eq_params to provide information for selecting targets
+  # and counting pfts and compartments if any
+  var_info = np.asarray([i.split('_') for i in eq_params.columns])
+  # taking variable names including pft and compartment if any
+  var_names = np.unique([i.split('_eq')[0] for i in eq_params.columns])
+  # getting eq_params specific unique parameter name for referencing
+  var = np.unique(var_info[:,0])[0]
+
+  # counting pfts and compartments
+  # defining data for referencing and partitioning
+  
+  # if there are compartments and pfts
+  if len(var_info[0])==5:
+    pfts = var_info[:,1]
+    pft_num = len(np.unique(var_info[:,1]))
+    comp_num = len(np.unique(var_info[:,2]))
+    comps = var_info[:,2]
+    comps_names = []
+    var_num = int(len(comps) / 3)
+  # if there are just pfts        
+  elif len(var_info[0])==4:
+    pfts = var_info[:,1]
+    pft_num = len(np.unique(var_info[:,1]))
+    comp_num = 0
+    var_num = int(len(pfts) / 3)
+  # if there are no pfts or compartments
+  else:
+    pft_num = 0
+    comp_num = 0
+    var_num = 1
+
+  # filtering targets dataframe by specific variable
+  targets = targets.filter(regex=var)
+
+  # looping through total number of variables (pft, compartment specific)
+  for i in range(var_num):
+
+    # defining subplot for each pft-compartment specific variable
+    # for each eq_metric (cv, p, slope)
+    fig, ax = plt.subplots(3, 1)
+
+    # referencing for whether there are pfts and compartments or not
+    if pft_num == 0:
+      eq_ref = eq_params.columns
+    else:
+      eq_ref = eq_params.filter(regex=f'{var_names[i]}')
+
+    # looping through each column in reference dataframe
+    for col in eq_ref:
+
+      # catching data for each metric (cv, p, slope) 
+      # and creating scatter plots
+      if "_eq_cv" in col:
+          ax[0].scatter(eq_params.index, abs(eq_params[col]) * 100, marker='o', label = col.split('_eq')[0], alpha=0.25)
+      if "_eq_p" in col:
+          ax[1].scatter(eq_params.index, eq_params[col] , marker='o', alpha=0.25)
+      if "_eq_slope" in col:
+          ax[2].scatter(eq_params.index, abs(eq_params[col]) , marker='o', alpha=0.25)
+
+      # Figure formatting
+      ax[0].plot(eq_params.index, cv_lim * np.ones(len(eq_params)), 'k--')
+      ax[0].set_ylabel("cv [%]", fontsize=10)
+      ax[0].set_xticks([])
+      ax[0].set_title(targets.columns[i]) #+'  '+col) - this can be used to check indexing matches
+      
+      ax[1].plot(eq_params.index, p_lim * np.ones(len(eq_params)), 'k--')
+      ax[1].set_ylabel("p-value", fontsize=10)
+      ax[1].set_xticks([])
+
+      ax[2].plot(eq_params.index, slope_lim * targets[targets.columns[i]].values * np.ones(len(eq_params)), 'k--')        
+      ax[2].set_xlabel("Index", fontsize=12)
+      ax[2].set_ylabel("Slope", fontsize=10)
+
+    # save if save=True
+    if save:
+      plt.savefig(saveprefix + f"{target_name}_eq_metrics_scatterplot.png", bbox_inches="tight") 
+
+def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
+  '''
+  Plots equilibrium metrics against certain quality thresholds
+  for a target variable
+  
+  Parameters
+  ==========
+  eq_params : Pandas DataFrame
+    equilibrium quality dataframe for a single target variable
+  targets : Pandas DataFrame
+    Used to read in target variable names
+  cv_lim : float
+    coefficient of variation threshold as a %
+  p_lim : float
+    p-value threshold as a %
+  slope_lim : float
+    slope threshold as a fraction of target variable
+  save : bool
+    saves figure if True
+  saveprefix : string
+    path to use if saving is enabled
+    
+  Returns
+    None
+  
+  .. image:: /images/SA_post_hoc_analysis/eq_metrics_plot.png
+  
+  '''
+
+  # splitting eq_params to provide information for selecting targets
+  # and counting pfts and compartments if any
+  var_info = np.asarray([i.split('_') for i in eq_params.columns])
+  # taking variable names including pft and compartment if any
+  var_names = np.unique([i.split('_eq')[0] for i in eq_params.columns])
+  # getting eq_params specific unique parameter name for referencing
+  var = np.unique(var_info[:,0])[0]
+
+  # counting pfts and compartments
+  # defining data for referencing and partitioning
+  
+  # if there are compartments and pfts
+  if len(var_info[0])==5:
+    pfts = var_info[:,1]
+    pft_num = len(np.unique(var_info[:,1]))
+    comp_num = len(np.unique(var_info[:,2]))
+    comps = var_info[:,2]
+    comps_names = []
+    var_num = int(len(comps) / 3)
+  # if there are just pfts        
+  elif len(var_info[0])==4:
+    pfts = var_info[:,1]
+    pft_num = len(np.unique(var_info[:,1]))
+    comp_num = 0
+    var_num = int(len(pfts) / 3)
+  # if there are no pfts or compartments
+  else:
+    pft_num = 0
+    comp_num = 0
+    var_num = 1
+
+  # filtering targets dataframe by specific variable
+  targets = targets.filter(regex=var)
+  
+  # for each eq_metric (cv, p, slope)
+  fig, ax = plt.subplots(3, 1)
+  
+  # looping through total number of variables (pft, compartment specific)
+  for i in range(var_num):
+
+    if var_num > 1:
+      x_coords = np.linspace(0, var_num, var_num)
+      y_coords = np.ones(var_num)
+    else:
+      x_coords = np.linspace(-0.1, 0.1, 2)
+      y_coords = np.ones(var_num + 1)
+
+    # referencing for whether there are pfts and compartments or not
+    if pft_num == 0:
+      eq_ref = eq_params.columns
+    else:
+      eq_ref = eq_params.filter(regex=f'{var_names[i]}')
+
+    # looping through each column in reference dataframe
+    for col in eq_ref:
+
+      # catching data for each metric (cv, p, slope) 
+      # and creating box plots
+      if "_eq_cv" in col:
+        ax[0].boxplot(abs(eq_params[col]) * 100, positions=[i])
+      if "_eq_p" in col:
+        ax[1].boxplot(eq_params[col], positions=[i])
+      if "_eq_slope" in col:
+        ax[2].boxplot(abs(eq_params[col]), positions=[i])
+
+      # Figure formatting
+      ax[0].plot(x_coords, cv_lim * y_coords, 'k--')
+      ax[0].set_ylabel("cv [%]", fontsize=10)
+      ax[0].set_xticks([])
+      ax[0].set_title(var) #+'  '+col) - this can be used to check indexing matches
+      
+      ax[1].plot(x_coords, p_lim * y_coords, 'k--')
+      ax[1].set_ylabel("p-value", fontsize=10)
+      ax[1].set_xticks([])
+      if "_eq_slope" in col and var_num>1:
+        ax[2].plot(x_coords, slope_lim * targets[targets.columns[i]].values * y_coords, 
+                    f'C{i}--', label=targets.columns[i])
+        ax[2].legend(bbox_to_anchor=(1, 1))
+      elif "_eq_slope" in col and var_num<=1:
+        ax[2].plot(x_coords, slope_lim * targets[targets.columns[i]].values * y_coords, 'k--')
+          
+      ax[2].set_xticks(np.linspace(0, var_num, var_num), targets.columns, rotation=90)
+      ax[2].set_xlabel("Parameter", fontsize=12)
+      ax[2].set_ylabel("Slope", fontsize=10)
+
+    # save if save=True
+    if save:
+      plt.savefig(saveprefix + f"{target_name}_eq_metrics_boxplot.png", bbox_inches="tight")   
+
+def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
+  '''
+  Plots equilibrium timeseries for target variables in output directory
+  
+  Parameters
+  ==========
+  path : str
+    specifies path to sensitivity sample run directory
+  save : bool
+    saves figure if True
+  saveprefix : string
+    path to use if saving is enabled
+  
+  Returns
+    None
+  
+  .. image:: /images/SA_post_hoc_analysis/plot_eq_relationships.png
+  
+  '''
+  # defining list of strings for compartment reference
+  comp_ref = ['Leaf', 'Stem', 'Root']
+  
+  # reading targets directly from folder to match with output variables
+  targets = pd.read_csv(path+'targets.csv', skiprows=1)
+  
+  # splitting column names to provide variable, pft, and compartment if available
+  targ_info = [i.split('_') for i in targets.columns]
+  
+  # returning only unique variable names for file selection
+  targ_vars = np.unique([i.split('_')[0] for i in targets.columns])
+
+  # looping through each target variable
+  for targ in targ_vars:
+    
+    # filtering for said target variable
+    targ_filter = [targ in info for info in targ_info]
+
+    # returning filtered information on variable, pft, compartment
+    targ_var_info = [i for indx,i in enumerate(targ_info) if targ_filter[indx] == True]
+
+    # operations depending on variable, pft, compartment
+    if len(targ_var_info[0]) == 1:
+      fig, ax = plt.subplots()
+    if len(targ_var_info[0]) == 2:
+      fig, ax = plt.subplots(1, len(targ_var_info))
+    if len(targ_var_info[0]) == 3:
+      fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+
+    # filtering for directories containing the name sample 
+    samples = np.sort([name for name in os.listdir() if os.path.isdir(name) and "sample" in name])
+    
+    # looping through sample folders in directory:
+    for n, sample in enumerate(samples):
+
+      # reading output variable for each sample
+      output = nc.Dataset(path+sample+f'/output/{targ}_yearly_eq.nc').variables[targ][:].data
+
+      # selecting variable dimensions based on whether pft, compartment is expected 
+      # nopft:
+      if len(targ_var_info[0]) == 1:
+        ax.plot(output[:,0,0], 'gray', alpha=0.5)
+        ax.plot(np.linspace(0, len(output[:,0,0]), len(output[:,0,0])), 
+                          targets[targ].values[0]*np.ones(len(output[:,0,0])), 'k--', alpha=0.5)
+        fig.supxlabel("Equilibrium years", fontsize=12)
+        fig.supylabel(f"{targ}", fontsize=12)
+        fig.tight_layout()
+      # pft no compartment    
+      if len(targ_var_info[0]) == 2:
+        
+        for p in targ_var_info:
+
+          pft = int(p[1].split('pft')[1])
+          
+          ax[pft].plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
+          ax[pft].set_title(f"PFT{pft}")
+          ax[pft].plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
+                targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
+
+        fig.supxlabel("Equilibrium years", fontsize=12)
+        fig.supylabel(f"{targ}", fontsize=12)
+        fig.tight_layout()
+      # pft and compartment
+      if len(targ_var_info[0]) == 3:
+
+        for p in targ_var_info:
+
+          pft = int(p[1].split('pft')[1])
+
+          comp = p[2]; comp_index = comp_ref.index(comp)
+          
+          ax[comp_index, pft].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+          ax[0, pft].set_title(f"PFT{pft}")
+          ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+
+        ax[0, 0].set_ylabel("Leaf")
+        ax[1, 0].set_ylabel("Stem")
+        ax[2, 0].set_ylabel("Root")
+        fig.supxlabel("Equilibrium years", fontsize=12)
+        fig.supylabel(f"{targ}", fontsize=12)
+        fig.tight_layout()
+          
+  # save if save=True
+  if save:
+    plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
+
+def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
+  '''
+  Calculates percentage of samples which pass user input (or default)
+  equilibrium test and plots a bar graph.
+  
+  Parameters
+  ==========
+  eq_params : Pandas DataFrame
+    equilibrium quality dataframe for a single target variable
+  targets : Pandas DataFrame
+    Used to read in target variable names
+  cv_lim : float
+    coefficient of variation threshold as a %
+  p_lim : float
+    p-value threshold as a %
+  slope_lim : float
+    slope threshold as a fraction of target variable
+    
+  Returns
+    counts : Pandas DataFrame
+      Pass / Fail percentage for each variable
+    eq_check : Pandas DataFrame
+      Boolean for each variable comprising of cv, p, slope test
+    eq_data : Pandas DataFrame
+      Boolean for each variable and each test for more thorough inspection
+  
+  .. image:: /images/SA_post_hoc_analysis/eq_check_plot.png
+  
+  '''
+  # defining list of strings for compartment reference
+  comp_ref = ['Leaf', 'Stem', 'Root']
+  
+  #returning boolean for pass fail
+  eq_check = pd.DataFrame(index=eq_params.index, columns=np.unique([i.split('_eq')[0] for i in eq_params.columns]),data=False)
+  
+  #returning data on individual checks
+  eq_data = pd.DataFrame(index=eq_params.index, columns=eq_params.columns, data=False)
+  
+  # splitting eq_params to provide information for selecting targets
+  # and counting pfts and compartments if any
+  var_info = np.asarray([i.split('_') for i in eq_params.columns])
+  # getting eq_params specific unique parameter name for referencing
+  var = np.unique(var_info[:,0])[0]
+
+  # filtering by eq_params specific variables
+  targets = targets.filter(regex=var)
+
+  # looping through columns
+  for col in eq_check.columns:
+
+    # Checking whether there are pfts or compartments
+    if len(col.split('_'))==3:
+      targ_col = col.split('_')[0]+'_'+col.split('_')[1]+'_'+comp_ref[int(col.split('_')[2])]
+    else:
+      targ_col = col
+
+    # looping through every sample
+    for row in eq_check.index:
+      # testing whether each metric meets criteria
+      if abs( eq_params[col+"_eq_cv"].loc[row] ) * 100 < cv_lim:
+        eq_data[col+"_eq_cv"].loc[row] = True
+          
+      if eq_params[col+"_eq_p"].loc[row] < p_lim:
+        eq_data[col+"_eq_p"].loc[row] = True
+
+      if abs(eq_params[col+"_eq_slope"].loc[row]) < slope_lim * targets[targ_col].loc[0]:
+        eq_data[col+"_eq_slope"].loc[row] = True
+
+      # testing whether all criteria are met to warrant pass or fail
+      if ((eq_data[col+"_eq_cv"].loc[row] == True) & 
+        (eq_data[col+"_eq_p"].loc[row] == True) & 
+        (eq_data[col+"_eq_slope"].loc[row] == True)):
+        
+        eq_check[col].loc[row] = True
+                                    
+  counts = eq_check.apply(pd.value_counts)
+  
+  # add catch for only True / only False:
+  if len(counts.index)==1:
+    if counts.index==False:
+      counts = pd.DataFrame(index=[True, False], columns=targets.columns, data=[0.0, counts.iloc[0,0]])
+    elif counts.index==True:
+      counts = pd.DataFrame(index=[True, False], columns=targets.columns, data=[counts.iloc[0,0], 0.0])
+  # converting to pass/fail
+  counts.index = ["Pass", "Fail"]
+  # converting result into percentage
+  counts = counts / counts.sum()[0] * 100
+  
+  fig, ax = plt.subplots()
+  bottom = np.zeros(len(counts.columns))
+  
+  ax.bar(counts.columns, counts.iloc[0,:], color='Green', alpha=0.5, label=counts.index[0])
+  ax.bar(counts.columns, counts.iloc[1,:], bottom=counts.iloc[0,:], color='Red', alpha=0.5, label=counts.index[1])
+  plt.xticks(rotation='vertical')
+  ax.set_ylabel(" Equilibrium pass / fail [%] ", fontsize=12)
+  plt.legend(loc='upper right', fontsize=12)
+  plt.title(col.split('_')[0] + f' {int(counts.iloc[0,:].values[0])}% passed', fontsize=14)
+  
+  if save:
+    plt.savefig(saveprefix + col.split('_')[0] +"_eq_plot.png", bbox_inches='tight')
+
+  return counts, eq_check, eq_data
+
 def read_mads_iterationresults(iterationresults_file):
   '''
   Parse a Mads .iterationresults file and return data as 3 python lists.
@@ -925,4 +1358,3 @@ if __name__ == '__main__':
 
   # #driver.collect_all_outputs()
   # from IPython import embed; embed()
-    
