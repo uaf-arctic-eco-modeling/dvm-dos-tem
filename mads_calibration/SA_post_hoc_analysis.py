@@ -615,77 +615,154 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
   if save:
     plt.savefig(saveprefix + "r2_rmse_mape.png", bbox_inches='tight')
 
-def plot_nitrogen_check(path='', save=False, saveprefix=''):
+def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   '''
   Plots INGPP : GPP ratio to examine nitrogen limitation
   and compares to expected ranges for boreal and tundra
   ecosystems. 
 
   Note: this requires auxiliary variables INGPP, GPP, and
-  AVLN to be specified in config file. If calib_mode is set
+  AVLN to be specified in the config file. If calib_mode is set
   to GPPAllIgnoringNitrogen this will not produce meaningful 
   results.
 
   Parameters
   ==========
   path : str
-    Specifies path to sensitivity sample run directory
+      Specifies path to sensitivity sample run directory
   
   Returns
-    None
+  =======
+  None
 
   .. image:: /images/SA_post_hoc_analysis/nitrogen-check.png
   
   '''
-  n_samples = len([name for name in os.listdir(".") if os.path.isdir(name)]) - 1
-  ratio = []
+
+  # filtering for directories containing the name sample 
+  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(name) and "sample" in name])
+  
+  #Catch if no sample directories exist
+  if len(samples)<1:
+    print("No sample directories found.")
+    return
+  
+  # dataframe for returning INGPP ratio, pass/fail, AVLN
+  n_check = pd.DataFrame(index=range(len(samples)), columns=['ratio','avln','result'])
+  n_check['result'] = False
+  
+  # setting up subplots for INGPP:GPP and AVLN
   fig, ax = plt.subplots(1, 2, figsize=(10,10))
-  for i in range(0, n_samples):
+  
+  # looping through samples
+  for i, sample in enumerate(samples):
 
-    dir_path = path+f'sample_{i:09d}/output/'
+    # creating sample-specific path to output folder
+    dir_path = os.path.join(path, sample, 'output')
 
-    avln = nc.Dataset(dir_path+'AVLN_yearly_eq.nc').variables["AVLN"][:].data[:,0,0]
-    gpp = nc.Dataset(dir_path+'GPP_yearly_eq.nc').variables["GPP"][:].data[:,0,0]
-    ingpp = nc.Dataset(dir_path+'INGPP_yearly_eq.nc').variables["INGPP"][:].data[:,0,0]
+    # catch if there is no folder
+    if not os.path.exists(dir_path):
+      print(f"Folder '{sample_folder}' not found. Skipping...")
+      continue
 
-    nlim = ingpp/gpp
+    # specifying paths for AVLN, GPP, and INGPP
+    avln_path = os.path.join(dir_path, 'AVLN_yearly_eq.nc')
+    gpp_path = os.path.join(dir_path, 'GPP_yearly_eq.nc')
+    ingpp_path = os.path.join(dir_path, 'INGPP_yearly_eq.nc')
+
+    # catch if output variables do not exist
+    if not (os.path.exists(avln_path) and os.path.exists(gpp_path) and os.path.exists(ingpp_path)):
+      print(f"Data files not found for '{sample_folder}'. Skipping...")
+      continue
+
+    # loading data
+    avln = nc.Dataset(avln_path).variables["AVLN"][:].data[:,0,0]
+    gpp = nc.Dataset(gpp_path).variables["GPP"][:].data[:,0,0]
+    ingpp = nc.Dataset(ingpp_path).variables["INGPP"][:].data[:,0,0]
+
+    # calculating ratio of INGPP:GPP for whole time series
+    ingpp2gpp = ingpp / gpp
+
+    # plotting ratio and avln
+    ax[0].plot(ingpp2gpp, color='gray', alpha=0.25)
+    ax[1].plot(avln, color='gray', alpha=0.25)
+
+    # populating n_check dataframe:
+    # taking the mean of the last 10 years of equilibrium
+    n_check.iloc[i, 0] = np.mean(ingpp2gpp[-10:])
+    n_check.iloc[i, 1] = np.mean(avln[-10:])
     
-    ax[0].plot(nlim, color='gray', alpha=0.1)
+    # testing whether there is N-limitation 
+    if biome=='boreal':
+      if 1.15 <= np.mean(ingpp2gpp[-10:]) <= 1.35:
+        n_check.iloc[i,2] = True
+    elif biome=='tundra':
+      if 1.4 <= np.mean(ingpp2gpp[-10:]) <= 1.6:
+        n_check.iloc[i,2] = True
 
-    ratio.append(np.mean(nlim[-10:])) 
-
-  ax[0].plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--', label='Boreal')
-  ax[0].fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.5, color='g')
-  ax[0].plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--', label='Tundra')
-  ax[0].fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.5, color='c')
-
-  ax[1].plot(avln, color='gray', alpha=0.1)
-
-  if np.mean(ratio) < 1.15:
-      boreal_string = "Failed - micnup too low"
-  elif np.mean(ratio) >1.35:
-      boreal_string = "Failed - micnup too high"
-  else:
-      boreal_string = "Passed"
-
-  if np.mean(ratio) < 1.4:
-      tundra_string = "Failed - micnup too low"
-  elif np.mean(ratio) >1.6:
-      tundra_string = "Failed - micnup too high"
-  else:
-      tundra_string = "Passed"
-
-  ax[0].set_title(f"Boreal-check: {boreal_string}, Tundra-check: {tundra_string}", fontsize=10)
+  # plotting visual bands for test acceptance
+  if biome=='boreal':
+    ax[0].plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--')
+    ax[0].fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.25, color='g')
+    num_pass = f"{len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])} out of {len(n_check['ratio'])} passed"
+    per_pass = f"{100*(len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])/len(n_check['ratio']))}% passed"
+    if 100*(len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])/len(n_check['ratio'])) <= 70:
+      ax[0].set_title(f" {per_pass}, adjust micnup", fontsize=10)
+    else:
+      ax[0].set_title(f" {per_pass}, nitrogen is limited ", fontsize=10)
+  if biome=='tundra':
+    ax[0].plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--')
+    ax[0].fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.25, color='c')
+    num_pass = f"{len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])} out of {len(n_check['ratio'])} passed"
+    per_pass = f"{100*(len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])/len(n_check['ratio']))}% passed"
+    if 100*(len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])/len(n_check['ratio'])) <= 70:
+      ax[0].set_title(f" {per_pass}, adjust micnup", fontsize=10)
+    else:
+      ax[0].set_title(f" {per_pass}, nitrogen is limited ", fontsize=10)
+  
   ax[0].set_xlabel("Equilibrium years", fontsize=12)
   ax[0].set_ylabel("INGPP : GPP", fontsize=12)
-  ax[0].legend(loc='best', fontsize=10)
-
+  
   ax[1].set_title("Is AVLN in this plot what you expect?", fontsize=10)
   ax[1].set_xlabel("Equilibrium years", fontsize=12)
   ax[1].set_ylabel("AVLN [g m$^{-2}$]", fontsize=12)
 
+  plt.tight_layout()
+  
   if save:
-    plt.savefig(saveprefix + "nitrogen-check-plot.png", bbox_inches='tight')
+    plt.savefig(saveprefix + "nitrogen_plot.png", bbox_inches='tight')
+  
+  counts = n_check['result'].replace(False, 'Fail')
+  counts = pd.DataFrame(counts.replace(True, 'Pass'))
+  
+  counts = counts.apply(pd.value_counts)
+  
+  # add catch for only True / only False:
+  if len(counts.index)==1:
+    if counts.index=='Fail':
+      counts = pd.DataFrame(index=['Pass', 'Fail'], columns=['result'], data=[0.0, counts['result'].values[0]])
+    elif counts.index=='Pass':
+      counts = pd.DataFrame(index=['Pass', 'Fail'], columns=['result'], data=[counts['result'].values[0], 0.0])
+  # converting result into percentage
+  counts = counts / counts.sum()[0] * 100
+  
+  fig, ax = plt.subplots()    
+  ax.bar(counts[counts.index=='Pass'].columns, counts[counts.index=='Pass'].values[0], color='Green', alpha=0.5, label='Pass')
+  ax.bar(counts[counts.index=='Fail'].columns, counts[counts.index=='Fail'].values[0], color='red', alpha=0.5, label='Fail')
+
+  plt.xticks([0],['INGPP:GPP'],rotation='vertical')
+  ax.set_ylabel(" Equilibrium pass / fail [%] ", fontsize=12)
+  plt.legend(loc='upper right', fontsize=12)
+  
+  if counts.iloc[0,0]>0:
+    plt.title(f"mean AVLN for passes: {np.round(n_check[n_check['result']=='Pass']['avln'].mean(), 4)}")
+  else:
+    plt.title(f"mean AVLN: {np.round(n_check['avln'].mean(), 4)}")
+  
+  if save:
+    plt.savefig(saveprefix + "_n_check_plot.png", bbox_inches='tight')
+
+  return n_check, counts
 
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
