@@ -272,7 +272,7 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
   -------
   None
 
-  .. image:: /images//INGPP_pft0-cmax_pft0-cmax_pft3.png
+  .. image:: /images/INGPP_pft0-cmax_pft0-cmax_pft3.png
 
   '''
   # if variables/parameters are None plot all variables/parameters
@@ -635,7 +635,8 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   =======
   None
 
-  .. image:: /images/SA_post_hoc_analysis/nitrogen-check.png
+  .. image:: /images/SA_post_hoc_analysis/n-check-comp-plot.png
+  .. image:: /images/SA_post_hoc_analysis/n-check-barplot.png
   
   '''
 
@@ -730,7 +731,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   plt.tight_layout()
   
   if save:
-    plt.savefig(saveprefix + "nitrogen_plot.png", bbox_inches='tight')
+    plt.savefig(saveprefix + "n-check-comp-plot.png", bbox_inches='tight')
   
   counts = n_check['result'].replace(False, 'Fail')
   counts = pd.DataFrame(counts.replace(True, 'Pass'))
@@ -760,7 +761,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
     plt.title(f"mean AVLN: {np.round(n_check['avln'].mean(), 4)}")
   
   if save:
-    plt.savefig(saveprefix + "_n_check_plot.png", bbox_inches='tight')
+    plt.savefig(saveprefix + "_n-check-barplot.png", bbox_inches='tight')
 
   return n_check, counts
 
@@ -1006,7 +1007,7 @@ def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1,
 
     # save if save=True
     if save:
-      plt.savefig(saveprefix + f"{target_name}_eq_metrics_scatterplot.png", bbox_inches="tight") 
+      plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_scatterplot.png", bbox_inches="tight") 
 
 def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
   '''
@@ -1033,7 +1034,7 @@ def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1,
   Returns
     None
   
-  .. image:: /images/SA_post_hoc_analysis/eq_metrics_plot.png
+  .. image:: /images/SA_post_hoc_analysis/eq_metrics_boxplot.png
   
   '''
 
@@ -1122,9 +1123,9 @@ def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1,
       ax[2].set_xlabel("Parameter", fontsize=12)
       ax[2].set_ylabel("Slope", fontsize=10)
 
-    # save if save=True
-    if save:
-      plt.savefig(saveprefix + f"{target_name}_eq_metrics_boxplot.png", bbox_inches="tight")   
+  # save if save=True
+  if save:
+    plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_boxplot.png", bbox_inches="tight")   
 
 def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
   '''
@@ -1142,7 +1143,7 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
   Returns
     None
   
-  .. image:: /images/SA_post_hoc_analysis/plot_eq_relationships.png
+  .. image:: /images/SA_post_hoc_analysis/eq_rel_plot.png
   
   '''
   # defining list of strings for compartment reference
@@ -1258,7 +1259,7 @@ def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.
     eq_data : Pandas DataFrame
       Boolean for each variable and each test for more thorough inspection
   
-  .. image:: /images/SA_post_hoc_analysis/eq_check_plot.png
+  .. image:: /images/SA_post_hoc_analysis/eq_plot.png
   
   '''
   # defining list of strings for compartment reference
