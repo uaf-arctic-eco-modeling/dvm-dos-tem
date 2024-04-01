@@ -640,7 +640,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   '''
 
   # filtering for directories containing the name sample 
-  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(name) and "sample" in name])
+  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
   
   #Catch if no sample directories exist
   if len(samples)<1:
@@ -748,7 +748,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   
   fig, ax = plt.subplots()    
   ax.bar(counts[counts.index=='Pass'].columns, counts[counts.index=='Pass'].values[0], color='Green', alpha=0.5, label='Pass')
-  ax.bar(counts[counts.index=='Fail'].columns, counts[counts.index=='Fail'].values[0], color='red', alpha=0.5, label='Fail')
+  ax.bar(counts[counts.index=='Fail'].columns, counts[counts.index=='Fail'].values[0], bottom=counts[counts.index=='Pass'].values[0], color='red', alpha=0.5, label='Fail')
 
   plt.xticks([0],['INGPP:GPP'],rotation='vertical')
   ax.set_ylabel(" Equilibrium pass / fail [%] ", fontsize=12)
