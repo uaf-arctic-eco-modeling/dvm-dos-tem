@@ -256,10 +256,10 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
   double hcap;
   if (frnttype == 1) { //BM: Need to make sure these line up with correct mixed state etc and front type
-    tca[ind] = fstfntl->getFrzThermCond();
+    tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getFrzVolHeatCapa();
   } else {
-    tca[ind] = fstfntl->getUnfThermCond();
+    tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getUnfVolHeatCapa();
   }
   double pce = abs(fstfntl->pce_f-fstfntl->pce_t);
@@ -377,10 +377,10 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
   if (frnttype2 == 1) {
-    tca[ind] = lstfntl->getFrzThermCond();
+    tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getFrzVolHeatCapa();
   } else {
-    tca[ind] = lstfntl->getUnfThermCond();
+    tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getUnfVolHeatCapa();
   }
   pce = abs(lstfntl->pce_f-lstfntl->pce_t);
@@ -457,10 +457,10 @@ void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
   double hcap;
   if (frnttype == 1) {
-    tca[ind] = lstfntl->getUnfThermCond();
+    tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getUnfVolHeatCapa();
   } else {
-    tca[ind] = lstfntl->getFrzThermCond();
+    tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getFrzVolHeatCapa();
   }
   double pce = abs(lstfntl->pce_f-lstfntl->pce_t);

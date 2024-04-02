@@ -27,10 +27,10 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   Layer * toplayer = ground->toplayer;
   double tkres; //thermal conductivity for calculating resistence
   double tkfront; //thermal conductivity for calculating part front depth
-  double tkunf, tkfrz;
-  // top-down propogation of front
-  // driving force
-  int freezing1; //the freezing/thawing force based on the driving temperature
+  double tkunf, tkfrz, tkmix;
+      // top-down propogation of front
+      // driving force
+      int freezing1; // the freezing/thawing force based on the driving temperature
   double tdrv1 = tdrv;
   //20180820 While comparing the code to the papers describing these
   // processes, it seemed like tdrv1 needed to be converted from
@@ -66,15 +66,17 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
     tkunf = currl->getUnfThermCond();
     tkfrz = currl->getFrzThermCond();
+    tkmix = pow(tkfrz, currl->frozenfrac) * pow(tkunf, 1 - currl->frozenfrac);
+    // tkmix = tkfrz * (currl->frozenfrac) + tkunf * (1 - currl->frozenfrac);
     //BM: need to add tkmix = pow(tkfrz, frozenfrac) * pow(tkunf, 1-frozenfrac);
     //BM: tkfront should be either frozen or unfrozen, and tkres should always be mixed based on above
 
     if(tdrv1<0.0) {
       tkres   = tkfrz;
-      tkfront = tkunf;
+      tkfront = tkmix;
     } else {
       tkres   = tkunf;
-      tkfront = tkfrz;
+      tkfront = tkmix;
     }
 
     sumresabv += currl->dz/tkres;
