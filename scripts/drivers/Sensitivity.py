@@ -773,6 +773,7 @@ class Sensitivity(BaseDriver):
     # Make the working directory
     util.setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
+      '--seed-parameters', self._seedpath,
       sample_specific_folder
     ])
 
