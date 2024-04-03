@@ -72,6 +72,19 @@ double SoilLayer::getUnfThermCond() {
   return tc;
 };
 
+double SoilLayer::getMixThermCond() {
+  double tc = MISSING_D;
+  double tcf = MISSING_D;
+  double tcu = MISSING_D;
+
+  tcf = getFrzThermCond();
+  tcu = getUnfThermCond();
+
+  tc = pow(tcf, frozenfrac) * pow(tcu, 1 - frozenfrac);
+
+  return tc;
+};
+
 double SoilLayer::getMatricPotential() {
   double psi;
 

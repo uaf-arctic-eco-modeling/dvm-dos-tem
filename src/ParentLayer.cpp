@@ -55,6 +55,12 @@ double ParentLayer::getUnfThermCond() {
   return tc;
 };
 
+// get mixed layer thermal conductivity
+double ParentLayer::getMixThermCond() {
+  double tc = tcsolid;
+  return tc;
+};
+
 // get albedo of visible radiation
 double ParentLayer::getAlbedoVis() { //should not used
   double vis=0.2;

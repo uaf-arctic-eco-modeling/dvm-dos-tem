@@ -39,7 +39,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   double dse = fabs(tdrv1 * timestep); // the extra degree second
   double sumresabv  =0. ; // sum of resistence for above layers;
 
-  if(tdrv1>0.0) {
+  if(tdrv1>0.0) { // BM: freezing driving temperature initiated below 0.0 not -2.0
     freezing1 = -1;
   } else {
     freezing1 =1;
@@ -193,7 +193,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
     dz = 0.0001*sl->dz;
   }
 
-  dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum); //BM: tkfront either frozen or unfrozen but tkres always mixed?
+  dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
   if(sl->tem < 0){ //if layer below 0, include energy needed to bring layer to 0 before thawing
     dsn += abs(sl->tem)*timestep;
   }
@@ -732,8 +732,11 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
         else{// BM: add temperature window here - i.e. only completely frozen IF <-2 (or a parameter defining this for a CMT)
           if (currl->tem>0.) {
             currl->frozen = -1;
-          }
-          if (currl->tem<=0.) {
+          } 
+          // else if (-2.0 < currl->tem <= 0.) {
+          //   currl->frozen = 0;
+          // } 
+          if (currl->tem<=0.0) {
           currl->frozen = 1;
           }
         }

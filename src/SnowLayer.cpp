@@ -70,6 +70,16 @@ double SnowLayer::getUnfThermCond() {
   //}
 };
 
+// get mixed layer thermal conductivity
+double SnowLayer::getMixThermCond()
+{
+  // if(ctype==0){
+  return getThermCond();
+  //}else{
+  // return getThermCond5Sturm();
+  //}
+};
+
 //From Sturm 2002 (which references Sturm 1997)
 double SnowLayer::getThermCond5Sturm() {
   double tc=0;

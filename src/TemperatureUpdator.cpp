@@ -257,10 +257,10 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   double hcap;
   if (frnttype == 1) { //BM: Need to make sure these line up with correct mixed state etc and front type
     tca[ind] = fstfntl->getThermalConductivity();
-    hcap = fstfntl->getFrzVolHeatCapa();
+    hcap = fstfntl->getHeatCapacity();
   } else {
     tca[ind] = fstfntl->getThermalConductivity();
-    hcap = fstfntl->getUnfVolHeatCapa();
+    hcap = fstfntl->getHeatCapacity();
   }
   double pce = abs(fstfntl->pce_f-fstfntl->pce_t);
   hca[ind] = (pce + hcap);
@@ -330,11 +330,11 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
   double hcap;
   if (frnttype1 == 1) {
-    tca[ind] = fstfntl->getUnfThermCond();
-    hcap = fstfntl->getUnfVolHeatCapa();
+    tca[ind] = fstfntl->getThermalConductivity();
+    hcap = fstfntl->getHeatCapacity();
   } else {
-    tca[ind] = fstfntl->getFrzThermCond();
-    hcap = fstfntl->getFrzVolHeatCapa();
+    tca[ind] = fstfntl->getThermalConductivity();
+    hcap = fstfntl->getHeatCapacity();
   }
   double pce = abs(fstfntl->pce_f-fstfntl->pce_t);
   hca[ind] = (pce + hcap);
@@ -378,10 +378,10 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
   if (frnttype2 == 1) {
     tca[ind] = lstfntl->getThermalConductivity();
-    hcap = lstfntl->getFrzVolHeatCapa();
+    hcap = lstfntl->getHeatCapacity();
   } else {
     tca[ind] = lstfntl->getThermalConductivity();
-    hcap = lstfntl->getUnfVolHeatCapa();
+    hcap = lstfntl->getHeatCapacity();
   }
   pce = abs(lstfntl->pce_f-lstfntl->pce_t);
   hca[ind] = (pce + hcap);
@@ -458,10 +458,10 @@ void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
   double hcap;
   if (frnttype == 1) {
     tca[ind] = lstfntl->getThermalConductivity();
-    hcap = lstfntl->getUnfVolHeatCapa();
+    hcap = lstfntl->getHeatCapacity();
   } else {
     tca[ind] = lstfntl->getThermalConductivity();
-    hcap = lstfntl->getFrzVolHeatCapa();
+    hcap = lstfntl->getHeatCapacity();
   }
   double pce = abs(lstfntl->pce_f-lstfntl->pce_t);
   hca[ind] = (pce + hcap);

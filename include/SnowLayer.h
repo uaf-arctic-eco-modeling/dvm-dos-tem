@@ -23,10 +23,10 @@ public:
 
   virtual double getFrzThermCond();//get frozen layer thermal conductivity
   virtual double getUnfThermCond();//get unfrozen layer thermal conductivity
+  virtual double getMixThermCond(); // get mixed layer thermal conductivity
 
   virtual double getFrzVolHeatCapa();//get frozen layer specific heat capcity
   virtual double getUnfVolHeatCapa();//get unfrozen layer specific heat capacity
-
   virtual double getMixVolHeatCapa(); //Yuan:
 
 private:
