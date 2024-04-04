@@ -1221,7 +1221,7 @@ void  Ground::redivideMossLayers(const int &mosstype) {
       else if(ii==moss.num-1){ml = (MossLayer*)lstmossl;}
 
       ml->derivePhysicalProperty();
-      if(ml->tem>0.) {
+      if(ml->tem>0.) { //BM: assign frozen only when below -2 temp window
         //assuming same volume content as the following layer
         ml->liq = ml->nextl->getVolLiq()*DENLIQ*ml->dz;
         ml->ice = 0.;
