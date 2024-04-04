@@ -1227,7 +1227,15 @@ void  Ground::redivideMossLayers(const int &mosstype) {
         ml->ice = 0.;
         ml->frozen = -1;
         ml->frozenfrac = 0.;
-      } else {
+      } 
+      // else if (-2 < ml->tem <=0.){ // BM: implementing temperature window
+      //   // assuming same volume content as the following layer
+      //   ml->liq = ml->nextl->getVolLiq() * DENLIQ * ml->dz;
+      //   ml->ice = 0.;
+      //   ml->frozen = 0;
+      //   ml->frozenfrac = 0.;
+      // } 
+      else {
         ml->liq = 0.;
         //assumming same volume content as the following layer;
         ml->ice = ml->nextl->getVolIce()*DENICE*ml->dz;

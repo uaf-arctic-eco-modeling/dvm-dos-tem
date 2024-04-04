@@ -66,7 +66,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
     tkunf = currl->getUnfThermCond();
     tkfrz = currl->getFrzThermCond();
-    tkmix = pow(tkfrz, currl->frozenfrac) * pow(tkunf, 1 - currl->frozenfrac);
+    tkmix = currl->getMixThermCond();
     // tkmix = tkfrz * (currl->frozenfrac) + tkunf * (1 - currl->frozenfrac);
     //BM: need to add tkmix = pow(tkfrz, frozenfrac) * pow(tkunf, 1-frozenfrac);
     //BM: tkfront should be either frozen or unfrozen, and tkres should always be mixed based on above
