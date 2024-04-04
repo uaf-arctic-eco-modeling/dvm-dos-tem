@@ -243,12 +243,12 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
           p_initial = p_dd['pft{}'.format(pftidx)][pname]
           p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
           final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
-      elif type(pftnum) is list:
+      elif isinstance(pftnum, list):
         for pftidx in pftnum:
           p_initial = p_dd['pft{}'.format(pftidx)][pname]
           p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
           final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftidx))
-      elif type(pftnum) is int:
+      elif isinstance(pftnum, int):
         p_initial = p_dd['pft{}'.format(pftnum)][pname]
         p_bounds = [p_initial - (p_initial*perturbation), p_initial + (p_initial*perturbation)]
         final.append(dict(name=pname, bounds=p_bounds, initial=p_initial, cmtnum=cmtnum, pftnum=pftnum))
@@ -338,11 +338,11 @@ class Sensitivity(BaseDriver):
     if 'percent_diffs' in config.keys() and 'p_bounds' in config.keys():
       raise RuntimeError("You musn't specify both percent_diffs and p_bounds at the same time. Choose one.")
 
-    # Ok this is slightly awkward - basically even if the user specified 
+    # OK this is slightly awkward - basically even if the user specified 
     # p_bounds, it ends up being easiest to setup the params structure using
     # the percent_diffs concept and then overwrite the bounds... alternatively
     # we could modify the params_from_seed function...
-    if not ('percent_diffs' in config.keys()):
+    if 'percent_diffs' not in config.keys():
       # use +/-90% for default perturbation
       percent_diffs = np.ones(len(config['params'])) * 0.9
     else:
@@ -356,7 +356,7 @@ class Sensitivity(BaseDriver):
                                      cmtnum=self.cmtnum)
 
     if 'p_bounds' in config.keys():
-      assert len(self.params) == len(config['p_bounds']), f"Length of params array and p_bounds array must be the same."
+      assert len(self.params) == len(config['p_bounds']), "Length of params array and p_bounds array must be the same."
       for par, bnds in zip(self.params, config['p_bounds']): 
         par['bounds'] = bnds
 
@@ -773,6 +773,7 @@ class Sensitivity(BaseDriver):
     # Make the working directory
     util.setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
+      '--seed-parameters', self._seedpath,
       sample_specific_folder
     ])
 
