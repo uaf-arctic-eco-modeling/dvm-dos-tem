@@ -50,7 +50,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
    * - | What spatial (geographic) area you want
        | to run?
      - | Toolik, pixels (0,0), (1,1), (2,2)
-       | ``/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/``
+       | ``/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/``
    * - What variables you want to output?
      - | GPP: monthly, by PFT
        | RH, RG, RM: monthly
@@ -95,7 +95,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
    .. code:: 
 
-      $ ./scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10 /data/workflows/exp0_jan26_test
+      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /data/workflows/exp0_jan26_test
       $ cd /data/workflows/exp0_jan26_test/
       $ outspec.py config/output_spec.csv --on RH m
       $ outspec.py config/output_spec.csv --on RG m
@@ -175,16 +175,16 @@ information is used to set the number of transient and scenario years to run.
 
    .. code:: 
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time:units"
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-climate.nc  | grep "time:units"
           time:units = "days since 1901-1-1 0:0:0" ;
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time:units"
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-climate.nc  | grep "time:units"
           time:units = "days since 2016-1-1 0:0:0" ;
    
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time\ =\ "
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-climate.nc  | grep "time\ =\ "
           time = UNLIMITED ; // (1380 currently)
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time\ =\ "
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-climate.nc  | grep "time\ =\ "
           time = UNLIMITED ; // (1020 currently)
 
    So ``1380/12 = 115``. Looks like 115 years for the historic and  ``1020/85 =
@@ -208,7 +208,7 @@ information is used to set the number of transient and scenario years to run.
 
       args = {
         'command': 'climate-ts-plot',
-        'input_folder': '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/',
+        'input_folder': '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/',
         'stitch': False,
         'type': 'spatial-temporal-summary',
       }
