@@ -335,10 +335,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       //Production:
 
-      // Fan Eq. 9: rate constant * carbon pool * Q10 >>> could be replaced with fmax?
-      // >>> rename rh to mp (methane production?)
+      // Fan Eq. 9: rate constant * carbon pool * Q10
+      // Saturated fraction is included here to
+      // calculate carbon loss per pool per layer
+      // prior to production calculation
       if(tmp_sois.rawc[il] > 0.0){
         prod_rawc_ch4[il] = saturated_fraction * (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
+        // del_sois.rawc[il] -= prod_rawc_ch4[il];
       }
       else{
         prod_rawc_ch4[il] = 0.0;
@@ -346,6 +349,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if(tmp_sois.soma[il] > 0.0){
         prod_soma_ch4[il] = saturated_fraction * (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
+        // del_sois.soma[il] -= prod_soma_ch4[il];
       }
       else{
         prod_soma_ch4[il] = 0.0;
@@ -353,6 +357,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if(tmp_sois.sompr[il] > 0.0){
         prod_sompr_ch4[il] = saturated_fraction * (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
+        // del_sois.sompr[il] -= prod_sompr_ch4[il];
       }
       else{
         prod_sompr_ch4[il] = 0.0;
@@ -360,6 +365,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if(tmp_sois.somcr[il] > 0.0){
         prod_somcr_ch4[il] = saturated_fraction * (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
+        // del_sois.somcr[il] -= prod_somcr_ch4[il];
       }
       else{
         prod_somcr_ch4[il] = 0.0;
@@ -1171,6 +1177,7 @@ void Soil_Bgc::deltac() {
     } else {
       // Yuan: vwc normalized by total pore - this will allow
       // respiration (methane/oxidation) implicitly
+      // BM: Not sure what this comment means? HG?
       bd->m_soid.rhmoist[il] = getRhmoist( ed->m_soid.sws[il],
                                            bgcpar.moistmin,
                                            bgcpar.moistmax,
