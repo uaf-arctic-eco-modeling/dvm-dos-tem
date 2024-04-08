@@ -239,7 +239,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // 10.1029/2004GB002239, but depths given in cm whereas we are using meters
         double rate_parameter_kp = 0.01; // >>> should be in cmt_calparbgc
         //See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] for pft transport capacity 
-        pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip]; // currl->poro *
+        if (ed->d_sois.ts[il]>0.0){
+          pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip]; // currl->poro *
+        } else{
+          pft_transport[ip] = 0.0;
+        }
+
         plant += pft_transport[ip];
 
         //Storing plant transport values for output
@@ -253,12 +258,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       plant_transport[il] = plant;
 
       // Only allow plant-mediated transport if layers are thawed
-      if (ed->d_sois.ts[il] > 0.0) {
+      // if (ed->d_sois.ts[il] > 0.0) {
         // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
-        plant_gm2hr = plant * convert_umolL_to_gm2;
-      } else {
-        plant_gm2hr = 0.0;
-      }
+      plant_gm2hr = plant * convert_umolL_to_gm2;
+      // } else {
+      //   plant_gm2hr = 0.0;
+      // }
 
       //Diffusion:
 
@@ -579,9 +584,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       curr_pool[il] = diff_react[il];
       delta_pool[il] -= diff_react[il];
       delta_pool_sum += delta_pool[il];
-      diffusion[il] = prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il]; 
 
-      currl = currl->nextl;
+      diffusion[il] = prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il];
+
+          currl = currl->nextl;
       il++;
 
     }
