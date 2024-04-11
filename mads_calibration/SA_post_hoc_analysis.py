@@ -1192,7 +1192,7 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
       fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
 
     # filtering for directories containing the name sample 
-    samples = np.sort([name for name in os.listdir() if os.path.isdir(name) and "sample" in name])
+    samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
     
     # looping through sample folders in directory:
     for n, sample in enumerate(samples):
