@@ -72,7 +72,7 @@ double SoilLayer::getUnfThermCond() {
   return tc;
 };
 
-double SoilLayer::getMixThermCond() {
+double SoilLayer::getMixThermCond() { // BM: add reference - GIPL
   double tc = MISSING_D;
   double tcf = MISSING_D;
   double tcu = MISSING_D;

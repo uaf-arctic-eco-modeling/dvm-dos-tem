@@ -231,7 +231,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
-    double hcap = currl->getHeatCapacity();
+    double hcap = currl->getHeatCapacity(); //BM: Should this be an array value rather than defined?
     double pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
