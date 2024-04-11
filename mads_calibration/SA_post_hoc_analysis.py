@@ -1278,15 +1278,19 @@ def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.
   .. image:: /images/SA_post_hoc_analysis/eq_plot.png
   
   '''
+
   # defining list of strings for compartment reference
   comp_ref = ['Leaf', 'Stem', 'Root']
-  
-  #returning boolean for pass fail
-  eq_check = pd.DataFrame(index=eq_params.index, columns=np.unique([i.split('_eq')[0] for i in eq_params.columns]),data=False)
-  
+
   #returning data on individual checks
   eq_data = pd.DataFrame(index=eq_params.index, columns=eq_params.columns, data=False)
-  
+
+  #returning boolean for pass fail for each variable
+  eq_var_check = pd.DataFrame(index=eq_params.index, columns=np.unique([i.split('_eq')[0] for i in eq_params.columns]),data=False)
+
+  #returning boolean for pass fail for run
+  eq_check = pd.DataFrame(index=eq_params.index, columns=['result'],data=False)
+
   # splitting eq_params to provide information for selecting targets
   # and counting pfts and compartments if any
   var_info = np.asarray([i.split('_') for i in eq_params.columns])
@@ -1297,35 +1301,35 @@ def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.
   targets = targets.filter(regex=var)
 
   # looping through columns
-  for col in eq_check.columns:
-
+  for col in eq_var_check.columns:
+    
     # Checking whether there are pfts or compartments
     if len(col.split('_'))==3:
       targ_col = col.split('_')[0]+'_'+col.split('_')[1]+'_'+comp_ref[int(col.split('_')[2])]
     else:
       targ_col = col
-
+    
     # looping through every sample
-    for row in eq_check.index:
+    for row in eq_var_check.index:
       # testing whether each metric meets criteria
       if abs( eq_params[col+"_eq_cv"].loc[row] ) * 100 < cv_lim:
         eq_data[col+"_eq_cv"].loc[row] = True
           
       if eq_params[col+"_eq_p"].loc[row] < p_lim:
         eq_data[col+"_eq_p"].loc[row] = True
-
+    
       if abs(eq_params[col+"_eq_slope"].loc[row]) < slope_lim * targets[targ_col].loc[0]:
         eq_data[col+"_eq_slope"].loc[row] = True
-
+    
       # testing whether all criteria are met to warrant pass or fail
       if ((eq_data[col+"_eq_cv"].loc[row] == True) & 
         (eq_data[col+"_eq_p"].loc[row] == True) & 
         (eq_data[col+"_eq_slope"].loc[row] == True)):
         
-        eq_check[col].loc[row] = True
-                                    
-  counts = eq_check.apply(pd.value_counts)
-  
+        eq_var_check[col].loc[row] = True
+                                
+  counts = eq_var_check.apply(pd.value_counts)
+
   # add catch for only True / only False:
   if len(counts.index)==1:
     if counts.index==False:
@@ -1336,21 +1340,44 @@ def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.
   counts.index = ["Pass", "Fail"]
   # converting result into percentage
   counts = counts / counts.sum()[0] * 100
-  
+
   fig, ax = plt.subplots()
   bottom = np.zeros(len(counts.columns))
-  
+
   ax.bar(counts.columns, counts.iloc[0,:], color='Green', alpha=0.5, label=counts.index[0])
   ax.bar(counts.columns, counts.iloc[1,:], bottom=counts.iloc[0,:], color='Red', alpha=0.5, label=counts.index[1])
   plt.xticks(rotation='vertical')
   ax.set_ylabel(" Equilibrium pass / fail [%] ", fontsize=12)
   plt.legend(loc='upper right', fontsize=12)
-  plt.title(col.split('_')[0] + f' {int(counts.iloc[0,:].values[0])}% passed', fontsize=14)
-  
+
+  for row in eq_var_check.index:
+    if eq_var_check.iloc[row, :].all() == True:
+      eq_check.loc[row] = True
+        
+  total_counts = eq_check.apply(pd.value_counts)
+
+  # add catch for only True / only False:
+  if len(total_counts.index)==1:
+    if total_counts.index==False:
+      total_counts = pd.DataFrame(index=[True, False], columns=['result'], data=[0.0, total_counts.iloc[0,0]])
+    elif total_counts.index==True:
+      total_counts = pd.DataFrame(index=[True, False], columns=['result'], data=[total_counts.iloc[0,0], 0.0])
+
+  if total_counts.index[0] == False:
+    total_counts.index = ['Fail', 'Pass']
+    pass_index=1
+  elif total_counts.index[1] == False:
+    total_counts.index = ['Pass', 'Fail']
+    pass_index=0
+
+  total_counts = total_counts / total_counts.sum()[0] * 100
+
+  plt.title(col.split('_')[0] + f' {int(total_counts.iloc[pass_index,:].values[0])}% passed', fontsize=14)
+
   if save:
     plt.savefig(saveprefix + col.split('_')[0] +"_eq_plot.png", bbox_inches='tight')
 
-  return counts, eq_check, eq_data
+  return counts, total_counts, eq_check, eq_var_check, eq_data
 
 def read_mads_iterationresults(iterationresults_file):
   '''
