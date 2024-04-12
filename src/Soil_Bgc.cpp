@@ -284,6 +284,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
       double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
       double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
+      //ch4_diffusion_coefficient in the atmosphere (physical constant) then scaled by temperature relation
       diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
 
       //In order to prevent NaNs in the calculation of s[]
@@ -585,9 +586,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       delta_pool[il] -= diff_react[il];
       delta_pool_sum += delta_pool[il];
 
-      diffusion[il] = prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il];
+      diffusion[il] = curr_pool[il] - prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il];
 
-          currl = currl->nextl;
+      currl = currl->nextl;
       il++;
 
     }
@@ -629,6 +630,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //Fan 2013 supplement "it is assumed that 50% of CH4 transported by plant is oxidized by rhizospheric oxidation before 
   //being released into the atmosphere" hence 0.5
   //ebullitions counldn't reach the surface, eg. when water table is below the soil surface, are not included, Y.MI
+  // BM: It looks like ebulllition is added to total efflux here even if the water table is below the soil surface
   efflux_gm2hr = 0.5 * plant_gm2day + diff_efflux_gm2day + ebul_gm2day;
 
   //Store ebullition and veg flux values (mostly for output)
