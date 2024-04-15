@@ -506,15 +506,20 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   // 3 - high + low surface
   // 4 - high + high surface
 
-  //Fire severity, both FRI and explicit, is loaded
-  // from input files.
+  //Fire severity, both FRI and explicit, is loaded from input files.
+  //The input file severities are 1-based, and must be converted
+  // to 0-based to look up the related parameter values.
+  int fri_severity_idx = max((this->fri_severity - 1), 0);
+  int exp_severity_idx = max((this->exp_fire_severity[year] - 1), 0);
 
   // FRI-derived fire regime
   if ( this->fri_derived ) {
     //Get fvcomb and fvdead from the parameters
+    //TODO It shouldn't be possible for severity to be below 0, even
+    // prior to the forcing above.
     if (this->fri_severity >= 0) {
-      this->r_burn2ag_cn = firpar.fvcomb[this->fri_severity][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[this->fri_severity][ipft];
+      this->r_burn2ag_cn = firpar.fvcomb[fri_severity_idx][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[fri_severity_idx][ipft];
     }
     //Apply the lookup table from Yi et al. 2010
     else {
@@ -542,9 +547,10 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   //Explicit fire regime
   else {
     //Get fvcomb and fvdead from the parameters
-    if (this->exp_fire_severity[year] >= 0) {
-      this->r_burn2ag_cn = firpar.fvcomb[this->exp_fire_severity[year]][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[this->exp_fire_severity[year]][ipft];
+    //TODO As above, severity should not be below 0
+    if (exp_severity_idx >= 0) {
+      this->r_burn2ag_cn = firpar.fvcomb[exp_severity_idx][ipft];
+      this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
     }
     else {  
       if( cd->drainage_type == 0 ) {// 0: well-drained; 1: poorly-drained
