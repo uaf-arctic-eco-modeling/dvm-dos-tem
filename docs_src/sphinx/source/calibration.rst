@@ -6,7 +6,7 @@
    ", for paragraphs
 
 ####################
-Manual Calibration
+Calibration
 ####################
 
 ***************************************
@@ -206,9 +206,18 @@ is. Therefore:
 
 .. math:: Kdc_{raw} > Kdc_{active} > Kdc_{pr} > Kdc_{cr} 
 
-**********************
-Calibration Process
-**********************
+**************************************
+Calibration Process - Conceptual
+**************************************
+
+This is a general descrpiption of the modeling steps that have been most 
+successfully used for finding optimal parameter sets (calibration in other
+words). For technical specifics of using various software tools to carry out 
+the process see the examples for 
+:ref:`manual calibration <examples_and_tutorials/manual_calibration:Manual Calibration>`
+and 
+:ref:`MADS assisted calibration <examples_and_tutorials/mads_assisted_calibration:MADS Assisted Calibration>`.
+
 
 Calibration is done in equilibrium simulation and in calibration mode. Because
 biogeochemical turn-overs in the vegetation are faster than in the soil,

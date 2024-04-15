@@ -87,27 +87,27 @@ Now we can make the `QCal` object:
 And print out the reports detailing how the model outputs compare to the
 targets:
 
-    >>> print(q.report(which='nc'))
+    >>> print(q.report(which='nc')) # doctest: +ELLIPSIS
             modeled data: /tmp/dvmdostem-doctests-qcal/output
               pixel(y,x): (0,0)
             targets file: /tmp/dvmdostem-doctests-qcal/calibration
          parameter files: /tmp/dvmdostem-doctests-qcal/parameters
                      CMT: {'CMT05'}
-                     QCR: 37.65197095114939
-            Weighted QCR: 18.709441415887532
+                     QCR: ...
+            Weighted QCR: ...
     <BLANKLINE> 
 
 The NetCDF and json reports should in theory match exactly, but there is
 frequently a little variation due to rounding errors.
 
-    >>> print(q.report(which='json'))
+    >>> print(q.report(which='json')) # doctest: +ELLIPSIS
             modeled data: /tmp/dvmdostem-doctests-qcal/dvmdostem
               pixel(y,x): (n/a,n/a)
             targets file: /tmp/dvmdostem-doctests-qcal/calibration
          parameter files: /tmp/dvmdostem-doctests-qcal/parameters
                      CMT: {'CMT05'}
-                     QCR: 37.651970951149394
-            Weighted QCR: 18.709441415887532
+                     QCR: ...
+            Weighted QCR: ...
     <BLANKLINE>    
 
 

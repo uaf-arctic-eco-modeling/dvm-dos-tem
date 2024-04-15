@@ -1,0 +1,99 @@
+# Example configuration file for a MADS assisted calibration (optimization)
+
+# This is used to name the .iterationresults and .finalresults files at the end
+mads_problemname: last_test
+
+# The location where your model run will be conducted and where your 
+# iteration and final results will be copied to at the end of the run(s)
+work_dir: /data/workflows/calibration/CMT06-IMNAVIAT/output/cmax_gppallignoringnitrogen/ca
+
+# The path to the "seed" directory that parameter will be read from. This could
+# be the main repository (/work/parameters if you are working inside the 
+# project's standard docker containers. In many cases, you will probably want
+# to set this to be a custom directory that you maintain somewhere inside 
+# the strucutre of the calibration project you are working on. 
+seed_path: /work/parameters
+
+# The path to the driving input data set that will be used
+site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
+
+# The pixel from the driving inputs that iwll be used.
+PXx: 0
+PXy: 0
+
+# Control over which modules are turned on for which stage.
+# The modes are:
+#  - False/None/0: dvmdostem default which is dsl and nfeed on for eq, sp, tr, sc stages
+#  - GPPALLIgnoringNitrogen: turns dsl and nfeed OFF for eq stage
+#  - VEGC or NPPAll: turns dsl and nfeed ON for eq (and subsequent) stages
+calib_mode: GPPAllIgnoringNitrogen
+
+# The name of the target variables that will be optimized for. These are names
+# of variables that are found in the dvmdostem calibration_targets.py file.
+target_names: 
+- GPPAllIgnoringNitrogen
+
+# If you want additional outputs beyond the ones needed for the target
+# comparison (optimization) then you can specify them here. In this case use the
+# NetCDF names.
+# WARNING you should make sure that you don't explicity change the resolution
+# for a variable that is one of your target variables.
+#aux_outputs:
+# - VEGC p m
+# - AVLN y
+# - GPP y p c
+# - INGPP m p 
+# - TLAYER m l
+
+# The community number that is being optimized
+cmtnum: 6
+
+# Additional options that are passed to dvmdostem
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+
+# The list of parameters that will be adjusted in order to optimize toward the
+# targets.
+params: [cmax, cmax, cmax, cmax, cmax, cmax, cmax]
+
+# The list of PFTs. The length of this list should match the list of params.
+# If you are working on a non-PFT parameter, then in the PFT list provide "None"
+# for that parameter. 
+pftnums: [0, 1, 2, 3, 4, 5, 6]
+
+# The initial guess and distributions of parameters that MADs will use for
+# beginning it's optimizaiton routine. These are generally suggested by the 
+# preceding sensitivity analysys and the the SA_post_hoc_analysis.py has functions
+# that can generate these lists nicely formatted as show here
+mads_initialguess:
+-   23.620  # cmax_pft0
+-  370.942  # cmax_pft1
+-   95.010  # cmax_pft2
+-   38.409  # cmax_pft3
+-    8.009  # cmax_pft4
+-   19.460  # cmax_pft5
+-   27.993  # cmax_pft6
+mads_paramdist:
+- Uniform(   5.087,   42.153)    # cmax_pft0
+- Uniform( 334.496,  407.389)    # cmax_pft1
+- Uniform(  66.771,  123.249)    # cmax_pft2
+- Uniform(   3.970,   72.847)    # cmax_pft3
+- Uniform(   2.106,   13.912)    # cmax_pft4
+- Uniform(   3.293,   35.626)    # cmax_pft5
+- Uniform(   3.787,   52.198)    # cmax_pft6
+
+# Not sure what this is for.....but I think it should use the form 
+# that is above in the comment for paramdist and intiailguess
+mads_paramkey:
+- cmax_pft0
+- cmax_pft1
+- cmax_pft2
+- cmax_pft3
+- cmax_pft4
+- cmax_pft5
+- cmax_pft6
+
+# Write comments for these...
+mads_obsweight: OFF
+mads_obsrange: OFF
+mads_paramrange: OFF
+

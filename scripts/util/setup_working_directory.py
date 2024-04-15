@@ -55,6 +55,14 @@ def cmdline_parse(argv=None):
   parser.add_argument('--input-data-path', default="<placeholder>",
       help=textwrap.dedent("""Path to the input data"""))
 
+  parser.add_argument('--seed-parameters',
+      help=textwrap.dedent('''The path that should be searched for the
+        parameters that will be copied into your new workspace.'''))
+
+  parser.add_argument('--seed-targets',
+      help=textwrap.dedent('''The path that should be searched for the
+        calibration_targets.py that will be copied into your new workspace.'''))
+
   parser.add_argument('--copy-inputs', action='store_true',
       help=textwrap.dedent("""Copy the inputs from the location specified 
         in --input-data-path to the new working directory that is being setup.
@@ -66,6 +74,18 @@ def cmdline_parse(argv=None):
         the new working directory."""))
 
   args = parser.parse_args(argv) # uses sys.argv[1:] when argv is None
+
+  # various argument validation...
+  if args.seed_targets:
+    if not os.path.exists(args.seed_targets):
+      parser.error("Must be a valid path to an existing targets file.")
+
+    # hmm, not sure if this is the best here...
+    if 'calibration_targets.py' not in os.path.basename(args.seed_targets):
+      parser.error("Must pass full path to calibration_targets.py file")
+
+  if args.no_cal_targets and args.seed_targets:
+    parser.error("It does not make sense use --seed-targets and --no-cal-targets at the same time.")
 
   return args
 
@@ -90,13 +110,23 @@ def cmdline_run(args):
     pass
   else:
     mkdir_p(os.path.join(args.new_directory, 'calibration'))
-    shutil.copy( os.path.join(ddt_dir, 'calibration', 'calibration_targets.py'), 
-                 os.path.join(args.new_directory, 'calibration'))
+    if args.seed_targets:
+      shutil.copy(args.seed_targets,
+                  os.path.join(args.new_directory, 'calibration'))
+    else:
+      shutil.copy(os.path.join(ddt_dir, 'calibration', 'calibration_targets.py'),
+                  os.path.join(args.new_directory, 'calibration'))
+
+  if args.seed_parameters:
+    shutil.copytree(args.seed_parameters,
+                    os.path.join(args.new_directory, 'parameters'))
+  else:
+    shutil.copytree(os.path.join(ddt_dir, 'parameters'),
+                    os.path.join(args.new_directory, 'parameters'))
 
 
   # Copy over the config and parameters directories
   shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
-  shutil.copytree(os.path.join(ddt_dir, 'parameters'), os.path.join(args.new_directory, 'parameters'))
 
   if args.copy_inputs:
     shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs', os.path.basename(args.input_data_path)))
@@ -108,7 +138,7 @@ def cmdline_run(args):
   mkdir_p(os.path.join(args.new_directory, 'output'))
 
   # Open the new config file
-  with open(os.path.join(args.new_directory, 'config/config.js')) as fp:
+  with open(os.path.join(args.new_directory, 'config/config.js'), encoding='utf-8') as fp:
     config = commentjson.load(fp)
 
   ####  Set up the new config file appropriately... ####
@@ -178,7 +208,7 @@ def cmdline_run(args):
   # Sort the keys in the IO section.
   config['IO'] = collections.OrderedDict(sorted(iter(config['IO'].items()), key=lambda k_v: sort_order.index(k_v[0])))
 
-  with open(os.path.join(args.new_directory, 'config/config.js'), 'w') as fp:
+  with open(os.path.join(args.new_directory, 'config/config.js'), 'w', encoding='utf-8') as fp:
     commentjson.dump(config, fp, indent=2, sort_keys=False) # sorting messes up previous sorting!
 
 

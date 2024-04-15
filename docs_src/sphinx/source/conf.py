@@ -15,6 +15,7 @@ import sys
 
 # Tried a variety of options, but this seems to work the best for auto-module
 # reading of our scripts directory...
+sys.path.insert(0, os.path.abspath("../../../mads_calibration"))
 sys.path.insert(0, os.path.abspath("../../../scripts"))
 
 # -- Project information -----------------------------------------------------
@@ -43,6 +44,7 @@ extensions = [
   #'sphinx.ext.automodule',
   #'numpydoc',
   'sphinx.ext.napoleon',
+  'sphinxarg.ext',
 ]
 
 

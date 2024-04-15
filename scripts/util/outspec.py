@@ -211,8 +211,10 @@ def toggle_on_variable(data, var, res_spec, verbose=False):
 
   return data
 
-def cmdline_parse(argv=None):
+def cmdline_define():
   '''
+  Define the command line interface and return the parser object. 
+
   Example API
   ./outspec.py.py --list-pft-vars PATH/TO/FILE
   ./outspec.py.py --list-layer-vars PATH/TO/FILE
@@ -304,6 +306,11 @@ def cmdline_parse(argv=None):
   parser.add_argument('--DEBUG', action='store_true',
       help=textwrap.dedent('''Print extra info for debugging.'''))
 
+  return parser
+
+def cmdline_parse(argv=None):
+  '''Wrapper function around the cmdline parsing.'''
+  parser = cmdline_define()
   args = parser.parse_args(argv)
 
   return args
@@ -372,6 +379,7 @@ def cmdline_run(args):
     caltargets2ncname_map = [
       ('GPPAllIgnoringNitrogen','INGPP'),
       ('NPPAllIgnoringNitrogen','INNPP'),
+      ('GPPAll','GPP'),  
       ('NPPAll','NPP'),
       # ??? There are snuptake, lnuptake and innuptake (in the C++)
       # and TotNitrogentUptake (in the cal targets) is the sum of sn and ln...
@@ -391,7 +399,7 @@ def cmdline_run(args):
     for v in "MOSSDEATHC SHLWC DEEPC MINEC ORGN AVLN".split():
       data = toggle_on_variable(data, v, 'yearly', verbose=args.DEBUG)
 
-    for v in "INGPP INNPP NPP".split():
+    for v in "INGPP INNPP NPP GPP".split():
       data = toggle_on_variable(data, v, 'yearly pft', verbose=args.DEBUG)
 
     for v in "VEGC VEGN".split():
