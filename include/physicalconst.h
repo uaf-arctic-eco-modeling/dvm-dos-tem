@@ -5,15 +5,15 @@
 
 const float DENLIQ = 1000.; // liquid water density kg/m3
 const float DENICE = 917. ; // ice density kg/m3
-const float TCLIQ  = 0.4  ; //0.6  thermal conductivity of liq W/mK
-const float TCICE  = 0.6 ; //2.29  thermal conductivity of ice W/mK
+const float TCLIQ  = 0.6  ; //  thermal conductivity of liq W/mK
+const float TCICE  = 2.29 ; //  thermal conductivity of ice W/mK
 const float TCAIR  = 0.023 ; // thermal conductivity of air W/mK
 
-const float SHCLIQ = 3.188e3  ; //  specific heat capacity of liq J/kgK 4.118e3
-const float SHCICE = 1.11727e3 ; //  specific heat capacity of ice J/kgK 2.11727e3
+const float SHCLIQ = 4.188e3  ; //  specific heat capacity of liq J/kgK
+const float SHCICE = 2.11727e3 ; //  specific heat capacity of ice J/kgK
 const float SHCAIR = 1.00464e3 ; // specific heat capacity of air J/kgK
 
-const float LHFUS  = 4.92e4 ; // latent heat of fusion  J/kg 3.337e5
+const float LHFUS  = 3.337e5 ; // latent heat of fusion  J/kg
 const float LHVAP  = 2.501e6 ; // latent heat of vaporization  J/kg
 const float LHSUB  = 2.8338e6 ; // latent heat of sublimation  J/kg
 
