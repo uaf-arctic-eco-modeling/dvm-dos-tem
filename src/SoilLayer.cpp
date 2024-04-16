@@ -72,7 +72,15 @@ double SoilLayer::getUnfThermCond() {
   return tc;
 };
 
-double SoilLayer::getMixThermCond() { // BM: add reference - GIPL
+double SoilLayer::getMixThermCond() { 
+  
+  //Note: accounting for porosity, liquid, ice content is imperative when reviewing 
+  // this equation, see reference:
+
+  // Hailong He, Gerald N. Flerchinger, Yuki Kojima, Miles Dyck, Jialong Lv,
+  // A review and evaluation of 39 thermal conductivity models for frozen soils,
+  // https://doi.org/10.1016/j.geoderma.2020.114694.
+
   double tc = MISSING_D;
   double tcf = MISSING_D;
   double tcu = MISSING_D;
