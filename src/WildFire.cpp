@@ -153,7 +153,8 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
   //if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
   // FW_MOD_START:
   // Check that fire is on for the current run stage:
-  if ( (stage.compare("eq-run") == 0  && md->fire_on_EQ) ||
+  if ( stage.compare("pre-run") == 0 ||
+       (stage.compare("eq-run") == 0  && md->fire_on_EQ) ||
        (stage.compare("sp-run") == 0  && md->fire_on_SP) )
   {
     // Currently for the PR, EQ, and SP stages only fire return interval based fire is implemented
