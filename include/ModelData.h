@@ -111,11 +111,9 @@ public:
   bool fire_on_SP;
   bool fire_on_TR;
   bool fire_on_SC;
-  // Wildfire ignitions modes: [Note: In development.  Numbers will likely change!]
-  // 0: Default/old:  FRI for PR/EQ/SP, explicit for TR/SC.
-  // 1: Use fire return interval for all stages with fire on.
-  // 2; Revised (placeholder only currently)
-  int fire_ignition_mode;
+  // Wildfire ignitions modes: 0: explicit for TR/SC. 1: Use fire return interval, 2+: Reserved for future use.
+  int fire_ignition_tr;
+  int fire_ignition_sc;
   // FW_MOD_END.
 
   bool outSiteDay;

@@ -123,8 +123,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   fire_on_SP        = controldata["stage_settings"]["sp"]["fire"].asBool();
   fire_on_TR        = controldata["stage_settings"]["tr"]["fire"].asBool();
   fire_on_SC        = controldata["stage_settings"]["sc"]["fire"].asBool();
-  //fire_ignition_type = controldata["model_settings"]["fire_ignition_type"].asInt();
-  fire_ignition_mode = controldata["model_settings"]["fire_ignition_mode"].asInt();
+  fire_ignition_tr  = controldata["module_settings"]["dsb"]["fire"]["ignition_tr"].asInt();
+  fire_ignition_sc  = controldata["module_settings"]["dsb"]["fire"]["ignition_sc"].asInt();
   // FW_MOD_END.
 }
 

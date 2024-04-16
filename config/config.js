@@ -125,18 +125,35 @@
 
   },
 
+  "module_settings" {
+    "dsb": {
+      "fire": {
+        // Wildfire ignitions modes: [Note: In development.  Numbers may change!]
+        // 0: Default/old: FRI for [PR/]EQ/SP, explicit for TR/SC.
+        // 1: Use fire return interval for this stage if fire is on.
+        // 2+: Reserved for future use.
+        // Fire is alway off in the PR stage and can only be FRI for EQ/SP so no switches are
+        // provided for these stages.
+        "ignition_tr": 0
+        "ignition_sc": 0
+
+        // More future controls per stage can go here...
+        //"severity_pr":
+        //"severity_eq":
+        // ...
+      },
+      // Future disturbances go here...
+      //"insect": { ... },
+      //"thermokarst":{ ... },
+    }
+  },
+
   "model_settings": {
     "dynamic_lai": 1,                    // from model (1) or from input (0)
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
 //    //"output_starting_year": -9999
-    // Wildfire ignitions modes: [Note: In development.  Numbers will likely change!]
-    // 0: Default/old:  FRI for PR/EQ/SP, explicit for TR/SC.
-    // 1: Use fire return interval for all stages with fire on.
-    // 2; Revised (placeholder only currently)
-    "fire_ignition_mode": 0
-    // FW_MOD_END.
   }
 
 //  "output_switches": {

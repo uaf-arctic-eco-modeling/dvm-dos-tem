@@ -158,7 +158,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
        (stage.compare("sp-run") == 0  && md->fire_on_SP) )
   {
     // Currently for the PR, EQ, and SP stages only fire return interval based fire is implemented
-    // so there is no need to check fire_ignition_mode.  If fire is on it is FRI based.
+    // so there is no need to check te fire ignition mode.  If fire is on it is FRI based.
     // This could change in the future.
 
     this->fri_derived = true;
@@ -174,7 +174,18 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
   else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
             (stage.compare("sc-run") == 0 && md->fire_on_SC) )
   {
-    switch (md->fire_ignition_mode)
+    int fire_ignition_mode;
+
+    if (stage.compare("tr-run")
+    {
+      fire_ignition_mode = md->fire_ignition_tr
+    }
+    else
+    {
+      fire_ignition_mode = md->fire_ignition_sc
+    }
+
+    switch (fire_ignition_mode)
     {
       case 0:// Default (old) fire behavior, use explicit fire from input file:
       {
@@ -192,7 +203,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       case 1:// Use fire return interval:
       {
         this->fri_derived = true;
-        BOOST_LOG_SEV(glg, debug) << "fire_ignition_mode = 1. Determine fire from FRI.";
+        BOOST_LOG_SEV(glg, debug) << "Fire ignition mode = 1. Determine fire from FRI.";
 
         if (this->isFireReturnDate(yr, midx))
         {
@@ -202,7 +213,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       }
       case 2://Placeholder for future dynamic ignition mode:
       {
-        BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set fire_ignition_mode = 0 or 1.";
+        BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set ignition_XX = 0 or 1.";
         // Should probably terminate here.
         this->fri_derived = false;
         ignite = false;
