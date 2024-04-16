@@ -556,6 +556,14 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
       } 
     }
   }
+  
+  if (ipft == 0){
+    BOOST_LOG_SEV(glg, fatal) << "year: " << year << " fire_sev: " << this->exp_fire_severity[year]; 
+    BOOST_LOG_SEV(glg, fatal) << "fvcomb: " << firpar.fvcomb[this->exp_fire_severity[year]][ipft];
+    BOOST_LOG_SEV(glg, fatal) << "fvdead: " << firpar.fvdead[this->exp_fire_severity[year]][ipft];
+    BOOST_LOG_SEV(glg, fatal) << "burn2ag_cn: " << this->r_burn2ag_cn; 
+    BOOST_LOG_SEV(glg, fatal) << "dead2ag_cn: " << this->r_dead2ag_cn;
+  }
 
   this->r_live_cn = 1.0 - this->r_burn2ag_cn - this->r_dead2ag_cn;
 }
