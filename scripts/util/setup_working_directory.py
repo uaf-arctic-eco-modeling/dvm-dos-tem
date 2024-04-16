@@ -65,6 +65,15 @@ def cmdline_parse(argv=None):
       help=textwrap.dedent("""Do NOT copy the calibration_targets.py file into
         the new working directory."""))
 
+  parser.add_argument('--fire_hist_file', default='historic-explicit-fire.nc', 
+          help='name of historic fire file to run, defaults to historic-explicit-fire.nc')
+  
+  parser.add_argument('--dsb_on', default=False,
+          help='use to turn on dsb module')
+
+  parser.add_argument('--dsl_on', default=True,
+          help='use to turn on dsb module')
+
   args = parser.parse_args(argv) # uses sys.argv[1:] when argv is None
 
   return args
@@ -136,7 +145,7 @@ def cmdline_run(args):
   config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected-co2.nc')
   config['IO']['topo_file']            = os.path.join(input_data_path, 'topo.nc')
   config['IO']['fri_fire_file']        = os.path.join(input_data_path, 'fri-fire.nc')
-  config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, 'historic-explicit-fire.nc')
+  config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, args.fire_hist_file)
   config['IO']['proj_exp_fire_file']   = os.path.join(input_data_path, 'projected-explicit-fire.nc')
 
   # Make sure calibration data ends up in a directory that is named the same
@@ -145,6 +154,37 @@ def cmdline_run(args):
   # --data-path, they for some reason have to include dvmdostem, like this:
   # --data-path /tmp/args.new_directory/dvmdostem
   config['calibration-IO']['caldata_tree_loc'] = os.path.join('/tmp', os.path.basename(os.path.abspath(args.new_directory)))
+ 
+  #config['stage_settings']['eq']['nfeed']=False
+  #config['stage_settings']['sp']['nfeed']=False
+  #config['stage_settings']['tr']['nfeed']=False
+  #config['stage_settings']['sc']['nfeed']=False
+
+  #config['stage_settings']['eq']['avlnflg']=False
+  #config['stage_settings']['sp']['avlnflg']=False
+  #config['stage_settings']['tr']['avlnflg']=False
+  #config['stage_settings']['sc']['avlnflg']=False
+
+
+  if args.dsb_on=='true':
+    print('turning on dsb')
+    config['stage_settings']['eq']['dsb']=True
+    config['stage_settings']['sp']['dsb']=True
+    config['stage_settings']['tr']['dsb']=True
+    config['stage_settings']['sc']['dsb']=True
+  
+  else:
+    print('turning off dsb')
+    config['stage_settings']['eq']['dsb']=False
+    config['stage_settings']['sp']['dsb']=False
+    config['stage_settings']['tr']['dsb']=False
+    config['stage_settings']['sc']['dsb']=False
+
+  if args.dsl_on=='false':
+    print('turning off dsl')
+    config['stage_settings']['sp']['dsl']=False
+    config['stage_settings']['tr']['dsl']=False
+    config['stage_settings']['sc']['dsl']=False
 
   # Match the default config file shipped with the code, except we move runmask
   # to the end of the file listings

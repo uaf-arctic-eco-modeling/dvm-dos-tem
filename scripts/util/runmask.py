@@ -9,8 +9,8 @@ import argparse
 import textwrap
 import os
 import numpy as np
-
-import util.input
+sys.path.append(os.path.join('/work','scripts', 'util'))
+import input
 
 '''
 This script is for creating, modifying, and viewing run masks for dvmdostem. 
