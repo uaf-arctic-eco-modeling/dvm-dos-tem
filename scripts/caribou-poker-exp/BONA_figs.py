@@ -33,6 +33,7 @@ rg_sc='RG_monthly_sc.nc'
 rh_tr='RH_monthly_tr.nc'
 rh_sc='RH_monthly_sc.nc'
 
+ald_eq='ALD_yearly_eq.nc'
 ald_tr='ALD_yearly_tr.nc'
 ald_sc='ALD_yearly_sc.nc'
 
@@ -55,6 +56,7 @@ ltrfalc_tr = 'LTRFALC_monthly_tr.nc'
 shlwc_tr = 'SHLWC_monthly_tr.nc'
 shlwc_eq = 'SHLWC_monthly_eq.nc'
 deepc_eq = 'DEEPC_yearly_eq.nc'
+minec_eq= 'MINEC_yearly_eq.nc'
 
 burnveg_tr = 'BURNVEG2AIRC_monthly_tr.nc'
 
@@ -187,8 +189,18 @@ deepc_bs_eq = xr.open_dataset(black_spruce_dir+deepc_eq)
 deepc_bs_eq = deepc_bs_eq.to_dataframe().reset_index()
 deepc_bs_eq = deepc_bs_eq.loc[(deepc_bs_eq['y']==cell_y_coord) & (deepc_bs_eq['x']==cell_x_coord)]
 
+#MINEC
+minec_bs_eq = xr.open_dataset(black_spruce_dir+minec_eq)
+minec_bs_eq = minec_bs_eq.to_dataframe().reset_index()
+minec_bs_eq = minec_bs_eq.loc[(minec_bs_eq['y']==cell_y_coord) & (minec_bs_eq['x']==cell_x_coord)]
 
-xr.open_dataset(black_spruce_dir+rh_tr)
+#ALD
+ald_bs_eq = xr.open_dataset(black_spruce_dir+ald_eq)
+ald_bs_eq = ald_bs_eq.to_dataframe().reset_index()
+ald_bs_eq = ald_bs_eq.loc[(ald_bs_eq['y']==cell_y_coord) & (ald_bs_eq['x']==cell_x_coord)]
+
+
+
 
 
 rm_bs_tr_root = rm_bs_tr[:, 2, :].sum(axis=1)
@@ -343,6 +355,11 @@ deepc_br_eq = xr.open_dataset(birch_dir+deepc_eq)
 deepc_br_eq = deepc_br_eq.to_dataframe().reset_index()
 deepc_br_eq = deepc_br_eq.loc[(deepc_br_eq['y']==cell_y_coord) & (deepc_br_eq['x']==cell_x_coord)]
 
+#MINEC
+minec_br_eq = xr.open_dataset(birch_dir+minec_eq)
+minec_br_eq = minec_br_eq.to_dataframe().reset_index()
+minec_br_eq = minec_br_eq.loc[(minec_br_eq['y']==cell_y_coord) & (minec_br_eq['x']==cell_x_coord)]
+
 
 rm_br_tr_root = rm_br_tr[:, 2, :].sum(axis=1)
 rm_br_tr = rm_br_tr.sum(axis=2).sum(axis=1)
@@ -366,9 +383,26 @@ df_br['year'] = df_br['date'].dt.year
 df_br_yearly = df_br.groupby(by=['year']).sum()
 
 
+df_bs_yearly['CMT'] = 'Black Spruce'
+df_br_yearly['CMT'] = 'Deciduous'
+df_bs_yearly['ALD'] = ald_bs_tr
+df_br_yearly['ALD'] = ald_br_tr
+
+df_yearly=pd.concat([df_bs_yearly, df_br_yearly]).reset_index()
+
+
+vegc_bs_eq
+
+
+vegc_bs_eq.loc[vegc_bs_eq['pft']==0]
+
+
+sns.lineplot(data = vegc_bs_eq.loc[vegc_bs_eq['pft']==0], x='time', y='VEGC', hue='pftpart')
+
+
 # ## Compare vegetation carbon stocks
 
-vegc_bs_eq_tem = vegc_bs_eq.loc[vegc_bs_eq['time']==11995]
+vegc_bs_eq_tem = vegc_bs_eq.loc[vegc_bs_eq['time']==11994]
 vegc_bs_eq_tem['type'] = 'Modeled (TEM)'
 
 vegc_bs_tr_field = vegc_bs_eq_tem.copy()
@@ -471,7 +505,28 @@ axes[1].set_ylabel('Burn VegC to Air')
 fig.tight_layout()
 
 
+
+
+
 # ## Compare soil carbon stocks
+
+shlwc_bs_eq
+
+
+sns.lineplot(data=deepc_bs_eq, x='time', y='DEEPC')
+
+
+sns.lineplot(data=minec_bs_eq, x='time', y='MINEC')
+
+
+sns.lineplot(data=ald_bs_eq, x='time', y='ALD')
+
+
+sns.lineplot(data=df_yearly.loc[df_yearly['CMT']=='Black Spruce'], x='year', y='ALD', hue='CMT')
+
+
+ald_bs_tr
+
 
 shlwc_bs_modeled = shlwc_bs_eq.loc[shlwc_bs_eq['time']==999]['SHLWC'].values[0]
 deepc_bs_modeled = deepc_bs_eq.loc[deepc_bs_eq['time']==999]['DEEPC'].values[0]
@@ -657,7 +712,7 @@ tlayer_bs_tr_df = pd.DataFrame(tlayer_bs_tr)
 lwclayer_bs_tr_df = pd.DataFrame(lwclayer_bs_tr)
 
 
-sns.lineplot(x=lwclayer_bs_tr_df[1300:].index, y=lwclayer_bs_tr_df[1300:][5])
+sns.lineplot(x=lwclayer_bs_tr_df[1300:].index, y=lwclayer_bs_tr_df[1300:][1])
 #sns.lineplot(x=lwclayer_bs_tr_df[1200:].index, y=lwclayer_bs_tr_df[1200:][1])
 #sns.lineplot(x=lwclayer_bs_tr_df[1200:].index, y=lwclayer_bs_tr_df[1200:][2])
 #sns.lineplot(x=lwclayer_bs_tr_df[1200:].index, y=lwclayer_bs_tr_df[1200:][3])
@@ -727,11 +782,13 @@ sns.scatterplot(data=df_bs.loc[(df_bs['date']>'2010-01-01') & (df_bs['date']<'20
 sns.scatterplot(data=df_br.loc[(df_br['date']>'2010-01-01') & (df_br['date']<'2024-01-01')], x='LWC_top', y='RH', label = 'Birch', color='#708891')
 
 
-df_bs_yearly['CMT'] = 'Black Spruce'
-df_br_yearly['CMT'] = 'Deciduous'
 
 
-df_yearly=pd.concat([df_bs_yearly, df_br_yearly]).reset_index()
+
+
+
+
+
 
 
 df_yearly_melt = df_yearly[['year', 'GPP', 'RECO', 'NEE', 'CMT']].melt(id_vars=['year', 'CMT'], value_vars=['GPP', 'RECO', 'NEE', 'CMT'])
@@ -784,6 +841,13 @@ axes[2].set_ylabel('NEE\n(g C $m^{-2}$ $y^{-1}$)')
 plt.xlabel('')
 fig.tight_layout()
 plt.savefig('output_figs/BONA/yearly_fluxes.jpg', dpi=300)
+
+
+df_yearly.columns
+
+
+sns.lineplot(data=df_yearly, x='year', y='ALD', hue='CMT')
+#plt.ylim(0,1)
 
 
 bins=['2000-2009', '2010-2019', '2020-2029', '2030-2039', '2040-2049', 
@@ -842,10 +906,10 @@ b = '/'.join(a.split('/')[:-1]) + '/fused_landcover.tif'
 b
 
 
+df_bs[['date', 'GPP', 'NPP', 'RH', 'RECO', 'NEE']].to_csv('BONA_Black_Spruce_flux_hist.csv')
 
 
-
-
+df_br[['date', 'GPP', 'NPP', 'RH', 'RECO', 'NEE']].to_csv('BONA_Birch_flux_hist.csv')
 
 
 
