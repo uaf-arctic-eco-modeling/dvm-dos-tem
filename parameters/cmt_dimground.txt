@@ -24,14 +24,14 @@
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 // Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-120                // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
+250                // snwdenmax:
+50                 // snwdennew:
+0.                 // initsnwthick:
+0.                  // initsnwdense:
 // moss characteristics
-0.035              // maxmossthick: max. dead moss thickness (m)
-0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.035               // maxmossthick:
+0.02              // initdmossthick:
+1                  // mosstype:
 // soil characteristics
 0.049              // initfibthick: meters
 0.115              // inithumthick:
@@ -41,6 +41,7 @@
 1.541              // coefdeepb:
 0.0995             // coefminea:
 0.8109             // coefmineb:
+//      soil      characteristics
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 // Snow characteristics

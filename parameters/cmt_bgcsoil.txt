@@ -23,25 +23,25 @@
 0.76              // initavln:
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome
-2.0               // rhq10:
+2.0                 // rhq10: Marty et al., 2019; Nagano et al., 2018
 2.0               // rhq10_w:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-35.00               // lcclnc:
-0.3717            // fsoma:
-0.6112            // fsompr:
-0.0171            // fsomcr:
-0.2571            // som2co2:
+35.               // lcclnc:
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.2571             // som2co2:
 0.0042            // kn2:
 21.39             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-782.73            // initshlwc:
-3448.5            // initdeepc:
-41665.0           // initminec:
-2145.87           // initsoln:
-0.76              // initavln:
+782.73          // initshlwc: 4362.19
+3448.5          // initdeepc: 22396.02
+41665.0          // initminec: 45220.4
+363.          // initsoln: 2748.367
+0.76         // initavln: from 6.153826 then 11.153862
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 2.0               // rhq10:
@@ -212,7 +212,7 @@
 11.153826          // initavln: from 6.153826 then 11.153862
 //===========================================================
 // CMT14 // Boreal Birch Forest // AM Calibrated for Caribou Creek.
-2.9               // rhq10:
+2.0               // rhq10:
 2.0               // rhq10_w:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -233,8 +233,8 @@
 3.41               // initavln:
 //===========================================================
 // CMT15 // Boreal Black Spruce // AM Calibrated for Caribou Creek.
-1.86              // rhq10:
-1.5               // rhq10_w:
+2.386951              // rhq10:
+2.0               // rhq10_w:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
