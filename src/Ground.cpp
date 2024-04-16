@@ -1827,10 +1827,11 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
   if (fntnum<=0) { // no fronts exist, use temp to assign frozen status
     if (soill->tem > 0.) {
       soill->frozen = -1;
-      soill->frozenfrac = 0.;//BM: add temperature window (this may mess with front calculations)
+      soill->frozenfrac = 0.;// BM: add temperature window (this may mess with front calculations)
     } else {                 // though this is likely not to happen as there should already be a front
-      soill->frozen = 1;
-      soill->frozenfrac = 1.;
+      soill->frozen = 1;     // When there are no fronts we will need to assign
+      soill->frozenfrac = 1.;// partially frozen status for next Stefan call
+                             // frozenfrac may be equated to lwc/vwc OR a minimum unfrozen water value
     }
     return;
   }
@@ -1847,7 +1848,7 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
         if (frontsz[fntind]<=soill->z) { // cycle through any fronts above layer; the lowest one will give the correct status
           soill->frozen = -frontstype[fntind];
           if (soill->frozen==1) {
-            soill->frozenfrac = 1.0;//BM: else if frozen==0, frozenfrac interpolation
+            soill->frozenfrac = 1.0; //BM: else if based on lwc for mixed layer
           } else {
             soill->frozenfrac = 0.0;
           }
@@ -1855,7 +1856,7 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
         if (frontsz[fntind]>soill->z+soill->dz) { // for any fronts below layer
           soill->frozen = frontstype[fntind];
           if (soill->frozen==1){
-            soill->frozenfrac = 1.0;//BM: else if frozen==0, frozenfrac interpolation, although unlikely as assigned below
+            soill->frozenfrac = 1.0; //BM : else if frozen=0
           } else {
             soill->frozenfrac = 0.0;
           }
@@ -1864,7 +1865,7 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
       }
     }
     else { // one or more fronts are in this soil layer
-      double fracfrozen = 0.;
+      double fracfrozen = 0.; //BM : will this equate to the unfrozen calculated above
       double dzabvfnt = 0.;
       for (int fntind=0; fntind<fntnum; fntind++){
         double fntz = frontsz[fntind];
