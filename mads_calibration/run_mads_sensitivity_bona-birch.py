@@ -21,7 +21,7 @@ print(f"The filename you provided is: {config_file_name}")
 #define the SA setup
 driver = Sensitivity.SensitivityDriver(config_file=config_file_name)
 driver.clean()
-sample_size=150
+sample_size=50
 driver.design_experiment(sample_size, driver.cmtnum,
   params=driver.paramnames,
   pftnums=driver.pftnums,
@@ -32,7 +32,7 @@ driver.design_experiment(sample_size, driver.cmtnum,
 #individual PFT
 #Soil
 
-new_bounds = [[0.4, 2.0],[0.7, 0.9],[0.4, 0.7],[0.00001, 0.2],[1e-18, 1e-4]]
+#new_bounds = [[0.4, 2.0],[0.7, 0.9],[0.4, 0.7],[0.00001, 0.2],[1e-18, 1e-4]]
 
 #PFT2
 #new_bounds = [[1,30], [-12.5, -7.2], [-6, -2.5], [-6.0, -1.5], [0.14, 0.20], [0.0007, 0.007], [0.0007, 0.0045],
@@ -56,7 +56,7 @@ new_bounds = [[0.4, 2.0],[0.7, 0.9],[0.4, 0.7],[0.00001, 0.2],[1e-18, 1e-4]]
 
 #customize bounds
 #STEP 1
-#new_bounds=[[3.8, 4.0], [396, 398], [750,780], [54, 55], [131, 133]]
+new_bounds=[[3.8, 4.0], [396, 398], [750,780], [54, 55], [131, 133]]
 
 #STEP 2
 

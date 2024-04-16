@@ -17,7 +17,7 @@ target_names:
 #- AvailableNitrogenSum
 cmtnum: 14 
 PXx: 0
-PXy: 3
+PXy: 0
 opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0 
 params:
 - cmax
@@ -31,7 +31,7 @@ pftnums:
 - 2
 - 3
 - 4
-site: /data/input-catalog/caribou-poker
+site: /data/input-catalog/cpcrw_towers_downscaled
 work_dir: /data/workflows/BONA-Birch-STEP1-SA
 mads_initial_guess:
 - 439.33

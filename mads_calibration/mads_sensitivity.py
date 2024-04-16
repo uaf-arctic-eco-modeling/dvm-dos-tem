@@ -31,13 +31,13 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 
-import param_util as pu
-import output_utils as ou
+import util.param as pu
+import util.output as ou
 
-import setup_working_directory
+import util.setup_working_directory as setup_working_directory
 import importlib
-runmask_util = importlib.import_module("runmask-util")
-import outspec_utils
+import util.runmask as runmask_util
+import util.outspec as outspec_utils
 
 @contextmanager
 def log_wrapper(message,tag=''):
@@ -610,7 +610,7 @@ class SensitivityDriver(object):
 
     # Enable outputs as specified
     if not(initial) and calib:
-        program = '/work/scripts/outspec_utils.py'
+        program = '/work/scripts/util/outspec.py'
         opt_str = '--enable-cal-vars {}/config/output_spec.csv --on CMTNUM y'.format(sample_specific_folder)
         cmdline = program + ' ' + opt_str
         with log_wrapper(cmdline, tag='setup') as lw:

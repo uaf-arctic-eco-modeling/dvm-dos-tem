@@ -1,8 +1,10 @@
 # This file configures TEM and MADS parameters for STEP2 of the calibration 
 # EJ 03/02/23
 calib_mode: NPPVEGCVEGN
+#PXx: 0
+#PXy: 3
 PXx: 0
-PXy: 3
+PXy: 0
 # Calibration cases from the calibration/calibration_targets.py
 # The output will be selected based on this cases
 target_names: 
@@ -31,17 +33,17 @@ params:
 - nfall(1)
 - nfall(2)  
 pftnums:
-- 1 
-- 1 
-- 1
-- 1
-- 1 
-- 1
-- 1
-- 1
-- 1
-- 1 
-site: /data/input-catalog/caribou-poker
+- 0 
+- 0 
+- 0
+- 0
+- 0 
+- 0
+- 0
+- 0
+- 0 
+- 0 
+site: /data/input-catalog/cpcrw_towers_downscaled
 work_dir: /data/workflows/BONA-BS-NPP-VegC-PFT-SA
 mads_initial_guess:
 - 3        

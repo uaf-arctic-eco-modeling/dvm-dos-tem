@@ -1,8 +1,10 @@
 # This file configures TEM and MADS parameters for STEP4 of the calibration 
 # EJ 03/02/23
 calib_mode: VEGC
+#PXx: 0
+#PXy: 3
 PXx: 0
-PXy: 3
+PXy: 0
 # Calibration cases from the calibration/calibration_targets.py
 # The output will be selected based on this cases
 target_names: 
@@ -31,7 +33,7 @@ pftnums:
 - None
 - None
 - None
-site: /data/input-catalog/caribou-poker
+site: /data/input-catalog/cpcrw_towers_downscaled
 work_dir: /data/workflows/BONA-BS-STEP4-SA
 mads_initial_guess:
 - 0.0892754   # micbnup: parameter for soil microbial immobialization of N  .64 
