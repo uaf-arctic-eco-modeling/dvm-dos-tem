@@ -68,6 +68,7 @@
       "baseline": false,
       "dsb": false,
       "dsl": false,
+      //FW_NOTES: Fire will never be on in the pre-run so we don't need a switch?
       "dyn_lai": false
     },
     "eq": {
@@ -78,6 +79,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true
     },
     "sp": {
@@ -88,6 +90,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true 
     },
     "tr": {
@@ -98,6 +101,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true
     },
     "sc": {
@@ -108,6 +112,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true
     }
 
@@ -126,12 +131,6 @@
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
 //    //"output_starting_year": -9999
-    // FW_MOD_START:
-    // Switches to turn fire off (0) or on (1) for each run stage:
-    "fire_on_EQ": 0,
-    "fire_on_SP": 0,
-    "fire_on_TR": 0,
-    "fire_on_SC": 0,
     // Wildfire ignitions modes: [Note: In development.  Numbers will likely change!]
     // 0: Default/old:  FRI for PR/EQ/SP, explicit for TR/SC.
     // 1: Use fire return interval for all stages with fire on.

@@ -106,7 +106,7 @@ public:
   bool useseverity; // using fire severity inputs
 
   // FW_MOD_START:
-  // Switches to turn fire off (0) or on (1) for each run stage:
+  // Switches to turn fire off for each run stage.  Fire in never on the pre-run stage:
   bool fire_on_EQ;
   bool fire_on_SP;
   bool fire_on_TR;

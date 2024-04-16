@@ -119,10 +119,10 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   //useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
   // FW_MOD_START:
-  fire_on_EQ        = controldata["model_settings"]["fire_on_EQ"].asBool();
-  fire_on_SP        = controldata["model_settings"]["fire_on_SP"].asBool();
-  fire_on_TR        = controldata["model_settings"]["fire_on_TR"].asBool();
-  fire_on_SC        = controldata["model_settings"]["fire_on_SC"].asBool();
+  fire_on_EQ        = controldata["stage_settings"]["eq"]["fire"].asBool();
+  fire_on_SP        = controldata["stage_settings"]["sp"]["fire"].asBool();
+  fire_on_TR        = controldata["stage_settings"]["tr"]["fire"].asBool();
+  fire_on_SC        = controldata["stage_settings"]["sc"]["fire"].asBool();
   //fire_ignition_type = controldata["model_settings"]["fire_ignition_type"].asInt();
   fire_ignition_mode = controldata["model_settings"]["fire_ignition_mode"].asInt();
   // FW_MOD_END.
