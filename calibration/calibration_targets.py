@@ -325,9 +325,9 @@ calibration_targets = {
     'cmtnumber': 14,
                                  #    pft0       pft1           pft2          pft3    pft4        pft5    pft6    pft7    pft8    pft9
                   'PFTNames':    [  'EverTree',  'DecidShrub', 'DecidTree', 'Moss',  'EvrShrub', '',     '',     '',     ''],
-    'GPPAllIgnoringNitrogen':    [  0.98,         163.27,       587.83,    43.82,    43.82,      0.0,    0.0,  0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  0.49,         81.64,        293.91,    21.91,    21.91,     0.0,    0.0, 0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [  0.39,         65.31,        235.13,      17.53,    17.53,       0.0,    0.0,   0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
+    'GPPAllIgnoringNitrogen':    [  0.98,         163.27,       587.83,    43.82,    25.31,      0.0,    0.0,  0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  0.49,         81.64,        293.91,    21.91,    12.66,     0.0,    0.0, 0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
+    'NPPAll':                    [  0.39,         65.31,        235.13,      17.53,  10.12,       0.0,    0.0,   0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
     'Nuptake':                   [  0.67,         0.17,         0.17,        0.22,     0.42,       0.0,    0.0,   0.0,    0.0 ], # nuptake (gN/m2/year)
     'VegCarbon': {
       'Leaf':                    [  1.06,         103.00,       62.14,      158.31,   27.0,       0.0,   0.0,   0.0,    0.0 ], # vegcl (gC/m2)
