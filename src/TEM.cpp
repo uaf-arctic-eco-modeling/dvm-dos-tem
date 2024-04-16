@@ -587,8 +587,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(runner.cohort.md->pr_nfeed);
     runner.cohort.md->set_avlnflg(runner.cohort.md->pr_avln);
     runner.cohort.md->set_baseline(runner.cohort.md->pr_baseline);
-    //runner.cohort.md->set_dsbmodule(runner.cohort.md->pr_dsb);
-    runner.cohort.md->set_dsbmodule(runner.cohort.md->fire_on_PR);// FW_MOD: Preceded runner.cohort.md->pr_dsb.
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->pr_dsb);
     runner.cohort.md->set_dslmodule(runner.cohort.md->pr_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->pr_dyn_lai);
 

@@ -128,7 +128,6 @@
 //    //"output_starting_year": -9999
     // FW_MOD_START:
     // Switches to turn fire off (0) or on (1) for each run stage:
-    "fire_on_PR": 0,
     "fire_on_EQ": 0,
     "fire_on_SP": 0,
     "fire_on_TR": 0,

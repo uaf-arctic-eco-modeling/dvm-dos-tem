@@ -107,7 +107,6 @@ public:
 
   // FW_MOD_START:
   // Switches to turn fire off (0) or on (1) for each run stage:
-  bool fire_on_PR;
   bool fire_on_EQ;
   bool fire_on_SP;
   bool fire_on_TR;

@@ -119,7 +119,6 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   //useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
   // FW_MOD_START:
-  fire_on_PR        = controldata["model_settings"]["fire_on_PR"].asBool();
   fire_on_EQ        = controldata["model_settings"]["fire_on_EQ"].asBool();
   fire_on_SP        = controldata["model_settings"]["fire_on_SP"].asBool();
   fire_on_TR        = controldata["model_settings"]["fire_on_TR"].asBool();
