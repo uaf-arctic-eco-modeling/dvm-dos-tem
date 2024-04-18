@@ -1249,7 +1249,51 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
   if save:
     plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
 
-def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
+def generate_eq_lim_dict(targets, cv_lim=[0], p_lim=[0], slope_lim=[0]):
+  '''
+  Creates a dictionary of thresholds for individual target variables to be
+  used for equilibrium checking. Note: limits must match length of targets
+  otherwise defaults will be used.
+
+  E.g.
+  lim_dict = generate_eq_lim_dict(targets, 
+                    cv_lim = [15,15,15,15,15],
+                    p_lim = [0.1,0.1,0.1,0.1,0.1],
+                    slope_lim = [0.001,0.001,0.001,0.001,0.001])
+  Parameters
+  ==========
+  targets : Pandas DataFrame
+    observed data for comparison, must match up with equilibrium check directory used
+  cv_lim : list
+    coefficient of variation threshold as a %, for each variable in targets
+  p_lim : float
+    p-value threshold, for each variable in targets
+  slope_lim : float
+    slope threshold as a fraction of target variable, for each variable in targets
+    
+  Returns
+    lim_dict : Dict
+      individual thresholds to be used in equilibrium_check
+
+  '''
+    
+  if (len(targets.columns) != len(cv_lim)) or (len(targets.columns) != len(p_lim)) or (len(targets.columns) != len(slope_lim)):
+    print('cv_lim, p_lim, and slope_lim must be lists with the same length as the number of targets')
+    print(' DEFAULTS HAVE BEEN USED cv lim = 15%, p lim = 0.1, slope lim = 0.001')
+    cv_lim = np.repeat(15, len(targets.columns)); p_lim = np.repeat(0.1, len(targets.columns)); slope_lim = np.repeat(0.001, len(targets.columns))
+
+  keys = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope_lim','_p_lim','_cv_lim'], len(targets.columns.values)))]
+  values = []
+  for i in range(0, len(targets.columns)):
+    values.append(slope_lim[i])
+    values.append(p_lim[i])
+    values.append(cv_lim[i])
+      
+  lim_dict = dict(zip(keys, values))
+
+  return lim_dict
+
+def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=False, save=False, saveprefix=''):
   '''
   Calculates percentage of samples which pass user input (or default)
   equilibrium test and plots a bar graph.
@@ -1268,6 +1312,8 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=Fals
     p-value threshold as a %
   slope_lim : float
     slope threshold as a fraction of target variable
+  lim_dict : dict
+    provides a dictionary of specific thresholds for each variable
   save : bool
     saves figure if True
   saveprefix : string
@@ -1288,6 +1334,8 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=Fals
       Boolean for each variable and each test for more thorough inspection
     eq_metrics : Pandas DataFrame
       Containing float values for each variable for each testing metric (cv, p, slope)
+    lim_dict : dict
+      dictionary of theshold used, either uniformly or independent to each variable
   
   .. image:: /images/SA_post_hoc_analysis/eq_plot.png
   
@@ -1349,6 +1397,11 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=Fals
         eq_metrics[targ+f'_p'].loc[n] = pval
         eq_metrics[targ+f'_cv'].loc[n] = cv
 
+        if lim_dict!=False:
+          cv_lim=lim_dict[targ+'_cv_lim']
+          p_lim = lim_dict[targ+'_p_lim']
+          slope_lim = lim_dict[targ+'_slope_lim']
+
         if slope < slope_lim * targets[targ].values[0]:
           eq_data[targ+f'_slope'].loc[n] = True
         if pval < p_lim:
@@ -1375,6 +1428,11 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=Fals
           eq_metrics[targ+f'_pft{pft}_slope'].loc[n] = slope
           eq_metrics[targ+f'_pft{pft}_p'].loc[n] = pval
           eq_metrics[targ+f'_pft{pft}_cv'].loc[n] = cv
+
+          if lim_dict!=False:
+            cv_lim=lim_dict[targ+f'_pft{pft}_cv_lim']
+            p_lim = lim_dict[targ+f'_pft{pft}_p_lim']
+            slope_lim = lim_dict[targ+f'_pft{pft}_slope_lim']
 
           if slope < slope_lim * targets[targ+f'_pft{pft}'].values[0]:
             eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
@@ -1404,6 +1462,11 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=Fals
           eq_metrics[targ+f'_pft{pft}_{comp}_slope'].loc[n] = slope
           eq_metrics[targ+f'_pft{pft}_{comp}_p'].loc[n] = pval
           eq_metrics[targ+f'_pft{pft}_{comp}_cv'].loc[n] = cv
+
+          if lim_dict!=False:
+            cv_lim=lim_dict[targ+f'_pft{pft}_{comp}_cv_lim']
+            p_lim = lim_dict[targ+f'_pft{pft}_{comp}_p_lim']
+            slope_lim = lim_dict[targ+f'_pft{pft}_{comp}_slope_lim']
 
           if slope < slope_lim * targets[targ+f'_pft{pft}_{comp}'].values[0]:
             eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
@@ -1477,7 +1540,14 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=Fals
   if save:
     plt.savefig(saveprefix + col.split('_')[0] +"_eq_plot.png", bbox_inches='tight')
 
-  return total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics
+  if lim_dict==False:
+    lim_dict = {
+        "cv_lim": cv_lim,
+        "p_lim": p_lim,
+        "slope_lim":slope_lim
+    }
+
+  return total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics, lim_dict
 
 def read_mads_iterationresults(iterationresults_file):
   '''
