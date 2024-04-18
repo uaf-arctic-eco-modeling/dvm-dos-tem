@@ -89,6 +89,28 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   return hcap;
 };
 
+// double Layer::getAppHeatCapacity()
+// { // volumetric apparent heat capacity
+//   double hcap = MISSING_D;
+
+//   if (isSoil){
+//     if (frozen == -1){
+//       hcap = getUnfVolHeatCapa();
+//       hcap += dLHC / dT
+//     } else if (frozen == 0) {                            
+//       hcap = getMixVolHeatCapa(); 
+//     } else if (frozen == 1) {
+//       hcap = getFrzVolHeatCapa();
+//     }
+//   } else if (isSnow) {
+//     hcap = getFrzVolHeatCapa();
+//   } else if (isRock) {
+//     hcap = getFrzVolHeatCapa();
+//   }
+
+//   return hcap;
+// };
+
 double Layer::getThermalConductivity() {
   double tc = MISSING_D;
 
