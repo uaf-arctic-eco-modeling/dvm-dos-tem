@@ -1249,135 +1249,235 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
   if save:
     plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
 
-def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
+def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
   '''
   Calculates percentage of samples which pass user input (or default)
   equilibrium test and plots a bar graph.
+
+  E.g.
+
+  total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics = SA_post_hoc_analysis.equilibrium_check(work_dir)
   
   Parameters
   ==========
-  eq_params : Pandas DataFrame
-    equilibrium quality dataframe for a single target variable
-  targets : Pandas DataFrame
-    Used to read in target variable names
+  path : str
+    specifies path to sensitivity sample run directory
   cv_lim : float
     coefficient of variation threshold as a %
   p_lim : float
     p-value threshold as a %
   slope_lim : float
     slope threshold as a fraction of target variable
+  save : bool
+    saves figure if True
+  saveprefix : string
+    path to use if saving is enabled
     
   Returns
+    total_counts : Pandas DataFrame
+      overall pass/fail percentage result for all runs
     counts : Pandas DataFrame
       Pass / Fail percentage for each variable
     eq_check : Pandas DataFrame
-      Boolean for each variable comprising of cv, p, slope test
+      Boolean for each run compiling overall result of cv, p, slope test
+      for all variables per run must pass all variables to pass
+    eq_var_check : Pandas DataFrame
+      Boolean for each variable compiling overall result of cv, p, slope test
+      must pass all tests to pass
     eq_data : Pandas DataFrame
       Boolean for each variable and each test for more thorough inspection
+    eq_metrics : Pandas DataFrame
+      Containing float values for each variable for each testing metric (cv, p, slope)
   
   .. image:: /images/SA_post_hoc_analysis/eq_plot.png
   
   '''
-
+    
   # defining list of strings for compartment reference
   comp_ref = ['Leaf', 'Stem', 'Root']
+  
+  # reading targets directly from folder to match with output variables
+  targets = pd.read_csv(path+'targets.csv', skiprows=1)
+  
+  # splitting column names to provide variable, pft, and compartment if available
+  targ_info = [i.split('_') for i in targets.columns]
+  
+  # returning only unique variable names for file selection
+  targ_vars = np.unique([i.split('_')[0] for i in targets.columns])
+  
+  # filtering for directories containing the name sample 
+  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
+  
+  # output dataframe creation
+  
+  # returning data on individual checks
+  eq_data_columns = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope','_p','_cv'], len(targets.columns.values)))]
+  # boolean data
+  eq_data = pd.DataFrame(index=range(len(samples)), columns=eq_data_columns, data=False)
+  # metrics
+  eq_metrics = pd.DataFrame(index=range(len(samples)), columns=eq_data_columns, data=0.0)
+  
+  # returning boolean for pass fail for each variable
+  eq_var_check = pd.DataFrame(index=range(len(samples)), columns=targets.columns, data=False)
+  
+  # returning boolean for pass fail for run
+  eq_check = pd.DataFrame(index=range(len(samples)), columns=['result'], data=False)
+  
+  # looping through sample folders in directory:
+  for n, sample in enumerate(samples):
 
-  #returning data on individual checks
-  eq_data = pd.DataFrame(index=eq_params.index, columns=eq_params.columns, data=False)
+    # looping through each target variable
+    for targ in targ_vars:
 
-  #returning boolean for pass fail for each variable
-  eq_var_check = pd.DataFrame(index=eq_params.index, columns=np.unique([i.split('_eq')[0] for i in eq_params.columns]),data=False)
+      # filtering for said target variable
+      targ_filter = [targ in info for info in targ_info]
+      
+      # returning filtered information on variable, pft, compartment
+      targ_var_info = [i for indx,i in enumerate(targ_info) if targ_filter[indx] == True] 
 
-  #returning boolean for pass fail for run
-  eq_check = pd.DataFrame(index=eq_params.index, columns=['result'],data=False)
+      # reading output variable for each sample
+      output = nc.Dataset(path+sample+f'/output/{targ}_yearly_eq.nc').variables[targ][:].data
 
-  # splitting eq_params to provide information for selecting targets
-  # and counting pfts and compartments if any
-  var_info = np.asarray([i.split('_') for i in eq_params.columns])
-  # getting eq_params specific unique parameter name for referencing
-  var = np.unique(var_info[:,0])[0]
-
-  # filtering by eq_params specific variables
-  targets = targets.filter(regex=var)
-
-  # looping through columns
-  for col in eq_var_check.columns:
-    
-    # Checking whether there are pfts or compartments
-    if len(col.split('_'))==3:
-      targ_col = col.split('_')[0]+'_'+col.split('_')[1]+'_'+comp_ref[int(col.split('_')[2])]
-    else:
-      targ_col = col
-    
-    # looping through every sample
-    for row in eq_var_check.index:
-      # testing whether each metric meets criteria
-      if abs( eq_params[col+"_eq_cv"].loc[row] ) * 100 < cv_lim:
-        eq_data[col+"_eq_cv"].loc[row] = True
-          
-      if eq_params[col+"_eq_p"].loc[row] < p_lim:
-        eq_data[col+"_eq_p"].loc[row] = True
-    
-      if abs(eq_params[col+"_eq_slope"].loc[row]) < slope_lim * targets[targ_col].loc[0]:
-        eq_data[col+"_eq_slope"].loc[row] = True
-    
-      # testing whether all criteria are met to warrant pass or fail
-      if ((eq_data[col+"_eq_cv"].loc[row] == True) & 
-        (eq_data[col+"_eq_p"].loc[row] == True) & 
-        (eq_data[col+"_eq_slope"].loc[row] == True)):
+      # selecting variable dimensions based on whether pft, compartment is expected 
+      # nopft:
+      if len(targ_var_info[0]) == 1:
         
-        eq_var_check[col].loc[row] = True
-                                
-  counts = eq_var_check.apply(pd.value_counts)
+        slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[-30:,0,0])), output[-30:,0,0])
+        cv = 100 * output[-30:,0,0].std() / output[-30:,0,0].mean()
 
+        eq_metrics[targ+f'_slope'].loc[n] = slope
+        eq_metrics[targ+f'_p'].loc[n] = pval
+        eq_metrics[targ+f'_cv'].loc[n] = cv
+
+        if slope < slope_lim * targets[targ].values[0]:
+          eq_data[targ+f'_slope'].loc[n] = True
+        if pval < p_lim:
+          eq_data[targ+f'_p'].loc[n] = True
+        if cv * 100 < cv_lim:
+          eq_data[targ+f'_cv'].loc[n] = True
+
+        if ((eq_data[targ+f'_slope'].loc[n] == True) & 
+            (eq_data[targ+f'_p'].loc[n] == True) & 
+            (eq_data[targ+f'_cv'].loc[n] == True)):
+
+          eq_var_check[targ].loc[n] = True
+            
+      # variable with pft but no compartment
+      if len(targ_var_info[0]) == 2:
+        
+        for p in targ_var_info:
+
+          pft = int(p[1].split('pft')[1])
+            
+          slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[-30:,pft,0,0])), output[-30:,pft,0,0])
+          cv = 100 * output[-30:,pft,0,0].std() / output[-30:,pft,0,0].mean()
+
+          eq_metrics[targ+f'_pft{pft}_slope'].loc[n] = slope
+          eq_metrics[targ+f'_pft{pft}_p'].loc[n] = pval
+          eq_metrics[targ+f'_pft{pft}_cv'].loc[n] = cv
+
+          if slope < slope_lim * targets[targ+f'_pft{pft}'].values[0]:
+            eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
+          if pval < p_lim:
+            eq_data[targ+f'_pft{pft}_p'].loc[n] = True
+          if cv * 100 < cv_lim:
+            eq_data[targ+f'_pft{pft}_cv'].loc[n] = True
+
+          if ((eq_data[targ+f'_pft{pft}_slope'].loc[n] == True) & 
+              (eq_data[targ+f'_pft{pft}_p'].loc[n] == True) & 
+              (eq_data[targ+f'_pft{pft}_cv'].loc[n] == True)):
+
+            eq_var_check[targ+f'_pft{pft}'].loc[n] = True
+
+      # variable with pfts and compartments
+      if len(targ_var_info[0]) == 3:
+  
+        for p in targ_var_info:
+  
+          pft = int(p[1].split('pft')[1])
+  
+          comp = p[2]; comp_index = comp_ref.index(comp)
+
+          slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[-30:,comp_index,pft,0,0])), output[-30:,comp_index,pft,0,0])
+          cv = 100 * output[-30:,comp_index,pft,0,0].std() / output[-30:,comp_index,pft,0,0].mean()
+
+          eq_metrics[targ+f'_pft{pft}_{comp}_slope'].loc[n] = slope
+          eq_metrics[targ+f'_pft{pft}_{comp}_p'].loc[n] = pval
+          eq_metrics[targ+f'_pft{pft}_{comp}_cv'].loc[n] = cv
+
+          if slope < slope_lim * targets[targ+f'_pft{pft}_{comp}'].values[0]:
+            eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
+          if pval < p_lim:
+            eq_data[targ+f'_pft{pft}_{comp}_p'].loc[n] = True
+          if cv * 100 < cv_lim:
+            eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] = True
+
+          if ((eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] == True) & 
+              (eq_data[targ+f'_pft{pft}_{comp}_p'].loc[n] == True) & 
+              (eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] == True)):
+
+            eq_var_check[targ+f'_pft{pft}_{comp}'].loc[n] = True
+
+    if eq_var_check.iloc[n, :].all() == True:
+      eq_check.loc[n] = True
+  
+  counts = eq_var_check.apply(pd.value_counts)
+  total_counts = eq_check.apply(pd.value_counts)
+  
   # add catch for only True / only False:
   if len(counts.index)==1:
     if counts.index==False:
-      counts = pd.DataFrame(index=[True, False], columns=targets.columns, data=[0.0, counts.iloc[0,0]])
+      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[0.0, counts.iloc[0,:]])
     elif counts.index==True:
-      counts = pd.DataFrame(index=[True, False], columns=targets.columns, data=[counts.iloc[0,0], 0.0])
-  # converting to pass/fail
-  counts.index = ["Pass", "Fail"]
+      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[counts.iloc[0,:], 0.0])
+  else:
+    if counts.index[0]==False:
+      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[counts.iloc[1,:], counts.iloc[0,:]])
+    else:
+      counts.index = ['pass', 'fail']
+      
   # converting result into percentage
   counts = counts / counts.sum()[0] * 100
-
-  fig, ax = plt.subplots()
-  bottom = np.zeros(len(counts.columns))
-
-  ax.bar(counts.columns, counts.iloc[0,:], color='Green', alpha=0.5, label=counts.index[0])
-  ax.bar(counts.columns, counts.iloc[1,:], bottom=counts.iloc[0,:], color='Red', alpha=0.5, label=counts.index[1])
-  plt.xticks(rotation='vertical')
-  ax.set_ylabel(" Equilibrium pass / fail [%] ", fontsize=12)
-  plt.legend(loc='upper right', fontsize=12)
-
-  for row in eq_var_check.index:
-    if eq_var_check.iloc[row, :].all() == True:
-      eq_check.loc[row] = True
-        
-  total_counts = eq_check.apply(pd.value_counts)
-
+  
   # add catch for only True / only False:
   if len(total_counts.index)==1:
     if total_counts.index==False:
-      total_counts = pd.DataFrame(index=[True, False], columns=['result'], data=[0.0, total_counts.iloc[0,0]])
+      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[0.0, total_counts.iloc[0,:]])
     elif total_counts.index==True:
-      total_counts = pd.DataFrame(index=[True, False], columns=['result'], data=[total_counts.iloc[0,0], 0.0])
-
-  if total_counts.index[0] == False:
-    total_counts.index = ['Fail', 'Pass']
-    pass_index=1
-  elif total_counts.index[1] == False:
-    total_counts.index = ['Pass', 'Fail']
-    pass_index=0
-
+      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[total_counts.iloc[0,:], 0.0])
+  else:
+    if total_counts.index[0]==False:
+      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[total_counts.iloc[1,:], total_counts.iloc[0,:]])
+    else:
+      total_counts.index = ['pass', 'fail']
+  # converting result into percentage
   total_counts = total_counts / total_counts.sum()[0] * 100
-
-  plt.title(col.split('_')[0] + f' {int(total_counts.iloc[pass_index,:].values[0])}% passed', fontsize=14)
+  
+  fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,6))
+  
+  for i in range(0, len(eq_var_check)):
+    ax[0].bar(eq_var_check.columns, 1, color=eq_var_check.iloc[i,:].replace(True, 'g').replace(False, 'r'),
+            bottom=i * np.ones(len(eq_var_check.columns)), width=1, alpha=0.5)
+  
+  ax[0].set_ylabel('Sample Number', fontsize=12)
+  ax[0].tick_params(labelrotation=90)
+  
+  ax[1].bar(np.linspace(1, len(counts.columns), len(counts.columns)), counts.iloc[0,:], color='Green', alpha=0.5, label=counts.index[0])
+  ax[1].bar(np.linspace(1, len(counts.columns), len(counts.columns)), counts.iloc[1,:], bottom=counts.iloc[0,:], color='Red', alpha=0.5, label=counts.index[1])
+  ax[1].set_xticks(np.linspace(1, len(counts.columns), len(counts.columns)),counts.columns, rotation=90)
+  ax[1].set_ylabel(" Equilibrium pass / fail [%] ", fontsize=12)
+  
+  for i, col in enumerate(counts.columns):
+    plt.annotate(str(int(counts[counts.index=='pass'][col].values))+'%', xy=(i+0.75, counts[counts.index=='pass'][col].values+2),
+                  rotation=90, fontsize=8)
+  
+  plt.suptitle(f"{int(total_counts[total_counts.index=='pass'].values)}% pass", fontsize=16)
+  plt.legend(loc='upper left', fontsize=12, bbox_to_anchor=(-0.5,1))
 
   if save:
     plt.savefig(saveprefix + col.split('_')[0] +"_eq_plot.png", bbox_inches='tight')
 
-  return counts, total_counts, eq_check, eq_var_check, eq_data
+  return total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics
 
 def read_mads_iterationresults(iterationresults_file):
   '''
