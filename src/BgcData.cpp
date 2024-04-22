@@ -203,26 +203,24 @@ void BgcData::veg_endOfYear() {
 }
 
 void BgcData::soil_beginOfMonth() {
-  
 
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    m_sois.rawc[il] = 0.;
+    m_sois.soma[il] = 0.;
+    m_sois.sompr[il]= 0.;
+    m_sois.somcr[il]= 0.;
 
-    for(int il=0; il<MAX_SOI_LAY; il++){
-      m_sois.rawc[il] = 0.;
-      m_sois.soma[il] = 0.;
-      m_sois.sompr[il]= 0.;
-      m_sois.somcr[il]= 0.;
+    m_sois.orgn[il] = 0.;
+    m_sois.avln[il] = 0.;
 
-      m_sois.orgn[il] = 0.;
-      m_sois.avln[il] = 0.;
+    m_soi2a.rhrawc[il] = 0.;
+    m_soi2a.rhsoma[il] = 0.;
+    m_soi2a.rhsoma[il] = 0.;
+    m_soi2a.rhsompr[il]= 0.;
+    m_soi2a.rhsomcr[il]= 0.;
 
-      m_soi2a.rhrawc[il] = 0.;
-        m_soi2a.rhsoma[il] = 0.;
-        m_soi2a.rhsoma[il] = 0.;
-        m_soi2a.rhsompr[il]= 0.;
-        m_soi2a.rhsomcr[il]= 0.;
+  }
 
-    }
-  
 };
 
 void BgcData::soil_beginOfYear() {

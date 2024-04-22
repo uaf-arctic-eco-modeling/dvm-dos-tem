@@ -94,6 +94,13 @@ private:
   double ltrflc[MAX_SOI_LAY];     //litterfall C into each soil layer
   double ltrfln[MAX_SOI_LAY];     //litterfall N into each soil layer
 
+  // Monthly accumulation of carbon to be removed from SOM pools
+  // in deltastate() from ch4 production in ch4flux() in Soil_Bgc
+  double ch4_prod_rawc_monthly[MAX_SOI_LAY];   
+  double ch4_prod_soma_monthly[MAX_SOI_LAY];
+  double ch4_prod_sompr_monthly[MAX_SOI_LAY];
+  double ch4_prod_somcr_monthly[MAX_SOI_LAY];
+
   double rtnextract[MAX_SOI_LAY];  // root N extraction from each soil layer
 
   double kdshlw;
