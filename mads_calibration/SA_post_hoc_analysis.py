@@ -932,6 +932,50 @@ def prep_mads_distributions(params, fmt=None):
 
   return s
 
+def prep_SA_pbounds(params, fmt=None):
+  '''
+  Gives you something like this:
+
+  .. code::
+
+    p_bounds: [[],[0.1,500],[0.1,500],[0.1,500],[0.1,500]]
+
+  From B. Maglio's notebook.
+
+  Parameters
+  ----------
+  params : pandas.DataFrame
+    One row for each of the selected runs, one column for each parameter.
+    Column names are
+  fmt : str
+    A user supplied format string specification. Should be something that
+    you would find on the right side of the colon in an f string format spec,
+    for example something like: '8.3f' or '3.5f'
+
+  Returns
+  -------
+  dists : string
+    A nicely formatted string with the distributions for each parameter that can be
+    pasted into the .yaml file for the next step.
+  '''
+
+  # First get the min and max for each column
+  ranges = [(params[x].min(), params[x].max(), x) for x in params]
+
+  # Then make a nice string out of it...
+  s = 'pbounds: ['
+  for MIN, MAX, comment in ranges:
+    if fmt:
+      s_tmp = "[{MIN:" + f'{fmt}' + '}, {MAX:' + f'{fmt}' + '}], '
+      s += s_tmp.format(MIN=MIN, MAX=MAX, comment=comment)
+    else:
+      s += f"[{MIN:8.3f},{MAX:8.3f}],"
+  #remove extra comma
+  s = s[:-1]
+  s += ']'
+
+  return s
+
 def n_top_runs(results, targets, params, r2lim, N=None):
   '''
   Get the best runs measured using R^2, if N is present sort and return
