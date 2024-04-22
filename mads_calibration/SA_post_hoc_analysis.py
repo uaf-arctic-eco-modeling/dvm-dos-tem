@@ -42,7 +42,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 # This stuff is diamond box in SA (orange half)
-def plot_boxplot(results, targets, save=False, saveprefix=''):
+def plot_boxplot(results, targets, check_filter=None, save=False, saveprefix=''):
   '''
   Plots a box and whiskers for each column in ``results``. Plots a dot for
   each target value.
@@ -61,6 +61,10 @@ def plot_boxplot(results, targets, save=False, saveprefix=''):
   targets : pandas.DataFrame
     One column for each target (truth, or observation) value. One row.
 
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
+
   save : bool
     Assumes False so plot will not be saved. If set to true it will plot
     in current directory unless saveprefix is specified
@@ -73,13 +77,35 @@ def plot_boxplot(results, targets, save=False, saveprefix=''):
   None
   '''
   plt.close('all')
-  fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(6,6))
-  results.boxplot(ax=ax, rot=45)
-  ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
+
+  x = np.linspace(1, len(results.columns), len(results.columns))
+
+  if check_filter is not None:
+    c = 'grey'
+    plt.boxplot(results, positions=x-0.15, widths=0.25,
+          boxprops=dict(color=c), capprops=dict(color=c), whiskerprops=dict(color=c), 
+          flierprops=dict(color=c, markeredgecolor=c), medianprops=dict(color=c)
+          )
+    c = 'green'
+    plt.boxplot(results[check_filter==True], positions=x+0.15, widths=0.25,
+          boxprops=dict(color=c), capprops=dict(color=c), whiskerprops=dict(color=c), 
+          flierprops=dict(color=c, markeredgecolor=c), medianprops=dict(color=c)
+          )
+    plt.xticks(x, results.columns, rotation=90)
+  else:
+    c = 'grey'
+    plt.boxplot(results, positions=x, widths=0.25,
+          boxprops=dict(color=c), capprops=dict(color=c), whiskerprops=dict(color=c), 
+          flierprops=dict(color=c, markeredgecolor=c), medianprops=dict(color=c)
+          )
+    plt.xticks(x, results.columns, rotation=90)
+  
+  plt.scatter(x, targets, color='red', zorder=1000)
+
   if save:
     plt.savefig(saveprefix + "results_boxplot.png", bbox_inches='tight')
 
-def plot_spaghetti(results, targets, save=False, saveprefix=''):
+def plot_spaghetti(results, targets, check_filter=None, save=False, saveprefix=''):
   '''
   Plots one line for each sample (row) in ``results``. Plots targets as dots.
   X axis of plot are for different columns in ``results``. Makes 2 plots, the 
@@ -99,6 +125,10 @@ def plot_spaghetti(results, targets, save=False, saveprefix=''):
   targets : pandas.DataFrame
     Single row, one column for each target (truth, or observation) value.
 
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
+
   save : bool
     Assumes False so plot will not be saved. If set to true it will plot
     in current directory unless saveprefix is specified
@@ -115,20 +145,17 @@ def plot_spaghetti(results, targets, save=False, saveprefix=''):
 
   for i, sample in results.iterrows():
     ax1.plot(sample, color='gray', alpha=0.1)
+    if check_filter is not None:
+      if check_filter.loc[i].all() == True:
+        ax1.plot(sample, color='green', alpha=0.1)
 
   ax1.plot(results.mean(), color='blue')
 
-  # ax1.fill_between(range(len(results.T)),
-  #                 results.mean() - results.std(), 
-  #                 results.mean() + results.std(),
-  #                 color='gray', alpha=.5, linewidth=0)
-  # ax1.fill_between(range(len(results.T)),
-  #                 results.min(), 
-  #                 results.max(),
-  #                 color='gray', alpha=.25, linewidth=0)
-
   for i, sample in results.iterrows():
     ax2.plot(sample, color='gray', alpha=0.1)
+    if check_filter is not None:
+      if check_filter.loc[i].all() == True:
+        ax2.plot(sample, color='green', alpha=0.1)
 
   ax2.plot(results.mean(), color='blue')
 
@@ -141,7 +168,7 @@ def plot_spaghetti(results, targets, save=False, saveprefix=''):
   if save:
     plt.savefig(saveprefix + "spaghetti_plot.png", bbox_inches='tight')
 
-def plot_match(results, targets, save=False, saveprefix=''):
+def plot_match(results, targets, check_filter=None, save=False, saveprefix=''):
   '''
   Plot targets vs model outputs (results). Dashed diagonal is line of perfect 
   agreement between the model output and the targets. Plot dot or marker for
@@ -165,6 +192,10 @@ def plot_match(results, targets, save=False, saveprefix=''):
   targets : pandas.DataFrame
     Single row, one column for each target (truth, or observation) value.
 
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
+
   save : bool
     Assumes False so plot will not be saved. If set to true it will plot
     in current directory unless saveprefix is specified
@@ -182,11 +213,10 @@ def plot_match(results, targets, save=False, saveprefix=''):
   x = np.linspace(targets.min(axis=1), targets.max(axis=1), 10)
   ax.plot(x,x, 'b--')
   ax.scatter(results, [targets for i in range(len(results))], alpha=.1)
+  if check_filter is not None:
+    ax.scatter(results.loc[check_filter==True], [targets for i in range(check_filter.value_counts()[True])], alpha=.1, color='green')
   if save:
     plt.savefig(saveprefix + "one2one_match.png", bbox_inches='tight')
-
-
-
 
 # ut.get_param_r2_rmse()
 
@@ -233,7 +263,7 @@ def calc_correlation(model_results, sample_matrix):
 
   return corr_mp
 
-def plot_relationships(results, sample_matrix, targets, variables=None, 
+def plot_relationships(results, sample_matrix, targets, check_filter=None, variables=None, 
                        parameters=None, corr_threshold=None, save=False, saveprefix=''):
   '''
   Look at the model outputs and the parameters, calculate the corrleation
@@ -250,6 +280,10 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
 
   targets: pandas.DataFrame
     One row with one column per target value.
+
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
 
   variables: list, optional
     Strings referencing variables of interest in results
@@ -332,6 +366,8 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
           elif corr.loc[vars, parameters[count]] >= corr_threshold:
             # Plotting scatter of parameter, variable relationship
             axis.scatter(sample_matrix[parameters[count]], results[vars])
+            if check_filter is not None:
+              axis.scatter(sample_matrix[check_filter==True][parameters[count]], results[check_filter==True][vars], color='green')
             # Plotting target value line
             axis.plot(sample_matrix[parameters[count]], targets[vars].values*np.ones(len(sample_matrix[parameters[count]])), 'k--')
             # Setting xlabel (parameter name) 
@@ -340,9 +376,14 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
             axis.set_title(corr.loc[vars, parameters[count]])
             # Go to next output variable
             count+=1
+            # Break loop if we reach maximum number of columns before number of subplots
+            if count > (len(parameters) - 1):
+              break
         else:
           # Plotting scatter of parameter, variable relationship
           axis.scatter(sample_matrix[parameters[count]], results[vars])
+          if check_filter is not None:
+            axis.scatter(sample_matrix[check_filter==True][parameters[count]], results[check_filter==True][vars], color='green')
           # Plotting target value line
           axis.plot(sample_matrix[parameters[count]], targets[vars].values*np.ones(len(sample_matrix[parameters[count]])), 'k--')
           # Setting xlabel (parameter name) 
@@ -350,7 +391,7 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
           # Go to next output variable
           count+=1
           # Break loop if we reach maximum number of columns before number of subplots
-          if count > (len(parameters) - 1):
+          if count >= (len(parameters) - 1):
             break
       # Create a single legend with all handles provided outside of subplots
       legend_info = [Line2D([0], [0], color='k', linewidth=3, linestyle='--'),
@@ -365,7 +406,7 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
         name = saveprefix + f"{vars}-{'-'.join(parameters)}.png"
         plt.savefig(name, bbox_inches="tight")
 
-def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
+def plot_pft_matrix(results, sample_matrix, targets, check_filter=None, save=False, saveprefix=''):
   '''
   Look at the model outputs and the parameters, and plot all parameters
   against each variable for 10 potential pfts
@@ -380,6 +421,10 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
 
   targets: pandas.DataFrame
     One row with one column per target value.
+
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
 
   save : bool
     Assumes False so plot will not be saved. If set to true it will plot
@@ -407,8 +452,6 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
   param_set = list(set(param_types)); param_set.sort()
   pft_nums_set = list(set(pft_nums)); pft_nums_set.sort()
 
-  print(pft_nums_set)
-
   for v in range(0,len(variables)):
     
     ncols = 10
@@ -427,6 +470,8 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
         p = param_set[i]+"_"+pft_nums_set[j]
         if any(p in s for s in parameters):
           axis.scatter(sample_matrix[p], results[variables[v]])
+          if check_filter is not None:
+            axis.scatter(sample_matrix[check_filter==True][p], results[check_filter==True][variables[v]], color='green')
           axis.plot(sample_matrix[p], targets[variables[v]].values*np.ones(len(sample_matrix[p])), 'k--')
           axis.set_title(p, fontsize=10)
           axis.tick_params(labelsize=10)
@@ -455,7 +500,7 @@ def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   if save:
     plt.savefig(saveprefix + "correlation_heatmap.png", bbox_inches='tight')
 
-def plot_output_scatter(results, targets,
+def plot_output_scatter(results, targets,check_filter=None,
                         r2lim=None, rmselim=None, mapelim=None,
                         save=False, saveprefix=''):
   '''
@@ -478,6 +523,10 @@ def plot_output_scatter(results, targets,
 
   targets : pandas.DataFrame
     One column for each output (target) variable, single row with target value.
+
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
 
   r2lim : float, optional
     Lower R^2 limit for output.
@@ -529,6 +578,9 @@ def plot_output_scatter(results, targets,
         # Scatter plots for results from all samples
         ax[row, col].scatter(results.index,results[results.columns[count]],
                              alpha=0.4, linewidth=0)
+        if check_filter is not None:
+          ax[row, col].scatter(results[check_filter==True].index,results[check_filter==True][results.columns[count]],
+                             linewidth=2, edgecolor='green', facecolor='white')
         # label each subplot with output variable, pft, compartment, sample number
         ax[row, col].set_ylabel(results.columns[count])
         ax[row, col].set_xlabel("Sample number")
@@ -552,10 +604,11 @@ def plot_output_scatter(results, targets,
   # Create a single legend with all handles provided outside of subplots
   legend_info = [Line2D([0], [0], color='k', linewidth=3, linestyle='--'),
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C0', markerfacecolor='C0', linestyle=''),
+                 Line2D([0], [0], marker='o', markersize=5, markeredgecolor='green', markerfacecolor='white', linestyle='', linewidth=2),
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C1', markerfacecolor='C1', linestyle=''),
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C2', markerfacecolor='C2', linestyle=''),
                  Line2D([0], [0], marker='o', markersize=5, markeredgecolor='C3', markerfacecolor='C3', linestyle='')]
-  legend_labels = ['Observations', 'Model', f'R$^2$>{r2lim}',f'RMSE<{rmselim}', f'MAPE<{mapelim}']
+  legend_labels = ['Observations', 'Model', 'Check', f'R$^2$>{r2lim}',f'RMSE<{rmselim}', f'MAPE<{mapelim}']
   # Apply legend
   lgd = fig.legend(legend_info, legend_labels, bbox_to_anchor=(1., 1.), loc="upper left", fontsize=10)
   # Apply tight layout
@@ -564,7 +617,7 @@ def plot_output_scatter(results, targets,
   if save:
     fig.savefig(saveprefix + 'output_target_scatter.png', bbox_inches='tight')
 
-def plot_r2_rmse(results, targets, save=False, saveprefix=''):
+def plot_r2_rmse(results, targets, check_filter=None, save=False, saveprefix=''):
   '''
 
   Plot R^2 against RMSE as a scatter plot for all runs
@@ -579,6 +632,10 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
 
   targets: pandas.DataFrame
     One row with one column per target value.
+
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
 
   save : bool
     Assumes False so plot will not be saved. If set to true it will plot
@@ -597,20 +654,25 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
   '''
 
   r2, rmse, mape = calc_metrics(results, targets)
+  r2 = pd.DataFrame(r2)
+  rmse = pd.DataFrame(rmse)
+  mape = pd.DataFrame(mape)
 
   plt.close('all')
   fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12,12))
 
   axes[0].plot(r2,rmse, 'o', alpha=.5)
+  if check_filter is not None:
+    axes[0].plot(r2[check_filter==True],rmse[check_filter==True], 'o', alpha=.5, color='green')
   axes[0].set_xlabel('r2')
   axes[0].set_ylabel('rmse')
   #axes[0].set_yscale('log')
 
   axes[1].plot(r2, mape, 'o', alpha=0.25)
+  if check_filter is not None:
+    axes[1].plot(r2[check_filter==True],mape[check_filter==True], 'o', alpha=.5, color='green')
   axes[1].set_xlabel('r2')
   axes[1].set_ylabel('mape')
-
-  plt.legend()
 
   if save:
     plt.savefig(saveprefix + "r2_rmse_mape.png", bbox_inches='tight')
@@ -1300,7 +1362,7 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
 
   E.g.
 
-  total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics = SA_post_hoc_analysis.equilibrium_check(work_dir)
+  total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics, lim_dict = SA_post_hoc_analysis.equilibrium_check(work_dir)
   
   Parameters
   ==========
