@@ -515,64 +515,14 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   // FRI-derived fire regime
   if ( this->fri_derived ) {
     //Get fvcomb and fvdead from the parameters
-    //TODO It shouldn't be possible for severity to be below 0, even
-    // prior to the forcing above.
-    if (this->fri_severity >= 0) {
-      this->r_burn2ag_cn = firpar.fvcomb[fri_severity_idx][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[fri_severity_idx][ipft];
-    }
-    //Apply the lookup table from Yi et al. 2010
-    else {
-      if( cd->drainage_type == 0 ) {// 0: well-drained; 1: poorly-drained
-        //Early fire, before July 31st (from Turetsky et al. 2011):
-        if ( this->fri_jday_of_burn <= 212 ) {
-          //Small fire year (less than 1% of the area burned):
-          if ( this->fri_area_of_burn < 1.0 ) {
-            this->r_burn2ag_cn = 0.16;
-            this->r_dead2ag_cn = 0.76;
-          } else {
-            this->r_burn2ag_cn = 0.24;
-            this->r_dead2ag_cn = 0.75;
-          }
-        } else {//late fire (after July 31st)
-          this->r_burn2ag_cn = 0.32;
-          this->r_dead2ag_cn = 0.67;
-        } 
-      } else {//lowland
-        this->r_burn2ag_cn = 0.16;
-        this->r_dead2ag_cn = 0.76;
-      } 
-    }
+    this->r_burn2ag_cn = firpar.fvcomb[fri_severity_idx][ipft];
+    this->r_dead2ag_cn = firpar.fvdead[fri_severity_idx][ipft];
   }
   //Explicit fire regime
   else {
     //Get fvcomb and fvdead from the parameters
-    //TODO As above, severity should not be below 0
-    if (exp_severity_idx >= 0) {
-      this->r_burn2ag_cn = firpar.fvcomb[exp_severity_idx][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
-    }
-    else {  
-      if( cd->drainage_type == 0 ) {// 0: well-drained; 1: poorly-drained
-        //Early fire, before July 31st (from Turetsky et al. 2011):
-        if ( this->fri_jday_of_burn <= 212 ) {
-          //Small fire year (less than 1% of the area burned)
-          if ( this->fri_area_of_burn < 1.0 ) {
-            this->r_burn2ag_cn = 0.16;
-            this->r_dead2ag_cn = 0.76;
-          } else {
-            this->r_burn2ag_cn = 0.24;
-            this->r_dead2ag_cn = 0.75;
-          }
-        } else {//late fire (after July 31st)
-          this->r_burn2ag_cn = 0.32;
-          this->r_dead2ag_cn = 0.67;
-        } 
-      } else {//lowland
-        this->r_burn2ag_cn = 0.16;
-        this->r_dead2ag_cn = 0.76;
-      } 
-    }
+    this->r_burn2ag_cn = firpar.fvcomb[exp_severity_idx][ipft];
+    this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
   }
 
   this->r_live_cn = 1.0 - this->r_burn2ag_cn - this->r_dead2ag_cn;
