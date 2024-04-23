@@ -21,7 +21,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mplc
 import xarray as xr
-from pypdf import PdfMerger
+from pypdf import PdfWriter
 from PIL import Image
 
 
@@ -753,13 +753,13 @@ if os.path.isfile(os.path.join(POD,'result.pdf')):
 
 listpdf = os.listdir(os.path.join(POD,'results'))
 listpdf2 = [ x for x in listpdf if '.pdf' in x ]
-merger = PdfMerger()
+
+writer = PdfWriter()
 for pdf in sorted(listpdf2):
-  merger.append(os.path.join(POD,'results',pdf))
+  writer.append(os.path.join(POD,'results',pdf))
   os.remove(os.path.join(POD,'results',pdf))
 
-merger.write(os.path.join(POD,'result.pdf'))
-merger.close()
+writer.write(os.path.join(POD,'result.pdf'))
 
 print("Done")
 
