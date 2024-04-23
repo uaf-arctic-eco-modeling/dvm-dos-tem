@@ -30,6 +30,9 @@ public:
   virtual double getAlbedoVis();//get albedo of visible radiation
   virtual double getAlbedoNir();//get albedo of Nir radiation
 
+  virtual double getLatentHeatContent();            // LHC following Hinzman et al. 1998
+  virtual double getDeltaLatentHeatContentDeltaT(); // dLHC/dT Hinzman et al. 1998
+
   void updateProperty();
 
 };

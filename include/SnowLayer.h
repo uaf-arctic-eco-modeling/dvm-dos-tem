@@ -29,6 +29,9 @@ public:
   virtual double getUnfVolHeatCapa();//get unfrozen layer specific heat capacity
   virtual double getMixVolHeatCapa(); //Yuan:
 
+  virtual double getLatentHeatContent();            // LHC following Hinzman et al. 1998
+  virtual double getDeltaLatentHeatContentDeltaT(); // dLHC/dT Hinzman et al. 1998
+
 private:
 
   double getThermCond5Sturm();

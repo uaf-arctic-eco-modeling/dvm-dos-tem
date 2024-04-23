@@ -61,6 +61,20 @@ double ParentLayer::getMixThermCond() {
   return tc;
 };
 
+// get latent heat content test
+double ParentLayer::getLatentHeatContent() 
+{
+  double tc = tcsolid;
+  return tc;
+};
+
+// get delta latent heat content test
+double ParentLayer::getDeltaLatentHeatContentDeltaT()
+{
+  double tc = tcsolid;
+  return tc;
+};
+
 // get albedo of visible radiation
 double ParentLayer::getAlbedoVis() { //should not used
   double vis=0.2;

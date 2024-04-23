@@ -111,5 +111,8 @@ public:
   virtual double getUnfVolHeatCapa()=0;// get unfrozen layer specific heat capacity
   virtual double getMixVolHeatCapa()=0;//Yuan
 
+  virtual double getLatentHeatContent()=0; // LHC following Hinzman et al. 1998
+  virtual double getDeltaLatentHeatContentDeltaT()=0; // dLHC/dT Hinzman et al. 1998
+
 };
 #endif //LAYER_H_
