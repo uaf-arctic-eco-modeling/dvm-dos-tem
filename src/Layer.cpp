@@ -71,15 +71,17 @@ void Layer::advanceOneDay() {
 
 double Layer::getHeatCapacity() { // volumetric heat capacity
   double hcap = MISSING_D;
-  double lhc = MISSING_D;
   double dlhc_dT = MISSING_D;
+  double hcmix = MISSING_D;
 
   if(isSoil) {
     if(frozen == -1) {
       hcap = getUnfVolHeatCapa();
     }else if (frozen == 0){       // BM: need to make sure this is correct and interpolated based on frozen frac
-      // lhc = getLatentHeatContent();
-      // dlhc_dT = getDeltaLatentHeatContentDeltaT();
+      // added for testing:
+      hcmix = getMixVolHeatCapa();
+      dlhc_dT = getDeltaLatentHeatContentDeltaT();
+
       hcap = getMixVolHeatCapa() + getDeltaLatentHeatContentDeltaT(); // BM: potentially where apparent heat capacity is added or new function
     }else if (frozen == 1){
       hcap = getFrzVolHeatCapa();
