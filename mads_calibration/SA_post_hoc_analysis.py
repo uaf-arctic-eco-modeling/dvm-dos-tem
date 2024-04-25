@@ -932,6 +932,50 @@ def prep_mads_distributions(params, fmt=None):
 
   return s
 
+def prep_mads_paramkey(params, fmt=None):
+  '''
+  Gives you something like this:
+
+  .. code::
+
+    mads_paramkey:
+      - cmax_pft0
+      - cmax_pft1
+      - # cmax_pft2
+
+  From B. Maglio's notebook.
+
+  Parameters
+  ----------
+  params : pandas.DataFrame
+    One row for each of the selected runs, one column for each parameter.
+    Column names are
+  fmt : str
+    A user supplied format string specification. Should be something that
+    you would find on the right side of the colon in an f string format spec,
+    for example something like: '8.3f' or '3.5f'
+
+  Returns
+  -------
+  dists : string
+    A nicely formatted string with the distributions for each parameter that can be
+    pasted into the .yaml file for the next step.
+  '''
+
+  # First get the min and max for each column
+  ranges = [(params[x].min(), params[x].max(), x) for x in params]
+
+  # Then make a nice string out of it...
+  s = 'mads_paramkey:\n'
+  for MIN, MAX, comment in ranges:
+    if fmt:
+      s_tmp = f'- {comment}\n'
+      s += s_tmp.format(comment=comment)
+    else:
+      s += f'- {comment}\n'
+
+  return s
+
 def prep_SA_pbounds(params, fmt=None):
   '''
   Gives you something like this:
@@ -1510,7 +1554,7 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
 
         if slope < slope_lim * targets[targ].values[0]:
           eq_data[targ+f'_slope'].loc[n] = True
-        if pval < p_lim:
+        if pval > p_lim:
           eq_data[targ+f'_p'].loc[n] = True
         if cv * 100 < cv_lim:
           eq_data[targ+f'_cv'].loc[n] = True
@@ -1542,7 +1586,7 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
 
           if slope < slope_lim * targets[targ+f'_pft{pft}'].values[0]:
             eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
-          if pval < p_lim:
+          if pval > p_lim:
             eq_data[targ+f'_pft{pft}_p'].loc[n] = True
           if cv * 100 < cv_lim:
             eq_data[targ+f'_pft{pft}_cv'].loc[n] = True
@@ -1576,7 +1620,7 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
 
           if slope < slope_lim * targets[targ+f'_pft{pft}_{comp}'].values[0]:
             eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
-          if pval < p_lim:
+          if pval > p_lim:
             eq_data[targ+f'_pft{pft}_{comp}_p'].loc[n] = True
           if cv * 100 < cv_lim:
             eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] = True
