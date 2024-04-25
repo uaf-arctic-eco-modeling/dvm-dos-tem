@@ -1699,6 +1699,35 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
 
   return total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics, lim_dict
 
+def get_filtered_results(results, sample_matrix, check_filter):
+  """
+  Filter results and sample matrix by check (I.e. equilibrium,
+  nitrogen, mortality)
+
+  E.g. results_f, sample_matrix_f = get_filtered_results(results, sample_matrix, eq_check['result']) 
+
+  Parameters
+  ----------
+  results: pandas.DataFrame
+    One row per sample, one column per output.
+
+  sample_matrix: pandas.DataFrame
+    One row per sample, one column per parameter.
+
+  targets: pandas.DataFrame
+    One row with one column per target value.
+
+  check_filter : pandas.Series
+    Series with boolean values for additional tests following
+    SA run, e.g. equilibrium_check, eq_check['result']
+
+  Returns
+  -------
+  results_eq, sample_matrix_eq
+
+  """
+  return results[check_filter==True], sample_matrix[check_filter==True]
+
 def read_mads_iterationresults(iterationresults_file):
   '''
   Parse a Mads .iterationresults file and return data as 3 python lists.
