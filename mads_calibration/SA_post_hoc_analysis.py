@@ -1293,7 +1293,7 @@ def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1,
   if save:
     plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_boxplot.png", bbox_inches="tight")   
 
-def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
+def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, saveprefix=''):
   '''
   Plots equilibrium timeseries for target variables in output directory
   
@@ -1301,6 +1301,9 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
   ==========
   path : str
     specifies path to sensitivity sample run directory
+  plot_metrics : bool
+    plot slope, coefficient of variation and pvalue in 30 yr 
+    increments, note this takes a long time
   save : bool
     saves figure if True
   saveprefix : string
@@ -1312,6 +1315,11 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
   .. image:: /images/SA_post_hoc_analysis/eq_rel_plot.png
   
   '''
+  if plot_metrics:
+    print("plot_metrics enabled, this may take several minutes")
+    print('|',end="")
+    progress = '='
+      
   # defining list of strings for compartment reference
   comp_ref = ['Leaf', 'Stem', 'Root']
   
@@ -1336,16 +1344,31 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
     # operations depending on variable, pft, compartment
     if len(targ_var_info[0]) == 1:
       fig, ax = plt.subplots()
+      if plot_metrics:
+        fig_slope, ax_slope = plt.subplots()
+        fig_p, ax_p = plt.subplots()
+        fig_cv, ax_cv = plt.subplots()
     if len(targ_var_info[0]) == 2:
       fig, ax = plt.subplots(1, len(targ_var_info))
+      if plot_metrics:
+        fig_slope, ax_slope = plt.subplots(1, len(targ_var_info))
+        fig_p, ax_p = plt.subplots(1, len(targ_var_info))
+        fig_cv, ax_cv = plt.subplots(1, len(targ_var_info))
     if len(targ_var_info[0]) == 3:
       fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+      if plot_metrics:
+        fig_slope, ax_slope = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig_p, ax_p = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig_cv, ax_cv = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
 
     # filtering for directories containing the name sample 
     samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
     
     # looping through sample folders in directory:
     for n, sample in enumerate(samples):
+
+      if plot_metrics:
+        print(progress, end="")
 
       # reading output variable for each sample
       output = nc.Dataset(path+sample+f'/output/{targ}_yearly_eq.nc').variables[targ][:].data
@@ -1356,9 +1379,36 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
         ax.plot(output[:,0,0], 'gray', alpha=0.5)
         ax.plot(np.linspace(0, len(output[:,0,0]), len(output[:,0,0])), 
                           targets[targ].values[0]*np.ones(len(output[:,0,0])), 'k--', alpha=0.5)
+
+        if plot_metrics:
+            eq_metric=True
+            yr_count = 0
+            while eq_metric==True:
+              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[yr_count:yr_count+30,0,0])), output[yr_count:yr_count+30,0,0])
+              cv = 100 * output[yr_count:yr_count+30,0,0].std() / output[yr_count:yr_count+30,0,0].mean()
+              
+              ax_slope.scatter((yr_count+30)/2, slope, color='grey')
+              ax_p.scatter((yr_count+30)/2, pval, color='grey')
+              ax_cv.scatter((yr_count+30)/2, cv, color='grey')
+
+              yr_count += 30
+              if yr_count+30 > len(output[:,0,0]):
+                eq_metric=False
+
+            fig_slope.supxlabel("Equilibrium years", fontsize=12)
+            fig_slope.supylabel(f"slope", fontsize=12)
+            fig_slope.tight_layout()
+            fig_p.supxlabel("Equilibrium years", fontsize=12)
+            fig_p.supylabel(f"pval", fontsize=12)
+            fig_p.tight_layout()
+            fig_cv.supxlabel("Equilibrium years", fontsize=12)
+            fig_cv.supylabel(f"cv", fontsize=12)
+            fig_cv.tight_layout()
+          
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
         fig.tight_layout()
+          
       # pft no compartment    
       if len(targ_var_info[0]) == 2:
         
@@ -1371,9 +1421,39 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
           ax[pft].plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
                 targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
 
+          if plot_metrics:
+            eq_metric=True
+            yr_count = 0
+            while eq_metric==True:
+              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[yr_count:yr_count+30,pft,0,0])), output[yr_count:yr_count+30,pft,0,0])
+              cv = 100 * output[yr_count:yr_count+30,pft,0,0].std() / output[yr_count:yr_count+30,pft,0,0].mean()
+              
+              ax_slope[pft].scatter((yr_count+30)/2, slope, color=f'C{pft}')
+              ax_p[pft].scatter((yr_count+30)/2, pval, color=f'C{pft}')
+              ax_cv[pft].scatter((yr_count+30)/2, cv, color=f'C{pft}')
+
+              yr_count += 30
+              if yr_count+30 > len(output[:,pft,0,0]):
+                eq_metric=False
+
+            ax_slope[pft].set_title(f"PFT{pft}")
+            ax_p[pft].set_title(f"PFT{pft}")
+            ax_cv[pft].set_title(f"PFT{pft}")
+
+            fig_slope.supxlabel("Equilibrium years", fontsize=12)
+            fig_slope.supylabel(f"slope", fontsize=12)
+            fig_slope.tight_layout()
+            fig_p.supxlabel("Equilibrium years", fontsize=12)
+            fig_p.supylabel(f"pval", fontsize=12)
+            fig_p.tight_layout()
+            fig_cv.supxlabel("Equilibrium years", fontsize=12)
+            fig_cv.supylabel(f"cv", fontsize=12)
+            fig_cv.tight_layout()
+
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
         fig.tight_layout()
+          
       # pft and compartment
       if len(targ_var_info[0]) == 3:
 
@@ -1387,6 +1467,36 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
           ax[0, pft].set_title(f"PFT{pft}")
           ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
                 targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+            
+          if plot_metrics:
+            eq_metric=True
+            yr_count = 0
+            while eq_metric==True:
+              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[yr_count:yr_count+30,comp_index,pft,0,0])), output[yr_count:yr_count+30,comp_index,pft,0,0])
+              cv = 100 * output[yr_count:yr_count+30,comp_index,pft,0,0].std() / output[yr_count:yr_count+30,comp_index,pft,0,0].mean()
+              
+              ax_slope[comp_index,pft].scatter((yr_count+30)/2, slope, color=f'C{pft}')
+              ax_p[comp_index, pft].scatter((yr_count+30)/2, pval, color=f'C{pft}')
+              ax_cv[comp_index, pft].scatter((yr_count+30)/2, cv, color=f'C{pft}')
+
+              yr_count += 30
+              if yr_count+30 > len(output[:,comp_index,pft,0,0]):
+                eq_metric=False
+
+            ax_slope[0, 0].set_ylabel("Leaf")
+            ax_p[1, 0].set_ylabel("Stem")
+            ax_cv[2, 0].set_ylabel("Root")
+
+            fig_slope.supxlabel("Equilibrium years", fontsize=12)
+            fig_slope.supylabel(f"slope", fontsize=12)
+            fig_slope.tight_layout()
+            fig_p.supxlabel("Equilibrium years", fontsize=12)
+            fig_p.supylabel(f"pval", fontsize=12)
+            fig_p.tight_layout()
+            fig_cv.supxlabel("Equilibrium years", fontsize=12)
+            fig_cv.supylabel(f"cv", fontsize=12)
+            fig_cv.tight_layout()
+
 
         ax[0, 0].set_ylabel("Leaf")
         ax[1, 0].set_ylabel("Stem")
@@ -1394,6 +1504,9 @@ def plot_equilibrium_relationships(path='', save=False, saveprefix=''):
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
         fig.tight_layout()
+          
+  if plot_metrics:
+    print("|")
           
   # save if save=True
   if save:
