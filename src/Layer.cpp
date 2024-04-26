@@ -71,18 +71,15 @@ void Layer::advanceOneDay() {
 
 double Layer::getHeatCapacity() { // volumetric heat capacity
   double hcap = MISSING_D;
-  double dlhc_dT = MISSING_D;
-  double hcmix = MISSING_D;
 
-  if(isSoil) {
+  if(isSoil){
+    // if(tem > 0){
     if(frozen == -1) {
       hcap = getUnfVolHeatCapa();
+    // } else if (-2.<tem<=0.){
     }else if (frozen == 0){       // BM: need to make sure this is correct and interpolated based on frozen frac
-      // added for testing:
-      hcmix = getMixVolHeatCapa();
-      dlhc_dT = getDeltaLatentHeatContentDeltaT();
-
       hcap = getMixVolHeatCapa() + getDeltaLatentHeatContentDeltaT(); // BM: potentially where apparent heat capacity is added or new function
+    // } else if (tem <= -2.){
     }else if (frozen == 1){
       hcap = getFrzVolHeatCapa();
     }
@@ -95,21 +92,18 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   return hcap;
 };
 
-// double Layer::getAppHeatCapacity()
-// { // volumetric apparent heat capacity
-//   double happ = MISSING_D;
-//   return happ;
-// };
-
 double Layer::getThermalConductivity() {
   double tc = MISSING_D;
 
   if(isSoil || isSnow) {
+    // if(tem > 0.){
     if(frozen == 1) {
       tc = getFrzThermCond();
-    } else if (frozen == 0){ 
+    // } else if (-2.<tem<=0.0){
+    }else if (frozen == 0){ 
       tc = getMixThermCond();
-    } else if (frozen == -1) { 
+    // } else if (tem<=-2.){
+    }else if (frozen == -1) { 
       tc = getUnfThermCond();
     }
   } else if (isRock) {
@@ -117,7 +111,9 @@ double Layer::getThermalConductivity() {
   }
 
   this->tcond = tc;
+
   return tc;
+
 };
 
 double Layer::getVolWater() {
