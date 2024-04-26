@@ -740,13 +740,17 @@ void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
   soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(),
                              md->get_baseline());
   soilbgc.clear_del_structs();
-  solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
-  soilbgc.afterIntegration();
 
-  //daily soil bgc processes
-  for(int id=0; id<dinmcurr; id++){
+  // daily soil bgc processes
+  // Running ch4 calculations prior to updateMonthlySbgc
+  // So accrued daily ch4 production and oxidation
+  // alter SOM pools and CO2 emission
+  for (int id = 0; id < dinmcurr; id++){
     soilbgc.CH4Flux(currmind, id);
   }
+
+  solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
+  soilbgc.afterIntegration();
 
   bdall->soil_endOfMonth(currmind);   // yearly data accumulation
   bdall->land_endOfMonth();

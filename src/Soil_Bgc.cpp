@@ -334,14 +334,18 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       oxidation[il] = oxid;
 
-          // HG: again do we need poro? we think it should be air content? test this
-          // _gm2hr refers to unit conversion:
-          // oxid is in units mu mol L^-1 hr^-1
-          // 1 mu mol of C = 12e-6 g, ( * 12e-6)
-          // L^-1 = 1000 m^-3 ( * 1000)
-          // m^2 = m * m^-3 ( * dz)
-          // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
-          oxid_gm2hr = oxid * convert_umolL_to_gm2;
+      // HG: again do we need poro? we think it should be air content? test this
+      // _gm2hr refers to unit conversion:
+      // oxid is in units mu mol L^-1 hr^-1
+      // 1 mu mol of C = 12e-6 g, ( * 12e-6)
+      // L^-1 = 1000 m^-3 ( * 1000)
+      // m^2 = m * m^-3 ( * dz)
+      // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
+      oxid_gm2hr = oxid * convert_umolL_to_gm2;
+
+      // accumulating to monthly for use in rhsum
+      // converting to CO2 used in deltastate
+      // ch4_oxid_monthly[il] += oxid_gm2hr;
 
       //Production:
 
@@ -521,7 +525,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
 
       prev_pool[il] = currl->ch4;
-      delta_pool[il] = currl->ch4;
 
       currl = currl->prevl;
       il--; //Incrementing manual layer index tracker
@@ -587,7 +590,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // For testing CH4 balance conservation
       curr_pool[il] = diff_react[il];
-      delta_pool[il] -= diff_react[il];
+      delta_pool[il] = curr_pool[il]-prev_pool[il];
       delta_pool_sum += delta_pool[il];
 
       diffusion[il] = curr_pool[il] - prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il];
@@ -1381,6 +1384,7 @@ void Soil_Bgc::deltastate() {
     // Only calculate these pools for non-moss layers...
     if (cd->m_soil.type[il] > 0) {
       // So note that: root death is the reason for deep SOM increment
+      // BM: Also note that, ch4_prod is only calculated if ch4 is enabled 
       del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2) - ch4_prod_rawc_monthly[il];
 
       del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -

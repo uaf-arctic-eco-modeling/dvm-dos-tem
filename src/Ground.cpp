@@ -1493,8 +1493,10 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   lsl->derivePhysicalProperty();
   usl->derivePhysicalProperty();
 
-  //update layer temperature first, because it's needed for determine
-  //  frozen status below
+  // update layer temperature first, because it's needed for determine
+  // frozen status below
+  
+  // BM: if statement is unlikely to ever occur due to rock layers below
   if(usl->nextl==NULL) {
     lsl->tem = usl->tem;
     lsl->ch4 = usl->ch4;
@@ -1511,32 +1513,18 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
     lsl->tem = (slz - nxlz) * gradient + nxltem;
     ulz = usl->z + 0.5 * usl->dz;
 
-    double ulch4 = usl->ch4;
-    double nxlch4 = usl->nextl->ch4;
-    double ch4_gradient = (ulch4 - nxlch4) / (ulz - nxlz);
-    lsl->ch4 = (slz - nxlz) * ch4_gradient + nxlch4;
+    // Splitting ch4 pool between new layers based on thickness
+    lsl->ch4 = usl->ch4 * lslfrac;
+    usl->ch4 -= lsl->ch4;
 
-    if (usl->prevl == NULL)
-    { // if no prevl, use same gradient
+    if (usl->prevl == NULL){ // if no prevl, use same gradient
       usl->tem = (ulz - nxlz) * gradient + nxltem;
-      usl->ch4 = (ulz - nxlz) * ch4_gradient + nxlch4;
-    }
-    else
-    { // otherwise incorporate prevl temp
+    } else { // otherwise incorporate prevl temp
       double pltem = usl->prevl->tem;
       double plz = usl->prevl->z + 0.5 * usl->prevl->dz;
       gradient = (pltem - lsl->tem) / (plz - slz);
       usl->tem = (ulz - slz) * gradient + lsl->tem;
-
-      double plch4 = usl->prevl->ch4;
-      ch4_gradient = (plch4 - lsl->ch4) / (plz - slz);
-      usl->ch4 = (ulz - slz) * ch4_gradient + lsl->ch4;
     }
-
-    // methane
-    // double nxlch4 = usl->nextl->ch4;
-    // double ch4_gradient = (usl->ch4 - nxlch4) / (-usl->dz - lsl->dz);
-    // lsl->ch4 = (ulz-nxlz) * ch4_gradient + usl->ch4;
   }
 
   // after division, needs to update 'usl' and 'lsl'- 'frozen/frozenfrac'
