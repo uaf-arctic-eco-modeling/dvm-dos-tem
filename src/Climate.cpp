@@ -484,8 +484,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
 */
 void Climate::prep_avg_climate(){
   BOOST_LOG_SEV(glg, debug) << "Climate baseline from config: "
-                            << this->climate.baseline_start << ":"
-                            << this->climate.baseline_end;
+                            << baseline_start << ":" << baseline_end;
 
   if(   baseline_start > tseries_end_year
      || baseline_start < tseries_start_year
@@ -495,6 +494,13 @@ void Climate::prep_avg_climate(){
     BOOST_LOG_SEV(glg, fatal) << "Baseline year value exceeds range"
              << " of input file.\n" << "Acceptable range: "
              << tseries_start_year << ":" << tseries_end_year << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  if(baseline_end < baseline_start){
+    BOOST_LOG_SEV(glg, fatal) << "Baseline end year " << baseline_end
+                              << " is less than baseline start year "
+                              << baseline_start;
     exit(EXIT_FAILURE);
   }
 

@@ -122,8 +122,8 @@
 
   "model_settings": {
     "dynamic_lai": 1,                   // from model (1) or from input (0)
-    "baseline_start": 1901,  //start year for baseline EQ/SP climate
-    "baseline_end": 1931     //end year for baseline EQ/SP climate
+    "baseline_start": 1901,  //start year for baseline EQ climate
+    "baseline_end": 1931     //end year for baseline EQ climate
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
