@@ -405,6 +405,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
     nirr = temutil::get_timeseries<float>(fname, "nirr", y, x);
 
     tseries_start_year = temutil::get_timeseries_start_year(fname);
+    tseries_end_year = temutil::get_timeseries_end_year(fname);
 
   }//End critical(load_climate)
 
@@ -454,14 +455,15 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   BOOST_LOG_SEV(glg, debug) << "par = [" << temutil::vec2csv(par) << "]";
 
   // Create a simplified historic climate for EQ by averaging input data
-  // over a year range specified here. The year choices should be exposed
-  // in the config file eventually. TODO
-  if(fname.find("historic") != std::string::npos){
-    avgX_tair = avg_over(tair, 1901, 1931);
-    avgX_prec = avg_over(prec, 1901, 1931);
-    avgX_nirr = avg_over(nirr, 1901, 1931);
-    avgX_vapo = avg_over(vapo, 1901, 1931);
-  }
+  // over a year range specified here.
+//Commenting out but leaving temporarily for easier comparison with
+// the currently in-progress daily data ingestion branch. 20240429
+//  if(fname.find("historic") != std::string::npos){
+//    avgX_tair = avg_over(tair, baseline_start, baseline_end);
+//    avgX_prec = avg_over(prec, 1901, 1931);
+//    avgX_nirr = avg_over(nirr, 1901, 1931);
+//    avgX_vapo = avg_over(vapo, 1901, 1931);
+//  }
 
   // Do we need simplified 'avgX_' values for par, and cld??
   // ===> YES: the derived variables should probably be based off the avgX
@@ -473,6 +475,35 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   //     instead, they should get calculated each year...
 
 }
+
+/** Prepares simplified average climate, intended for EQ stage
+*
+* Assumes that averaged climate is produced shortly after
+*  the tseries values have been loaded from the intended
+*  input file.
+*/
+void Climate::prep_avg_climate(){
+  BOOST_LOG_SEV(glg, debug) << "Climate baseline from config: "
+                            << this->climate.baseline_start << ":"
+                            << this->climate.baseline_end;
+
+  if(   baseline_start > tseries_end_year
+     || baseline_start < tseries_start_year
+     || baseline_end > tseries_end_year
+     || baseline_end < tseries_start_year){
+
+    BOOST_LOG_SEV(glg, fatal) << "Baseline year value exceeds range"
+             << " of input file.\n" << "Acceptable range: "
+             << tseries_start_year << ":" << tseries_end_year << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  avgX_tair = avg_over(tair, baseline_start, baseline_end);
+  avgX_prec = avg_over(prec, baseline_start, baseline_end);
+  avgX_nirr = avg_over(nirr, baseline_start, baseline_end);
+  avgX_vapo = avg_over(vapo, baseline_start, baseline_end);
+}
+
 
 /** This loads data from a projected climate data file, overwriting any old climate data*/
 void Climate::load_proj_climate(const std::string& fname, int y, int x){
@@ -518,9 +549,7 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int s
   }
 
   BOOST_LOG_SEV(glg, debug) << "result = [" << temutil::vec2csv(result) << "]";
-
   return result;
-
 }
 
 

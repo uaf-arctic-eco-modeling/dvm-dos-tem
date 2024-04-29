@@ -112,6 +112,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
+  baseline_start = controldata["model_settings"]["baseline_start"].asInt();
+  baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
