@@ -145,6 +145,7 @@ namespace temutil {
                                     const int y, const int x);
 
   int get_timeseries_start_year(const std::string &filename);
+  int get_timeseries_end_year(const std::string &filename);
 
   // draft - reads all timesteps co2 data
   std::vector<float> get_timeseries(const std::string &filename,
