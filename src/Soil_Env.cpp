@@ -235,7 +235,7 @@ void Soil_Env::updateDailyGroundT(const double &tdrv, const double &dayl)
 
   if (ground->toplayer->isSoil)
   {
-    // when there is an abrupt change of surface status, reduce timestep
+    // when there is an abrupt change of surface status, reduce timestep // AM 04-29-2024: consider adjusting temp window here for thawing to occur at -2
     if ((ground->fstsoill->frozen == 1 and tsurface > 0.0) || (ground->fstsoill->frozen == -1 and tsurface < 0.0) || ground->fstsoill->frozen == 0)
     {
       nstep = 24;
@@ -260,7 +260,7 @@ void Soil_Env::updateDailyGroundT(const double &tdrv, const double &dayl)
 
     if (ground->fstfntl == NULL && ground->lstfntl == NULL)
     {                                       // no front
-      if ((tstate == 1 && tsurface > 0)     // frozen soil and above-zero air
+      if ((tstate == 1 && tsurface > 0)     // frozen soil and above-zero air //AM 04-24-2024 consider adjusting temp window here for thawing fronts to initiate at -2
           || (tstate == -1 && tsurface < 0) // unfrozen soil and below-zero air
           || tstate == 0)
       { // partially frozen soil column

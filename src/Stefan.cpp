@@ -726,8 +726,8 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
           currl->frozen = -fntouttype;
         }
       } else { // no front at all
-        if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out
-          currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing.
+        if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out //AM: here is where an incorrect frozen status could be attributed to a mixed layer
+          currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing. //AM: should probably remove this first if statement
         }
         else{// BM: add temperature window here - i.e. only completely frozen IF <-2 (or a parameter defining this for a CMT)
           if (currl->tem>0.) {
