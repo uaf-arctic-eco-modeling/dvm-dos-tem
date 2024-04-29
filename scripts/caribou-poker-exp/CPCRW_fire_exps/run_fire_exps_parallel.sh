@@ -5,59 +5,59 @@ cd /work || exit
 
 # Workflow directories for different model runs
 workflows=(
-    #'/data/workflows/BONA-black-spruce-fire-control'
-    '/data/workflows/BONA-black-spruce-fire-1930-nfix'
-    #'/data/workflows/BONA-black-spruce-fire-1960'
-    #'/data/workflows/BONA-black-spruce-fire-1990-rhmoist'
-    #'/data/workflows/BONA-birch-fire-control-rhmoist'
-    #'/data/workflows/BONA-birch-fire-1930-rhmoist'
-    #'/data/workflows/BONA-birch-fire-1960-rhmoist'
-    #'/data/workflows/BONA-birch-fire-1990-rhmoist'
+    '/data/workflows/BONA-black-spruce-fire-control'
+    '/data/workflows/BONA-black-spruce-fire-1930'
+    '/data/workflows/BONA-black-spruce-fire-1960'
+    '/data/workflows/BONA-black-spruce-fire-1990'
+    '/data/workflows/BONA-birch-fire-control'
+    '/data/workflows/BONA-birch-fire-1930'
+    '/data/workflows/BONA-birch-fire-1960'
+    '/data/workflows/BONA-birch-fire-1990'
 
 )
 
 # Fire history files for different model runs
 fire_hist_files=(
-    #'historic-explicit-fire.nc'
+    'historic-explicit-fire.nc'
     'historic-explicit-fire_1930.nc'
-    #'historic-explicit-fire_1960.nc'
-    #'historic-explicit-fire_1990.nc'
-    #'historic-explicit-fire.nc'
-    #'historic-explicit-fire_1930.nc'
-    #'historic-explicit-fire_1960.nc'
-    #'historic-explicit-fire_1990.nc'
+    'historic-explicit-fire_1960.nc'
+    'historic-explicit-fire_1990.nc'
+    'historic-explicit-fire.nc'
+    'historic-explicit-fire_1930.nc'
+    'historic-explicit-fire_1960.nc'
+    'historic-explicit-fire_1990.nc'
 )
 dsb=(
-    #false
+    false
     true
-    #true
-    #true
-    #false
-    #true
-    #true
-    #true
+    true
+    true
+    false
+    true
+    true
+    true
 )
 
 dsl=(
-    #true 
+    true 
     true
-    #true
-    #true
-    #true
-    #true
-    #true
-    #true
+    true
+    true
+    true
+    true
+    true
+    true
 )
 
 cmt=(
-    #15
     15
-    #15
-    #15
-    #14
-    #14
-    #14
-    #14
+    15
+    15
+    15
+    14
+    14
+    14
+    14
 )
 
 
@@ -122,7 +122,9 @@ run_model() {
     cd ${workflow} || exit
 
     # Run model
-    dvmdostem --force-cmt=$cmt --log-level='debug' --eq-yrs=0 --sp-yrs=0 --pr=0 --tr-yrs=122 --sc-yrs=0 --restart-run --no-output-cleanup
+    #dvmdostem --force-cmt=$cmt --log-level='debug' --eq-yrs=0 --sp-yrs=0 --pr=0 --tr-yrs=122 --sc-yrs=0 --restart-run --no-output-cleanup
+    dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=1000 --sp-yrs=300 --pr=100 --tr-yrs=122 --sc-yrs=0
+
 }
 
 export -f run_model

@@ -25,24 +25,24 @@ cell_x_coord=0
 
 #model run level information
 
-#data_paths=['/data/workflows/BONA-black-spruce-fire-control/output/',
-#            '/data/workflows/BONA-black-spruce-fire-1930/output/',
-#            '/data/workflows/BONA-black-spruce-fire-1960/output/',
-#            '/data/workflows/BONA-black-spruce-fire-1990/output/',
-#            '/data/workflows/BONA-birch-fire-control/output/',
-#            '/data/workflows/BONA-birch-fire-1930/output/',
-#           '/data/workflows/BONA-birch-fire-1960/output/',
-#            '/data/workflows/BONA-birch-fire-1990/output/'
-#           ]
-data_paths=['/data/workflows/BONA-black-spruce-fire-control-nfix/output/',
-            '/data/workflows/BONA-black-spruce-fire-1930-nfix/output/',
-            '/data/workflows/BONA-black-spruce-fire-1960-nfix/output/',
-            '/data/workflows/BONA-black-spruce-fire-1990-nfix/output/',
-            '/data/workflows/BONA-birch-fire-control-nfix/output/',
-            '/data/workflows/BONA-birch-fire-1930-nfix/output/',
-            '/data/workflows/BONA-birch-fire-1960-nfix/output/',
-            '/data/workflows/BONA-birch-fire-1990-nfix/output/'
+data_paths=['/data/workflows/BONA-black-spruce-fire-control/output/',
+            '/data/workflows/BONA-black-spruce-fire-1930/output/',
+            '/data/workflows/BONA-black-spruce-fire-1960/output/',
+            '/data/workflows/BONA-black-spruce-fire-1990/output/',
+            '/data/workflows/BONA-birch-fire-control/output/',
+            '/data/workflows/BONA-birch-fire-1930/output/',
+           '/data/workflows/BONA-birch-fire-1960/output/',
+            '/data/workflows/BONA-birch-fire-1990/output/'
            ]
+#data_paths=['/data/workflows/BONA-black-spruce-fire-control-nfix/output/',
+#            '/data/workflows/BONA-black-spruce-fire-1930-nfix/output/',
+#            '/data/workflows/BONA-black-spruce-fire-1960-nfix/output/',
+#            '/data/workflows/BONA-black-spruce-fire-1990-nfix/output/',
+#            '/data/workflows/BONA-birch-fire-control-nfix/output/',
+#            '/data/workflows/BONA-birch-fire-1930-nfix/output/',
+#            '/data/workflows/BONA-birch-fire-1960-nfix/output/',
+#            '/data/workflows/BONA-birch-fire-1990-nfix/output/'
+#           ]
 
 #data_paths=['/data/workflows/BONA-black-spruce-fire-control-rhmoist/output/',
 #            '/data/workflows/BONA-black-spruce-fire-1930-rhmoist/output/',
@@ -465,7 +465,7 @@ results_yearly_pft
 results_yearly['RECO'] = results_yearly['RG'] + results_yearly['RM'] + results_yearly['RH']
 results_yearly['NEE'] = results_yearly['RECO'] - results_yearly['GPP']
 results_yearly['years_since_fire'] = results_yearly['year'] - results_yearly['burn_year']
-results_yearly = results_yearly.loc[(results_yearly['exp']=='burn_1930') | (results_yearly['exp']=='control')]
+#results_yearly = results_yearly.loc[(results_yearly['exp']=='burn_1930') | (results_yearly['exp']=='control')]
 
 
 fig, axes = plt.subplots(3,2, figsize=(8,8), sharex=True)
