@@ -210,12 +210,12 @@ def ts_stock(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl,stage):
   plt.close()
 
 
-def seasonality(simpath, simlist, vlist, sclist, clist, oname):
+def seasonality(simpath, simlist, vlist, sclist, clist, oname, stage):
   '''
   Produces decadal seasonal pattern plots for the given variables.
 
-  Assumes cell [0,0], eq stage, and that there are 11 or more
-    years of output data for the stage.
+  Assumes cell [0,0], and that there are 11 or more years of
+    output data for the stage.
   '''
   for VAR in vlist:
     dt = pd.DataFrame()
@@ -225,25 +225,12 @@ def seasonality(simpath, simlist, vlist, sclist, clist, oname):
       simlist[i]
       PODout = (os.path.join(simpath,simlist[i],'output'))
 
-      #If there are any files for that variable in this output set
-      if len(glob.glob(PODout + '/' + VAR + "_*_eq.nc")) > 0:
-        filepath = glob.glob(PODout + '/' + VAR + "_*_eq.nc")[0]
+      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      if len(fileglob) > 0:
+        filepath = fileglob[0]
 
-        ds = xr.open_dataset(filepath)
-        ds = ds.to_dataframe()
-        #Flatten key structure
-        ds.reset_index(inplace=True)
-        #Reduce to a single cell
-        ds = ds[(ds['x'] == 0)]
-        ds = ds[(ds['y'] == 0)]
-        #Add name for plot label and color for line
-        ds['scenario'] = sclist[i]
-        ds['color'] = clist[i]
-        #x,y unnecessary because of single cell reduction
-        ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-        #Construct time columns
-        ds['month'] = ds['time'] % 12 + 1
-        ds['year'] = (ds['time'] / 12).astype('int')
+        ds = load_reduced_dataframe(filepath, xidx=0, yidx=0)
+
         #Sample every 10 years, excluding year 0 to avoid the
         # volatility at stage change.
         #If the stage has <11 years of data, quietly produces empty plots
@@ -744,8 +731,9 @@ ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly
 VARlist=['DEADC','DWDC','DEADN','DWDN']
 ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series')
 
+print("Generating seasonality plots...")
 VARlist=['GPP','RH','LAI']
-seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio')
+seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio','eq')
 
 VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
 seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env')
