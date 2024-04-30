@@ -96,10 +96,14 @@ def load_reduced_dataframe(filepath, xidx=0, yidx=0):
 
 ### Define all plot functions
 
-def ts_flux(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl):
+def ts_flux(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl,stage):
+  '''
+  Produces flux yearly timeseries plots
+  '''
   ncols = int(min(np.ceil(len(vlist)**0.5),3))
   nrows = int(np.ceil(len(vlist)/ncols))
   plt.figure(figsize=(12, int(0.8*12*(nrows/ncols))))
+
   for i in range(0,len(vlist)):
     ax = plt.subplot(nrows, ncols, i + 1)
     VAR=vlist[i]
@@ -109,24 +113,18 @@ def ts_flux(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl):
       simlist[j]
       PODout = (os.path.join(simpath,simlist[j],'output'))
 #      print(PODout)
-      if len(glob.glob(PODout + '/' + VAR + "_*_eq.nc")) > 0:
-        filepath = glob.glob(PODout + '/' + VAR + "_*_eq.nc")[0]
-        ds = xr.open_dataset(filepath)
-        ds = ds.to_dataframe()
-        ds.reset_index(inplace=True)
-        ds = ds[(ds['x'] == 0)]
-        ds = ds[(ds['y'] == 0)]
-        ds['scenario'] = sclist[j]
-        ds['color'] = clist[j]
-        ds['width'] = wlist[j]
-        ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-        ds['month'] = ds['time'] % 12 + 1
-        ds['year'] = (ds['time'] / 12).astype('int')
+      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      if len(fileglob) > 0:
+        filepath = fileglob[0]
+
+        ds = load_reduced_dataframe(filepath, xidx=0, yidx=0)
+
         out = pd.DataFrame(ds.groupby('year')[VAR].sum())
         out.reset_index(inplace=True)
         out['scenario'] = sclist[j]
         out['color'] = clist[j]
         out['width'] = wlist[j]
+
         dt = pd.concat([dt,out],axis=0)
     grouped = dt.groupby('scenario')
     group_dict = dict(list(grouped))
@@ -136,12 +134,14 @@ def ts_flux(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl):
       ax.plot(x, y, label=group_dict[group]['scenario'][0], c=group_dict[group]['color'][0], linewidth=group_dict[group]['width'][0])
     ax.set_xlabel("Time (yrs)", fontsize=12)
     ax.set_ylabel(str(VAR), fontsize=12)
+
   if len(vlist) % ncols == 0:
     anchor = (1.2, 1)
     rs = 0.75
   else:
     anchor = (1.2, 0.2)
     rs = 0.9
+
   plt.subplots_adjust(left=0.1,bottom=0.1, right=rs, top=0.9,wspace=0.5,hspace=0.3)
   handles, labels = ax.get_legend_handles_labels()
   plt.legend(handles[0:len(sclist)], labels[0:len(sclist)], bbox_to_anchor=anchor, loc='center left', borderaxespad=0.1, fontsize=11)
@@ -729,8 +729,9 @@ print("Generating single plots...")
 
 os.mkdir(os.path.join(POD,'results'))
 
+print("Generating timeseries flux plots...")
 VARlist=['RH','GPP','NPP','LTRFALC','RG','RM']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series')
+ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series','eq')
 
 VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LTRFALN']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series')
