@@ -79,8 +79,12 @@ def load_reduced_dataframe(filepath, xidx=0, yidx=0):
   #Construct separated time columns
   #A time type of int indicates stages PR, EQ, or SP
   if isinstance(ds['time'][0], np.int64):
-    ds['month'] = ds['time'] % 12 + 1
-    ds['year'] = (ds['time'] / 12).astype('int')
+    if 'monthly' in filepath:
+      ds['month'] = (ds['time'] % 12 + 1).astype('int')
+      ds['year'] = (ds['time'] / 12).astype('int')
+    elif 'yearly' in filepath:
+      ds['year'] = ds['time'].astype('int')
+
   #A time type of cftime.datetime indicates stages TR or SC
   elif isinstance(ds['time'][0], datetime):
     ds['string_time'] = ds['time'].astype(pd.StringDtype())
@@ -284,7 +288,7 @@ def seasonality(simpath, simlist, vlist, sclist, clist, oname):
     plt.close()
 
 
-def soilcnprofile(simpath,simlist,sclist):
+def soilcnprofile(simpath,simlist,sclist,stage):
   VARlist = ['LAYERDEPTH','LAYERDZ','LAYERTYPE','SOMRAWC','SOMA','SOMPR','SOMCR','ORGN','AVLN']
   data = pd.DataFrame(columns=['scenario','year','layer'])
   for VAR in VARlist:
@@ -294,18 +298,17 @@ def soilcnprofile(simpath,simlist,sclist):
       simlist[i]
       PODout = (os.path.join(simpath,simlist[i],'output'))
 #      print(PODout)
-      if len(glob.glob(PODout + '/' + VAR + "_*_eq.nc")) > 0:
-        filepath = glob.glob(PODout + '/' + VAR + "_*_eq.nc")[0]
-        ds = xr.open_dataset(filepath)
-        ds = ds.to_dataframe()
-        ds.reset_index(inplace=True)
-        ds = ds[(ds['x'] == 0)]
-        ds = ds[(ds['y'] == 0)]
+
+      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      if len(fileglob) > 0:
+        filepath = fileglob[0]
+
+        ds = load_reduced_dataframe(filepath, xidx=0, yidx=0)
+
         ds['scenario'] = sclist[i]
-        ds['month'] = (ds['time'] % 12 + 1).astype('int')
-        ds['year'] = (ds['time'] / 12).astype('int')
         ds = ds[ds['month'] == 12]
-        ds = ds.drop(columns=['y','x','albers_conical_equal_area','month','time'])
+        ds = ds.drop(columns=['month','time'])
+
         dt = pd.concat([dt,ds],axis=0)  
     data = pd.merge(data,dt,on=['scenario','year','layer'], how='outer')
   
@@ -314,16 +317,15 @@ def soilcnprofile(simpath,simlist,sclist):
     simlist[i]
     PODout = (os.path.join(simpath,simlist[i],'output'))
 #    print(PODout)
-    if len(glob.glob(PODout + '/ALD_*_eq.nc')) > 0:
-      filepath = glob.glob(PODout + '/ALD_*_eq.nc')[0]
-      ds = xr.open_dataset(filepath)
-      ds = ds.to_dataframe()
-      ds.reset_index(inplace=True)
-      ds = ds[(ds['x'] == 0)]
-      ds = ds[(ds['y'] == 0)]
+    fileglob = glob.glob(PODout + "/ALD_*_" + stage + ".nc")
+    if len(fileglob) > 0:
+      filepath = fileglob[0]
+
+      ds = load_reduced_dataframe(filepath, xidx=0, yidx=0)
+
       ds['scenario'] = sclist[i]
-      ds['year'] = ds['time'].astype('int')
-      ds = ds.drop(columns=['y','x','albers_conical_equal_area','time'])
+      ds = ds.drop(columns=['time'])
+
     ald = pd.concat([ald,ds],axis=0)
   
   data['SOILC_DENS'] = 0.001*(data['SOMRAWC'].fillna(0) + data['SOMA'].fillna(0) + data['SOMPR'].fillna(0) + data['SOMCR'].fillna(0)) / data['LAYERDZ']
@@ -754,7 +756,8 @@ seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio')
 VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
 seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env')
 
-soilcnprofile(POD,PODlist,scenariolist)
+print("Generating soil CN plots...")
+soilcnprofile(POD,PODlist,scenariolist,'eq')
 
 VARlist=['TLAYER','VWCLAYER']
 soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile')
