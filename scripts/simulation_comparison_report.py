@@ -661,7 +661,7 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname):
   
 
 
-def vegdynamic(simpath,simlist,vlist,sclist,oname):  
+def vegdynamic(simpath,simlist,vlist,sclist,oname,stage):
   for v in vlist:
 #    print(v)
     data = pd.DataFrame()
@@ -669,25 +669,20 @@ def vegdynamic(simpath,simlist,vlist,sclist,oname):
       simlist[i]
       PODout = (os.path.join(simpath,simlist[i],'output'))
 #      print(PODout)
-      if len(glob.glob(PODout + '/' + str(v) + "_*_eq.nc")) > 0:
-        filepath = glob.glob(PODout + '/' + str(v) + "_*_eq.nc")[0]
-        ds = xr.open_dataset(filepath)
-        ds = ds.to_dataframe()
-        ds.reset_index(inplace=True)
-        ds = ds[(ds['x'] == 0)]
-        ds = ds[(ds['y'] == 0)]
-        ds['scenario'] = sclist[i]
-        ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-        ds['month'] = ds['time'] % 12 + 1
-        ds['year'] = (ds['time'] / 12).astype('int')
+      fileglob = glob.glob(PODout + '/' + str(v) + "_*_" + stage + ".nc")
+      if len(fileglob) > 0:
+        filepath = fileglob[0]
+
+        ds = load_reduced_dataframe(filepath, xidx=0, yidx=0)
+
         if 'pftpart' in ds.columns.values.tolist():
           ds = pd.DataFrame(ds.groupby(['year','month','pft'])[v].sum())
+
         out = pd.DataFrame(ds.groupby(['year','pft'])[v].max())
         out.reset_index(inplace=True)
         out['scenario'] = sclist[i]
         data = pd.concat([data,out],axis=0)
-    
-    
+
     ncols = int(min(np.ceil(len(sclist)**0.5),6))
     nrows = int(np.ceil(len(sclist)/ncols))
     plt.figure(figsize=(12, int(0.8*12*(nrows/ncols))))
@@ -705,15 +700,14 @@ def vegdynamic(simpath,simlist,vlist,sclist,oname):
       ax.set_xlabel('time', fontsize=12)
       ax.set_ylabel(str(v), fontsize=12)
       ax.set_title(str(scname), fontsize=12)
-    
-    
+
     if len(sclist) % ncols == 0:
       anchor = (1.2, 1)
       rs = 0.75
     else:
       anchor = (1.2, 0.2)
       rs = 0.9
-    
+
     plt.subplots_adjust(left=0.1,bottom=0.1, right=rs, top=0.9,wspace=0.5,hspace=0.5)
     handles, labels = ax.get_legend_handles_labels()
     plt.legend(handles[0:len(sclist)], labels[0:len(sclist)], bbox_to_anchor=anchor, loc='center left', borderaxespad=0.1, fontsize=11)
@@ -762,8 +756,9 @@ soilcnprofile(POD,PODlist,scenariolist,'eq')
 VARlist=['TLAYER','VWCLAYER']
 soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile')
 
+print("Generating vegetation dynamic plots...")
 VARlist=['VEGC','VEGN']
-vegdynamic(POD,PODlist,VARlist,scenariolist,'Veg_Dyn')
+vegdynamic(POD,PODlist,VARlist,scenariolist,'Veg_Dyn','eq')
 
 
 
