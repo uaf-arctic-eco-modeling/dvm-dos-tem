@@ -36,8 +36,6 @@ Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
                       mossdeathc(UIN_D), mossdeathn(UIN_D), kdshlw(UIN_D),
                       kddeep(UIN_D), decay(UIN_D), nup(UIN_D), totdzliq(UIN_D),
                       totdzavln(UIN_D), totnetnmin(UIN_D), totnextract(UIN_D) {
-
-  // all structs are value initialized to -77777
   
   for (int i = 0; i < MAX_SOI_LAY; ++i) {
     ltrflc[i] = UIN_D;
@@ -46,6 +44,7 @@ Soil_Bgc::Soil_Bgc(): nfeed(false), avlnflg(false), baseline(false),
     ch4_prod_soma_monthly[i] = UIN_D;
     ch4_prod_sompr_monthly[i] = UIN_D;
     ch4_prod_somcr_monthly[i] = UIN_D;
+    ch4_oxid_monthly[i] = UIN_D;
     rtnextract[i] = UIN_D;
   }
 };
@@ -151,6 +150,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double oxidation[MAX_SOI_LAY] = {0};
   double plant_transport[MAX_SOI_LAY] = {0};
   double diffusion[MAX_SOI_LAY] = {0};
+  double diffusion_sum = 0;
 
   double delta_pool[MAX_SOI_LAY] = {0};
   double delta_pool_sum = 0;
@@ -159,6 +159,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double ch4_ebul_layer[MAX_SOI_LAY] = {0};
   double ch4_oxid_layer[MAX_SOI_LAY] = {0};
   double ch4_flux_layer[MAX_SOI_LAY] = {0};
+
 
   int numsoill = cd->m_soil.numsl;
   // Tridiagonal matrix algorithm inputs
@@ -202,7 +203,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Setting soil oxidation to zero >>> not sure if this is needed or syntax convention to follow
   ed->d_soid.oxid = 0.0;
   
-  Layer* currl;
+  // Setting layer pointer to track layer containing the water table
+  Layer *wtlayer;
+
+  Layer *currl;
   int il; //manual layer index tracker
   for (int j = 1; j <= HR_IN_DAY; j++) { //loop through time steps
 
@@ -282,6 +286,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         saturated_fraction = 1.0;
       }
 
+      if (0.0<saturated_fraction<1.0){
+        wtlayer = currl;
+      }
+
       //Logarithmic interpolation between tortuosity and diffusion coefficient due to large
       //magnitude difference between liquid and air
       double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater()/(currl->poro), 3.0);
@@ -327,8 +335,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // if (saturated_fraction > 0.0 && saturated_fraction < 1.0){
       //   oxid = 0.0;
       // }
-
-      if (oxid<0.000001) {
+      if (oxid < 0.000001){
         oxid = 0.0;
       }
 
@@ -345,7 +352,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // accumulating to monthly for use in rhsum
       // converting to CO2 used in deltastate
-      // ch4_oxid_monthly[il] += oxid_gm2hr;
+      ch4_oxid_monthly[il] += oxid_gm2hr;
 
       //Production:
 
@@ -595,6 +602,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       diffusion[il] = curr_pool[il] - prev_pool[il] + production[il] - oxidation[il] - plant_transport[il] - ebullition[il];
 
+      diffusion_sum += diffusion[il];
+
       currl = currl->nextl;
       il++;
 
@@ -618,9 +627,19 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     ed->daily_ch4_diff[id][layer] = diff[layer];
   }
 
-  //If the moss layer is considered for CH4 in the future, the following will need
-  // to be modified to start at the moss layer and il should be set to 0.
-  currl = ground->fstshlwl; //reset currl to top of the soil stack
+  // Store ebullition and veg flux values (mostly for output)
+  ed->d_soid.ch4ebul = ebul_gm2day;
+
+  // Modifying ch4 pool by ebullitive flux if water table 
+  // is not at soil surface
+  if (wtlayer != ground->fstshlwl){
+    wtlayer->ch4 += ebul_daily;
+    ebul_gm2day = 0.0;
+  }
+    
+  // If the moss layer is considered for CH4 in the future, the following will need
+  //  to be modified to start at the moss layer and il should be set to 0.
+  currl = ground->fstshlwl; // reset currl to top of the soil stack
   il = 1; //reset manual layer index tracker.
   while(currl && currl->isSoil){
     ed->daily_ch4_pool[id][il] = currl->ch4; //>>> UNITS: these should be in g m^2
@@ -641,7 +660,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   efflux_gm2hr = 0.5 * plant_gm2day + diff_efflux_gm2day + ebul_gm2day;
 
   //Store ebullition and veg flux values (mostly for output)
-  ed->d_soid.ch4ebul = ebul_gm2day;
   ed->daily_total_plant_ch4[id] = plant_gm2day;
 
   diff_efflux_daily = 0.0; //Y.Mi
@@ -854,6 +872,7 @@ void Soil_Bgc::clear_del_structs(){
     ch4_prod_soma_monthly[il] = 0.0;
     ch4_prod_sompr_monthly[il] = 0.0;
     ch4_prod_somcr_monthly[il] = 0.0;
+    ch4_oxid_monthly[il] = 0.0;
   }
 };
 
@@ -1373,16 +1392,19 @@ void Soil_Bgc::deltastate() {
   // the fraction of SOMCR in total SOM product
   double fsomcr   = (double)bgcpar.fsomcr;
 
-  //2) If soil respiration known, then internal C pool transformation
-  //     can be estimated as following
+  // 2) If soil respiration known, then internal C pool transformation
+  //      can be estimated as following
+  //  CO2 contributions from CH4 oxidation only if ch4flux function is called
   for(int il=0; il<cd->m_soil.numsl; il++) {
     double rhsum = del_soi2a.rhrawc[il] +
                    del_soi2a.rhsoma[il] +
                    del_soi2a.rhsompr[il] +
-                   del_soi2a.rhsomcr[il]; //BM : + oxid
+                   del_soi2a.rhsomcr[il] +
+                   ch4_oxid_monthly[il];
 
-    // Only calculate these pools for non-moss layers...
-    if (cd->m_soil.type[il] > 0) {
+                   // Only calculate these pools for non-moss layers...
+                   if (cd->m_soil.type[il] > 0)
+    {
       // So note that: root death is the reason for deep SOM increment
       // BM: Also note that, ch4_prod is only calculated if ch4 is enabled 
       del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2) - ch4_prod_rawc_monthly[il];

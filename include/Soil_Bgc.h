@@ -100,6 +100,9 @@ private:
   double ch4_prod_soma_monthly[MAX_SOI_LAY];
   double ch4_prod_sompr_monthly[MAX_SOI_LAY];
   double ch4_prod_somcr_monthly[MAX_SOI_LAY];
+  // Monthly accumulation of CO2 from oxidation of CH4 to be 
+  // combined with rhsum in deltastate()
+  double ch4_oxid_monthly[MAX_SOI_LAY];
 
   double rtnextract[MAX_SOI_LAY];  // root N extraction from each soil layer
 
