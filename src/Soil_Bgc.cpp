@@ -144,14 +144,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //Some declarations for testing CH4 balance conservation
   double prev_pool[MAX_SOI_LAY] = {0};
   double curr_pool[MAX_SOI_LAY] = {0};
-
   double production[MAX_SOI_LAY] = {0};
   double ebullition[MAX_SOI_LAY] = {0};
   double oxidation[MAX_SOI_LAY] = {0};
   double plant_transport[MAX_SOI_LAY] = {0};
   double diffusion[MAX_SOI_LAY] = {0};
   double diffusion_sum = 0;
-
   double delta_pool[MAX_SOI_LAY] = {0};
   double delta_pool_sum = 0;
 
@@ -252,6 +250,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         } else{
           pft_transport[ip] = 0.0;
         }
+        
+        // Catch for negative values - BM: add e-? to catch small numbers leading to rounding errors
+        if (pft_transport[ip] < 0.0){
+          pft_transport[ip] = 0.0;
+        }
 
         plant += pft_transport[ip];
 
@@ -259,32 +262,30 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         ed->output_ch4_transport[il][ip] = pft_transport[ip];
       }
 
-      if (plant < 0.000001) {
-        plant = 0.0;
-      }
-
       plant_transport[il] = plant;
 
-      // Only allow plant-mediated transport if layers are thawed
-      // if (ed->d_sois.ts[il] > 0.0) {
-        // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
+      // BM : poro? below (or moved into above calculations?)
+      // this did some weird stuff before - may need debugging session.
+      // plant_gm2hr = plant * currl->poro * currl->dz * 1000.0;
       plant_gm2hr = plant * convert_umolL_to_gm2;
-      // } else {
-      //   plant_gm2hr = 0.0;
-      // }
 
       //Diffusion:
 
       //If the layer contains the water table this provides a scaling fraction to define proportion above and below water table
       double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab)/currl->dz;
+
+      // If the layer is above the water table saturated_fraction is forced to 0.0
+      // If the layer is below the water table saturated_fraction is forced to 1.0
+      saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
+
       //If the layer is above the water table saturated_fraction is forced to 0.0
-      if (saturated_fraction <= 0.0){
-        saturated_fraction = 0.0;
-      } 
-      //If the layer is below the water table saturated_fraction is forced to 1.0
-      else if (saturated_fraction >= 1.0){
-        saturated_fraction = 1.0;
-      }
+      // if (saturated_fraction <= 0.0){
+      //   saturated_fraction = 0.0;
+      // } 
+      // //If the layer is below the water table saturated_fraction is forced to 1.0
+      // else if (saturated_fraction >= 1.0){
+      //   saturated_fraction = 1.0;
+      // }
 
       if (0.0<saturated_fraction<1.0){
         wtlayer = currl;
@@ -632,10 +633,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // Modifying ch4 pool by ebullitive flux if water table 
   // is not at soil surface
-  if (wtlayer != ground->fstshlwl){
-    wtlayer->ch4 += ebul_daily;
-    ebul_gm2day = 0.0;
-  }
+  // if (wtlayer != ground->fstshlwl){
+  //   wtlayer->ch4 += ebul_daily;
+  //   ebul_gm2day = 0.0;
+  // }
     
   // If the moss layer is considered for CH4 in the future, the following will need
   //  to be modified to start at the moss layer and il should be set to 0.
@@ -1399,8 +1400,8 @@ void Soil_Bgc::deltastate() {
     double rhsum = del_soi2a.rhrawc[il] +
                    del_soi2a.rhsoma[il] +
                    del_soi2a.rhsompr[il] +
-                   del_soi2a.rhsomcr[il] +
-                   ch4_oxid_monthly[il];
+                   del_soi2a.rhsomcr[il];// +
+                  //  ch4_oxid_monthly[il];
 
                    // Only calculate these pools for non-moss layers...
                    if (cd->m_soil.type[il] > 0)
