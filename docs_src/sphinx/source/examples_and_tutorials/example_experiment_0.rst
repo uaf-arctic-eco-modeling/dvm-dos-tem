@@ -90,6 +90,54 @@ Here we have designed a small experiment with answers to the unknowns posed in
   by-layer resolution is enforced internally in the C++ part of the model.
 
 
+.. collapse:: Developer commands for working on documentation
+
+   Uncomment the following jupyter execute block if you need to actually run the
+   model for this experiment. This is useful if you are a developer working on 
+   the documentation. Otherwise you can assume that the outputs needed for the 
+   remainder of the exercise are in the ``testing-data/docs/example_experiment0``
+   directory.
+
+   .. jupyter-execute::
+
+      # import os
+      # import subprocess
+      # import shutil
+      # 
+      # import setup_working_directory
+      # import outspec
+      # import runmask
+      # 
+      # shutil.rmtree('/work/testing-data/docs/example_experiment_0/')
+      # 
+      # args = '--input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/'
+      # setup_working_directory.cmdline_entry(args.split(' '))
+      # 
+      # os.chdir('/work/testing-data/docs/example_experiment_0/')
+      # 
+      # outspec.cmdline_entry('config/output_spec.csv --on RH m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RG m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RM m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on TLAYER l m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on GPP m p'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on VEGC y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on ALD y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on CMTNUM y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on SHLWC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on SHLWDZ y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on DEEPC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on DEEPDZ y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on MINEC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERDZ y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERDEPTH y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERTYPE y'.split(' ')) 
+      # 
+      # runmask.cmdline_entry('--reset run-mask.nc'.split(' '))
+      # runmask.cmdline_entry('--yx 0 0 run-mask.nc'.split(' '))
+      # 
+      # subprocess.call('dvmdostem -l fatal --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85'.split(' '))
+
+
 .. collapse:: Example commands for setting up
    :class: working
 
