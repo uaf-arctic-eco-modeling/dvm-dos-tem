@@ -46,7 +46,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
      - **Answer**
    * - | Where on your computer you want to store
        | your model run(s)?
-     - ``/data/workflows/exp0_jan26_test``
+     - ``/work/testing-data/docs/example_experiment_0/``
    * - | What spatial (geographic) area you want
        | to run?
      - | Toolik, pixels (0,0), (1,1), (2,2)
@@ -93,10 +93,10 @@ Here we have designed a small experiment with answers to the unknowns posed in
 .. collapse:: Example commands for setting up
    :class: working
 
-   .. code:: 
+   .. code::
 
-      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /data/workflows/exp0_jan26_test
-      $ cd /data/workflows/exp0_jan26_test/
+      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/
+      $ cd /work/testing-data/docs/example_experiment_0/
       $ outspec.py config/output_spec.csv --on RH m
       $ outspec.py config/output_spec.csv --on RG m
       $ outspec.py config/output_spec.csv --on RM m
@@ -156,7 +156,7 @@ differently, please adjust your paths accordingly.**
 
       # This lets us work with shorter paths relative to the experiment 
       # directory
-      os.chdir('/data/workflows/exp0_jan26_test')
+      os.chdir('/work/testing-data/docs/example_experiment_0/')
 
 
 
@@ -250,10 +250,10 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
   .. code::
 
     ### Change into the experiment directory
-    cd /data/workflows/exp0_jan26_test
+    cd /work/testing-data/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /data/workflows/exp0_jan26_test/synthesis
+    mkdir /work/testing-data/docs/example_experiment_0//synthesis
 
     ### Compute the decadal means of vegetation carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_tr.nc  synthesis/VEGC_1990_1999.nc
@@ -373,10 +373,10 @@ simulations. Indicate how you formulated NEE.
   .. code::
 
     ### Change into the experiment directory
-    cd /data/workflows/exp0_jan26_test
+    cd /work/testing-data/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /data/workflows/exp0_jan26_test/synthesis
+    mkdir /work/testing-data/docs/example_experiment_0/
 
     ### Sum up the GPP across PFTs
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc
