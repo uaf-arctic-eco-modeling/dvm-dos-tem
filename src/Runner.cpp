@@ -4410,6 +4410,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
                        + cohort.bdall->m_soi2a.rhsoma[il]
                        + cohort.bdall->m_soi2a.rhsompr[il]
                        + cohort.bdall->m_soi2a.rhsomcr[il];
+                      //  + cohort.soilbgc.ch4_oxid_monthly[il];
           }
           outhold.rh_for_output.push_back(rh_arr);
 

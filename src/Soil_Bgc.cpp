@@ -202,7 +202,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   ed->d_soid.oxid = 0.0;
   
   // Setting layer pointer to track layer containing the water table
-  Layer *wtlayer;
+  Layer *wtlayer = ground->fstshlwl;
 
   Layer *currl;
   int il; //manual layer index tracker
@@ -276,18 +276,18 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // If the layer is above the water table saturated_fraction is forced to 0.0
       // If the layer is below the water table saturated_fraction is forced to 1.0
-      saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
+      // saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
 
       //If the layer is above the water table saturated_fraction is forced to 0.0
-      // if (saturated_fraction <= 0.0){
-      //   saturated_fraction = 0.0;
-      // } 
+      if (saturated_fraction <= 0.0){
+        saturated_fraction = 0.0;
+      } 
       // //If the layer is below the water table saturated_fraction is forced to 1.0
-      // else if (saturated_fraction >= 1.0){
-      //   saturated_fraction = 1.0;
-      // }
+      else if (saturated_fraction >= 1.0){
+        saturated_fraction = 1.0;
+      }
 
-      if (0.0<saturated_fraction<1.0){
+      if (0.0<saturated_fraction && saturated_fraction<1.0){
         wtlayer = currl;
       }
 
@@ -351,8 +351,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // 1 mu mol L^-1 hr^-1 = 12e-6 * 1000 * dz g C m^-2 hr^-1 ( * 0.012dz)
       oxid_gm2hr = oxid * convert_umolL_to_gm2;
 
-      // accumulating to monthly for use in rhsum
-      // converting to CO2 used in deltastate
+      // accumulating to monthly to add to RH output
       ch4_oxid_monthly[il] += oxid_gm2hr;
 
       //Production:
@@ -437,17 +436,21 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // by unit volume V2* of pure solvent at the temperature of measurement and partial pressure of 1 bar."
       // Sazonov, V P; Shaw, DG (2006). "Introduction to the Solubility Data Series: 1.5.2. Physicochemical Quantities
       // and Units, A note on nomenclature, points 10 and 11"
+      // Comparing Fan and Yamamoto formulation below:
       bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; // dimensionless
-
+      // bun_sol = exp(-67.1962 + 99.1624 * (100 / (currl->tem + 273.15)) + 27.9015 * log((currl->tem + 273.15)/100));
+      
       // Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-      partial_pressure_ch4 = DENLIQ * G * (currl->z + currl->dz / 2.0 - ed->d_sois.watertab) + Pstd; // Pa = kgm^-1s^-2
-      bun_sol_mass = 1e3 * partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15));          // mol m^3 ( * 1e3 -> umol L^-1)
+      // Catch so pressure is never lower than atmospheric pressure
+      partial_pressure_ch4 = fmax(Pstd, DENLIQ * G * (currl->z + currl->dz / 2.0 - ed->d_sois.watertab) + Pstd); // Pa = kgm^-1s^-2
+      bun_sol_mass = partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15));          // mol m^-3 ( * 1e3 -> umol L^-1)
 
       double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
       // >>> Fan does not explicitly limit it to layers with temp greater than 1
       // >>> I think this should be if layer is not frozen
       if (currl->tem > 1.0) {
-        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() * 
+      // if (ed->d_sois.ts[il]>=0.0){
+        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() *
       }
       else {
         ebul = 0.0;
@@ -633,10 +636,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // Modifying ch4 pool by ebullitive flux if water table 
   // is not at soil surface
-  // if (wtlayer != ground->fstshlwl){
-  //   wtlayer->ch4 += ebul_daily;
-  //   ebul_gm2day = 0.0;
-  // }
+  if (wtlayer != ground->fstshlwl){
+    wtlayer->ch4 += ebul_daily;
+    ebul_gm2day = 0.0;
+  }
     
   // If the moss layer is considered for CH4 in the future, the following will need
   //  to be modified to start at the moss layer and il should be set to 0.
@@ -1395,13 +1398,11 @@ void Soil_Bgc::deltastate() {
 
   // 2) If soil respiration known, then internal C pool transformation
   //      can be estimated as following
-  //  CO2 contributions from CH4 oxidation only if ch4flux function is called
   for(int il=0; il<cd->m_soil.numsl; il++) {
     double rhsum = del_soi2a.rhrawc[il] +
                    del_soi2a.rhsoma[il] +
                    del_soi2a.rhsompr[il] +
-                   del_soi2a.rhsomcr[il];// +
-                  //  ch4_oxid_monthly[il];
+                   del_soi2a.rhsomcr[il];
 
                    // Only calculate these pools for non-moss layers...
                    if (cd->m_soil.type[il] > 0)
