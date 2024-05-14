@@ -1069,230 +1069,6 @@ def n_top_runs(results, targets, params, r2lim, N=None):
 
   return best_params, best_results
 
-def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
-  '''
-  Plots equilibrium metrics against certain quality thresholds
-  for a target variable
-  
-  Parameters
-  ==========
-  eq_params : Pandas DataFrame
-    equilibrium quality dataframe for a single target variable
-  targets : Pandas DataFrame
-    Used to read in target variable names
-  cv_lim : float
-    coefficient of variation threshold as a %
-  p_lim : float
-    p-value threshold as a %
-  slope_lim : float
-    slope threshold as a fraction of target variable
-  save : bool
-    saves figure if True
-  saveprefix : string
-    path to use if saving is enabled
-    
-  Returns
-    None
-  
-  .. image:: /images/SA_post_hoc_analysis/eq_metrics_plot.png
-  
-  '''
-
-  # splitting eq_params to provide information for selecting targets
-  # and counting pfts and compartments if any
-  var_info = np.asarray([i.split('_') for i in eq_params.columns])
-  # taking variable names including pft and compartment if any
-  var_names = np.unique([i.split('_eq')[0] for i in eq_params.columns])
-  # getting eq_params specific unique parameter name for referencing
-  var = np.unique(var_info[:,0])[0]
-
-  # counting pfts and compartments
-  # defining data for referencing and partitioning
-  
-  # if there are compartments and pfts
-  if len(var_info[0])==5:
-    pfts = var_info[:,1]
-    pft_num = len(np.unique(var_info[:,1]))
-    comp_num = len(np.unique(var_info[:,2]))
-    comps = var_info[:,2]
-    comps_names = []
-    var_num = int(len(comps) / 3)
-  # if there are just pfts        
-  elif len(var_info[0])==4:
-    pfts = var_info[:,1]
-    pft_num = len(np.unique(var_info[:,1]))
-    comp_num = 0
-    var_num = int(len(pfts) / 3)
-  # if there are no pfts or compartments
-  else:
-    pft_num = 0
-    comp_num = 0
-    var_num = 1
-
-  # filtering targets dataframe by specific variable
-  targets = targets.filter(regex=var)
-
-  # looping through total number of variables (pft, compartment specific)
-  for i in range(var_num):
-
-    # defining subplot for each pft-compartment specific variable
-    # for each eq_metric (cv, p, slope)
-    fig, ax = plt.subplots(3, 1)
-
-    # referencing for whether there are pfts and compartments or not
-    if pft_num == 0:
-      eq_ref = eq_params.columns
-    else:
-      eq_ref = eq_params.filter(regex=f'{var_names[i]}')
-
-    # looping through each column in reference dataframe
-    for col in eq_ref:
-
-      # catching data for each metric (cv, p, slope) 
-      # and creating scatter plots
-      if "_eq_cv" in col:
-          ax[0].scatter(eq_params.index, abs(eq_params[col]) * 100, marker='o', label = col.split('_eq')[0], alpha=0.25)
-      if "_eq_p" in col:
-          ax[1].scatter(eq_params.index, eq_params[col] , marker='o', alpha=0.25)
-      if "_eq_slope" in col:
-          ax[2].scatter(eq_params.index, abs(eq_params[col]) , marker='o', alpha=0.25)
-
-      # Figure formatting
-      ax[0].plot(eq_params.index, cv_lim * np.ones(len(eq_params)), 'k--')
-      ax[0].set_ylabel("cv [%]", fontsize=10)
-      ax[0].set_xticks([])
-      ax[0].set_title(targets.columns[i]) #+'  '+col) - this can be used to check indexing matches
-      
-      ax[1].plot(eq_params.index, p_lim * np.ones(len(eq_params)), 'k--')
-      ax[1].set_ylabel("p-value", fontsize=10)
-      ax[1].set_xticks([])
-
-      ax[2].plot(eq_params.index, slope_lim * targets[targets.columns[i]].values * np.ones(len(eq_params)), 'k--')        
-      ax[2].set_xlabel("Index", fontsize=12)
-      ax[2].set_ylabel("Slope", fontsize=10)
-
-    # save if save=True
-    if save:
-      plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_scatterplot.png", bbox_inches="tight") 
-
-def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
-  '''
-  Plots equilibrium metrics against certain quality thresholds
-  for a target variable
-  
-  Parameters
-  ==========
-  eq_params : Pandas DataFrame
-    equilibrium quality dataframe for a single target variable
-  targets : Pandas DataFrame
-    Used to read in target variable names
-  cv_lim : float
-    coefficient of variation threshold as a %
-  p_lim : float
-    p-value threshold as a %
-  slope_lim : float
-    slope threshold as a fraction of target variable
-  save : bool
-    saves figure if True
-  saveprefix : string
-    path to use if saving is enabled
-    
-  Returns
-    None
-  
-  .. image:: /images/SA_post_hoc_analysis/eq_metrics_boxplot.png
-  
-  '''
-
-  # splitting eq_params to provide information for selecting targets
-  # and counting pfts and compartments if any
-  var_info = np.asarray([i.split('_') for i in eq_params.columns])
-  # taking variable names including pft and compartment if any
-  var_names = np.unique([i.split('_eq')[0] for i in eq_params.columns])
-  # getting eq_params specific unique parameter name for referencing
-  var = np.unique(var_info[:,0])[0]
-
-  # counting pfts and compartments
-  # defining data for referencing and partitioning
-  
-  # if there are compartments and pfts
-  if len(var_info[0])==5:
-    pfts = var_info[:,1]
-    pft_num = len(np.unique(var_info[:,1]))
-    comp_num = len(np.unique(var_info[:,2]))
-    comps = var_info[:,2]
-    comps_names = []
-    var_num = int(len(comps) / 3)
-  # if there are just pfts        
-  elif len(var_info[0])==4:
-    pfts = var_info[:,1]
-    pft_num = len(np.unique(var_info[:,1]))
-    comp_num = 0
-    var_num = int(len(pfts) / 3)
-  # if there are no pfts or compartments
-  else:
-    pft_num = 0
-    comp_num = 0
-    var_num = 1
-
-  # filtering targets dataframe by specific variable
-  targets = targets.filter(regex=var)
-  
-  # for each eq_metric (cv, p, slope)
-  fig, ax = plt.subplots(3, 1)
-  
-  # looping through total number of variables (pft, compartment specific)
-  for i in range(var_num):
-
-    if var_num > 1:
-      x_coords = np.linspace(0, var_num, var_num)
-      y_coords = np.ones(var_num)
-    else:
-      x_coords = np.linspace(-0.1, 0.1, 2)
-      y_coords = np.ones(var_num + 1)
-
-    # referencing for whether there are pfts and compartments or not
-    if pft_num == 0:
-      eq_ref = eq_params.columns
-    else:
-      eq_ref = eq_params.filter(regex=f'{var_names[i]}')
-
-    # looping through each column in reference dataframe
-    for col in eq_ref:
-
-      # catching data for each metric (cv, p, slope) 
-      # and creating box plots
-      if "_eq_cv" in col:
-        ax[0].boxplot(abs(eq_params[col]) * 100, positions=[i])
-      if "_eq_p" in col:
-        ax[1].boxplot(eq_params[col], positions=[i])
-      if "_eq_slope" in col:
-        ax[2].boxplot(abs(eq_params[col]), positions=[i])
-
-      # Figure formatting
-      ax[0].plot(x_coords, cv_lim * y_coords, 'k--')
-      ax[0].set_ylabel("cv [%]", fontsize=10)
-      ax[0].set_xticks([])
-      ax[0].set_title(var) #+'  '+col) - this can be used to check indexing matches
-      
-      ax[1].plot(x_coords, p_lim * y_coords, 'k--')
-      ax[1].set_ylabel("p-value", fontsize=10)
-      ax[1].set_xticks([])
-      if "_eq_slope" in col and var_num>1:
-        ax[2].plot(x_coords, slope_lim * targets[targets.columns[i]].values * y_coords, 
-                    f'C{i}--', label=targets.columns[i])
-        ax[2].legend(bbox_to_anchor=(1, 1))
-      elif "_eq_slope" in col and var_num<=1:
-        ax[2].plot(x_coords, slope_lim * targets[targets.columns[i]].values * y_coords, 'k--')
-          
-      ax[2].set_xticks(np.linspace(0, var_num, var_num), targets.columns, rotation=90)
-      ax[2].set_xlabel("Parameter", fontsize=12)
-      ax[2].set_ylabel("Slope", fontsize=10)
-
-  # save if save=True
-  if save:
-    plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_boxplot.png", bbox_inches="tight")   
-
 def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, saveprefix=''):
   '''
   Plots equilibrium timeseries for target variables in output directory
@@ -1346,20 +1122,21 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
       fig, ax = plt.subplots()
       if plot_metrics:
         fig_slope, ax_slope = plt.subplots()
-        fig_p, ax_p = plt.subplots()
         fig_cv, ax_cv = plt.subplots()
+        fig_conv, ax_conv = plt.subplots()
     if len(targ_var_info[0]) == 2:
       fig, ax = plt.subplots(1, len(targ_var_info))
       if plot_metrics:
         fig_slope, ax_slope = plt.subplots(1, len(targ_var_info))
-        fig_p, ax_p = plt.subplots(1, len(targ_var_info))
         fig_cv, ax_cv = plt.subplots(1, len(targ_var_info))
+        fig_conv, ax_conv = plt.subplots(1, len(targ_var_info))
+
     if len(targ_var_info[0]) == 3:
       fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
       if plot_metrics:
         fig_slope, ax_slope = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
-        fig_p, ax_p = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
         fig_cv, ax_cv = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig_conv, ax_conv = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
 
     # filtering for directories containing the name sample 
     samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
@@ -1373,6 +1150,10 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
       # reading output variable for each sample
       output = nc.Dataset(path+sample+f'/output/{targ}_yearly_eq.nc').variables[targ][:].data
 
+      # array for plotting metrics
+      if plot_metrics:
+        met = np.arange(len(output) - int(len(output)/30)*30, len(output)+30, 30, dtype=int)
+
       # selecting variable dimensions based on whether pft, compartment is expected 
       # nopft:
       if len(targ_var_info[0]) == 1:
@@ -1381,29 +1162,24 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
                           targets[targ].values[0]*np.ones(len(output[:,0,0])), 'k--', alpha=0.5)
 
         if plot_metrics:
-            eq_metric=True
-            yr_count = 0
-            while eq_metric==True:
-              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[yr_count:yr_count+30,0,0])), output[yr_count:yr_count+30,0,0])
-              cv = 100 * output[yr_count:yr_count+30,0,0].std() / output[yr_count:yr_count+30,0,0].mean()
-              
-              ax_slope.scatter((yr_count+30)/2, slope, color='grey')
-              ax_p.scatter((yr_count+30)/2, pval, color='grey')
-              ax_cv.scatter((yr_count+30)/2, cv, color='grey')
+          for i in range(0, len(met)-1):
+            slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],0,0])), output[met[i] : met[i+1],0,0])
+            cv = 100 * output[met[i] : met[i+1],0,0].std() / output[met[i] : met[i+1],0,0].mean()
+            
+            ax_slope.scatter(0.5*(met[i]+met[i+1]), abs(slope), color='grey')
+            ax_cv.scatter(0.5*(met[i]+met[i+1]), cv, color='grey')
+            if i != 0:
+              ax_conv.scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],0,0].mean() - output[met[i-1] : met[i],0,0].mean()), color=f'C{pft}')
 
-              yr_count += 30
-              if yr_count+30 > len(output[:,0,0]):
-                eq_metric=False
-
-            fig_slope.supxlabel("Equilibrium years", fontsize=12)
-            fig_slope.supylabel(f"slope", fontsize=12)
-            fig_slope.tight_layout()
-            fig_p.supxlabel("Equilibrium years", fontsize=12)
-            fig_p.supylabel(f"pval", fontsize=12)
-            fig_p.tight_layout()
-            fig_cv.supxlabel("Equilibrium years", fontsize=12)
-            fig_cv.supylabel(f"cv", fontsize=12)
-            fig_cv.tight_layout()
+          fig_slope.supxlabel("Equilibrium years", fontsize=12)
+          fig_slope.supylabel(f"slope", fontsize=12)
+          fig_slope.tight_layout()
+          fig_conv.supxlabel("Equilibrium years", fontsize=12)
+          fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+          fig_conv.tight_layout()
+          fig_cv.supxlabel("Equilibrium years", fontsize=12)
+          fig_cv.supylabel(f"cv", fontsize=12)
+          fig_cv.tight_layout()
           
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
@@ -1422,30 +1198,25 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
                 targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
 
           if plot_metrics:
-            eq_metric=True
-            yr_count = 0
-            while eq_metric==True:
-              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[yr_count:yr_count+30,pft,0,0])), output[yr_count:yr_count+30,pft,0,0])
-              cv = 100 * output[yr_count:yr_count+30,pft,0,0].std() / output[yr_count:yr_count+30,pft,0,0].mean()
-              
-              ax_slope[pft].scatter((yr_count+30)/2, slope, color=f'C{pft}')
-              ax_p[pft].scatter((yr_count+30)/2, pval, color=f'C{pft}')
-              ax_cv[pft].scatter((yr_count+30)/2, cv, color=f'C{pft}')
+            for i in range(0, len(met)-1):
+              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],pft,0,0])), output[met[i] : met[i+1],pft,0,0])
+              cv = 100 * output[met[i] : met[i+1],pft,0,0].std() / output[met[i] : met[i+1],pft,0,0].mean()
 
-              yr_count += 30
-              if yr_count+30 > len(output[:,pft,0,0]):
-                eq_metric=False
+              ax_slope[pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
+              ax_cv[pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
+              if i != 0:
+                ax_conv[pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],pft,0,0].mean() - output[met[i-1] : met[i],pft,0,0].mean()), color=f'C{pft}')
 
             ax_slope[pft].set_title(f"PFT{pft}")
-            ax_p[pft].set_title(f"PFT{pft}")
+            ax_conv[pft].set_title(f"PFT{pft}")
             ax_cv[pft].set_title(f"PFT{pft}")
 
             fig_slope.supxlabel("Equilibrium years", fontsize=12)
             fig_slope.supylabel(f"slope", fontsize=12)
             fig_slope.tight_layout()
-            fig_p.supxlabel("Equilibrium years", fontsize=12)
-            fig_p.supylabel(f"pval", fontsize=12)
-            fig_p.tight_layout()
+            fig_conv.supxlabel("Equilibrium years", fontsize=12)
+            fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+            fig_conv.tight_layout()
             fig_cv.supxlabel("Equilibrium years", fontsize=12)
             fig_cv.supylabel(f"cv", fontsize=12)
             fig_cv.tight_layout()
@@ -1469,34 +1240,29 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
                 targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
             
           if plot_metrics:
-            eq_metric=True
-            yr_count = 0
-            while eq_metric==True:
-              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[yr_count:yr_count+30,comp_index,pft,0,0])), output[yr_count:yr_count+30,comp_index,pft,0,0])
-              cv = 100 * output[yr_count:yr_count+30,comp_index,pft,0,0].std() / output[yr_count:yr_count+30,comp_index,pft,0,0].mean()
+            for i in range(0, len(met)-1):
+              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],comp_index,pft,0,0])), output[met[i] : met[i+1],comp_index,pft,0,0])
+              cv = 100 * output[met[i] : met[i+1],comp_index,pft,0,0].std() / output[met[i] : met[i+1],comp_index,pft,0,0].mean()
               
-              ax_slope[comp_index,pft].scatter((yr_count+30)/2, slope, color=f'C{pft}')
-              ax_p[comp_index, pft].scatter((yr_count+30)/2, pval, color=f'C{pft}')
-              ax_cv[comp_index, pft].scatter((yr_count+30)/2, cv, color=f'C{pft}')
+              ax_slope[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
+              ax_cv[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
+              if i != 0:
+                ax_conv[comp_index, pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],comp_index,pft,0,0].mean() - output[met[i-1] : met[i],comp_index,pft,0,0].mean()), color=f'C{pft}')
+
 
               yr_count += 30
               if yr_count+30 > len(output[:,comp_index,pft,0,0]):
                 eq_metric=False
 
-            ax_slope[0, 0].set_ylabel("Leaf")
-            ax_p[1, 0].set_ylabel("Stem")
-            ax_cv[2, 0].set_ylabel("Root")
-
             fig_slope.supxlabel("Equilibrium years", fontsize=12)
             fig_slope.supylabel(f"slope", fontsize=12)
             fig_slope.tight_layout()
-            fig_p.supxlabel("Equilibrium years", fontsize=12)
-            fig_p.supylabel(f"pval", fontsize=12)
-            fig_p.tight_layout()
+            fig_conv.supxlabel("Equilibrium years", fontsize=12)
+            fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+            fig_conv.tight_layout()
             fig_cv.supxlabel("Equilibrium years", fontsize=12)
             fig_cv.supylabel(f"cv", fontsize=12)
             fig_cv.tight_layout()
-
 
         ax[0, 0].set_ylabel("Leaf")
         ax[1, 0].set_ylabel("Stem")
@@ -1512,7 +1278,7 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
   if save:
     plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
 
-def generate_eq_lim_dict(targets, cv_lim=[0], p_lim=[0], slope_lim=[0]):
+def generate_eq_lim_dict(targets, cv_lim=[0], eps_lim=[0], slope_lim=[0]):
   '''
   Creates a dictionary of thresholds for individual target variables to be
   used for equilibrium checking. Note: limits must match length of targets
@@ -1521,18 +1287,19 @@ def generate_eq_lim_dict(targets, cv_lim=[0], p_lim=[0], slope_lim=[0]):
   E.g.
   lim_dict = generate_eq_lim_dict(targets, 
                     cv_lim = [15,15,15,15,15],
-                    p_lim = [0.1,0.1,0.1,0.1,0.1],
-                    slope_lim = [0.001,0.001,0.001,0.001,0.001])
+                    eps_lim = [1e-5,1e-5,1e-5,1e-5,1e-5],
+                    slope_lim = [1e-3,1e-3,1e-3,1e-3,1e-3])
   Parameters
   ==========
   targets : Pandas DataFrame
     observed data for comparison, must match up with equilibrium check directory used
   cv_lim : list
     coefficient of variation threshold as a %, for each variable in targets
-  p_lim : float
-    p-value threshold, for each variable in targets
+  eps_lim : float
+    threshold for the difference between means +/- eps_lim*std for the last 30 years 
+    and the 30 years prior to this
   slope_lim : float
-    slope threshold as a fraction of target variable, for each variable in targets
+    slope threshold as a fraction of 30 year mean, for each variable in targets
     
   Returns
     lim_dict : Dict
@@ -1541,22 +1308,22 @@ def generate_eq_lim_dict(targets, cv_lim=[0], p_lim=[0], slope_lim=[0]):
   '''
     
   if (len(targets.columns) != len(cv_lim)) or (len(targets.columns) != len(p_lim)) or (len(targets.columns) != len(slope_lim)):
-    print('cv_lim, p_lim, and slope_lim must be lists with the same length as the number of targets')
-    print(' DEFAULTS HAVE BEEN USED cv lim = 15%, p lim = 0.1, slope lim = 0.001')
-    cv_lim = np.repeat(15, len(targets.columns)); p_lim = np.repeat(0.1, len(targets.columns)); slope_lim = np.repeat(0.001, len(targets.columns))
+    print('cv_lim, eps_lim, and slope_lim must be lists with the same length as the number of targets')
+    print(' DEFAULTS HAVE BEEN USED cv lim = 15%, eps_lim = 1e-5, slope lim = 1e-3')
+    cv_lim = np.repeat(1, len(targets.columns)); eps_lim = np.repeat(1e-5, len(targets.columns)); slope_lim = np.repeat(1e-3, len(targets.columns))
 
-  keys = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope_lim','_p_lim','_cv_lim'], len(targets.columns.values)))]
+  keys = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope_lim','_eps_lim','_cv_lim'], len(targets.columns.values)))]
   values = []
   for i in range(0, len(targets.columns)):
     values.append(slope_lim[i])
-    values.append(p_lim[i])
+    values.append(eps_lim[i])
     values.append(cv_lim[i])
       
   lim_dict = dict(zip(keys, values))
 
   return lim_dict
 
-def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=False, save=False, saveprefix=''):
+def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict=False, save=False, saveprefix=''):
   '''
   Calculates percentage of samples which pass user input (or default)
   equilibrium test and plots a bar graph.
@@ -1571,8 +1338,13 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
     specifies path to sensitivity sample run directory
   cv_lim : float
     coefficient of variation threshold as a %
-  p_lim : float
-    p-value threshold as a %
+  eps_lim : float
+    epsilon - similarly to a numerical convergence criterion -
+    threshold as multiple of standard deviations compared against
+    difference between the final 30 year average and the 30 year 
+    average prior to this +/- standard deviation of the final 30
+    years. This is used to evaluate a converging trend by the end of
+    the equilibrium stage.
   slope_lim : float
     slope threshold as a fraction of target variable
   lim_dict : dict
@@ -1622,7 +1394,7 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
   # output dataframe creation
   
   # returning data on individual checks
-  eq_data_columns = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope','_p','_cv'], len(targets.columns.values)))]
+  eq_data_columns = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope','_eps','_cv'], len(targets.columns.values)))]
   # boolean data
   eq_data = pd.DataFrame(index=range(len(samples)), columns=eq_data_columns, data=False)
   # metrics
@@ -1655,25 +1427,26 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
         
         slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[-30:,0,0])), output[-30:,0,0])
         cv = 100 * output[-30:,0,0].std() / output[-30:,0,0].mean()
-
+        eps = abs(output[-30:,0,0].mean() - output[-60:-30,0,0].mean())
+    
         eq_metrics[targ+f'_slope'].loc[n] = slope
-        eq_metrics[targ+f'_p'].loc[n] = pval
+        eq_metrics[targ+f'_eps'].loc[n] = eps
         eq_metrics[targ+f'_cv'].loc[n] = cv
 
         if lim_dict!=False:
           cv_lim=lim_dict[targ+'_cv_lim']
-          p_lim = lim_dict[targ+'_p_lim']
+          eps_lim = lim_dict[targ+'_eps_lim']
           slope_lim = lim_dict[targ+'_slope_lim']
 
         if slope < slope_lim * targets[targ].values[0]:
           eq_data[targ+f'_slope'].loc[n] = True
-        if pval > p_lim:
-          eq_data[targ+f'_p'].loc[n] = True
-        if cv * 100 < cv_lim:
+        if eps < abs(output[-60:-30,0,0].mean() - output[-90:-60,0,0].mean()) + eps_lim * output[-30:,0,0].std(): 
+          eq_data[targ+f'_eps'].loc[n] = True
+        if cv < cv_lim:
           eq_data[targ+f'_cv'].loc[n] = True
 
         if ((eq_data[targ+f'_slope'].loc[n] == True) & 
-            (eq_data[targ+f'_p'].loc[n] == True) & 
+            (eq_data[targ+f'_eps'].loc[n] == True) & 
             (eq_data[targ+f'_cv'].loc[n] == True)):
 
           eq_var_check[targ].loc[n] = True
@@ -1687,25 +1460,26 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
             
           slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[-30:,pft,0,0])), output[-30:,pft,0,0])
           cv = 100 * output[-30:,pft,0,0].std() / output[-30:,pft,0,0].mean()
+          eps = abs(output[-30:,pft,0,0].mean() - output[-60:-30,pft,0,0].mean())
 
           eq_metrics[targ+f'_pft{pft}_slope'].loc[n] = slope
-          eq_metrics[targ+f'_pft{pft}_p'].loc[n] = pval
+          eq_metrics[targ+f'_pft{pft}_eps'].loc[n] = eps
           eq_metrics[targ+f'_pft{pft}_cv'].loc[n] = cv
 
           if lim_dict!=False:
-            cv_lim=lim_dict[targ+f'_pft{pft}_cv_lim']
-            p_lim = lim_dict[targ+f'_pft{pft}_p_lim']
+            cv_lim = lim_dict[targ+f'_pft{pft}_cv_lim']
+            eps_lim = lim_dict[targ+f'_pft{pft}_eps_lim']
             slope_lim = lim_dict[targ+f'_pft{pft}_slope_lim']
 
-          if slope < slope_lim * targets[targ+f'_pft{pft}'].values[0]:
+          if slope < slope_lim * output[-30:,pft,0,0].mean():
             eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
-          if pval > p_lim:
-            eq_data[targ+f'_pft{pft}_p'].loc[n] = True
-          if cv * 100 < cv_lim:
+          if eps < output[-30:,pft,0,0].mean() * eps_lim:
+            eq_data[targ+f'_pft{pft}_eps'].loc[n] = True
+          if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_cv'].loc[n] = True
 
           if ((eq_data[targ+f'_pft{pft}_slope'].loc[n] == True) & 
-              (eq_data[targ+f'_pft{pft}_p'].loc[n] == True) & 
+              (eq_data[targ+f'_pft{pft}_eps'].loc[n] == True) & 
               (eq_data[targ+f'_pft{pft}_cv'].loc[n] == True)):
 
             eq_var_check[targ+f'_pft{pft}'].loc[n] = True
@@ -1721,25 +1495,26 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
 
           slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[-30:,comp_index,pft,0,0])), output[-30:,comp_index,pft,0,0])
           cv = 100 * output[-30:,comp_index,pft,0,0].std() / output[-30:,comp_index,pft,0,0].mean()
+          eps = abs(output[-30:,comp_index,pft,0,0].mean() - output[-60:-30,comp_index,pft,0,0].mean())
 
           eq_metrics[targ+f'_pft{pft}_{comp}_slope'].loc[n] = slope
-          eq_metrics[targ+f'_pft{pft}_{comp}_p'].loc[n] = pval
+          eq_metrics[targ+f'_pft{pft}_{comp}_eps'].loc[n] = eps
           eq_metrics[targ+f'_pft{pft}_{comp}_cv'].loc[n] = cv
 
           if lim_dict!=False:
             cv_lim=lim_dict[targ+f'_pft{pft}_{comp}_cv_lim']
-            p_lim = lim_dict[targ+f'_pft{pft}_{comp}_p_lim']
+            eps_lim = lim_dict[targ+f'_pft{pft}_{comp}_eps_lim']
             slope_lim = lim_dict[targ+f'_pft{pft}_{comp}_slope_lim']
 
           if slope < slope_lim * targets[targ+f'_pft{pft}_{comp}'].values[0]:
             eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
-          if pval > p_lim:
-            eq_data[targ+f'_pft{pft}_{comp}_p'].loc[n] = True
-          if cv * 100 < cv_lim:
+          if eps < eps_lim * output[-30:,comp_index,pft,0,0].std():
+            eq_data[targ+f'_pft{pft}_{comp}_eps'].loc[n] = True
+          if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] = True
 
           if ((eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] == True) & 
-              (eq_data[targ+f'_pft{pft}_{comp}_p'].loc[n] == True) & 
+              (eq_data[targ+f'_pft{pft}_{comp}_eps'].loc[n] == True) & 
               (eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] == True)):
 
             eq_var_check[targ+f'_pft{pft}_{comp}'].loc[n] = True
@@ -1806,7 +1581,7 @@ def equilibrium_check(path, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, lim_dict=
   if lim_dict==False:
     lim_dict = {
         "cv_lim": cv_lim,
-        "p_lim": p_lim,
+        "eps_lim": eps_lim,
         "slope_lim":slope_lim
     }
 
