@@ -102,34 +102,15 @@ double SnowLayer::getThermCond() {
   return tc;
 }
 
-// FIX THIS: THESE 3 functions see to be identical???
 double SnowLayer::getFrzVolHeatCapa() {
-  if (dz != 0) {
-    // FIX THIS: divide by zero error when there is no thickness!
-    double vhc = SHCICE * ice/dz;
-    return vhc;
-  } else {
-    return 0;
-  }
+  return (dz != 0) ? (SHCICE * ice/dz) : 0;
 };
 
 double SnowLayer::getUnfVolHeatCapa() {
-  if (dz != 0) {
-    // FIX THIS: divide by zero error when there is no thickness!
-    double vhc = SHCICE * ice/dz;
-    return vhc;
-  } else {
-    return 0;
-  }
+  return (dz != 0) ? (SHCICE * ice/dz) : 0;
 };
 
 double SnowLayer::getMixVolHeatCapa() {
-  if (dz != 0) {
-    // FIX THIS: divide by zero error when there is no thickness!
-    double vhc = SHCICE * ice/dz;
-    return vhc;
-  } else {
-    return 0;
-  }
+  return (dz != 0) ? (SHCICE * ice/dz) : 0;
 };
 

@@ -29,30 +29,25 @@ void ParentLayer::updateProperty() {
 
 // get frozen layer specific heat capcity
 double ParentLayer::getFrzVolHeatCapa() {
-  double vhc = vhcsolid ;
-  return vhc;
+  return vhcsolid;
 };
 
 double ParentLayer::getUnfVolHeatCapa() {
-  double vhc= vhcsolid ;
-  return vhc;
+  return vhcsolid;
 };
 
 double ParentLayer::getMixVolHeatCapa() {
-  double vhc= vhcsolid ;
-  return vhc;
+  return vhcsolid;
 };
 
 // get frozen layer thermal conductivity
 double ParentLayer::getFrzThermCond() {
-  double tc=tcsolid;
-  return tc;
+  return tcsolid;
 };
 
 // get unfrozen layer thermal conductivity
 double ParentLayer::getUnfThermCond() {
-  double tc=tcsolid;
-  return tc;
+  return tcsolid;
 };
 
 // get albedo of visible radiation
