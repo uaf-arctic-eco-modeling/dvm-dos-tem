@@ -164,6 +164,9 @@ def plot_spaghetti(results, targets, check_filter=None, save=False, saveprefix='
     ax.scatter(range(len(targets.T)), targets, 
                marker='o', color='red', zorder=1000)
 
+  ax1.tick_params(labelrotation=90) 
+  ax2.tick_params(labelrotation=90)
+
   ax2.set_yscale('log')
   if save:
     plt.savefig(saveprefix + "spaghetti_plot.png", bbox_inches='tight')
@@ -1191,35 +1194,66 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
         for p in targ_var_info:
 
           pft = int(p[1].split('pft')[1])
-          
-          ax[pft].plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
-          ax[pft].set_title(f"PFT{pft}")
-          ax[pft].plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
-                targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
 
-          if plot_metrics:
-            for i in range(0, len(met)-1):
-              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],pft,0,0])), output[met[i] : met[i+1],pft,0,0])
-              cv = 100 * output[met[i] : met[i+1],pft,0,0].std() / output[met[i] : met[i+1],pft,0,0].mean()
+          if len(targ_var_info)<2:
+            ax.plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
+            ax.set_title(f"PFT{pft}")
+            ax.plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
+                  targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
 
-              ax_slope[pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
-              ax_cv[pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
-              if i != 0:
-                ax_conv[pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],pft,0,0].mean() - output[met[i-1] : met[i],pft,0,0].mean()), color=f'C{pft}')
+            if plot_metrics:
+              for i in range(0, len(met)-1):
+                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],pft,0,0])), output[met[i] : met[i+1],pft,0,0])
+                cv = 100 * output[met[i] : met[i+1],pft,0,0].std() / output[met[i] : met[i+1],pft,0,0].mean()
 
-            ax_slope[pft].set_title(f"PFT{pft}")
-            ax_conv[pft].set_title(f"PFT{pft}")
-            ax_cv[pft].set_title(f"PFT{pft}")
+                ax_slope.scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
+                ax_cv.scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
+                if i != 0:
+                  ax_conv.scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],pft,0,0].mean() - output[met[i-1] : met[i],pft,0,0].mean()), color=f'C{pft}')
 
-            fig_slope.supxlabel("Equilibrium years", fontsize=12)
-            fig_slope.supylabel(f"slope", fontsize=12)
-            fig_slope.tight_layout()
-            fig_conv.supxlabel("Equilibrium years", fontsize=12)
-            fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-            fig_conv.tight_layout()
-            fig_cv.supxlabel("Equilibrium years", fontsize=12)
-            fig_cv.supylabel(f"cv", fontsize=12)
-            fig_cv.tight_layout()
+              ax_slope.set_title(f"PFT{pft}")
+              ax_conv.set_title(f"PFT{pft}")
+              ax_cv.set_title(f"PFT{pft}")
+
+              fig_slope.supxlabel("Equilibrium years", fontsize=12)
+              fig_slope.supylabel(f"slope", fontsize=12)
+              fig_slope.tight_layout()
+              fig_conv.supxlabel("Equilibrium years", fontsize=12)
+              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+              fig_conv.tight_layout()
+              fig_cv.supxlabel("Equilibrium years", fontsize=12)
+              fig_cv.supylabel(f"cv", fontsize=12)
+              fig_cv.tight_layout()
+
+          else:     
+            ax[pft].plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
+            ax[pft].set_title(f"PFT{pft}")
+            ax[pft].plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
+                  targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
+
+            if plot_metrics:
+              for i in range(0, len(met)-1):
+                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],pft,0,0])), output[met[i] : met[i+1],pft,0,0])
+                cv = 100 * output[met[i] : met[i+1],pft,0,0].std() / output[met[i] : met[i+1],pft,0,0].mean()
+
+                ax_slope[pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
+                ax_cv[pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
+                if i != 0:
+                  ax_conv[pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],pft,0,0].mean() - output[met[i-1] : met[i],pft,0,0].mean()), color=f'C{pft}')
+
+              ax_slope[pft].set_title(f"PFT{pft}")
+              ax_conv[pft].set_title(f"PFT{pft}")
+              ax_cv[pft].set_title(f"PFT{pft}")
+
+              fig_slope.supxlabel("Equilibrium years", fontsize=12)
+              fig_slope.supylabel(f"slope", fontsize=12)
+              fig_slope.tight_layout()
+              fig_conv.supxlabel("Equilibrium years", fontsize=12)
+              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+              fig_conv.tight_layout()
+              fig_cv.supxlabel("Equilibrium years", fontsize=12)
+              fig_cv.supylabel(f"cv", fontsize=12)
+              fig_cv.tight_layout()
 
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
@@ -1392,17 +1426,14 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
   samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
   
   # output dataframe creation
-  
   # returning data on individual checks
   eq_data_columns = [x + y for x,y in zip(np.repeat(targets.columns.values[:].tolist(), 3), np.tile(['_slope','_eps','_cv'], len(targets.columns.values)))]
   # boolean data
   eq_data = pd.DataFrame(index=range(len(samples)), columns=eq_data_columns, data=False)
   # metrics
   eq_metrics = pd.DataFrame(index=range(len(samples)), columns=eq_data_columns, data=0.0)
-  
   # returning boolean for pass fail for each variable
   eq_var_check = pd.DataFrame(index=range(len(samples)), columns=targets.columns, data=False)
-  
   # returning boolean for pass fail for run
   eq_check = pd.DataFrame(index=range(len(samples)), columns=['result'], data=False)
   
@@ -1438,7 +1469,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
           eps_lim = lim_dict[targ+'_eps_lim']
           slope_lim = lim_dict[targ+'_slope_lim']
 
-        if slope < slope_lim * targets[targ].values[0]:
+        if slope < slope_lim * output[-30:,0,0].mean()/30:
           eq_data[targ+f'_slope'].loc[n] = True
         if eps < abs(output[-60:-30,0,0].mean() - output[-90:-60,0,0].mean()) + eps_lim * output[-30:,0,0].std(): 
           eq_data[targ+f'_eps'].loc[n] = True
@@ -1471,9 +1502,9 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
             eps_lim = lim_dict[targ+f'_pft{pft}_eps_lim']
             slope_lim = lim_dict[targ+f'_pft{pft}_slope_lim']
 
-          if slope < slope_lim * output[-30:,pft,0,0].mean():
+          if slope < slope_lim * output[-30:,pft,0,0].mean()/30:
             eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
-          if eps < output[-30:,pft,0,0].mean() * eps_lim:
+          if eps < abs(output[-60:-30,pft,0,0].mean() - output[-90:-60,pft,0,0].mean()) + eps_lim * output[-30:,pft,0,0].std():
             eq_data[targ+f'_pft{pft}_eps'].loc[n] = True
           if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_cv'].loc[n] = True
@@ -1506,9 +1537,9 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
             eps_lim = lim_dict[targ+f'_pft{pft}_{comp}_eps_lim']
             slope_lim = lim_dict[targ+f'_pft{pft}_{comp}_slope_lim']
 
-          if slope < slope_lim * targets[targ+f'_pft{pft}_{comp}'].values[0]:
+          if slope < slope_lim * output[-30:,comp_index,pft,0,0].mean()/30:
             eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
-          if eps < eps_lim * output[-30:,comp_index,pft,0,0].std():
+          if eps < abs(output[-60:-30,comp_index,pft,0,0].mean() - output[-90:-60,comp_index,pft,0,0].mean()) + eps_lim * output[-30:,comp_index,pft,0,0].std():
             eq_data[targ+f'_pft{pft}_{comp}_eps'].loc[n] = True
           if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] = True
@@ -1528,9 +1559,9 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
   # add catch for only True / only False:
   if len(counts.index)==1:
     if counts.index==False:
-      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[0.0, counts.iloc[0,:]])
+      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[np.zeros(len(counts.columns)), counts.iloc[0,:]])
     elif counts.index==True:
-      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[counts.iloc[0,:], 0.0])
+      counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[counts.iloc[0,:],np.zeros(len(counts.columns))])
   else:
     if counts.index[0]==False:
       counts = pd.DataFrame(index=['pass', 'fail'], columns=targets.columns, data=[counts.iloc[1,:], counts.iloc[0,:]])
@@ -1543,9 +1574,9 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
   # add catch for only True / only False:
   if len(total_counts.index)==1:
     if total_counts.index==False:
-      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[0.0, total_counts.iloc[0,:]])
+      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[0.0, total_counts.iloc[0,:].values[0]])
     elif total_counts.index==True:
-      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[total_counts.iloc[0,:], 0.0])
+      total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[total_counts.iloc[0,:].values[0], 0.0])
   else:
     if total_counts.index[0]==False:
       total_counts = pd.DataFrame(index=['pass', 'fail'], columns=['result'], data=[total_counts.iloc[1,:], total_counts.iloc[0,:]])
