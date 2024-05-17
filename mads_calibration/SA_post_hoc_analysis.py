@@ -1471,7 +1471,8 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
         if slope < slope_lim * output[-30:,0,0].mean()/30:
           eq_data[targ+f'_slope'].loc[n] = True
-        if eps < abs(output[-60:-30,0,0].mean() - output[-90:-60,0,0].mean()) + eps_lim * output[-30:,0,0].std(): 
+        if eps < abs(output[-60:-30,0,0].mean() - output[-90:-60,0,0].mean()) + eps_lim * output[-30:,0,0].std() or output[-30:,0,0].mean()*1e-6: 
+        
           eq_data[targ+f'_eps'].loc[n] = True
         if cv < cv_lim:
           eq_data[targ+f'_cv'].loc[n] = True
@@ -1504,7 +1505,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
           if slope < slope_lim * output[-30:,pft,0,0].mean()/30:
             eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
-          if eps < abs(output[-60:-30,pft,0,0].mean() - output[-90:-60,pft,0,0].mean()) + eps_lim * output[-30:,pft,0,0].std():
+          if eps < abs(output[-60:-30,pft,0,0].mean() - output[-90:-60,pft,0,0].mean()) + eps_lim * output[-30:,pft,0,0].std() or output[-30:,pft,0,0].mean()*1e-6:
             eq_data[targ+f'_pft{pft}_eps'].loc[n] = True
           if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_cv'].loc[n] = True
@@ -1539,7 +1540,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
           if slope < slope_lim * output[-30:,comp_index,pft,0,0].mean()/30:
             eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
-          if eps < abs(output[-60:-30,comp_index,pft,0,0].mean() - output[-90:-60,comp_index,pft,0,0].mean()) + eps_lim * output[-30:,comp_index,pft,0,0].std():
+          if eps < abs(output[-60:-30,comp_index,pft,0,0].mean() - output[-90:-60,comp_index,pft,0,0].mean()) + eps_lim * output[-30:,comp_index,pft,0,0].std() or output[-30:, comp_index,pft,0,0].mean()*1e-6:
             eq_data[targ+f'_pft{pft}_{comp}_eps'].loc[n] = True
           if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] = True
