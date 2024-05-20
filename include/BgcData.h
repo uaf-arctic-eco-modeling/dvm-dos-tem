@@ -60,6 +60,9 @@ public:
 
   deque <double> prvltrfcnque[MAX_SOI_LAY];
 
+  //Arrays to hold a month's worth of data for daily
+  // netCDF output
+  double daily_ch4_pool[31][MAX_SOI_LAY];
   void land_beginOfYear();
   void land_endOfMonth();
 

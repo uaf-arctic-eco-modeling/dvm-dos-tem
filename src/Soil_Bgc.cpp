@@ -647,7 +647,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   currl = ground->fstshlwl; // reset currl to top of the soil stack
   il = 1; //reset manual layer index tracker.
   while(currl && currl->isSoil){
-    ed->daily_ch4_pool[id][il] = currl->ch4; //>>> UNITS: these should be in g m^2
+    bd->daily_ch4_pool[id][il] = currl->ch4; //>>> UNITS: these should be in g m^2
     il++;
     currl = currl->nextl;
   }

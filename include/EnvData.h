@@ -126,7 +126,6 @@ public:
   double daily_percolation[31][MAX_SOI_LAY];
   double daily_ch4_ebullition[31][MAX_SOI_LAY];
   double daily_ch4_efflux[31];
-  double daily_ch4_pool[31][MAX_SOI_LAY];
   double daily_ch4_oxid[31][MAX_SOI_LAY];
   double daily_ch4_diff[31][MAX_SOI_LAY];
   double daily_total_plant_ch4[31];
