@@ -781,9 +781,11 @@ void Stefan::updateWaterAfterFront(Layer* toplayer) {
     double dliq = currl->liq - tliq;
 
     if (dliq>0.0) {  // thawing, because 'liq' increased
-      currl->pce_t += (dliq*LHFUS);
+      // currl->pce_t += (dliq*LHFUS);
+      currl->pce_t = (currl->liq + currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
     } else if (dliq<0.0) {   // freezing, because 'liq' decreased
-      currl->pce_f += (-dliq*LHFUS);
+      // currl->pce_f += (-dliq*LHFUS);
+      currl->pce_f = -(currl->liq + currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
     }
 
     currl = currl->nextl;

@@ -41,7 +41,6 @@ void TemperatureUpdator::updateTemps(const double & tdrv, Layer *fstvalidl,
   itsumabv = 0;
   itsumblw = 0;
   timestep = ts;
-
 ///*
   for (int i = 0; i < MAX_GRN_LAY+2; i++) {
     t[i]   = MISSING_D;
@@ -231,7 +230,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
-    double hcap = currl->getHeatCapacity(); //BM: Should this be an array value rather than defined?
+    double hcap = currl->getHeatCapacity(); //BM: Should this be an array value rather than defined?   
     double pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];

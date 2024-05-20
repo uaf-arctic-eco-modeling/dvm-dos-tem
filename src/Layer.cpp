@@ -78,8 +78,8 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
       hcap = getUnfVolHeatCapa();
     // } else if (-2.<tem<=0.){
     }else if (frozen == 0){       // BM: need to make sure this is correct and interpolated based on frozen frac
-      hcap = getMixVolHeatCapa() + getDeltaLatentHeatContentDeltaT(); // BM: potentially where apparent heat capacity is added or new function
-    // } else if (tem <= -2.){
+      hcap = getMixVolHeatCapa(); // BM: potentially where apparent heat capacity is added or new function
+      // } else if (tem <= -2.){
     }else if (frozen == 1){
       hcap = getFrzVolHeatCapa();
     }
@@ -137,6 +137,69 @@ double Layer::getEffVolWater() {
 
   return effvol;
 };
+
+double Layer::getUnfVolLiq(){
+  // Calculating unfrozen water content using power law
+  // defined in Lovell 1957, and used in Romanovsky et 
+  // al. 1997 and 2000
+
+  // Tunable empirical constants - here we are using values for Bonanza Creek
+  double A, B, ulwc;
+  if (isMoss){
+    A = 0.1;
+    B = -0.1;
+  } else if (isFibric){
+    A = 0.2;
+    B = -0.1;
+  } else if (isHumic){
+    A = 3.2;
+    B = -0.38;
+  } else{
+    A = 6;
+    B = -0.35;
+  }
+  
+  ulwc = A * pow(abs(tem), B) / 100;
+
+  if (tem>=0){
+    ulwc=0.0;
+  }
+
+  return ulwc;
+
+}
+
+double Layer::getDeltaUnfVolLiq()
+{
+  // Calculating derivative of unfrozen water content
+  // with respect to temperature following Romanovsky
+  // et al. 1997
+
+  // Tunable empirical constants - here we are using values for Bonanza Creek
+  double A, B, d_ulwc;
+  if (isMoss){
+    A = 0.1;
+    B = -0.1;  
+  } else if (isFibric){
+    A = 0.2;
+    B = -0.1;
+  } else if (isHumic){
+    A = 3.2;
+    B = -0.38;
+  } else{
+    A = 6;
+    B = -0.35;
+  }
+
+  d_ulwc = -B * A * pow(abs(tem), B - 1) / 100;
+
+  if (tem >= 0){
+    d_ulwc = 0.0;
+  }
+
+  return d_ulwc;
+
+}
 
 double Layer::getVolIce() {
   if (dz != 0) {
