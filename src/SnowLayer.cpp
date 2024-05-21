@@ -102,6 +102,12 @@ double SnowLayer::getThermCond() {
   return tc;
 }
 
+// Note: Though the following functions return the same value,
+// they require different names to work inside TemperatureUpdator.cpp
+// where these will be called by name and not by layer type. 
+// Hence they must match with the functions used in Layer.cpp
+// and SoilLayer.cpp.
+
 double SnowLayer::getFrzVolHeatCapa() {
   return (dz != 0) ? (SHCICE * ice/dz) : 0;
 };

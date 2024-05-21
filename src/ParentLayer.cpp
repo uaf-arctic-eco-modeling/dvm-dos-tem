@@ -27,15 +27,23 @@ void ParentLayer::updateProperty() {
   vhcsolid = 2700000;
 };
 
-// get frozen layer specific heat capcity
+// Note: Though the following functions return the same value,
+// they require different names to work inside TemperatureUpdator.cpp
+// where these will be called by name and not by layer type. 
+// Hence they must match with the functions used in Layer.cpp
+// and SoilLayer.cpp.
+
+// get frozen layer volumetric heat capacity
 double ParentLayer::getFrzVolHeatCapa() {
   return vhcsolid;
 };
 
+// get unfrozen layer volumetric heat capacity
 double ParentLayer::getUnfVolHeatCapa() {
   return vhcsolid;
 };
 
+// get mixed (partially frozen) layer volumetric heat capacity
 double ParentLayer::getMixVolHeatCapa() {
   return vhcsolid;
 };
