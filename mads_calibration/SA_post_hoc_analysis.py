@@ -500,6 +500,7 @@ def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   plt.title("Correlation Matrix [Results vs Parameters]", fontsize=16)
   plt.ylabel("Model Results", fontsize=14)
   plt.xlabel("Parameters", fontsize=14)
+  plt.xticks(np.linspace(0.5, len(df_corr.columns)-0.5, len(df_corr.columns)), df_corr.columns, rotation=90)
   if save:
     plt.savefig(saveprefix + "correlation_heatmap.png", bbox_inches='tight')
 
@@ -1267,36 +1268,70 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
           pft = int(p[1].split('pft')[1])
 
           comp = p[2]; comp_index = comp_ref.index(comp)
-          
-          ax[comp_index, pft].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
-          ax[0, pft].set_title(f"PFT{pft}")
-          ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
-                targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
-            
-          if plot_metrics:
-            for i in range(0, len(met)-1):
-              slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],comp_index,pft,0,0])), output[met[i] : met[i+1],comp_index,pft,0,0])
-              cv = 100 * output[met[i] : met[i+1],comp_index,pft,0,0].std() / output[met[i] : met[i+1],comp_index,pft,0,0].mean()
+
+          if len(targ_var_info)<2:
+                    
+            ax[comp_index].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+            ax[0].set_title(f"PFT{pft}")
+            ax[comp_index].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                  targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
               
-              ax_slope[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
-              ax_cv[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
-              if i != 0:
-                ax_conv[comp_index, pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],comp_index,pft,0,0].mean() - output[met[i-1] : met[i],comp_index,pft,0,0].mean()), color=f'C{pft}')
+            if plot_metrics:
+              for i in range(0, len(met)-1):
+                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],comp_index,pft,0,0])), output[met[i] : met[i+1],comp_index,pft,0,0])
+                cv = 100 * output[met[i] : met[i+1],comp_index,pft,0,0].std() / output[met[i] : met[i+1],comp_index,pft,0,0].mean()
+                
+                ax_slope[comp_index].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
+                ax_cv[comp_index].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
+                if i != 0:
+                  ax_conv[comp_index].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],comp_index,pft,0,0].mean() - output[met[i-1] : met[i],comp_index,pft,0,0].mean()), color=f'C{pft}')
 
 
-              yr_count += 30
-              if yr_count+30 > len(output[:,comp_index,pft,0,0]):
-                eq_metric=False
+                yr_count += 30
+                if yr_count+30 > len(output[:,comp_index,pft,0,0]):
+                  eq_metric=False
 
-            fig_slope.supxlabel("Equilibrium years", fontsize=12)
-            fig_slope.supylabel(f"slope", fontsize=12)
-            fig_slope.tight_layout()
-            fig_conv.supxlabel("Equilibrium years", fontsize=12)
-            fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-            fig_conv.tight_layout()
-            fig_cv.supxlabel("Equilibrium years", fontsize=12)
-            fig_cv.supylabel(f"cv", fontsize=12)
-            fig_cv.tight_layout()
+              fig_slope.supxlabel("Equilibrium years", fontsize=12)
+              fig_slope.supylabel(f"slope", fontsize=12)
+              fig_slope.tight_layout()
+              fig_conv.supxlabel("Equilibrium years", fontsize=12)
+              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+              fig_conv.tight_layout()
+              fig_cv.supxlabel("Equilibrium years", fontsize=12)
+              fig_cv.supylabel(f"cv", fontsize=12)
+              fig_cv.tight_layout()
+
+          else:
+
+            ax[comp_index, pft].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+            ax[0, pft].set_title(f"PFT{pft}")
+            ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                  targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+              
+            if plot_metrics:
+              for i in range(0, len(met)-1):
+                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],comp_index,pft,0,0])), output[met[i] : met[i+1],comp_index,pft,0,0])
+                cv = 100 * output[met[i] : met[i+1],comp_index,pft,0,0].std() / output[met[i] : met[i+1],comp_index,pft,0,0].mean()
+                
+                ax_slope[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
+                ax_cv[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
+                if i != 0:
+                  ax_conv[comp_index, pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],comp_index,pft,0,0].mean() - output[met[i-1] : met[i],comp_index,pft,0,0].mean()), color=f'C{pft}')
+
+
+                yr_count += 30
+                if yr_count+30 > len(output[:,comp_index,pft,0,0]):
+                  eq_metric=False
+
+              fig_slope.supxlabel("Equilibrium years", fontsize=12)
+              fig_slope.supylabel(f"slope", fontsize=12)
+              fig_slope.tight_layout()
+              fig_conv.supxlabel("Equilibrium years", fontsize=12)
+              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
+              fig_conv.tight_layout()
+              fig_cv.supxlabel("Equilibrium years", fontsize=12)
+              fig_cv.supylabel(f"cv", fontsize=12)
+              fig_cv.tight_layout()
 
         ax[0, 0].set_ylabel("Leaf")
         ax[1, 0].set_ylabel("Stem")
@@ -1471,7 +1506,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
         if slope < slope_lim * output[-30:,0,0].mean()/30:
           eq_data[targ+f'_slope'].loc[n] = True
-        if eps < abs(output[-60:-30,0,0].mean() - output[-90:-60,0,0].mean()) + eps_lim * output[-30:,0,0].std() or output[-30:,0,0].mean()*1e-6: 
+        if eps <= abs(output[-60:-30,0,0].mean() - output[-90:-60,0,0].mean()) + eps_lim * output[-30:,0,0].std() or output[-30:,0,0].mean()*1e-6: 
         
           eq_data[targ+f'_eps'].loc[n] = True
         if cv < cv_lim:
@@ -1505,7 +1540,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
           if slope < slope_lim * output[-30:,pft,0,0].mean()/30:
             eq_data[targ+f'_pft{pft}_slope'].loc[n] = True
-          if eps < abs(output[-60:-30,pft,0,0].mean() - output[-90:-60,pft,0,0].mean()) + eps_lim * output[-30:,pft,0,0].std() or output[-30:,pft,0,0].mean()*1e-6:
+          if eps <= abs(output[-60:-30,pft,0,0].mean() - output[-90:-60,pft,0,0].mean()) + eps_lim * output[-30:,pft,0,0].std() or output[-30:,pft,0,0].mean()*1e-6:
             eq_data[targ+f'_pft{pft}_eps'].loc[n] = True
           if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_cv'].loc[n] = True
@@ -1540,7 +1575,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
           if slope < slope_lim * output[-30:,comp_index,pft,0,0].mean()/30:
             eq_data[targ+f'_pft{pft}_{comp}_slope'].loc[n] = True
-          if eps < abs(output[-60:-30,comp_index,pft,0,0].mean() - output[-90:-60,comp_index,pft,0,0].mean()) + eps_lim * output[-30:,comp_index,pft,0,0].std() or output[-30:, comp_index,pft,0,0].mean()*1e-6:
+          if eps <= abs(output[-60:-30,comp_index,pft,0,0].mean() - output[-90:-60,comp_index,pft,0,0].mean()) + eps_lim * output[-30:,comp_index,pft,0,0].std() or output[-30:, comp_index,pft,0,0].mean()*1e-6:
             eq_data[targ+f'_pft{pft}_{comp}_eps'].loc[n] = True
           if cv < cv_lim:
             eq_data[targ+f'_pft{pft}_{comp}_cv'].loc[n] = True
