@@ -276,16 +276,16 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // If the layer is above the water table saturated_fraction is forced to 0.0
       // If the layer is below the water table saturated_fraction is forced to 1.0
-      // saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
+      saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
 
       //If the layer is above the water table saturated_fraction is forced to 0.0
-      if (saturated_fraction <= 0.0){
-        saturated_fraction = 0.0;
-      } 
+      // if (saturated_fraction <= 0.0){
+      //   saturated_fraction = 0.0;
+      // } 
       // //If the layer is below the water table saturated_fraction is forced to 1.0
-      else if (saturated_fraction >= 1.0){
-        saturated_fraction = 1.0;
-      }
+      // else if (saturated_fraction >= 1.0){
+      //   saturated_fraction = 1.0;
+      // }
 
       if (0.0<saturated_fraction && saturated_fraction<1.0){
         wtlayer = currl;
@@ -442,14 +442,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       
       // Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
       // Catch so pressure is never lower than atmospheric pressure
-      partial_pressure_ch4 = fmax(Pstd, DENLIQ * G * (currl->z + currl->dz / 2.0 - ed->d_sois.watertab) + Pstd); // Pa = kgm^-1s^-2
-      bun_sol_mass = partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15));          // mol m^-3 ( * 1e3 -> umol L^-1)
+      partial_pressure_ch4 = fmax(Pstd, DENLIQ * G * (currl->z + (currl->dz / 2.0) - ed->d_sois.watertab) + Pstd); // Pa = kgm^-1s^-2
+      bun_sol_mass = 1e3 * partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15));          // mol m^-3 ( * 1e3 -> umol L^-1)
 
       double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
       // >>> Fan does not explicitly limit it to layers with temp greater than 1
       // >>> I think this should be if layer is not frozen
       if (currl->tem > 1.0) {
-      // if (ed->d_sois.ts[il]>=0.0){
+      // if (ed->d_sois.ts[il]>=0.0){// if not frozen
         ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() *
       }
       else {
@@ -486,9 +486,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       ebul_daily += ebul; //cumulated over 1 time step, 1 hour Y.MI
       ebul_gm2day += ebul_gm2hr; //cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
 
-      if (currl->tem < 0.0) {
-        ebul_gm2day = 0.0;
-      }
+      // if (currl->tem < 0.0) {
+      //   ebul_gm2day = 0.0;
+      // }
 
       //Accumulating ebullitions per layer across timesteps for output
       ch4_ebul_layer[il] += ebul_gm2hr;
@@ -613,6 +613,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     }
 
+    // BM - See R. Wania 2010 and Fick's Law:
     diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
 
     delta_pool_sum = 0.0;
