@@ -246,11 +246,6 @@ struct soi2atm_bgc {
 
   double rhtot;  //total rhs
 
-  double rhrawc_ch4[MAX_SOI_LAY];
-  double rhsoma_ch4[MAX_SOI_LAY];
-  double rhsompr_ch4[MAX_SOI_LAY];
-  double rhsomcr_ch4[MAX_SOI_LAY];
-  
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D) {
 
@@ -259,10 +254,6 @@ struct soi2atm_bgc {
       rhsoma[i] = UIN_D;
       rhsompr[i] = UIN_D;
       rhsomcr[i] = UIN_D;
-      rhrawc_ch4[i] = UIN_D;
-      rhsoma_ch4[i] = UIN_D;
-      rhsompr_ch4[i] = UIN_D;
-      rhsomcr_ch4[i] = UIN_D;
     }
   }
   
@@ -292,11 +283,21 @@ struct soi2soi_bgc {
 
   double netnmin[MAX_SOI_LAY];
   double nimmob[MAX_SOI_LAY];
-  
+
+  //ch4 production
+  double ch4_rawc[MAX_SOI_LAY];
+  double ch4_soma[MAX_SOI_LAY];
+  double ch4_sompr[MAX_SOI_LAY];
+  double ch4_somcr[MAX_SOI_LAY];
+
   soi2soi_bgc() : netnminsum(UIN_D), nimmobsum(UIN_D) {
-    for (int i = 0; i < MAX_SOI_LAY; ++i) {
-      netnmin[i] = UIN_D;
-      nimmob[i] = UIN_D;
+    for (int il = 0; il < MAX_SOI_LAY; ++il) {
+      netnmin[il] = UIN_D;
+      nimmob[il] = UIN_D;
+      ch4_rawc[il] = UIN_D;
+      ch4_soma[il] = UIN_D;
+      ch4_sompr[il] = UIN_D;
+      ch4_somcr[il] = UIN_D;
     }
   }
   

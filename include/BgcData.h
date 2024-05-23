@@ -26,6 +26,12 @@ public:
 
   CohortData * cd;
 
+  //daily
+  soistate_bgc d_sois;
+  soidiag_bgc d_soid;
+  soi2atm_bgc d_soi2a;
+  soi2soi_bgc d_soi2soi;
+
   //monthly
   vegstate_bgc m_vegs;
   soistate_bgc m_sois;
@@ -63,6 +69,11 @@ public:
   //Arrays to hold a month's worth of data for daily
   // netCDF output
   double daily_ch4_pool[31][MAX_SOI_LAY];
+  double daily_ch4_rawc[31][MAX_SOI_LAY];
+  double daily_ch4_soma[31][MAX_SOI_LAY];
+  double daily_ch4_sompr[31][MAX_SOI_LAY];
+  double daily_ch4_somcr[31][MAX_SOI_LAY];
+
   void land_beginOfYear();
   void land_endOfMonth();
 
@@ -74,6 +85,7 @@ public:
   void soil_beginOfYear();
   void soil_beginOfMonth();
   void soil_endOfMonth(const int currmind);
+  void soil_endOfDay(const int& dinm, const int& doy);
 
 private:
 

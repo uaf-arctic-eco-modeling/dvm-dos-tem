@@ -362,7 +362,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // prior to production calculation
       if(tmp_sois.rawc[il] > 0.0){
         prod_rawc_ch4[il] = saturated_fraction * (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
-        this->ch4_prod_rawc_monthly[il] += prod_rawc_ch4[il];
+        bd->d_soi2soi.ch4_rawc[il] += prod_rawc_ch4[il];
       }
       else{
         prod_rawc_ch4[il] = 0.0;
@@ -370,7 +370,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if(tmp_sois.soma[il] > 0.0){
         prod_soma_ch4[il] = saturated_fraction * (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
-        this->ch4_prod_soma_monthly[il] += prod_soma_ch4[il];
+        bd->d_soi2soi.ch4_soma[il] += prod_soma_ch4[il];
       }
       else{
         prod_soma_ch4[il] = 0.0;
@@ -378,7 +378,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if(tmp_sois.sompr[il] > 0.0){
         prod_sompr_ch4[il] = saturated_fraction * (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
-        this->ch4_prod_sompr_monthly[il] += prod_sompr_ch4[il];
+        bd->d_soi2soi.ch4_sompr[il] += prod_sompr_ch4[il];
       }
       else{
         prod_sompr_ch4[il] = 0.0;
@@ -386,7 +386,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if(tmp_sois.somcr[il] > 0.0){
         prod_somcr_ch4[il] = saturated_fraction * (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
-        this->ch4_prod_somcr_monthly[il] += prod_somcr_ch4[il];
+        bd->d_soi2soi.ch4_somcr[il] += prod_somcr_ch4[il];
       }
       else{
         prod_somcr_ch4[il] = 0.0;
@@ -867,6 +867,10 @@ void Soil_Bgc::clear_del_structs(){
 
     del_soi2soi.netnmin[il] = 0.0;
     del_soi2soi.nimmob[il] = 0.0;
+    del_soi2soi.ch4_rawc[il] = 0.0;
+    del_soi2soi.ch4_soma[il] = 0.0;
+    del_soi2soi.ch4_sompr[il] = 0.0;
+    del_soi2soi.ch4_somcr[il] = 0.0;
 
     del_soi2a.rhrawc[il] = 0.0;
     del_soi2a.rhsoma[il] = 0.0;
@@ -1261,6 +1265,12 @@ void Soil_Bgc::deltac() {
     } else {
       del_soi2a.rhsomcr[il] = 0.;
     }
+
+    del_soi2soi.ch4_rawc[il] = bd->m_soi2soi.ch4_rawc[il];
+    del_soi2soi.ch4_soma[il] = bd->m_soi2soi.ch4_soma[il];
+    del_soi2soi.ch4_sompr[il] = bd->m_soi2soi.ch4_sompr[il];
+    del_soi2soi.ch4_somcr[il] = bd->m_soi2soi.ch4_somcr[il];
+
   } // loop for each soil layer
 
   // for wood debris at ground surface
@@ -1410,16 +1420,16 @@ void Soil_Bgc::deltastate() {
     {
       // So note that: root death is the reason for deep SOM increment
       // BM: Also note that, ch4_prod is only calculated if ch4 is enabled 
-      del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2) - ch4_prod_rawc_monthly[il];
+      del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2) - del_soi2soi.ch4_rawc[il];
 
       del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
-                          del_soi2a.rhsoma[il] * (1.0+somtoco2) - ch4_prod_soma_monthly[il];
+                          del_soi2a.rhsoma[il] * (1.0+somtoco2) - del_soi2soi.ch4_soma[il];
 
       del_sois.sompr[il] = (rhsum * somtoco2 * fsompr) -
-                           del_soi2a.rhsompr[il] * (1.0+somtoco2) - ch4_prod_sompr_monthly[il];
+                           del_soi2a.rhsompr[il] * (1.0+somtoco2) - del_soi2soi.ch4_sompr[il];
 
       del_sois.somcr[il] = rhsum * somtoco2 * fsomcr -
-                           del_soi2a.rhsomcr[il] * (1.0+somtoco2) - ch4_prod_somcr_monthly[il];
+                           del_soi2a.rhsomcr[il] * (1.0+somtoco2) - del_soi2soi.ch4_somcr[il];
     }
   }
 

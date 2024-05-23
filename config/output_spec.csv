@@ -19,6 +19,7 @@ CH4EFFLUX,Methane flux from soil surface and vegetation to atmosphere,??,,,,inva
 CH4OXIDATION,,??,,,,invalid,invalid,,double,
 CH4POOL,Methane pool,??,,,,invalid,invalid,,double,
 CH4TRANSPORT,Methane transport by vegetation,??,,,,,invalid,,double,
+CH4PRODUCTION,Methane production,??,,,,invalid,invalid,,double,
 CMTNUM,Community Type Number,m,,invalid,invalid,invalid,invalid,invalid,int,
 DEADC,Standing dead C,g/m2,,,invalid,invalid,invalid,invalid,double,
 DEADN,Standing dead N,g/m2/time,,,invalid,invalid,invalid,invalid,double,

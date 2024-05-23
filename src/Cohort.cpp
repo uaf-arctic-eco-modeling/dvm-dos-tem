@@ -711,6 +711,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
     bdall->land_beginOfYear();
   }
 
+  bdall->soil_beginOfMonth();
+
   // vegetation BGC module calling
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.m_veg.vegcov[ip]>0.) {
@@ -746,7 +748,10 @@ void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
   // So accrued daily ch4 production and oxidation
   // alter SOM pools and CO2 emission
   for (int id = 0; id < dinmcurr; id++){
+    int doy = temutil::day_of_year(currmind, id);
+
     soilbgc.CH4Flux(currmind, id);
+    bdall->soil_endOfDay(dinmcurr, doy);
   }
 
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
