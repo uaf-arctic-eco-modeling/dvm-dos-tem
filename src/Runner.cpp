@@ -1597,14 +1597,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputCH4EBULLITION)
     {
 
-      if(curr_spec.daily){
-
+      if(curr_spec.layer){
         std::array<double, MAX_SOI_LAY> ch4ebul_arr{};
 
-        if(curr_spec.layer){
+        if(curr_spec.daily){
           for(int id=0; id<DINM[month]; id++){
             for(int il=0; il<MAX_SOI_LAY; il++){
-              ch4ebul_arr[il] = cohort.edall->daily_ch4_ebullition[id][il];
+              ch4ebul_arr[il] = cohort.bdall->daily_ch4_ebullition[id][il];
             }
             outhold.ch4ebul_layer_for_output.push_back(ch4ebul_arr);
           }
@@ -1614,17 +1613,33 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             outhold.ch4ebul_layer_for_output.clear();
           }
         }
+        //monthly
+        else if(curr_spec.monthly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4ebul_arr[il] = cohort.bdall->m_soi2soi.ch4_ebul[il];
+          }
+          outhold.ch4ebul_layer_for_output.push_back(ch4ebul_arr);
 
-        else{ //sum
-
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4ebul_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4ebul_layer_for_output.clear();
+          }
         }
-      }
+        //yearly
 
-      else if(curr_spec.monthly){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.edall->d_soid.ch4ebul, 1, month_timestep, 1);
       }
-      else if(curr_spec.yearly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
+      //Sum instead of by layer
+      else{
+
+        //daily
+        if(curr_spec.daily){
+        }
+        else if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.ch4ebulsum, 1, month_timestep, 1);
+        }
+        else if(curr_spec.yearly){
+//          output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
+        }
       }
     }//end critical(outputCH4EBULLITION)
   }//end CH4EBULLITION

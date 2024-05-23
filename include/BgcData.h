@@ -68,6 +68,7 @@ public:
 
   //Arrays to hold a month's worth of data for daily
   // netCDF output
+  double daily_ch4_ebullition[31][MAX_SOI_LAY];
   double daily_ch4_pool[31][MAX_SOI_LAY];
   double daily_ch4_rawc[31][MAX_SOI_LAY];
   double daily_ch4_soma[31][MAX_SOI_LAY];

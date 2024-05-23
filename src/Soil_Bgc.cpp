@@ -627,13 +627,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   //Storing daily CH4 movement for output
   for(int layer=0; layer<MAX_SOI_LAY; layer++){
-    ed->daily_ch4_ebullition[id][layer] = ch4_ebul_layer[layer];
+    bd->d_soi2soi.ch4_ebul[layer] = ch4_ebul_layer[layer];
     ed->daily_ch4_oxid[id][layer] = ch4_oxid_layer[layer];
     ed->daily_ch4_diff[id][layer] = diff[layer];
   }
 
   // Store ebullition and veg flux values (mostly for output)
-  ed->d_soid.ch4ebul = ebul_gm2day;
+  bd->d_soid.ch4ebulsum = ebul_gm2day;
 
   // Modifying ch4 pool by ebullitive flux if water table 
   // is not at soil surface
