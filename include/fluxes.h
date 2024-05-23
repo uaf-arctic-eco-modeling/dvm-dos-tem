@@ -246,6 +246,7 @@ struct soi2atm_bgc {
 
   double rhtot;  //total rhs
 
+  double ch4_oxid[MAX_SOI_LAY];
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D) {
 
@@ -254,6 +255,7 @@ struct soi2atm_bgc {
       rhsoma[i] = UIN_D;
       rhsompr[i] = UIN_D;
       rhsomcr[i] = UIN_D;
+      ch4_oxid[i] = UIN_D;
     }
   }
   
