@@ -4545,8 +4545,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             rh_arr[il] = cohort.bdall->m_soi2a.rhrawc[il]
                        + cohort.bdall->m_soi2a.rhsoma[il]
                        + cohort.bdall->m_soi2a.rhsompr[il]
-                       + cohort.bdall->m_soi2a.rhsomcr[il];
-                      //  + cohort.soilbgc.ch4_oxid_monthly[il];
+                       + cohort.bdall->m_soi2a.rhsomcr[il]
+                       + cohort.bdall->m_soi2a.ch4_oxid[il];
           }
           outhold.rh_for_output.push_back(rh_arr);
 
@@ -4561,7 +4561,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             rh_arr[il] = cohort.bdall->y_soi2a.rhrawc[il]
                        + cohort.bdall->y_soi2a.rhsoma[il]
                        + cohort.bdall->y_soi2a.rhsompr[il]
-                       + cohort.bdall->y_soi2a.rhsomcr[il];
+                       + cohort.bdall->y_soi2a.rhsomcr[il]
+                       + cohort.bdall->y_soi2a.ch4_oxid[il];
           }
           outhold.rh_for_output.push_back(rh_arr);
 
@@ -4575,6 +4576,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
+          //double soil_resp = cohort.bdall->m_soi2a.rhtot + cohort.bdall->m_soi2a.oxidtot;
           outhold.rh_tot_for_output.push_back(cohort.bdall->m_soi2a.rhtot);
 
           if(output_this_timestep){
