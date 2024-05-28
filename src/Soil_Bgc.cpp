@@ -133,11 +133,16 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double plant_daily, ebul_daily = 0.0;
   // Flux components cumulated over a day in units of g m^-2 day^-1
   double plant_gm2day, ebul_gm2day, oxid_gm2day = 0.0;
-  //Bunsen solubility coefficient (SB). Fan et al. 2010 supplement Eq. 15.
-  //Mass-based Bunsen solubility coefficient (SM). Fan et al. 2010 supplement Eq. 16.  
-  double bun_sol, bun_sol_mass;
-  // Partial pressure of ch4 used in Fan Eq. 16 for ebullition calculation
-  double partial_pressure_ch4;
+  // Bunsen solubility coefficient (bun_sol - SB). Fan et al. 2010 supplement Eq. 15.
+  // bun_sol is converted into a volume of ch4 (vol_ch4) for the ideal gas law
+  // What is referred to as the mass-based Bunsen solubility coefficient (SM) in
+  // Fan et al. 2010 supplement Eq. 16 we are referring to as the max concentration
+  // for which methane can remain dissolved (i.e. not a bubble) this is given in
+  // umol to relate to ch4 layer pool given in umol/L
+  double bun_sol, vol_ch4, max_umol_ch4;
+  // Pressure on ch4 used in Fan Eq. 16 for ebullition calculation
+  // consisting of atmospheric (Pstd) and hydrostatic pressure (p_hydro)
+  double p_hydro, pressure_ch4;
 
   updateKdyrly4all();
 
@@ -436,21 +441,39 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // by unit volume V2* of pure solvent at the temperature of measurement and partial pressure of 1 bar."
       // Sazonov, V P; Shaw, DG (2006). "Introduction to the Solubility Data Series: 1.5.2. Physicochemical Quantities
       // and Units, A note on nomenclature, points 10 and 11"
-      // Comparing Fan and Yamamoto formulation below:
-      bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; // dimensionless
-      // bun_sol = exp(-67.1962 + 99.1624 * (100 / (currl->tem + 273.15)) + 27.9015 * log((currl->tem + 273.15)/100));
-      
+      bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; // mL CH4 / mL H2O Wania et al. 2010
+
+      // We thus need to convert bun_sol into a volume to be able to use the ideal gas law:
+      // ml / ml is equivalent to m3/m3
+      // Our simulations tend to be in units of m^-2, so we can assume our layer has dimensions
+      // 1m x 1m x dz, so volume = dz [m^3]
+      // we assume that if saturated_fraction is 1.0 then the soil layer volume is totally
+      // saturated, but that volume is not completely occupied by water... so we must consider
+      // porosity (liquid and ice content as freezing is occurring)
+
+      vol_ch4 = bun_sol * saturated_fraction * currl->frozenfrac * currl->poro * currl->dz;
+
+      // When considering hydrostatic pressure we want to know the height of the water above the center
+      // of the layer, but this will not work if the layer contains the water table
+
+      // Hydrostatic pressure - P = rho * g * h
+      p_hydro = DENLIQ * G * (currl->z + (currl->dz / 2.0) - ed->d_sois.watertab);
+
       // Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
-      // Catch so pressure is never lower than atmospheric pressure
-      partial_pressure_ch4 = fmax(Pstd, DENLIQ * G * (currl->z + (currl->dz / 2.0) - ed->d_sois.watertab) + Pstd); // Pa = kgm^-1s^-2
-      bun_sol_mass = 1e3 * partial_pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15));          // mol m^-3 ( * 1e3 -> umol L^-1)
+      // fmax catch so pressure is never lower than atmospheric pressure
+      pressure_ch4 = fmax(Pstd, Pstd + p_hydro);                                                                   // Pa = kgm^-1s^-2
+      max_umol_ch4 = 1e3 * pressure_ch4 * vol_ch4 / (GASR * (currl->tem + 273.15));                  // mol m^-3 ( * 1e3 -> umol L^-1)
+
+      // if water table is in the layer then the dz of amount of water must be multiplied by saturated fraction
+      // otherwise it will go to 1.0 (i.e just currl->dz)
+      // bun_sol_mass = 1e3 * partial_pressure_ch4 * (bun_sol * currl->dz * saturated_fraction) / (GASR * (currl->tem + 273.15)); // mol m^-3 ( * 1e3 -> umol L^-1)
 
       double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
       // >>> Fan does not explicitly limit it to layers with temp greater than 1
       // >>> I think this should be if layer is not frozen
-      if (currl->tem > 1.0) {
-      // if (ed->d_sois.ts[il]>=0.0){// if not frozen
-        ebul = saturated_fraction * (currl->ch4 - bun_sol_mass) * rate_parameter_kh; // currl->getVolLiq() *
+      // if (currl->tem > 100.0) {
+      if (ed->d_sois.ts[il]>=0.0){// if not frozen
+        ebul = saturated_fraction * (currl->ch4 - max_umol_ch4) * rate_parameter_kh; // currl->getVolLiq() *
       }
       else {
         ebul = 0.0;
@@ -637,10 +660,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // Modifying ch4 pool by ebullitive flux if water table 
   // is not at soil surface
-  if (wtlayer != ground->fstshlwl){
-    wtlayer->ch4 += ebul_daily;
-    ebul_gm2day = 0.0;
-  }
+  // if (wtlayer != ground->fstshlwl){
+  //   wtlayer->ch4 += ebul_daily;
+  //   ebul_gm2day = 0.0;
+  // }
     
   // If the moss layer is considered for CH4 in the future, the following will need
   //  to be modified to start at the moss layer and il should be set to 0.
