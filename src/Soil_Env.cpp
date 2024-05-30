@@ -743,7 +743,7 @@ double Soil_Env::getPenMonET(const double &ta, const double &vpd,
    * parallel resistances:rhr= (rh*rr)/(rh+rr)*/
   double rhr = (rh * rr) / (rh + rr);
   /*latent heat of vaporization as a function of ta*/
-  double lhvap = 2.5023e6 - 2430.54 * ta;
+  double lhvap = LHVAP - 2430.54 * ta;
   double dt = 0.2;
   double t1 = ta + dt;
   double t2 = ta - dt;
