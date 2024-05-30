@@ -1739,19 +1739,41 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
       }
       //Total instead of by layer
+      else if(!curr_spec.layer){
+        //daily
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            double day_ch4_oxid = 0.0;
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              day_ch4_oxid += cohort.bdall->daily_ch4_oxid[id][il];
+            }
+            outhold.ch4oxid_sum_for_output.push_back(day_ch4_oxid);
+          }
 
-//      else if(curr_spec.monthly){
-//      }
-//      else if(curr_spec.yearly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
-//      }
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_sum_for_output[0], 1, day_timestep, DINY);
+            outhold.ch4oxid_sum_for_output.clear();
+          }
+        }
+        //monthly
+        if(curr_spec.monthly){
+          outhold.ch4oxid_sum_for_output.push_back(cohort.bdall->m_soi2a.ch4_oxid_sum);
 
-//      else if(curr_spec.monthly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, month_timestep, 1);
-//      }
-//      else if(curr_spec.yearly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
-//      }
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_sum_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4oxid_sum_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          outhold.ch4oxid_sum_for_output.push_back(cohort.bdall->y_soi2a.ch4_oxid_sum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_sum_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4oxid_sum_for_output.clear();
+          }
+        }
+      }
 
     }//end critical(outputCH4OXIDATION)
   }//end CH4OXIDATION
