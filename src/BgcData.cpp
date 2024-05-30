@@ -438,7 +438,6 @@ void BgcData::soil_endOfMonth(const int currmind) {
     y_soid.somcrsum = m_soid.somcrsum   ;
     y_soid.avlnsum  = m_soid.avlnsum    ;
     y_soid.orgnsum  = m_soid.orgnsum    ;
-    y_soid.ch4sum = m_soid.ch4sum;
   }
 
   // fluxes
