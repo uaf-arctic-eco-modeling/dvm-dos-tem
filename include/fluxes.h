@@ -290,6 +290,7 @@ struct soi2soi_bgc {
   double netnmin[MAX_SOI_LAY];
   double nimmob[MAX_SOI_LAY];
 
+  double ch4_diff[MAX_SOI_LAY];
   double ch4_ebul[MAX_SOI_LAY];
 
   //ch4 production
@@ -302,6 +303,7 @@ struct soi2soi_bgc {
     for (int il = 0; il < MAX_SOI_LAY; ++il) {
       netnmin[il] = UIN_D;
       nimmob[il] = UIN_D;
+      ch4_diff[il] = UIN_D;
       ch4_ebul[il] = UIN_D;
       ch4_rawc[il] = UIN_D;
       ch4_soma[il] = UIN_D;

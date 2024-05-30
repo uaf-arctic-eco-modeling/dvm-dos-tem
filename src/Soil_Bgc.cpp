@@ -652,7 +652,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   for(int layer=0; layer<MAX_SOI_LAY; layer++){
     bd->d_soi2soi.ch4_ebul[layer] = ch4_ebul_layer[layer];
     bd->d_soi2a.ch4_oxid[layer] = ch4_oxid_layer[layer];
-    ed->daily_ch4_diff[id][layer] = diff[layer];
+    bd->d_soi2soi.ch4_diff[layer] = diff[layer];
   }
 
   // Store ebullition and veg flux values (mostly for output)

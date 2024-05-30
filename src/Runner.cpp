@@ -1552,16 +1552,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputCH4DIFFUSION)
     {
-
-
-      if(curr_spec.daily){
-
+      if(curr_spec.layer){
         std::array<double, MAX_SOI_LAY> ch4diff_arr{};
 
-        if(curr_spec.layer){
+        if(curr_spec.daily){
           for(int id=0; id<DINM[month]; id++){
             for(int il=0; il<MAX_SOI_LAY; il++){
-              ch4diff_arr[il] = cohort.edall->daily_ch4_diff[id][il];
+              ch4diff_arr[il] = cohort.bdall->daily_ch4_diff[id][il];
             }
             outhold.ch4diff_layer_for_output.push_back(ch4diff_arr);
           }
@@ -1571,18 +1568,37 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             outhold.ch4diff_layer_for_output.clear();
           }
         }
+        //monthly
+        else if(curr_spec.monthly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4diff_arr[il] = cohort.bdall->m_soi2soi.ch4_diff[il];
+          }
+          outhold.ch4diff_layer_for_output.push_back(ch4diff_arr);
 
-        else{ //sum
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4diff_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4diff_layer_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4diff_arr[il] = cohort.bdall->y_soi2soi.ch4_diff[il];
+          }
+          outhold.ch4diff_layer_for_output.push_back(ch4diff_arr);
 
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4diff_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4diff_layer_for_output.clear();
+          }
         }
       }
-
-      else if(curr_spec.monthly){
-
+      else{ //sum
+          //daily
+          //monthly
+          //yearly
       }
-      else if(curr_spec.yearly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
-      }
+
     }//end critical(outputCH4DIFFUSION)
   }//end CH4DIFFUSION
   map_itr = netcdf_outputs.end();

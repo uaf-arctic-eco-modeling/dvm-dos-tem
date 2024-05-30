@@ -75,6 +75,7 @@ public:
   double daily_ch4_soma[31][MAX_SOI_LAY];
   double daily_ch4_sompr[31][MAX_SOI_LAY];
   double daily_ch4_somcr[31][MAX_SOI_LAY];
+  double daily_ch4_diff[31][MAX_SOI_LAY];
 
   void land_beginOfYear();
   void land_endOfMonth();
