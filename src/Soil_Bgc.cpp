@@ -637,13 +637,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     }
 
     // BM - See R. Wania 2010 and Fick's Law:
-    diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
+    diff_efflux = -diffusion_sum;
+    // diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
 
     delta_pool_sum = 0.0;
 
-    if (diff_efflux < 0.000001) { //This can be negative
-      diff_efflux = 0.0;
-    }
+    // if (diff_efflux < 0.000001) { //This can be negative
+    //   diff_efflux = 0.0;
+    // }
 
     diff_efflux_daily += diff_efflux; //flux cumulated over 1 day, 24 time steps, Y.MI
   } // end of time steps looping
@@ -696,7 +697,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   //HG: do we need to output this ratio - it would be good to output each surface flux so ratios can be calculated in post      
   if (efflux_gm2hr < 0.000001) {
-    efflux_gm2hr = 0.0;
+    // efflux_gm2hr = 0.0;
     ed->d_soid.dfratio = 0.0;
   } else {
     ed->d_soid.dfratio = diff_efflux_gm2day / efflux_gm2hr * 100.0;
