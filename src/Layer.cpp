@@ -161,10 +161,6 @@ double Layer::getUnfVolLiq(){
   
   ulwc = A * pow(abs(tem), B) / 100;
 
-  if (tem>=0){
-    ulwc=0.0;
-  }
-
   return ulwc;
 
 }
@@ -192,10 +188,6 @@ double Layer::getDeltaUnfVolLiq()
   }
 
   d_ulwc = -B * A * pow(abs(tem), B - 1) / 100;
-
-  if (tem >= 0){
-    d_ulwc = 0.0;
-  }
 
   return d_ulwc;
 
