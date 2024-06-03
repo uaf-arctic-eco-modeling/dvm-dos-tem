@@ -86,6 +86,10 @@ public:
   bool nc_tr;
   bool nc_sc;
   int output_interval; //How many years to store for output
+  //The following two config values are temporarily stored in
+  // ModelData, to be transferred to Climate.
+  int baseline_start;//Start year for baseline EQ climate
+  int baseline_end;//End year for baseline EQ climate
 
   // Maps holding data about variables to be output at specific timesteps
   // C++11 would allow the use of unordered_maps, which have a faster

@@ -63,13 +63,17 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   // might need to set the cd* and the ed* ???
 
-  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
-  // FIX: Historic? Projected?? how to handle both??
-  // Maybe:
-  //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
-  //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
+  BOOST_LOG_SEV(glg, debug) << "Construct Climate object ...";
+
+  //On construction we assume historic climate, which will be
+  // overwritten by projected climate later when necessary.
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
-  
+
+  this->climate.baseline_start = modeldatapointer->baseline_start;
+  this->climate.baseline_end = modeldatapointer->baseline_end;
+  //Prepare averaged input set for EQ stage
+  this->climate.prep_avg_climate();
+
   // Build a mineral info object
   MineralInfo mineral_info = MineralInfo(modeldatapointer->soil_texture_file, y, x);
 
@@ -854,6 +858,7 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.m_veg.vegcov[ip]>0.) {
       cd.m_veg.vegage[ip] = cd.yrsdist;
+
       if (cd.m_veg.vegage[ip]<=0) {
         cd.m_vegd.foliagemx[ip] = 0.;
       }
@@ -1519,4 +1524,3 @@ void Cohort::set_restartdata_from_state() {
     }
   }
 }
-

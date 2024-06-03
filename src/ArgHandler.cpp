@@ -84,7 +84,7 @@ void ArgHandler::parse(int argc, char** argv) {
       "files.)")
 
     ("pr-yrs,p", boost::program_options::value<int>(&pr_yrs)
-       ->default_value(10),
+       ->default_value(100),
      "Number of PRE RUN years to run.")
 
     ("eq-yrs,e", boost::program_options::value<int>(&eq_yrs)

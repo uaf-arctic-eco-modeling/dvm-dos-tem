@@ -659,6 +659,50 @@ namespace temutil {
     return start_year;
   }
 
+  /** Return the calendar end year of a timeseries netcdf file.
+  * Assumes that input files have complete years
+  * Assumes that time units are "days since..."
+  */
+  int get_timeseries_end_year(const std::string& fname){
+
+    int start_year = get_timeseries_start_year(fname);
+
+    int ncid;
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+
+    //Information about the time *dimension*
+    int timeD;
+    size_t timeD_len;
+    temutil::nc( nc_inq_dimid(ncid, "time", &timeD) );
+    temutil::nc( nc_inq_dimlen(ncid, timeD, &timeD_len) );
+
+    //Information about the time *variable*
+    int timeV;
+    temutil::nc( nc_inq_varid(ncid, "time", &timeV) );
+
+    size_t start[3];
+    start[0] = timeD_len-1; //Last entry only
+    start[1] = 0;
+    start[2] = 0;
+
+    size_t count[3];
+    count[0] = 1;
+    count[1] = 1;
+    count[2] = 1;
+
+    int time_value;
+    temutil::nc( nc_get_vara_int(ncid, timeV, start, count, &time_value) );
+
+    //Round up, because the time value will be for the beginning
+    // of the last time step and so will not divide evenly by 365.
+    //Casting one of the values to a double to force use of the
+    // proper operator/
+    int year_count = ceil(double(time_value) / DINY);
+
+    int end_year = start_year + year_count;
+    return end_year;
+  }
+
   /** rough draft - look up lon/lat in nc file from y,x coordinates. 
       Assumes that the file has some coordinate dimensions...
   */

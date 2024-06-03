@@ -599,55 +599,23 @@ void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   // 3 - high + low surface
   // 4 - high + high surface
 
-//  this->r_burn2ag_cn = firpar.fvcomb[severity][ip];
-//  this->r_dead2ag_cn = firpar.fvdead[severity][ip];
+  //Fire severity, both FRI and explicit, is loaded from input files.
+  //The input file severities are 1-based, and must be converted
+  // to 0-based to look up the related parameter values.
+  int fri_severity_idx = max((this->fri_severity - 1), 0);
+  int exp_severity_idx = max((this->exp_fire_severity[year] - 1), 0);
 
-  if ( this->fri_derived ) {                    // FRI-derived fire regime
-    if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get fvcomb and fvdead from the parameter file;
-      this->r_burn2ag_cn = firpar.fvcomb[this->fri_severity][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[this->fri_severity][ipft];
-    }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
-      if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
-        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
-          if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
-            this->r_burn2ag_cn = 0.16;
-            this->r_dead2ag_cn = 0.76;
-          } else {
-            this->r_burn2ag_cn = 0.24;
-            this->r_dead2ag_cn = 0.75;
-          }
-        } else {                                // late fire (after July 31st);
-          this->r_burn2ag_cn = 0.32;
-          this->r_dead2ag_cn = 0.67;
-        } 
-      } else {                                  // lowland;
-        this->r_burn2ag_cn = 0.16;
-        this->r_dead2ag_cn = 0.76;
-      } 
-    }
-  } else {                                      // Explicit fire regime;
-    if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
-      this->r_burn2ag_cn = firpar.fvcomb[this->exp_fire_severity[year]][ipft];
-      this->r_dead2ag_cn = firpar.fvdead[this->exp_fire_severity[year]][ipft];
-    } else {  
-      if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
-        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
-          if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
-            this->r_burn2ag_cn = 0.16;
-            this->r_dead2ag_cn = 0.76;
-          } else {
-            this->r_burn2ag_cn = 0.24;
-            this->r_dead2ag_cn = 0.75;
-          }
-        } else {                                // late fire (after July 31st);
-          this->r_burn2ag_cn = 0.32;
-          this->r_dead2ag_cn = 0.67;
-        } 
-      } else {                                  // lowland;
-        this->r_burn2ag_cn = 0.16;
-        this->r_dead2ag_cn = 0.76;
-      } 
-    }
+  // FRI-derived fire regime
+  if ( this->fri_derived ) {
+    //Get fvcomb and fvdead from the parameters
+    this->r_burn2ag_cn = firpar.fvcomb[fri_severity_idx][ipft];
+    this->r_dead2ag_cn = firpar.fvdead[fri_severity_idx][ipft];
+  }
+  //Explicit fire regime
+  else {
+    //Get fvcomb and fvdead from the parameters
+    this->r_burn2ag_cn = firpar.fvcomb[exp_severity_idx][ipft];
+    this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
   }
 
   this->r_live_cn = 1.0 - this->r_burn2ag_cn - this->r_dead2ag_cn;

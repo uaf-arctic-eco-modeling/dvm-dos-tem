@@ -518,7 +518,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["BurnVeg2SoiBlwVegN"] = cohort.year_fd[month].fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.year_fd[month].fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.year_fd[month].fire_soi2a.orgn;
-  data["BurnAir2SoiN"] = cohort.year_fd[month].fire_a2soi.orgn;
+  data["BurnAir2SoilN"] = cohort.year_fd[month].fire_a2soi.orgn;
   data["BurnAbvVeg2DeadC"] = cohort.year_fd[month].fire_v2dead.vegC;
   data["BurnAbvVeg2DeadN"] = cohort.year_fd[month].fire_v2dead.strN;
   data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
@@ -795,7 +795,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["BurnVeg2SoiBlwVegC"] = veg2soiblwvegc;
   data["BurnSoi2AirC"] = soi2airc;
   data["BurnSoi2AirN"] = soi2airn;
-  data["BurnAir2SoiN"] = air2soin;
+  data["BurnAir2SoilN"] = air2soin;
   data["BurnAbvVeg2DeadC"] = veg2deadc;
   data["BurnAbvVeg2DeadN"] = veg2deadn;
 
@@ -1188,12 +1188,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  map_itr = netcdf_outputs.find("BURNAIR2SOIN");
+  map_itr = netcdf_outputs.find("BURNAIR2SOILN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOIN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOILN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNAIR2SOIN)
+    #pragma omp critical(outputBURNAIR2SOILN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1201,24 +1201,24 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //yearly
       else if(curr_spec.yearly){
-        double burnair2soin = 0.;
+        double burnair2soiln = 0.;
         for(int im=0; im<12; im++){
-          burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
+          burnair2soiln += cohort.year_fd[im].fire_a2soi.orgn;
         }
-        output_nc_3dim(&curr_spec, file_stage_suffix, &burnair2soin, 1, year, 1);
+        output_nc_3dim(&curr_spec, file_stage_suffix, &burnair2soiln, 1, year, 1);
       }
-    }//end critical(outputBURNAIR2SOIN)
-  }//end BURNAIR2SOIN
+    }//end critical(outputBURNAIR2SOILN)
+  }//end BURNAIR2SOILN
   map_itr = netcdf_outputs.end();
 
 
   //Burned soil carbon
-  map_itr = netcdf_outputs.find("BURNSOIC");
+  map_itr = netcdf_outputs.find("BURNSOIL2AIRC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIL2AIRC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNSOIC)
+    #pragma omp critical(outputBURNSOIL2AIRC)
     {
       //By layer
       if(curr_spec.layer){
@@ -1229,11 +1229,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
-          outhold.burnsoic_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
+          outhold.burnsoil2airc_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
 
           if(output_this_timestep){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, month_start_idx, months_to_output);
-            outhold.burnsoic_for_output.clear();
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoil2airc_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.burnsoil2airc_for_output.clear();
           }
         }
         else if(curr_spec.yearly){
@@ -1241,26 +1241,26 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           for(int im=0; im<12; im++){
             burnsoilC += cohort.year_fd[im].fire_soi2a.orgc;
           }
-          outhold.burnsoic_for_output.push_back(burnsoilC);
+          outhold.burnsoil2airc_for_output.push_back(burnsoilC);
 
           if(output_this_timestep){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, year_start_idx, years_to_output);
-            outhold.burnsoic_for_output.clear();
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoil2airc_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.burnsoil2airc_for_output.clear();
           }
         }
       }
-    }//end critical(outputBURNSOIC)
-  }//end BURNSOIC
+    }//end critical(outputBURNSOIL2AIRC)
+  }//end BURNSOIL2AIRC
   map_itr = netcdf_outputs.end();
 
 
   //Burned soil nitrogen 
-  map_itr = netcdf_outputs.find("BURNSOILN");
+  map_itr = netcdf_outputs.find("BURNSOIL2AIRN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOILN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIL2AIRN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNSOILN)
+    #pragma omp critical(outputBURNSOIL2AIRN)
     {
       //By layer
       if(curr_spec.layer){
@@ -1281,8 +1281,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           output_nc_3dim(&curr_spec, file_stage_suffix, &burnSoilN, 1, year, 1);
         }
       }
-    }//end critical(outputBURNSOILN)
-  }//end BURNSOILN
+    }//end critical(outputBURNSOIL2AIRN)
+  }//end BURNSOIL2AIRN
   map_itr = netcdf_outputs.end();
 
 
@@ -1427,44 +1427,44 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIABVC
-  map_itr = netcdf_outputs.find("BURNVEG2SOIABVC");
+  //BURNVEG2SOILABVC
+  map_itr = netcdf_outputs.find("BURNVEG2SOILABVC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILABVC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIABVC)
+    #pragma omp critical(outputBURNVEG2SOILABVC)
     {
       //monthly
       if(curr_spec.monthly){
-        outhold.burnveg2soiabvc_for_output.push_back(cohort.year_fd[month].fire_v2soi.abvc);
+        outhold.burnveg2soilabvc_for_output.push_back(cohort.year_fd[month].fire_v2soi.abvc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiabvc_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.burnveg2soiabvc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilabvc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2soilabvc_for_output.clear();
         }
       }
       //yearly
       else if(curr_spec.yearly){
-        outhold.burnveg2soiabvc_for_output.push_back(cohort.fd->fire_v2soi.abvc);
+        outhold.burnveg2soilabvc_for_output.push_back(cohort.fd->fire_v2soi.abvc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiabvc_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.burnveg2soiabvc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilabvc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2soilabvc_for_output.clear();
         }
       }
-    }//end critical(outputBURNVEG2SOIABVC)
-  }//end BURNVEG2SOIABVC
+    }//end critical(outputBURNVEG2SOILABVC)
+  }//end BURNVEG2SOILABVC
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIABVN
-  map_itr = netcdf_outputs.find("BURNVEG2SOIABVN");
+  //BURNVEG2SOILABVN
+  map_itr = netcdf_outputs.find("BURNVEG2SOILABVN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILABVN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIABVN)
+    #pragma omp critical(outputBURNVEG2SOILABVN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1474,49 +1474,49 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(curr_spec.yearly){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.abvn, 1, year, 1);
       }
-    }//end critical(outputBURNVEG2SOIABVN)
-  }//end BURNVEG2SOIABVN
+    }//end critical(outputBURNVEG2SOILABVN)
+  }//end BURNVEG2SOILABVN
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIBLWC
-  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWC");
+  //BURNVEG2SOILBLWC
+  map_itr = netcdf_outputs.find("BURNVEG2SOILBLWC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILBLWC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIBLWC)
+    #pragma omp critical(outputBURNVEG2SOILBLWC)
     {
       //monthly
       if(curr_spec.monthly){
-        outhold.burnveg2soiblwc_for_output.push_back(cohort.year_fd[month].fire_v2soi.blwc);
+        outhold.burnveg2soilblwc_for_output.push_back(cohort.year_fd[month].fire_v2soi.blwc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiblwc_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.burnveg2soiblwc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilblwc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2soilblwc_for_output.clear();
         }
       }
       //yearly
       else if(curr_spec.yearly){
-        outhold.burnveg2soiblwc_for_output.push_back(cohort.fd->fire_v2soi.blwc);
+        outhold.burnveg2soilblwc_for_output.push_back(cohort.fd->fire_v2soi.blwc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiblwc_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.burnveg2soiblwc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilblwc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2soilblwc_for_output.clear();
         }
       }
-    }//end critical(outputBURNVEG2SOIBLWC)
-  }//end BURNVEG2SOIBLWC
+    }//end critical(outputBURNVEG2SOILBLWC)
+  }//end BURNVEG2SOILBLWC
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIBLWN
-  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWN");
+  //BURNVEG2SOILBLWN
+  map_itr = netcdf_outputs.find("BURNVEG2SOILBLWN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILBLWN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIBLWN)
+    #pragma omp critical(outputBURNVEG2SOILBLWN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1526,8 +1526,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(curr_spec.yearly){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.blwn, 1, year, 1);
       }
-    }//end critical(outputBURNVEG2SOIBLWN)
-  }//end BURNVEG2SOIBLWN
+    }//end critical(outputBURNVEG2SOILBLWN)
+  }//end BURNVEG2SOILBLWN
   map_itr = netcdf_outputs.end();
 
   //Community Type Code (CMT NUMBER)
