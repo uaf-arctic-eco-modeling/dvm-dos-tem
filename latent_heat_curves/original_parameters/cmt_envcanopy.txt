@@ -1,0 +1,200 @@
+// dvmdostem parameter file
+// Biophysical plant leaf characteristics and parameters
+// Maximum of 10 PFTs
+// PFT names should be CamelCase and must not have a period in them!
+//
+//===========================================================
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9             // names: comments                  
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: m/2 // max. canopy conductance
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT01 // Boreal Black Spruce // 6/18/20 JSC  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
+//EverTree  DecidShrub  DecidTree    Moss        PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
+0.1         0.1         0.1          0.1         0.0    0.0    0.0    0.0    0.0    0.0   // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5         0.0    0.0    0.0    0.0    0.0    0.0   // er: light extinction coefficient
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // iscoef: snow interception
+0.003       0.003       0.003        0.003       0.0    0.0    0.0    0.0    0.0    0.0   // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08        0.0    0.0    0.0    0.0    0.0    0.0   // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001     0.0    0.0    0.0    0.0    0.0    0.0   // gl_c:  cuticular conductance
+930         930         930          930         0.0    0.0    0.0    0.0    0.0    0.0   // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100        0.0    0.0    0.0    0.0    0.0    0.0   // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT02 // Boreal White Spruce Forest // 1/22/21 JSC  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
+//EverTree  DecidShrub  DecidTree    Moss        PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
+0.1         0.1         0.1          0.1         0.0    0.0    0.0    0.0    0.0    0.0   // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5         0.0    0.0    0.0    0.0    0.0    0.0   // er: light extinction coefficient
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // iscoef: snow interception
+0.003       0.003       0.003        0.003       0.0    0.0    0.0    0.0    0.0    0.0   // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08        0.0    0.0    0.0    0.0    0.0    0.0   // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001     0.0    0.0    0.0    0.0    0.0    0.0   // gl_c:  cuticular conductance
+930         930         930          930         0.0    0.0    0.0    0.0    0.0    0.0   // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100        0.0    0.0    0.0    0.0    0.0    0.0   // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT03 // Boreal Deciduous Forest // 7/7/20 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
+//EverTree  DecidShrub  DecidTree    Moss        PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // names: comments                  
+0.1         0.1         0.1          0.1         0.0    0.0    0.0    0.0    0.0    0.0   // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5         0.0    0.0    0.0    0.0    0.0    0.0   // er: light extinction coefficient
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // iscoef: snow interception
+0.003       0.003       0.003        0.003       0.0    0.0    0.0    0.0    0.0    0.0   // glmax: max. canopy conductance (m/s)
+0.01        0.01        0.01         0.01        0.0    0.0    0.0    0.0    0.0    0.0   // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001     0.0    0.0    0.0    0.0    0.0    0.0   // gl_c:  cuticular conductance
+930         930         930          930         0.0    0.0    0.0    0.0    0.0    0.0   // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100        0.0    0.0    0.0    0.0    0.0    0.0   // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
+//Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9             // pftnames:
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
+//Betula    Decid       EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9             // pftnames:
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.005       0.005       0.005        0.005        0.005        0.005        0.005        0.005        0.005        0.005            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
+//Decid     Sedges      Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9             // pftnames
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT07 // Heath Tundra
+//Decid     EGreen      Forbs        Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9             // pftnames:
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT12 // Lowland Boreal Wet Shrubland
+//DecShrub   EvrShrub     DecTree      EvrTree       Forbs       Gram       Feather       Lichen      Equisetum      PFT9             // pftnames:
+0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930          930          930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100         4100         4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75           75           75           75           75           75           75           75           75           75               // ppfd50:
+0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT20 // EML Shrub Tundra 
+//Betnan    Carex       Ericoid      Feather      Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3            // names: comments
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
+//Decidsh   Egreensh     Sedge      Forbs       Lichen        OMoss        Sphag         PFT7         PFT8         PFT9             // names: comments
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.00         0.00         0.00             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.0          0.0          0.00             // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.00         0.00         0.00             // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.00         0.00         0.00             // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.00         0.00         0.00             // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.00         0.00         0.00             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.0000       0.0000       0.0000           // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          0            0            0                // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         0            0            0                // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           0.0          75           0.0          0.0              // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT31 // Boreal Bog
+//Sphagnum  Sedge       DecShrub     EvrShrub     Forbs        Moss         PFT6         PFT7         PFT8         PFT9             // names: comments
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
+//===========================================================
+// CMT44 // Shrub Tundra Kougarok
+//Salix     Betula      Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9             // pftnames:
+0.10        0.10        0.10         0.10         0.10         0.10         0.10         0.10         0.10         0.10             // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5          0.5          0.5          0.5          0.5          0.5          0.5              // er: light extinction coefficient
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041        0.041        0.041        0.041        0.041        0.041        0.041            // iscoef: snow interception
+0.003       0.003       0.003        0.003        0.003        0.003        0.003        0.003        0.003        0.003            // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08         0.08         0.08         0.08         0.08         0.08         0.08             // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001      0.00001          // gl_c:  cuticular conductance
+930         930         930          930          930          930          930          930          930          930              // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100         4100         4100         4100         4100         4100         4100             // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75           75           75           75           75           75           75               // ppfd50:
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0              // initvegsnow: initial intercepted snow water in canopy
