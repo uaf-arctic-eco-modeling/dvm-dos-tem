@@ -729,7 +729,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
 
     # catch if there is no folder
     if not os.path.exists(dir_path):
-      print(f"Folder '{sample_folder}' not found. Skipping...")
+      print(f"Folder '{sample}' not found. Skipping...")
       continue
 
     # specifying paths for AVLN, GPP, and INGPP
@@ -739,7 +739,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
 
     # catch if output variables do not exist
     if not (os.path.exists(avln_path) and os.path.exists(gpp_path) and os.path.exists(ingpp_path)):
-      print(f"Data files not found for '{sample_folder}'. Skipping...")
+      print(f"Data files not found for '{sample}'. Skipping...")
       continue
 
     # loading data
