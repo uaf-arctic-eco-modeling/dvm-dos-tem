@@ -68,6 +68,7 @@
       "baseline": false,
       "dsb": false,
       "dsl": false,
+      //FW_NOTES: Fire will never be on in the pre-run so we don't need a switch?
       "dyn_lai": false
     },
     "eq": {
@@ -78,6 +79,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true
     },
     "sp": {
@@ -88,6 +90,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true 
     },
     "tr": {
@@ -98,6 +101,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true
     },
     "sc": {
@@ -108,6 +112,7 @@
       "baseline": true,
       "dsb": false,
       "dsl": true,
+      "fire": false,
       "dyn_lai": true
     }
 
@@ -118,6 +123,29 @@
     // ??
     //"restartfile_dir": "DATA/Toolik_10x10_30yrs/" // location for restart-XX.nc file
 
+  },
+
+  "module_settings" {
+    "dsb": {
+      "fire": {
+        // Wildfire ignitions modes: [Note: In development.  Numbers may change!]
+        // 0: Default/old: FRI for [PR/]EQ/SP, explicit for TR/SC.
+        // 1: Use fire return interval for this stage if fire is on.
+        // 2+: Reserved for future use.
+        // Fire is alway off in the PR stage and can only be FRI for EQ/SP so no switches are
+        // provided for these stages.
+        "ignition_tr": 0
+        "ignition_sc": 0
+
+        // More future controls per stage can go here...
+        //"severity_pr":
+        //"severity_eq":
+        // ...
+      },
+      // Future disturbances go here...
+      //"insect": { ... },
+      //"thermokarst":{ ... },
+    }
   },
 
   "model_settings": {

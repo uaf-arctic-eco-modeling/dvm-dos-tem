@@ -127,7 +127,11 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
  *  There are two modes of operation: "FRI" (fire recurrence interval) and
  *  "exp". Pre-run, equilibrium, and spin-up stages all use the FRI settings
  *  for determining whether or not a fire should ignite, while transient and 
- *  scenario stages use explicit dates for fire occurrence.
+ 												*  scenario stages use explicit dates for fire occurrence.
+ FW_MOD:
+ *  scenario stages traditionally used explicit dates for fire occurrence.  This
+ *  remains the default behavior but fire return interval may also be specified
+ *  for all run stages.
  *
  *  The settings for FRI and the data for explicit fire dates are held in data
  *  members of this (WildFire) object. This function looks at those data
@@ -136,45 +140,134 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
  *  NOTE: how to handle fire severity, to be determined.
  *
 */
-bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
+//bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
+bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage,
+                             const ModelData* md) {// FW_MOD
 
   BOOST_LOG_SEV(glg, note) << "determining fire ignition for yr:" << yr
                            << ", monthidx:" << midx << ", stage:" << stage;
 
   bool ignite = false;
-  bool fri_derived = false;
+  //bool fri_derived = false;// FW_NOTE: Not actually used!
 
-  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+  //if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+  // FW_MOD_START:
+  // Check that fire is on for the current run stage:
+  if ( stage.compare("pre-run") == 0 ||
+       (stage.compare("eq-run") == 0  && md->fire_on_EQ) ||
+       (stage.compare("sp-run") == 0  && md->fire_on_SP) )
+  {
+    // Currently for the PR, EQ, and SP stages only fire return interval based fire is implemented
+    // so there is no need to check te fire ignition mode.  If fire is on it is FRI based.
+    // This could change in the future.
 
     this->fri_derived = true;
     BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
 
-    if ( (yr % this->fri) == 0 && yr > 0 ) {
-      if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
-        ignite = true;
-      }
-      // do nothing: correct year, wrong month.
+    if (this->isFireReturnDate(yr, midx))
+    {
+      ignite = true;
     }
 
-  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
-
-    this->fri_derived = false;
-    BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
-
-    if ( this->exp_burn_mask[yr] == 1 ){
-      if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
-        ignite = true;
-      }
-      // do nothing: correct year, wrong month
-    }
-  } else {
-    BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";
+  //} else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
   }
+  else if ( (stage.compare("tr-run") == 0 && md->fire_on_TR) ||
+            (stage.compare("sc-run") == 0 && md->fire_on_SC) )
+  {
+    int fire_ignition_mode;
+
+    if (stage.compare("tr-run")
+    {
+      fire_ignition_mode = md->fire_ignition_tr
+    }
+    else
+    {
+      fire_ignition_mode = md->fire_ignition_sc
+    }
+
+    switch (fire_ignition_mode)
+    {
+      case 0:// Default (old) fire behavior, use explicit fire from input file:
+      {
+        this->fri_derived = false;
+        BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
+
+        if ( this->exp_burn_mask[yr] == 1 ){
+          if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
+            ignite = true;
+          }
+          // do nothing: correct year, wrong month
+        }
+        break;
+      }
+      case 1:// Use fire return interval:
+      {
+        this->fri_derived = true;
+        BOOST_LOG_SEV(glg, debug) << "Fire ignition mode = 1. Determine fire from FRI.";
+
+        if (this->isFireReturnDate(yr, midx))
+        {
+          ignite = true;
+        }
+        break;
+      }
+      case 2://Placeholder for future dynamic ignition mode:
+      {
+        BOOST_LOG_SEV(glg, debug) << "Alternate ignition modes are not yet implemented. Set ignition_XX = 0 or 1.";
+        // Should probably terminate here.
+        this->fri_derived = false;
+        ignite = false;
+        break;
+      }
+      default:
+      {
+        BOOST_LOG_SEV(glg, err) << "Undefined ignition mode! (" << stage << ")";
+        break;
+      }
+    }
+  //} else {// FW_NOTE: This check is broken now due to fire switch checks. It requires more logic.
+  }
+  // FW_NOTE: This will work:
+  //else if (stage.compare("pre-run") != 0 && stage.compare("eq-run") != 0 &&
+  //         stage.compare("sp-run") != 0 && stage.compare("tr-run") != 0 &&
+  //         stage.compare("sc-run") != 0)
+  // FW_NOTE: But this will be more efficient:
+  else if (!(stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 ||
+             stage.compare("sp-run") == 0 || stage.compare("tr-run") == 0 ||
+             stage.compare("sc-run") == 0))
+  {
+    BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";
+  }// FW_MOD_END.
 
   BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire?:" << ignite;
 
   return ignite;
 }
+
+// FW_MOD_START:
+/** Determine if the current date, by year and month (index), aligns with the fire return interval.
+ * 
+ * FW_NOTE: 
+ * This code was extracted from should_ignite() to avoid code repetition due to other changes in the
+ * function.
+ *  Should this be moved?  The private functions don't seem to be in a particular place.*/
+bool WildFire::isFireReturnDate(const int yr, const int midx)
+{
+  // The original conditional checks for years that are multiples of the fire return interval:
+  // if ((yr % this->fri) == 0 && yr > 0)
+  // Year zero is ignored to prevent fires from occurring right at the start of the run.  If FRI = 0
+  // a divide by zero error will result.  It makes sense to all accept 0 values for FRI for locations
+  // where fire should not occur.  The following logic handles this safely:
+  if (yr > 0 && this->fri > 0 && (yr % this->fri) == 0)
+  {
+    if (midx == temutil::doy2month(this->fri_jday_of_burn))
+    {
+      return true;
+    }
+    // Do nothing: correct year, wrong month.
+  }
+  return false;
+}// FW_MOD_END.
 
 /** Burning vegetation and soil organic C */
 void WildFire::burn(int year) {

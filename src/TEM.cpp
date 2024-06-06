@@ -581,7 +581,7 @@ void advance_model(const int rowidx, const int colidx,
       runner.calcontroller_ptr->handle_stage_start();
     }
 
-    // turn off everything but env
+    // turn off everything but env // This is no longer true!!!!!
     runner.cohort.md->set_envmodule(runner.cohort.md->pr_env);
     runner.cohort.md->set_bgcmodule(runner.cohort.md->pr_bgc);
     runner.cohort.md->set_nfeed(runner.cohort.md->pr_nfeed);
@@ -629,7 +629,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(runner.cohort.md->eq_nfeed);
     runner.cohort.md->set_avlnflg(runner.cohort.md->eq_avln);
     runner.cohort.md->set_baseline(runner.cohort.md->eq_baseline);
-    runner.cohort.md->set_dsbmodule(runner.cohort.md->eq_dsb);
+    //runner.cohort.md->set_dsbmodule(runner.cohort.md->eq_dsb);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->fire_on_EQ);// FW_MOD: Preceded runner.cohort.md->eq_dsb.
     runner.cohort.md->set_dslmodule(runner.cohort.md->eq_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->eq_dyn_lai);
 
@@ -694,7 +695,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(runner.cohort.md->sp_nfeed);
     runner.cohort.md->set_avlnflg(runner.cohort.md->sp_avln);
     runner.cohort.md->set_baseline(runner.cohort.md->sp_baseline);
-    runner.cohort.md->set_dsbmodule(runner.cohort.md->sp_dsb);
+    //runner.cohort.md->set_dsbmodule(runner.cohort.md->sp_dsb);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->fire_on_SP);// FW_MOD: Preceded runner.cohort.md->sp_dsb.
     runner.cohort.md->set_dslmodule(runner.cohort.md->sp_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->sp_dyn_lai);
 
@@ -748,7 +750,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(runner.cohort.md->tr_nfeed);
     runner.cohort.md->set_avlnflg(runner.cohort.md->tr_avln);
     runner.cohort.md->set_baseline(runner.cohort.md->tr_baseline);
-    runner.cohort.md->set_dsbmodule(runner.cohort.md->tr_dsb);
+    //runner.cohort.md->set_dsbmodule(runner.cohort.md->tr_dsb);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->fire_on_TR);// FW_MOD: Preceded runner.cohort.md->tr_dsb
     runner.cohort.md->set_dslmodule(runner.cohort.md->tr_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->tr_dyn_lai);
 
@@ -798,7 +801,8 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_nfeed(runner.cohort.md->sc_nfeed);
     runner.cohort.md->set_avlnflg(runner.cohort.md->sc_avln);
     runner.cohort.md->set_baseline(runner.cohort.md->sc_baseline);
-    runner.cohort.md->set_dsbmodule(runner.cohort.md->sc_dsb);
+    //runner.cohort.md->set_dsbmodule(runner.cohort.md->sc_dsb);
+    runner.cohort.md->set_dsbmodule(runner.cohort.md->fire_on_SC);// FW_MOD: Preceded runner.cohort.md->sc_dsb.
     runner.cohort.md->set_dslmodule(runner.cohort.md->sc_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->sc_dyn_lai);
 

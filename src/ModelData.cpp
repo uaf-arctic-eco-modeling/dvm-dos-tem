@@ -120,6 +120,14 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   //changeco2     = controldata["model_settings"]["varied_co2"].asInt();
   //useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
+  // FW_MOD_START:
+  fire_on_EQ        = controldata["stage_settings"]["eq"]["fire"].asBool();
+  fire_on_SP        = controldata["stage_settings"]["sp"]["fire"].asBool();
+  fire_on_TR        = controldata["stage_settings"]["tr"]["fire"].asBool();
+  fire_on_SC        = controldata["stage_settings"]["sc"]["fire"].asBool();
+  fire_ignition_tr  = controldata["module_settings"]["dsb"]["fire"]["ignition_tr"].asInt();
+  fire_ignition_sc  = controldata["module_settings"]["dsb"]["fire"]["ignition_sc"].asInt();
+  // FW_MOD_END.
 }
 
 /** Update all the appropriate fields in ModelData from an ArgHandler object.
