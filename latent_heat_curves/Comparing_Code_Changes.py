@@ -4,7 +4,7 @@
 from scipy.interpolate import interp1d
 
 def soil_contourbydepth(df, df_depth, df_dz, start_time=None, end_time=None, 
-                  depth_start=None, depth_end=None, n=100):
+                  depth_start=None, depth_end=None, n=100, zero=False, ylim=False, col_bar_label='Temperature [$\^circ$C]'):
     '''
     data_path: path to output data to plot
     output_var: variable to plot (technically, doesn't need to be temperature)
@@ -52,17 +52,108 @@ def soil_contourbydepth(df, df_depth, df_dz, start_time=None, end_time=None,
     plt.contourf(times, regular_depths, interp_temperature.T, cmap='seismic', vmin=-color_axes, vmax=color_axes, levels=n)
 
     # Add colorbar
-    plt.colorbar(label='Temperature (C)')
+    plt.colorbar(label=col_bar_label)
 
     # Set labels and title
     plt.xlabel('Time')
     plt.ylabel('Depth (m)')
 
     # Show the plot
-    plt.ylim(depth_start, depth_end)
-    plt.gca().invert_yaxis()
+    if ylim:
+        plt.ylim(ylim[0], ylim[1])
+    else:
+        plt.ylim(depth_start, depth_end)
+        
     
     df_interp = pd.DataFrame(index=times, columns=regular_depths, data=interp_temperature)
+
+    if zero:
+        plt.contour(times, regular_depths, interp_temperature.T, colors=('k',), linewidths=(1,), levels=zero)
+
+    plt.gca().invert_yaxis()
+    
+    return df_interp
+
+
+def soil_contourbydepth_diff(df, df_depth, df_dz, df_diff=None, df_depth_diff=None, df_dz_diff=None,
+                             start_time=None, end_time=None,
+                             depth_start=None, depth_end=None,
+                             n=100, zero=False, ylim=False, 
+                             col_bar_label='Temperature [$\^circ$C]'):
+    '''
+    data_path: path to output data to plot
+    output_var: variable to plot (technically, doesn't need to be temperature)
+    res: time resolution of output data
+    px, py: pixel location of data
+    output_folder: name of output folder
+    start_time, end_time: start and end year of data to plot
+    depth_start, depth_end: starting and ending depth to be plotted (in meters)
+    n: levels on the colobar
+    '''
+    
+    layers = df.columns.astype(float)
+    layers_diff = df_diff.columns.astype(float)
+    
+    times = pd.to_datetime(df.index)
+    times_diff = pd.to_datetime(df_diff.index)
+        
+    # Filter data based on start_time and end_time
+    if start_time is not None and end_time is not None:
+        mask = (times >= start_time) & (times <= end_time)
+        df = df.loc[mask]; df_diff = df_diff.loc[mask]
+        times = times[mask]
+
+    # Extract necessary data
+    depths = df_depth.iloc[:, :-2].values; depths_diff = df_depth_diff.iloc[:, :-2].values
+    dz = df_dz.iloc[:, :-2].values; dz_diff = df_dz_diff.iloc[:, :-2].values
+    temperature = df.iloc[:, :-2].values; temperature_diff = df_diff.iloc[:, :-2].values
+    xp = depths + dz / 2  # Center of each layer, x-coordinates of the data points for interp1d
+    xp_diff = depths_diff + dz_diff / 2
+    
+    # Create a regular grid of depth values
+    ii=np.unravel_index(np.argmax(depths), depths.shape)
+    maxd=depths.max()+(dz[ii]/2)
+    regular_depths = np.arange(0, maxd, 0.01)
+
+    ii_diff=np.unravel_index(np.argmax(depths_diff), depths_diff.shape)
+    maxd_diff=depths_diff.max()+(dz_diff[ii]/2)
+    regular_depths_diff = np.arange(0, maxd_diff, 0.01)
+
+    # Interpolate temperature onto the regular grid
+    interp_temperature = np.empty((temperature.shape[0], regular_depths.shape[0]))
+    for i in range(temperature.shape[0]):
+        f = interp1d(xp[i], temperature[i], kind='linear', fill_value='extrapolate')
+        interp_temperature[i] = f(regular_depths)
+
+    interp_temperature_diff = np.empty((temperature_diff.shape[0], regular_depths.shape[0]))
+    for i in range(temperature_diff.shape[0]):
+        f = interp1d(xp_diff[i], temperature_diff[i], kind='linear', fill_value='extrapolate')
+        interp_temperature_diff[i] = f(regular_depths)
+
+    # Create contour plot
+    color_axes = max(np.max(interp_temperature_diff.T - interp_temperature.T), np.abs(np.min(interp_temperature_diff.T - interp_temperature.T)))
+    plt.contourf(times, regular_depths, interp_temperature_diff.T - interp_temperature.T, cmap='seismic', vmin=-color_axes, vmax=color_axes, levels=n)
+
+    # Add colorbar
+    plt.colorbar(label=col_bar_label)
+
+    # Set labels and title
+    plt.xlabel('Time')
+    plt.ylabel('Depth (m)')
+
+    # Show the plot
+    if ylim:
+        plt.ylim(ylim[0], ylim[1])
+    else:
+        plt.ylim(depth_start, depth_end)
+        
+    
+    df_interp = pd.DataFrame(index=times, columns=regular_depths, data=interp_temperature_diff - interp_temperature)
+
+    if zero:
+        plt.contour(times, regular_depths, interp_temperature.T, colors=('k',), linewidths=(1,), levels=[0])
+
+    plt.gca().invert_yaxis()
     
     return df_interp
 
@@ -74,6 +165,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import netCDF4 as nc
 
 sys.path.insert(0, '/work/scripts/util/')
 
@@ -81,11 +173,11 @@ from output import load_trsc_dataframe
 
 # Setting directory structure
 
-base_dir = "/data/workflows/latent_heat/"
+base_dir = "/data/workflows/latent_heat/apparent_heat_cap_ics/"
 f_dir = [
-    "reference",
-#     "unfroz",
-    "env"
+    "ref",
+    "lhc_happ"
+    # "env"
     ]
 f_name = [
     "ref",
@@ -97,12 +189,12 @@ f_name = [
 
 units = {}; monthly = {} ; yearly = {}
 
-py = 0; px = 9
+py = 0; px = 0
 
 yearly_vars = ["ALD"]
 monthly_vars = ['WATERTAB', 'SNOWTHICK']
 
-layer_vars = ["LAYERDZ", "LAYERDEPTH", "LAYERTYPE", "LWCLAYER", "IWCLAYER", "TLAYER", "FRONTSDEPTH", "FRONTSTYPE"]
+layer_vars = ["LAYERDZ", "LAYERDEPTH", "LAYERTYPE", "LWCLAYER", "IWCLAYER", "TLAYER", "FRONTSDEPTH", "FRONTSTYPE", "TCLAYER"]
 layer_data = {key: [] for key in layer_vars}
 soil_vars = ["ground", "moss", "shlw", "deep", "mine"]
 soil_profiles = {key: [] for key in soil_vars}
@@ -176,10 +268,10 @@ for i, DIR in enumerate(f_dir):
 
 
 # Plotting temperature
-n_layers = 3
+n_layers = 10
 
 date_start = pd.to_datetime("1901")
-date_end = pd.to_datetime("1910")
+date_end = pd.to_datetime("1903")
 
 fig, ax = plt.subplots(n_layers, 1, sharex=True, sharey=True)
 
@@ -187,17 +279,21 @@ for i in range(0, n_layers):
     
     ax[i].plot(layer_data["TLAYER"][0][date_start:date_end][i], alpha = 0.5, label="reference")
     ax[i].plot(layer_data["TLAYER"][1][date_start:date_end][i], alpha = 0.5, label="test")
+    ax[i].set_title(f'Layer {i+1}')
     
 ax[0].legend(bbox_to_anchor=(1.0, 1.05), loc="upper left", fontsize=12)
 
 plt.subplots_adjust(left=None, bottom=None, right=None, top=1.1, wspace=None, hspace=0.5)
 fig.text(0.5, 0.01, 'Year', ha='center', fontsize=14)
 fig.text(0.01, 0.55, f'Temperature [{units["TLAYER"]}]', va='center', rotation='vertical', fontsize=14)
+
+plt.subplots_adjust(left=None, bottom=None, right=1.5, top=2, wspace=None, hspace=None)
+
 plt.show()
 
 
 # Plotting liquid water
-n_layers = 3
+n_layers = 5
 
 date_start = pd.to_datetime("1901")
 date_end = pd.to_datetime("1910")
@@ -218,7 +314,7 @@ plt.show()
 
 
 # Plotting ice water content
-n_layers = 3
+n_layers = 5
 
 date_start = pd.to_datetime("1901")
 date_end = pd.to_datetime("1910")
@@ -262,7 +358,7 @@ plt.show()
 # Plotting active layer depth
 
 date_start = pd.to_datetime("1901")
-date_end = pd.to_datetime("1910")
+date_end = pd.to_datetime("2100")
 
 plt.plot(yearly["ref"]["ALD"][date_start:date_end], alpha = 0.5, label="reference")
 plt.plot(yearly["unfroz"]["ALD"][date_start:date_end], alpha = 0.5, label="test")
@@ -338,6 +434,9 @@ ax.legend(handles=handles, bbox_to_anchor=(1.05, 1.0), loc='upper left', fontsiz
 plt.subplots_adjust(left=None, bottom=None, right=1.5, top=1.2, wspace=None, hspace=None)
 
 
+layer_data["LAYERTYPE"][1]["1901":"1910"]
+
+
 # #### Need to incorporate a color dependent line based on FRONTSTYPE value (-1, 1) 
 
 xmin = pd.to_datetime("1901");  xmax = pd.to_datetime("1906")
@@ -359,139 +458,260 @@ plt.subplots_adjust(left=None, bottom=None, right=1.5, top=1.2, wspace=None, hsp
 plt.show()
 
 
-i = 0
-fig, ax = plt.subplots(1,1,figsize=(15, 5))
+i = 0; var = "TLAYER"; start='1901'; end='1905'; N=50; D1=0;D2=0.5; Z=[0]; Y=False;
 
-ref_interp = soil_contourbydepth(
-    
-df = layer_data["TLAYER"][i],
-    
-df_depth = layer_data["LAYERDEPTH"][i],
-    
-df_dz = layer_data["LAYERDZ"][i],
-    
-start_time=None,
-    
-end_time=None,
-    
-depth_start=None, 
-    
-depth_end=None,
-    
-n=500
-    
-)
+fig = plt.figure()
+ax = fig.add_subplot(121)
+
+ref_interp_T = soil_contourbydepth(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
 
 plt.title(f'{f_name[i]}')
+ax = fig.add_subplot(122)
+
+j = 1
+unf_interp_T = soil_contourbydepth(df = layer_data[var][j], df_depth = layer_data["LAYERDEPTH"][j], df_dz = layer_data["LAYERDZ"][j],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+plt.title(f'{f_name[j]}')
+plt.subplots_adjust(left=None, bottom=None, right=1.75, top=1, wspace=None, hspace=None)
+plt.show()
+
+fig, ax = plt.subplots(1,1,figsize=(15, 5))
+unfroz_interp = soil_contourbydepth_diff(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                         df_diff = layer_data[var][j], df_depth_diff = layer_data["LAYERDEPTH"][j], df_dz_diff = layer_data["LAYERDZ"][j],
+                                         start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=False, ylim=Y,col_bar_label=var)
+
+plt.title(f'{f_name[j]} - {f_name[i]}')
+
 plt.show()
 
 
-i = 1
-fig, ax = plt.subplots(1,1,figsize=(15, 5))
+i = 0; var = "TCLAYER"; start='1902'; end='1903'; N=50; D1=0;D2=0.5; Z=False; Y=False;
 
-unfroz_interp = soil_contourbydepth(
-    
-df = layer_data["TLAYER"][i],
-    
-df_depth = layer_data["LAYERDEPTH"][i],
-    
-df_dz = layer_data["LAYERDZ"][i],
-    
-start_time=None,
-    
-end_time=None,
-    
-depth_start=None, 
-    
-depth_end=None,
-    
-n=50
-)
+fig = plt.figure()
+ax = fig.add_subplot(121)
 
+ref_interp_T = soil_contourbydepth(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
 plt.title(f'{f_name[i]}')
-plt.show()
+ax = fig.add_subplot(122)
 
+j = 1
+unf_interp_T = soil_contourbydepth(df = layer_data[var][j], df_depth = layer_data["LAYERDEPTH"][j], df_dz = layer_data["LAYERDZ"][j],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+plt.title(f'{f_name[j]}')
+plt.subplots_adjust(left=None, bottom=None, right=1.75, top=1, wspace=None, hspace=None)
+plt.show()
 
 fig, ax = plt.subplots(1,1,figsize=(15, 5))
+unfroz_interp = soil_contourbydepth_diff(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                         df_diff = layer_data[var][j], df_depth_diff = layer_data["LAYERDEPTH"][j], df_dz_diff = layer_data["LAYERDZ"][j],
+                                         start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
 
-interp = soil_contourbydepth(
-    
-df = layer_data["TLAYER"][0] - layer_data["TLAYER"][1],
-    
-df_depth = (layer_data["LAYERDEPTH"][0] + layer_data["LAYERDEPTH"][1]) / 2,
-    
-df_dz = (layer_data["LAYERDZ"][0] + layer_data["LAYERDZ"][1]) / 2,
-    
-start_time=None,
-    
-end_time=None,
-    
-depth_start=None, 
-    
-depth_end=None,
-    
-n=50
-)
+plt.title(f'{f_name[j]} - {f_name[i]}')
 
-plt.title(f'{f_name[0]} - {f_name[1]} difference')
 plt.show()
 
 
-ALD = yearly["ref"]["ALD"]
-plt.plot(ALD, label='Model output')
+i = 0; var = "LWCLAYER"; start='1902'; end='1903'; N=50; D1=0;D2=0.5; Z=False; Y=False;
 
-temp = layer_data["TLAYER"][0]
-depth = layer_data["LAYERDEPTH"][0]
-thick = layer_data["LAYERDZ"][0]
+fig = plt.figure()
+ax = fig.add_subplot(121)
 
-# Final temperature based calculation of ALD
-interp_ald = []
+ref_interp_T = soil_contourbydepth(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+plt.title(f'{f_name[i]}')
+ax = fig.add_subplot(122)
 
-# looping through year index
-for year in ALD.index.year:
+j = 1
+unf_interp_T = soil_contourbydepth(df = layer_data[var][j], df_depth = layer_data["LAYERDEPTH"][j], df_dz = layer_data["LAYERDZ"][j],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+plt.title(f'{f_name[j]}')
+plt.subplots_adjust(left=None, bottom=None, right=1.75, top=1, wspace=None, hspace=None)
+plt.show()
+
+fig, ax = plt.subplots(1,1,figsize=(15, 5))
+unfroz_interp = soil_contourbydepth_diff(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                         df_diff = layer_data[var][j], df_depth_diff = layer_data["LAYERDEPTH"][j], df_dz_diff = layer_data["LAYERDZ"][j],
+                                         start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+
+plt.title(f'{f_name[j]} - {f_name[i]}')
+
+plt.show()
+
+
+i = 0; var = "IWCLAYER"; start='1902'; end='1903'; N=50; D1=0;D2=0.5; Z=False; Y=False;
+
+fig = plt.figure()
+ax = fig.add_subplot(121)
+
+ref_interp_T = soil_contourbydepth(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+plt.title(f'{f_name[i]}')
+ax = fig.add_subplot(122)
+
+j = 1
+unf_interp_T = soil_contourbydepth(df = layer_data[var][j], df_depth = layer_data["LAYERDEPTH"][j], df_dz = layer_data["LAYERDZ"][j],
+                                 start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+plt.title(f'{f_name[j]}')
+plt.subplots_adjust(left=None, bottom=None, right=1.75, top=1, wspace=None, hspace=None)
+plt.show()
+
+fig, ax = plt.subplots(1,1,figsize=(15, 5))
+unfroz_interp = soil_contourbydepth_diff(df = layer_data[var][i], df_depth = layer_data["LAYERDEPTH"][i], df_dz = layer_data["LAYERDZ"][i],
+                                         df_diff = layer_data[var][j], df_depth_diff = layer_data["LAYERDEPTH"][j], df_dz_diff = layer_data["LAYERDZ"][j],
+                                         start_time=start, end_time=end, depth_start=D1, depth_end=D2, n=N, zero=Z, ylim=Y,col_bar_label=var)
+
+plt.title(f'{f_name[j]} - {f_name[i]}')
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ALD = yearly["unfroz"]["ALD"]
+# plt.plot(ALD, label='Model output')
+
+# temp = layer_data["TLAYER"][1]
+# depth = layer_data["LAYERDEPTH"][1]
+# thick = layer_data["LAYERDZ"][1]
+
+# # Final temperature based calculation of ALD
+# interp_ald = []
+
+# # looping through year index
+# for year in ALD.index.year:
     
-    # setting df as a single year of data
-    T = temp.loc[str(year)]
-    z = depth.loc[str(year)]
-    dz = thick.loc[str(year)]
+#     # setting df as a single year of data
+#     T = temp.loc[str(year)]
+#     z = depth.loc[str(year)]
+#     dz = thick.loc[str(year)]
     
-    # list for storing one year of depths closest to zero degrees
-    year_depth = []
+#     # list for storing one year of depths closest to zero degrees
+#     year_depth = []
                 
-    # looping and subsetting by month    
-    for month in T.index.month:
+#     # looping and subsetting by month    
+#     for month in T.index.month:
                 
-        # subsetting by a single month
-        Tm = T.iloc[month - 1, :]
-        zm = z.iloc[month - 1, :] + (dz.iloc[month - 1, :]/2)
+#         # subsetting by a single month
+#         Tm = T.iloc[month - 1, :]
+#         zm = z.iloc[month - 1, :] + (dz.iloc[month - 1, :]/2)
         
-        # appending the depth with closest to zero degrees for that month
-        if Tm[0]<=0.0:
-            year_depth.append(0.0)
+#         # appending the depth with closest to zero degrees for that month
+#         if Tm[0]<=0.0:
+#             year_depth.append(0.0)
             
-        elif Tm[0]>0.0:
-            for layer in Tm.index:
-                if Tm[layer]<=0.0:
+#         elif Tm[0]>0.0:
+#             for layer in Tm.index:
+#                 if Tm[layer]<=0.0:
                     
-                    year_depth.append(np.interp(x=0.0, xp=[Tm[layer], Tm[layer-1]], fp=[zm[layer], zm[layer-1]]))
+#                     year_depth.append(np.interp(x=0.0, xp=[Tm[layer], Tm[layer-1]], fp=[zm[layer], zm[layer-1]]))
                     
-                    break
+#                     break
                     
-#                 print(year_depth)
-#                 print(ALD.loc[str(year)])
+# #                 print(year_depth)
+# #                 print(ALD.loc[str(year)])
     
     
                     
             
-    interp_ald.append(max(year_depth))
+#     interp_ald.append(max(year_depth))
 
-interp_ald = pd.DataFrame(index = ALD.index, data=interp_ald)
+# interp_ald = pd.DataFrame(index = ALD.index, data=interp_ald)
 
-plt.plot(interp_ald, label="Temperature interpolation")
+# plt.plot(interp_ald, label="Temperature interpolation")
 
-plt.xlabel("Year"); plt.ylabel("Active layer depth")
+# plt.xlabel("Year"); plt.ylabel("Active layer depth")
 
-plt.legend()
+# plt.legend()
+
+
+# xmin = pd.to_datetime("1901");  xmax = pd.to_datetime("1906")
+
+# fig, ax = plt.subplots(1,2)
+
+# ax[0].plot(layer_data["FRONTSDEPTH"][0][0][xmin:xmax].index, -layer_data["FRONTSDEPTH"][0][xmin:xmax].replace(-9999, np.nan))
+# ax[0].plot(-yearly['ref'][xmin:xmax]['ALD'])
+
+# # ax[1].plot(layer_data["FRONTSDEPTH"][0][0][xmin:xmax].index, -layer_data["FRONTSTYPE"][0][xmin:xmax].replace(-9999, np.nan))
+
+# # ax[0].plot(layer_data["FRONTSDEPTH"][1][0][xmin:xmax].index, -layer_data["FRONTSDEPTH"][1][xmin:xmax].replace(-9999, np.nan))
+# # ax[1].plot(layer_data["FRONTSDEPTH"][1][0][xmin:xmax].index, -layer_data["FRONTSTYPE"][1][xmin:xmax].replace(-9999, np.nan))
+
+# ax[0].set_xlabel("Year", fontsize=12); ax[1].set_xlabel("Year", fontsize=12)
+# ax[0].set_ylabel("Front depth", fontsize=12)
+# ax[1].set_ylabel("Front type", fontsize=12)
+
+# plt.subplots_adjust(left=None, bottom=None, right=1.5, top=1.2, wspace=None, hspace=None)
+
+# plt.show()
+
+
+
 
 
 

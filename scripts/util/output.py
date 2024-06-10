@@ -157,7 +157,7 @@ def average_monthly_pool_to_yearly(data):
   return output
 
 def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, 
-                        fileprefix=None):
+                        fileprefix=None, only_tr=False):
   '''Builds a pandas.DataFrame for the requested output variable with the
   transient and scenario data merged together and a complete
   DatetimeIndex.
@@ -194,9 +194,15 @@ def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None,
     A small dictionary containing metadata about the datasets in the
     dataframe. Namely, the units.
   '''
-  data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
+  if only_tr==True:
+    data, units, dims, dti = stitch_stages(var=var, stages=['tr'], 
       timestep=timeres, fileprefix=fileprefix, with_dti=True
   )
+    
+  else:
+    data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
+        timestep=timeres, fileprefix=fileprefix, with_dti=True
+    )
 
   timeslice = slice(0, None, 1)
   yslice = slice(px_y, px_y+1, 1)
@@ -305,7 +311,13 @@ def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
 
   if with_dti:
     ds_begin = nc.Dataset(expected_file_names[0])
-    ds_end = nc.Dataset(expected_file_names[1])
+
+    if len(stages)==1:
+      ds_end = nc.Dataset(expected_file_names[0])
+
+    else:
+      ds_end = nc.Dataset(expected_file_names[1])
+
     dti = build_full_datetimeindex(ds_begin, ds_end, timeres=timestep)
     return (full_ds, units_str, dimensions, dti)
   else:
