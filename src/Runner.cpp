@@ -1593,11 +1593,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
         }
       }
-      else{ //sum
-          //daily
-          //monthly
-          //yearly
-      }
 
     }//end critical(outputCH4DIFFUSION)
   }//end CH4DIFFUSION

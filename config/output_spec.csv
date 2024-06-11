@@ -13,7 +13,7 @@ BURNVEG2SOIABVC,Burned vegetation C to soil above,g/m2/time,,,invalid,invalid,in
 BURNVEG2SOIABVN,Burned vegetation N to soil above,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 BURNVEG2SOIBLWC,Burned vegetation C to soil below,g/m2/time,,,invalid,invalid,invalid,invalid,double,
 BURNVEG2SOIBLWN,Burned vegetation N to soil below,g/m2/time,,,invalid,invalid,invalid,invalid,double,
-CH4DIFFUSION,Methane flux from diffusion,??,,,,invalid,invalid,,double,
+CH4DIFFUSION,Methane flux from diffusion,??,,,,invalid,invalid,forced,double,
 CH4EBULLITION,Methane flux from bubbling,??,,,,invalid,invalid,,double,
 CH4EFFLUX,Methane flux from soil surface and vegetation to atmosphere,??,,,,invalid,invalid,invalid,double,
 CH4OXIDATION,Oxidation of methane to carbon dioxide,??,,,,invalid,invalid,,double,
