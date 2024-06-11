@@ -64,6 +64,7 @@ public:
 
   std::vector<std::array<double, MAX_SOI_LAY>> ch4pool_layer_for_output;
 
+  std::vector<double> ch4prod_sum_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> ch4prod_layer_for_output;
 
   std::vector<double> ch4transport_sum_for_output;
