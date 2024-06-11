@@ -1589,8 +1589,8 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
     if eq_var_check.iloc[n, :].all() == True:
       eq_check.loc[n] = True
   
-  counts = eq_var_check.apply(pd.value_counts)
-  total_counts = eq_check.apply(pd.value_counts)
+  counts = eq_var_check.apply(pd.value_counts).replace(np.nan, 0.0)
+  total_counts = eq_check.apply(pd.value_counts).replace(np.nan, 0.0)
   
   # add catch for only True / only False:
   if len(counts.index)==1:
