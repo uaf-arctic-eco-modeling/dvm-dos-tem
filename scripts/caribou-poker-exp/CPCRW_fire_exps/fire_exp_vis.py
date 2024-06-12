@@ -96,6 +96,7 @@ var_list = ['GPP',
             'DEEPC',
             'MINEC',
             'AVLN',
+            'ORGN',
             'ALD',
             'SHLWDZ',
             'DEEPDZ',
@@ -116,6 +117,7 @@ timeres = ['monthly',
            'monthly',
            'monthly',
            'monthly',
+           'yearly',
            'yearly',
            'yearly',
            'yearly',
@@ -151,6 +153,7 @@ year_agg = ['sum',
                'mean',
                'mean',
                'mean',
+               'mean',
                'mean'
                 ]
 
@@ -162,6 +165,7 @@ detail = ['cmt',
           'cmt',
           'cmt',
           'part',
+          'cmt',
           'cmt',
           'cmt',
           'cmt',
@@ -814,7 +818,7 @@ fig.tight_layout()
 plt.savefig('ET_fire_exps.jpg', dpi=300)
 
 
-fig, axes = plt.subplots(6,2, figsize=(8,8), sharex=True)
+fig, axes = plt.subplots(7,2, figsize=(8,10), sharex=True)
 
 
 sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='black_spruce'], 
@@ -829,6 +833,8 @@ sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='black_spruce'],
              x='year', y='SOMCR', hue='exp', ax=axes[4][0], legend=False, palette=pal, alpha=0.6)
 sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='black_spruce'], 
              x='year', y='AVLN', hue='exp', ax=axes[5][0], legend=False, palette=pal, alpha=0.6)
+sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='black_spruce'], 
+             x='year', y='ORGN', hue='exp', ax=axes[6][0], legend=False, palette=pal, alpha=0.6)
 
 axes[0][0].set_title('Black Spruce')
 axes[0][0].set_ylabel('LTRFALC (gC/m2)')
@@ -844,7 +850,7 @@ axes[3][0].set_ylabel('SOMPR (gC/m2)')
 axes[4][0].set_ylabel('SOMCR (gC/m2)')
 axes[5][0].set_ylabel('AVLN (gC/m2)')
 
-#axes[5][0].set_ylim(1,2)
+#axes[5][0].set_ylim(1.64,1.645)
 
 sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'], 
              x='year', y='LTRFALC', hue='exp', ax=axes[0][1], legend=False, palette=pal, alpha=0.6)
@@ -858,6 +864,10 @@ sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'],
              x='year', y='SOMCR', hue='exp', ax=axes[4][1], legend=False, palette=pal, alpha=0.6)
 sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'], 
              x='year', y='AVLN', hue='exp', ax=axes[5][1], legend=False, palette=pal, alpha=0.6)
+sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'], 
+             x='year', y='ORGN', hue='exp', ax=axes[6][1], legend=False, palette=pal, alpha=0.6)
+
+#axes[6,0].set_ylim(2100,2300)
 
 axes[0][1].set_ylabel('')
 axes[1][1].set_ylabel('')
@@ -871,6 +881,9 @@ axes[0][1].set_title('Birch')
 
 fig.tight_layout()
 plt.savefig('Pools_fire_exps.jpg', dpi=300)
+
+
+results_yearly.loc[results_yearly['cmt']=='birch', 'AVLN']
 
 
 fig, axes = plt.subplots(3,2, figsize=(8,8), sharex=True)
