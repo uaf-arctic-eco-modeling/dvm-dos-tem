@@ -202,10 +202,10 @@ void WildFire::burn(int year) {
                            //  and calculated below
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Handle burning the soil (loop over all soil layers)...";
+  BOOST_LOG_SEV(glg, fatal) << "Handle burning the soil (loop over all soil layers)...";
   for (int il = 0; il < cd->m_soil.numsl; il++) {
 
-    BOOST_LOG_SEV(glg, debug) << "== Layer Info == "
+    BOOST_LOG_SEV(glg, fatal) << "== Layer Info == "
                               << "   type:" << cd->m_soil.type[il] // 0:moss 1:shlwpeat 2:deeppeat 3:mineral
                               << "   dz:" << cd->m_soil.dz[il]
                               << "   top:" << cd->m_soil.z[il]
@@ -221,7 +221,7 @@ void WildFire::burn(int year) {
       double ilsoln =  bdall->m_sois.orgn[il] + bdall->m_sois.avln[il];
 
       if(totbotdepth <= burndepth) { //remove all the orgc/n in this layer
-        BOOST_LOG_SEV(glg, debug) << "Haven't reached burndepth (" << burndepth << ") yet. Remove all org C and N in this layer";
+        BOOST_LOG_SEV(glg, fatal) << "Haven't reached burndepth (" << burndepth << ") yet. Remove all org C and N in this layer";
         burnedsolc += ilsolc;
         burnedsoln += ilsoln;
         bdall->m_sois.rawc[il] = 0.0;
@@ -238,12 +238,12 @@ void WildFire::burn(int year) {
           }
         }
       } else {
-        BOOST_LOG_SEV(glg, debug) << "The bottom of this layer (il: " << il << ") is past the 'burndepth'. Find the remaining C and N as a fraction of layer thickness";
+        BOOST_LOG_SEV(glg, fatal) << "The bottom of this layer (il: " << il << ") is past the 'burndepth'. Find the remaining C and N as a fraction of layer thickness";
         double partleft = totbotdepth - burndepth;
 
         // Calculate the remaining C, N
         if (partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
-          BOOST_LOG_SEV(glg, debug) << "Burning all but "<<partleft<<"of layer "<<il;
+          BOOST_LOG_SEV(glg, fatal) << "Burning all but "<<partleft<<"of layer "<<il;
           burnedsolc += (1.0-partleft/cd->m_soil.dz[il]) * ilsolc;
           burnedsoln += (1.0-partleft/cd->m_soil.dz[il]) * ilsoln;
           bdall->m_sois.rawc[il] *= partleft/cd->m_soil.dz[il];
@@ -272,7 +272,7 @@ void WildFire::burn(int year) {
       BOOST_LOG_SEV(glg, note) << "Not much to do here. Can't really burn non-organic layers.";
 
       if(totbotdepth <= burndepth) { //may not be needed, but just in case
-        BOOST_LOG_SEV(glg, note) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
+        BOOST_LOG_SEV(glg, fatal) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
         fd->fire_soid.burnthick = totbotdepth;
       }
     }
@@ -281,20 +281,39 @@ void WildFire::burn(int year) {
   //Setting relative organic layer burn (rolb) value
   fd->fire_soid.rolb = fd->fire_soid.burnthick / totbotdepth;
 
-  // needs to re-do the soil rootfrac for each pft which was modified above
-  //   (in burn soil layer)
   BOOST_LOG_SEV(glg, note) << "Re-do the soil root fraction for each PFT modified by burning?";
   for (int ip = 0; ip < NUM_PFT; ip++) {
+    
     double rootfracsum = 0.0;
+    for (int il = 0; il < cd->m_soil.numsl; il++) {
+      cd->m_soil.frootfrac[il][ip] = 0.0;
+    }
 
     for (int il = 0; il < cd->m_soil.numsl; il++) {
-      rootfracsum += cd->m_soil.frootfrac[il][ip];
+      if (cd->m_soil.type[il]>0 && cd->m_soil.frootfrac[il][ip]>0.) {
+        rootfracsum += cd->m_soil.frootfrac[il][ip];
+      }
     }
 
     for (int il =0; il <cd->m_soil.numsl; il++) {
-      cd->m_soil.frootfrac[il][ip] /= rootfracsum;
+      if (cd->m_soil.type[il]>0 && cd->m_soil.frootfrac[il][ip]>0.) {
+        cd->m_soil.frootfrac[il][ip] /= rootfracsum;
+      }
     }
   }
+
+  //BOOST_LOG_SEV(glg, fatal) << "Soil frootfrac after fixing";
+  //for (int ip = 0; ip < NUM_PFT; ip++) {
+  //  double rootfracsum_post_fix = 0.0;
+
+  //  for (int il = 0; il < cd->m_soil.numsl; il++) {
+  //      if (cd->m_soil.type[il]>0 && cd->m_soil.frootfrac[il][ip]>0.) {
+  //        rootfracsum_post_fix += cd->m_soil.frootfrac[il][ip];
+  //      }
+  //  }
+
+  //  BOOST_LOG_SEV(glg, fatal) << "PFT: " << ip << " frootfrac sum: " << rootfracsum_post_fix; 
+  //}
 
   // all woody debris will burn out
   BOOST_LOG_SEV(glg, note) << "Handle burnt woody debris...";
@@ -326,7 +345,7 @@ void WildFire::burn(int year) {
   for (int ip = 0; ip < NUM_PFT; ip++) {
 
     if (cd->m_veg.vegcov[ip] > 0.0) {
-      BOOST_LOG_SEV(glg, note) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
+      BOOST_LOG_SEV(glg, fatal) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
       getBurnAbgVegetation(ip, year);
@@ -391,7 +410,7 @@ void WildFire::burn(int year) {
       for (int il =0; il <cd->m_soil.numsl; il++) {
         if (cd->m_soil.frootfrac[il][ip] > 0.0) {
           //for this, 'rootfrac' must be updated above
-          bdall->m_sois.somcr[il] += deadn_tmp*cd->m_soil.frootfrac[il][ip];
+          bdall->m_sois.orgn[il] += deadn_tmp*cd->m_soil.frootfrac[il][ip];
         }
       }
       dead_bg_vegn +=deadn_tmp;
@@ -489,6 +508,20 @@ void WildFire::burn(int year) {
       bd[ip]->m_sois = bdall->m_sois;
     }
   }
+
+  //BOOST_LOG_SEV(glg, fatal) << "Soil frootfrac after burn called";
+  //for (int ip = 0; ip < NUM_PFT; ip++) {
+  //  double rootfracsum_post_fix = 0.0;
+
+  // for (int il = 0; il < cd->m_soil.numsl; il++) {
+  //      if (cd->m_soil.type[il]>0 && cd->m_soil.frootfrac[il][ip]>0.) {
+  //       rootfracsum_post_fix += cd->m_soil.frootfrac[il][ip];
+  //      }
+  //  }
+
+  //  BOOST_LOG_SEV(glg, fatal) << "PFT: " << ip << " frootfrac sum: " << rootfracsum_post_fix; 
+  //}
+
 };
 
 
