@@ -12,7 +12,7 @@
 # path to the directory of TEM input files used to produce the TEM outputs
 inputdir="/data/input-catalog/caribou-poker/"
 # path to the TEM raw output directory
-rawoutdir="/data/workflows/poker_flats_test/output/"
+rawoutdir="/data/workflows/poker_flats_merged_data/output/"
 #tar -zxvf "${rawoutdir}.tar.gz"
 # path to the directory containing the python scripts associated to this bash (e.g. Layer_var_synth.py)
 scriptdir="/work/scripts/caribou-poker-exp/soil_layer_synthesis/"
@@ -123,6 +123,3 @@ for sc in "${sclist[@]}"; do
   #run the python script for linear interpolation
   python3 "${scriptdir}Layer_var_synth.py" 
 done
-
-
-

@@ -109,7 +109,3 @@ ds.to_netcdf(os.path.join(outpath + var + "_std_depth_" + timeres + "_" + sc + "
 #data.dtypes
 #data['time'] = data['time'].astype('|datetime64[ns]')
 #data['year'] = data['time'].dt.year
-
-
-
-
