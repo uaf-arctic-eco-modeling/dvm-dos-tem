@@ -4,14 +4,20 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
+        { 
             "name": "(gdb) dvmdostem",
             "type": "cppdbg",
             "request": "launch",
             "program": "/work/dvmdostem",
-            "args": ["-l", "fatal", "-p", "2", "-e", "2", "-s", "2", "-t", "2", "-n", "2"],
+            "args": ["--force-cmt", "15", 
+                     "--log-level", "fatal", 
+                     "-e", "1000", 
+                     "-s", "300", 
+                     "-p", "100",
+                     "-t", "122", 
+                     "-n", "0"],
             "stopAtEntry": false,
-            "cwd": "/work/",
+            "cwd": "/data/workflows/BONA-black-spruce-fire-1930/",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
