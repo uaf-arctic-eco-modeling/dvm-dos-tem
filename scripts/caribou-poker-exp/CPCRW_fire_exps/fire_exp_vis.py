@@ -867,7 +867,7 @@ sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'],
 sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'], 
              x='year', y='ORGN', hue='exp', ax=axes[6][1], legend=False, palette=pal, alpha=0.6)
 
-#axes[6,0].set_ylim(2100,2300)
+axes[6,0].set_ylim(2100,2300)
 
 axes[0][1].set_ylabel('')
 axes[1][1].set_ylabel('')
