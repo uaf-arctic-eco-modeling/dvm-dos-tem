@@ -407,7 +407,7 @@ namespace temutil {
   void handle_error(int status) {
     if (status != NC_NOERR) {
       fprintf(stderr, "%s\n", nc_strerror(status));
-      BOOST_LOG_SEV(glg, err) << nc_strerror(status);
+      BOOST_LOG_SEV(glg, warn) << nc_strerror(status);
 
       std::string msg = "Exception from netcdf: ";
       msg = msg + nc_strerror(status);
@@ -438,7 +438,7 @@ namespace temutil {
     int scalar_var;
     temutil::nc( nc_inq_varid(ncid, var.c_str(), &scalar_var) );
 
-    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    BOOST_LOG_SEV(glg, info) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
     int yD, xD;
     size_t yD_len, xD_len;
 
@@ -501,7 +501,7 @@ namespace temutil {
       temutil::nc( nc_get_vara_double(ncid, scalar_var, start, count, &data3) );
       data2 = (DTYPE)data3;
     } else {
-      BOOST_LOG_SEV(glg, err) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
+      BOOST_LOG_SEV(glg, warn) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
     }
 
     return data2;
@@ -530,7 +530,7 @@ namespace temutil {
     int timeseries_var;
     temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
 
-    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    BOOST_LOG_SEV(glg, info) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
     int yD, xD;
     size_t yD_len, xD_len;
 
@@ -581,7 +581,7 @@ namespace temutil {
       data2.insert(data2.end(), &dataF[0], &dataF[dataArraySize]);
 
     } else {
-      BOOST_LOG_SEV(glg, err) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
+      BOOST_LOG_SEV(glg, warn) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
     }
     return data2;
   }
@@ -811,7 +811,7 @@ namespace temutil {
     std::vector<int> fy = ??
 */
     std::vector<int> JUNK(10,-34567);
-    BOOST_LOG_SEV(glg, err) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
+    BOOST_LOG_SEV(glg, warn) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
     return JUNK;
   }
 
@@ -823,7 +823,7 @@ namespace temutil {
   std::vector<int> get_fire_sizes(const std::string &filename, int y, int x){
     // FIX: implement this!
     std::vector<int> JUNK(10,-2432);
-    BOOST_LOG_SEV(glg, err) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
+    BOOST_LOG_SEV(glg, warn) << "THIS IS JUNK DATA! NOT IMPLEMENTED YET!!";
     return JUNK;
   }
 
@@ -1066,7 +1066,7 @@ namespace temutil {
   */  
   std::vector<std::string> get_cmt_data_block(std::string filename, int cmtnum) {
 
-    BOOST_LOG_SEV(glg, note) << "Opening file: " << filename;
+    BOOST_LOG_SEV(glg, info) << "Opening file: " << filename;
     std::ifstream par_file(filename.c_str(), std::ifstream::in);
 
     if ( !par_file.is_open() ) {
@@ -1078,7 +1078,7 @@ namespace temutil {
 
     // create a place to store lines making up the community data "block"
     std::vector<std::string> cmt_block_vector; 
-    BOOST_LOG_SEV(glg, note) << "Searching file for community: " << cmtstr;
+    BOOST_LOG_SEV(glg, info) << "Searching file for community: " << cmtstr;
     for (std::string line; std::getline(par_file, line); ) {
       int pos = line.find(cmtstr);
       if ( pos != std::string::npos ) {
@@ -1144,7 +1144,7 @@ namespace temutil {
   std::list<std::string> parse_parameter_file(
       const std::string& fname, int cmtnumber, int linesofdata) {
     
-    BOOST_LOG_SEV(glg, note) << "Parsing '"<< fname << "', "
+    BOOST_LOG_SEV(glg, info) << "Parsing '"<< fname << "', "
                              << "for community number: " << cmtnumber;
 
     // get a vector of strings for that cmt "block". includes comments.
@@ -1161,7 +1161,7 @@ namespace temutil {
 
     // check the size
     if (datalist.size() != linesofdata) {
-      BOOST_LOG_SEV(glg, err) << "Expected " << linesofdata << ". "
+      BOOST_LOG_SEV(glg, warn) << "Expected " << linesofdata << ". "
                               << "Found " << datalist.size() << ". "
                               << "(" << fname << ", community " << cmtnumber << ")";
       exit(-1);

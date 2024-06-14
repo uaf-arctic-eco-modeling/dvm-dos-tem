@@ -298,7 +298,7 @@ void Ground::initDimension() {
   //mineralinfo.num = 0;
   //mineralinfo.thick = 0;
   //
-  ////BOOST_LOG_SEV(glg, err) << "FIX THIS!!!! ARIBTRARILY SETTING TEXTURE!";
+  ////BOOST_LOG_SEV(glg, warn) << "FIX THIS!!!! ARIBTRARILY SETTING TEXTURE!";
   ////for (int il=0; il<MAX_MIN_LAY; il++) {
   ////  chtlu->minetexture[il] = 4;
   ////}
@@ -441,9 +441,9 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
   Layer* current_layer = this->toplayer;
   int extra = 0;
   if (current_layer == NULL) {
-    BOOST_LOG_SEV(glg, err) << " (No Layers left...)";
+    BOOST_LOG_SEV(glg, warn) << " (No Layers left...)";
   } else {
-    BOOST_LOG_SEV(glg, err) << " (Remaining Layers...)";
+    BOOST_LOG_SEV(glg, warn) << " (Remaining Layers...)";
     while(current_layer!=NULL) {
       ++extra;
       current_layer = current_layer->nextl;
@@ -467,7 +467,7 @@ void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
 
   // Clean extra bottom rock layers if any
   for(int il = soilparent.num-1+extra; il>soilparent.num-1; il--) {
-    BOOST_LOG_SEV(glg, err) << "after parent layers :" << il;
+    BOOST_LOG_SEV(glg, warn) << "after parent layers :" << il;
     cleanRockLayers(); 
   }
 
@@ -2249,7 +2249,7 @@ void Ground::checkFrontsValidity() {
              frontsz[fntind] <= (currl->z + currl->dz)) {
 
         if (currl->frozen != 0) {
-          BOOST_LOG_SEV(glg, err) << "Soil layer " << currl->indl
+          BOOST_LOG_SEV(glg, warn) << "Soil layer " << currl->indl
                                    << " with front shall have 0 for its frozen "
                                    << "state! Ground::checkFronts(..)";
         }

@@ -107,7 +107,7 @@ CalController::CalController(Cohort* cht_p):
   this->clear_archived_json();
 
   if (!this->cohort_ptr) {
-    BOOST_LOG_SEV(glg, err) << "Something is wrong and the Cohort pointer is null!";
+    BOOST_LOG_SEV(glg, warn) << "Something is wrong and the Cohort pointer is null!";
   }
 
   BOOST_LOG_SEV(glg, debug) << "Done constructing a CalController.";
@@ -165,7 +165,7 @@ Json::Value CalController::load_directives_from_file(
                              << "Returning empty Json::Value.";
   } else {
 
-    BOOST_LOG_SEV(glg, note) << "Parse file '"<< filename
+    BOOST_LOG_SEV(glg, info) << "Parse file '"<< filename
                              << "' for calibration directives.";
     v = temutil::parse_control_file(filename);
   }
@@ -254,7 +254,7 @@ void CalController::run_config(int year, const std::string& stage) {
 
     if ("quitat" == key.asString()) {
       if (year == val.asInt()) {
-        BOOST_LOG_SEV(glg, note) << "QUITTING because "<< year <<" set in "
+        BOOST_LOG_SEV(glg, info) << "QUITTING because "<< year <<" set in "
                                  << "CalController's run_configuration data "
                                  << "structure.";
         exit(0);
@@ -262,7 +262,7 @@ void CalController::run_config(int year, const std::string& stage) {
     }
     if ("pauseat" == key.asString()) {
       if (year == val.asInt()){
-        BOOST_LOG_SEV(glg, note) << "PAUSING because year is equal to year in "
+        BOOST_LOG_SEV(glg, info) << "PAUSING because year is equal to year in "
                                  << "CalController's run configuration data "
                                  << "structure.";
         this->control_loop();
@@ -377,7 +377,7 @@ void CalController::operate_on_directive_str(const std::string& line) {
           params.push_back("");
         }
 
-        BOOST_LOG_SEV(glg, note) << "Command token: '" << cmd
+        BOOST_LOG_SEV(glg, info) << "Command token: '" << cmd
                                  << "'. Parameters: ["
                                  << temutil::vec2csv(params) << "]";
 
@@ -597,56 +597,56 @@ void CalController::check_for_signals() {
 
 
 void CalController::continue_simulation() {
-  BOOST_LOG_SEV(glg, note) << "Executing continue_simulation callback...";
+  BOOST_LOG_SEV(glg, info) << "Executing continue_simulation callback...";
   // not quite sure how to do this one?
   // seems like nothing needs to happen here...
 }
 
 void CalController::reload_all_cmt_files() {
-  BOOST_LOG_SEV(glg, note) << "Executing reload_cmt_files callback...";
+  BOOST_LOG_SEV(glg, info) << "Executing reload_cmt_files callback...";
   BOOST_LOG_SEV(glg, debug) << "Use cohort pointer to reload all cmt files...";
   this->cohort_ptr->chtlu.init();
-  BOOST_LOG_SEV(glg, note) << "Done reloading config/parameter files.";
+  BOOST_LOG_SEV(glg, info) << "Done reloading config/parameter files.";
 }
 
 void CalController::reload_calparbgc_file() {
-  BOOST_LOG_SEV(glg, note) << "Executing reload_calparbgc_file callback...";
+  BOOST_LOG_SEV(glg, info) << "Executing reload_calparbgc_file callback...";
   BOOST_LOG_SEV(glg, debug) << "Use cohort pointer's cohort lookup object to 'assignBgcCalpar'...";
   std::string config_dir = this->cohort_ptr->chtlu.dir;
   this->cohort_ptr->chtlu.assignBgcCalpar(config_dir);
-  BOOST_LOG_SEV(glg, note) << "Done reloading calparbgc file.";
-  BOOST_LOG_SEV(glg, note) << "Next, make sure the veg parameters propogate?";
+  BOOST_LOG_SEV(glg, info) << "Done reloading calparbgc file.";
+  BOOST_LOG_SEV(glg, info) << "Next, make sure the veg parameters propogate?";
   for (int i = 0; i < NUM_PFT; ++i) {
-    BOOST_LOG_SEV(glg, note) << "Assign the cohort's vegbgc params to those held in the chtlu object...";
+    BOOST_LOG_SEV(glg, info) << "Assign the cohort's vegbgc params to those held in the chtlu object...";
     this->cohort_ptr->vegbgc[i].initializeParameter();
   }
-  BOOST_LOG_SEV(glg, note) << "Finally, make sure the soil parameters propogate?";
+  BOOST_LOG_SEV(glg, info) << "Finally, make sure the soil parameters propogate?";
   this->cohort_ptr->soilbgc.initializeParameter();
 }
 
 void CalController::quit() {
-  BOOST_LOG_SEV(glg, note) << "Executing the quit callback...";
-  BOOST_LOG_SEV(glg, note) << "Quitting via CalController.";
+  BOOST_LOG_SEV(glg, info) << "Executing the quit callback...";
+  BOOST_LOG_SEV(glg, info) << "Quitting via CalController.";
   exit(-1);
 }
 
 
 void CalController::print_calparbgc() {
-  BOOST_LOG_SEV(glg, note) << "Printing the 'calparbgc' parameters stored in "
+  BOOST_LOG_SEV(glg, info) << "Printing the 'calparbgc' parameters stored in "
                            << "the CohortLookup pointer...";
   std::string a_string = this->cohort_ptr->chtlu.calparbgc2str();
   std::cout << a_string;
 }
 
 void CalController::print_modules_settings() {
-  BOOST_LOG_SEV(glg, note) << "Showing module settings from cohort pointer's "
+  BOOST_LOG_SEV(glg, info) << "Showing module settings from cohort pointer's "
                            << "ModelData.\n";
   std::string s = this->cohort_ptr->md->describe_module_settings();
   std::cout << s;
 }
 
 void CalController::show_short_menu() {
-  BOOST_LOG_SEV(glg, note) << "Showing short menu...";
+  BOOST_LOG_SEV(glg, info) << "Showing short menu...";
   std::string m = "";
   m += "  q - ";
   m += this->cmd_map["q"].desc;
@@ -667,7 +667,7 @@ void CalController::show_short_menu() {
 }
 
 void CalController::show_full_menu() {
-  BOOST_LOG_SEV(glg, note) << "Showing full menu...";
+  BOOST_LOG_SEV(glg, info) << "Showing full menu...";
   std::string m = "--  Full Calibration Controller Menu --\n";
   std::map<std::string, CalCommand>::const_iterator citer;
 
@@ -699,7 +699,7 @@ void CalController::cmd_wrapper(void (ModelData::*fn)(bool),
 
     (this->cohort_ptr->md->*fn)(temutil::onoffstr2bool(s));
 
-    BOOST_LOG_SEV(glg, note) << "CalController->cohort_ptr turned " << name
+    BOOST_LOG_SEV(glg, info) << "CalController->cohort_ptr turned " << name
                              << " module/flag " << s;
 
   } catch (const std::runtime_error& e) {

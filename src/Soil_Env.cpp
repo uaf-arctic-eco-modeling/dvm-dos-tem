@@ -507,7 +507,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     root_water_up[il] = ed->d_soid.r_e_i[il] * weighted_veg_tran;
 
     if(root_water_up[il] != root_water_up[il]){
-      BOOST_LOG_SEV(glg, err) << "NaN in root_water_up in updateDailySM";
+      BOOST_LOG_SEV(glg, warn) << "NaN in root_water_up in updateDailySM";
     }
   }
 
@@ -660,7 +660,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     currl=currl->prevl;
   }
   if(ed->d_soi2l.qdrain < 0){
-   BOOST_LOG_SEV(glg, err) << "qdrain is negative!";
+   BOOST_LOG_SEV(glg, warn) << "qdrain is negative!";
   };
 }
 
@@ -917,7 +917,7 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
   }
   //Logging limit violations
   if(betaT < 0){//1.e-10){
-    BOOST_LOG_SEV(glg, err) << "BetaT is out of range";
+    BOOST_LOG_SEV(glg, warn) << "BetaT is out of range";
   }
 
   //CLM3 Equation 7.83
@@ -932,7 +932,7 @@ double Soil_Env::getSoilTransFactor(double r_e_ij[MAX_SOI_LAY],
     }
 
     if(r_e_ij[il] != r_e_ij[il]){
-      BOOST_LOG_SEV(glg, err) << "NaN in r_e_ij";
+      BOOST_LOG_SEV(glg, warn) << "NaN in r_e_ij";
     }
 
   }
@@ -970,13 +970,13 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
       effminliq[ind] = 0.0;
       effmaxliq[ind] = 0.0;
       if (currl->liq != currl->liq){ // check for NaNs
-        BOOST_LOG_SEV(glg, err) << "Soil layer " << currl->indl << " liquid is nan";
+        BOOST_LOG_SEV(glg, warn) << "Soil layer " << currl->indl << " liquid is nan";
       }
       currl = currl->nextl;
     }
     else{
       if (currl->liq != currl->liq){ // check for NaNs
-        BOOST_LOG_SEV(glg, err) << "Soil layer " << currl->indl << " liquid is nan";
+        BOOST_LOG_SEV(glg, warn) << "Soil layer " << currl->indl << " liquid is nan";
       }
       effminliq[ind] = currl->minliq * (1-currl->frozenfrac);
       effmaxliq[ind] = currl->maxliq * (1-currl->frozenfrac);
@@ -1112,13 +1112,13 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
   while (currl != NULL and currl->solind <= last_active_layer->solind and currl->isSoil){
     ind = currl->solind;
     if (currl->liq != currl->liq){ // check for NaNs
-      BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid is nan";
+      BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " liquid is nan";
     }
     if (currl->liq < effminliq[ind] || currl->liq > effmaxliq[ind]){
       if(currl->liq < effminliq[ind]){
         //too little liq, enforce limits; if difference is more than 1mm, raise error
         if((effminliq[ind] - currl->liq) > 1.0){
-          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced up to minimum: difference "
+          BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " liquid forced up to minimum: difference "
                                   << effminliq[ind] - currl->liq << " mm";
         }
         currl->liq =effminliq[ind];
@@ -1126,7 +1126,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
       else{
         //too much liq, enforce limits; if difference is more than 1mm, raise error
         if((currl->liq - effmaxliq[ind]) > 1.0){
-          BOOST_LOG_SEV(glg, err) << "Layer " << currl->indl << " liquid forced down to maximum: difference "
+          BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " liquid forced down to maximum: difference "
                                   << currl->liq - effmaxliq[ind] << " mm";
         }
         currl->liq = effmaxliq[ind];

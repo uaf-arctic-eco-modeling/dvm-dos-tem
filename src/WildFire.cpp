@@ -138,7 +138,7 @@ void WildFire::set_state_from_restartdata(const RestartData & rdata) {
 */
 bool WildFire::should_ignite(const int yr, const int midx, const std::string& stage) {
 
-  BOOST_LOG_SEV(glg, note) << "determining fire ignition for yr:" << yr
+  BOOST_LOG_SEV(glg, info) << "determining fire ignition for yr:" << yr
                            << ", monthidx:" << midx << ", stage:" << stage;
 
   bool ignite = false;
@@ -168,7 +168,7 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
       // do nothing: correct year, wrong month
     }
   } else {
-    BOOST_LOG_SEV(glg, err) << "Unknown stage! (" << stage << ")";
+    BOOST_LOG_SEV(glg, warn) << "Unknown stage! (" << stage << ")";
   }
 
   BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire?:" << ignite;
@@ -179,10 +179,10 @@ bool WildFire::should_ignite(const int yr, const int midx, const std::string& st
 /** Burning vegetation and soil organic C */
 void WildFire::burn(int year) {
   BOOST_LOG_NAMED_SCOPE("burning");
-  BOOST_LOG_SEV(glg, note) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
+  BOOST_LOG_SEV(glg, info) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
 
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before WildFire::burn(..)");
-  BOOST_LOG_SEV(glg, note) << "Burning (simply clearing?) the 'FireData object...";
+  BOOST_LOG_SEV(glg, info) << "Burning (simply clearing?) the 'FireData object...";
   fd->burn();
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After FirData::burn(..)");
   
@@ -192,7 +192,7 @@ void WildFire::burn(int year) {
   double burndepth = getBurnOrgSoilthick(year);
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After WildFire::getBurnOrgSoilthick(..)");
 
-  BOOST_LOG_SEV(glg, note) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";
+  BOOST_LOG_SEV(glg, info) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";
   double totbotdepth = 0.0;
   double burnedsolc = 0.0;
   double burnedsoln = 0.0;
@@ -262,17 +262,17 @@ void WildFire::burn(int year) {
           }
         } else {
           // should never get here??
-          BOOST_LOG_SEV(glg, err) << "The remaining soil after a burn is greater than the thickness of this layer. Something is wrong??";
-          BOOST_LOG_SEV(glg, err) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
+          BOOST_LOG_SEV(glg, warn) << "The remaining soil after a burn is greater than the thickness of this layer. Something is wrong??";
+          BOOST_LOG_SEV(glg, warn) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
           break;
         }
       }
     } else {   //Mineral soil layers
-      BOOST_LOG_SEV(glg, note) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
-      BOOST_LOG_SEV(glg, note) << "Not much to do here. Can't really burn non-organic layers.";
+      BOOST_LOG_SEV(glg, info) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
+      BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really burn non-organic layers.";
 
       if(totbotdepth <= burndepth) { //may not be needed, but just in case
-        BOOST_LOG_SEV(glg, note) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
+        BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
         fd->fire_soid.burnthick = totbotdepth;
       }
     }
@@ -283,7 +283,7 @@ void WildFire::burn(int year) {
 
   // needs to re-do the soil rootfrac for each pft which was modified above
   //   (in burn soil layer)
-  BOOST_LOG_SEV(glg, note) << "Re-do the soil root fraction for each PFT modified by burning?";
+  BOOST_LOG_SEV(glg, info) << "Re-do the soil root fraction for each PFT modified by burning?";
   for (int ip = 0; ip < NUM_PFT; ip++) {
     double rootfracsum = 0.0;
 
@@ -297,20 +297,20 @@ void WildFire::burn(int year) {
   }
 
   // all woody debris will burn out
-  BOOST_LOG_SEV(glg, note) << "Handle burnt woody debris...";
+  BOOST_LOG_SEV(glg, info) << "Handle burnt woody debris...";
   double wdebrisc = bdall->m_sois.wdebrisc; //
   double wdebrisn = bdall->m_sois.wdebrisn; //
   bdall->m_sois.wdebrisc = 0.0;
   bdall->m_sois.wdebrisn = 0.0;
 
   // summarize
-  BOOST_LOG_SEV(glg, note) << "Summarize...?";
+  BOOST_LOG_SEV(glg, info) << "Summarize...?";
   double vola_solc = burnedsolc * (1.0 - firpar.r_retain_c) + wdebrisc;
   double vola_soln = burnedsoln * (1.0 - firpar.r_retain_n) + wdebrisn;
   double reta_solc = burnedsolc * firpar.r_retain_c;   //together with veg.-burned C return, This will be put into soil later
   double reta_soln = burnedsoln * firpar.r_retain_n;   //together with veg.-burned N return, This will be put into soil later
 
-  BOOST_LOG_SEV(glg, note) << "Handle Vegetation burning and mortality...";
+  BOOST_LOG_SEV(glg, info) << "Handle Vegetation burning and mortality...";
   double comb_vegc = 0.0;  // summed for all PFTs
   double comb_vegn = 0.0;
   double comb_deadc = 0.0;
@@ -326,7 +326,7 @@ void WildFire::burn(int year) {
   for (int ip = 0; ip < NUM_PFT; ip++) {
 
     if (cd->m_veg.vegcov[ip] > 0.0) {
-      BOOST_LOG_SEV(glg, note) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
+      BOOST_LOG_SEV(glg, info) << "Some of PFT"<<ip<<" exists (coverage > 0). Burn it!";
 
       // vegetation burning/dead/living fraction for above-ground
       getBurnAbgVegetation(ip, year);
@@ -441,7 +441,7 @@ void WildFire::burn(int year) {
   //bdall->m_vegs.deadc = veg_2_dead_C;
   //bdall->m_vegs.deadn = veg_2_dead_N;
 
-  BOOST_LOG_SEV(glg, note) << "Save the fire emission and return data into 'fd'...";
+  BOOST_LOG_SEV(glg, info) << "Save the fire emission and return data into 'fd'...";
   //Summing the PFT specific fluxes to dead standing
   for(int ip=0; ip<NUM_PFT; ip++){
     fd->fire_v2dead.vegC += bd[ip]->m_vegs.deadc;
@@ -495,9 +495,9 @@ void WildFire::burn(int year) {
 // above ground burning ONLY, based on fire severity indirectly or directly
 void WildFire::getBurnAbgVegetation(const int ipft, const int year) {
   
-  BOOST_LOG_SEV(glg, note) << "Lookup the above ground vegetation burned as a funciton of severity.";
-  BOOST_LOG_SEV(glg, note) << " - Set the ratios for 'burn to above ground C,N' and 'dead to above ground C,N' member variables.";
-  BOOST_LOG_SEV(glg, note) << " - Set the 'ratio live cn' member variable";
+  BOOST_LOG_SEV(glg, info) << "Lookup the above ground vegetation burned as a funciton of severity.";
+  BOOST_LOG_SEV(glg, info) << " - Set the ratios for 'burn to above ground C,N' and 'dead to above ground C,N' member variables.";
+  BOOST_LOG_SEV(glg, info) << " - Set the 'ratio live cn' member variable";
 
   // Yuan: the severity categories are from ALFRESCO:
   // 0 - no burning
