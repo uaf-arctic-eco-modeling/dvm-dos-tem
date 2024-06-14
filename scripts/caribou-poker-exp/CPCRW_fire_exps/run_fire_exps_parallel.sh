@@ -117,7 +117,9 @@ run_model() {
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on EET yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on PET yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on BURNSOIC yearly
-
+    python "$outspec_script" "${workflow}/config/output_spec.csv" --on DEADC yearly
+    python "$outspec_script" "${workflow}/config/output_spec.csv" --on DWDC yearly
+    
     # Change working directory to model run workflow directory
     cd ${workflow} || exit
 
