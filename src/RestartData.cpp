@@ -972,12 +972,12 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
   temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
 
-//  BOOST_LOG_SEV(glg, fatal) << " NUM_PFT = " << NUM_PFT ;
-//  BOOST_LOG_SEV(glg, fatal) << " NUM_PFT_PART = " << NUM_PFT_PART ;
-//  BOOST_LOG_SEV(glg, fatal) << " MAX_ROT_LAY = " << MAX_ROT_LAY ;
-//  BOOST_LOG_SEV(glg, fatal) << " MAX_SNW_LAY = " << MAX_SNW_LAY ;
-//  BOOST_LOG_SEV(glg, fatal) << " MAX_SOI_LAY = " << MAX_SOI_LAY ;
-//  BOOST_LOG_SEV(glg, fatal) << " MAX_ROC_LAY = " << MAX_ROC_LAY ;
+//  BOOST_LOG_SEV(glg, monitor) << " NUM_PFT = " << NUM_PFT ;
+//  BOOST_LOG_SEV(glg, monitor) << " NUM_PFT_PART = " << NUM_PFT_PART ;
+//  BOOST_LOG_SEV(glg, monitor) << " MAX_ROT_LAY = " << MAX_ROT_LAY ;
+//  BOOST_LOG_SEV(glg, monitor) << " MAX_SNW_LAY = " << MAX_SNW_LAY ;
+//  BOOST_LOG_SEV(glg, monitor) << " MAX_SOI_LAY = " << MAX_SOI_LAY ;
+//  BOOST_LOG_SEV(glg, monitor) << " MAX_ROC_LAY = " << MAX_ROC_LAY ;
 
 
   // Setup arrays holding dimids for different "types" of variables

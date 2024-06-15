@@ -211,7 +211,7 @@ int main(int argc, char* argv[]){
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
 #ifdef WITHMPI
-  BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+  BOOST_LOG_SEV(glg, monitor) << "Built and running with MPI";
 
   // Intended for passing argc and argv, the arguments to MPI_Init
   // are currently unnecessary.
@@ -403,8 +403,8 @@ int main(int argc, char* argv[]){
       int colidx = curr_cell % num_cols;
 
       bool mask_value = run_mask[rowidx][colidx];
-      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx\
-                                << ", "<<colidx<<" run: "<<mask_value;
+      BOOST_LOG_SEV(glg, monitor) << "MPI rank: "<<id<<", cell: "<<rowidx\
+                                  << ", "<<colidx<<" run: "<<mask_value;
 
 #else
     BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
@@ -454,7 +454,7 @@ int main(int argc, char* argv[]){
 
           }
         } else {
-          BOOST_LOG_SEV(glg, fatal) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          BOOST_LOG_SEV(glg, monitor) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           write_status_info(run_status_fname, "run_status", rowidx, colidx, 0);
         }
  
@@ -618,7 +618,7 @@ void advance_model(const int rowidx, const int colidx,
   // EQUILIBRIUM STAGE (EQ)
   if (modeldata.eq_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("EQ");
-    BOOST_LOG_SEV(glg, fatal) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
+    BOOST_LOG_SEV(glg, monitor) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -657,7 +657,7 @@ void advance_model(const int rowidx, const int colidx,
     }
 
     // Run model
-    BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
+    BOOST_LOG_SEV(glg, monitor) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
     runner.run_years(0, fri_adj_eq_yrs, "eq-run");
 
     // Update restartdata structure from the running state
@@ -683,7 +683,7 @@ void advance_model(const int rowidx, const int colidx,
   // SPINUP STAGE (SP)
   if (modeldata.sp_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("SP");
-    BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
+    BOOST_LOG_SEV(glg, monitor) << "Running Spinup, " << modeldata.sp_yrs << " years.";
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -737,7 +737,7 @@ void advance_model(const int rowidx, const int colidx,
   // TRANSIENT STAGE (TR)
   if (modeldata.tr_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("TR");
-    BOOST_LOG_SEV(glg, fatal) << "Running Transient, " << modeldata.tr_yrs << " years";
+    BOOST_LOG_SEV(glg, monitor) << "Running Transient, " << modeldata.tr_yrs << " years";
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -787,7 +787,7 @@ void advance_model(const int rowidx, const int colidx,
   // SCENARIO STAGE (SC)
   if (modeldata.sc_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("SC");
-    BOOST_LOG_SEV(glg, fatal) << "Running Scenario, " << modeldata.sc_yrs << " years.";
+    BOOST_LOG_SEV(glg, monitor) << "Running Scenario, " << modeldata.sc_yrs << " years.";
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
