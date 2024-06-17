@@ -951,6 +951,8 @@ void write_status_info(const std::string fname, std::string varname, int row, in
   start[0] = row;
   start[1] = col;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening status file: " << fname;
+
 #ifdef WITHMPI
 
   // These are for logging identification only.

@@ -324,6 +324,8 @@ namespace temutil {
 
     std::stringstream ss;
 
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname;
+
     int ncid;
 
 #ifdef WITHMPI
@@ -364,6 +366,8 @@ namespace temutil {
   std::string report_yx_pixel_dims2str(const std::string& fname) {
 
     std::stringstream ss;
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname;
 
     int ncid;
 
@@ -628,6 +632,8 @@ namespace temutil {
   */
   int get_timeseries_start_year(const std::string& fname){
 
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname;
+
     int ncid;
     temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
 
@@ -666,6 +672,8 @@ namespace temutil {
   int get_timeseries_end_year(const std::string& fname){
 
     int start_year = get_timeseries_start_year(fname);
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname;
 
     int ncid;
     temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );

@@ -956,6 +956,8 @@ void Runner::output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
+
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
@@ -998,6 +1000,8 @@ void Runner::output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix,
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
+
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
@@ -1039,6 +1043,8 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
 
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
 
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );

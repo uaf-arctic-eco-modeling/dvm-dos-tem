@@ -193,6 +193,8 @@ namespace temutil {
                                      const std::string &var,
                                      DTYPE type_example) {
 
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
+
     int ncid;
     temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
 

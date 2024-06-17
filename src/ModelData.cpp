@@ -571,6 +571,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         int hist_climate_ncid;
         int hist_climate_tcV;
 
+        BOOST_LOG_SEV(glg, debug) << "Opening historic climate file: "
+                                  << this->hist_climate_file;
         temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
         temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
 
@@ -591,6 +593,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         int proj_climate_ncid;
         int proj_climate_tcV;
 
+        BOOST_LOG_SEV(glg, debug) << "Opening projected climate file: "
+                                  << this->proj_climate_file;
         temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
         temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
 
@@ -637,6 +641,8 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 
         // open the vegetation input file
         int gmsrcid;
+        BOOST_LOG_SEV(glg, debug) << "Opening vegetation file: "
+                                  << this->veg_class_file;
         temutil::nc( nc_open(this->veg_class_file.c_str(), NC_NOWRITE, &gmsrcid) );
 
         // Figure out which id is for grid mapping variable
