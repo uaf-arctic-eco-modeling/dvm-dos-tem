@@ -78,7 +78,7 @@ def run_case(config, output_set):
   sp_str = str(config["sp_years"])
   tr_str = str(config["tr_years"])
   sc_str = str(config["sc_years"])
-  subprocess.run(["/work/dvmdostem", "-l", "err", "--force-cmt", cmt_str,
+  subprocess.run(["/work/dvmdostem", "-l", "warn", "--force-cmt", cmt_str,
                   "-p", pr_str, "-e", eq_str, "-s", sp_str,
                   "-t", tr_str, "-n", sc_str])
 
