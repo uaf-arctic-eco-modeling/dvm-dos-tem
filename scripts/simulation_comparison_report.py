@@ -512,7 +512,9 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
         dt = pd.concat([dt,ds],axis=0)
         dt2 = pd.concat([dt2,out],axis=0)
     seas10 = pd.merge(soilstruc[['scenario','year','layer','LAYERDZ','LAYERDEPTH','LAYERDEPTHBOT']],dt,on=['scenario','year','layer'], how='outer')
+    #Reducing to the last ten years, and non-surface layers?
     seas10 = seas10[(seas10['LAYERDEPTH']>=0) & (seas10['year']>seas10['year'].max()-10)]
+    #Reduce to these columns, remove entries that match for all columns
     ts = seas10[['scenario','year','month','time']].drop_duplicates()
 #    print('ald')
     ald = pd.DataFrame()
@@ -530,6 +532,8 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
         ds = ds.drop(columns=['time'])
 
       ald = pd.concat([ald,ds],axis=0)
+
+    #Merge the last 10 years of ald with ts (time/sc dataframe)
     ald_seas = pd.merge(ald[ald['year']>ald['year'].max()-10],ts,on=['scenario','year'], how='outer')
 #    print('wtd')
     wt = pd.DataFrame()
@@ -559,6 +563,7 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     olt_seas = pd.merge(olt[olt['year']>olt['year'].max()-10],ts,on=['scenario','year'], how='outer')
 #    print('plt1')
     plt.set_cmap('bwr')
+
     if seas10[v].min() > 0:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=1.00001*seas10[v].min(), vmax=seas10[v].max())
     else:
@@ -568,28 +573,51 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     clrs = pd.DataFrame(plt.get_cmap('bwr')(norm(seas10[v])))
     seas10.reset_index(drop=True, inplace=True)
     clrs.reset_index(drop=True, inplace=True)
+
     result = pd.concat([seas10, clrs], axis=1)
     result = result[result['layer'] >=0] 
     result.reset_index(drop=True, inplace=True)
+
     ncols = int(min(np.ceil(len(sclist)**0.5),6))
     nrows = int(np.ceil(len(sclist)/ncols))
     plt.figure(figsize=(12, int(0.8*12*(nrows/ncols))))
+
+    #Producing a fake time index since the various plotting calls do
+    # not work well with the datetime values in 'time' for tr and sc
+    month_count = int(len(ald_seas['time']) / len(sclist))
+    #print("month count: " + str(month_count))
+    ald_seas['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
+    olt_seas['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
+    wt10['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
+
     for i in range(0,len(sclist)):
       scname=sclist[i]
 #      print(scname)
       ax = plt.subplot(nrows, ncols, i + 1)
       bottom = np.zeros(len(result['time'].drop_duplicates()))
+
+      #For each layer in the current "scenario"
       for j in range(result['layer'].astype('int').min(),result['layer'].astype('int').max()+1):
+        #tmp is result for the current layer in the current "scenario"
         tmp = result[(result['scenario']==scname) & (result['layer']==j)]
+        #Merge tmp with... the time column from result with duplicates removed
         tmp = pd.merge(tmp,result['time'].drop_duplicates(),on=['time'], how='outer')
-        ax.bar(tmp['time'], -tmp['LAYERDZ'], color=tmp[[0, 1, 2, 3]].to_numpy(), width=1.0, bottom=bottom)
+
+        tmp['faketime'] = range(0, len(tmp['time']))
+        ax.bar(tmp['faketime'], -tmp['LAYERDZ'], color=tmp[[0, 1, 2, 3]].to_numpy(), width=1.0, bottom=bottom)
+
         bottom -= tmp['LAYERDZ']
-      ax.set_xlabel('time', fontsize=12)
+
+      ax.set_xlabel('time (month)', fontsize=12)
       ax.set_ylabel('depth (m)', fontsize=12)
       ax.set_title(str(scname), fontsize=12)
-      ax.plot(ald_seas[ald_seas['scenario']==scname]['time'], -ald_seas[ald_seas['scenario']==scname]['ALD'], c='blue', linewidth=1.5,linestyle='dashed')
-      ax.plot(olt_seas[olt_seas['scenario']==scname]['time'], -olt_seas[olt_seas['scenario']==scname]['OLT'], c='black', linewidth=1.5,linestyle='dashed')
-      ax.plot(wt10[wt10['scenario']==scname]['time'], -wt10[wt10['scenario']==scname]['WATERTAB'], c='cyan', linewidth=1.5,linestyle='dashed')
+
+      ax.plot(ald_seas[ald_seas['scenario']==scname]['faketime'], -ald_seas[ald_seas['scenario']==scname]['ALD'], c='blue', linewidth=1.5,linestyle='dashed')
+
+      ax.plot(olt_seas[olt_seas['scenario']==scname]['faketime'], -olt_seas[olt_seas['scenario']==scname]['OLT'], c='black', linewidth=1.5,linestyle='dashed')
+
+      ax.plot(wt10[wt10['scenario']==scname]['faketime'], -wt10[wt10['scenario']==scname]['WATERTAB'], c='cyan', linewidth=1.5,linestyle='dashed')
+
     plt.subplots_adjust(left=0.1,bottom=0.1, right=0.8, top=0.85,wspace=0.4,hspace=0.4)
     cax = plt.axes([0.85, 0.1, 0.025, 0.8])
     #plt.colorbar(cax=cax).set_label(label='Soil temp (oC))',rotation = 270, fontsize=12, labelpad=25)
@@ -622,6 +650,8 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 #      print(scname)
       ax = plt.subplot(nrows, ncols, i + 1)
       bottom = np.zeros(len(result['year'].drop_duplicates()))
+
+      #For each layer in the current "scenario"
       for j in range(result['layer'].astype('int').min(),result['layer'].astype('int').max()+1):
         tmp = result[(result['scenario']==scname) & (result['layer']==j)]
         tmp = pd.merge(tmp,result['year'].drop_duplicates(),on=['year'], how='outer')
