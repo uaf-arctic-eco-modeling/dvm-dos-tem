@@ -481,15 +481,6 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
         ds = load_reduced_dataframe(filepath, xidx=0, yidx=0)
 
-        # ds = xr.open_dataset(filepath)
-        # ds = ds.to_dataframe()
-        # ds.reset_index(inplace=True)
-        # ds = ds[(ds['x'] == 0)]
-        # ds = ds[(ds['y'] == 0)]
-        # ds['month'] = (ds['time'] % 12 + 1).astype('int')
-        # ds['year'] = (ds['time'] / 12).astype('int')
-        # ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-
         ds['scenario'] = sclist[i]
         ds = ds[ds['month'] == 12]
         ds = ds.drop(columns=['month'])
@@ -507,18 +498,6 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
       simlist[i]
       PODout = (os.path.join(simpath,simlist[i],'output'))
 #      print(PODout)
-
-    #   if len(glob.glob(PODout + '/' + str(v) + "_*_eq.nc")) > 0:
-    #     filepath = glob.glob(PODout + '/' + str(v) + "_*_eq.nc")[0]
-    #     ds = xr.open_dataset(filepath)
-    #     ds = ds.to_dataframe()
-    #     ds.reset_index(inplace=True)
-    #     ds = ds[(ds['x'] == 0)]
-    #     ds = ds[(ds['y'] == 0)]
-    #     ds['scenario'] = sclist[i]
-    #     ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-    #     ds['month'] = ds['time'] % 12 + 1
-    #     ds['year'] = (ds['time'] / 12).astype('int')
 
       fileglob = glob.glob(PODout + '/' + str(v) + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
@@ -542,17 +521,6 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
       PODout = (os.path.join(POD,PODlist[i],'output'))
 #      print(PODout)
 
-    #   if len(glob.glob(PODout + '/ALD_*_eq.nc')) > 0:
-    #     filepath = glob.glob(PODout + '/ALD_*_eq.nc')[0]
-    #     ds = xr.open_dataset(filepath)
-    #     ds = ds.to_dataframe()
-    #     ds.reset_index(inplace=True)
-    #     ds = ds[(ds['x'] == 0)]
-    #     ds = ds[(ds['y'] == 0)]
-    #     ds['scenario'] = sclist[i]
-    #     ds['year'] = ds['time'].astype('int')
-    #     ds = ds.drop(columns=['y','x','albers_conical_equal_area','time'])
-
       fileglob = glob.glob(PODout + "/ALD_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
@@ -570,18 +538,6 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
       simlist[i]
       PODout = (os.path.join(simpath,simlist[i],'output'))
 #      print(PODout)
-
-    #   if len(glob.glob(PODout + '/WATERTAB_*_eq.nc')) > 0:
-    #     filepath = glob.glob(PODout + '/WATERTAB_*_eq.nc')[0]
-    #     ds = xr.open_dataset(filepath)
-    #     ds = ds.to_dataframe()
-    #     ds.reset_index(inplace=True)
-    #     ds = ds[(ds['x'] == 0)]
-    #     ds = ds[(ds['y'] == 0)]
-    #     ds['scenario'] = sclist[i]
-    #     ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-    #     ds['month'] = ds['time'] % 12 + 1
-    #     ds['year'] = (ds['time'] / 12).astype('int')
 
       fileglob = glob.glob(PODout + "/WATERTAB_*_" + stage + ".nc")
       if len(fileglob) > 0:
