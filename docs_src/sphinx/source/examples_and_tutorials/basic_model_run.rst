@@ -15,6 +15,25 @@ bunch of the supporting tools, including Docker, and Git. For post processing
 and visualization, see the :ref:`Plotting Example
 <examples_and_tutorials/plotting_discussion:Plotting>`. 
 
+.. hint:: Quickstart Summary
+
+    - Clone the repository.
+    - Change into directory.
+    - Get some input data - or use demo data.
+    - Build Docker images.
+    - Start Docker containers.
+    - Setup working directory.
+    - Change into working directory.
+    - Adjust as needed:
+       - Your run mask (``run-mask.nc``)
+       - The outputs you would like to generate (``output_spec.csv``)
+       - Any other configuration items (``config.js``)
+       - Any custom parameters (``parameters/``)
+       - Any custom target data (``calibration/calibration_targets.py``).
+    - Start the model run (``./dvmdostem <your args>``).
+    - Analyze run.
+
+
 .. note::
 
   This lab is more or less a duplicate of an existing wiki page:
