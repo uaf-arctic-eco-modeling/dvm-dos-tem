@@ -14,6 +14,14 @@ Dev Info
 This chapter should include all the useful information that you will need to
 make contributions to the ``dvmdostem`` project.
 
+.. important:: 
+
+  In order to keep the base repository size from growing out of control, the
+  testing and sample data is tracked using `Git LFS <https://git-lfs.com>`_. If
+  you need to use the testing data (i.e. to run the tests, or to build the
+  documentation from source) then you should install Git LFS and run ``git lfs
+  pull`` to make sure that the actual data is downloaded.
+
 ******************************
 Languages, Software Structure
 ******************************

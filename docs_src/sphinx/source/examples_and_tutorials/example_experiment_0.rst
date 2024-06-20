@@ -46,11 +46,11 @@ Here we have designed a small experiment with answers to the unknowns posed in
      - **Answer**
    * - | Where on your computer you want to store
        | your model run(s)?
-     - ``/data/workflows/exp0_jan26_test``
+     - ``/work/testing-data/docs/example_experiment_0/``
    * - | What spatial (geographic) area you want
        | to run?
      - | Toolik, pixels (0,0), (1,1), (2,2)
-       | ``/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/``
+       | ``/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/``
    * - What variables you want to output?
      - | GPP: monthly, by PFT
        | RH, RG, RM: monthly
@@ -90,13 +90,61 @@ Here we have designed a small experiment with answers to the unknowns posed in
   by-layer resolution is enforced internally in the C++ part of the model.
 
 
+.. collapse:: Developer commands for working on documentation
+
+   Uncomment the following jupyter execute block if you need to actually run the
+   model for this experiment. This is useful if you are a developer working on 
+   the documentation. Otherwise you can assume that the outputs needed for the 
+   remainder of the exercise are in the ``testing-data/docs/example_experiment0``
+   directory.
+
+   .. jupyter-execute::
+
+      # import os
+      # import subprocess
+      # import shutil
+      # 
+      # import setup_working_directory
+      # import outspec
+      # import runmask
+      # 
+      # shutil.rmtree('/work/testing-data/docs/example_experiment_0/')
+      # 
+      # args = '--input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/'
+      # setup_working_directory.cmdline_entry(args.split(' '))
+      # 
+      # os.chdir('/work/testing-data/docs/example_experiment_0/')
+      # 
+      # outspec.cmdline_entry('config/output_spec.csv --on RH m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RG m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RM m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on TLAYER l m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on GPP m p'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on VEGC y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on ALD y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on CMTNUM y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on SHLWC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on SHLWDZ y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on DEEPC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on DEEPDZ y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on MINEC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERDZ y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERDEPTH y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERTYPE y'.split(' ')) 
+      # 
+      # runmask.cmdline_entry('--reset run-mask.nc'.split(' '))
+      # runmask.cmdline_entry('--yx 0 0 run-mask.nc'.split(' '))
+      # 
+      # subprocess.call('dvmdostem -l fatal --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85'.split(' '))
+
+
 .. collapse:: Example commands for setting up
    :class: working
 
-   .. code:: 
+   .. code::
 
-      $ ./scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10 /data/workflows/exp0_jan26_test
-      $ cd /data/workflows/exp0_jan26_test/
+      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/
+      $ cd /work/testing-data/docs/example_experiment_0/
       $ outspec.py config/output_spec.csv --on RH m
       $ outspec.py config/output_spec.csv --on RG m
       $ outspec.py config/output_spec.csv --on RM m
@@ -156,7 +204,7 @@ differently, please adjust your paths accordingly.**
 
       # This lets us work with shorter paths relative to the experiment 
       # directory
-      os.chdir('/data/workflows/exp0_jan26_test')
+      os.chdir('/work/testing-data/docs/example_experiment_0/')
 
 
 
@@ -175,16 +223,16 @@ information is used to set the number of transient and scenario years to run.
 
    .. code:: 
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time:units"
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-climate.nc  | grep "time:units"
           time:units = "days since 1901-1-1 0:0:0" ;
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time:units"
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-climate.nc  | grep "time:units"
           time:units = "days since 2016-1-1 0:0:0" ;
    
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time\ =\ "
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-climate.nc  | grep "time\ =\ "
           time = UNLIMITED ; // (1380 currently)
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time\ =\ "
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-climate.nc  | grep "time\ =\ "
           time = UNLIMITED ; // (1020 currently)
 
    So ``1380/12 = 115``. Looks like 115 years for the historic and  ``1020/85 =
@@ -208,7 +256,7 @@ information is used to set the number of transient and scenario years to run.
 
       args = {
         'command': 'climate-ts-plot',
-        'input_folder': '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/',
+        'input_folder': '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/',
         'stitch': False,
         'type': 'spatial-temporal-summary',
       }
@@ -250,10 +298,10 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
   .. code::
 
     ### Change into the experiment directory
-    cd /data/workflows/exp0_jan26_test
+    cd /work/testing-data/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /data/workflows/exp0_jan26_test/synthesis
+    mkdir /work/testing-data/docs/example_experiment_0//synthesis
 
     ### Compute the decadal means of vegetation carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_tr.nc  synthesis/VEGC_1990_1999.nc
@@ -373,10 +421,10 @@ simulations. Indicate how you formulated NEE.
   .. code::
 
     ### Change into the experiment directory
-    cd /data/workflows/exp0_jan26_test
+    cd /work/testing-data/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /data/workflows/exp0_jan26_test/synthesis
+    mkdir /work/testing-data/docs/example_experiment_0/
 
     ### Sum up the GPP across PFTs
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc

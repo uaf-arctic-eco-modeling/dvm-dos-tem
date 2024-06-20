@@ -541,7 +541,9 @@ folder and make some adjustments to the configuration file for the run.
 
 Using the one-off command style, run the script. For this case we just
 arbitrarily select a dataset from your input catalog. Don't worry if you have a
-different dataset from the example shown here.
+different dataset from the example shown here. If you don't have any input
+datasets in your input-catalog, then use the demo-data that is included with the
+repository.
 
 .. code:: bash
 
