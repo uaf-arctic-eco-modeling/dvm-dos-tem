@@ -281,6 +281,10 @@ def cmdline_define():
     help=textwrap.dedent('''Mask out pixels with a certain CMT. This will
          maintain any pixels already masked.'''))
 
+  parser.add_argument("--soil-property-filter", metavar=('SOIL FILE', 'FILTER'), nargs=2,
+    help=textwrap.dedent('''Read the specified soil input file. Mask all pixels
+        according to the specified FILTER.'''))
+
   return parser
 
 def cmdline_parse(argv=None):
@@ -405,8 +409,50 @@ def cmdline_run(args):
 
     return 0
 
+  if args.soil_property_filter:
 
-  
+    soil_file_path, filter_type = args.soil_property_filter
+
+    soil_filters = ['sand > 50', 'jackpot']
+
+    assert filter_type in soil_filters, f"filter {filter_type} unrecognized. Must be one of {soil_filters}"
+
+    if args.show:
+      show_mask(args.file, "BEFORE")
+
+    # Read the soil input file data
+    with nc.Dataset(soil_file_path, 'r') as soil_ds:
+      pct_sand = soil_ds.variables['pct_sand'][:]
+      pct_silt = soil_ds.variables['pct_silt'][:]
+      pct_clay = soil_ds.variables['pct_clay'][:]
+
+    # open the existing mask and modifiy it according to 
+    # user chosen filter type
+    with nc.Dataset(args.file, 'a') as mask:
+      if filter_type == 'sand > 50':
+        old_mask = mask.variables['run'][:]
+        new_mask = np.logical_and(np.ma.masked_greater(pct_sand, 50).mask, old_mask).data
+        mask.variables['run'][:] = new_mask
+
+      elif filter_type == 'jackpot':
+        old_mask = mask.variables['run'][:]
+
+        # near perfect split by thirds 
+        jackpot = np.logical_and(
+          np.ma.masked_inside(pct_sand, 32, 34),
+          np.ma.masked_inside(pct_silt, 32, 34),
+          np.ma.masked_inside(pct_clay, 32, 34),
+        )
+        new_mask = np.logical_and(jackpot.mask, old_mask).data
+
+        mask.variables['run'][:] = new_mask
+
+    if args.show:
+      show_mask(args.file, "AFTER")
+
+    return 0
+
+
   if args.show:
     show_mask(args.file, "BEFORE")
 
