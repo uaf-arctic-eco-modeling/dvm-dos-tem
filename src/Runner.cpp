@@ -485,7 +485,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["RHsompr"] = cohort.bdall->m_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->m_soi2a.rhsomcrsum;
   data["RHwdeb"] = cohort.bdall->m_soi2a.rhwdeb;
-  data["RH"] = cohort.bdall->m_soi2a.rhtot;
+  data["RH"] = cohort.bdall->m_soi2a.rhsom;
 
   // Add up Respiration_maintenance and Respiration_growth for all PFTs
   double rh_veg;
@@ -503,10 +503,10 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
     gpp_all_veg += cohort.bd[pft].m_a2v.gppall;
   }
   // RE, aka Respiration_ecosystem or Ecosystem Respiration or ER
-  data["RE"] = cohort.bdall->m_soi2a.rhtot + rh_veg;
+  data["RE"] = cohort.bdall->m_soi2a.rhsom + rh_veg;
 
   // NEE, aka Net Ecosystem Exchange
-  data["NEE"] = gpp_all_veg - (cohort.bdall->m_soi2a.rhtot + rh_veg);
+  data["NEE"] = gpp_all_veg - (cohort.bdall->m_soi2a.rhsom + rh_veg);
 
   data["YearsSinceDisturb"] = cohort.cd.yrsdist;
   data["Burnthick"] = cohort.year_fd[month].fire_soid.burnthick;
@@ -728,7 +728,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["RHsoma"] = cohort.bdall->y_soi2a.rhsomasum;
   data["RHsompr"] = cohort.bdall->y_soi2a.rhsomprsum;
   data["RHsomcr"] = cohort.bdall->y_soi2a.rhsomcrsum;
-  data["RH"] = cohort.bdall->y_soi2a.rhtot;
+  data["RH"] = cohort.bdall->y_soi2a.rhsom;
  
   // Add up Respiration_maintenance and Respiration_growth for all PFTs
   double rh_veg;
@@ -746,10 +746,10 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
     gpp_all_veg += cohort.bd[pft].y_a2v.gppall;
   }
   // RE, aka Respiration_ecosystem or Ecosystem Respiration or ER
-  data["RE"] = cohort.bdall->y_soi2a.rhtot + rh_veg;
+  data["RE"] = cohort.bdall->y_soi2a.rhsom + rh_veg;
 
   // NEE, aka Net Ecosystem Exchange
-  data["NEE"] = gpp_all_veg - (cohort.bdall->y_soi2a.rhtot + rh_veg);
+  data["NEE"] = gpp_all_veg - (cohort.bdall->y_soi2a.rhsom + rh_veg);
 
   //Placeholders for summing fire variables for the entire year
   double burnthick = 0.0, veg2airc = 0.0, veg2airn = 0.0, veg2soiabvvegc=0.0, veg2soiabvvegn = 0.0, veg2soiblwvegc = 0.0, veg2soiblwvegn = 0.0, veg2deadc = 0.0, veg2deadn = 0.0, soi2airc = 0.0, soi2airn = 0.0, air2soin = 0.0;
@@ -4290,7 +4290,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
-          outhold.rh_tot_for_output.push_back(cohort.bdall->m_soi2a.rhtot);
+          outhold.rh_tot_for_output.push_back(cohort.bdall->m_soi2a.rhsom);
 
           if(output_this_timestep){
             output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.rh_tot_for_output[0], 1, month_start_idx, months_to_output);
@@ -4299,7 +4299,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //yearly
         else if(curr_spec.yearly){
-          outhold.rh_tot_for_output.push_back(cohort.bdall->y_soi2a.rhtot);
+          outhold.rh_tot_for_output.push_back(cohort.bdall->y_soi2a.rhsom);
 
           if(output_this_timestep){
             output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.rh_tot_for_output[0], 1, year_start_idx, years_to_output);
