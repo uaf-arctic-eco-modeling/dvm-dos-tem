@@ -822,7 +822,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   plt.legend(loc='upper right', fontsize=12)
   
   if counts.iloc[0,0]>0:
-    plt.title(f"mean AVLN for passes: {np.round(n_check[n_check['result']=='Pass']['avln'].mean(), 4)}")
+    plt.title(f"mean AVLN for passes: {np.round(n_check[n_check['result']!=False]['avln'].mean(), 4)}")
   else:
     plt.title(f"mean AVLN: {np.round(n_check['avln'].mean(), 4)}")
   
