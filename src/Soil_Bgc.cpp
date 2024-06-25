@@ -283,15 +283,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // If the layer is below the water table saturated_fraction is forced to 1.0
       saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
 
-      //If the layer is above the water table saturated_fraction is forced to 0.0
-      // if (saturated_fraction <= 0.0){
-      //   saturated_fraction = 0.0;
-      // } 
-      // //If the layer is below the water table saturated_fraction is forced to 1.0
-      // else if (saturated_fraction >= 1.0){
-      //   saturated_fraction = 1.0;
-      // }
-
       if (0.0<saturated_fraction && saturated_fraction<1.0){
         wtlayer = currl;
       }
@@ -442,21 +433,20 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // Sazonov, V P; Shaw, DG (2006). "Introduction to the Solubility Data Series: 1.5.2. Physicochemical Quantities
       // and Units, A note on nomenclature, points 10 and 11"
       bun_sol = 0.05708 - 0.001545 * currl->tem + 0.00002069 * currl->tem * currl->tem; // mL CH4 / mL H2O Wania et al. 2010
-
-      // We thus need to convert bun_sol into a volume to be able to use the ideal gas law:
-      // ml / ml is equivalent to m3/m3
-      // Our simulations tend to be in units of m^-2, so we can assume our layer has dimensions
-      // 1m x 1m x dz, so volume = dz [m^3]
+      // mL / mL is equivalent to L/L or m3/m3
+      // We are interested in a number or micromoles of CH4 per L of water i.e. umol/L
+      // Therefore, we assume our ratio to be m3/m3 (to match ideal gas law units)
       // we assume that if saturated_fraction is 1.0 then the soil layer volume is totally
       // saturated, but that volume is not completely occupied by water... so we must consider
       // porosity (liquid and ice content as freezing is occurring)
-
-      vol_ch4 = bun_sol * saturated_fraction * currl->frozenfrac * currl->poro * currl->dz;
-
-      // When considering hydrostatic pressure we want to know the height of the water above the center
-      // of the layer, but this will not work if the layer contains the water table
+      // m3 CH4 / m3 H2O in given layer (corrected for saturation, ice, and porosity)
+      vol_ch4 = bun_sol; // * saturated_fraction * (1 - currl->frozenfrac) * currl->poro;
 
       // Hydrostatic pressure - P = rho * g * h
+      // When considering hydrostatic pressure we want to know the height of the water above the center
+      // of the layer, but this will be negative if the layer is above the water table so use fmax
+      // if the layer contains the water table we assume an increase in pressure only if above the center
+      // of the layer
       p_hydro = DENLIQ * G * (currl->z + (currl->dz / 2.0) - ed->d_sois.watertab);
 
       // Fan 2013 Eq. 16. Mass-based Bunsen solubility coefficient
@@ -464,14 +454,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       pressure_ch4 = fmax(Pstd, Pstd + p_hydro);                                                                   // Pa = kgm^-1s^-2
       max_umol_ch4 = 1e3 * pressure_ch4 * vol_ch4 / (GASR * (currl->tem + 273.15));                  // mol m^-3 ( * 1e3 -> umol L^-1)
 
-      // if water table is in the layer then the dz of amount of water must be multiplied by saturated fraction
-      // otherwise it will go to 1.0 (i.e just currl->dz)
-      // bun_sol_mass = 1e3 * partial_pressure_ch4 * (bun_sol * currl->dz * saturated_fraction) / (GASR * (currl->tem + 273.15)); // mol m^-3 ( * 1e3 -> umol L^-1)
-
       double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
-      // >>> Fan does not explicitly limit it to layers with temp greater than 1
-      // >>> I think this should be if layer is not frozen
-      // if (currl->tem > 100.0) {
+
       if (ed->d_sois.ts[il]>=0.0){// if not frozen
         ebul = saturated_fraction * (currl->ch4 - max_umol_ch4) * rate_parameter_kh; // currl->getVolLiq() *
       }
