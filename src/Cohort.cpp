@@ -270,10 +270,10 @@ void Cohort::initialize_state_parameters() {
   //    z += ground.mineralinfo.dz[i];
   //
   //    if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
-  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
   //      //ground.mineralinfo.texture[i] = gd->topsoil;
   //    } else {
-  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
   //      //ground.mineralinfo.texture[i] = gd->botsoil;
   //    }
   //  }
@@ -363,7 +363,7 @@ void Cohort::initialize_state_parameters() {
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr, std::string stage) {
 
-  BOOST_LOG_SEV(glg, note) << "Cohort::updateMonthly. Year: "
+  BOOST_LOG_SEV(glg, info) << "Cohort::updateMonthly. Year: "
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
 
@@ -588,7 +588,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       }
 
       if(edall->d_soid.r_e_i[il] != edall->d_soid.r_e_i[il]){
-        BOOST_LOG_SEV(glg, err) << "NaN in r_e_i";
+        BOOST_LOG_SEV(glg, warn) << "NaN in r_e_i";
       }
 
     }
@@ -599,7 +599,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       weighted_veg_tran += ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
     }
     if(weighted_veg_tran != weighted_veg_tran){
-      BOOST_LOG_SEV(glg, err) << "weighted_veg_tran is NaN";
+      BOOST_LOG_SEV(glg, warn) << "weighted_veg_tran is NaN";
     }
 
     //CLM3 Equation 7.80
@@ -1345,7 +1345,7 @@ void Cohort::getBd4allveg_monthly() {
  * RestartData object.
 */
 void Cohort::set_state_from_restartdata() {
-  BOOST_LOG_SEV(glg, note) << "Updating this Cohort and CohortData object with "
+  BOOST_LOG_SEV(glg, info) << "Updating this Cohort and CohortData object with "
                            << "values from the RestartData object...";
 
   veg.set_state_from_restartdata(this->restartdata);
@@ -1379,7 +1379,7 @@ void Cohort::set_state_from_restartdata() {
 * another process.
 */
 void Cohort::set_restartdata_from_state() {
-  BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
+  BOOST_LOG_SEV(glg, info) << "Updating this Cohort's restartdata member with "
                            << "values from the model's state (various fields of "
                            << " Cohort and CohortData).";
 

@@ -364,7 +364,7 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
 };
 
 void Soil_Bgc::initializeParameter() {
-  BOOST_LOG_SEV(glg, note) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
+  BOOST_LOG_SEV(glg, info) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
   calpar.micbnup    = chtlu->micbnup;
   calpar.kdcrawc    = chtlu->kdcrawc;
   calpar.kdcsoma    = chtlu->kdcsoma;
@@ -384,7 +384,7 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.fnloss     = chtlu->fnloss;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
 
-  BOOST_LOG_SEV(glg, note) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
+  BOOST_LOG_SEV(glg, info) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
   // Alternatively these can be estimated from Ks calibrated.
   // Jenkinson and Rayner (1977):
   //   1t plant C / ha / yr for 10,000yrs, will produce:
@@ -394,7 +394,7 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.eqsompr = 11.3 / (0.48 + 0.28 + 11.3 + 12.2);
   bgcpar.eqsomcr = 12.2 / (0.48 + 0.28 + 11.3 + 12.2);
 
-  BOOST_LOG_SEV(glg, note) << "Calculating decay in Soil_Bgc.";
+  BOOST_LOG_SEV(glg, info) << "Calculating decay in Soil_Bgc.";
   decay = 0.26299 +
           (1.14757 * bgcpar.propftos) -
           (0.42956 * pow((double)bgcpar.propftos, 2.0));

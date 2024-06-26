@@ -39,9 +39,9 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
   // This seems horribly brittle now as it really depends on the order and
   // presence of the lines in the parameter file...
 
-  BOOST_LOG_SEV(glg, note) << "Vegetation constructor. Community type: " << cmtnum;
+  BOOST_LOG_SEV(glg, info) << "Vegetation constructor. Community type: " << cmtnum;
 
-  BOOST_LOG_SEV(glg, note) << "Setting Vegetation internal values from file: "
+  BOOST_LOG_SEV(glg, info) << "Setting Vegetation internal values from file: "
                            << mdp->parameter_dir << "cmt_dimvegetation.txt";
 
 

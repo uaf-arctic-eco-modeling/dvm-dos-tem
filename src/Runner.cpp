@@ -18,7 +18,7 @@ extern src::severity_logger< severity_level > glg;
 Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
     calibrationMode(false), y(y), x(x) {
 
-  BOOST_LOG_SEV(glg, note) << "RUNNER Constructing a Runner, new style, with ctor-"
+  BOOST_LOG_SEV(glg, info) << "RUNNER Constructing a Runner, new style, with ctor-"
                            << "injected ModelData, and for explicit (y,x) "
                            << "position w/in the input data region.";
   this->md = mdldata;
@@ -52,7 +52,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   BOOST_LOG_NAMED_SCOPE("Y") {
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string("depth thermal CN");
-    BOOST_LOG_SEV(glg, err) << "y: "<<this->y<<" x: "<<this->x<<" Year: "<<iy;
+    BOOST_LOG_SEV(glg, warn) << "y: "<<this->y<<" x: "<<this->x<<" Year: "<<iy;
 
     /* Interpolate all the monthly values...? */
     if( (stage.find("eq") != std::string::npos
@@ -88,7 +88,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
     /** MONTH TIMESTEP LOOP */
     BOOST_LOG_NAMED_SCOPE("M") {
       for (int im = 0; im < 12; ++im) {
-        BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
+        BOOST_LOG_SEV(glg, info) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
 
         this->cohort.updateMonthly(iy, im, DINM[im], stage);
 
@@ -99,9 +99,9 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     this->yearly_output(iy, stage, start_year, end_year);
 
-    BOOST_LOG_SEV(glg, note) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
+    BOOST_LOG_SEV(glg, info) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
 
-    BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
+    BOOST_LOG_SEV(glg, info) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 
   }} // end year loop (and named scope
 }
@@ -388,16 +388,16 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
 
 
   if ( !compartment_err_report.empty() || !pft_err_report.empty() ) {
-    BOOST_LOG_SEV(glg, err) << "========== MONTHLY CHECKSUM ERRORS ============";
+    BOOST_LOG_SEV(glg, warn) << "========== MONTHLY CHECKSUM ERRORS ============";
     while (!compartment_err_report.empty()) {
-      BOOST_LOG_SEV(glg, err) << compartment_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << compartment_err_report.front();
       compartment_err_report.pop_front();
     }
     while ( !(pft_err_report.empty()) ){
-      BOOST_LOG_SEV(glg, err) << pft_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << pft_err_report.front();
       pft_err_report.pop_front();
     }
-    BOOST_LOG_SEV(glg, err) << "========== END MONTHLY CHECKSUMMING month: " << month << " year: " << year << " ============";
+    BOOST_LOG_SEV(glg, warn) << "========== END MONTHLY CHECKSUMMING month: " << month << " year: " << year << " ============";
   }
 
 
@@ -635,16 +635,16 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   std::list<std::string> pft_err_report = check_sum_over_PFTs();
 
   if ( !compartment_err_report.empty() || !pft_err_report.empty() ) {
-    BOOST_LOG_SEV(glg, err) << "========== YEARLY CHECKSUM ERRORS ============";
+    BOOST_LOG_SEV(glg, warn) << "========== YEARLY CHECKSUM ERRORS ============";
     while (!compartment_err_report.empty()) {
-      BOOST_LOG_SEV(glg, err) << compartment_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << compartment_err_report.front();
       compartment_err_report.pop_front();
     }
     while ( !(pft_err_report.empty()) ){
-      BOOST_LOG_SEV(glg, err) << pft_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << pft_err_report.front();
       pft_err_report.pop_front();
     }
-    BOOST_LOG_SEV(glg, err) << "========== END YEARLY CHECKSUMMING year: " << year << " ============";
+    BOOST_LOG_SEV(glg, warn) << "========== END YEARLY CHECKSUMMING year: " << year << " ============";
   }
 
   // CAUTION: this->md and this->cohort.md are different instances!
@@ -956,6 +956,8 @@ void Runner::output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
+
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
@@ -998,6 +1000,8 @@ void Runner::output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix,
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
+
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
@@ -1039,6 +1043,8 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
 
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
 
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );

@@ -370,12 +370,12 @@ std::vector<float> calculate_daily_prec(const int midx, const float mta, const f
 
 
 Climate::Climate() {
-  BOOST_LOG_SEV(glg, note) << "--> CLIMATE --> empty ctor";
+  BOOST_LOG_SEV(glg, info) << "--> CLIMATE --> empty ctor";
 }
 
 
 Climate::Climate(const std::string& fname, const std::string& co2fname, int y, int x) {
-  BOOST_LOG_SEV(glg, note) << "--> CLIMATE --> BETTER CTOR";
+  BOOST_LOG_SEV(glg, info) << "--> CLIMATE --> BETTER CTOR";
   this->load_from_file(fname, y, x);
 
   // co2 is not spatially explicit
@@ -418,7 +418,7 @@ void Climate::load_from_file(const std::string& fname, int y, int x) {
   if ( !(tair.size() == prec.size() &&
          tair.size() == vapo.size() &&
          tair.size() == nirr.size()) ) {
-    BOOST_LOG_SEV(glg, err) << "ERROR - your base climate datasets are not "
+    BOOST_LOG_SEV(glg, warn) << "ERROR - your base climate datasets are not "
                             << "the same size! Very little bounds checking "
                             << "done, not sure what will happen.";
 
@@ -513,12 +513,12 @@ void Climate::prep_avg_climate(){
 
 /** This loads data from a projected climate data file, overwriting any old climate data*/
 void Climate::load_proj_climate(const std::string& fname, int y, int x){
-  BOOST_LOG_SEV(glg, note) << "Climate, loading projected data";
+  BOOST_LOG_SEV(glg, info) << "Climate, loading projected data";
 
   this->load_from_file(fname, y, x);
 }
 void Climate::load_proj_co2(const std::string& fname){
-  BOOST_LOG_SEV(glg, note) << "CO2, loading projected data!";
+  BOOST_LOG_SEV(glg, info) << "CO2, loading projected data!";
   this->co2 = temutil::get_timeseries(fname, "co2");
 }
 

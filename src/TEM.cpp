@@ -156,19 +156,19 @@ int main(int argc, char* argv[]){
   std::cout << "Setting up logging...\n";
   setup_logging(args->get_log_level(), args->get_log_scope());
 
-  BOOST_LOG_SEV(glg, note) << "Checking command line arguments...";
+  BOOST_LOG_SEV(glg, info) << "Checking command line arguments...";
   args->verify(); // stub - doesn't really do anything yet
 
-  BOOST_LOG_SEV(glg, note) << "Turn floating point exceptions on?: " << args->get_fpe();
+  BOOST_LOG_SEV(glg, info) << "Turn floating point exceptions on?: " << args->get_fpe();
   if (args->get_fpe()) { enable_floating_point_exceptions(); }
 
-  BOOST_LOG_SEV(glg, note) << "Reading controlfile into main(..) scope...";
+  BOOST_LOG_SEV(glg, info) << "Reading controlfile into main(..) scope...";
   Json::Value controldata = temutil::parse_control_file(args->get_ctrl_file());
 
-  BOOST_LOG_SEV(glg, note) << "Creating a ModelData object based on settings in the control file";
+  BOOST_LOG_SEV(glg, info) << "Creating a ModelData object based on settings in the control file";
   ModelData modeldata(controldata);
 
-  BOOST_LOG_SEV(glg, note) << "Update model settings based on command line flags/options...";
+  BOOST_LOG_SEV(glg, info) << "Update model settings based on command line flags/options...";
   modeldata.update(args);
 
   /*  
@@ -178,11 +178,11 @@ int main(int argc, char* argv[]){
   */
 
 
-  BOOST_LOG_SEV(glg, note) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
-  BOOST_LOG_SEV(glg, note) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
-  BOOST_LOG_SEV(glg, note) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
-  BOOST_LOG_SEV(glg, note) << "Running TR stage: " << modeldata.tr_yrs << "yrs";
-  BOOST_LOG_SEV(glg, note) << "Running SC stage: " << modeldata.sc_yrs << "yrs";
+  BOOST_LOG_SEV(glg, info) << "Running PR stage: " << modeldata.pr_yrs << "yrs";
+  BOOST_LOG_SEV(glg, info) << "Running EQ stage: " << modeldata.eq_yrs << "yrs";
+  BOOST_LOG_SEV(glg, info) << "Running SP stage: " << modeldata.sp_yrs << "yrs";
+  BOOST_LOG_SEV(glg, info) << "Running TR stage: " << modeldata.tr_yrs << "yrs";
+  BOOST_LOG_SEV(glg, info) << "Running SC stage: " << modeldata.sc_yrs << "yrs";
 
   // Turn off buffering...
   setvbuf(stdout, NULL, _IONBF, 0);
@@ -191,7 +191,7 @@ int main(int argc, char* argv[]){
   time_t stime, etime, cell_stime, cell_etime;
   stime = time(0);
 
-  BOOST_LOG_SEV(glg, note) << "Start dvmdostem @ " << ctime(&stime);
+  BOOST_LOG_SEV(glg, info) << "Start dvmdostem @ " << ctime(&stime);
 
   BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
 
@@ -211,7 +211,7 @@ int main(int argc, char* argv[]){
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
 #ifdef WITHMPI
-  BOOST_LOG_SEV(glg, fatal) << "Built and running with MPI";
+  BOOST_LOG_SEV(glg, monitor) << "Built and running with MPI";
 
   // Intended for passing argc and argv, the arguments to MPI_Init
   // are currently unnecessary.
@@ -321,7 +321,7 @@ int main(int argc, char* argv[]){
     }
   }
   if (!cmtoutput_enabled) {
-    BOOST_LOG_SEV(glg, err) << "Looks like CMTNUM output is NOT enabled."
+    BOOST_LOG_SEV(glg, warn) << "Looks like CMTNUM output is NOT enabled."
                             << " Strongly recommended to enable this output!"
                             << " Use util/outspec.py to turn on the CMTNUM output!";
   }
@@ -403,8 +403,8 @@ int main(int argc, char* argv[]){
       int colidx = curr_cell % num_cols;
 
       bool mask_value = run_mask[rowidx][colidx];
-      BOOST_LOG_SEV(glg, fatal) << "MPI rank: "<<id<<", cell: "<<rowidx\
-                                << ", "<<colidx<<" run: "<<mask_value;
+      BOOST_LOG_SEV(glg, monitor) << "MPI rank: "<<id<<", cell: "<<rowidx\
+                                  << ", "<<colidx<<" run: "<<mask_value;
 
 #else
     BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
@@ -432,14 +432,14 @@ int main(int argc, char* argv[]){
 
             cell_etime = time(0);
 
-            BOOST_LOG_SEV(glg, note) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
+            BOOST_LOG_SEV(glg, info) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
             std::cout << "cell " << rowidx << ", " << colidx << " complete." << std::endl;
             write_status_info(run_status_fname, "run_status", rowidx, colidx, 100);
             write_status_info(run_status_fname, "total_runtime", rowidx, colidx, difftime(cell_etime, cell_stime));
             
           } catch (std::exception& e) {
 
-            BOOST_LOG_SEV(glg, err) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
+            BOOST_LOG_SEV(glg, warn) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
 
             // IS THIS THREAD SAFE??
             // IS IT SAFE WITH MPI??
@@ -450,11 +450,11 @@ int main(int argc, char* argv[]){
 
             // Write to fail_mask.nc file?? or json? might be good for visualization
             write_status_info(run_status_fname, "run_status", rowidx, colidx, -100); // <- what if this throws??
-            BOOST_LOG_SEV(glg, err) << "End of exception handler.";
+            BOOST_LOG_SEV(glg, warn) << "End of exception handler.";
 
           }
         } else {
-          BOOST_LOG_SEV(glg, fatal) << "Skipping cell (" << rowidx << ", " << colidx << ")";
+          BOOST_LOG_SEV(glg, monitor) << "Skipping cell (" << rowidx << ", " << colidx << ")";
           write_status_info(run_status_fname, "run_status", rowidx, colidx, 0);
         }
  
@@ -483,7 +483,7 @@ int main(int argc, char* argv[]){
 
   }
 
-  BOOST_LOG_SEV(glg, note) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
+  BOOST_LOG_SEV(glg, info) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
 
   etime = time(0);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
@@ -546,7 +546,7 @@ void advance_model(const int rowidx, const int colidx,
                    const std::string& tr_restart_fname,
                    const std::string& sc_restart_fname) {
 
-  BOOST_LOG_SEV(glg, note) << "Running cell (" << rowidx << ", " << colidx << ")";
+  BOOST_LOG_SEV(glg, info) << "Running cell (" << rowidx << ", " << colidx << ")";
 
   //modeldata.initmode = 1; // OBSOLETE?
 
@@ -606,7 +606,7 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, debug) << "RestartData post PR";
     runner.cohort.restartdata.restartdata_to_log();
 
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << pr_restart_fname;
+    BOOST_LOG_SEV(glg, info) << "Writing RestartData to: " << pr_restart_fname;
     runner.cohort.restartdata.write_pixel_to_ncfile(pr_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
@@ -618,7 +618,7 @@ void advance_model(const int rowidx, const int colidx,
   // EQUILIBRIUM STAGE (EQ)
   if (modeldata.eq_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("EQ");
-    BOOST_LOG_SEV(glg, fatal) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
+    BOOST_LOG_SEV(glg, monitor) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -642,7 +642,7 @@ void advance_model(const int rowidx, const int colidx,
       // To ensure this, re-set modeldata's EQ year count to an
       // even multiple of the FRI minus 2 (to be safe)
       if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
-        BOOST_LOG_SEV(glg, err) << "The model will not run enough years to complete a disturbance cycle!";
+        BOOST_LOG_SEV(glg, warn) << "The model will not run enough years to complete a disturbance cycle!";
       } else {
         int fri = runner.cohort.fire.getFRI();
         int EQ_fire_cycles = modeldata.eq_yrs / fri;
@@ -657,7 +657,7 @@ void advance_model(const int rowidx, const int colidx,
     }
 
     // Run model
-    BOOST_LOG_SEV(glg, fatal) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
+    BOOST_LOG_SEV(glg, monitor) << "Running Equilibrium, " << fri_adj_eq_yrs << " years.";
     runner.run_years(0, fri_adj_eq_yrs, "eq-run");
 
     // Update restartdata structure from the running state
@@ -667,11 +667,11 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, debug) << "RestartData post EQ";
     runner.cohort.restartdata.restartdata_to_log();
 
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData to: " << eq_restart_fname;
+    BOOST_LOG_SEV(glg, info) << "Writing RestartData to: " << eq_restart_fname;
     runner.cohort.restartdata.write_pixel_to_ncfile(eq_restart_fname, rowidx, colidx);
 
     if (modeldata.eq_yrs < runner.cohort.fire.getFRI()) {
-      BOOST_LOG_SEV(glg, err) << "The model did not run enough years to complete a disturbance cycle!";
+      BOOST_LOG_SEV(glg, warn) << "The model did not run enough years to complete a disturbance cycle!";
     }
 
     if (runner.calcontroller_ptr) {
@@ -683,7 +683,7 @@ void advance_model(const int rowidx, const int colidx,
   // SPINUP STAGE (SP)
   if (modeldata.sp_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("SP");
-    BOOST_LOG_SEV(glg, fatal) << "Running Spinup, " << modeldata.sp_yrs << " years.";
+    BOOST_LOG_SEV(glg, monitor) << "Running Spinup, " << modeldata.sp_yrs << " years.";
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -725,7 +725,7 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, debug) << "RestartData post SP";
     runner.cohort.restartdata.restartdata_to_log();
 
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sp_restart_fname;
+    BOOST_LOG_SEV(glg, info) << "Writing RestartData out to: " << sp_restart_fname;
     runner.cohort.restartdata.write_pixel_to_ncfile(sp_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
@@ -737,7 +737,7 @@ void advance_model(const int rowidx, const int colidx,
   // TRANSIENT STAGE (TR)
   if (modeldata.tr_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("TR");
-    BOOST_LOG_SEV(glg, fatal) << "Running Transient, " << modeldata.tr_yrs << " years";
+    BOOST_LOG_SEV(glg, monitor) << "Running Transient, " << modeldata.tr_yrs << " years";
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -764,7 +764,7 @@ void advance_model(const int rowidx, const int colidx,
     // Copy values from the updated restart data to cohort and cd
     runner.cohort.set_state_from_restartdata();
 
-    BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
+    BOOST_LOG_SEV(glg, warn) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
     // Run model
     runner.run_years(0, modeldata.tr_yrs, "tr-run");
@@ -775,7 +775,7 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, debug) << "RestartData post TR";
     runner.cohort.restartdata.restartdata_to_log();
 
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << tr_restart_fname;
+    BOOST_LOG_SEV(glg, info) << "Writing RestartData out to: " << tr_restart_fname;
     runner.cohort.restartdata.write_pixel_to_ncfile(tr_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
@@ -787,7 +787,7 @@ void advance_model(const int rowidx, const int colidx,
   // SCENARIO STAGE (SC)
   if (modeldata.sc_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("SC");
-    BOOST_LOG_SEV(glg, fatal) << "Running Scenario, " << modeldata.sc_yrs << " years.";
+    BOOST_LOG_SEV(glg, monitor) << "Running Scenario, " << modeldata.sc_yrs << " years.";
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -817,7 +817,7 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.load_proj_co2(modeldata.proj_co2_file);
     runner.cohort.load_proj_explicit_fire(modeldata.proj_exp_fire_file);
 
-    BOOST_LOG_SEV(glg,err) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
+    BOOST_LOG_SEV(glg, warn) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
     // Run model
     runner.run_years(0, modeldata.sc_yrs, "sc-run");
@@ -828,7 +828,7 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, debug) << "RestartData post SC";
     runner.cohort.restartdata.restartdata_to_log();
 
-    BOOST_LOG_SEV(glg, note) << "Writing RestartData out to: " << sc_restart_fname;
+    BOOST_LOG_SEV(glg, info) << "Writing RestartData out to: " << sc_restart_fname;
     runner.cohort.restartdata.write_pixel_to_ncfile(sc_restart_fname, rowidx, colidx);
 
     if (runner.calcontroller_ptr) {
@@ -951,6 +951,8 @@ void write_status_info(const std::string fname, std::string varname, int row, in
   start[0] = row;
   start[1] = col;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening status file: " << fname;
+
 #ifdef WITHMPI
 
   // These are for logging identification only.
@@ -965,7 +967,7 @@ void write_status_info(const std::string fname, std::string varname, int row, in
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
 
   // Write data
-  BOOST_LOG_SEV(glg, note) << "(MPI " << id << "/" << ntasks << ") WRITING "<< varname << " for pixel (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, info) << "(MPI " << id << "/" << ntasks << ") WRITING "<< varname << " for pixel (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start,  &statusCode) );
 
   /* Close the netcdf file. */
@@ -978,7 +980,7 @@ void write_status_info(const std::string fname, std::string varname, int row, in
   temutil::nc( nc_inq_varid(ncid, varname.c_str(), &statusV) );
   
   // Write data
-  BOOST_LOG_SEV(glg, note) << "WRITING "<< varname <<" for (row, col): " << row << ", " << col << "\n";
+  BOOST_LOG_SEV(glg, info) << "WRITING "<< varname <<" for (row, col): " << row << ", " << col << "\n";
   temutil::nc( nc_put_var1_int(ncid, statusV, start, &statusCode) );
 
   /* Close the netcdf file. */

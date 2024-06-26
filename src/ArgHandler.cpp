@@ -118,7 +118,7 @@ void ArgHandler::parse(int argc, char** argv) {
      boost::program_options::value<std::string>(&log_level)
        ->default_value("warn"),
      "Control the verbosity of the console log statements. Choose one of "
-     "the following: debug, info, note, warn, err, fatal.")
+     "the following: debug, info, warn, monitor, fatal.")
 
     ("log-scope",
      boost::program_options::value<std::string>(&log_scope)
