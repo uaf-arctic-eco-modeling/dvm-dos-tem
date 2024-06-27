@@ -37,6 +37,7 @@ INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
 		src/TEMLogger.o \
 		src/CalController.o \
+		src/DAController.o \
 		src/ArgHandler.o \
 		src/TEMUtilityFunctions.o \
 		src/Climate.o \
@@ -83,6 +84,7 @@ SOURCES= 	src/TEM.o \
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
+		DAController.o \
 		TEMUtilityFunctions.o \
 		Climate.o \
 		OutputEstimate.o \

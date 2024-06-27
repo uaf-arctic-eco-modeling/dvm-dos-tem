@@ -28,6 +28,8 @@
 
 #include "Integrator.h"
 
+#include "DAController.h"
+
 // headers for run
 #include "ModelData.h"
 
@@ -56,6 +58,9 @@ public :
   // old? can I deprecate these??
   //double pfsize[NUM_FSIZE];
   //double pfseason[NUM_FSEASON];
+
+  //
+  DAController* DAcontroller;
   
   //inputs
   CohortLookup chtlu;
@@ -123,7 +128,7 @@ private:
   Integrator solintegrator;
 
 
-  void updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai_module);
+  void updateMonthly_DIMveg(std::string stage, const int & yearind, const int & currmind, const bool & dynamic_lai_module);
   void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
 
   void updateMonthly_Env(const int & currmind, const int & dinmcurr);

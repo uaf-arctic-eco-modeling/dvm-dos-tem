@@ -44,6 +44,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
 
+  this->DAcontroller = new DAController();
+
   if (modeldatapointer->force_cmt >= 0) {
     this->cd.cmttype = modeldatapointer->force_cmt;
   } else {
@@ -389,7 +391,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   }
 
   BOOST_LOG_SEV(glg, debug) << "Update the current dimension/structure of veg-snow/soil column (domain).";
-  updateMonthly_DIMveg(currmind, md->get_dynamic_lai_module());
+  updateMonthly_DIMveg(stage, yrcnt, currmind, md->get_dynamic_lai_module());
   updateMonthly_DIMgrd(currmind, md->get_dslmodule());
 
   if(md->get_bgcmodule()) {
@@ -833,7 +835,7 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 }
 
 /** Dynamic Vegetation Module function. */
-void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai_module) {
+void Cohort::updateMonthly_DIMveg(std::string stage, const int & yearind, const int & currmind, const bool & dynamic_lai_module) {
   BOOST_LOG_NAMED_SCOPE("DIMveg");
   BOOST_LOG_SEV(glg, debug) << "A sample log message in DVM ...";
 
@@ -867,6 +869,44 @@ void Cohort::updateMonthly_DIMveg(const int & currmind, const bool & dynamic_lai
   // update monthly phenological variables (factors used for GPP), and LAI
   veg.phenology(currmind);
   veg.updateLai(currmind); // this must be done after phenology
+
+
+  //Pause here for LAI data assimilation if specified
+  if(this->DAcontroller){
+    timestep_id curr_step(0, 0, stage, yearind, currmind);
+
+    if(this->DAcontroller->check_for_pause(curr_step)){
+      //calculate LAI stuff
+      double totalLAI = 0.0;
+      std::vector<double> lai_by_pft;
+      for(int ip=0; ip<NUM_PFT; ip++){
+        double templai = cd.m_veg.lai[ip];
+        if(templai > 0){
+          lai_by_pft.push_back(templai);
+          totalLAI += templai;
+        }
+      }
+
+      //write LAI to file
+      temutil::ppv(lai_by_pft);
+      std::cout<<"total lai: "<<totalLAI<<std::endl;
+
+      //Block until DA has run and somehow signaled completion
+      std::cout<<"Enter new total LAI: "<<std::endl;
+      double newLAI;
+
+      //Read LAI from file
+      std::cin>>newLAI;
+
+      //Redistribute new LAI to PFTs based on original percentages
+      for(int ip=0; ip<NUM_PFT; ip++){
+        if(cd.m_veg.lai[ip] > 0){
+          cd.m_veg.lai[ip] = newLAI * (lai_by_pft[ip] / totalLAI);
+        }
+      }
+    }
+  }
+
   //LAI updated above for each PFT, but FPC
   //   (foliage percent cover) may need adjustment
   veg.updateFpc();
