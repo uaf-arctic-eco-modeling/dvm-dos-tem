@@ -22,6 +22,14 @@ struct OutputSpec{
   bool daily;
 };
 
+//A pair of integers specifying cell x and y index
+struct cell_coords{
+  int xidx, yidx;
+
+  cell_coords(): xidx(0), yidx(0) {}
+  cell_coords(int new_x, int new_y): xidx(new_x), yidx(new_y) {}
+};
+
 //temporo-spatial pause
 struct timestep_id{
   int x, y; //

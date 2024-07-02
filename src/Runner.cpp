@@ -1016,48 +1016,6 @@ void Runner::output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix,
 }
 
 
-template <typename PTYPE>
-void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
-                            PTYPE data, int max_var_count_1,
-                            int max_var_count_2,
-                            int start_timestep, int timesteps){
-  BOOST_LOG_SEV(glg, debug)<<"output_nc_5dim, var: "<<out_spec->var_name;
-  //timestep, compartment, pft, row, col
-  size_t datastart[5];
-  datastart[0] = start_timestep;
-  datastart[1] = 0;
-  datastart[2] = 0;
-  datastart[3] = this->y;
-  datastart[4] = this->x;
-
-  size_t datacount[5];
-  datacount[0] = timesteps; 
-  datacount[1] = max_var_count_1;
-  datacount[2] = max_var_count_2;
-  datacount[3] = 1;
-  datacount[4] = 1;
-
-  int ncid, cv;
-  std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
-
-#ifdef WITHMPI
-  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
-#else
-  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
-#endif
-
-  temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
-
-#ifdef WITHMPI
-  temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
-#endif
-
-  temutil::nc( nc_put_vara(ncid, cv, datastart, datacount, data) );
-
-  temutil::nc( nc_close(ncid) );
-}
-
-
 /* Some of the following outputs are written out at the timesteps
  * they have specified in the output_spec file, but some have
  * been converted to write to an OutputHolder in order to reduce
@@ -1125,8 +1083,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
   int dinm = DINM[month];
 
-  int rowidx = this->y;
-  int colidx = this->x;
+  cell_coords coords(this->x, this->y);
+//  int rowidx = this->y;
+//  int colidx = this->x;
 
   OutputSpec curr_spec;
   std::map<std::string, OutputSpec>::iterator map_itr;
@@ -2106,7 +2065,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         if(curr_spec.monthly){
           outhold.gpp_for_output.push_back(m_gpp);
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.gpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.gpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
             outhold.gpp_for_output.clear();
           }
         }
@@ -2114,7 +2073,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         else if(curr_spec.yearly){
           outhold.gpp_for_output.push_back(y_gpp);
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.gpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.gpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
             outhold.gpp_for_output.clear();
           }
         }
@@ -2396,11 +2355,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_ingpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_ingpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_ingpp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_ingpp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
 
       }
@@ -2485,11 +2444,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_innpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_innpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_innpp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_innpp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only (4 dimensions)
@@ -2804,7 +2763,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.ltrfalc_for_output.push_back(m_ltrfalc);
 
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.ltrfalc_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
             outhold.ltrfalc_for_output.clear();
           }
         }
@@ -2813,7 +2772,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.ltrfalc_for_output.push_back(y_ltrfalc);
 
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ltrfalc_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.ltrfalc_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
             outhold.ltrfalc_for_output.clear();
           }
         }
@@ -2929,11 +2888,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_ltrfaln[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_ltrfaln[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_ltrfaln[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_ltrfaln[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only (4 dimensions)
@@ -3307,7 +3266,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.npp_for_output.push_back(m_npp);
 
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.npp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.npp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
             outhold.npp_for_output.clear();
           }
         }
@@ -3316,7 +3275,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.npp_for_output.push_back(y_npp);
 
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.npp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.npp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
             outhold.npp_for_output.clear();
           }
         }
@@ -3423,7 +3382,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           m_nreq[ip][ipp] = cohort.vegbgc[ip].tmp_vegs.nreq[ipp];
         }
       } 
-      output_nc_5dim(&curr_spec, file_stage_suffix, &m_nreq[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+      temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_nreq[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
     }
     //Total
     else{
@@ -3458,11 +3417,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_nresorb[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_nresorb[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_nresorb[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_nresorb[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only
@@ -3592,11 +3551,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_snuptake[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_snuptake[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_snuptake[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_snuptake[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only (4 dimensions)
@@ -3995,11 +3954,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_rg[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_rg[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_rg[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_rg[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only (4 dimensions)
@@ -4147,11 +4106,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_rm[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_rm[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_rm[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_rm[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only (4 dimensions)
@@ -5088,7 +5047,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.vegc_for_output.push_back(m_vegc);
 
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.vegc_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.vegc_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
             outhold.vegc_for_output.clear();
           }
         }
@@ -5097,7 +5056,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           outhold.vegc_for_output.push_back(y_vegc);
 
           if(output_this_timestep){
-            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.vegc_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &outhold.vegc_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
             outhold.vegc_for_output.clear();
           }
         }
@@ -5213,11 +5172,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_vegn[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &m_vegn[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_vegn[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          temutil::output_nc_5dim(&curr_spec, file_stage_suffix, &coords, &y_vegn[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only
