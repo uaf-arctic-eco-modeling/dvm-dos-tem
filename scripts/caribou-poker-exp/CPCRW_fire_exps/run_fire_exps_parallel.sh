@@ -90,6 +90,7 @@ run_model() {
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on RH monthly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on RM monthly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on NPP monthly
+    python "$outspec_script" "${workflow}/config/output_spec.csv" --on INNPP monthly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on ALD yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on DEEPDZ yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on SHLWDZ yearly

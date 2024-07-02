@@ -34,14 +34,14 @@ dwdc['year'] = dwdc['time'].dt.year
 dwdc = dwdc.groupby(by=['year']).sum().reset_index()
 
 
-rh_layer_path = '/data/workflows/BONA-black-spruce-fire-1930/output/RH_monthly_tr.nc'
-rh_layer = xr.open_dataset(rh_layer_path)
-rh_layer['time'] = rh_layer.indexes['time'].to_datetimeindex()
-rh_layer = rh_layer.to_dataframe().reset_index().drop(columns=['x', 'y'])
-rh_layer['time'] = pd.to_datetime(rh_layer['time'])
-rh_layer['year'] = rh_layer['time'].dt.year
-rh_layer_yearly = rh_layer.groupby(by=['year', 'layer']).sum().reset_index()
-rh_layer_yearly_sum = rh_layer.groupby(by=['year']).sum().reset_index()
+#rh_layer_path = '/data/workflows/BONA-black-spruce-fire-1930/output/RH_monthly_tr.nc'
+#rh_layer = xr.open_dataset(rh_layer_path)
+#rh_layer['time'] = rh_layer.indexes['time'].to_datetimeindex()
+#rh_layer = rh_layer.to_dataframe().reset_index().drop(columns=['x', 'y'])
+#rh_layer['time'] = pd.to_datetime(rh_layer['time'])
+#rh_layer['year'] = rh_layer['time'].dt.year
+#rh_layer_yearly = rh_layer.groupby(by=['year', 'layer']).sum().reset_index()
+#rh_layer_yearly_sum = rh_layer.groupby(by=['year']).sum().reset_index()
 
 
 lwc_layer_path = '/data/workflows/BONA-black-spruce-fire-1930/output/LWCLAYER_yearly_tr.nc'
@@ -62,18 +62,64 @@ t_layer['year'] = t_layer['time'].dt.year
 t_layer_yearly = t_layer.groupby(by=['year', 'layer']).mean().reset_index()
 
 
-fig, ax = plt.subplots()
-sns.lineplot(data=rh_layer_yearly_sum, x='year', y='RH', label = 'monthly layer (summed)', alpha=0.7)
-sns.lineplot(data=rh_layer_cumulative, x='year', y='RH', label = 'monthly', alpha=0.7)
+npp
 
 
-sns.lineplot(x=rh_layer_cumulative['year'], y=rh_layer_cumulative['RH']-rh_layer_yearly_sum['RH'], 
-             label = 'monthly', alpha=0.7)
+npp_path = '/data/workflows/BONA-black-spruce-fire-1930/output/NPP_monthly_tr.nc'
+npp = xr.open_dataset(npp_path)
+npp['time'] = npp.indexes['time'].to_datetimeindex()
+npp = npp.to_dataframe().reset_index().drop(columns=['x', 'y'])
+npp['time'] = pd.to_datetime(npp['time'])
+npp['year'] = npp['time'].dt.year
+npp_yearly = npp.loc[npp['pft']==4].groupby(by=['year', 'pftpart']).sum().reset_index()
+npp_yearly_sum = npp.groupby(by=['year']).sum().reset_index()
+
+
+inpp_path = '/data/workflows/BONA-birch-fire-1930/output/INNPP_monthly_tr.nc'
+inpp = xr.open_dataset(inpp_path)
+inpp['time'] = inpp.indexes['time'].to_datetimeindex()
+inpp = inpp.to_dataframe().reset_index().drop(columns=['x', 'y'])
+inpp['time'] = pd.to_datetime(inpp['time'])
+inpp['year'] = inpp['time'].dt.year
+inpp_yearly_sum = inpp.groupby(by=['year']).sum().reset_index()
+
+
+vegc_path = '/data/workflows/BONA-birch-fire-1930/output/VEGC_monthly_tr.nc'
+vegc = xr.open_dataset(vegc_path)
+vegc['time'] = vegc.indexes['time'].to_datetimeindex()
+vegc = vegc.to_dataframe().reset_index().drop(columns=['x', 'y'])
+vegc['time'] = pd.to_datetime(vegc['time'])
+vegc['year'] = vegc['time'].dt.year
+vegc_yearly = vegc.loc[vegc['pft']==4].groupby(by=['year', 'pftpart']).mean().reset_index()
+vegc_yearly_sum = vegc.groupby(by=['year', 'pftpart']).sum().reset_index().groupby(by=['year']).mean().reset_index()
+
+
+#black spruce
+fig, axes = plt.subplots(2,1)
+sns.lineplot(data=npp_yearly, x='year', y='NPP', hue='pftpart', ax=axes[0])
+sns.lineplot(data=vegc_yearly, x='year', y='VEGC', hue='pftpart', ax=axes[1])
+
+
+#birch
+fig, axes = plt.subplots(2,1)
+sns.lineplot(data=npp_yearly, x='year', y='NPP', hue='pftpart', ax=axes[0])
+sns.lineplot(data=vegc_yearly, x='year', y='VEGC', hue='pftpart', ax=axes[1])
+
+
+fig, axes = plt.subplots(2,1)
+sns.lineplot(data=npp_yearly_sum, x='year', y='NPP', ax=axes[0], label='NPP')
+sns.lineplot(data=inpp_yearly_sum, x='year', y='INNPP', ax=axes[0], label='INPP')
 
 
 fig, axes = plt.subplots(2,1)
 sns.lineplot(data=deadc, x='year', y='DEADC', ax=axes[0], label='DEADC')
 sns.lineplot(data=dwdc, x='year', y='DWDC', ax=axes[1], label='DWDC')
+
+
+
+
+
+
 
 
 

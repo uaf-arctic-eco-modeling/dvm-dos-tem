@@ -606,7 +606,7 @@ axes[0][0].set_ylabel('Control')
     
 axes[1][0].set_ylabel('1930 burn')
 
-#axes[1][0].set_ylim(0,500)
+#axes[1][0].set_ylim(0,200)
 
 axes[2][0].set_ylabel('1960 burn')
 axes[3][0].set_ylabel('1990 burn')
@@ -636,7 +636,9 @@ fig.tight_layout()
 plt.savefig('VEGC_tree_fire_exps.jpg', dpi=300)
 
 
-t_layers
+results_yearly_part.loc[(results_yearly_part['cmt']=='black_spruce') & (results_yearly_part['exp']=='burn_1930')&
+                                          (results_yearly_part['pft']==0)
+                                           & (results_yearly_part['pftpart']==0)]
 
 
 pal=sns.color_palette(['#5d5e5e', '#faae34', '#ba6714', '#752f00'])
@@ -867,7 +869,7 @@ sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'],
 sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'], 
              x='year', y='ORGN', hue='exp', ax=axes[6][1], legend=False, palette=pal, alpha=0.6)
 
-axes[6,0].set_ylim(2100,2300)
+#axes[6,0].set_ylim(2100,2300)
 
 axes[0][1].set_ylabel('')
 axes[1][1].set_ylabel('')
