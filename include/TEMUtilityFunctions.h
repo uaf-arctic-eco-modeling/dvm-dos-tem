@@ -186,9 +186,52 @@ namespace temutil {
       const std::string& fname, int cmtnumber, int linesofdata);
 
 
+  template <typename PTYPE>
+  void output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,
+                              cell_coords* coords, PTYPE data,
+                              int max_var_count,
+                              int start_timestep, int timesteps){
+    BOOST_LOG_SEV(glg, debug)<<"output_nc_3dim, var: "<<out_spec->var_name;
+    //timestep, row, col
+    size_t datastart[3];
+    datastart[0] = start_timestep;
+    datastart[1] = coords->yidx;
+    datastart[2] = coords->xidx;
+
+    size_t datacount[3];
+    datacount[0] = timesteps;
+    datacount[1] = 1;
+    datacount[2] = 1;
+
+    int ncid, cv;
+    std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+  #ifdef WITHMPI
+    temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  #else
+    temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+  #endif
+
+    temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
+    BOOST_LOG_SEV(glg, debug)<<"inq_varid completed";
+
+  #ifdef WITHMPI
+    temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+  #endif
+
+    temutil::nc( nc_put_vara(ncid, cv, datastart, datacount, data) );
+    BOOST_LOG_SEV(glg, debug)<<"put_vara completed";
+
+    temutil::nc( nc_close(ncid) );
+    BOOST_LOG_SEV(glg, debug)<<"close completed";
+  }
+
 
   template<typename PTYPE>
-  void output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix, cell_coords* coords, PTYPE data, int max_var_count_1, int max_var_count_2, int start_timestep, int timesteps){
+  void output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
+                      cell_coords* coords, PTYPE data,
+                      int max_var_count_1, int max_var_count_2,
+                      int start_timestep, int timesteps){
     BOOST_LOG_SEV(glg, debug)<<"output_nc_5dim, var: "<<out_spec->var_name;
     //timestep, compartment, pft, row, col
     size_t datastart[5];
@@ -224,6 +267,7 @@ namespace temutil {
 
     temutil::nc( nc_close(ncid) );
   }
+
 
   /** Templated function for reading a timeseries variable from a basic netcdf
       file.
