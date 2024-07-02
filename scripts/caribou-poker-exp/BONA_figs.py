@@ -760,7 +760,7 @@ plt.xticks(rotation = 90)
 fig, ax = plt.subplots()
 ax2=ax.twinx()
 sns.lineplot(data=bs_soil_resp, x='date', y=bs_soil_resp['RH'], label = 'RH', legend=False, alpha=0.8, color=decid_color, ax = ax)
-sns.lineplot(data=ltrfalc_bs_tr.loc[ltrfalc_bs_tr['time']>'2021-01-01'], x='time', y='LTRFALC', ax=ax2, label='litter')
+sns.lineplot(data=ltrfalc_bs_tr.loc[ltrfalc_bs_tr['time']>'1990-01-01'], x='time', y='LTRFALC', ax=ax2, label='litter')
 
 
 fig, ax = plt.subplots()
@@ -780,15 +780,6 @@ sns.scatterplot(data=df_bs.loc[(df_bs['date']>'2010-01-01') & (df_bs['date']<'20
 
 
 sns.scatterplot(data=df_br.loc[(df_br['date']>'2010-01-01') & (df_br['date']<'2024-01-01')], x='LWC_top', y='RH', label = 'Birch', color='#708891')
-
-
-
-
-
-
-
-
-
 
 
 df_yearly_melt = df_yearly[['year', 'GPP', 'RECO', 'NEE', 'CMT']].melt(id_vars=['year', 'CMT'], value_vars=['GPP', 'RECO', 'NEE', 'CMT'])

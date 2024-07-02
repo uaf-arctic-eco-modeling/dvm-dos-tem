@@ -129,7 +129,7 @@ get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/confi
 get_ipython().run_line_magic('cd', '/data/workflows/BONA-birch')
 
 
-get_ipython().system("dvmdostem --force-cmt=14 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
+get_ipython().system("dvmdostem --force-cmt=14 --log-level='err' --pr-yrs=100 --eq-yrs=1500 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
 
 
 get_ipython().system('ls /data/workflows/BONA-birch/output/')
@@ -205,7 +205,7 @@ get_ipython().run_line_magic('cd', '/data/workflows/BONA-black-spruce')
 
 
 #!dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=115 --sc-yrs=10
-get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=1500 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
+get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --pr-yrs=100 --eq-yrs=1500 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
 #!dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=300 --sp-yrs=0 --tr-yrs=0 --sc-yrs=0
 
 
@@ -221,6 +221,16 @@ ald_bs_eq = ald_bs_eq.loc[(ald_bs_eq['y']==0) & (ald_bs_eq['x']==0)]
 shlwc_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/SHLWC_monthly_eq.nc')
 shlwc_bs_eq = shlwc_bs_eq.to_dataframe().reset_index()
 shlwc_bs_eq = shlwc_bs_eq.loc[(shlwc_bs_eq['y']==0) & (shlwc_bs_eq['x']==0)]
+
+#AVLN
+avln_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/AVLN_yearly_eq.nc')
+avln_bs_eq = avln_bs_eq.to_dataframe().reset_index()
+avln_bs_eq = avln_bs_eq.loc[(avln_bs_eq['y']==0) & (avln_bs_eq['x']==0)]
+
+#AVLN
+avln_bs_tr = xr.open_dataset('/data/workflows/BONA-black-spruce/output/AVLN_yearly_tr.nc')
+avln_bs_tr = avln_bs_tr.to_dataframe().reset_index()
+avln_bs_tr = avln_bs_tr.loc[(avln_bs_tr['y']==0) & (avln_bs_tr['x']==0)]
 
 
 ald_bs_eq
@@ -242,7 +252,19 @@ sns.lineplot(data=ald_bs_eq, x='time', y='ALD')
 sns.lineplot(data=shlwc_bs_eq, x='time', y='SHLWC')
 
 
+#CMT1
+sns.lineplot(data=avln_bs_eq, x='time', y='AVLN')
 
+
+avln_bs_tr.loc[100:]
+
+
+#0.708 nfactor(w)
+sns.lineplot(data=avln_bs_tr, x=avln_bs_tr.index, y='AVLN')
+
+
+#0.707 nfactor(w)
+sns.lineplot(data=avln_bs_tr, x=avln_bs_tr.index, y='AVLN')
 
 
 

@@ -170,7 +170,7 @@ tripod_data_monthly['m_y'] = pd.to_datetime(tripod_data_monthly[['year', 'month'
 fig, axes = plt.subplots(2, 1, sharex=True)
 
 #sns.lineplot(data=lwc_layers[lwc_layers['z']==.15], x='time', y='LWCLAYER', hue='sample', legend=False, ax=axes[0], alpha=0.3)
-sns.lineplot(data=lwc_layers[(lwc_layers['z']==.15) & (lwc_layers['sample']==35)], x='time', y='LWCLAYER', color='red', ax=axes[0])
+sns.lineplot(data=lwc_layers[(lwc_layers['z']==.15) & (lwc_layers['sample']==0)], x='time', y='LWCLAYER', color='red', ax=axes[0])
 
 #sns.scatterplot(tripod_data_monthly[tripod_data_monthly['Location']=='WTT3'], label='WTT3', 
 #             x='m_y', y = 'soil_moisture_15cm(%)', ax=axes[0])
@@ -181,7 +181,7 @@ sns.scatterplot(tripod_data_monthly[tripod_data_monthly['Location']=='WTT1'], la
 
 
 #sns.lineplot(data=lwc_layers[lwc_layers['z']==.4], x='time', y='LWCLAYER', hue='sample', legend=False, ax=axes[1], alpha=0.3)
-sns.lineplot(data=lwc_layers[(lwc_layers['z']==.4) & (lwc_layers['sample']==35)], x='time', y='LWCLAYER', color='red', ax=axes[1])
+sns.lineplot(data=lwc_layers[(lwc_layers['z']==.4) & (lwc_layers['sample']==0)], x='time', y='LWCLAYER', color='red', ax=axes[1])
 
 
 #sns.scatterplot(tripod_data_monthly[tripod_data_monthly['Location']=='WTT3'], 
@@ -208,7 +208,7 @@ plt.savefig('BONA_SWC_SA_LWC_soil.jpg', dpi=300)
 fig, axes = plt.subplots(2, 1, sharex=True)
 
 #sns.lineplot(data=t_layers[t_layers['z']==.15], x='time', y='TLAYER', hue='sample', legend=False, alpha = 0.3, ax=axes[0])
-sns.lineplot(data=t_layers[(t_layers['z']==.15) & (t_layers['sample']==35)], x='time', y='TLAYER', color='red', ax=axes[0])
+sns.lineplot(data=t_layers[(t_layers['z']==.15) & (t_layers['sample']==42)], x='time', y='TLAYER', color='red', ax=axes[0])
 
 #sns.scatterplot(tripod_data_monthly[tripod_data_monthly['Location']=='WTT3'], label='WTT3', 
 #             x='m_y', y = 'soil_temp_15cm(°C)', ax=axes[0])
@@ -219,7 +219,7 @@ sns.scatterplot(tripod_data_monthly[tripod_data_monthly['Location']=='WTT1'], la
 
 
 #sns.lineplot(data=t_layers[t_layers['z']==.4], x='time', y='TLAYER', hue='sample', alpha=0.3, ax=axes[1], legend=False)
-sns.lineplot(data=t_layers[(t_layers['z']==.4) & (t_layers['sample']==35)], x='time', y='TLAYER', color='red', ax=axes[1])
+sns.lineplot(data=t_layers[(t_layers['z']==.4) & (t_layers['sample']==42)], x='time', y='TLAYER', color='red', ax=axes[1])
 #sns.lineplot(data=t_layers[(t_layers['z']==.4) & (t_layers['sample']==20)], x='time', y='TLAYER_top', color='red', ax=axes[1])
 #sns.lineplot(data=t_layers[(t_layers['z']==.4) & (t_layers['sample']==20)], x='time', y='TLAYER_bot', color='red', ax=axes[1])
 
@@ -250,7 +250,7 @@ sample_dfs
 
 
 sample_matrix=pd.read_csv(os.path.join(SA_path, 'sample_matrix.csv'))
-sample_matrix.iloc[19]
+sample_matrix.iloc[42]
 
 
 sample_matrix.iloc[35]
@@ -342,6 +342,9 @@ df_tlayer.sort_values('r2_15cm', ascending=False).head(20)
 
 
 df_lwclayer.sort_values('r2_15cm', ascending=False).head(20)
+
+
+
 
 
 
