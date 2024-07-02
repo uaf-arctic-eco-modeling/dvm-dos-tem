@@ -653,7 +653,8 @@ void Soil_Bgc::deltac() {
       if(cd->m_soil.type[il] > 0) { // 0 moss 1 shlw, and 2 deep
         rhmoist_wd = bd->m_soid.rhmoist[il];
         rhq10_wd = bd->m_soid.rhq10[il];
-        wdkd = bgcpar.kdrawc[il];
+        //wdkd = bgcpar.kdrawc[il];
+        wdkd = bgcpar.kdsompr[il];
         break; // Taking the first non-moss layer's only for wood debris
       }
     }
