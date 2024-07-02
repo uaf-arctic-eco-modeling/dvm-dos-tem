@@ -284,6 +284,9 @@ void Vegetation_Bgc::prepareIntegration(const bool &nfeedback) {
 
   // dead standing C falling
   //if(cd->yrsdist < 10.0) {//cd->mthsdist<108
+  bd->m_v2soi.d2wdebrisc = 0.0;
+  bd->m_v2soi.d2wdebrisn = 0.0;
+
   if(cd->mthsdist < 108) {
     if(bd->m_vegs.deadc0 > 0) {
       bd->m_v2soi.d2wdebrisc = bd->m_vegs.deadc0/9.0/12.0;
