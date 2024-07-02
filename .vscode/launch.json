@@ -11,7 +11,7 @@
             "program": "/work/dvmdostem",
             "args": ["--force-cmt", "15", 
                      "--log-level", "fatal", 
-                     "-e", "1000", 
+                     "-e", "100", 
                      "-s", "300", 
                      "-p", "100",
                      "-t", "122", 
