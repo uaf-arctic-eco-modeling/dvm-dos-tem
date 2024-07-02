@@ -31,16 +31,16 @@ params:
 - nfall(1)
 - nfall(2)  
 pftnums:
-- 0 
-- 0 
-- 0
-- 0
-- 0 
-- 0
-- 0
-- 0
-- 0
-- 0 
+- 4 
+- 4 
+- 4
+- 4
+- 4 
+- 4
+- 4
+- 4
+- 4
+- 4 
 site: /data/input-catalog/caribou-poker
 work_dir: /data/workflows/BONA-Birch-NPP-VegC-PFT-SA
 mads_initial_guess:
