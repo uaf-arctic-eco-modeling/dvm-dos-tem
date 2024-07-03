@@ -6,6 +6,8 @@
 class DAController {
 public:
 
+  OutputSpec outspec;
+
   void set_month_pause(bool new_state);
   bool get_month_pause();
   DAController();

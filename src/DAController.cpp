@@ -82,6 +82,37 @@ DAController::DAController(){
 //  }
 
 
+  //TODO replace placeholder - artificially constructing outspec for testing
+  boost::filesystem::path output_base = "output/";
+  this->outspec.file_path = output_base.string();
+  this->outspec.filename_prefix = "DA_LAI"; //ALD_monthly
+  this->outspec.var_name = "TEM_LAI";
+  this->outspec.data_type = NC_DOUBLE;
+  this->outspec.dim_count = 3;//Maybe?
+
+  int ncid;
+  std::string new_filename = "DA_LAI.nc";
+  boost::filesystem::path output_filepath = output_base / new_filename;
+  std::string new_file = output_filepath.string();
+
+  std::cout<<"creating new DA LAI file: "<<new_file<<std::endl;
+  temutil::nc( nc_create(new_file.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
+
+  int yD, xD, temVar, daVar;
+  temutil::nc( nc_def_dim(ncid, "y", 1, &yD) );
+  temutil::nc( nc_def_dim(ncid, "x", 1, &xD) );
+
+  int vartype2D_dimids[2];
+  vartype2D_dimids[0] = yD;
+  vartype2D_dimids[1] = xD;
+
+  temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 2, vartype2D_dimids, &temVar) );
+  temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 2, vartype2D_dimids, &daVar) );
+
+  temutil::nc( nc_enddef(ncid) );
+  temutil::nc( nc_close(ncid) );
+
+
   load_pause_dates();
 
   pause_this_month = false;

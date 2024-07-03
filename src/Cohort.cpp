@@ -888,6 +888,8 @@ void Cohort::updateMonthly_DIMveg(std::string stage, const int & yearind, const 
       }
 
       //write LAI to file
+      cell_coords curr_coords(0,0);
+      temutil::output_nc_3dim(&this->DAcontroller->outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
       temutil::ppv(lai_by_pft);
       std::cout<<"total lai: "<<totalLAI<<std::endl;
 
