@@ -167,7 +167,8 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, const double & t
   // The bottom boundary layer is an extra, virtual layer
   // Fill solver arrays for this virtual layer:
   ind++;
-  // Nicolsky, D.J., Geophys.Res.Lett., 34, L08501, doi : 10.1029 / 2007GL029525. double gflx = 0.0; // no bottom heat flux assumed
+  // Nicolsky, D.J., Geophys.Res.Lett., 34, L08501, doi : 10.1029 / 2007GL029525. 
+  double gflx = 0.0; // no bottom heat flux assumed
   t[ind] = t[ind-1] + gflx/(tca[ind-1]) * dx[ind-1];
   s[ind] = 0.;                                      
   e[ind] = t[ind];
