@@ -31,68 +31,6 @@ double SoilLayer::getMixVolHeatCapa() { //BM: Not sure this calculation is corre
   return vhc;
 };
 
-double SoilLayer::getLatentHeatContent(){
-  // eq. 15 Hinzman et al. 1998
-  //J. GEOPHYS. RES., VOL. 103,
-  //NO. D22, PAGES 28,975-28,991,
-
-  // lhc is the latent heat content of soil at temperature T (J/m3)
-  // L is total latent heat released during freezing (J/m3)
-  // Q (J)  = m(kg)L(J/kg)
-  // (J/m2) = liq (kg/m2) LHFUS (J/kg)
-  // L(J/m3)= liq (kg/m2) LHFUS (J/kg) / dz (m)     
-  // p is adjustable constant (sand = 10, clay = 1)
-  // T is soil temperature (degC)
-  // Tll is soil temperature when freezing ends
-  // Thh is soil temperature when freezing begins
-  // dT is Thh - Tll
-
-  double lhc = MISSING_D;
-  double L = liq * LHFUS / dz;
-  double p = 5; // setting p to 5 to assume part clay part sand soils - may need adjustment for organic soil
-  double T = tem;  
-  double Tll = -2.0;
-  double Thh =  0.0;
-  double dT = Tll - Thh; // this seems to be inverted in the paper
-
-  lhc = L * (exp(-p*T/dT) - exp(-p*Tll/dT)) / (exp(-p*Thh/dT) - exp(-p*Tll/dT));
-
-  return lhc;
-
-}
-
-double SoilLayer::getDeltaLatentHeatContentDeltaT()
-{
-  // eq. 16 Hinzman et al. 1998
-  // J. GEOPHYS. RES., VOL. 103,
-  // NO. D22, PAGES 28,975-28,991,
-
-  // dlhc/dT is the differential of latent heat content
-  //         with respect to soil at temperature T
-
-  // dlhc/dT = - (L / k2 - k1)(p/dT)exp(-pT/dT)
-  // where k2=exp(-pThh/dT) and k1=exp(-pTll/dT) 
-
-  // This can be differentiated using the chain rule
-  // assuming L, p, Tll, Thh, are known or constants  
-
-  double dlhc_dT = MISSING_D;
-  double L = liq * LHFUS / dz;
-  double p = 5; 
-  double T = tem;
-  double Tll = -2.0;
-  double Thh = 0.0;
-  double dT = Tll - Thh;
-
-  double k1 = exp(-p * Tll / dT);
-  double k2 = exp(-p * Thh / dT);
-  
-  dlhc_dT = -(L / (k2 - k1)) * (p / dT) * exp(-p * T/ dT); 
-
-  return dlhc_dT;
-
-}
-
 // get frozen layer thermal conductivity
 double SoilLayer::getFrzThermCond() {
   double tc;
@@ -205,7 +143,7 @@ double SoilLayer::getAlbedoNir() {
 // called when porosity/thickness is changed
 void SoilLayer::derivePhysicalProperty() {
   //hydraulic properties
-  minliq = 0.05*poro * DENLIQ * dz; //BM: minliq could be parameterized here to equate to our unfrozen water content?
+  minliq = 0.05*poro * DENLIQ * dz;
   maxliq = poro * DENLIQ * dz;
   maxice = poro * DENICE * dz;
   //thermal properties

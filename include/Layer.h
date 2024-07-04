@@ -107,16 +107,12 @@ public:
   double getUnfVolLiq(); // get unfrozen water content based on power law from Lovell, 1957
   double getDeltaUnfVolLiq(); // get derivative of unfrozen water content with respect to temperature
 
-      virtual double
-      getFrzThermCond() = 0;          // get frozen layer thermal conductivity
+  virtual double getFrzThermCond() = 0;// get frozen layer thermal conductivity
   virtual double getUnfThermCond()=0; // get unfrozen layer thermal conductivity
   virtual double getMixThermCond() = 0; // get mixed layer thermal conductivity
   virtual double getFrzVolHeatCapa()=0;// get frozen layer specific heat capcity
   virtual double getUnfVolHeatCapa()=0;// get unfrozen layer specific heat capacity
   virtual double getMixVolHeatCapa()=0;//Yuan
-
-  virtual double getLatentHeatContent()=0; // LHC following Hinzman et al. 1998
-  virtual double getDeltaLatentHeatContentDeltaT()=0; // dLHC/dT Hinzman et al. 1998
 
 };
 #endif //LAYER_H_

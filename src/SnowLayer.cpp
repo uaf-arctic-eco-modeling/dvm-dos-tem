@@ -80,18 +80,6 @@ double SnowLayer::getMixThermCond()
   //}
 };
 
-// get latent heat content
-double SnowLayer::getLatentHeatContent()
-{
-  return getThermCond();
-};
-
-// get differential of latent heat content
-double SnowLayer::getDeltaLatentHeatContentDeltaT()
-{
-  return getThermCond();
-};
-
 //From Sturm 2002 (which references Sturm 1997)
 double SnowLayer::getThermCond5Sturm() {
   double tc=0;

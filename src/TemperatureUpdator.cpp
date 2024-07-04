@@ -155,7 +155,7 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, const double & t
     dx[ind] = currl->dz;
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     t[ind] = currl->tem;
-    tca[ind] = currl->getThermalConductivity(); //BM: whether to create mixed states and apparent heat capacity within the updator or externally
+    tca[ind] = currl->getThermalConductivity(); 
     double hcap = currl->getHeatCapacity();
     double pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = (pce + hcap);
@@ -167,9 +167,9 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, const double & t
   // The bottom boundary layer is an extra, virtual layer
   // Fill solver arrays for this virtual layer:
   ind++;
-  double gflx = 0.0;  // no bottom heat flux assumed
-  t[ind] = t[ind-1] + gflx/(tca[ind-1]) * dx[ind-1];//BM:gflx could maybe be assigned based on depth of soil column
-  s[ind] = 0.;                                      // BM: see Nicolsky, D. J., Geophys.Res.Lett., 34, L08501, doi : 10.1029 / 2007GL029525. 
+  // Nicolsky, D.J., Geophys.Res.Lett., 34, L08501, doi : 10.1029 / 2007GL029525. double gflx = 0.0; // no bottom heat flux assumed
+  t[ind] = t[ind-1] + gflx/(tca[ind-1]) * dx[ind-1];
+  s[ind] = 0.;                                      
   e[ind] = t[ind];
   endind = ind;
 
@@ -230,7 +230,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
-    double hcap = currl->getHeatCapacity(); //BM: Should this be an array value rather than defined?   
+    double hcap = currl->getHeatCapacity(); 
     double pce = abs(currl->pce_f - currl->pce_t);
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
@@ -254,7 +254,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   }
   dx[ind] = temutil::NON_ZERO(dx[ind], 1);
   double hcap;
-  if (frnttype == 1) { //BM: Need to make sure these line up with correct mixed state etc and front type
+  if (frnttype == 1) { 
     tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getHeatCapacity();
   } else {
@@ -264,7 +264,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   double pce = abs(fstfntl->pce_f-fstfntl->pce_t);
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
-  cap[ind] = hca[ind] * dx[ind]; //BM: this seems like a suitable place to add the Hinzman LHC rather than in Layer or SoilLayer
+  cap[ind] = hca[ind] * dx[ind]; 
   s[ind] = 0.;
   e[ind] = t[ind];
   endind = ind;
@@ -290,8 +290,6 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
 
   // Set the frontlayer temp based on zerodegc and frozenfrac
   fstfntl->tem = -zerodegc + (1.0-fstfntl->frozenfrac) * (2.0* zerodegc); //Scale temp between -zerodegc and zerodegc based on frozenfrac
-
-//BM: Do we want this to be zero or the lower boundary of our temperature window? - is the front at 0 or -2 for Hinzman?
 
   }// Closes BOOST named scope
 }

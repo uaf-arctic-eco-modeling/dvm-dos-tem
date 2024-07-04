@@ -73,13 +73,10 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   double hcap = MISSING_D;
 
   if(isSoil){
-    // if(tem > 0){
     if(frozen == -1) {
       hcap = getUnfVolHeatCapa();
-    // } else if (-2.<tem<=0.){
-    }else if (frozen == 0){       // BM: need to make sure this is correct and interpolated based on frozen frac
-      hcap = getMixVolHeatCapa(); // BM: potentially where apparent heat capacity is added or new function
-      // } else if (tem <= -2.){
+    }else if (frozen == 0){       
+      hcap = getMixVolHeatCapa(); 
     }else if (frozen == 1){
       hcap = getFrzVolHeatCapa();
     }
@@ -96,13 +93,10 @@ double Layer::getThermalConductivity() {
   double tc = MISSING_D;
 
   if(isSoil || isSnow) {
-    // if(tem > 0.){
     if(frozen == 1) {
       tc = getFrzThermCond();
-    // } else if (-2.<tem<=0.0){
     }else if (frozen == 0){ 
       tc = getMixThermCond();
-    // } else if (tem<=-2.){
     }else if (frozen == -1) { 
       tc = getUnfThermCond();
     }

@@ -39,7 +39,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   double dse = fabs(tdrv1 * timestep); // the extra degree second
   double sumresabv  =0. ; // sum of resistence for above layers;
 
-  if(tdrv1>0.0) { // BM: freezing driving temperature initiated below 0.0 not -2.0
+  if(tdrv1>0.0) {
     freezing1 = -1;
   } else {
     freezing1 =1;
@@ -67,10 +67,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
     tkunf = currl->getUnfThermCond();
     tkfrz = currl->getFrzThermCond();
     tkmix = currl->getMixThermCond();
-    // tkmix = tkfrz * (currl->frozenfrac) + tkunf * (1 - currl->frozenfrac);
-    //BM: need to add tkmix = pow(tkfrz, frozenfrac) * pow(tkunf, 1-frozenfrac);
-    //BM: tkfront should be either frozen or unfrozen, and tkres should always be mixed based on above
-
+    
     if(tdrv1<0.0) {
       tkres   = tkfrz;
       tkfront = tkmix;
@@ -726,10 +723,10 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
           currl->frozen = -fntouttype;
         }
       } else { // no front at all
-        if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out //AM: here is where an incorrect frozen status could be attributed to a mixed layer
-          currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing. //AM: should probably remove this first if statement
+        if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out 
+          currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing. 
         }
-        else{// BM: add temperature window here - i.e. only completely frozen IF <-2 (or a parameter defining this for a CMT)
+        else{
           if (currl->tem>0.) {
             currl->frozen = -1;
           } 

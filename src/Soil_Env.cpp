@@ -34,8 +34,7 @@
 #include "../include/TEMLogger.h"
 extern src::severity_logger<severity_level> glg;
 
-Soil_Env::Soil_Env()
-{
+Soil_Env::Soil_Env(){
   ponding_max_mm = 4.0; // max ponding (surface water storage) (mm)
 };
 
@@ -65,42 +64,13 @@ void Soil_Env::initializeState(){
 
       currl->tem = ed->d_atms.ta; // <== PROBLEM: what if ed->d_atms.ta is not set yet !??
 
-      if (currl->tem > 0.0) //BM: implement Hinzman temperature window 
-      { // Above freezing         or Romanovsky soil moisture curve
+      if (currl->tem > 0.0){ // Above freezing        
         currl->liq = fmax(currl->minliq,
                           fmax(currl->maxliq, vwc * currl->dz * DENLIQ));
         currl->ice = 0.0;
         currl->frozen = -1;
       }
-      // Hinzman temperature window
-      // else if (-2. < currl->tem <= 0.)
-      // { // Do we want to use lwc here intead of vwc?
-
-      //   if ((0.5 * vwc * currl->dz * DENLIQ) > currl->maxliq)
-      //   {
-      //     currl->liq = currl->maxliq;
-      //   }
-      //   else if ((0.5 * vwc * currl->dz * DENLIQ) < currl->minliq)
-      //   {
-      //     currl->liq = currl->minliq;
-      //   }
-      //   else
-      //   {
-      //     currl->liq = 0.5 * vwc * currl->dz * DENLIQ;
-      //   }
-
-      //   if ((0.5 * vwc * currl->dz * DENICE) > currl->maxice)
-      //   {
-      //     currl->ice = currl->maxice;
-      //   }
-      //   else
-      //   {
-      //     currl->ice = 0.5 * vwc * currl->dz * DENICE;
-      //   }
-      //   currl->frozen = 0.0;
-      // }
-      else
-      { // Below freezing
+      else{ // Below freezing
         currl->ice = fmax(0.0, fmax(currl->maxice, vwc * currl->dz * DENICE));
         currl->liq = 0.0;
         currl->frozen = 1;
@@ -235,7 +205,7 @@ void Soil_Env::updateDailyGroundT(const double &tdrv, const double &dayl)
 
   if (ground->toplayer->isSoil)
   {
-    // when there is an abrupt change of surface status, reduce timestep // AM 04-29-2024: consider adjusting temp window here for thawing to occur at -2
+    // when there is an abrupt change of surface status, reduce timestep 
     if ((ground->fstsoill->frozen == 1 and tsurface > 0.0) || (ground->fstsoill->frozen == -1 and tsurface < 0.0) || ground->fstsoill->frozen == 0)
     {
       nstep = 24;
@@ -245,16 +215,14 @@ void Soil_Env::updateDailyGroundT(const double &tdrv, const double &dayl)
   double timestep = 86400.0 / nstep;
   bool meltsnow = false;
 
-  if (ed->d_snw2soi.melt > 0.)
-  {
+  if (ed->d_snw2soi.melt > 0.){
     meltsnow = true; // So, 'snow melting in snow water process'
                      //   must be done prior to this
   }
 
-  stefan.initpce(); //BM: This function may need to be modified
+  stefan.initpce(); 
 
-  for (int i = 0; i < nstep; i++)
-  {
+  for (int i = 0; i < nstep; i++){
     // 1) find the thawing/freezing fronts
     int tstate = ground->ststate;
 
@@ -264,30 +232,30 @@ void Soil_Env::updateDailyGroundT(const double &tdrv, const double &dayl)
           || (tstate == -1 && tsurface < 0) // unfrozen soil and below-zero air
           || tstate == 0)
       { // partially frozen soil column
-        stefan.updateFronts(tsurface, timestep); // BM:this may need to be modified
+        stefan.updateFronts(tsurface, timestep); 
       }
     }
     else
     {
-      stefan.updateFronts(tsurface, timestep); // BM:this may need to be modified
+      stefan.updateFronts(tsurface, timestep); 
     }
 
     // 2) ground (snow/soil) temperature solution
-    ground->setFstLstFrontLayers(); // this must be called before the following - BM:this may need to be modified
+    ground->setFstLstFrontLayers(); // this must be called before the following
     tempupdator.updateTemps(tsurface, ground->toplayer, ground->botlayer,
                             ground->fstsoill, ground->fstfntl, ground->lstfntl,
-                            timestep, meltsnow); // BM:this may need to be modified
+                            timestep, meltsnow); 
     // checking
     ground->checkWaterValidity();
   }
 
-  ground->updateWholeFrozenStatus(); // for the whole column - BM:this may need to be modified
+  ground->updateWholeFrozenStatus(); // for the whole column
   // 3) at end of each day, 'ed' should be updated for thermal properties
   updateDailySoilThermal4Growth(ground->fstsoill, tsurface); // this is needed for growing
-  updateLayerStateAfterThermal(ground->fstsoill, ground->lstsoill, // BM:this may need to be modified
+  updateLayerStateAfterThermal(ground->fstsoill, ground->lstsoill, 
                                ground->botlayer);                  // this shall be done
                                                                    //   before the following
-  retrieveDailyFronts(); //BM:this may need to be modified
+  retrieveDailyFronts(); 
   // update 'ed' with new soil thawing/freezing
   //   fronts, and daily 'ald', 'cld'
 };
@@ -448,12 +416,10 @@ void Soil_Env::updateLayerStateAfterThermal(Layer *fstsoill, Layer *lstsoill,
   ed->d_soid.unfrzcolumn = unfrzcolumn;
   ed->d_soid.tbotrock = botlayer->tem;
 
-  if (lstsoill->frozen == -1) // BM: This looks as though it may prevent a geothermal gradient in deeper soil columns
-  { // Yuan: -1 should be unfrozen
+  if (lstsoill->frozen == -1){ // Yuan: -1 should be unfrozen
     ed->d_soid.permafrost = 0;
   }
-  else
-  {
+  else{
     ed->d_soid.permafrost = 1;
   }
 }
@@ -491,8 +457,7 @@ void Soil_Env::retrieveDailyFronts()
     }
     else if (ed->d_sois.frontsz[il] > 0. && ed->d_sois.frontstype[il] == -1)
     {
-      if (ed->d_soid.ald < ed->d_sois.frontsz[il]) // BM: suggests potential ALD overestimation if talik is present
-      { // assuming the deepest
+      if (ed->d_soid.ald < ed->d_sois.frontsz[il]){ // assuming the deepest
         //   thawing front
         ed->d_soid.ald = ed->d_sois.frontsz[il];
       }
@@ -516,10 +481,9 @@ void Soil_Env::retrieveDailyFronts()
     }
     else if (ed->d_sois.frontsz[il] > 0. && ed->d_sois.frontstype[il] == 1)
     {
-      if (ed->d_soid.alc < ed->d_sois.frontsz[il]) // BM: suggests potential ALD overestimation if talik is present
-      { // assuming the deepest
+      if (ed->d_soid.alc < ed->d_sois.frontsz[il]){ // assuming the deepest
         //   freezing front
-        ed->d_soid.alc = ed->d_sois.frontsz[il]; //BM : what is the difference between ald and alc here?
+        ed->d_soid.alc = ed->d_sois.frontsz[il];
       }
     }
   }
