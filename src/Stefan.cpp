@@ -775,11 +775,10 @@ void Stefan::updateWaterAfterFront(Layer* toplayer) {
     }
 
     if (currl->liq>tliq) {  // thawing, because 'liq' increased
-      // currl->pce_t += (dliq*LHFUS);
+    // phase change energy from eq. 7 Romanovsky et al. Cold Regions Science and Technology 26 (1997) 195-203 
       currl->pce_t = (currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
     }
     else if (currl->liq<tliq) { // freezing, because 'liq' decreased
-      // currl->pce_f += (-dliq*LHFUS);
       currl->pce_f = -(currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
     }
 
