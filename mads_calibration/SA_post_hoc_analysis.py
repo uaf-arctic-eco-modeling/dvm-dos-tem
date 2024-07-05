@@ -687,6 +687,8 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   and compares to expected ranges for boreal and tundra
   ecosystems. 
 
+  E.g. n_check, counts = nitrogen_check()
+
   Note: this requires auxiliary variables INGPP, GPP, and
   AVLN to be specified in the config file. If calib_mode is set
   to GPPAllIgnoringNitrogen this will not produce meaningful 
@@ -696,10 +698,20 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   ==========
   path : str
       Specifies path to sensitivity sample run directory
+  biome : str
+      Either 'boreal' or 'tundra' used to specify ratio 
+      threshold between INGPP and GPP
+  save : bool
+      Saves figure if True
+  saveprefix : str
+      Specifies path to save figure if allowed
   
   Returns
   =======
-  None
+  n_check : Pandas.DataFrame
+      results of nitrogen checking analysis
+  counts : Pandas.DataFrame
+      final result counts as pass or fail 
 
   .. image:: /images/SA_post_hoc_analysis/n-check-comp-plot.png
   .. image:: /images/SA_post_hoc_analysis/n-check-barplot.png
@@ -1014,12 +1026,12 @@ def prep_SA_pbounds(params, fmt=None):
   s = 'pbounds: ['
   for MIN, MAX, comment in ranges:
     if fmt:
-      s_tmp = "[{MIN:" + f'{fmt}' + '}, {MAX:' + f'{fmt}' + '}], '
+      s_tmp = "[{MIN:" + f'{fmt}' + '}, {MAX:' + f'{fmt}' + '}],\n'
       s += s_tmp.format(MIN=MIN, MAX=MAX, comment=comment)
     else:
-      s += f"[{MIN:8.3f},{MAX:8.3f}],"
+      s += f"[{MIN:8.3f},{MAX:8.3f}],\n"
   #remove extra comma
-  s = s[:-1]
+  s = s[:-3]
   s += ']'
 
   return s
