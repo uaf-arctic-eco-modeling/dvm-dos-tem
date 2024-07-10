@@ -742,32 +742,34 @@ VARlist=['RH','GPP','NPP','LTRFALC','RG','RM']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series','eq')
 
 VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LTRFALN']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series')
+ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', 'eq')
 
 VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','DWDRH', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series')
+ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', 'eq')
 
+print("Generating ts stock plots...")
 VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series')
+ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series', 'eq')
 
 VARlist=['AVLN','ORGN','VEGN','NETNMIN','LTRFALN']
 ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series','eq')
 
 VARlist=['DEADC','DWDC','DEADN','DWDN']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series')
+ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', 'eq')
 
 print("Generating seasonality plots...")
 VARlist=['GPP','RH','LAI']
 seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio','eq')
 
 VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
-seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env')
+seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env', 'eq')
 
 print("Generating soil CN plots...")
 soilcnprofile(POD,PODlist,scenariolist,'eq')
 
+print("Generating soil env plots...")
 VARlist=['TLAYER','VWCLAYER']
-soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile')
+soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile','eq')
 
 print("Generating vegetation dynamic plots...")
 VARlist=['VEGC','VEGN']
