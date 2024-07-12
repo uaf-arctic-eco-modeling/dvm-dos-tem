@@ -124,6 +124,8 @@ if __name__ == '__main__':
         data = nc_data[:,Y,X]
         fig, axes = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
         axes.plot(time_range, data)
+        axes.set_ylabel(f"{ncFile.variables[plotting_var].units}")
+        fig.suptitle(f"{args.file}")
 
 
       # Variables by PFT, Compartment, or Layer
@@ -248,7 +250,10 @@ if __name__ == '__main__':
       manager = plt.get_current_fig_manager()
       manager.set_window_title(plotting_var)
       plt.xlabel("time")
-      plt.savefig("SAMPLE_plot_output_var.png")
+
+      savename = f"{plotting_var}_plot_output_var.png"
+      print(f"Saving file: {savename} ...")
+      plt.savefig(savename)
       plt.show()
 
 
