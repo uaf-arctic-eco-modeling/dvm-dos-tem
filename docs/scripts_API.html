@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>drivers.BaseDriver &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
+  <title>drivers.BaseDriver &mdash; dvmdostem v0.7.0-419-g0553bca9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-342-gf1c1e5fa
+                v0.7.0-419-g0553bca9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -1280,6 +1280,34 @@ updates the corresponding values in the run directory using the
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.equilibrium_check">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">equilibrium_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eq_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.equilibrium_check" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates percentage of samples which pass user input (or default)
+equilibrium test and plots a bar graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eq_params</strong> (<em>Pandas DataFrame</em>) – equilibrium quality dataframe for a single target variable</p></li>
+<li><p><strong>targets</strong> (<em>Pandas DataFrame</em>) – Used to read in target variable names</p></li>
+<li><p><strong>cv_lim</strong> (<em>float</em>) – coefficient of variation threshold as a %</p></li>
+<li><p><strong>p_lim</strong> (<em>float</em>) – p-value threshold as a %</p></li>
+<li><p><strong>slope_lim</strong> (<em>float</em>) – slope threshold as a fraction of target variable</p></li>
+<li><p><strong>Returns</strong> – <dl class="simple">
+<dt>counts<span class="classifier">Pandas DataFrame</span></dt><dd><p>Pass / Fail percentage for each variable</p>
+</dd>
+<dt>eq_check<span class="classifier">Pandas DataFrame</span></dt><dd><p>Boolean for each variable comprising of cv, p, slope test</p>
+</dd>
+<dt>eq_data<span class="classifier">Pandas DataFrame</span></dt><dd><p>Boolean for each variable and each test for more thorough inspection</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>image:</strong> (<em>..</em>) – /images/SA_post_hoc_analysis/eq_plot.png:</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="SA_post_hoc_analysis.generate_ca_config">
 <span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">generate_ca_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.generate_ca_config" title="Permalink to this definition"></a></dt>
 <dd><p>Maybe we should auto-generate the yaml config files?</p>
@@ -1330,6 +1358,31 @@ top N number if None!=None</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.nitrogen_check">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">nitrogen_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">biome</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'boreal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.nitrogen_check" title="Permalink to this definition"></a></dt>
+<dd><p>Plots INGPP : GPP ratio to examine nitrogen limitation
+and compares to expected ranges for boreal and tundra
+ecosystems.</p>
+<p>Note: this requires auxiliary variables INGPP, GPP, and
+AVLN to be specified in the config file. If calib_mode is set
+to GPPAllIgnoringNitrogen this will not produce meaningful
+results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Specifies path to sensitivity sample run directory</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>None</em></p></li>
+<li><p><em>.. image:: /images/SA_post_hoc_analysis/n-check-comp-plot.png</em></p></li>
+<li><p><em>.. image:: /images/SA_post_hoc_analysis/n-check-barplot.png</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_boxplot">
 <span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_boxplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_boxplot" title="Permalink to this definition"></a></dt>
 <dd><p>Plots a box and whiskers for each column in <code class="docutils literal notranslate"><span class="pre">results</span></code>. Plots a dot for
@@ -1361,6 +1414,67 @@ in current directory unless saveprefix is specified</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_equilibrium_metrics_boxplot">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_equilibrium_metrics_boxplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eq_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_equilibrium_metrics_boxplot" title="Permalink to this definition"></a></dt>
+<dd><p>Plots equilibrium metrics against certain quality thresholds
+for a target variable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eq_params</strong> (<em>Pandas DataFrame</em>) – equilibrium quality dataframe for a single target variable</p></li>
+<li><p><strong>targets</strong> (<em>Pandas DataFrame</em>) – Used to read in target variable names</p></li>
+<li><p><strong>cv_lim</strong> (<em>float</em>) – coefficient of variation threshold as a %</p></li>
+<li><p><strong>p_lim</strong> (<em>float</em>) – p-value threshold as a %</p></li>
+<li><p><strong>slope_lim</strong> (<em>float</em>) – slope threshold as a fraction of target variable</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – saves figure if True</p></li>
+<li><p><strong>saveprefix</strong> (<em>string</em>) – path to use if saving is enabled</p></li>
+<li><p><strong>Returns</strong> – None</p></li>
+<li><p><strong>image:</strong> (<em>..</em>) – /images/SA_post_hoc_analysis/eq_metrics_boxplot.png:</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_equilibrium_metrics_scatter">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_equilibrium_metrics_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eq_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_equilibrium_metrics_scatter" title="Permalink to this definition"></a></dt>
+<dd><p>Plots equilibrium metrics against certain quality thresholds
+for a target variable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eq_params</strong> (<em>Pandas DataFrame</em>) – equilibrium quality dataframe for a single target variable</p></li>
+<li><p><strong>targets</strong> (<em>Pandas DataFrame</em>) – Used to read in target variable names</p></li>
+<li><p><strong>cv_lim</strong> (<em>float</em>) – coefficient of variation threshold as a %</p></li>
+<li><p><strong>p_lim</strong> (<em>float</em>) – p-value threshold as a %</p></li>
+<li><p><strong>slope_lim</strong> (<em>float</em>) – slope threshold as a fraction of target variable</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – saves figure if True</p></li>
+<li><p><strong>saveprefix</strong> (<em>string</em>) – path to use if saving is enabled</p></li>
+<li><p><strong>Returns</strong> – None</p></li>
+<li><p><strong>image:</strong> (<em>..</em>) – /images/SA_post_hoc_analysis/eq_metrics_plot.png:</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_equilibrium_relationships">
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_equilibrium_relationships</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_equilibrium_relationships" title="Permalink to this definition"></a></dt>
+<dd><p>Plots equilibrium timeseries for target variables in output directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – specifies path to sensitivity sample run directory</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – saves figure if True</p></li>
+<li><p><strong>saveprefix</strong> (<em>string</em>) – path to use if saving is enabled</p></li>
+<li><p><strong>Returns</strong> – None</p></li>
+<li><p><strong>image:</strong> (<em>..</em>) – /images/SA_post_hoc_analysis/eq_rel_plot.png:</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_match">
 <span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_match" title="Permalink to this definition"></a></dt>
 <dd><p>Plot targets vs model outputs (results). Dashed diagonal is line of perfect
@@ -1386,27 +1500,6 @@ in current directory unless saveprefix is specified</p></li>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="SA_post_hoc_analysis.plot_nitrogen_check">
-<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">plot_nitrogen_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.plot_nitrogen_check" title="Permalink to this definition"></a></dt>
-<dd><p>Plots INGPP : GPP ratio to examine nitrogen limitation
-and compares to expected ranges for boreal and tundra
-ecosystems.</p>
-<p>Note: this requires auxiliary variables INGPP, GPP, and
-AVLN to be specified in config file. If calib_mode is set
-to GPPAllIgnoringNitrogen this will not produce meaningful
-results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – Specifies path to sensitivity sample run directory</p></li>
-<li><p><strong>Returns</strong> – None</p></li>
-<li><p><strong>image:</strong> (<em>..</em>) – /images/SA_post_hoc_analysis/nitrogen-check.png:</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1522,7 +1615,7 @@ Saves all subplots (can be a lot) if != None</p></li>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>None</em></p></li>
-<li><p><em>.. image:: /images//INGPP_pft0-cmax_pft0-cmax_pft3.png</em></p></li>
+<li><p><em>.. image:: /images/INGPP_pft0-cmax_pft0-cmax_pft3.png</em></p></li>
 </ul>
 </p>
 </dd>
@@ -1557,7 +1650,7 @@ in current directory unless saveprefix is specified</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="SA_post_hoc_analysis.prep_mads_distributions">
-<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">prep_mads_distributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.prep_mads_distributions" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">prep_mads_distributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.prep_mads_distributions" title="Permalink to this definition"></a></dt>
 <dd><p>Gives you something like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mads_paramdist</span><span class="p">:</span>
   <span class="o">-</span> <span class="n">Uniform</span><span class="p">(</span>  <span class="mf">5.9117</span><span class="p">,</span>  <span class="mf">26.5927</span><span class="p">)</span>    <span class="c1"># cmax_pft0</span>
@@ -1568,8 +1661,13 @@ in current directory unless saveprefix is specified</p></li>
 <p>From B. Maglio’s notebook.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>pandas.DataFrame</em>) – One row for each of the selected runs, one column for each parameter.
-Column names are</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>pandas.DataFrame</em>) – One row for each of the selected runs, one column for each parameter.
+Column names are</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – A user supplied format string specification. Should be something that
+you would find on the right side of the colon in an f string format spec,
+for example something like: ‘8.3f’ or ‘3.5f’</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>dists</strong> – A nicely formatted string with the distributions for each parameter that can be
@@ -1583,7 +1681,7 @@ pasted into the .yaml file for the next step.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="SA_post_hoc_analysis.prep_mads_initial_guess">
-<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">prep_mads_initial_guess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.prep_mads_initial_guess" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">SA_post_hoc_analysis.</span></span><span class="sig-name descname"><span class="pre">prep_mads_initial_guess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SA_post_hoc_analysis.prep_mads_initial_guess" title="Permalink to this definition"></a></dt>
 <dd><p>Generate MADS initial guess string based on parameter ranges. The idea is that
 the intial guess should be the mean of the parameter range. Gives you
 a string like this:</p>
@@ -1598,7 +1696,12 @@ a string like this:</p>
 <p>that is intended to be copied into your <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> config file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing parameter values.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>pandas.DataFrame</em>) – A DataFrame containing parameter values.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – A user supplied format string specification. Should be something that
+you would find on the right side of the colon in an f string format spec,
+for example something like: ‘8.3f’ or ‘3.5f’</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>MADS initial guess string.</p>

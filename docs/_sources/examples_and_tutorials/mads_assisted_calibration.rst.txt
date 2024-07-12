@@ -16,13 +16,12 @@ portions being done iteratively and or in an automated fashion.
 
 .. note:: 
 
-   The MADS Assisted Calibration process has been a group effort led by `Elchin
-   Jafarov <WCRCEJ_>`_ with contributions and testing from the team at
-   `Woodwell Climate Research Center <WCRC_>`_ as well as the UAF Arctic
-   Ecosystem Modeling group, including:
+   The MADS Assisted Calibration process has been a group effort led by `Helene
+   Genet <UAFHG_>`_  and `Elchin Jafarov <WCRCEJ_>`_ with contributions and
+   testing from the team at `Woodwell Climate Research Center <WCRC_>`_ as well
+   as the `UAF Arctic Ecosystem Modeling Group <UAFAEMG_>`_, including:
 
     - Tobey Carman
-    - Helene Genet
     - Ruth Rutter
     - Aiza Kabeer
     - Andrew Mullen
@@ -137,4 +136,6 @@ the optimization.
 .. _MADS: https://www.madsjulia.github.io
 .. _WCRC: https://www.woodwellclimate.org/
 .. _WCRCEJ: https://www.woodwellclimate.org/staff/elchin-jafarov/ 
+.. _UAFHG: https://www.uaf.edu/iab/people/faculty.php?who=Genet_Helene
+.. _UAFAEMG: https://github.com/uaf-arctic-eco-modeling
 

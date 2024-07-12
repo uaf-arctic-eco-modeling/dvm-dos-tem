@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. Dev Info &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
+  <title>3. Dev Info &mdash; dvmdostem v0.7.0-419-g0553bca9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-342-gf1c1e5fa
+                v0.7.0-419-g0553bca9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -80,6 +80,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#setting-up-with-ubuntu">3.6.3. Setting up with Ubuntu</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-strategies">3.7. Debugging strategies</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="SA_UQ.html">4. SA and UQ</a></li>
@@ -149,6 +150,14 @@
 <h1><span class="section-number">3. </span>Dev Info<a class="headerlink" href="#dev-info" title="Permalink to this heading"></a></h1>
 <p>This chapter should include all the useful information that you will need to
 make contributions to the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> project.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>In order to keep the base repository size from growing out of control, the
+testing and sample data is tracked using <a class="reference external" href="https://git-lfs.com">Git LFS</a>. If
+you need to use the testing data (i.e. to run the tests, or to build the
+documentation from source) then you should install Git LFS and run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">lfs</span>
+<span class="pre">pull</span></code> to make sure that the actual data is downloaded.</p>
+</div>
 <section id="languages-software-structure">
 <h2><span class="section-number">3.1. </span>Languages, Software Structure<a class="headerlink" href="#languages-software-structure" title="Permalink to this heading"></a></h2>
 <p>The core model (<code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>) is written in C++, while most of the supporting
@@ -227,6 +236,16 @@ tutorial-like information.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>docs_src/sphinx
 $<span class="w"> </span>make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that we need to set the <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> in order for the <code class="docutils literal notranslate"><span class="pre">qcal.py</span></code> to
+be imported and documented during this build process. Not sure the best way
+/place to set this yet, so showing an example here:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>clean
+$<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work:/work/calibration:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span><span class="w"> </span>make<span class="w"> </span>html
+</pre></div>
+</div>
 </div>
 <p>The resulting files are in the <code class="docutils literal notranslate"><span class="pre">docs_src/sphinx/build/html</span></code> directory and can
 be viewed locally with a web browser.</p>
@@ -355,6 +374,15 @@ image to render, directly from Google Docs when someone loads the page:</p>
 <p>If the original Google Drawing is updated, then the drawing seen in the wiki
 will be updated too. Take caution with the permissions granted for editing
 on the original drawing!</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When you are editing an image that is embedded, the edits are automatically
+live on the published website! This is fine for quick edits such as fixing a
+typo, but for anything more substantial, it is reccomended that you make a
+duplicate of the Google Drawing, edit the duplicate and then copy it back
+over the original. This will keep your edits from showing up on the live site
+until you are done with them!</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Soure drawings for this document should probably be stored in the
@@ -774,6 +802,25 @@ Your catalog of “workflows”</p>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
 </section>
+</section>
+<section id="debugging-strategies">
+<h2><span class="section-number">3.7. </span>Debugging strategies<a class="headerlink" href="#debugging-strategies" title="Permalink to this heading"></a></h2>
+<p>For problems with running <cite>dvmdostem</cite> itself, the first thing to do is generally
+run with a higher log level. This is available as a command line flag with both
+long and short forms (<code class="docutils literal notranslate"><span class="pre">--log-level</span></code>, <code class="docutils literal notranslate"><span class="pre">-l</span></code>).</p>
+<p>You will imediately notice that with the more verbose levels the amount of stuff
+printed to your console will be overwhelming and likely saturate your scrollback
+buffer, making it impossible to read messages from the beginning of the run,
+which is where you usually want to look to diagnose initialization errors. One
+trick to overcome this is to redirect the standard output (<code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>)
+and standard error (<code class="docutils literal notranslate"><span class="pre">stderr</span></code>, <code class="docutils literal notranslate"><span class="pre">2`</span></code>) streams to a file which you can search
+thru post-hoc using <code class="docutils literal notranslate"><span class="pre">less</span></code> or a text editor. For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dvmdostem<span class="w"> </span>--log-level<span class="w"> </span>debug<span class="w"> </span>&gt;<span class="w"> </span>MY_OUTPUT.txt<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Nothing will be output to your console and you should have a file that you
+can search through when the run is done. See the <code class="docutils literal notranslate"><span class="pre">tee</span></code> command if you want to
+see the output on your console as well as save it to a file.</p>
 </section>
 </section>
 

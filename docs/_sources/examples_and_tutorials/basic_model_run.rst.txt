@@ -15,6 +15,35 @@ bunch of the supporting tools, including Docker, and Git. For post processing
 and visualization, see the :ref:`Plotting Example
 <examples_and_tutorials/plotting_discussion:Plotting>`. 
 
+.. hint:: Quickstart Summary
+
+  For users who have Docker and Git installed. 
+
+  The default settings will run the model in the source code directory, using the
+  sample data that is included with the repository in the ``demo-data/`` directory.
+  The run will output a single variable (GPP), and will run for 2 pixels.
+
+  - Clone the repository (``git clone https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git``).
+  - Change into directory (``cd dvm-dos-tem``).
+  - Get some input data (optional).
+  - Build Docker images (``./docker-build-wrapper.sh cpp-dev && ./docker-build-wrapper.sh dev``).
+  - Setup your environment variables in ``.env`` file for ``V_TAG``, ``DDT_INPUT_CATALOG``, and ``DDT_WORKFLOWS`` (optional).
+  - Start Docker containers (``V_TAG=$(git describe) docker compose up -d dvmdostem-dev``).
+  - Obtain shell in container (``docker compose exec dvmdostem-dev bash``)
+  - Compile code (``develop@56ef79004e31:/work$ make``)
+  - Setup working directory (optional).
+  - Change into working directory (optional) .
+  - Adjust as needed (optional):
+
+     - Your run mask (``run-mask.nc``)
+     - The outputs you would like to generate (``output_spec.csv``)
+     - Any other configuration items (``config.js``)
+     - Any custom parameters (``parameters/``)
+     - Any custom target data (``calibration/calibration_targets.py``).
+
+  - Start the model run (``develop@56ef79004e31:/work$ ./dvmdostem --log-level monitor -p 100 -e 1000 -s 250 -t 115 -n 85``).
+  - Analyze run (``develop@56ef79004e31:/work ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
+ 
 .. note::
 
   This lab is more or less a duplicate of an existing wiki page:
@@ -541,7 +570,9 @@ folder and make some adjustments to the configuration file for the run.
 
 Using the one-off command style, run the script. For this case we just
 arbitrarily select a dataset from your input catalog. Don't worry if you have a
-different dataset from the example shown here.
+different dataset from the example shown here. If you don't have any input
+datasets in your input-catalog, then use the demo-data that is included with the
+repository.
 
 .. code:: bash
 

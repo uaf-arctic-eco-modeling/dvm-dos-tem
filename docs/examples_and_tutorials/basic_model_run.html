@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.7.0-342-gf1c1e5fa documentation</title>
+  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.7.0-419-g0553bca9 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.7.0-342-gf1c1e5fa
+                v0.7.0-419-g0553bca9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -141,6 +141,39 @@
 simulation. With this exercise you will get to interact with the code and a
 bunch of the supporting tools, including Docker, and Git. For post processing
 and visualization, see the <a class="reference internal" href="plotting_discussion.html#plotting"><span class="std std-ref">Plotting Example</span></a>.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Quickstart Summary</p>
+<p>For users who have Docker and Git installed.</p>
+<p>The default settings will run the model in the source code directory, using the
+sample data that is included with the repository in the <code class="docutils literal notranslate"><span class="pre">demo-data/</span></code> directory.
+The run will output a single variable (GPP), and will run for 2 pixels.</p>
+<ul>
+<li><p>Clone the repository (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git</span></code>).</p></li>
+<li><p>Change into directory (<code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">dvm-dos-tem</span></code>).</p></li>
+<li><p>Get some input data (optional).</p></li>
+<li><p>Build Docker images (<code class="docutils literal notranslate"><span class="pre">./docker-build-wrapper.sh</span> <span class="pre">cpp-dev</span> <span class="pre">&amp;&amp;</span> <span class="pre">./docker-build-wrapper.sh</span> <span class="pre">dev</span></code>).</p></li>
+<li><p>Setup your environment variables in <code class="docutils literal notranslate"><span class="pre">.env</span></code> file for <code class="docutils literal notranslate"><span class="pre">V_TAG</span></code>, <code class="docutils literal notranslate"><span class="pre">DDT_INPUT_CATALOG</span></code>, and <code class="docutils literal notranslate"><span class="pre">DDT_WORKFLOWS</span></code> (optional).</p></li>
+<li><p>Start Docker containers (<code class="docutils literal notranslate"><span class="pre">V_TAG=$(git</span> <span class="pre">describe)</span> <span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">up</span> <span class="pre">-d</span> <span class="pre">dvmdostem-dev</span></code>).</p></li>
+<li><p>Obtain shell in container (<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">exec</span> <span class="pre">dvmdostem-dev</span> <span class="pre">bash</span></code>)</p></li>
+<li><p>Compile code (<code class="docutils literal notranslate"><span class="pre">develop&#64;56ef79004e31:/work$</span> <span class="pre">make</span></code>)</p></li>
+<li><p>Setup working directory (optional).</p></li>
+<li><p>Change into working directory (optional) .</p></li>
+<li><p>Adjust as needed (optional):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Your run mask (<code class="docutils literal notranslate"><span class="pre">run-mask.nc</span></code>)</p></li>
+<li><p>The outputs you would like to generate (<code class="docutils literal notranslate"><span class="pre">output_spec.csv</span></code>)</p></li>
+<li><p>Any other configuration items (<code class="docutils literal notranslate"><span class="pre">config.js</span></code>)</p></li>
+<li><p>Any custom parameters (<code class="docutils literal notranslate"><span class="pre">parameters/</span></code>)</p></li>
+<li><p>Any custom target data (<code class="docutils literal notranslate"><span class="pre">calibration/calibration_targets.py</span></code>).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Start the model run (<code class="docutils literal notranslate"><span class="pre">develop&#64;56ef79004e31:/work$</span> <span class="pre">./dvmdostem</span> <span class="pre">--log-level</span> <span class="pre">monitor</span> <span class="pre">-p</span> <span class="pre">100</span> <span class="pre">-e</span> <span class="pre">1000</span> <span class="pre">-s</span> <span class="pre">250</span> <span class="pre">-t</span> <span class="pre">115</span> <span class="pre">-n</span> <span class="pre">85</span></code>).</p></li>
+<li><p>Analyze run (<code class="docutils literal notranslate"><span class="pre">develop&#64;56ef79004e31:/work</span> <span class="pre">./scripts/plot_output_var.py</span> <span class="pre">--yx</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">--file</span> <span class="pre">output/GPP_yearly_tr.nc</span></code>).</p></li>
+</ul>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This lab is more or less a duplicate of an existing wiki page:
@@ -603,7 +636,9 @@ will copy over the required parameter and settings files, set up an output
 folder and make some adjustments to the configuration file for the run.</p>
 <p>Using the one-off command style, run the script. For this case we just
 arbitrarily select a dataset from your input catalog. Don’t worry if you have a
-different dataset from the example shown here.</p>
+different dataset from the example shown here. If you don’t have any input
+datasets in your input-catalog, then use the demo-data that is included with the
+repository.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>dvmdostem-dev<span class="w"> </span>scripts/setup_working_directory.py<span class="w"> </span><span class="se">\</span>
 /data/workflows/basic_model_run<span class="w"> </span><span class="se">\</span>
 --input-data-path<span class="w"> </span>/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_CALM_Chevak_10x10
