@@ -1666,6 +1666,366 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
   return total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics, lim_dict
 
+def pft_mortality_check(path='', save=False, saveprefix='', targets=None):
+  '''
+  Checks whether PFTs are dying based on VEGC and GPP values over the last ten years of the run.
+
+  Parameters
+  ==========
+  path : str
+      Specifies path to sensitivity sample run directory
+  save : bool, optional
+      Whether to save the generated plot, by default False
+  saveprefix : str, optional
+      Prefix to add to the saved plot filename, by default ''
+  targets : str or Pandas DataFrame, optional
+      Path to the target CSV file or the DataFrame containing the target values, by default None
+
+  Returns
+  =======
+  DataFrame:
+      A DataFrame containing the results of the PFT mortality check.
+  '''
+
+  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name)) and "sample" in name])
+
+  if len(samples) < 1:
+    print("No sample directories found.")
+    return
+
+  if isinstance(targets, str):  # Load the targets DataFrame if path is provided
+    targets_path = os.path.join(path, targets)
+    if os.path.exists(targets_path):
+      targets = pd.read_csv(targets_path, header=1)  # Load CSV without header
+    else:
+      print(f"Targets file '{targets_path}' not found. Skipping...")
+
+  if targets is None:
+    print("Targets DataFrame is not provided. Skipping...")
+    return
+
+  # Determine the number of PFTs dynamically from the provided data
+  num_pfts = len(set(col.split('_')[1] for col in targets.columns if 'VEGC_pft' in col))
+  
+  # Create DataFrame with columns for each PFT
+  pft_columns = [f'{variable}_PFT_{pft}_result' for variable in ['VEGC', 'GPP'] for pft in range(num_pfts)]
+  pft_check = pd.DataFrame(index=range(len(samples)), columns=['sample'] + pft_columns)
+  pft_check['sample'] = samples  # Fill sample column with sample names
+
+  # Initialize result columns to False
+  for col in pft_columns:
+    pft_check[col] = False
+  
+  # Plotting code here
+  fig, ax = plt.subplots(2, num_pfts, figsize=(num_pfts * 5, 10), sharex=True)
+  
+  for j in range(num_pfts):  # Iterate over PFTs
+    for k, variable in enumerate(['VEGC', 'GPP']):  # Iterate over VEGC and GPP
+      for i, sample in enumerate(samples):  # Iterate over samples
+        dir_path = os.path.join(path, sample, 'output')
+        data_path = os.path.join(dir_path, f'{variable}_yearly_eq.nc')
+
+        if not os.path.exists(data_path):
+          print(f"Data file not found for '{sample}'. Skipping...")
+          continue
+
+        data = nc.Dataset(data_path).variables[variable][:].data[:, :, :]
+
+        # Check if variable contains 'pftpart' dimension
+        if 'pftpart' in nc.Dataset(data_path).variables[variable].dimensions:
+          # Sum across pftpart dimension
+          data = np.sum(data, axis=1)
+
+        data_pft_flat = data[:, j].flatten()  # Flatten the array
+
+        if variable == 'GPP':
+          # Check if GPP is greater than 0 for the last ten years
+          result = np.all(data[-10:, j] > 1e-6)
+        elif variable == 'VEGC':
+          # Check if VEGC is greater than 0 for the last year only
+          result = np.all(data[-1, j] > 1e-6)
+
+        ax[k, j].plot(np.arange(len(data_pft_flat)), data_pft_flat, label=f'Sample {sample}', alpha=0.7)
+        ax[k, j].set_ylabel(variable)
+        
+        # Assign result to DataFrame
+        pft_check.loc[pft_check['sample'] == sample, f'{variable}_PFT_{j}_result'] = result
+        
+        # Calculate percentage of samples passing the test
+        pass_percent = pft_check[f'{variable}_PFT_{j}_result'].sum() / len(pft_check) * 100
+        # Add the percentage in the title of each subplot
+        ax[k, j].set_title(f'PFT {j} - {variable}\nPass Rate: {pass_percent:.2f}%')
+
+  # Add the 'Result' column
+  pft_check['result'] = pft_check.iloc[:, 1:].all(axis=1)
+
+  plt.xlabel('Time')
+  plt.tight_layout()
+
+  if save:
+    plt.savefig(saveprefix + "pft-mortality-check.png", bbox_inches='tight')
+
+  return pft_check
+
+def vegc_mortality_check(path='', save=False, targets=None, saveprefix=''):
+  '''
+  Checks whether PFTs are dying based on VEGC values over the last year of the run.
+  Note: this requires VEGC to be produced from the calibration step. 
+  To access the dataframe with the final 'result' column to then use in addition to subsequent post calibration checks print:
+
+  >> vegc_check_result = vegc_mortality_check(path='', save=False, targets='targets.csv', saveprefix='')
+  Now you can access the DataFrame outside of the function
+  >> dataframe = vegc_check_result
+
+  Parameters
+  ==========
+  path : str
+      Specifies path to sensitivity sample run directory
+  save : bool, optional
+      Whether to save the generated plot, by default False
+  targets : str or Pandas DataFrame, optional
+      Path to the target CSV file or the DataFrame containing the target values, by default None
+  saveprefix : str, optional
+      Prefix to add to the saved plot filename, by default ''
+
+  Returns
+  =======
+  DataFrame:
+      A DataFrame containing the results of the VEGC mortality check.
+  '''
+
+  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name)) and "sample" in name])
+
+  if len(samples) < 1:
+    print("No sample directories found.")
+    return
+
+  vegc_check = pd.DataFrame(index=range(len(samples)), columns=['Sample'])
+  vegc_check['Sample'] = samples  # Add sample numbers to the DataFrame
+
+  # Load the target DataFrame if path is provided
+  if isinstance(targets, str):
+    targets_path = os.path.join(path, targets)
+    if os.path.exists(targets_path):
+      targets = pd.read_csv(targets_path, header=1)  # Load CSV without header
+    else:
+      print(f"Targets file '{targets_path}' not found. Skipping...")
+
+  if targets is None:
+    print("Targets DataFrame is not provided. Skipping...")
+    return
+
+  # Determine the number of PFTs and PFT parts dynamically from the provided data
+  pft_parts = {'Leaf': 0, 'Stem': 1, 'Root': 2}
+  num_pfts = len(set(col.split('_')[1] for col in targets.columns if 'VEGC_pft' in col))
+  num_pftparts = len(pft_parts)
+
+  fig, axes = plt.subplots(num_pfts, num_pftparts, figsize=(5*num_pftparts, 3*num_pfts))  # Create a grid of subplots
+  axes = axes.flatten()  # Flatten the 2D array of axes into a 1D array
+
+  for col in targets.columns:
+    if 'VEGC' in col:
+      pft_idx = int(col.split('_')[1].replace('pft', ''))
+      pftpart_str = col.split('_')[2]
+      if pftpart_str not in pft_parts:
+        print(f"Unknown PFTPART: {pftpart_str}. Skipping...")
+        continue
+      pftpart_idx = pft_parts[pftpart_str]
+
+      for i, sample in enumerate(samples):
+        dir_path = os.path.join(path, sample, 'output')
+        data_path = os.path.join(dir_path, 'VEGC_yearly_eq.nc')
+
+        if not os.path.exists(data_path):
+          print(f"Data file not found for '{sample}'. Skipping...")
+          continue
+
+        data = nc.Dataset(data_path).variables['VEGC'][:].data
+        try:
+          last_year_value = data[-1, pftpart_idx, pft_idx, 0, 0]
+        except IndexError:
+          last_year_value = np.nan  # Set to NaN if index error occurs
+
+        ax = axes[pft_idx * num_pftparts + pftpart_idx]  # Select the appropriate subplot
+        ax.plot(np.arange(len(data)), data[:, pftpart_idx, pft_idx, 0, 0],
+                label=f'Sample {sample}', alpha=0.7)
+        ax.set_ylabel('VEGC')
+
+        if not np.isnan(last_year_value) and last_year_value > 1e-6:
+          vegc_check.at[i, col] = True  # Update with True if VEGC > 0
+        elif np.isnan(last_year_value):
+          vegc_check.at[i, col] = np.nan  # Set to NaN if value is NaN
+        else:
+          vegc_check.at[i, col] = False  # Update with False if VEGC <= 0
+
+      pass_percent = np.nanmean(vegc_check[col]) * 100
+      axes[pft_idx * num_pftparts + pftpart_idx].set_title(f'PFT {pft_idx} - PFTPART {pftpart_idx}\nPass Rate: {pass_percent:.2f}%')
+
+  # Add the 'Result' column
+  vegc_check['result'] = vegc_check.iloc[:, 1:].all(axis=1)
+  
+  # Check if the last value of the dataset time series is less than or equal to 0
+  vegc_check['result'] = np.where(vegc_check['result'] & (last_year_value <= 0), False, vegc_check['result'])
+
+  plt.xlabel('Time')
+  plt.tight_layout()
+
+  if save:
+    plt.savefig(f"{saveprefix}vegc-mortality-check.png", bbox_inches='tight')
+
+  return vegc_check
+
+def pft_survival_check2(path='', save=False, targets=None, saveprefix=''):
+  '''
+  Checks whether PFTs are considered alive based on VEGC values for the last year and GPP values for the last ten years.
+  
+  Note: this requires both output variables VEGC and GPP to be produced from the calibration step. If one of the outputs is missing, a print
+  statement will be produced printing which output, and for which sample it is missing. The check will default to Fail,as both outputs are needed.
+  To access the dataframe with the final 'result' column to then use in addition to subsequent post calibration checks print:
+
+  >> pft_check_result = pft_survival_check2(path='', save=False, targets='targets.csv', saveprefix='')
+  Now you can access the DataFrame outside of the function
+  >> dataframe = pft_check_result
+
+  Parameters
+  ==========
+  path : str
+      Specifies path to sensitivity sample run directory
+  save : bool, optional
+      Whether to save the generated plot, by default False
+  targets : str or Pandas DataFrame, optional
+      Path to the target CSV file or the DataFrame containing the target values, by default None
+  saveprefix : str, optional
+      Prefix to add to the saved plot filename, by default ''
+
+  Returns
+  =======
+  DataFrame:
+      A DataFrame containing the results of the PFT survival check.
+  '''
+
+  samples = np.sort([name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name)) and "sample" in name])
+
+  if len(samples) < 1:
+    print("No sample directories found.")
+    return
+
+  num_samples = len(samples)
+
+  if isinstance(targets, str):
+    targets_path = os.path.join(path, targets)
+    if os.path.exists(targets_path):
+      targets = pd.read_csv(targets_path, header=1)  # Load CSV without header
+    else:
+      print(f"Targets file '{targets_path}' not found. Skipping...")
+      return
+  elif not isinstance(targets, pd.DataFrame):
+    print("Invalid targets parameter. Please provide a path to a CSV file or a DataFrame.")
+    return
+
+  pft_check = pd.DataFrame(index=range(num_samples), columns=['sample'])  # Initialize DataFrame with sample column
+  pft_check['sample'] = samples  # Fill in the sample column with the sample names
+
+  unique_pfts = set()  # Keep track of unique PFTs
+  
+  fig, ax = plt.subplots(2, len(targets.columns), figsize=(len(targets.columns) * 5, 10), sharex=True)
+  
+  plot_count = 0  # Initialize plot counter
+  
+  for j, pft_col in enumerate(targets.columns):  # Iterate over PFTs
+    if not pft_col.startswith('VEGC_pft'):
+      continue  # Skip columns that are not PFT-specific
+
+    pft_idx = int(pft_col.split('_')[1].replace('pft', ''))
+
+    # Skip if PFT has already been processed
+    if pft_idx in unique_pfts:
+      # print(f"Skipping duplicate PFT {pft_idx}.")
+      continue
+    else:
+      unique_pfts.add(pft_idx)
+
+    pass_stat_vegc = ''  # Initialize pass statement for VEGC
+    pass_stat_gpp = ''  # Initialize pass statement for GPP
+    pass_rate_vegc = 0  # Initialize pass rate for VEGC
+    pass_rate_gpp = 0  # Initialize pass rate for GPP
+    
+    for k, variable in enumerate(['VEGC', 'GPP']):  # Iterate over VEGC and GPP
+      
+      pass_count = 0  # Initialize pass count
+      
+      for i, sample in enumerate(samples):  # Iterate over samples
+
+        dir_path = os.path.join(path, sample, 'output')
+
+        if not os.path.exists(dir_path):
+          print(f"Folder '{sample}' not found. Skipping...")
+          continue
+
+        data_path = os.path.join(dir_path, f'{variable}_yearly_eq.nc')
+
+        if not os.path.exists(data_path):
+          print(f"Data file not found for variable '{variable}' in sample '{sample}'. Skipping...")
+          continue
+
+        data = nc.Dataset(data_path).variables[variable][:].data[:, :, :]
+
+        # Check if variable contains 'pftpart' dimension
+        if 'pftpart' in nc.Dataset(data_path).variables[variable].dimensions:
+          # Sum across pftpart dimension
+          data = np.sum(data, axis=1)
+
+        data_pft_flat = data[:, pft_idx].flatten()  # Flatten the array
+
+        if variable == 'GPP':
+          # Check if GPP is greater than 0 for the last ten years
+          pass_gpp = np.all(data[-10:, pft_idx] > 0)
+          if pass_gpp:
+            pass_count += 1
+        elif variable == 'VEGC':
+          # Check if VEGC is greater than 0 for the last year only
+          pass_vegc = np.all(data[-1, pft_idx] > 0)
+          if pass_vegc:
+            pass_count += 1
+
+        ax[k, plot_count].plot(np.arange(len(data_pft_flat)), data_pft_flat, label=f'Sample {sample}', alpha=0.7)
+        ax[k, plot_count].set_ylabel(variable)
+        
+      # Calculate percentage of samples passing the test for VEGC and GPP separately
+      pass_rate = pass_count / num_samples
+      if variable == 'VEGC':
+        pass_rate_vegc = pass_rate
+        pass_stat_vegc = f'{pass_rate * 100:.2f}% samples > 0 for VEGC' if pass_rate >= 0.7 else 'failed for VEGC'
+      elif variable == 'GPP':
+        pass_rate_gpp = pass_rate
+        pass_stat_gpp = f'{pass_rate * 100:.2f}% samples > 0 for GPP' if pass_rate >= 0.7 else 'failed for GPP'
+
+    # Check if both VEGC and GPP pass the test
+    pass_stat = 'pass' if pass_rate_vegc >= .7 and pass_rate_gpp >= .7 else 'fail'
+    ax[0, plot_count].set_title(f'PFT {pft_idx}: VEGC and GPP: {pass_stat}\n % Passed: VEGC - {pass_rate_vegc*100:.2f}%\n % Passed: GPP - {pass_rate_gpp*100:.2f}%')
+    ax[0, plot_count].set_xlabel('Time', fontsize=10)
+
+    plot_count += 1  # Increment plot counter
+
+    # Update the corresponding PFT column in the DataFrame
+    pft_col = f'VEGC/GPP_pft{pft_idx}'
+    pft_check[pft_col] = pass_stat == 'pass'
+
+  # Remove empty subplots
+  for i in range(plot_count, len(ax.flatten())):
+    fig.delaxes(ax.flatten()[i])
+
+  # Add a "result" column to the DataFrame
+  pft_check['result'] = pft_check.iloc[:, 1:].all(axis=1)
+
+  plt.xlabel('Time', fontsize=10)
+  plt.tight_layout()
+
+  if save:
+    plt.savefig(saveprefix + "pft-survival-check.png", bbox_inches='tight')
+
+  return pft_check
+
 def get_filtered_results(results, sample_matrix, check_filter):
   """
   Filter results and sample matrix by check (I.e. equilibrium,
