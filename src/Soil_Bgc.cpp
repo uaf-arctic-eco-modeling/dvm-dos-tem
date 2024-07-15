@@ -79,15 +79,17 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
 
 
 void Soil_Bgc::TriSolver(int matrix_size, double *A, double *D, double *C, double *B,double *X) {
-// B is known state, X is solution, A, D, C are used to construct tridiagonal matrix
-// note: commonly a, b, and c are in first matrix, here b and d are reversed
-// |  d1  c1  0   0  .  0  |   | x1 |   | b1 |
-// |  a2  d2  c2  0  .  0  |   | x2 |   | b2 |
-// |  0  a3  d3  c3  0  0  |   | x3 |   | b3 |
-// |  .  .              .  | x | .. | = | .. |
-// |  .  .             .   |   | .. |   | .. |
-// |  .  .             cn  |   | .. |   | .. |
-// |  0  0  0  0   an  dn  |   | xn |   | bn |
+
+  // B is known state, X is solution, A, D, C are used to construct tridiagonal matrix
+  // note: commonly a, b, and c are in first matrix, here b and d are reversed
+  // |  d1  c1  0   0  .  0  |   | x1 |   | b1 |
+  // |  a2  d2  c2  0  .  0  |   | x2 |   | b2 |
+  // |  0  a3  d3  c3  0  0  |   | x3 |   | b3 |
+  // |  .  .              .  | x | .. | = | .. |
+  // |  .  .             .   |   | .. |   | .. |
+  // |  .  .             cn  |   | .. |   | .. |
+  // |  0  0  0  0   an  dn  |   | xn |   | bn |
+
 	int i;
 	double xmult;
 
