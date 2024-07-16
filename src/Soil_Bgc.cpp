@@ -118,29 +118,28 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // 1 umol C = 12e-6 g C
   // 1 L^-1   = 1000  m^-3
   // multiplying by the layer thickness dz gives m^-2
-  // converting umol L^-1 to g m^-3
   double convert_umolL_to_gm3 = 0.012;
   // From Fan Eq. 8, components of CH4 mass balance prior to solver 
-  // equal to prod-oxid-ebul-plant, units : umol L^-1 hr^-1 
+  // equal to prod - oxid - ebul - plant, units : umol L^-1 hr^-1 
   double partial_delta_ch4;
   // Diffusion-specific efflux from top soil layer to atmosphere 
   // in units umolL^-1hr^-1, umolL^-1day^-1, gm^-2day^-1 respectively
   double diff_efflux, diff_efflux_daily, diff_efflux_gm2day = 0.0;
   // Individual layer fluxes production, ebullition, oxidation
-  // plant-mediated transport declared in loop to sum pfts - umol L^-1 hr^-1 
+  // plant-mediation declared in loop to sum pfts, units : umol L^-1 hr^-1
   double prod, ebul, oxid = 0.0;
-  // Individual layer fluxes and efflux in units of g m^-2 hr^-1
+  // Individual layer fluxes and efflux units : g m^-2 hr^-1
   double prod_gm2hr, ebul_gm2hr, oxid_gm2hr, plant_gm2hr, efflux_gm2hr = 0.0;
   // Flux components cumulated over a day in units of umol L^-1 day^-1
   double plant_daily, ebul_daily = 0.0;
   // Flux components cumulated over a day in units of g m^-2 day^-1
   double plant_gm2day, ebul_gm2day, oxid_gm2day = 0.0;
-  // Bunsen solubility coefficient (bun_sol - SB). Fan et al. 2010 supplement Eq. 15.
-  // bun_sol is converted into a volume of ch4 (vol_ch4) for the ideal gas law
-  // What is referred to as the mass-based Bunsen solubility coefficient (SM) in
-  // Fan et al. 2010 supplement Eq. 16 we are referring to as the max concentration
+  // Bunsen solubility coefficient (bun_sol - SB) in mL CH4/ mL H2O. Fan et al. 2010 
+  // supplement Eq. 15. bun_sol is converted into a volume of ch4 (vol_ch4) for the 
+  // ideal gas law. What is referred to as the mass-based Bunsen solubility coefficient
+  // (SM) in Fan et al. 2010 supplement Eq. 16 we are referring to as the max concentration
   // for which methane can remain dissolved (i.e. not a bubble) this is given in
-  // umol to relate to ch4 layer pool given in umol/L
+  // umol to relate to ch4 layer pool given in umol L^-1
   double bun_sol, vol_ch4, max_umol_ch4;
   // Pressure on ch4 used in Fan Eq. 16 for ebullition calculation
   // consisting of atmospheric (Pstd) and hydrostatic pressure (p_hydro)
