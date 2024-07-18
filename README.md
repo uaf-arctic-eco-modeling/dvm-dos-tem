@@ -35,6 +35,7 @@ The run will output a single variable (GPP), and will run for 2 pixels.
 - Clone the repository (``git clone https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git``).
 - Change into directory (``cd dvm-dos-tem``).
 - Get some input data (optional).
+- Make Docker usable by non-root user (optional).
 - Build Docker images (``./docker-build-wrapper.sh cpp-dev && ./docker-build-wrapper.sh dev``).
 - Setup your environment variables in ``.env`` file for ``V_TAG``, ``DDT_INPUT_CATALOG``, and ``DDT_WORKFLOWS`` (optional).
 - Start Docker containers (``V_TAG=$(git describe) docker compose up -d dvmdostem-dev``).
@@ -49,8 +50,9 @@ The run will output a single variable (GPP), and will run for 2 pixels.
    - Any custom parameters (``parameters/``)
    - Any custom target data (``calibration/calibration_targets.py``).
 - Start the model run (``develop@56ef79004e31:/work$ ./dvmdostem --log-level monitor -p 100 -e 1000 -s 250 -t 115 -n 85``).
-- Analyze run (``develop@56ef79004e31:/work ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
- 
+- Analyze run (``develop@56ef79004e31:/work$ ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
+![GPP_plot_output_var](https://github.com/user-attachments/assets/678be9a7-2e48-479e-ae27-1a96c95da7be)
+
 
 > [!WARNING]
 > Sept 2022 - We are in the process of updating the entire documentation
