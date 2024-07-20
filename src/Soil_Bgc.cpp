@@ -690,10 +690,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // The 0.012 is to convert umol to grams - looks like this reverses the conversion done in Prod equation
   // TODO check: should probably be 0.000012 >>> UNIT CONVERSION CHECK FOR ALL
-  ed->d_soid.ch4flux = 0.012 * efflux_gm2hr;
+  bd->d_soi2a.ch4efflux = 0.012 * efflux_gm2hr;
 
   //Store daily efflux value for output
-  ed->daily_ch4_efflux[id] = ed->d_soid.ch4flux;
+  bd->daily_ch4_efflux[id] = bd->d_soi2a.ch4efflux;
 }
 
 

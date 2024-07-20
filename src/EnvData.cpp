@@ -171,7 +171,6 @@ void EnvData::grnd_beginOfYear() {
   y_soid.hkmineb= 0.;
   y_soid.hkminec= 0.;
 
-  y_soid.ch4flux = 0.;
   y_soid.dfratio = 0.;
   y_soid.co2ch4 = 0.;
   y_soid.oxid = 0.;
@@ -315,7 +314,6 @@ void EnvData::grnd_beginOfMonth() {
 
   //Methane related values
   m_soid.oxid = 0.;
-  m_soid.ch4flux = 0.;
   m_soid.co2ch4 = 0.;
   m_soid.dfratio = 0.;
 
@@ -473,7 +471,6 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   int numsoi = cd->m_soil.numsl;
 
   //Methane related values
-  m_soid.ch4flux += d_soid.ch4flux;
   m_soid.dfratio += d_soid.dfratio / dinm;
   m_soid.co2ch4 += d_soid.co2ch4 / dinm;
   m_soid.oxid += d_soid.oxid;
@@ -794,7 +791,6 @@ void EnvData::grnd_endOfMonth(const int & currmind) {
   int numsoi = cd->m_soil.numsl;
 
   //Methane related values
-  y_soid.ch4flux += m_soid.ch4flux;
   y_soid.oxid += m_soid.oxid;
   y_soid.co2ch4 += m_soid.co2ch4 / 12.;
   if(currmind == 5 || currmind == 6 || currmind == 7){

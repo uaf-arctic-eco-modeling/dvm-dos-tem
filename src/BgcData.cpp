@@ -242,8 +242,10 @@ void BgcData::soil_endOfDay(const int& dinm, const int& doy){
   }
 
   m_soid.ch4ebulsum += d_soid.ch4ebulsum;
-
   d_soid.ch4ebulsum = 0.;
+
+  m_soi2a.ch4efflux += d_soi2a.ch4efflux;
+  d_soi2a.ch4efflux = 0.;
 }
 
 void BgcData::soil_beginOfMonth() {
@@ -275,7 +277,7 @@ void BgcData::soil_beginOfMonth() {
   }
 
   m_soid.ch4ebulsum = 0.;
-
+  m_soi2a.ch4efflux = 0.;
 };
 
 void BgcData::soil_beginOfYear() {
@@ -300,6 +302,7 @@ void BgcData::soil_beginOfYear() {
   y_soi2a.rhsomprsum=0.;
   y_soi2a.rhsomcrsum=0.;
   y_soi2a.ch4_oxid_sum = 0.;
+  y_soi2a.ch4efflux = 0.;
   y_soi2soi.netnminsum = 0.;
   y_soi2soi.nimmobsum  = 0.;
 
@@ -473,6 +476,7 @@ void BgcData::soil_endOfMonth(const int currmind) {
   y_soi2a.rhsomcrsum += m_soi2a.rhsomcrsum;
   y_soi2a.rhtot += m_soi2a.rhtot;
   y_soi2a.ch4_oxid_sum += m_soi2a.ch4_oxid_sum;
+  y_soi2a.ch4efflux += m_soi2a.ch4efflux;
 
   for (int il =0; il<MAX_SOI_LAY; il++) {
     y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il];

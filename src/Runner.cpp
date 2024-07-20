@@ -1641,18 +1641,18 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
 
   //CH4EFFLUX
-  map_itr = netcdf_outputs.find("CH4EFFLUX");
+  map_itr = netcdf_outputs.find("CH4EFFLUXTOT");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUX";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUXTOT";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputCH4EFFLUX)
+    #pragma omp critical(outputCH4EFFLUXTOT)
     {
 
       if(curr_spec.daily){
 
         for(int id=0; id<DINM[month]; id++){
-          outhold.ch4efflux_for_output.push_back(cohort.edall->daily_ch4_efflux[id]);
+          outhold.ch4efflux_for_output.push_back(cohort.bdall->daily_ch4_efflux[id]);
         }
 
         if(end_of_year){
@@ -1662,7 +1662,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       else if(curr_spec.monthly){
 
-        outhold.ch4efflux_for_output.push_back(cohort.edall->m_soid.ch4flux);
+        outhold.ch4efflux_for_output.push_back(cohort.bdall->m_soi2a.ch4efflux);
 
         if(output_this_timestep){
           output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, month_start_idx, months_to_output);
@@ -1671,14 +1671,14 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       else if(curr_spec.yearly){
 
-        outhold.ch4efflux_for_output.push_back(cohort.edall->y_soid.ch4flux);
+        outhold.ch4efflux_for_output.push_back(cohort.bdall->y_soi2a.ch4efflux);
         if(output_this_timestep){
           output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, year_start_idx, years_to_output);
           outhold.ch4efflux_for_output.clear();
         }
       }
-    }//end critical(outputCH4EFFLUX)
-  }//end CH4EFFLUX
+    }//end critical(outputCH4EFFLUXTOT)
+  }//end CH4EFFLUXTOT
   map_itr = netcdf_outputs.end();
 
 
