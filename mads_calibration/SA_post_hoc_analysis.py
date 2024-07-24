@@ -394,7 +394,7 @@ def plot_relationships(results, sample_matrix, targets, check_filter=None, varia
           # Go to next output variable
           count+=1
           # Break loop if we reach maximum number of columns before number of subplots
-          if count >= (len(parameters) - 1):
+          if count > (len(parameters) - 1):
             break
       # Create a single legend with all handles provided outside of subplots
       legend_info = [Line2D([0], [0], color='k', linewidth=3, linestyle='--'),
@@ -1666,7 +1666,7 @@ def equilibrium_check(path, cv_lim=1, eps_lim = 1e-5, slope_lim = 1e-3, lim_dict
 
   return total_counts, counts, eq_check, eq_var_check, eq_data, eq_metrics, lim_dict
 
-def pft_mortality_check(path='', save=False, saveprefix='', targets=None):
+def gpp_vegc_mortality_check(path='', save=False, saveprefix='', targets=None):
   '''
   Checks whether PFTs are dying based on VEGC and GPP values over the last ten years of the run.
 
@@ -1875,7 +1875,7 @@ def vegc_mortality_check(path='', save=False, targets=None, saveprefix=''):
 
   return vegc_check
 
-def pft_survival_check2(path='', save=False, targets=None, saveprefix=''):
+def total_mortality_check(path='', save=False, targets=None, saveprefix=''):
   '''
   Checks whether PFTs are considered alive based on VEGC values for the last year and GPP values for the last ten years.
   
