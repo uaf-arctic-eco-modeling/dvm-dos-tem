@@ -26,20 +26,20 @@
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-70.1              // lcclnc:
+35.               // lcclnc:
 0.3717            // fsoma:
 0.6112            // fsompr:
 0.0171            // fsomcr:
 0.2571            // som2co2:
 0.0042            // kn2:
-21.99             // nmincnsoil:
+21.39             // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-888.9             // initshlwc:
-3174.5            // initdeepc:
-19821.5           // initminec:
-1086.3            // initsoln:
-0.75              // initavln:
+782.73            // initshlwc:
+3448.5            // initdeepc:
+41665.0           // initminec:
+2145.87           // initsoln:
+0.76              // initavln:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 2.0               // rhq10:
@@ -66,19 +66,19 @@
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
-54.46             // lcclnc:
+44.               // lcclnc:
 0.3717            // fsoma:
 0.6112            // fsompr:
 0.0171            // fsomcr:
 0.2571            // som2co2:
 0.0042            // kn2:
-19.37             // nmincnsoil:
+18.557            // nmincnsoil:
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-534.2             // initshlwc:
-2017.9            // initdeepc:
-11004.9           // initminec:
-699.9             // initsoln:
+528.2             // initshlwc:
+16553.5           // initdeepc:
+25915.0           // initminec:
+1513.1            // initsoln:
 3.5               // initavln:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
@@ -201,7 +201,7 @@
 1904.10           // initsoln: was 1904.10
 4.0               // initavln:
 //===========================================================
-// CMT21 // EML Tussock Tundra
+// CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 joy)
 2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
@@ -216,9 +216,9 @@
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 4365.66           // initshlwc:
-12814.11          // initdeepc:
-43416.95          // initminec: was reduced from 43416.95  21708.50
-1998.37           // initsoln: reduced from 1998.37 based on C/N soil   715.98
+12814.1           // initdeepc:
+43417             // initminec:
+1998.37           // initsoln:
 1.7               // initavln:
 //===========================================================
 // CMT31 // Boreal Bog

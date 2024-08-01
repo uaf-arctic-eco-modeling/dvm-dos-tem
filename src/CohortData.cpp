@@ -16,12 +16,12 @@ extern src::severity_logger< severity_level > glg;
 */
 CohortData::CohortData() {
  
-  BOOST_LOG_SEV(glg, note) << "COHORT DATA, empty, default ctor...";
+  BOOST_LOG_SEV(glg, info) << "COHORT DATA, empty, default ctor...";
 
 }
 
 CohortData::CohortData(int year, int month, int day, const ModelData* modeldatapointer) {
-  BOOST_LOG_SEV(glg, note) << "Creating a CohortData for (year, month, day): "
+  BOOST_LOG_SEV(glg, info) << "Creating a CohortData for (year, month, day): "
                            << year << ", " << month << ", " << day;
 }
 
@@ -32,7 +32,6 @@ CohortData::~CohortData() {
 
 // initialize CohortData class explicitly
 void CohortData::clear() {
-  chtid = MISSING_I;
   year  = MISSING_I;
   month = MISSING_I;
   cmttype = MISSING_I;

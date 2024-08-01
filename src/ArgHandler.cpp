@@ -39,14 +39,14 @@ void ArgHandler::parse(int argc, char** argv) {
      "your own risk - you may end up filling your hard-drive!")
 
     ("no-output-cleanup", boost::program_options::bool_switch(&no_output_cleanup),
-     "Do not clean the output directory at the beginging of a run. This might "
+     "Do not clean the output directory at the beginning of a run. This might "
      "be useful when running dvmdostem under the control of an outside program "
      "such as PEcAn that makes assumptions about the presence of an output "
      "directory and may perform its own cleanup.")
 
     ("restart-run", boost::program_options::bool_switch(&restart_run),
-     "This run will use a restart file - do not create new files that"
-     "would overwrite the files needed.")
+     "Restart at the first stage with >0 years specified and "
+     "do not overwrite the files needed for that.")
 
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
@@ -84,8 +84,8 @@ void ArgHandler::parse(int argc, char** argv) {
       "files.)")
 
     ("pr-yrs,p", boost::program_options::value<int>(&pr_yrs)
-       ->default_value(10),
-     "Number or PRE RUN years to run.")
+       ->default_value(100),
+     "Number of PRE RUN years to run.")
 
     ("eq-yrs,e", boost::program_options::value<int>(&eq_yrs)
        ->default_value(1000),
@@ -118,7 +118,7 @@ void ArgHandler::parse(int argc, char** argv) {
      boost::program_options::value<std::string>(&log_level)
        ->default_value("warn"),
      "Control the verbosity of the console log statements. Choose one of "
-     "the following: debug, info, note, warn, err, fatal.")
+     "the following: debug, info, warn, monitor, fatal.")
 
     ("log-scope",
      boost::program_options::value<std::string>(&log_scope)
@@ -133,9 +133,12 @@ void ArgHandler::parse(int argc, char** argv) {
      "Switch for enabling floating point exceptions. If present, the program "
      "will crash when NaN or Inf are generated.")
 
+    ("sha", boost::program_options::bool_switch(&print_sha),
+     "Prints the SHA of the commit used to build this binary then exits")
+
     ("help,h",
      boost::program_options::bool_switch(&help),
-     "produces helps message, then quits")
+     "Produces helps message, then quits")
 
 //    ("foo,f",
 //     po::value<std::std::string>()

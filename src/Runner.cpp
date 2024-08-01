@@ -18,7 +18,7 @@ extern src::severity_logger< severity_level > glg;
 Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
     calibrationMode(false), y(y), x(x) {
 
-  BOOST_LOG_SEV(glg, note) << "RUNNER Constructing a Runner, new style, with ctor-"
+  BOOST_LOG_SEV(glg, info) << "RUNNER Constructing a Runner, new style, with ctor-"
                            << "injected ModelData, and for explicit (y,x) "
                            << "position w/in the input data region.";
   this->md = mdldata;
@@ -52,7 +52,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
   BOOST_LOG_NAMED_SCOPE("Y") {
   for (int iy = start_year; iy < end_year; ++iy) {
     BOOST_LOG_SEV(glg, debug) << "(Beginning of year loop) " << cohort.ground.layer_report_string("depth thermal CN");
-    BOOST_LOG_SEV(glg, err) << "y: "<<this->y<<" x: "<<this->x<<" Year: "<<iy;
+    BOOST_LOG_SEV(glg, warn) << "y: "<<this->y<<" x: "<<this->x<<" Year: "<<iy;
 
     /* Interpolate all the monthly values...? */
     if( (stage.find("eq") != std::string::npos
@@ -88,7 +88,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
     /** MONTH TIMESTEP LOOP */
     BOOST_LOG_NAMED_SCOPE("M") {
       for (int im = 0; im < 12; ++im) {
-        BOOST_LOG_SEV(glg, note) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
+        BOOST_LOG_SEV(glg, info) << "(Beginning of month loop, iy:"<<iy<<", im:"<<im<<") " << cohort.ground.layer_report_string("depth thermal CN desc");
 
         this->cohort.updateMonthly(iy, im, DINM[im], stage);
 
@@ -99,9 +99,9 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
     this->yearly_output(iy, stage, start_year, end_year);
 
-    BOOST_LOG_SEV(glg, note) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
+    BOOST_LOG_SEV(glg, info) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
 
-    BOOST_LOG_SEV(glg, note) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
+    BOOST_LOG_SEV(glg, info) << "Completed year " << iy << " for cohort/cell (row,col): (" << this->y << "," << this->x << ")";
 
   }} // end year loop (and named scope
 }
@@ -388,16 +388,16 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
 
 
   if ( !compartment_err_report.empty() || !pft_err_report.empty() ) {
-    BOOST_LOG_SEV(glg, err) << "========== MONTHLY CHECKSUM ERRORS ============";
+    BOOST_LOG_SEV(glg, warn) << "========== MONTHLY CHECKSUM ERRORS ============";
     while (!compartment_err_report.empty()) {
-      BOOST_LOG_SEV(glg, err) << compartment_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << compartment_err_report.front();
       compartment_err_report.pop_front();
     }
     while ( !(pft_err_report.empty()) ){
-      BOOST_LOG_SEV(glg, err) << pft_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << pft_err_report.front();
       pft_err_report.pop_front();
     }
-    BOOST_LOG_SEV(glg, err) << "========== END MONTHLY CHECKSUMMING month: " << month << " year: " << year << " ============";
+    BOOST_LOG_SEV(glg, warn) << "========== END MONTHLY CHECKSUMMING month: " << month << " year: " << year << " ============";
   }
 
 
@@ -518,7 +518,7 @@ void Runner::output_caljson_monthly(int year, int month, std::string stage, boos
   data["BurnVeg2SoiBlwVegN"] = cohort.year_fd[month].fire_v2soi.blwn;
   data["BurnSoi2AirC"] = cohort.year_fd[month].fire_soi2a.orgc;
   data["BurnSoi2AirN"] = cohort.year_fd[month].fire_soi2a.orgn;
-  data["BurnAir2SoiN"] = cohort.year_fd[month].fire_a2soi.orgn;
+  data["BurnAir2SoilN"] = cohort.year_fd[month].fire_a2soi.orgn;
   data["BurnAbvVeg2DeadC"] = cohort.year_fd[month].fire_v2dead.vegC;
   data["BurnAbvVeg2DeadN"] = cohort.year_fd[month].fire_v2dead.strN;
   data["RawCSum"] = cohort.bdall->m_soid.rawcsum;
@@ -635,16 +635,16 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   std::list<std::string> pft_err_report = check_sum_over_PFTs();
 
   if ( !compartment_err_report.empty() || !pft_err_report.empty() ) {
-    BOOST_LOG_SEV(glg, err) << "========== YEARLY CHECKSUM ERRORS ============";
+    BOOST_LOG_SEV(glg, warn) << "========== YEARLY CHECKSUM ERRORS ============";
     while (!compartment_err_report.empty()) {
-      BOOST_LOG_SEV(glg, err) << compartment_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << compartment_err_report.front();
       compartment_err_report.pop_front();
     }
     while ( !(pft_err_report.empty()) ){
-      BOOST_LOG_SEV(glg, err) << pft_err_report.front();
+      BOOST_LOG_SEV(glg, warn) << pft_err_report.front();
       pft_err_report.pop_front();
     }
-    BOOST_LOG_SEV(glg, err) << "========== END YEARLY CHECKSUMMING year: " << year << " ============";
+    BOOST_LOG_SEV(glg, warn) << "========== END YEARLY CHECKSUMMING year: " << year << " ============";
   }
 
   // CAUTION: this->md and this->cohort.md are different instances!
@@ -795,7 +795,7 @@ void Runner::output_caljson_yearly(int year, std::string stage, boost::filesyste
   data["BurnVeg2SoiBlwVegC"] = veg2soiblwvegc;
   data["BurnSoi2AirC"] = soi2airc;
   data["BurnSoi2AirN"] = soi2airn;
-  data["BurnAir2SoiN"] = air2soin;
+  data["BurnAir2SoilN"] = air2soin;
   data["BurnAbvVeg2DeadC"] = veg2deadc;
   data["BurnAbvVeg2DeadN"] = veg2deadn;
 
@@ -956,6 +956,8 @@ void Runner::output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
+
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
@@ -998,6 +1000,8 @@ void Runner::output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix,
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
 
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
+
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
 #else
@@ -1039,6 +1043,8 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
 
   int ncid, cv;
   std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+  BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
 
 #ifdef WITHMPI
   temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
@@ -1188,12 +1194,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  map_itr = netcdf_outputs.find("BURNAIR2SOIN");
+  map_itr = netcdf_outputs.find("BURNAIR2SOILN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOIN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNAIR2SOILN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNAIR2SOIN)
+    #pragma omp critical(outputBURNAIR2SOILN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1201,24 +1207,24 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //yearly
       else if(curr_spec.yearly){
-        double burnair2soin = 0.;
+        double burnair2soiln = 0.;
         for(int im=0; im<12; im++){
-          burnair2soin += cohort.year_fd[im].fire_a2soi.orgn;
+          burnair2soiln += cohort.year_fd[im].fire_a2soi.orgn;
         }
-        output_nc_3dim(&curr_spec, file_stage_suffix, &burnair2soin, 1, year, 1);
+        output_nc_3dim(&curr_spec, file_stage_suffix, &burnair2soiln, 1, year, 1);
       }
-    }//end critical(outputBURNAIR2SOIN)
-  }//end BURNAIR2SOIN
+    }//end critical(outputBURNAIR2SOILN)
+  }//end BURNAIR2SOILN
   map_itr = netcdf_outputs.end();
 
 
   //Burned soil carbon
-  map_itr = netcdf_outputs.find("BURNSOIC");
+  map_itr = netcdf_outputs.find("BURNSOIL2AIRC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIL2AIRC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNSOIC)
+    #pragma omp critical(outputBURNSOIL2AIRC)
     {
       //By layer
       if(curr_spec.layer){
@@ -1229,11 +1235,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
-          outhold.burnsoic_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
+          outhold.burnsoil2airc_for_output.push_back(cohort.year_fd[month].fire_soi2a.orgc);
 
           if(output_this_timestep){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, month_start_idx, months_to_output);
-            outhold.burnsoic_for_output.clear();
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoil2airc_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.burnsoil2airc_for_output.clear();
           }
         }
         else if(curr_spec.yearly){
@@ -1241,26 +1247,26 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           for(int im=0; im<12; im++){
             burnsoilC += cohort.year_fd[im].fire_soi2a.orgc;
           }
-          outhold.burnsoic_for_output.push_back(burnsoilC);
+          outhold.burnsoil2airc_for_output.push_back(burnsoilC);
 
           if(output_this_timestep){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoic_for_output[0], 1, year_start_idx, years_to_output);
-            outhold.burnsoic_for_output.clear();
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnsoil2airc_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.burnsoil2airc_for_output.clear();
           }
         }
       }
-    }//end critical(outputBURNSOIC)
-  }//end BURNSOIC
+    }//end critical(outputBURNSOIL2AIRC)
+  }//end BURNSOIL2AIRC
   map_itr = netcdf_outputs.end();
 
 
   //Burned soil nitrogen 
-  map_itr = netcdf_outputs.find("BURNSOILN");
+  map_itr = netcdf_outputs.find("BURNSOIL2AIRN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOILN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNSOIL2AIRN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNSOILN)
+    #pragma omp critical(outputBURNSOIL2AIRN)
     {
       //By layer
       if(curr_spec.layer){
@@ -1281,8 +1287,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           output_nc_3dim(&curr_spec, file_stage_suffix, &burnSoilN, 1, year, 1);
         }
       }
-    }//end critical(outputBURNSOILN)
-  }//end BURNSOILN
+    }//end critical(outputBURNSOIL2AIRN)
+  }//end BURNSOIL2AIRN
   map_itr = netcdf_outputs.end();
 
 
@@ -1338,7 +1344,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //yearly
       else if(curr_spec.yearly){
-        outhold.burnveg2airc_for_output.push_back(cohort.fd->fire_v2a.orgc);
+        double yearly_v2a_orgc = 0.0;
+        for(int im=0; im<MINY; im++){
+          yearly_v2a_orgc += cohort.year_fd[im].fire_v2a.orgc;
+        }
+        outhold.burnveg2airc_for_output.push_back(yearly_v2a_orgc);
 
         if(output_this_timestep){
           output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2airc_for_output[0], 1, year_start_idx, years_to_output);
@@ -1423,44 +1433,44 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIABVC
-  map_itr = netcdf_outputs.find("BURNVEG2SOIABVC");
+  //BURNVEG2SOILABVC
+  map_itr = netcdf_outputs.find("BURNVEG2SOILABVC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILABVC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIABVC)
+    #pragma omp critical(outputBURNVEG2SOILABVC)
     {
       //monthly
       if(curr_spec.monthly){
-        outhold.burnveg2soiabvc_for_output.push_back(cohort.year_fd[month].fire_v2soi.abvc);
+        outhold.burnveg2soilabvc_for_output.push_back(cohort.year_fd[month].fire_v2soi.abvc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiabvc_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.burnveg2soiabvc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilabvc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2soilabvc_for_output.clear();
         }
       }
       //yearly
       else if(curr_spec.yearly){
-        outhold.burnveg2soiabvc_for_output.push_back(cohort.fd->fire_v2soi.abvc);
+        outhold.burnveg2soilabvc_for_output.push_back(cohort.fd->fire_v2soi.abvc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiabvc_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.burnveg2soiabvc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilabvc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2soilabvc_for_output.clear();
         }
       }
-    }//end critical(outputBURNVEG2SOIABVC)
-  }//end BURNVEG2SOIABVC
+    }//end critical(outputBURNVEG2SOILABVC)
+  }//end BURNVEG2SOILABVC
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIABVN
-  map_itr = netcdf_outputs.find("BURNVEG2SOIABVN");
+  //BURNVEG2SOILABVN
+  map_itr = netcdf_outputs.find("BURNVEG2SOILABVN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIABVN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILABVN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIABVN)
+    #pragma omp critical(outputBURNVEG2SOILABVN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1470,49 +1480,49 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(curr_spec.yearly){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.abvn, 1, year, 1);
       }
-    }//end critical(outputBURNVEG2SOIABVN)
-  }//end BURNVEG2SOIABVN
+    }//end critical(outputBURNVEG2SOILABVN)
+  }//end BURNVEG2SOILABVN
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIBLWC
-  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWC");
+  //BURNVEG2SOILBLWC
+  map_itr = netcdf_outputs.find("BURNVEG2SOILBLWC");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWC";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILBLWC";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIBLWC)
+    #pragma omp critical(outputBURNVEG2SOILBLWC)
     {
       //monthly
       if(curr_spec.monthly){
-        outhold.burnveg2soiblwc_for_output.push_back(cohort.year_fd[month].fire_v2soi.blwc);
+        outhold.burnveg2soilblwc_for_output.push_back(cohort.year_fd[month].fire_v2soi.blwc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiblwc_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.burnveg2soiblwc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilblwc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.burnveg2soilblwc_for_output.clear();
         }
       }
       //yearly
       else if(curr_spec.yearly){
-        outhold.burnveg2soiblwc_for_output.push_back(cohort.fd->fire_v2soi.blwc);
+        outhold.burnveg2soilblwc_for_output.push_back(cohort.fd->fire_v2soi.blwc);
 
         if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soiblwc_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.burnveg2soiblwc_for_output.clear();
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.burnveg2soilblwc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.burnveg2soilblwc_for_output.clear();
         }
       }
-    }//end critical(outputBURNVEG2SOIBLWC)
-  }//end BURNVEG2SOIBLWC
+    }//end critical(outputBURNVEG2SOILBLWC)
+  }//end BURNVEG2SOILBLWC
   map_itr = netcdf_outputs.end();
 
 
-  //BURNVEG2SOIBLWN
-  map_itr = netcdf_outputs.find("BURNVEG2SOIBLWN");
+  //BURNVEG2SOILBLWN
+  map_itr = netcdf_outputs.find("BURNVEG2SOILBLWN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOIBLWN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: BURNVEG2SOILBLWN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputBURNVEG2SOIBLWN)
+    #pragma omp critical(outputBURNVEG2SOILBLWN)
     {
       //monthly
       if(curr_spec.monthly){
@@ -1522,8 +1532,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(curr_spec.yearly){
         output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.fd->fire_v2soi.blwn, 1, year, 1);
       }
-    }//end critical(outputBURNVEG2SOIBLWN)
-  }//end BURNVEG2SOIBLWN
+    }//end critical(outputBURNVEG2SOILBLWN)
+  }//end BURNVEG2SOILBLWN
   map_itr = netcdf_outputs.end();
 
 
@@ -2398,7 +2408,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //by PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> eet_arr;
+        std::array<double, NUM_PFT> eet_arr{};
 
         //daily
         if(curr_spec.daily){
@@ -3208,7 +3218,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERDEPTH)
     {
-      std::array<double, MAX_SOI_LAY> layerdepth_arr;
+      std::array<double, MAX_SOI_LAY> layerdepth_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -3247,7 +3257,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERDZ)
     {
-      std::array<double, MAX_SOI_LAY> layerdz_arr;
+      std::array<double, MAX_SOI_LAY> layerdz_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -3286,7 +3296,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputLAYERTYPE)
     {
-      std::array<int, MAX_SOI_LAY> layertype_arr;
+      std::array<int, MAX_SOI_LAY> layertype_arr{};
 
       //monthly
       if(curr_spec.monthly){
@@ -4201,23 +4211,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-        double orgn[MAX_SOI_LAY] = {0};
-        int il = 0;
-        Layer* currL = this->cohort.ground.toplayer;
-        while(currL != NULL){
-          orgn[il] = currL->orgn;
-          il++;
-          currL = currL->nextl;
-        }
-
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &orgn[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.orgn[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &orgn[0], MAX_SOI_LAY, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.orgn[0], MAX_SOI_LAY, year, 1);
         }
-
       }
       //Total, instead of by layer
       else if(!curr_spec.layer){
@@ -4275,7 +4274,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //by PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> pet_arr;
+        std::array<double, NUM_PFT> pet_arr{};
 
         //daily
         if(curr_spec.daily){
@@ -4616,7 +4615,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-        std::array<double, MAX_SOI_LAY> rh_arr;
+        std::array<double, MAX_SOI_LAY> rh_arr{};
 
         //monthly
         if(curr_spec.monthly){
@@ -4887,6 +4886,82 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //Snowlayerdz - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SNOWLAYERDZ");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWLAYERDZ";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSNOWLAYERDZ)
+    {
+      std::array<double, MAX_SNW_LAY> snowlayerdz_arr{};
+
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowlayerdz_arr[currL->indl-1] = currL->dz;
+        currL = currL->nextl;
+      } 
+
+      if(curr_spec.monthly){
+        outhold.snowlayerdz_for_output.push_back(snowlayerdz_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayerdz_for_output[0], MAX_SNW_LAY, month_start_idx, months_to_output);
+          outhold.snowlayerdz_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+        outhold.snowlayerdz_for_output.push_back(snowlayerdz_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayerdz_for_output[0], MAX_SNW_LAY, year_start_idx, years_to_output);
+          outhold.snowlayerdz_for_output.clear();
+        }
+      }
+
+     }//end critical(outputSNOWLAYERDZ)
+  }//end SNOWLAYERDZ
+  map_itr = netcdf_outputs.end();
+
+
+  //Snowlayertemp - a snapshot of the time when output is called
+  map_itr = netcdf_outputs.find("SNOWLAYERTEMP");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SNOWLAYERTEMP";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSNOWLAYERTEMP)
+    {
+      std::array<double, MAX_SNW_LAY> snowlayertemp_arr{};
+
+      Layer* currL = cohort.ground.toplayer;
+      while(currL->isSnow){
+        snowlayertemp_arr[currL->indl-1] = currL->tem;
+        currL = currL->nextl;
+      } 
+
+      if(curr_spec.monthly){
+        outhold.snowlayertemp_for_output.push_back(snowlayertemp_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayertemp_for_output[0], MAX_SNW_LAY, month_start_idx, months_to_output);
+          outhold.snowlayertemp_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+        outhold.snowlayertemp_for_output.push_back(snowlayertemp_arr);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.snowlayertemp_for_output[0], MAX_SNW_LAY, year_start_idx, years_to_output);
+          outhold.snowlayertemp_for_output.clear();
+        }
+      }
+
+     }//end critical(outputSNOWLAYERTEMP)
+  }//end SNOWLAYERTEMP
+  map_itr = netcdf_outputs.end();
+
+
   //SNOWSTART
   map_itr = netcdf_outputs.find("SNOWSTART");
   if(map_itr != netcdf_outputs.end()){
@@ -4961,21 +5036,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-        double soilc[MAX_SOI_LAY];
-        int il = 0;
-        Layer* currL = this->cohort.ground.toplayer;
-        while(currL != NULL){
-          soilc[il] = currL->soma;
-          il++;
-          currL = currL->nextl;
-        }
-
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.soma[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.soma[0], MAX_SOI_LAY, year, 1);
         }
       }
       //Total, instead of by layer
@@ -5005,21 +5070,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-        double soilc[MAX_SOI_LAY];
-        int il = 0;
-        Layer* currL = this->cohort.ground.toplayer;
-        while(currL != NULL){
-          soilc[il] = currL->somcr;
-          il++;
-          currL = currL->nextl;
-        }
-
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.somcr[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.somcr[0], MAX_SOI_LAY, year, 1);
         }
       }
       //Total, instead of by layer
@@ -5049,21 +5104,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-        double soilc[MAX_SOI_LAY];
-        int il = 0;
-        Layer* currL = this->cohort.ground.toplayer;
-        while(currL != NULL){
-          soilc[il] = currL->sompr;
-          il++;
-          currL = currL->nextl;
-        }
-
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.sompr[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.sompr[0], MAX_SOI_LAY, year, 1);
         }
       }
       //Total, instead of by layer
@@ -5093,21 +5138,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
-
-        double soilc[MAX_SOI_LAY];
-        int il = 0;
-        Layer* currL = this->cohort.ground.toplayer;
-        while(currL != NULL){
-          soilc[il] = currL->rawc;
-          il++;
-          currL = currL->nextl;
-        }
-
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.rawc[0], MAX_SOI_LAY, month_timestep, 1);
         }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &soilc[0], MAX_SOI_LAY, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.rawc[0], MAX_SOI_LAY, year, 1);
         }
       }
       //Total, instead of by layer
@@ -5348,7 +5383,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputTLAYER)
     {
-      std::array<double, MAX_SOI_LAY> tlayer_arr;
+      std::array<double, MAX_SOI_LAY> tlayer_arr{};
 
       //daily
       if(curr_spec.daily){
@@ -5478,9 +5513,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By PFT
       if(curr_spec.pft){
-        std::array<double, NUM_PFT> d_trans_arr;
-        std::array<double, NUM_PFT> m_trans_arr;
-        std::array<double, NUM_PFT> y_trans_arr;
+        std::array<double, NUM_PFT> d_trans_arr{};
+        std::array<double, NUM_PFT> m_trans_arr{};
+        std::array<double, NUM_PFT> y_trans_arr{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           d_trans_arr[ip] = cohort.ed[ip].d_v2a.tran;
@@ -5825,7 +5860,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     curr_spec = map_itr->second;
     #pragma omp critical(outputVWCLAYER)
     {
-      std::array<double, MAX_SOI_LAY> vwclayer_arr;
+      std::array<double, MAX_SOI_LAY> vwclayer_arr{};
 
       if(curr_spec.monthly){
         for(int il=0; il<MAX_SOI_LAY; il++){

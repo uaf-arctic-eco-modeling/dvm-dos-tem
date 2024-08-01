@@ -124,6 +124,8 @@ if __name__ == '__main__':
         data = nc_data[:,Y,X]
         fig, axes = plt.subplots(1,1, sharex=args.sharex, sharey=args.sharey)
         axes.plot(time_range, data)
+        axes.set_ylabel(f"{ncFile.variables[plotting_var].units}")
+        fig.suptitle(f"{args.file}")
 
 
       # Variables by PFT, Compartment, or Layer
@@ -166,10 +168,10 @@ if __name__ == '__main__':
 
           fig, axes = plt.subplots(number_subplots, 1,  sharex=args.sharex, sharey=args.sharey)
 
-          # Use a dicrete map with one color for each layer
+          # Use a discrete map with one color for each layer
           # Helpful to have it be a sequential map also so that you can 
           # intuit layer depth from the color
-          custom_cmap = plt.cm.get_cmap('plasma_r', len(layers))
+          custom_cmap = matplotlib.colormaps['plasma_r'].resampled(len(layers))
 
           if args.layer_sum and not args.hide_individual_layers:
             sum_ax = axes[0]
@@ -248,7 +250,10 @@ if __name__ == '__main__':
       manager = plt.get_current_fig_manager()
       manager.set_window_title(plotting_var)
       plt.xlabel("time")
-      plt.savefig("SAMPLE_plot_output_var.png")
+
+      savename = f"{plotting_var}_plot_output_var.png"
+      print(f"Saving file: {savename} ...")
+      plt.savefig(savename)
       plt.show()
 
 

@@ -22,8 +22,8 @@ public:
   virtual double getUnfVolHeatCapa();//get unfrozen layer specific heat capacity
   virtual double getMixVolHeatCapa(); //Yuan: all soil components
 
-  double getAlbedoVis();// get albedo of visible radition
-  double getAlbedoNir();// get albedo of Nir radition
+  double getAlbedoVis();// get albedo of visible radiation
+  double getAlbedoNir();// get albedo of Nir radiation
 
   void derivePhysicalProperty();
 

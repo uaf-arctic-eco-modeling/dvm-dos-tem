@@ -63,13 +63,17 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
 
   // might need to set the cd* and the ed* ???
 
-  BOOST_LOG_SEV(glg, debug) << "Setup the NEW STYLE CLIMATE OBJECT ...";
-  // FIX: Historic? Projected?? how to handle both??
-  // Maybe:
-  //this->hist_climate = Climate(modeldatapointer->hist_climate, y, x);
-  //this->proj_climate = Climate(modeldatapointer->proj_climate, y, x);
+  BOOST_LOG_SEV(glg, debug) << "Construct Climate object ...";
+
+  //On construction we assume historic climate, which will be
+  // overwritten by projected climate later when necessary.
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
-  
+
+  this->climate.baseline_start = modeldatapointer->baseline_start;
+  this->climate.baseline_end = modeldatapointer->baseline_end;
+  //Prepare averaged input set for EQ stage
+  this->climate.prep_avg_climate();
+
   // Build a mineral info object
   MineralInfo mineral_info = MineralInfo(modeldatapointer->soil_texture_file, y, x);
 
@@ -266,10 +270,10 @@ void Cohort::initialize_state_parameters() {
   //    z += ground.mineralinfo.dz[i];
   //
   //    if (z <= 0.30) {   //assuming the grid top-soil texture is for top 30 cm
-  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
   //      //ground.mineralinfo.texture[i] = gd->topsoil;
   //    } else {
-  //      BOOST_LOG_SEV(glg, err) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
+  //      BOOST_LOG_SEV(glg, warn) << "NOT IMPLEMENTED YET!!! Setting mineral texture...";
   //      //ground.mineralinfo.texture[i] = gd->botsoil;
   //    }
   //  }
@@ -359,7 +363,7 @@ void Cohort::initialize_state_parameters() {
 void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                            const int & dinmcurr, std::string stage) {
 
-  BOOST_LOG_SEV(glg, note) << "Cohort::updateMonthly. Year: "
+  BOOST_LOG_SEV(glg, info) << "Cohort::updateMonthly. Year: "
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
 
@@ -584,7 +588,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       }
 
       if(edall->d_soid.r_e_i[il] != edall->d_soid.r_e_i[il]){
-        BOOST_LOG_SEV(glg, err) << "NaN in r_e_i";
+        BOOST_LOG_SEV(glg, warn) << "NaN in r_e_i";
       }
 
     }
@@ -595,7 +599,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
       weighted_veg_tran += ed[ip].d_v2a.tran * cd.d_veg.fpc[ip];
     }
     if(weighted_veg_tran != weighted_veg_tran){
-      BOOST_LOG_SEV(glg, err) << "weighted_veg_tran is NaN";
+      BOOST_LOG_SEV(glg, warn) << "weighted_veg_tran is NaN";
     }
 
     //CLM3 Equation 7.80
@@ -642,9 +646,6 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     // save the variables to daily 'edall' (Note: not PFT specified)
     soilenv.retrieveDailyTM(ground.toplayer, ground.lstsoill);
 
-    //assuming rock layer's temperature equal to that of lstsoill
-    solprntenv.retrieveDailyTM(ground.lstsoill);
-
     //Propogates some daily values (specifically Front data)
     // into edall from each ed
     getEd4allgrnd_daily();
@@ -656,6 +657,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     //update Snow structure at daily timestep (for soil structure
     //  at yearly timestep in ::updateMonthly_DIMgrd)
+    ground.retrieveSnowDimension(&cd.d_snow);
     ground.retrieveSnowDimension(&cd.d_snow);
 
     cd.endOfDay(dinmcurr); //this must be done first, because it's needed below
@@ -1358,15 +1360,16 @@ void Cohort::getBd4allveg_monthly() {
  * RestartData object.
 */
 void Cohort::set_state_from_restartdata() {
-  BOOST_LOG_SEV(glg, note) << "Updating this Cohort and CohortData object with "
+  BOOST_LOG_SEV(glg, info) << "Updating this Cohort and CohortData object with "
                            << "values from the RestartData object...";
 
   veg.set_state_from_restartdata(this->restartdata);
-  solprntenv.set_state_from_restartdata(this->restartdata);
-  fire.set_state_from_restartdata(this->restartdata);
+  ground.set_state_from_restartdata(&cd.d_snow, &cd.m_soil, this->restartdata);
   snowenv.set_state_from_restartdata(this->restartdata);
   soilenv.set_state_from_restartdata(this->restartdata);
+  solprntenv.set_state_from_restartdata(this->restartdata);
   soilbgc.set_state_from_restartdata(this->restartdata);
+  fire.set_state_from_restartdata(this->restartdata);
 
   for(int ii=0; ii<NUM_PFT; ii++){
     vegbgc[ii].set_state_from_restartdata(this->restartdata);
@@ -1391,15 +1394,13 @@ void Cohort::set_state_from_restartdata() {
 * another process.
 */
 void Cohort::set_restartdata_from_state() {
-  BOOST_LOG_SEV(glg, note) << "Updating this Cohort's restartdata member with "
+  BOOST_LOG_SEV(glg, info) << "Updating this Cohort's restartdata member with "
                            << "values from the model's state (various fields of "
                            << " Cohort and CohortData).";
 
   // clear the restartdata object
   restartdata.reinitValue();
   
-  restartdata.chtid = cd.chtid;  // deprecate?
-
   // atm
   restartdata.dsr                = edall->d_atms.dsr;
   restartdata.firea2sorgn        = fd->fire_a2soi.orgn; // to re-deposit fire-emitted N in one FRI
@@ -1528,6 +1529,7 @@ void Cohort::set_restartdata_from_state() {
     restartdata.somcr[il] = bdall->m_sois.somcr[il];
     restartdata.orgn[il] = bdall->m_sois.orgn[il];
     restartdata.avln[il] = bdall->m_sois.avln[il];
+    
     deque<double> tmpdeque = bdall->prvltrfcnque[il];
     int recnum = tmpdeque.size();
 
@@ -1536,4 +1538,3 @@ void Cohort::set_restartdata_from_state() {
     }
   }
 }
-

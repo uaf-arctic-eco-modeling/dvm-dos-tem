@@ -145,7 +145,8 @@ private:
   double getNetmin(const double & nimmob, const double & soilorgc,
                    const double & soilorgn,
                    const double & rh, const double & tcnsoil,
-                   const double & decay, const double & nup );
+                   const double & decay, const double & nup, const double & soilts );
+
 
   double getKnsoilmoist(const double & vsm);   //
 

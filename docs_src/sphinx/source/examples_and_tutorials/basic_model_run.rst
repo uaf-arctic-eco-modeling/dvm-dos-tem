@@ -15,6 +15,35 @@ bunch of the supporting tools, including Docker, and Git. For post processing
 and visualization, see the :ref:`Plotting Example
 <examples_and_tutorials/plotting_discussion:Plotting>`. 
 
+.. hint:: Quickstart Summary
+
+  For users who have Docker and Git installed. 
+
+  The default settings will run the model in the source code directory, using the
+  sample data that is included with the repository in the ``demo-data/`` directory.
+  The run will output a single variable (GPP), and will run for 2 pixels.
+
+  - Clone the repository (``git clone https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git``).
+  - Change into directory (``cd dvm-dos-tem``).
+  - Get some input data (optional).
+  - Build Docker images (``./docker-build-wrapper.sh cpp-dev && ./docker-build-wrapper.sh dev``).
+  - Setup your environment variables in ``.env`` file for ``V_TAG``, ``DDT_INPUT_CATALOG``, and ``DDT_WORKFLOWS`` (optional).
+  - Start Docker containers (``V_TAG=$(git describe) docker compose up -d dvmdostem-dev``).
+  - Obtain shell in container (``docker compose exec dvmdostem-dev bash``)
+  - Compile code (``develop@56ef79004e31:/work$ make``)
+  - Setup working directory (optional).
+  - Change into working directory (optional) .
+  - Adjust as needed (optional):
+
+     - Your run mask (``run-mask.nc``)
+     - The outputs you would like to generate (``output_spec.csv``)
+     - Any other configuration items (``config.js``)
+     - Any custom parameters (``parameters/``)
+     - Any custom target data (``calibration/calibration_targets.py``).
+
+  - Start the model run (``develop@56ef79004e31:/work$ ./dvmdostem --log-level monitor -p 100 -e 1000 -s 250 -t 115 -n 85``).
+  - Analyze run (``develop@56ef79004e31:/work ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
+ 
 .. note::
 
   This lab is more or less a duplicate of an existing wiki page:
@@ -404,13 +433,18 @@ To launch the containers, use the following command:
   $ docker compose up -d
 
 You should get something like the following, and then running ``$ docker ps``
-you should see that two of the containers are running. For our use case, we do
+you should see that some of the containers are running. For our use case, we do
 not need the ``cpp-dev`` or the ``dvmdostem-build`` containers to keep running.
 They exit immediately, and that is OK.
 
 .. image:: ../images/examples_and_tutorials/basic_model_run/docker_containers.png
    :width: 600
    :alt: docker containers
+
+Note that ``docker compse up`` with no additional arugments will start all the
+containers specified in the compose file. If you wish you can bring up specific
+services by naming them on the command line, i.e. ``docker compose up -d
+dvmdostem-autocal``, which will start only the auto-calibration service.
 
 With a running container, the most basic thing you can do is log in and poke
 around. Try this now by running:
@@ -536,7 +570,9 @@ folder and make some adjustments to the configuration file for the run.
 
 Using the one-off command style, run the script. For this case we just
 arbitrarily select a dataset from your input catalog. Don't worry if you have a
-different dataset from the example shown here.
+different dataset from the example shown here. If you don't have any input
+datasets in your input-catalog, then use the demo-data that is included with the
+repository.
 
 .. code:: bash
 
@@ -675,15 +711,15 @@ adjusting it. We'll turn on 2 pixels here, just for fun:
 .. code:: bash
 
   # First make sure all pixels are OFF (set to 0)
-  $ docker compose exec dvmdostem-dev runmask-util.py --reset /data/workflows/basic_model_run/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask.py --reset /data/workflows/basic_model_run/run-mask.nc
   Setting all pixels in runmask to '0' (OFF).
 
   # Then turn one pixel.
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 0 0 /data/workflows/basic_model_run/run-mask.nc 
+  $ docker compose exec dvmdostem-dev runmask.py --yx 0 0 /data/workflows/basic_model_run/run-mask.nc 
   Turning pixel(y,x) (0,0) to '1', (ON).
 
   # And another pixel
-  $ docker compose exec dvmdostem-dev runmask-util.py --yx 1 1 /data/workflows/basic_model_run/run-mask.nc
+  $ docker compose exec dvmdostem-dev runmask.py --yx 1 1 /data/workflows/basic_model_run/run-mask.nc
   Turning pixel(y,x) (1,1) to '1', (ON).
 
 Note that you don't want to pass ``--reset`` to the second call, or it will
@@ -713,19 +749,19 @@ the output be readable.
   develop@ef7aad33441c:/work$ cd /data/workflows/basic_model_run/
 
   # Turn on RH
-  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on RH y layer
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec.py config/output_spec.csv --on RH y layer
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                     RH            g/m2/time            y                   invalid      invalid      invalid            l       double     Heterotrophic respiration
 
   # Turn on VEGC
-  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec_utils.py config/output_spec.csv --on VEGC m pft
+  develop@ef7aad33441c:/data/workflows/basic_model_run$ outspec.py config/output_spec.csv --on VEGC m pft
                   Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
                   VEGC                 g/m2            y            m      invalid            p                   invalid       double     Total veg. biomass C
 
 .. _outspec utils:
 .. warning::
 
-  The order of arguments to ``outspec_utils.py`` is very counterintuitive!  The
+  The order of arguments to ``util/outspec.py`` is very counterintuitive!  The
   file you want to modify needs to be the first argument so that it doesn't get
   confused with the resolution specification.
 
@@ -845,7 +881,7 @@ console output has been omitted for clarity:
 
   $ docker compose exec --workdir /data/workflows/basic_model_run/ dvmdostem-dev dvmdostem -l err -f /data/workflows/basic_model_run/config/config.js -p 50 -e 100 -s 25 -t 115 -n 85
   Setting up logging...
-  [err] [] Looks like CMTNUM output is NOT enabled. Strongly recommended to enable this output! Use outspec_utils.py to turn on the CMTNUM output!
+  [err] [] Looks like CMTNUM output is NOT enabled. Strongly recommended to enable this output! Use outspec.py to turn on the CMTNUM output!
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 0
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 1
   [err] [PRE-RUN->Y] y: 0 x: 0 Year: 2

@@ -10,10 +10,16 @@ public:
   Climate();
   Climate(const std::string& fname, const std::string& co2fname, int y, int x);
 
-  // misc climate variables
-  // This value will change during a run when switching from
+  // Misc. climate variables
+  // The following two values determine the span of historic climate
+  //  years used to produce a baseline average climate for EQ
+  //  TODO: SP repeated climate is not currently affected by these.
+  int baseline_start;
+  int baseline_end;
+  // These values will change during a run when switching from
   //  historic to projected climate data
   int tseries_start_year;
+  int tseries_end_year;
 
   // driving variables
   std::vector<float> co2;
@@ -74,6 +80,8 @@ public:
 
   void load_proj_climate(const std::string&, int, int);
   void load_proj_co2(const std::string&);
+
+  void prep_avg_climate();
 
 private:
 

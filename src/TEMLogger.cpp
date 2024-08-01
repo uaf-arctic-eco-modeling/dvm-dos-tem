@@ -19,16 +19,15 @@ template<>
 EnumParser< severity_level >::EnumParser() {
     enumMap["debug"] = debug;
     enumMap["info"] = info;
-    enumMap["note"] = note;
     enumMap["warn"] = warn;
-    enumMap["err"] = err;
+    enumMap["monitor"] = monitor;
     enumMap["fatal"] = fatal;
     enumMap["disabled"] = disabled;
 }
 
 std::ostream& operator<< (std::ostream& strm, severity_level level) {
     static const char* strings[] = { 
-      "debug", "info", "note", "warn", "err", "fatal", "disabled"
+      "debug", "info", "warn", "monitor", "fatal", "disabled"
     };
 
     if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
@@ -195,7 +194,7 @@ void setup_logging(const std::string& target_severity_level, const std::string& 
   } catch (std::runtime_error& e) {
     std::cout << e.what() << std::endl;
     std::cout << "'" << target_severity_level << "' is an invalid --log-level! "
-              << "Must be one of [debug, info, note, warn, err, fatal, disabled]\n";
+              << "Must be one of [debug, info, warn, monitor, fatal, disabled]\n";
     exit(-1);
   }
 
@@ -213,8 +212,7 @@ void test_log_and_filter_settings() {
   
   BOOST_LOG_SEV(glg, debug) << "General log, debug message. A very detailed message, possibly with some internal variable data.";
   BOOST_LOG_SEV(glg, info)  << "General log, info message. A detailed operating message."; 
-  BOOST_LOG_SEV(glg, note)  << "General log, note message. A general operating message."; 
-  BOOST_LOG_SEV(glg, warn)  << "General Log, warn message. Something is amiss, but results should be ok."; 
-  BOOST_LOG_SEV(glg, err)   << "General log, error message. The program may keep running, but results should be suspect."; 
+  BOOST_LOG_SEV(glg, warn)  << "General Log, warn message. Something is amiss, results should be checked."; 
+  BOOST_LOG_SEV(glg, monitor)  << "General Log, monitor message. A high-level progress message."; 
   BOOST_LOG_SEV(glg, fatal) << "General log, fatal error message. The program cannot continue and will exit non zero."; 
 }

@@ -39,7 +39,6 @@ public:
   int force_cmt; // used to override the veg map (calibration mode only)
 
   int initmode;  // NOT USED?
-  bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
 
   int eq_yrs;
   int pr_yrs;
@@ -47,6 +46,25 @@ public:
   int tr_yrs;
   int sc_yrs;
 
+  //Config Stage Settings
+  bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
+  //PR modules
+  bool pr_env, pr_bgc, pr_nfeed, pr_avln;
+  bool pr_baseline, pr_dsb, pr_dsl, pr_dyn_lai;
+  //EQ modules
+  bool eq_env, eq_bgc, eq_nfeed, eq_avln;
+  bool eq_baseline, eq_dsb, eq_dsl, eq_dyn_lai;
+  //SP modules
+  bool sp_env, sp_bgc, sp_nfeed, sp_avln;
+  bool sp_baseline, sp_dsb, sp_dsl, sp_dyn_lai;
+  //TR modules
+  bool tr_env, tr_bgc, tr_nfeed, tr_avln;
+  bool tr_baseline, tr_dsb, tr_dsl, tr_dyn_lai;
+  //SC modules
+  bool sc_env, sc_bgc, sc_nfeed, sc_avln;
+  bool sc_baseline, sc_dsb, sc_dsl, sc_dyn_lai;
+
+  //Config IO settings
   string parameter_dir;
   string hist_climate_file;
   string proj_climate_file;
@@ -68,6 +86,10 @@ public:
   bool nc_tr;
   bool nc_sc;
   int output_interval; //How many years to store for output
+  //The following two config values are temporarily stored in
+  // ModelData, to be transferred to Climate.
+  int baseline_start;//Start year for baseline EQ climate
+  int baseline_end;//End year for baseline EQ climate
 
   // Maps holding data about variables to be output at specific timesteps
   // C++11 would allow the use of unordered_maps, which have a faster

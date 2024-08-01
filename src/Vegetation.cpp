@@ -39,9 +39,9 @@ Vegetation::Vegetation(int cmtnum, const ModelData* mdp) {
   // This seems horribly brittle now as it really depends on the order and
   // presence of the lines in the parameter file...
 
-  BOOST_LOG_SEV(glg, note) << "Vegetation constructor. Community type: " << cmtnum;
+  BOOST_LOG_SEV(glg, info) << "Vegetation constructor. Community type: " << cmtnum;
 
-  BOOST_LOG_SEV(glg, note) << "Setting Vegetation internal values from file: "
+  BOOST_LOG_SEV(glg, info) << "Setting Vegetation internal values from file: "
                            << mdp->parameter_dir << "cmt_dimvegetation.txt";
 
 
@@ -162,6 +162,9 @@ void Vegetation::initializeState() {
 
 //set the initial states from restart inputs:
 void Vegetation::set_state_from_restartdata(const RestartData & rd) {
+
+  cd->yrsdist = rd.yrsdist;
+
   for (int ip=0; ip<NUM_PFT; ip++) {
     cd->m_veg.vegage[ip]      = rd.vegage[ip];
     cd->m_veg.vegcov[ip]      = rd.vegcov[ip];
@@ -332,7 +335,13 @@ void Vegetation::phenology(const int &currmind) {
         prveetmx +=prvdeque[i]/dequeno;
       }
 
-      // 1) current EET and previous max. EET controlled
+      // 1) plant size (biomass C) or age controlled foliage fraction relative
+      //    to the max. leaf C
+      cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
+                                            cd->m_veg.ifperenial[ip],
+                                            bd[ip]->m_vegs.call);
+
+      // 2) current EET and previous max. EET controlled
       double tempunnormleaf = 0.;;
       double eet = ed[ip]->m_v2a.tran;//originally it's using 'l2a.eet', which
                                       //  includes soil/veg evaporation - that
@@ -355,6 +364,7 @@ void Vegetation::phenology(const int &currmind) {
         cd->m_vegd.unnormleafmx[ip] = tempunnormleaf;
         cd->m_vegd.growingttime[ip] = ed[ip]->m_soid.rtdpgdd;
         cd->m_vegd.topt[ip] = ed[ip]->m_atms.ta;
+        cd->m_vegd.maxleafc[ip] = 0.0;
         cd->m_vegd.maxleafc[ip] = getYearlyMaxLAI(ip)/vegdimpar.sla[ip];
       } else {
         if (eet>cd->m_vegd.eetmx[ip]) {
@@ -385,11 +395,6 @@ void Vegetation::phenology(const int &currmind) {
         }
       }
 
-      //2) plant size (biomass C) or age controlled foliage fraction rative
-      //   to the max. leaf C
-      cd->m_vegd.ffoliage[ip] = getFfoliage(ip, cd->m_veg.ifwoody[ip],
-                                            cd->m_veg.ifperenial[ip],
-                                            bd[ip]->m_vegs.call);
     } else { // 'vegcov' is 0
       cd->m_vegd.unnormleaf[ip] = MISSING_D;
       cd->m_vegd.fleaf[ip] = MISSING_D;

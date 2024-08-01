@@ -28,12 +28,12 @@ public:
   std::vector<int> ysd_for_output;
 
   std::vector<double> ald_for_output;
-  std::vector<double> burnsoic_for_output;
+  std::vector<double> burnsoil2airc_for_output;
   std::vector<double> burnthick_for_output;
   std::vector<double> burnveg2airc_for_output;
   std::vector<double> burnveg2deadc_for_output;
-  std::vector<double> burnveg2soiabvc_for_output;
-  std::vector<double> burnveg2soiblwc_for_output;
+  std::vector<double> burnveg2soilabvc_for_output;
+  std::vector<double> burnveg2soilblwc_for_output;
   std::vector<double> ch4efflux_for_output;
   std::vector<double> ch4pool_for_output;
   std::vector<double> deadc_for_output;
@@ -76,6 +76,9 @@ public:
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
+
+  std::vector<std::array<double, MAX_SNW_LAY>> snowlayerdz_for_output;
+  std::vector<std::array<double, MAX_SNW_LAY>> snowlayertemp_for_output;
 
   //Variables by PFT
   std::vector<double> eet_tot_for_output;

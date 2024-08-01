@@ -471,6 +471,7 @@ void Vegetation_Bgc::delta() {
     innpp_all += del_a2v.innpp[i];
   }
 
+
   // Partition 'ingpp' based on initial NPP, Rg, and Rm
   for (int i=0; i<NUM_PFT_PART; i++) {
     del_a2v.ingpp[i] = del_a2v.innpp[i] + del_v2a.rm[i] + del_v2a.rg[i];

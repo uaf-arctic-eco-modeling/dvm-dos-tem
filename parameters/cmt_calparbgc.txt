@@ -134,27 +134,27 @@
 0.00      // kdcsompr_ch4:
 0.00      // kdcsomcr_ch4:
 //===========================================================
-// CMT05 // Tussock Tundra // Updated by E.E. calibration, April, May 2017 //Reupdated July 2019 by Joy
+// CMT05 // Tussock Tundra // Updated by E.E. calibration, April, May 2017 //Reupdated July 2019 by Joy//Joy June 2022
 // Betula      Decid      EGreen      Sedges       Forbs      Lichens    Feather     Sphag       PFT8         PFT9    // pftnames:
-130.0000     60.0000    200.0000     450.0000     33.0000    300.0000   185.0000   120.0000     0.00000     0.00000   // cmax: 
+104.0000      3.9000    250.0000     392.0000      3.2500     30.0000    95.0000    65.0000     0.00000     0.00000   // cmax: 
   7.0000      8.2000      9.0000      27.6000      4.5000      3.0000     3.0000     3.0000     0.00000     0.00000   // nmax: 
-  0.0901      0.1099      0.080001     0.059997    0.0450      0.0960     0.0990     0.0410     0.00000     0.00000   // cfall(0): 
-  0.0025      0.0007      0.0001       0.0000      0.0000      0.0000     0.0000     0.0000     0.00000     0.00000   // cfall(1): 
-  0.0015      0.00032     0.0001       0.0200      0.000301    0.0000     0.0000     0.0000     0.00000     0.00000   // cfall(2): 
+  0.0440      0.0895      0.0860       0.091       0.0490      0.0070     0.0150     0.0070     0.00000     0.00000   // cfall(0): 
+  0.00005     0.00017      0.00022      0.0000      0.0000      0.0000     0.0000     0.0000     0.00000     0.00000   // cfall(1): 
+  0.00005     0.0002      0.00022      0.0004      0.00030     0.0000     0.0000     0.0000     0.00000     0.00000   // cfall(2): 
   0.00001     0.00002     0.000014     0.00007     0.0001      0.0010     0.00353    0.0001     0.00000     0.00000   // nfall(0): 
   0.000001    0.000159    0.000017     0.0000      0.0000      0.0000     0.0000     0.0000     0.00000     0.00000   // nfall(1): 
   0.00001     0.010048    0.000008     0.00688     0.000013    0.0000     0.0000     0.0000     0.00000     0.00000   // nfall(2): 
  -8.06e-05   -8.06e-05   -8.06e-05    -8.06e-05   -8.06e-05   -8.06e-05  -8.06e-05  -8.06e-05   0.00000     0.00000   // kra: 
- -0.5000     -3.1000     -3.0000      -9.9010     -1.0000     -1.5000    -3.2000    -5.7000     0.00000     0.00000   // krb(0): 
- -6.5000     -6.3010     -4.7000       0.0000      0.0000      0.0000     0.0000     0.0000     0.00000     0.00000   // krb(1): 
- -5.4500     -5.5600     -4.0500      -2.1000     -3.9000      0.0000     0.0000     0.0000     0.00000     0.00000   // krb(2): 
+ -2.000      -1.4000     -1.0000      -1.000      -1.0000     -4.1000    -3.1000    -3.8000     0.00000     0.00000   // krb(0): 
+ -7.8000     -7.0000     -6.9000       0.0000      0.0000      0.0000     0.0000     0.0000     0.00000     0.00000   // krb(1): 
+ -7.4500     -6.600      -6.8000      -5.1000     -5.9000      0.0000     0.0000     0.0000     0.00000     0.00000   // krb(2): 
   0.1000      0.1000      0.1000       0.1000      0.1000      0.1000     0.1000     0.1000     0.00000     0.00000   // frg: 
 // soil calibrated parameters
-0.750000     // micbnup: parameter for soil microbial immobilization -8.06e-05of N
-0.091946     // kdcrawc: raw-material (litter) C decompositin rates at reference condition  was 0.068946
-0.0230919    // kdcsoma:  was 0.094519
-0.020800     // kdcsompr:   was 0.009000 
-0.000005     // kdcsomcr:  was 0.000005 
+0.750000     // micbnup: parameter for soil microbial immobilization
+0.09      // kdcrawc: raw-material (litter) C decompositin rates at reference condition was 0.09
+0.03      // kdcsoma:  was 0.07
+0.015      // kdcsompr:   was 0.05
+0.000005     // kdcsomcr:  was 0.00005 
 2.938e-7     // kdcrawc_ch4:
 6.25973e-7   // kdcsoma_ch4:
 1.355e-9     // kdcsompr_ch4:
@@ -264,27 +264,27 @@
 0.00      // kdcsompr_ch4:
 0.00      // kdcsomcr_ch4:
 //===========================================================
-// CMT21 // EML Tussock Tundra
-//Betnan   Carex       Ericoid    Erivag       Feather   Lichen     OtherMoss  Rubcha     Sphagnum    PFT9     // pftnames:
-180.00    680.00     1320.00    1505.00        0.81     103.0      928.0      345.0       21.0        0.0      // cmax:
- 7.20      15.00       28.20      40.00        0.50       3.00      10.0        5.0        2.5        0.0      // nmax:
- 0.25       0.37        0.0500     0.0010      0.017      0.020      0.040      0.52       0.009      0.0      // cfall(0): leaf
- 0.00001    0.0000001   0.0090     0.0862      0.0000     0.0000     0.000      0.000002   0.000      0.0      // cfall(1): stem
- 0.000001   0.0000001   0.0063     0.0430      0.0000     0.0000     0.000      0.000002   0.000      0.0      // cfall(2): root
- 0.00001    0.00014     0.00002    0.00064     0.0001     0.00002    0.00001    0.0005     0.0004     0.0      // nfall(0): leaf
- 0.000005   0.000002    0.00014    0.00017     0.0000     0.0000     0.0000     0.00001    0.0000     0.0      // nfall(1): stem
- 0.000005   0.000008    0.0100     0.00008     0.0000     0.0000     0.0000     0.00001    0.0000     0.0      // nfall(2): root
--8.06e-05  -8.06e-05   -8.06e-05  -8.06e-05   -8.06e-05  -8.06e-05  -8.06e-05  -8.06e-05  -8.06e-05   0.0      // kra:    coeff(0) in maintenance resp.
--1.00      -1.00       -7.50      -6.60       -2.00      -4.60      -5.0       -2.0       -5.1        0.0      // krb(0): coeff(1) in maintenance resp.(leave)
--8.60      -9.80       -3.95      -3.40        0.00       0.00       0.0       -8.5        0.0        0.0      // krb(1): coeff(1) in maintenance resp.(stem)
--9.90      -9.40       -5.00      -2.50        0.00       0.00       0.0       -9.5        0.0        0.0      // krb(2): coeff(1) in maintenance resp.(root)
+// CMT21 // EML Tussock Tundra // joy 8/9/22
+//Decidsh   Egreensh     Sedge      Forbs      Lichen    OMoss     Sphag       PFT7      PFT8        PFT9      // names: comments
+33.00      172.00      430.00     3.20        24.00       75.0      43.0        0.0        0.0        0.0      // cmax:
+ 7.20       28.00       15.20      0.5         3.0        10.00      5.0        0.0        0.0        0.0      // nmax:
+ 0.25       0.15        0.089      0.092       0.02       0.010      0.139      0.0        0.0        0.0      // cfall(0): leave
+ 0.000005   0.000004    0.00       0.0         0.000      0.000      0.000      0.0        0.0        0.0      // cfall(1): stem
+ 0.00001    0.000003    0.019      0.00001     0.000      0.000      0.000      0.0        0.0        0.0      // cfall(2): root
+ 0.00001    0.00014     0.00002    0.0004      0.0001     0.00002    0.0004     0.0        0.0        0.0      // nfall(0): leave
+ 0.00005    0.00002     0.0        0.0         0.000      0.000      0.000      0.0        0.0        0.0      // nfall(1): stem
+ 0.00005    0.00008     0.007      0.0008      0.000      0.000      0.000      0.0        0.0        0.0      // nfall(2): root
+-8.06e-05  -8.06e-05   -8.06e-05  -8.06e-05   -8.06e-05  -8.06e-05  -8.06e-05   0.0        0.0        0.0      // kra: (don't touch) coeff(0) in maintenance resp.
+-7.00      -7.50       -1.50      -1.60       -3.80      -3.80      -0.7        0.0        0.0        0.0      // krb(0): coeff(1) in maintenance resp.(leave)
+-9.60      -10.95       0.00       0.00        0.00       0.00       0.0        0.0        0.0        0.0      // krb(1): coeff(1) in maintenance resp.(stem)
+-9.90      -10.00      -5.00      -8.50        0.00       0.00       0.0        0.0        0.0        0.0      // krb(2): coeff(1) in maintenance resp.(root)
  0.20       0.20        0.20       0.20        0.20       0.00       0.0        0.0        0.0        0.0      // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-0.79       // micbnup: parameter for soil microbial immobialization of N
-0.95       // kdcrawc: raw-material (litter) C decompositin rates at reference condition
-1.3       // kdcsoma:
-0.85       // kdcsompr:
-0.00025   // kdcsomcr:
+0.79       // micbnup: parameter for soil microbial immobilization of N
+0.215      // kdcrawc: raw-material (litter) C decomposition rates at reference condition
+0.258      // kdcsoma: .95 .9 .85
+0.008      // kdcsompr:
+0.00005    // kdcsomcr:
 0.00      // kdcrawc_ch4:
 0.00      // kdcsoma_ch4:
 0.00      // kdcsompr_ch4:
@@ -315,28 +315,6 @@
 0.000000625973 // kdcsoma_ch4:
 0.000000001355 // kdcsompr_ch4:
 0.0000000012 // kdcsomcr_ch4:
-//===========================================================
-// CMT31 // Boreal Bog
-//Sphagnum  Sedge        DecShrub    EvrShrub     Forbs         Moss       NotUsed  NotUsed  NotUsed  NotUsed  // names: comments
- 925.00000  310.000000   31.000000   485.000000   158.000000    60.500000  0.00     0.00     0.00     0.00     // cmax:
- 25.000000    7.500000    2.800000    10.000000     8.500000     4.150000  0.00     0.00     0.00     0.00     // nmax:
-  0.145000    0.027500    0.100000     0.042500     0.040000     0.050000  0.00     0.00     0.00     0.00     // cfall(0): leave
-  0.000000    0.050000    0.025000     0.062500     0.000000     0.000000  0.00     0.00     0.00     0.00     // cfall(1): stem
-  0.000000    0.050000    0.020000     0.040000     0.045000     0.000000  0.00     0.00     0.00     0.00     // cfall(2): root
-  0.050001    0.002500    0.001500     0.004500     0.002500     0.050000  0.00     0.00     0.00     0.00     // nfall(0): leave
-  0.000000    0.002500    0.001500     0.003000     0.000000     0.000000  0.00     0.00     0.00     0.00     // nfall(1): stem
-  0.000000    0.000050    0.001500     0.007500     0.002500     0.000000  0.00     0.00     0.00     0.00     // nfall(2): root
- -0.000081   -0.000081   -0.000081    -0.000081    -0.000081    -0.000081  0.00     0.00     0.00     0.00     // kra: (don't touch) coeff(0) in maintenance resp.
- -0.250000   -1.500000   -2.100000    -3.750000    -3.750000    -3.400000  0.00     0.00     0.00     0.00     // krb(0): coeff(1) in maintenance resp.(leave)
-  0.000000   -3.500000   -4.500000    -3.750000     0.000000     0.000000  0.00     0.00     0.00     0.00     // krb(1): coeff(1) in maintenance resp.(stem)
-  0.000000   -4.000000   -3.500000    -1.500000    -3.250000     0.000000  0.00     0.00     0.00     0.00     // krb(2): coeff(1) in maintenance resp.(root)
-  0.200000    0.200000    0.200000     0.200000     0.200000     0.200000  0.00     0.00     0.00     0.00     // frg: fraction of available NPP (GPP after rm) for growth resp.
-// soil calibrated parameters
-2.750000     // micbnup: parameter for soil microbial immobilization of N
-0.500000     // kdcrawc: raw-material (litter) C decomposition rates at reference condition
-0.250000     // kdcsoma:
-0.018000     // kdcsompr:
-0.000010     // kdcsomcr:
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:

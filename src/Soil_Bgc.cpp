@@ -1001,7 +1001,7 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
 };
 
 void Soil_Bgc::initializeParameter() {
-  BOOST_LOG_SEV(glg, note) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
+  BOOST_LOG_SEV(glg, info) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
   calpar.micbnup    = chtlu->micbnup;
   calpar.kdcrawc    = chtlu->kdcrawc;
   calpar.kdcsoma    = chtlu->kdcsoma;
@@ -1025,7 +1025,7 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.fnloss     = chtlu->fnloss;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
 
-  BOOST_LOG_SEV(glg, note) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
+  BOOST_LOG_SEV(glg, info) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
   // Alternatively these can be estimated from Ks calibrated.
   // Jenkinson and Rayner (1977):
   //   1t plant C / ha / yr for 10,000yrs, will produce:
@@ -1035,7 +1035,7 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.eqsompr = 11.3 / (0.48 + 0.28 + 11.3 + 12.2);
   bgcpar.eqsomcr = 12.2 / (0.48 + 0.28 + 11.3 + 12.2);
 
-  BOOST_LOG_SEV(glg, note) << "Calculating decay in Soil_Bgc.";
+  BOOST_LOG_SEV(glg, info) << "Calculating decay in Soil_Bgc.";
   decay = 0.26299 +
           (1.14757 * bgcpar.propftos) -
           (0.42956 * pow((double)bgcpar.propftos, 2.0));
@@ -1327,7 +1327,7 @@ void Soil_Bgc::deltan() {
       del_soi2soi.nimmob[i] = nimmob;
       del_soi2soi.netnmin[i] = getNetmin(nimmob, totc, tmp_sois.orgn[i],
                                          rhsum ,bgcpar.nmincnsoil,
-                                         decay, calpar.micbnup);
+                                         decay, calpar.micbnup, ed->m_sois.ts[i]);
 
       totnetnmin += del_soi2soi.netnmin[i];
     }
@@ -1707,19 +1707,21 @@ double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
 double Soil_Bgc::getNetmin(const double & nimmob, const double & soilorgc,
                            const double & soilorgn, const double & rh,
                            const double & tcnsoil,
-                           const double & decay, const double & nup ) {
+                           const double & decay, const double & nup, 
+			   const double & soilts) {
   double nmin = 0.0;
+  if ( soilts > 0.0 ) {
 
-  if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
-    nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
+    if ( soilorgc > 0.0 && soilorgn > 0.0 ) {
+      nmin   = ((soilorgn / soilorgc) - (nup * nimmob * decay)) * rh;
 
-    if ( nmin >= 0.0 ) {
-      nmin *= (soilorgn/soilorgc) * tcnsoil;
-    } else {
-      nmin *= (soilorgc/soilorgn) / tcnsoil;
+      if ( nmin >= 0.0 ) {
+        nmin *= (soilorgn/soilorgc) * tcnsoil;
+      } else {
+        nmin *= (soilorgc/soilorgn) / tcnsoil;
+      }
     }
   }
-
   return nmin;
 };
 

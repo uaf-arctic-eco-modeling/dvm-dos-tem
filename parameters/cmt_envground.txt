@@ -432,7 +432,7 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
-// CMT21 // EML Tussock Tundra
+// CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:

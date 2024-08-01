@@ -145,6 +145,7 @@ namespace temutil {
                                     const int y, const int x);
 
   int get_timeseries_start_year(const std::string &filename);
+  int get_timeseries_end_year(const std::string &filename);
 
   // draft - reads all timesteps co2 data
   std::vector<float> get_timeseries(const std::string &filename,
@@ -191,6 +192,8 @@ namespace temutil {
   std::vector<DTYPE> get_timeseries2(const std::string &filename,
                                      const std::string &var,
                                      DTYPE type_example) {
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
 
     int ncid;
     temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );

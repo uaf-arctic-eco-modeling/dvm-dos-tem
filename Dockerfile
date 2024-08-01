@@ -7,6 +7,8 @@
 #  * dvmdostem-dev           libraries, tools for developing dvmdostem
 #  * dvmdostem-build         a standalone compile environment for dvmdostem
 #  * dvmdostem-run           a standalone run-time environemnt for dvmdostem
+#  * dvmdostem-autocal       built on top of the dev image, includes julia and
+#                            MADS
 #
 # There is an additional image for the project, dvmdostem-mapping-support, which
 # has its own Dockerfile.
@@ -35,7 +37,12 @@
 # This is used for tagging images. In most cases, this value will be overridden
 # by passing a --build-arg when running docker build to create your images. See
 # docker-build-wrapper.sh for examples of this pattern in use.
+# These must be defined here with default values and then in each stage
+# of the build you must again declare the ARG lines...
 ARG GIT_VERSION=latest
+ARG UNAME=develop
+ARG UID=1000
+ARG GID=1000
 
 # === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
 # General development tools, compilers, text editors, etc
@@ -56,6 +63,10 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
 # More specific build stuff for compiling dvmdostem and running the project's
 # associated python scripts. 
 FROM cpp-dev:$GIT_VERSION as dvmdostem-dev
+ARG UNAME
+ARG UID
+ARG GID
+
 # dvmdostem dependencies
 RUN apt-get update -y --fix-missing && apt-get install -y \
     libboost-all-dev \
@@ -72,10 +83,17 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
     netcdf-bin \
   && rm -rf /var/lib/apt/lists/*
 
-# Make a developer user so as not to always be root
-RUN useradd -ms /bin/bash develop
-RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
-USER develop
+# Make a developer user so as not to always be root.
+# In order for the resulting container to be able to mount host directories 
+# as volumes and have read/write access, we must be sure that the new user 
+# here has the same UID and GID as the user on the machine hosting the
+# container. Here we have default values for the UNAME, UID and GID, but
+# if you need to you can override them by passing --build-arg to the docker
+# build command.
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u$UID -g$GID -s /bin/bash $UNAME
+RUN echo "$UNAME   ALL=(ALL:ALL) ALL" >> /etc/sudoers
+USER $UNAME
 
 # Pyenv dependencies for building full Python with all extensions.
 USER root
@@ -111,8 +129,8 @@ RUN apt-get update --fix-missing -y && apt-get install -y \
 # but pyenv might be useful for other packages in the future and is a nice
 # unified way to package and version manage our tooling that has been working
 # well across macOS, Ubuntu, CentOS, etc. 
-USER develop
-ENV HOME=/home/develop
+USER $UNAME
+ENV HOME=/home/$UNAME
 RUN git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
 ENV PYENV_ROOT=$HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
@@ -125,15 +143,45 @@ RUN pip install -U pip pipenv
 COPY requirements_general_dev.txt .
 RUN pip install -r requirements_general_dev.txt
 
-COPY --chown=develop:develop special_configurations/jupyter_notebook_config.py /home/develop/.jupyter/jupyter_notebook_config.py
+COPY --chown=$UNAME:$UNAME special_configurations/jupyter_notebook_config.py /home/$UNAME/.jupyter/jupyter_notebook_config.py
 
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
+ENV PATH="/work/scripts/util:$PATH"
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+
+# ==== IMAGE FOR RUNNING JULIA/MADS AUTO CALIBRATION STUFF ====================
+# Basically the dev image with Julia and MADS installed. Julia and MADS add
+# significantly to the build time and size, so they are split out to a separate
+# image here.
+FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-autocal
+ARG UNAME
+ARG UID
+ARG GID
+
+# Install julia as root...
+USER root
+RUN mkdir -p /usr/local/bin \
+    && mkdir -p /opt \
+    && wget https://julialang-s3.julialang.org/bin/linux/x64/1.7/julia-1.7.3-linux-x86_64.tar.gz \
+    && tar -xzf julia-1.7.3-linux-x86_64.tar.gz \
+    && cp -r julia-1.7.3 /opt/ \
+    && ln -s /opt/julia-1.7.3/bin/julia /usr/local/bin/julia
+
+# Then install julia packages on a per-user basis...
+USER $UNAME
+RUN echo 'using Pkg; Pkg.add(name="Mads", version="1.3.10")' | julia
+RUN echo 'using Pkg; Pkg.add("PyCall")' | julia
+RUN echo 'using Pkg; Pkg.add("DataFrames")' | julia
+RUN echo 'using Pkg; Pkg.add("DataStructures")' | julia
+RUN echo 'using Pkg; Pkg.add("CSV")' | julia
+RUN echo 'using Pkg; Pkg.add("YAML")' | julia
+
+ENV PYTHONPATH="/work/scripts:/work/mads_calibration"
 
 
 # === IMAGE FOR BUILDING (COMPILING) DVMDOSTEM ================================
@@ -143,6 +191,10 @@ WORKDIR /work
 # to the dev image, where there is no source code present in the imag instead it
 # must be provided by mounting a volume at container run-time.
 FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
+ARG UNAME
+ARG UID
+ARG GID
+
 COPY src/ /work/src
 COPY Makefile /work/Makefile
 COPY include/ /work/include
@@ -165,7 +217,10 @@ USER root
 #COPY dvmdostem /work/dvmdostem
 RUN make
 
-USER develop
+# Not sure how the USERNAME should be used with this image
+# So setting to the passed in ARG value like the other images, though
+# this might not be important for the usecases we have...
+USER $UNAME
 # Use this to keep container going when doing docker compose up
 # CMD ["tail -f /dev/null"]
 
@@ -183,6 +238,9 @@ USER develop
 # more mounted volumes) in order to run dvmdostem.
 #
 FROM ubuntu:focal as dvmdostem-run
+ARG UNAME
+ARG UID
+ARG GID
 
 WORKDIR /work
 
@@ -197,7 +255,12 @@ COPY --from=dvmdostem-build /work/config ./config
 # point when an extension is needed, will have to find that shared lib and 
 # copy it in... 
 #  ~800MB
-COPY --from=dvmdostem-build /home/develop/.pyenv /home/develop/.pyenv
+RUN echo ${UNAME}
+# There is some kind of bug or oddity with how the file gets copied.
+# Doing it like below with the "as" construct allows us to set the 
+# correct username in the copy step...
+FROM ${UNAME} as uname
+COPY --from=dvmdostem-build /home/uname/.pyenv /home/uname/.pyenv
 
 # Discovered by using ldd on compiled binary in testing environment
 COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0
@@ -251,17 +314,25 @@ COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libsqlite3.so.0 /lib/x86_64-linu
 COPY --from=dvmdostem-dev /lib/x86_64-linux-gnu/libheimbase.so.1 /lib/x86_64-linux-gnu/libheimbase.so.1
 
 # Make a developer user so as not to always be root
-RUN useradd -ms /bin/bash develop
-RUN echo "develop   ALL=(ALL:ALL) ALL" >> /etc/sudoers
-USER develop
-ENV HOME=/home/develop
+# In order for the resulting container to be able to mount host directories 
+# as volumes and have read/write access, we must be sure that the new user 
+# here has the same UID and GID as the user on the machine hosting the
+# container. Here we have default values for the UNAME, UID and GID, but
+# if you need to you can override them by passing --build-arg to the docker
+# build command.
+RUN groupadd -g $GID -o $UNAME
+RUN useradd -m -u$UID -g$GID -s /bin/bash $UNAME
+RUN echo "$UNAME   ALL=(ALL:ALL) ALL" >> /etc/sudoers
+USER $UNAME
+
+ENV HOME=/home/$UNAME
 ENV PYENV_ROOT=$HOME/.pyenv
 ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 # Set a few environemnt variables for ease of use...
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
-
+ENV PATH="/work/scripts/util:$PATH"
 
 
 #########

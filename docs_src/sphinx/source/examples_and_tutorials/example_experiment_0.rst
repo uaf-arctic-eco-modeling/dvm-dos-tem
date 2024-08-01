@@ -46,11 +46,11 @@ Here we have designed a small experiment with answers to the unknowns posed in
      - **Answer**
    * - | Where on your computer you want to store
        | your model run(s)?
-     - ``/data/workflows/exp0_jan26_test``
+     - ``/work/testing-data/docs/example_experiment_0/``
    * - | What spatial (geographic) area you want
        | to run?
      - | Toolik, pixels (0,0), (1,1), (2,2)
-       | ``/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/``
+       | ``/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/``
    * - What variables you want to output?
      - | GPP: monthly, by PFT
        | RH, RG, RM: monthly
@@ -79,44 +79,92 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
 .. warning::
 
-  The ``outspec_utils.py`` script prints some confusing messages when working
+  The ``util/outspec.py`` script prints some confusing messages when working
   with by-layer files. For outputs that are only availale by layer, (i.e.
   LAYERDZ), the output is flagged as 'invlaid' in the ``output_spec.csv`` file.
   This means that if you provide the ``layer`` resolution specification when
-  requesting one of these outputs, ``outspec_utils.py`` will print a message to
+  requesting one of these outputs, ``util/outspec.py`` will print a message to
   the extent of "Not enabling layer outputs for LAYERDZ". This is true
-  (``outspec_utils.py`` finds the "invalid" marker and doesn't enable that
+  (``util/outspec.py`` finds the "invalid" marker and doesn't enable that
   column in the ``.csv`` file), but it is not a problem - for those outputs, the
   by-layer resolution is enforced internally in the C++ part of the model.
+
+
+.. collapse:: Developer commands for working on documentation
+
+   Uncomment the following jupyter execute block if you need to actually run the
+   model for this experiment. This is useful if you are a developer working on 
+   the documentation. Otherwise you can assume that the outputs needed for the 
+   remainder of the exercise are in the ``testing-data/docs/example_experiment0``
+   directory.
+
+   .. jupyter-execute::
+
+      # import os
+      # import subprocess
+      # import shutil
+      # 
+      # import setup_working_directory
+      # import outspec
+      # import runmask
+      # 
+      # shutil.rmtree('/work/testing-data/docs/example_experiment_0/')
+      # 
+      # args = '--input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/'
+      # setup_working_directory.cmdline_entry(args.split(' '))
+      # 
+      # os.chdir('/work/testing-data/docs/example_experiment_0/')
+      # 
+      # outspec.cmdline_entry('config/output_spec.csv --on RH m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RG m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RM m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on TLAYER l m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on GPP m p'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on VEGC y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on ALD y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on CMTNUM y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on SHLWC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on SHLWDZ y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on DEEPC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on DEEPDZ y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on MINEC y l'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERDZ y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERDEPTH y'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on LAYERTYPE y'.split(' ')) 
+      # 
+      # runmask.cmdline_entry('--reset run-mask.nc'.split(' '))
+      # runmask.cmdline_entry('--yx 0 0 run-mask.nc'.split(' '))
+      # 
+      # subprocess.call('dvmdostem -l fatal --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85'.split(' '))
 
 
 .. collapse:: Example commands for setting up
    :class: working
 
-   .. code:: 
+   .. code::
 
-      $ ./scripts/setup_working_directory.py --input-data-path /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10 /data/workflows/exp0_jan26_test
-      $ cd /data/workflows/exp0_jan26_test/
-      $ outspec_utils.py config/output_spec.csv --on RH m
-      $ outspec_utils.py config/output_spec.csv --on RG m
-      $ outspec_utils.py config/output_spec.csv --on RM m
-      $ outspec_utils.py config/output_spec.csv --on TLAYER l m
-      $ outspec_utils.py config/output_spec.csv --on GPP m p
-      $ outspec_utils.py config/output_spec.csv --on VEGC y
-      $ outspec_utils.py config/output_spec.csv --on ALD y
-      $ outspec_utils.py config/output_spec.csv --on CMTNUM y
-      $ outspec_utils.py config/output_spec.csv --on SHLWC y l
-      $ outspec_utils.py config/output_spec.csv --on SHLWDZ y l
-      $ outspec_utils.py config/output_spec.csv --on DEEPC y l
-      $ outspec_utils.py config/output_spec.csv --on DEEPDZ y l
-      $ outspec_utils.py config/output_spec.csv --on MINEC y l
-      $ outspec_utils.py config/output_spec.csv --on LAYERDZ y
-      $ outspec_utils.py config/output_spec.csv --on LAYERDEPTH y
-      $ outspec_utils.py config/output_spec.csv --on LAYERTYPE y 
-      $ runmask-util.py --reset run-mask.nc 
-      $ runmask-util.py --yx 0 0 run-mask.nc 
-      $ #runmask-util.py --yx 1 1 run-mask.nc 
-      $ #runmask-util.py --yx 2 2 run-mask.nc 
+      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/
+      $ cd /work/testing-data/docs/example_experiment_0/
+      $ outspec.py config/output_spec.csv --on RH m
+      $ outspec.py config/output_spec.csv --on RG m
+      $ outspec.py config/output_spec.csv --on RM m
+      $ outspec.py config/output_spec.csv --on TLAYER l m
+      $ outspec.py config/output_spec.csv --on GPP m p
+      $ outspec.py config/output_spec.csv --on VEGC y
+      $ outspec.py config/output_spec.csv --on ALD y
+      $ outspec.py config/output_spec.csv --on CMTNUM y
+      $ outspec.py config/output_spec.csv --on SHLWC y l
+      $ outspec.py config/output_spec.csv --on SHLWDZ y l
+      $ outspec.py config/output_spec.csv --on DEEPC y l
+      $ outspec.py config/output_spec.csv --on DEEPDZ y l
+      $ outspec.py config/output_spec.csv --on MINEC y l
+      $ outspec.py config/output_spec.csv --on LAYERDZ y
+      $ outspec.py config/output_spec.csv --on LAYERDEPTH y
+      $ outspec.py config/output_spec.csv --on LAYERTYPE y 
+      $ runmask.py --reset run-mask.nc 
+      $ runmask.py --yx 0 0 run-mask.nc 
+      $ #runmask.py --yx 1 1 run-mask.nc 
+      $ #runmask.py --yx 2 2 run-mask.nc 
       $ dvmdostem --force-cmt 5 -p 100 -s 250 -e 1000 -t 115 -n 85
 
 ***************************
@@ -131,8 +179,8 @@ other words if you are following along, copy the following code into your Python
 interperter and run it before continuing. 
 
 To read more about the data loading function that is imported from
-``output_utils.py`` please see the API documentation here
-:py:meth:`output_utils.load_trsc_dataframe`
+``util/output.py`` please see the API documentation here
+:py:meth:`util.output.load_trsc_dataframe`
 
 **If you are not working on the TEM Docker stack or have named your experiment
 differently, please adjust your paths accordingly.**
@@ -152,11 +200,11 @@ differently, please adjust your paths accordingly.**
       # This allows us to import tools from the dvm-dos-tem/scripts directory
       sys.path.insert(0, '/work/scripts')
 
-      from output_utils import load_trsc_dataframe
+      from util.output import load_trsc_dataframe
 
       # This lets us work with shorter paths relative to the experiment 
       # directory
-      os.chdir('/data/workflows/exp0_jan26_test')
+      os.chdir('/work/testing-data/docs/example_experiment_0/')
 
 
 
@@ -175,22 +223,22 @@ information is used to set the number of transient and scenario years to run.
 
    .. code:: 
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time:units"
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-climate.nc  | grep "time:units"
           time:units = "days since 1901-1-1 0:0:0" ;
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time:units"
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-climate.nc  | grep "time:units"
           time:units = "days since 2016-1-1 0:0:0" ;
    
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/historic-climate.nc  | grep "time\ =\ "
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-climate.nc  | grep "time\ =\ "
           time = UNLIMITED ; // (1380 currently)
 
-      $ ncdump -h /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/projected-climate.nc  | grep "time\ =\ "
+      $ ncdump -h /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-climate.nc  | grep "time\ =\ "
           time = UNLIMITED ; // (1020 currently)
 
    So ``1380/12 = 115``. Looks like 115 years for the historic and  ``1020/85 =
    85`` for the projected.
 
-.. collapse:: Example input_util.py plot
+.. collapse:: Example input.py plot
    :class: working
 
    This shows how you might plot the driving inputs using one of the existing
@@ -198,22 +246,22 @@ information is used to set the number of transient and scenario years to run.
    figure out the exact start and end years.
 
    Also notice that this technique allows us to interact with the command line
-   interface of the ``input_util.py`` script directly from a Python interperter.
+   interface of the ``input.py`` script directly from a Python interperter.
    Neat!
 
    .. jupyter-execute::
 
-      import input_util as iu
+      import util.input
       import argparse
 
       args = {
         'command': 'climate-ts-plot',
-        'input_folder': '/data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_TOOLIK_FIELD_STATION_10x10/',
+        'input_folder': '/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/',
         'stitch': False,
         'type': 'spatial-temporal-summary',
       }
 
-      iu.climate_ts_plot(argparse.Namespace(**args))
+      util.input.climate_ts_plot(argparse.Namespace(**args))
 
 *****************************************
 Computing Mean Vegetation C and Soil C
@@ -250,10 +298,10 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
   .. code::
 
     ### Change into the experiment directory
-    cd /data/workflows/exp0_jan26_test
+    cd /work/testing-data/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /data/workflows/exp0_jan26_test/synthesis
+    mkdir /work/testing-data/docs/example_experiment_0//synthesis
 
     ### Compute the decadal means of vegetation carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_tr.nc  synthesis/VEGC_1990_1999.nc
@@ -373,10 +421,10 @@ simulations. Indicate how you formulated NEE.
   .. code::
 
     ### Change into the experiment directory
-    cd /data/workflows/exp0_jan26_test
+    cd /work/testing-data/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /data/workflows/exp0_jan26_test/synthesis
+    mkdir /work/testing-data/docs/example_experiment_0/
 
     ### Sum up the GPP across PFTs
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc

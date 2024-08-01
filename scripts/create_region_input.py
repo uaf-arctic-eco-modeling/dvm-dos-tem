@@ -2156,7 +2156,7 @@ def get_slurm_wrapper_string(tifs, pclim='ncar-ccsm4', pfire=None,
     # Handle auxiliary steps, e.g. cropping, gapfilling, plotting
 
     # Generate plots for double checking data... (Should this be submitted with srun too??)
-    #./scripts/input_util.py climate-ts-plot --type annual-summary --yx 0 0 input-staging-area/
+    #./scripts/util/input.py climate-ts-plot --type annual-summary --yx 0 0 input-staging-area/
 
     # REMEMBER TO CHECK FOR GAPFILLING NEEDS!!!
     srun ./scripts/gapfill.py --dry-run --input-folder input-staging-area/"$site"_"$YSIZE"x"$XSIZE"/

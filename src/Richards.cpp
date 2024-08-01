@@ -245,7 +245,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     double qdrain_perch = kdrain_perch * (bdraindepth - watertab)
                         * fbaseflow;
     if(qdrain_perch < 0.0){
-      BOOST_LOG_SEV(glg, err) << "qdrain_perch is negative; is the water table below the thawing front?";
+      BOOST_LOG_SEV(glg, warn) << "qdrain_perch is negative; is the water table below the thawing front?";
     }
 
     //Calculate drainage from saturated layers
