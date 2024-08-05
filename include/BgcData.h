@@ -69,6 +69,7 @@ public:
   //Arrays to hold a month's worth of data for daily
   // netCDF output
   double daily_ch4_efflux[31];
+  double daily_ch4_effdiff[31]; //Efflux from diffusion
   double daily_ch4_ebullition[31][MAX_SOI_LAY];
   double daily_ch4_oxid[31][MAX_SOI_LAY];
   double daily_ch4_pool[31][MAX_SOI_LAY];

@@ -247,6 +247,7 @@ struct soi2atm_bgc {
   double rhtot;  //total rhs
 
   double ch4efflux;
+  double ch4effdiff; //Efflux from diffusion
   double ch4_oxid[MAX_SOI_LAY];
 
   double ch4_oxid_sum;
@@ -255,7 +256,7 @@ struct soi2atm_bgc {
 
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D),
-                 ch4efflux(UIN_D), ch4_oxid_sum(UIN_D) {
+                 ch4efflux(UIN_D), ch4effdiff(UIN_D), ch4_oxid_sum(UIN_D) {
 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
       rhrawc[i] = UIN_D;

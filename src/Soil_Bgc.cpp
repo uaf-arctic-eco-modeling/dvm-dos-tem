@@ -692,8 +692,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // TODO check: should probably be 0.000012 >>> UNIT CONVERSION CHECK FOR ALL
   bd->d_soi2a.ch4efflux = 0.012 * efflux_gm2hr;
 
-  //Store daily efflux value for output
+  //Store daily values for output
   bd->daily_ch4_efflux[id] = bd->d_soi2a.ch4efflux;
+  bd->d_soi2a.ch4effdiff = diff_efflux_gm2day;
 }
 
 

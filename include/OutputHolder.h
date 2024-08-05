@@ -35,6 +35,7 @@ public:
   std::vector<double> burnveg2soilabvc_for_output;
   std::vector<double> burnveg2soilblwc_for_output;
   std::vector<double> ch4efflux_for_output;
+  std::vector<double> ch4effdiff_for_output;
   std::vector<double> ch4pool_for_output;
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;

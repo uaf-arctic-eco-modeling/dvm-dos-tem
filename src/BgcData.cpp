@@ -246,6 +246,10 @@ void BgcData::soil_endOfDay(const int& dinm, const int& doy){
 
   m_soi2a.ch4efflux += d_soi2a.ch4efflux;
   d_soi2a.ch4efflux = 0.;
+
+  daily_ch4_effdiff[dom] = d_soi2a.ch4effdiff;
+  m_soi2a.ch4effdiff += d_soi2a.ch4effdiff;
+  d_soi2a.ch4effdiff = 0.;
 }
 
 void BgcData::soil_beginOfMonth() {
@@ -278,6 +282,7 @@ void BgcData::soil_beginOfMonth() {
 
   m_soid.ch4ebulsum = 0.;
   m_soi2a.ch4efflux = 0.;
+  m_soi2a.ch4effdiff = 0.;
 };
 
 void BgcData::soil_beginOfYear() {
@@ -303,6 +308,7 @@ void BgcData::soil_beginOfYear() {
   y_soi2a.rhsomcrsum=0.;
   y_soi2a.ch4_oxid_sum = 0.;
   y_soi2a.ch4efflux = 0.;
+  y_soi2a.ch4effdiff = 0.;
   y_soi2soi.netnminsum = 0.;
   y_soi2soi.nimmobsum  = 0.;
 
@@ -477,6 +483,7 @@ void BgcData::soil_endOfMonth(const int currmind) {
   y_soi2a.rhtot += m_soi2a.rhtot;
   y_soi2a.ch4_oxid_sum += m_soi2a.ch4_oxid_sum;
   y_soi2a.ch4efflux += m_soi2a.ch4efflux;
+  y_soi2a.ch4effdiff += m_soi2a.ch4effdiff;
 
   for (int il =0; il<MAX_SOI_LAY; il++) {
     y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il];
