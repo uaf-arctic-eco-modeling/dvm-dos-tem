@@ -315,6 +315,8 @@
 0.000000625973 // kdcsoma_ch4:
 0.000000001355 // kdcsompr_ch4:
 0.0000000012 // kdcsomcr_ch4:
+1.0     // ch4_ebul_rate: ebullition rate, per hour
+0.01     // ch4_transport_rate: plant-mediated transport rate, per hour
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:

@@ -56,6 +56,9 @@ public:
   double kdcsompr_ch4;
   double kdcsomcr_ch4;
 
+  double ch4_ebul_rate;
+  double ch4_transport_rate;
+
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area
   double klai[NUM_PFT]; //a coefficient to convert LAI to FPC

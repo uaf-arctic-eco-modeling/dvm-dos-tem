@@ -249,10 +249,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // Fan 2013, Eq 19, rate constant for plant-aided CH4 transport (hr^-1) = 1.0 in (Zhuang, 2004)
         //but depths given in cm whereas we are using meters 
         // 10.1029/2004GB002239, but depths given in cm whereas we are using meters
-        double rate_parameter_kp = 0.01; // >>> should be in cmt_calparbgc
+        //double rate_parameter_kp = 0.01; // >>> should be in cmt_calparbgc
         //See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] for pft transport capacity 
         if (ed->d_sois.ts[il]>0.0){
-          pft_transport[ip] = rate_parameter_kp * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip]; // currl->poro *
+          pft_transport[ip] = calpar.ch4_transport_rate * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip]; // currl->poro *
         } else{
           pft_transport[ip] = 0.0;
         }
@@ -455,10 +455,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       pressure_ch4 = fmax(Pstd, Pstd + p_hydro);                                                                   // Pa = kgm^-1s^-2
       max_umol_ch4 = 1e3 * pressure_ch4 * vol_ch4 / (GASR * (currl->tem + 273.15));                  // mol m^-3 ( * 1e3 -> umol L^-1)
 
-      double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
+      //double rate_parameter_kh = 1.0; // >>> cmt_calparbgc
 
       if (ed->d_sois.ts[il]>=0.0){// if not frozen
-        ebul = saturated_fraction * (currl->ch4 - max_umol_ch4) * rate_parameter_kh; // currl->getVolLiq() *
+        ebul = saturated_fraction * (currl->ch4 - max_umol_ch4) * calpar.ch4_ebul_rate; // currl->getVolLiq() *
       }
       else {
         ebul = 0.0;
@@ -1012,6 +1012,8 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma_ch4 = chtlu->kdcsoma_ch4;
   calpar.kdcsompr_ch4 = chtlu->kdcsompr_ch4;
   calpar.kdcsomcr_ch4 = chtlu->kdcsomcr_ch4;
+  calpar.ch4_ebul_rate = chtlu->ch4_ebul_rate;
+  calpar.ch4_transport_rate = chtlu->ch4_transport_rate;
   bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;

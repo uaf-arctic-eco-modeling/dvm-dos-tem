@@ -154,9 +154,13 @@ struct soipar_cal {
   double kdcsompr_ch4;
   double kdcsomcr_ch4;
 
+  double ch4_ebul_rate;
+  double ch4_transport_rate;
+
   soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
       kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
-      kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D) {}
+      kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
+      ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D) {}
 };
 
 struct soipar_dim {
