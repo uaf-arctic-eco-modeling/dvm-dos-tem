@@ -78,6 +78,8 @@ public:
   double daily_ch4_sompr[31][MAX_SOI_LAY];
   double daily_ch4_somcr[31][MAX_SOI_LAY];
   double daily_ch4_diff[31][MAX_SOI_LAY];
+  double daily_total_plant_ch4[31];
+  double daily_ch4_transport[31][MAX_SOI_LAY][NUM_PFT];
 
   void land_beginOfYear();
   void land_endOfMonth();

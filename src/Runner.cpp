@@ -2054,12 +2054,14 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
         if(curr_spec.daily){
 
-          for(int il=0; il<MAX_SOI_LAY; il++){
-            for(int ip=0; ip<NUM_PFT; ip++){
-              ch4trans_arr[il][ip] = cohort.edall->output_ch4_transport[il][ip];
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              for(int ip=0; ip<NUM_PFT; ip++){
+                ch4trans_arr[il][ip] = cohort.bdall->daily_ch4_transport[id][il][ip];
+              }
             }
+            outhold.ch4transport_for_output.push_back(ch4trans_arr);
           }
-          outhold.ch4transport_for_output.push_back(ch4trans_arr);
  
           if(end_of_year){
             output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_for_output[0], MAX_SOI_LAY, NUM_PFT, day_timestep, DINY);
@@ -2067,35 +2069,59 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
 
         }
-
+        //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &cohort.edall->output_ch4_transport[0], MAX_SOI_LAY, NUM_PFT, month_timestep, 1);
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il][ip] = cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_for_output[0], MAX_SOI_LAY, NUM_PFT, month_start_idx, months_to_output);
+            outhold.ch4transport_for_output.clear();
+          }
         }
+        //yearly
+        if(curr_spec.yearly){
 
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il][ip] = cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_for_output[0], MAX_SOI_LAY, NUM_PFT, year_start_idx, years_to_output);
+            outhold.ch4transport_for_output.clear();
+          }
+        }
       }
-      else{ //sum
 
+      //Leaving the cross-pft and cross-layer cases unimplemented for now
+
+      else{ //sum
+        //daily
         if(curr_spec.daily){
 
           for(int id=0; id<DINM[month]; id++){
-            outhold.ch4transport_sum_for_output.push_back(cohort.edall->daily_total_plant_ch4[id]);
+
+            outhold.ch4transport_sum_for_output.push_back(cohort.bdall->daily_total_plant_ch4[id]);
           }
 
           if(end_of_year){
-            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, day_timestep, DINY);
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, day_timestep, DINY);
             outhold.ch4transport_sum_for_output.clear();
           }
         }
 
+        //monthly
+        //yearly
       }
 
-      //    output_nc_5dim(&curr_spec, file_stage_suffix, &m_gpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
-//      if(curr_spec.monthly){
-//        output_nc_5dim(&curr_spec, file_stage_suffix, &cohort.edall->output_ch4_transport[0][0], MAX_SOI_LAY, NUM_PFT, month_timestep, 1);
-//      }
-//      else if(curr_spec.yearly){
-//        output_nc_3dim(&curr_spec, file_stage_suffix, &, 1, year, );
-//      }
     }//end critical(outputCH4TRANSPORT)
   }//end CH4TRANSPORT
   map_itr = netcdf_outputs.end();
@@ -2111,7 +2137,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
 
       if(curr_spec.daily){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_total_plant_ch4[0], 1, doy, dinm);
+        //output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_total_plant_ch4[0], 1, doy, dinm);
       }
     }//end critical(outputCH4TRANSPORTDAILY)
   }//end CH4TRANSPORTDAILY

@@ -239,6 +239,11 @@ void BgcData::soil_endOfDay(const int& dinm, const int& doy){
     d_soi2soi.ch4_sompr[il] = 0.;
     d_soi2soi.ch4_somcr[il] = 0.;
 
+    for(int ip=0; ip<NUM_PFT; ip++){
+      daily_ch4_transport[dom][il][ip] = d_soi2a.ch4_transport[il][ip];
+      m_soi2a.ch4_transport[il][ip] += d_soi2a.ch4_transport[il][ip];
+      d_soi2a.ch4_transport[il][ip] = 0.0;
+    }
   }
 
   m_soid.ch4ebulsum += d_soid.ch4ebulsum;
@@ -278,6 +283,10 @@ void BgcData::soil_beginOfMonth() {
     m_soi2soi.ch4_soma[il] = 0.;
     m_soi2soi.ch4_sompr[il] = 0.;
     m_soi2soi.ch4_somcr[il] = 0.;
+
+    for(int ip=0; ip<NUM_PFT; ip++){
+      m_soi2a.ch4_transport[il][ip] = 0.;
+    }
   }
 
   m_soid.ch4ebulsum = 0.;
@@ -499,6 +508,10 @@ void BgcData::soil_endOfMonth(const int currmind) {
     y_soi2soi.ch4_soma[il] += m_soi2soi.ch4_soma[il];
     y_soi2soi.ch4_sompr[il] += m_soi2soi.ch4_sompr[il];
     y_soi2soi.ch4_somcr[il] += m_soi2soi.ch4_somcr[il];
+
+    for(int ip=0; ip<NUM_PFT; ip++){
+      y_soi2a.ch4_transport[il][ip] += m_soi2a.ch4_transport[il][ip];
+    }
   }
 
   y_soi2soi.netnminsum+= m_soi2soi.netnminsum;

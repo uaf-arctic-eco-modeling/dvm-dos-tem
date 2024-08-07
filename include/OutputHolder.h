@@ -88,7 +88,7 @@ public:
   std::vector<double> pet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> pet_for_output;
 
-  std::vector<double> trans_tot_for_output;
+  std::vector<double> trans_tot_for_output; //transpiration, not transport
   std::vector<std::array<double, NUM_PFT>> trans_for_output;
 
   //Variables by PFT and Compartment both

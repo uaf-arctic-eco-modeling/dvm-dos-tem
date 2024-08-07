@@ -265,7 +265,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         plant += pft_transport[ip];
 
         //Storing plant transport values for output
-        ed->output_ch4_transport[il][ip] = pft_transport[ip];
+        bd->d_soi2a.ch4_transport[il][ip] = pft_transport[ip];
       }
 
       plant_transport[il] = plant;
@@ -674,7 +674,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   efflux_gm2hr = 0.5 * plant_gm2day + diff_efflux_gm2day + ebul_gm2day;
 
   //Store ebullition and veg flux values (mostly for output)
-  ed->daily_total_plant_ch4[id] = plant_gm2day;
+  bd->daily_total_plant_ch4[id] = plant_gm2day;
 
   diff_efflux_daily = 0.0; //Y.Mi
   plant_gm2day =0.0; //Y.Mi
