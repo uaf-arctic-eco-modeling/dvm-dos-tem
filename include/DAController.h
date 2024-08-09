@@ -17,11 +17,14 @@ public:
 private:
   std::vector<timestep_id> pause_dates;
 
+  std::string da_filename;
+
   bool pause_this_year;
   bool pause_this_month;
 
   void print_pause_dates();
   void load_pause_dates();
+  void create_da_nc_file();
 };
 
 #endif /* _DACONTROLLER_H_ */
