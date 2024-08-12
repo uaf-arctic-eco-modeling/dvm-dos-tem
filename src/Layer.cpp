@@ -73,11 +73,9 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   double hcap = MISSING_D;
 
   if(isSoil) {
-    if(frozen==-1) {
+    if(tem>=0) {
       hcap = getUnfVolHeatCapa();
-    } else if(frozen ==1) {
-      hcap = getFrzVolHeatCapa();
-    } else if(frozen ==0) {
+    } else {
       hcap = getMixVolHeatCapa();
     }
   } else if(isSnow) {
@@ -92,12 +90,14 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
 double Layer::getThermalConductivity() {
   double tc = MISSING_D;
 
-  if(isSoil || isSnow) {
-    if(frozen==1) {
-      tc = getFrzThermCond();
-    } else {
+  if(isSoil) {
+    if(tem>=0){
       tc = getUnfThermCond();
+    } else {
+      tc = getMixThermCond();
     }
+  } else if (isSnow){
+    tc = getFrzThermCond();
   } else if (isRock) {
     tc = getFrzThermCond();
   }
@@ -106,7 +106,127 @@ double Layer::getThermalConductivity() {
   return tc;
 };
 
-double Layer::getVolWater() {
+// double Layer::getUnfVolLiq(){
+//   // Calculating unfrozen water content using power law
+//   // defined in Lovell 1957, and used in Romanovsky et 
+//   // al. 1997 and 2000
+
+//   // Tunable empirical constants - here we are using values for Bonanza Creek
+//   double A, B, uwc;
+//   if (isMoss){
+//     A = 0.1;
+//     B = -0.1;
+//   } else if (isFibric){
+//     A = 0.08;
+//     B = -0.1;
+//   } else if (isHumic){
+//     A = .1;
+//     B = -0.38;
+//   } else{
+//     A = .3;
+//     B = -0.35;
+//   }
+
+//   if (tem<0.0){
+//     uwc = A * pow(abs(tem), B);
+//   } else {
+//     uwc = 0.0;
+//   }
+
+//   return uwc;
+
+// }
+
+// double Layer::getDeltaUnfVolLiq()
+// {
+//   // Calculating derivative of unfrozen water content
+//   // with respect to temperature following Romanovsky
+//   // et al. 1997
+
+//   // Tunable empirical constants - here we are using values for Bonanza Creek
+//   double A, B, d_uwc;
+//   if (isMoss){
+//     A = 0.1;
+//     B = -0.1;
+//   } else if (isFibric){
+//     A = 0.1;
+//     B = -0.1;
+//   } else if (isHumic){
+//     A = 3.2;
+//     B = -0.38;
+//   } else{
+//     A = 6;
+//     B = -0.35;
+//   }
+
+//   if (tem<0.0){
+//     d_uwc = -B * A * pow(abs(tem), B - 1); // / 100  Do we need percentage conversion in derivative?  
+//   } else {
+//     d_uwc = 0.0;
+//   }
+
+//   return d_uwc;
+
+// }
+
+double Layer::getUnfVolLiq(){
+ 
+  double T_, b, uwc;
+  T_ = -0.01;
+
+  if (isMoss){
+    b = 1.0;
+  } else if (isFibric){
+    b = 0.9;
+  } else if (isHumic){
+    b = 0.6;
+  } else {
+    b = 0.5;
+  }
+
+  if (tem < T_){
+    uwc = pow(abs(T_), b) * pow(abs(tem), -b); 
+  } else{
+    uwc = 0.0;
+  }
+
+  uwc = fmin(uwc, 1.0);
+
+  if (isSnow){
+    uwc = 0.0;
+  }
+
+  return uwc;
+}
+
+double Layer::getDeltaUnfVolLiq(){
+  double T_, b, d_uwc;
+  T_ = -0.01;
+
+  if (isMoss){
+    b = 1.0;
+  } else if (isFibric){
+    b = 0.9;
+  } else if (isHumic){
+    b = 0.6;
+  } else {
+    b = 0.5;
+  }
+
+  if (tem < T_){
+    d_uwc = b * pow(abs(T_), b) * pow(abs(tem), -b-1);
+  } else {
+    d_uwc = 0.0;
+  }
+
+  if (isSnow){
+    d_uwc = 0.0;
+  }
+
+  return d_uwc;
+}
+
+double Layer::getVolWater() { // We could try implementing uwc here as well
   double vice = getVolIce();
   double vliq = getVolLiq();
   return fmin((double)poro,(double)vice+vliq);

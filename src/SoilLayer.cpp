@@ -16,18 +16,23 @@ SoilLayer::~SoilLayer() {
 };
 
 double SoilLayer::getFrzVolHeatCapa() {
-  double vhc = vhcsolid * (1-poro) + (liq+ice)/dz *SHCICE;
+  double vhc = vhcsolid * (1 - poro) + (poro * DENICE / dz) * SHCICE;
   return vhc;
 };
 
 double SoilLayer::getUnfVolHeatCapa() {
-  double vhc= vhcsolid * (1-poro) + (liq+ice)/dz *SHCLIQ;
+  double vhc= vhcsolid * (1-poro) + (poro * DENLIQ / dz) * SHCLIQ; 
   return vhc;
 };
 
 //Yuan: unfrozen/frozen put together
 double SoilLayer::getMixVolHeatCapa() {
-  double vhc = vhcsolid * (1-poro) + liq/dz *SHCLIQ+ice/dz *SHCICE;
+  double uwc = getUnfVolLiq();
+  double vhcf = getFrzVolHeatCapa();
+  double vhcu = getUnfVolHeatCapa();
+
+  double vhc = vhcsolid * (1-poro) + (poro * uwc) * vhcu + (1 - uwc) * poro * vhcf ; 
+  
   return vhc;
 };
 
@@ -67,6 +72,34 @@ double SoilLayer::getUnfThermCond() {
 
   if(poro>=0.9 || (poro>=0.8 &&solind ==1)) {
     tc = fmax(tc, tcmin);
+  }
+
+  return tc;
+};
+
+double SoilLayer::getMixThermCond() { 
+
+  //Note: accounting for porosity, liquid, ice content is imperative when reviewing 
+  // this equation, see reference:
+
+  // Hailong He, Gerald N. Flerchinger, Yuki Kojima, Miles Dyck, Jialong Lv,
+  // A review and evaluation of 39 thermal conductivity models for frozen soils,
+  // https://doi.org/10.1016/j.geoderma.2020.114694.
+
+  double tc = MISSING_D;
+  double tcf = MISSING_D;
+  double tcu = MISSING_D;
+
+  double vliq = getVolLiq();
+  double uwc = getUnfVolLiq();
+
+  tcf = getFrzThermCond();
+  tcu = getUnfThermCond();
+
+  tc = pow(tcf, 1 - min(uwc+vliq, 1.0)) * pow(tcu, min(uwc+vliq, 1.0));
+
+  if (tem>=0){
+    tc = tcu;
   }
 
   return tc;

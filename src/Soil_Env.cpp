@@ -1192,9 +1192,9 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
       ed->d_sois.liq[soilind] = curr2->liq;
       ed->d_sois.ice[soilind] = curr2->ice;
       ed->d_soid.vwc[soilind]= curr2->getVolWater();
-      ed->d_soid.iwc[soilind]= curr2->getVolIce();
-      ed->d_soid.lwc[soilind]= curr2->getVolLiq();
-      ed->d_soid.sws[soilind]= curr2->getVolLiq()/curr2->poro;
+      ed->d_soid.iwc[soilind]= curr2->getVolIce()-curr2->getUnfVolLiq();
+      ed->d_soid.lwc[soilind]= curr2->getVolLiq()+curr2->getUnfVolLiq();
+      ed->d_soid.sws[soilind]= (curr2->getVolLiq()+curr2->getUnfVolLiq())/curr2->poro;
       if (curr2->poro-curr2->getVolIce() < 0.00000000000001) {
         ed->d_soid.aws[soilind]          = 0.00000000000001;
       } else {

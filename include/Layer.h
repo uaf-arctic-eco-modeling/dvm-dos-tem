@@ -104,8 +104,12 @@ public:
   double getEffVolLiq();
   double getVolIce();
 
+  double getUnfVolLiq();
+  double getDeltaUnfVolLiq();
+
   virtual double getFrzThermCond()=0; // get frozen layer thermal conductivity
   virtual double getUnfThermCond()=0; // get unfrozen layer thermal conductivity
+  virtual double getMixThermCond()=0;
   virtual double getFrzVolHeatCapa()=0;// get frozen layer specific heat capcity
   virtual double getUnfVolHeatCapa()=0;// get unfrozen layer specific heat capacity
   virtual double getMixVolHeatCapa()=0;//Yuan
