@@ -668,6 +668,7 @@ void Soil_Bgc::deltan() {
   if (this->nfeed == 1) { // soil-plant N cycle switched on
     // Total N immobilization and net mineralization
     totnetnmin = 0.0;
+    double nmin_layer_count = 0.0;
 
     for(int i=0; i<cd->m_soil.numsl; i++) {
       double totc = tmp_sois.rawc[i] +
@@ -698,6 +699,9 @@ void Soil_Bgc::deltan() {
 
     for (int il=0; il<MAX_SOI_LAY; il++) {
       totnextract += bd->m_soi2v.nextract[il];
+      if (bd->m_soi2v.nextract[il] > 0.0) {
+        nmin_layer_count += 1.0;
+      }
     }
 
     if (this->avlnflg == 1) { // open-N (inorganic) swithed on - note here ONLY 'lost' considered, while 'input' shall be from outside if any
@@ -725,7 +729,15 @@ void Soil_Bgc::deltan() {
                          totnextract - bd->m_a2soi.avlninput - totdzavln;
 
         for(int i=0; i<cd->m_soil.numsl; i++) {
-          del_soi2soi.netnmin[i] *=nminadj/totnetnmin;
+          if (totnetnmin != 0.0){
+            del_soi2soi.netnmin[i] *=nminadj/totnetnmin;
+          }
+
+          else{
+            if (bd->m_soi2v.nextract[i] > 0.0){
+              del_soi2soi.netnmin[i] = nminadj/nmin_layer_count;
+            }
+          }
         }
       }
     } else { // End (this->avlnflg == 1)
@@ -1066,7 +1078,7 @@ double Soil_Bgc::getNetmin(const double & nimmob, const double & soilorgc,
                            const double & soilorgn, const double & rh,
                            const double & tcnsoil,
                            const double & decay, const double & nup, 
-			   const double & soilts) {
+			                     const double & soilts) {
   double nmin = 0.0;
   if ( soilts > 0.0 ) {
 

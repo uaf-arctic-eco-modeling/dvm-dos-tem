@@ -405,6 +405,9 @@ sns.lineplot(data = vegc_bs_eq.loc[vegc_bs_eq['pft']==0], x='time', y='VEGC', hu
 vegc_bs_eq_tem = vegc_bs_eq.loc[vegc_bs_eq['time']==11994]
 vegc_bs_eq_tem['type'] = 'Modeled (TEM)'
 
+vegc_bs_tr_tem = vegc_bs_tr.loc[vegc_bs_tr['time']==pd.to_datetime('2021-07-31')]
+vegc_bs_tr_tem['type'] = 'Modeled (TEM)'
+
 vegc_bs_tr_field = vegc_bs_eq_tem.copy()
 vegc_bs_tr_field['type'] = 'Field Obs.'
 vegc_bs_tr_field['VEGC'] = [287.19, 173.92, 55.25, 1921.0, 299.33,
@@ -418,11 +421,14 @@ vegc_bs_tr_rs['VEGC'] = [337.38, np.nan, np.nan, np.nan, np.nan,
                             450.44, np.nan, np.nan, np.nan, np.nan]
 
 
-vegc_bs_comp=pd.concat([vegc_bs_eq_tem, vegc_bs_tr_field, vegc_bs_tr_rs]).groupby(by=['pft', 'type']).sum().reset_index()
+vegc_bs_comp=pd.concat([vegc_bs_tr_tem, vegc_bs_tr_field, vegc_bs_tr_rs]).groupby(by=['pft', 'type']).sum().reset_index()
 
 
 vegc_br_eq_tem = vegc_br_eq.loc[vegc_br_eq['time']==11995]
 vegc_br_eq_tem['type'] = 'Modeled (TEM)'
+
+vegc_br_tr_tem = vegc_br_tr.loc[vegc_br_tr['time']==pd.to_datetime('2021-07-31')]
+vegc_br_tr_tem['type'] = 'Modeled (TEM)'
 
 vegc_br_tr_field = vegc_br_eq_tem.copy()
 vegc_br_tr_field['type'] = 'Field Obs.'
@@ -437,7 +443,7 @@ vegc_br_tr_rs['VEGC'] = [np.nan, np.nan, 62.14, np.nan, np.nan,
                             np.nan, np.nan, 345.38, np.nan, np.nan]
 
 
-vegc_br_comp=pd.concat([vegc_br_eq_tem, vegc_br_tr_field, vegc_br_tr_rs]).groupby(by=['pft', 'type']).sum().reset_index()
+vegc_br_comp=pd.concat([vegc_br_tr_tem, vegc_br_tr_field, vegc_br_tr_rs]).groupby(by=['pft', 'type']).sum().reset_index()
 vegc_br_comp['order'] = [4, 4, 4, 1, 1, 1, 0, 0, 0, 3, 3, 3, 2, 2, 2]
 vegc_br_comp = vegc_br_comp.sort_values(by='order')
 
@@ -527,6 +533,11 @@ sns.lineplot(data=df_yearly.loc[df_yearly['CMT']=='Black Spruce'], x='year', y='
 
 ald_bs_tr
 
+
+#shlwc_bs_modeled = shlwc_bs_eq.loc[shlwc_bs_eq['time']==999]['SHLWC'].values[0]
+#deepc_bs_modeled = deepc_bs_eq.loc[deepc_bs_eq['time']==999]['DEEPC'].values[0]
+#shlwc_br_modeled = shlwc_br_eq.loc[shlwc_br_eq['time']==999]['SHLWC'].values[0]
+#deepc_br_modeled = deepc_br_eq.loc[deepc_br_eq['time']==999]['DEEPC'].values[0]
 
 shlwc_bs_modeled = shlwc_bs_eq.loc[shlwc_bs_eq['time']==999]['SHLWC'].values[0]
 deepc_bs_modeled = deepc_bs_eq.loc[deepc_bs_eq['time']==999]['DEEPC'].values[0]

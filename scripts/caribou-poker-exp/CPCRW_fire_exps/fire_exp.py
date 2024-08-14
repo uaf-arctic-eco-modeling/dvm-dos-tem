@@ -17,7 +17,10 @@ def create_explicit_fire(inpath, outpath, dates, jdays, severities, areas):
     fire_file = xr.open_dataset(inpath)
     
     #reset mask
-    fire_file[fire_vars] = fire_file[fire_vars].where(fire_file['exp_burn_mask']==0, 0)
+    
+    #fire_file[fire_vars] = fire_file[fire_vars].where(True, 0)
+    for var in fire_vars:
+        fire_file[var].values = np.zeros(np.shape(fire_file[var].values))
     
     if dates == []:
         fire_file.to_netcdf(outpath)
@@ -39,7 +42,7 @@ def create_explicit_fire(inpath, outpath, dates, jdays, severities, areas):
 
 fire_1930 = xr.open_dataset('/data/input-catalog/cpcrw_towers_downscaled/historic-explicit-fire_1930.nc')
 #fire = xr.open_dataset('/data/input-catalog/cpcrw_towers_downscaled/fri-fire.nc')
-fire_1930.where(fire_1930['exp_burn_mask']==0).dropna(dim='time')
+#fire_1930.where(fire_1930['exp_burn_mask']==0).dropna(dim='time')
 
 
 fire_1930
@@ -98,7 +101,7 @@ fire_1990.where(fire_1990['exp_burn_mask']==1).dropna(dim='time')
 # # No fire
 
 inpath='/data/input-catalog/cpcrw_towers_downscaled/historic-explicit-fire_1930.nc'
-outpath='/data/input-catalog/cpcrw_towers_downscaled/historic-explicit-fire.nc'
+outpath='/data/input-catalog/cpcrw_towers_downscaled/historic-explicit-nofire.nc'
 dates=[]
 jdays=[]
 severities=[]
@@ -108,7 +111,16 @@ no_fire = create_explicit_fire(inpath, outpath, dates, jdays, severities, areas)
 no_fire.where(no_fire['exp_burn_mask']==0).dropna(dim='time')
 
 
-fire_1930
+inpath='/data/input-catalog/cpcrw_towers_downscaled/projected_explicit_fire_CC_CCSM4_85.nc'
+outpath='/data/input-catalog/cpcrw_towers_downscaled/projected_explicit_fire_CC_CCSM4_85_nofire.nc'
+dates=[]
+jdays=[]
+severities=[]
+areas=[]
+
+no_fire = create_explicit_fire(inpath, outpath, dates, jdays, severities, areas)
+
+no_fire.where(no_fire['exp_burn_mask']==0).dropna(dim='time')
 
 
 no_fire

@@ -68,6 +68,9 @@ def cmdline_parse(argv=None):
   parser.add_argument('--fire_hist_file', default='historic-explicit-fire.nc', 
           help='name of historic fire file to run, defaults to historic-explicit-fire.nc')
   
+  parser.add_argument('--fire_future_file', default='projected-explicit-fire.nc', 
+          help='name of future fire file to run, defaults to projected-explicit-fire.nc')
+  
   parser.add_argument('--dsb_on', default=False,
           help='use to turn on dsb module')
 
@@ -136,17 +139,20 @@ def cmdline_run(args):
     input_data_path = os.path.join(os.path.abspath(args.input_data_path))
  
   # Set up the paths to the input data...
+  #config['IO']['hist_climate_file']    = os.path.join(input_data_path, 'historic-climate_Pa.nc')
   config['IO']['hist_climate_file']    = os.path.join(input_data_path, 'historic-climate.nc')
+  #config['IO']['proj_climate_file']    = os.path.join(input_data_path, 'projected-climate_CC_CCSM4_85_Pa.nc')
   config['IO']['proj_climate_file']    = os.path.join(input_data_path, 'projected-climate.nc')
   config['IO']['veg_class_file']       = os.path.join(input_data_path, 'vegetation.nc')
   config['IO']['drainage_file']        = os.path.join(input_data_path, 'drainage.nc')
   config['IO']['soil_texture_file']    = os.path.join(input_data_path, 'soil-texture.nc')
   config['IO']['co2_file']             = os.path.join(input_data_path, 'co2.nc')
+  #config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected_co2_CC_CCSM4_85.nc')
   config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected-co2.nc')
   config['IO']['topo_file']            = os.path.join(input_data_path, 'topo.nc')
   config['IO']['fri_fire_file']        = os.path.join(input_data_path, 'fri-fire.nc')
   config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, args.fire_hist_file)
-  config['IO']['proj_exp_fire_file']   = os.path.join(input_data_path, 'projected-explicit-fire.nc')
+  config['IO']['proj_exp_fire_file']   = os.path.join(input_data_path, args.fire_future_file)
 
   # Make sure calibration data ends up in a directory that is named the same
   # as your new working directory.

@@ -157,7 +157,7 @@ def average_monthly_pool_to_yearly(data):
   return output
 
 def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, 
-                        fileprefix=None):
+                        fileprefix=None, stages=['tr']):
   '''Builds a pandas.DataFrame for the requested output variable with the
   transient and scenario data merged together and a complete
   DatetimeIndex.
@@ -197,7 +197,7 @@ def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None,
   #data, units, dims, dti = stitch_stages(var=var, stages=['tr','sc'], 
   #    timestep=timeres, fileprefix=fileprefix, with_dti=True
   #)
-  data, units, dims, dti = stitch_stages(var=var, stages=['tr'], 
+  data, units, dims, dti = stitch_stages(var=var, stages=stages, 
       timestep=timeres, fileprefix=fileprefix, with_dti=True
   )
 
@@ -297,6 +297,7 @@ def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
     print("Trying to open: ", exp_file)
     with nc.Dataset(exp_file, 'r') as f:
       #print f.variables[var].units
+      
       if i == 0:
         full_ds = f.variables[var][:]
         units_str = f.variables[var].units
@@ -308,12 +309,14 @@ def stitch_stages(var, timestep, stages, fileprefix='', with_dti=False):
 
   if with_dti:
     ds_begin = nc.Dataset(expected_file_names[0])
-    ds_end = nc.Dataset(expected_file_names[0])
+    ds_end = nc.Dataset(expected_file_names[-1])
     #ds_end = nc.Dataset(expected_file_names[1])
     dti = build_full_datetimeindex(ds_begin, ds_end, timeres=timestep)
+    
     return (full_ds, units_str, dimensions, dti)
+  
   else:
-    return (full_ds, units_str, dimensions)
+    return (full_ds, units_str, dimensions, None)
 
 def get_start_end(timevar):
   '''Returns CF Times. use .strftime() to convert to python datetimes'''
@@ -337,11 +340,13 @@ def build_full_datetimeindex(hds, pds, timeres):
 
   h_start, h_end = get_start_end(hds.variables['time'])
   p_start, p_end = get_start_end(pds.variables['time'])
+  length = len(hds.variables['time']) + len(pds.variables['time'])
 
   begin = sorted([h_start, h_end, p_start, p_end])[0]
   end = sorted([h_start, h_end, p_start, p_end])[-1]
-
-  dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), end=end.strftime(), freq=freq))
+  
+  dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), periods=length, freq=freq))
+  #dti = pd.DatetimeIndex(pd.date_range(start=begin.strftime(), end=end.strftime(), freq=freq))
 
   return dti
 

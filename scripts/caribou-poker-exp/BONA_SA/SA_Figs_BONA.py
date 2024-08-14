@@ -14,28 +14,28 @@ from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
 #Set step, paths, pfts and run all
 #STEP = 1
 STEP = 'NPP_VegC_VegN_PFT'
-#CMT='black-spruce'
-CMT ='birch'
+CMT='black-spruce'
+#CMT ='birch'
 #STEP = 4
 
-STEP1_results = '/data/workflows/BONA-Birch-STEP1-SA/results.csv'
-STEP1_sample_matrix = '/data/workflows/BONA-Birch-STEP1-SA/sample_matrix.csv'
+#STEP1_results = '/data/workflows/BONA-Birch-STEP1-SA/results.csv'
+#STEP1_sample_matrix = '/data/workflows/BONA-Birch-STEP1-SA/sample_matrix.csv'
 
-#STEP1_results = '/data/workflows/BONA-BS-STEP1-SA/results.csv'
-#STEP1_sample_matrix = '/data/workflows/BONA-BS-STEP1-SA/sample_matrix.csv'
+STEP1_results = '/data/workflows/BONA-BS-STEP1-SA/results.csv'
+STEP1_sample_matrix = '/data/workflows/BONA-BS-STEP1-SA/sample_matrix.csv'
 
-NPP_VegC_PFT_results = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/results.csv'
-NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/sample_matrix.csv'
+#NPP_VegC_PFT_results = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/results.csv'
+#NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/sample_matrix.csv'
 
-#NPP_VegC_PFT_results = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/results.csv'
-#NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/sample_matrix.csv'
+NPP_VegC_PFT_results = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/results.csv'
+NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/sample_matrix.csv'
 
 
-STEP4_results = '/data/workflows/BONA-Birch-STEP4-SA/results.csv'
-STEP4_sample_matrix = '/data/workflows/BONA-Birch-STEP4-SA/sample_matrix.csv'
+#STEP4_results = '/data/workflows/BONA-Birch-STEP4-SA/results.csv'
+#STEP4_sample_matrix = '/data/workflows/BONA-Birch-STEP4-SA/sample_matrix.csv'
 
-#STEP4_results = '/data/workflows/BONA-BS-STEP4-SA/results.csv'
-#STEP4_sample_matrix = '/data/workflows/BONA-BS-STEP4-SA/sample_matrix.csv'
+STEP4_results = '/data/workflows/BONA-BS-STEP4-SA/results.csv'
+STEP4_sample_matrix = '/data/workflows/BONA-BS-STEP4-SA/sample_matrix.csv'
 
 pfts=['White Spruce', 'Deciduous Shrub', 'Evergreen Shrub', 'Moss', 'Lichen']
 
@@ -372,22 +372,22 @@ results.columns
 
 
 if STEP == 'NPP_VegC_PFT' or STEP=='NPP_VegC_VegN_PFT':
-    pft=5
+    pft=1
     fig, axes = plt.subplots(3,3, figsize = (10,6))
     fig.suptitle('STEP 2 VEGC for Deciduous Shrub')
 
     axes[0,0].axhline(targets[f'VegCarbonLeaf{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(0)', y=f'VegCarbonLeaf{pft}', ax=axes[0,0], alpha=0.3,legend=False, hue=f'krb(0)')
+    sns.scatterplot(data = results, x='cfall(0)', y=f'VegCarbonLeaf{pft}', ax=axes[0,0], alpha=0.3,legend=False, hue=f'nmax')
     #sns.scatterplot(data = results.iloc[top], x='cfall(0)', y=f'VegCarbonLeaf{pft}', ax=axes[0,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='cfall(0)', y=f'VegCarbonLeaf{pft}', ax=axes[0,0], color='yellow',legend=True)
 
     axes[0,1].axhline(targets[f'VegCarbonStem{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
+    sns.scatterplot(data = results, x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
     #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], color='yellow',legend=False)
 
     axes[0,2].axhline(targets[f'VegCarbonRoot{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
+    sns.scatterplot(data = results, x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
     #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], color='yellow',legend=False)
     
@@ -425,7 +425,7 @@ if STEP == 'NPP_VegC_PFT' or STEP=='NPP_VegC_VegN_PFT':
 
 
 if 'NPP_VegC_VegN_PFT':
-    pft=5
+    pft=1
     fig, axes = plt.subplots(3,3, figsize = (10,6))
     fig.suptitle('STEP 2 VEGC for Deciduous Shrub')
 
@@ -475,15 +475,24 @@ targets[[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'
 #targets[[f'VegCarbonLeaf{pft}', f'NPPAll{pft}']]
 
 
-results.iloc[first][[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
+473.758054+1581.133142+282.691980
 
 
-results.iloc[first][calib_params_flat]
+
+
+
+287+1694+383
+
+
+results.iloc[19][[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
+
+
+results.iloc[19][calib_params_flat]
 
 
 fig, ax=plt.subplots(figsize=(8,5))
-#sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
-sns.lineplot(results[target_vars].iloc[first].T, legend=False, alpha=0.6)
+sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
+#sns.lineplot(results[target_vars].iloc[70].T, legend=False, alpha=0.6)
 sns.scatterplot(targets.T, color='red')
 plt.xticks(rotation=83)
 plt.yscale('log')
@@ -497,7 +506,7 @@ plt.savefig('BONA_Black_Spruce_SA_ex.jpg', dpi=300)
 #print(results[['VegVarbonStem1']] + results[['VegVarbonStem3']])
 
 
-results
+results[top]
 
 
 sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
@@ -559,10 +568,10 @@ targets
 results.loc[(results['CarbonDeep']<9100) & (results['CarbonDeep']>8200)].sort_values(by='AvailableNitrogenSum')
 
 
-results.loc[(results['AvailableNitrogenSum']>2)].sort_values(by='AvailableNitrogenSum')
+results.loc[(results['AvailableNitrogenSum']<1)].sort_values(by='AvailableNitrogenSum')
 
 
-results.iloc[30]
+results.iloc[45]
 
 
 if STEP == 'NPP_VegC_PFT':

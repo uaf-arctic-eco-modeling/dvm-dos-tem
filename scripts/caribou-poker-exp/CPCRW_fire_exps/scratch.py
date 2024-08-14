@@ -5,121 +5,138 @@ import xarray as xr
 import seaborn as sns
 import pandas as pd
 from matplotlib import pyplot as plt
+import numpy as np
 
 
-rh_cumulative_layer_path = '/data/workflows/BONA-black-spruce-fire-1930-RH_cumulative/output/RH_monthly_tr.nc'
-rh_layer_cumulative = xr.open_dataset(rh_cumulative_layer_path)
-rh_layer_cumulative['time'] = rh_layer_cumulative.indexes['time'].to_datetimeindex()
-rh_layer_cumulative = rh_layer_cumulative.to_dataframe().reset_index().drop(columns=['x', 'y'])
-rh_layer_cumulative['time'] = pd.to_datetime(rh_layer_cumulative['time'])
-rh_layer_cumulative['year'] = rh_layer_cumulative['time'].dt.year
-rh_layer_cumulative = rh_layer_cumulative.groupby(by=['year']).sum().reset_index()
+historic_climate_pa = '/data/input-catalog/cpcrw_towers_downscaled/historic-climate_Pa.nc'
+historic_climate_pa = xr.open_dataset(historic_climate_pa).sel(X=0,Y=0)
+historic_climate_pa['time'] = historic_climate_pa.indexes['time'].to_datetimeindex()
 
 
-deadc_path = '/data/workflows/BONA-black-spruce-fire-1930/output/DEADC_yearly_tr.nc'
-deadc = xr.open_dataset(deadc_path)
-deadc['time'] = deadc.indexes['time'].to_datetimeindex()
-deadc = deadc.to_dataframe().reset_index().drop(columns=['x', 'y'])
-deadc['time'] = pd.to_datetime(deadc['time'])
-deadc['year'] = deadc['time'].dt.year
-deadc = deadc.groupby(by=['year']).sum().reset_index()
+historic_climate = '/data/input-catalog/cpcrw_towers_downscaled/historic-climate_hPa.nc'
+historic_climate = xr.open_dataset(historic_climate).sel(X=0,Y=0)
+historic_climate['time'] = historic_climate.indexes['time'].to_datetimeindex()
 
 
-dwdc_path = '/data/workflows/BONA-black-spruce-fire-1930/output/DWDC_yearly_tr.nc'
-dwdc = xr.open_dataset(dwdc_path)
+future_climate = '/data/input-catalog/cpcrw_towers_downscaled/projected-climate_CC_CCSM4_85_hPa.nc'
+future_climate = xr.open_dataset(future_climate).sel(X=0, Y=0)
+future_climate['time'] = future_climate.indexes['time'].to_datetimeindex()
+
+
+future_climate['year'] = future_climate['time'].dt.year
+historic_climate['year'] = historic_climate['time'].dt.year
+historic_climate_yearly=historic_climate.to_pandas().groupby(by='year').agg({'precip':'sum',
+                                                                 'tair': 'mean'}).reset_index()
+future_climate_yearly=future_climate.to_pandas().groupby(by='year').agg({'precip':'sum',
+                                                                 'tair': 'mean'}).reset_index()
+climate_yearly= pd.concat([historic_climate_yearly,future_climate_yearly])
+
+
+fig, axes = plt.subplots(4,1, sharex=True)
+
+sns.lineplot(x=historic_climate['time'], y=historic_climate['nirr'], ax=axes[0])
+sns.lineplot(x=future_climate['time'], y=future_climate['nirr'], ax=axes[0])
+#axes[0].set_xlim(pd.to_datetime('2022-01-01'), pd.to_datetime('2024-01-01'))
+
+sns.lineplot(x=historic_climate['time'], y=historic_climate['precip'], ax=axes[1])
+sns.lineplot(x=future_climate['time'], y=future_climate['precip'], ax=axes[1])
+#axes[1].set_xlim(pd.to_datetime('2022-01-01'), pd.to_datetime('2024-01-01'))
+
+sns.lineplot(x=historic_climate['time'], y=historic_climate['tair'], ax=axes[2])
+sns.lineplot(x=future_climate['time'], y=future_climate['tair'], ax=axes[2])
+#axes[2].set_xlim(pd.to_datetime('2022-01-01'), pd.to_datetime('2024-01-01'))
+
+sns.lineplot(x=historic_climate['time'], y=historic_climate['vapor_press'], ax=axes[3])
+sns.lineplot(x=future_climate['time'], y=future_climate['vapor_press'], ax=axes[3])
+#axes[3].set_xlim(pd.to_datetime('2022-01-01'), pd.to_datetime('2026-01-01'))
+
+fig.autofmt_xdate()
+
+
+fig, axes = plt.subplots(2,1, sharex=True)
+
+sns.lineplot(x=climate_yearly['year'], y=climate_yearly['precip'], ax=axes[0])
+
+
+sns.lineplot(x=climate_yearly['year'], y=climate_yearly['tair'], ax=axes[1])
+axes[0].set_ylabel('Precip. (cm)')
+axes[1].set_ylabel('T air (C)')
+
+
+fig.autofmt_xdate()
+
+plt.savefig('driving_vars.jpg', dpi=300)
+
+
+fig, axes = plt.subplots(2,1, sharex=True)
+
+sns.lineplot(x=historic_climate['time'], y=historic_climate['vapor_press'], ax=axes[0])
+sns.lineplot(x=historic_climate_pa['time'], y=historic_climate_pa['vapor_press'], ax=axes[1])
+
+axes[0].set_ylabel('vapor_press (old)')
+axes[1].set_ylabel('vapor_press (new)')
+
+
+dwdc = xr.open_dataset('/data/workflows/BONA-black-spruce-fire-1930/output/DWDC_yearly_tr.nc').sel(x=0,y=0)
 dwdc['time'] = dwdc.indexes['time'].to_datetimeindex()
-dwdc = dwdc.to_dataframe().reset_index().drop(columns=['x', 'y'])
-dwdc['time'] = pd.to_datetime(dwdc['time'])
-dwdc['year'] = dwdc['time'].dt.year
-dwdc = dwdc.groupby(by=['year']).sum().reset_index()
+
+deadc = xr.open_dataset('/data/workflows/BONA-black-spruce-fire-1930/output/DEADC_yearly_tr.nc').sel(x=0,y=0)
+deadc['time'] = deadc.indexes['time'].to_datetimeindex()
 
 
-#rh_layer_path = '/data/workflows/BONA-black-spruce-fire-1930/output/RH_monthly_tr.nc'
-#rh_layer = xr.open_dataset(rh_layer_path)
-#rh_layer['time'] = rh_layer.indexes['time'].to_datetimeindex()
-#rh_layer = rh_layer.to_dataframe().reset_index().drop(columns=['x', 'y'])
-#rh_layer['time'] = pd.to_datetime(rh_layer['time'])
-#rh_layer['year'] = rh_layer['time'].dt.year
-#rh_layer_yearly = rh_layer.groupby(by=['year', 'layer']).sum().reset_index()
-#rh_layer_yearly_sum = rh_layer.groupby(by=['year']).sum().reset_index()
+fig, axes = plt.subplots(2,1, sharex=True)
+
+sns.lineplot(x=deadc['time'], y=deadc['DEADC'], ax=axes[0])
+sns.lineplot(x=dwdc['time'], y=dwdc['DWDC'], ax=axes[1])
+#axes[0].set_xlim(pd.to_datetime('2022-01-01'), pd.to_datetime('2024-01-01'))
 
 
-lwc_layer_path = '/data/workflows/BONA-black-spruce-fire-1930/output/LWCLAYER_yearly_tr.nc'
-lwc_layer = xr.open_dataset(lwc_layer_path)
-lwc_layer['time'] = lwc_layer.indexes['time'].to_datetimeindex()
-lwc_layer = lwc_layer.to_dataframe().reset_index().drop(columns=['x', 'y'])
-lwc_layer['time'] = pd.to_datetime(lwc_layer['time'])
-lwc_layer['year'] = lwc_layer['time'].dt.year
-lwc_layer_yearly = lwc_layer.groupby(by=['year', 'layer']).mean().reset_index()
+def create_explicit_fire(inpath, outpath, dates, jdays, severities, areas):
+    
+    fire_vars = ['exp_burn_mask', 'exp_jday_of_burn', 'exp_fire_severity', 'exp_area_of_burn']
+    fire_file = xr.open_dataset(inpath)
+    
+    #reset mask
+    fire_file[fire_vars] = fire_file[fire_vars].where(fire_file['exp_burn_mask']==0, 0)
+    
+    if dates == []:
+        fire_file.to_netcdf(outpath)
+        return fire_file
+    
+    for i, date in enumerate(dates):
+
+        fire_file[fire_vars[0]] = fire_file['exp_burn_mask'].where(fire_file['time']!=date, 1)
+        fire_file[fire_vars[1]] = fire_file[fire_vars[1]].where(fire_file['time']!=date, jdays[i])
+        fire_file[fire_vars[2]] = fire_file[fire_vars[2]].where(fire_file['time']!=date, severities[i])
+        fire_file[fire_vars[3]] = fire_file[fire_vars[3]].where(fire_file['time']!=date, areas[i])
+        
+    fire_file.to_netcdf(outpath)
+    
+    return fire_file
 
 
-t_layer_path = '/data/workflows/BONA-black-spruce-fire-1930/output/TLAYER_yearly_tr.nc'
-t_layer = xr.open_dataset(t_layer_path)
-t_layer['time'] = t_layer.indexes['time'].to_datetimeindex()
-t_layer = t_layer.to_dataframe().reset_index().drop(columns=['x', 'y'])
-t_layer['time'] = pd.to_datetime(t_layer['time'])
-t_layer['year'] = t_layer['time'].dt.year
-t_layer_yearly = t_layer.groupby(by=['year', 'layer']).mean().reset_index()
+future_co2 = xr.open_dataset('/data/input-catalog/cpcrw_towers_downscaled/projected_co2_CC_CCSM4_85.nc').to_dataframe()
 
 
-npp
+hist_co2 = xr.open_dataset('/data/input-catalog/cpcrw_towers_downscaled/co2.nc').to_dataframe()
 
 
-npp_path = '/data/workflows/BONA-black-spruce-fire-1930/output/NPP_monthly_tr.nc'
-npp = xr.open_dataset(npp_path)
-npp['time'] = npp.indexes['time'].to_datetimeindex()
-npp = npp.to_dataframe().reset_index().drop(columns=['x', 'y'])
-npp['time'] = pd.to_datetime(npp['time'])
-npp['year'] = npp['time'].dt.year
-npp_yearly = npp.loc[npp['pft']==4].groupby(by=['year', 'pftpart']).sum().reset_index()
-npp_yearly_sum = npp.groupby(by=['year']).sum().reset_index()
+sns.lineplot(data=hist_co2, x=hist_co2.index, y='co2')
+sns.lineplot(data=future_co2, x=future_co2.index, y='co2')
 
 
-inpp_path = '/data/workflows/BONA-birch-fire-1930/output/INNPP_monthly_tr.nc'
-inpp = xr.open_dataset(inpp_path)
-inpp['time'] = inpp.indexes['time'].to_datetimeindex()
-inpp = inpp.to_dataframe().reset_index().drop(columns=['x', 'y'])
-inpp['time'] = pd.to_datetime(inpp['time'])
-inpp['year'] = inpp['time'].dt.year
-inpp_yearly_sum = inpp.groupby(by=['year']).sum().reset_index()
+ltrfalc = xr.open_dataset('/data/workflows/BONA-black-spruce-fire-1930/output/LTRFALC_monthly_sc.nc').sel(x=0,y=0)
+ltrfalc['time'] = ltrfalc.indexes['time'].to_datetimeindex()
 
 
-vegc_path = '/data/workflows/BONA-birch-fire-1930/output/VEGC_monthly_tr.nc'
-vegc = xr.open_dataset(vegc_path)
-vegc['time'] = vegc.indexes['time'].to_datetimeindex()
-vegc = vegc.to_dataframe().reset_index().drop(columns=['x', 'y'])
-vegc['time'] = pd.to_datetime(vegc['time'])
-vegc['year'] = vegc['time'].dt.year
-vegc_yearly = vegc.loc[vegc['pft']==4].groupby(by=['year', 'pftpart']).mean().reset_index()
-vegc_yearly_sum = vegc.groupby(by=['year', 'pftpart']).sum().reset_index().groupby(by=['year']).mean().reset_index()
+root_black_spruce = ltrfalc.where((ltrfalc['pft']==0))
+root_black_spruce = root_black_spruce.to_dataframe().reset_index().dropna()
 
 
-#black spruce
-fig, axes = plt.subplots(2,1)
-sns.lineplot(data=npp_yearly, x='year', y='NPP', hue='pftpart', ax=axes[0])
-sns.lineplot(data=vegc_yearly, x='year', y='VEGC', hue='pftpart', ax=axes[1])
+root_black_spruce['LTRFALC'].min()
 
 
-#birch
-fig, axes = plt.subplots(2,1)
-sns.lineplot(data=npp_yearly, x='year', y='NPP', hue='pftpart', ax=axes[0])
-sns.lineplot(data=vegc_yearly, x='year', y='VEGC', hue='pftpart', ax=axes[1])
-
-
-fig, axes = plt.subplots(2,1)
-sns.lineplot(data=npp_yearly_sum, x='year', y='NPP', ax=axes[0], label='NPP')
-sns.lineplot(data=inpp_yearly_sum, x='year', y='INNPP', ax=axes[0], label='INPP')
-
-
-fig, axes = plt.subplots(2,1)
-sns.lineplot(data=deadc, x='year', y='DEADC', ax=axes[0], label='DEADC')
-sns.lineplot(data=dwdc, x='year', y='DWDC', ax=axes[1], label='DWDC')
-
-
-
-
-
-
+sns.lineplot(data=root_black_spruce, x='time', y='LTRFALC', hue='pftpart')
 
 
 

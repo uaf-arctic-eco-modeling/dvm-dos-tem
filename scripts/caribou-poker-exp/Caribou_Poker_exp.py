@@ -59,7 +59,7 @@ get_ipython().system('rm -r /data/workflows/poker_flats_merged_data')
 
 
 #set working directory
-get_ipython().system('scripts/setup_working_directory.py  --input-data-path /data/input-catalog/caribou-poker_merged/  /data/workflows/poker_flats_merged_data/')
+get_ipython().system('scripts/util/setup_working_directory.py  --input-data-path /data/input-catalog/caribou-poker_merged/  /data/workflows/poker_flats_merged_data/')
 
 
 # Adjust the config file
@@ -125,106 +125,106 @@ print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct
 drainage.close()
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --empty')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --empty')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on CMTNUM yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on CMTNUM yearly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on GPP monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on GPP monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SNOWTHICK monthly')
-
-
-#!scripts/outspec_utils.py ../data/workflows/poker_flats_test/config/output_spec.csv --on TLAYER daily
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SNOWTHICK monthly')
 
 
 #!scripts/outspec_utils.py ../data/workflows/poker_flats_test/config/output_spec.csv --on TLAYER daily
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RG monthly')
+#!scripts/outspec_utils.py ../data/workflows/poker_flats_test/config/output_spec.csv --on TLAYER daily
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RH monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RG monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RM monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RH monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on NPP monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RM monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on EET monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on NPP monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on PET monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on EET monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RAINFALL monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on PET monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SWE monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on RAINFALL monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on ALD monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SWE monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on TRANSPIRATION monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on ALD monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on VWCLAYER monthly layer')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on TRANSPIRATION monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on WATERTAB monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on VWCLAYER monthly layer')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LWCLAYER monthly layer')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on WATERTAB monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on TLAYER monthly layer')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LWCLAYER monthly layer')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAYERDEPTH monthly layer')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on TLAYER monthly layer')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAYERTYPE monthly layer')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAYERDEPTH monthly layer')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAYERDZ monthly layer')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAYERTYPE monthly layer')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on MOSSDZ monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAYERDZ monthly layer')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAI monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on MOSSDZ monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on DEEPDZ monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LAI monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SHLWDZ monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on DEEPDZ monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on DEEPC yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SHLWDZ monthly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on MINEC yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on DEEPC yearly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SHLWC yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on MINEC yearly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LTRFALC yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on SHLWC yearly')
 
 
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on AVLN yearly')
-get_ipython().system('scripts/outspec_utils.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on ORGN yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on LTRFALC yearly')
+
+
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on AVLN yearly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/poker_flats_merged_data/config/output_spec.csv --on ORGN yearly')
 
 
 #force input data to site obs: --force-cmt {#}  black spruce = 1, deciduous = 3
 #!scripts/outspec_utils.py --help
-get_ipython().system('scripts/outspec_utils.py --list-vars ../data/workflows/poker_flats_merged_data/config/output_spec.csv')
+get_ipython().system('scripts/util/outspec.py --list-vars ../data/workflows/poker_flats_merged_data/config/output_spec.csv')
 #!scripts/outspec_utils.py --on LAI yearly ../data/workflows/poker_flats_test/config/output_spec.csv
 #!scripts/outspec_utils.py --summary ../data/workflows/poker_flats_test/config/output_spec.csv
 
@@ -236,8 +236,8 @@ get_ipython().system('scripts/outspec_utils.py --list-vars ../data/workflows/pok
 get_ipython().run_line_magic('cd', '/data/workflows/poker_flats_merged_data')
 
 
-#!dvmdostem --force-cmt=15 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=500
-get_ipython().system("dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=0 --sp-yrs=0 --eq-yrs=1000")
+get_ipython().system("dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=121 --sp-yrs=300 --eq-yrs=1500")
+#!dvmdostem --force-cmt=13 --log-level='err' --tr-yrs=0 --sp-yrs=0 --eq-yrs=1000
 
 
 get_ipython().system('ls /data/workflows/poker_flats_merged_data/output/')
