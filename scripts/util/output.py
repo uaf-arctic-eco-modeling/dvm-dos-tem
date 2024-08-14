@@ -340,7 +340,12 @@ def build_full_datetimeindex(hds, pds, timeres):
 
   h_start, h_end = get_start_end(hds.variables['time'])
   p_start, p_end = get_start_end(pds.variables['time'])
-  length = len(hds.variables['time']) + len(pds.variables['time'])
+
+  if (h_start == p_start) and (h_end==p_end):
+    length = len(hds.variables['time'])
+
+  else:
+    length = len(hds.variables['time']) + len(pds.variables['time'])
 
   begin = sorted([h_start, h_end, p_start, p_end])[0]
   end = sorted([h_start, h_end, p_start, p_end])[-1]
