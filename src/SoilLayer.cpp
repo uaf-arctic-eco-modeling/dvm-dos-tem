@@ -31,7 +31,12 @@ double SoilLayer::getMixVolHeatCapa() {
   double vhcf = getFrzVolHeatCapa();
   double vhcu = getUnfVolHeatCapa();
 
-  double vhc = vhcsolid * (1-poro) + (poro * uwc) * vhcu + (1 - uwc) * poro * vhcf ; 
+  // double vhc = vhcsolid * (1-poro) + (poro * uwc) * vhcu + (1 - uwc) * poro * vhcf;
+  double vhc = vhcsolid * (1 - poro) + pow(poro * vhcu, uwc) * pow(poro * vhcf, 1-uwc);
+
+  if (tem>=0){
+    vhc = vhcu;
+  }
   
   return vhc;
 };

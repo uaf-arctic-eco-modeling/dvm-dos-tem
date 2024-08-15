@@ -170,22 +170,25 @@ double Layer::getThermalConductivity() {
 // }
 
 double Layer::getUnfVolLiq(){
- 
-  double T_, b, uwc;
-  T_ = -0.01;
 
-  if (isMoss){
+  double T_, b, uwc;
+
+    if (isMoss){
+    T_ = -0.05;
     b = 1.0;
   } else if (isFibric){
-    b = 0.9;
+    T_ = -0.2;
+    b = 0.75;
   } else if (isHumic){
-    b = 0.6;
+    T_ = -0.5;
+    b = 0.65;
   } else {
+    T_ = -0.01;
     b = 0.5;
   }
 
   if (tem < T_){
-    uwc = pow(abs(T_), b) * pow(abs(tem), -b); 
+    uwc = poro * pow(abs(T_), b) * pow(abs(tem), -b); 
   } else{
     uwc = 0.0;
   }
@@ -200,21 +203,25 @@ double Layer::getUnfVolLiq(){
 }
 
 double Layer::getDeltaUnfVolLiq(){
+
   double T_, b, d_uwc;
-  T_ = -0.01;
 
   if (isMoss){
+    T_ = -0.05;
     b = 1.0;
   } else if (isFibric){
-    b = 0.9;
+    T_ = -0.2;
+    b = 0.75;
   } else if (isHumic){
-    b = 0.6;
+    T_ = -0.5;
+    b = 0.65;
   } else {
+    T_ = -0.01;
     b = 0.5;
   }
 
   if (tem < T_){
-    d_uwc = b * pow(abs(T_), b) * pow(abs(tem), -b-1);
+    d_uwc = b * poro * pow(abs(T_), b) * pow(abs(tem), -b - 1);
   } else {
     d_uwc = 0.0;
   }
