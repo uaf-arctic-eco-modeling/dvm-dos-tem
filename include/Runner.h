@@ -70,9 +70,6 @@ public:
   void output_netCDF_yearly(int year, std::string stage, int endyr);
   void output_netCDF(std::map<std::string, OutputSpec> &outputs, int year, int month, std::string stage, int endyr);
 
-  template<typename PTYPE>
-  void output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix, PTYPE data, int max_var_count, int start_timestep, int timesteps);
-
 private:
   bool calibrationMode;
 
