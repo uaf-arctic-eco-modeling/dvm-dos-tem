@@ -13,6 +13,13 @@ public:
 
   OutputSpec lai_outspec;
   OutputSpec vegc_outspec;
+  OutputSpec strn_outspec;
+
+  OutputSpec lwc_outspec;
+  OutputSpec rawc_outspec;
+  OutputSpec soma_outspec;
+  OutputSpec sompr_outspec;
+  OutputSpec somcr_outspec;
 
   void set_month_pause(bool new_state);
   bool get_month_pause();

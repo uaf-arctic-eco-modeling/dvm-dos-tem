@@ -85,17 +85,43 @@ DAController::DAController(){
   //TODO replace placeholder - artificially constructing outspec for testing
   boost::filesystem::path output_base = "output/";
   this->lai_outspec.file_path = output_base.string();
-  this->lai_outspec.filename_prefix = "DA_statefile"; //ALD_monthly
+  this->lai_outspec.filename_prefix = "DA_statefile";
   this->lai_outspec.var_name = "TEM_LAI";
   this->lai_outspec.data_type = NC_DOUBLE;
   this->lai_outspec.dim_count = 3;//Maybe?
 
   this->vegc_outspec.file_path = output_base.string();
-  this->vegc_outspec.filename_prefix = "DA_statefile"; //ALD_monthly
+  this->vegc_outspec.filename_prefix = "DA_statefile";
   this->vegc_outspec.var_name = "TEM_VEGC";
   this->vegc_outspec.data_type = NC_DOUBLE;
-  this->vegc_outspec.dim_count = 4;//Maybe?
+  this->vegc_outspec.dim_count = 5;//Maybe?
 
+
+  this->lwc_outspec.file_path = output_base.string();
+  this->lwc_outspec.filename_prefix = "DA_statefile";
+  this->lwc_outspec.var_name = "TEM_LWC";
+  this->lwc_outspec.data_type = NC_DOUBLE;
+
+  this->rawc_outspec.file_path = output_base.string();
+  this->rawc_outspec.filename_prefix = "DA_statefile";
+  this->rawc_outspec.var_name = "TEM_RAWC";
+  this->rawc_outspec.data_type = NC_DOUBLE;
+  this->rawc_outspec.dim_count = 3;//Maybe?
+
+  this->soma_outspec.file_path = output_base.string();
+  this->soma_outspec.filename_prefix = "DA_statefile";
+  this->soma_outspec.var_name = "TEM_SOMA";
+  this->soma_outspec.data_type = NC_DOUBLE;
+
+  this->sompr_outspec.file_path = output_base.string();
+  this->sompr_outspec.filename_prefix = "DA_statefile";
+  this->sompr_outspec.var_name = "TEM_SOMPR";
+  this->sompr_outspec.data_type = NC_DOUBLE;
+
+  this->somcr_outspec.file_path = output_base.string();
+  this->somcr_outspec.filename_prefix = "DA_statefile";
+  this->somcr_outspec.var_name = "TEM_SOMCR";
+  this->somcr_outspec.data_type = NC_DOUBLE;
 
 
 
@@ -168,21 +194,33 @@ void DAController::run_DA(timestep_id current_step){
     return;
   }
 
+  BOOST_LOG_SEV(glg, debug) << "Data assimilation, LAI";
+
   std::cout<<"LAI DA\n";
 
   cell_coords curr_coords(0,0);
 
   //Write accessory variables to file (if possible)
-//  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> vegc{};
-//  for(int ip=0; ip<NUM_PFT; ip++){
-//    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-//      vegc[ipp][ip] = this->bd[ip].m_vegs.c[ipp];
-//    }
-//  }
-  //temutil::output_nc_5dim(&this->DAcontroller->vegc_outspec, ".nc", &curr_coords, &vegc[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> vegc = cohort->get_vegc_pftandcomp_monthly();
+  temutil::output_nc_5dim(&this->vegc_outspec, ".nc", &curr_coords, &vegc[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
+
+
   //bdall->m_vegs.strn[ipp]
-  //cd.m_veg.frootfrac[il][ip]
-  //cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
+
+  //LWC
+  temutil::output_nc_4dim(&this->lwc_outspec, ".nc", &curr_coords, &cohort->edall->m_soid.lwc[0], MAX_SOI_LAY, 0, 1);
+
+  //SOMRAWC
+  temutil::output_nc_4dim(&this->rawc_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.rawc[0], MAX_SOI_LAY, 0, 1);
+
+  //SOMA
+  temutil::output_nc_4dim(&this->soma_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.soma[0], MAX_SOI_LAY, 0, 1);
+
+  //SOMPR
+  temutil::output_nc_4dim(&this->sompr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.sompr[0], MAX_SOI_LAY, 0, 1);
+
+  //SOMCR
+  temutil::output_nc_4dim(&this->somcr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.somcr[0], MAX_SOI_LAY, 0, 1);
 
 
   //calculate LAI stuff
@@ -298,7 +336,6 @@ double DAController::read_scalar_var(const std::string& varname){
 }
 
 
-
 void DAController::create_da_nc_file(){
 
   boost::filesystem::path output_base = "output/";
@@ -312,9 +349,12 @@ void DAController::create_da_nc_file(){
   this->da_filename = new_file;
   temutil::nc( nc_create(new_file.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
 
+  int timeD;
   int yD, xD;
   int pftD, pftpartD;
   int soillayerD;
+
+  temutil::nc( nc_def_dim(ncid, "time", 1, &timeD) );
 
   temutil::nc( nc_def_dim(ncid, "y", 1, &yD) );
   temutil::nc( nc_def_dim(ncid, "x", 1, &xD) );
@@ -328,15 +368,22 @@ void DAController::create_da_nc_file(){
   vartype2D_dimids[1] = xD;
 
   int vartype3D_dimids[3];
-  vartype3D_dimids[0] = yD;
-  vartype3D_dimids[1] = xD;
-  vartype3D_dimids[2] = soillayerD;
+  vartype3D_dimids[0] = soillayerD;
+  vartype3D_dimids[1] = yD;
+  vartype3D_dimids[2] = xD;
 
   int vartype4D_dimids[4];
-  vartype4D_dimids[0] = yD;
-  vartype4D_dimids[1] = xD;
-  vartype4D_dimids[2] = pftpartD;
-  vartype4D_dimids[3] = pftD;
+  vartype4D_dimids[0] = timeD;
+  vartype4D_dimids[1] = soillayerD;
+  vartype4D_dimids[2] = yD;
+  vartype4D_dimids[3] = xD;
+
+  int vartype5D_dimids[5];
+  vartype5D_dimids[0] = timeD;
+  vartype5D_dimids[1] = pftpartD;
+  vartype5D_dimids[2] = pftD;
+  vartype5D_dimids[3] = yD;
+  vartype5D_dimids[4] = xD;
 
   int temLAI_V, daLAI_V;
   int temVEGC_V, daVEGC_V;
@@ -348,11 +395,11 @@ void DAController::create_da_nc_file(){
   temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 2, vartype2D_dimids, &temLAI_V) );
   temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 2, vartype2D_dimids, &daLAI_V) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_VEGC", NC_DOUBLE, 4, vartype4D_dimids, &temVEGC_V) );
-  temutil::nc( nc_def_var(ncid, "DA_VEGC", NC_DOUBLE, 4, vartype4D_dimids, &daVEGC_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &temVEGC_V) );
+  temutil::nc( nc_def_var(ncid, "DA_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &daVEGC_V) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_STRN", NC_DOUBLE, 4, vartype4D_dimids, &temSTRN_V) );
-  temutil::nc( nc_def_var(ncid, "DA_STRN", NC_DOUBLE, 4, vartype4D_dimids, &daSTRN_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_STRN", NC_DOUBLE, 5, vartype5D_dimids, &temSTRN_V) );
+  temutil::nc( nc_def_var(ncid, "DA_STRN", NC_DOUBLE, 5, vartype5D_dimids, &daSTRN_V) );
 
   //Soil variables
   int temLWC_V, daLWC_V;
@@ -361,20 +408,20 @@ void DAController::create_da_nc_file(){
   int temSOMPR_V, daSOMPR_V;
   int temSOMCR_V, daSOMCR_V;
 
-  temutil::nc( nc_def_var(ncid, "TEM_LWC", NC_DOUBLE, 3, vartype3D_dimids, &temLWC_V) );
-  temutil::nc( nc_def_var(ncid, "DA_LWC", NC_DOUBLE, 3, vartype3D_dimids, &daLWC_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_LWC", NC_DOUBLE, 4, vartype4D_dimids, &temLWC_V) );
+  temutil::nc( nc_def_var(ncid, "DA_LWC", NC_DOUBLE, 4, vartype4D_dimids, &daLWC_V) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_RAWC", NC_DOUBLE, 3, vartype3D_dimids, &temRAWC_V) );
-  temutil::nc( nc_def_var(ncid, "DA_RAWC", NC_DOUBLE, 3, vartype3D_dimids, &daRAWC_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_RAWC", NC_DOUBLE, 4, vartype4D_dimids, &temRAWC_V) );
+  temutil::nc( nc_def_var(ncid, "DA_RAWC", NC_DOUBLE, 4, vartype4D_dimids, &daRAWC_V) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_SOMA", NC_DOUBLE, 3, vartype3D_dimids, &temSOMA_V) );
-  temutil::nc( nc_def_var(ncid, "DA_SOMA", NC_DOUBLE, 3, vartype3D_dimids, &daSOMA_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_SOMA", NC_DOUBLE, 4, vartype4D_dimids, &temSOMA_V) );
+  temutil::nc( nc_def_var(ncid, "DA_SOMA", NC_DOUBLE, 4, vartype4D_dimids, &daSOMA_V) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_SOMPR", NC_DOUBLE, 3, vartype3D_dimids, &temSOMPR_V) );
-  temutil::nc( nc_def_var(ncid, "DA_SOMPR", NC_DOUBLE, 3, vartype3D_dimids, &daSOMPR_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_SOMPR", NC_DOUBLE, 4, vartype4D_dimids, &temSOMPR_V) );
+  temutil::nc( nc_def_var(ncid, "DA_SOMPR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMPR_V) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_SOMCR", NC_DOUBLE, 3, vartype3D_dimids, &temSOMCR_V) );
-  temutil::nc( nc_def_var(ncid, "DA_SOMCR", NC_DOUBLE, 3, vartype3D_dimids, &daSOMCR_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &temSOMCR_V) );
+  temutil::nc( nc_def_var(ncid, "DA_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMCR_V) );
 
   temutil::nc( nc_enddef(ncid) );
   temutil::nc( nc_close(ncid) );
