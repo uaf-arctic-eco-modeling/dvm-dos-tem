@@ -1532,3 +1532,18 @@ void Cohort::set_restartdata_from_state() {
     }
   }
 }
+
+
+std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> Cohort::get_vegc_pftandcomp_monthly(){
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_vegc{};
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+    if(cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        m_vegc[ipp][ip] = bd[ip].m_vegs.c[ipp];
+      }
+    }
+  }
+  return m_vegc;
+}
