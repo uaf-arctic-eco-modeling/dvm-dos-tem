@@ -44,8 +44,6 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   BOOST_LOG_SEV(glg, info) << "Make a CohortData...";
   this->cd = CohortData(); // empty? / uninitialized? / undefined? values...
 
-  this->DAcontroller = new DAController();
-
   if (modeldatapointer->force_cmt >= 0) {
     this->cd.cmttype = modeldatapointer->force_cmt;
   } else {
@@ -875,38 +873,7 @@ void Cohort::updateMonthly_DIMveg(std::string stage, const int & yearind, const 
   if(this->DAcontroller){
     timestep_id curr_step(0, 0, stage, yearind, currmind);
 
-    if(this->DAcontroller->check_for_pause(curr_step)){
-      //calculate LAI stuff
-      double totalLAI = 0.0;
-      std::vector<double> lai_by_pft;
-      for(int ip=0; ip<NUM_PFT; ip++){
-        double templai = cd.m_veg.lai[ip];
-        if(templai > 0){
-          lai_by_pft.push_back(templai);
-          totalLAI += templai;
-        }
-      }
-
-      //write LAI to file
-      cell_coords curr_coords(0,0);
-      temutil::output_nc_3dim(&this->DAcontroller->outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
-      temutil::ppv(lai_by_pft);
-      std::cout<<"total lai: "<<totalLAI<<std::endl;
-
-      //Block until DA has run and somehow signaled completion
-      std::cout<<"Enter new total LAI: "<<std::endl;
-      double newLAI;
-
-      //Read LAI from file
-      std::cin>>newLAI;
-
-      //Redistribute new LAI to PFTs based on original percentages
-      for(int ip=0; ip<NUM_PFT; ip++){
-        if(cd.m_veg.lai[ip] > 0){
-          cd.m_veg.lai[ip] = newLAI * (lai_by_pft[ip] / totalLAI);
-        }
-      }
-    }
+    this->DAcontroller->run_DA(curr_step);
   }
 
   //LAI updated above for each PFT, but FPC

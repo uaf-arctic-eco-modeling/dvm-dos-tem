@@ -2,19 +2,30 @@
 #define _DACONTROLLER_H_
 
 #include "util_structs.h"
+#include "Cohort.h"
+
+class Cohort;
 
 class DAController {
 public:
 
-  OutputSpec outspec;
+  DAController();
+
+  OutputSpec lai_outspec;
+  OutputSpec vegc_outspec;
 
   void set_month_pause(bool new_state);
   bool get_month_pause();
-  DAController();
 
+  double read_scalar_var(const std::string& varname);
   bool check_for_pause(timestep_id current_step);
 
+  void run_DA(timestep_id current_step);
+
+  Cohort* cohort;
+
 private:
+
   std::vector<timestep_id> pause_dates;
 
   std::string da_filename;

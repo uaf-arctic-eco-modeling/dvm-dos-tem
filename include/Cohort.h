@@ -33,6 +33,8 @@
 // headers for run
 #include "ModelData.h"
 
+class DAController;
+
 class Cohort {
 public :
   Cohort();

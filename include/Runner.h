@@ -26,6 +26,7 @@
 #include "Cohort.h"
 #include "ModelData.h"
 #include "CalController.h"
+#include "DAController.h"
 #include "ArgHandler.h"
 #include "util_structs.h"
 #include "OutputHolder.h"
@@ -55,6 +56,8 @@ public:
   int chtid;    /* currently-running 'cohort' id */
   int error;    /* error index */
 
+  //
+  DAController* da_controller;
 
   void run_years(int year_start, int year_end, const std::string& stage);
   void modeldata_module_settings_from_args(const ArgHandler &args);

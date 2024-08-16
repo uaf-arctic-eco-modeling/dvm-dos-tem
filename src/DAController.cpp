@@ -84,11 +84,20 @@ DAController::DAController(){
 
   //TODO replace placeholder - artificially constructing outspec for testing
   boost::filesystem::path output_base = "output/";
-  this->outspec.file_path = output_base.string();
-  this->outspec.filename_prefix = "DA_statefile"; //ALD_monthly
-  this->outspec.var_name = "TEM_LAI";
-  this->outspec.data_type = NC_DOUBLE;
-  this->outspec.dim_count = 3;//Maybe?
+  this->lai_outspec.file_path = output_base.string();
+  this->lai_outspec.filename_prefix = "DA_statefile"; //ALD_monthly
+  this->lai_outspec.var_name = "TEM_LAI";
+  this->lai_outspec.data_type = NC_DOUBLE;
+  this->lai_outspec.dim_count = 3;//Maybe?
+
+  this->vegc_outspec.file_path = output_base.string();
+  this->vegc_outspec.filename_prefix = "DA_statefile"; //ALD_monthly
+  this->vegc_outspec.var_name = "TEM_VEGC";
+  this->vegc_outspec.data_type = NC_DOUBLE;
+  this->vegc_outspec.dim_count = 4;//Maybe?
+
+
+
 
   create_da_nc_file();
 
@@ -149,6 +158,72 @@ bool DAController::check_for_pause(timestep_id current_step){
   }
 
   return false;
+}
+
+
+void DAController::run_DA(timestep_id current_step){
+
+  //If not set to pause this time step
+  if(!check_for_pause(current_step)){
+    return;
+  }
+
+  std::cout<<"LAI DA\n";
+
+  cell_coords curr_coords(0,0);
+
+  //Write accessory variables to file (if possible)
+//  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> vegc{};
+//  for(int ip=0; ip<NUM_PFT; ip++){
+//    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+//      vegc[ipp][ip] = this->bd[ip].m_vegs.c[ipp];
+//    }
+//  }
+  //temutil::output_nc_5dim(&this->DAcontroller->vegc_outspec, ".nc", &curr_coords, &vegc[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
+  //bdall->m_vegs.strn[ipp]
+  //cd.m_veg.frootfrac[il][ip]
+  //cd.m_soil.frootfrac[il][ip] *= bd[ip].m_vegs.c[I_root];  // root C
+
+
+  //calculate LAI stuff
+  double totalLAI = 0.0;
+  std::vector<double> lai_by_pft;
+  for(int ip=0; ip<NUM_PFT; ip++){
+    double templai = cohort->cd.m_veg.lai[ip];
+    if(templai > 0){
+      lai_by_pft.push_back(templai);
+      totalLAI += templai;
+    }
+  }
+  //owner_runner.cohort.cd.m_veg.lai
+  //owner_runner.cohort.get_lai_pft();
+
+  //write LAI to file
+  temutil::output_nc_3dim(&this->lai_outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
+  temutil::ppv(lai_by_pft);
+  std::cout<<"total lai: "<<totalLAI<<std::endl;
+
+  //Block until DA has run and somehow signaled completion
+  std::cout<<"Enter new total LAI: "<<std::endl;
+  double newLAI;
+
+  //Read LAI from file
+//      std::cin>>newLAI;
+  char curr_input = 'p';
+  while(curr_input != 'c'){
+    std::cin>>curr_input;
+  }
+
+  newLAI = this->read_scalar_var("DA_LAI");
+  std::cout<<"new LAI: "<<newLAI<<std::endl;
+
+  //Redistribute new LAI to PFTs based on original percentages
+  for(int ip=0; ip<NUM_PFT; ip++){
+    if(cohort->cd.m_veg.lai[ip] > 0){
+      cohort->cd.m_veg.lai[ip] = newLAI * (lai_by_pft[ip] / totalLAI);
+    }
+  }
+
 }
 
 
