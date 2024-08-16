@@ -291,6 +291,12 @@ void DAController::load_pause_dates(){
 }
 
 
+double DAController::read_scalar_var(const std::string& varname){
+  BOOST_LOG_SEV(glg, debug) << "DAController, reading scalar var: " << varname;
+  double new_value = temutil::get_scalar<double>(this->da_filename, varname, 0, 0);
+  return new_value;
+}
+
 
 
 void DAController::create_da_nc_file(){
