@@ -268,7 +268,7 @@ class MadsTEMDriver(BaseDriver):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(self.work_dir, 'run', 'config','config.js')
-    opt_str = f" -l err --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
+    opt_str = f" -l monitor --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     completed_process = subprocess.run(
       cmdline,             # The program + options 
