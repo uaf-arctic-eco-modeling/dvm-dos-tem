@@ -4,11 +4,12 @@
 import sys
 import os
 # setting path
-sys.path.append('/work/scripts')
+sys.path.append('/work/scripts/drivers')
+sys.path.append('/work/scripts/util')
 import pandas as pd
 import seaborn as sns
-import Sensitivity as sa
-import output_utils as ou
+import Sensitivity_LOCAL_750 as sa
+import output as ou
 
 
 # # parameters influencing soil hydro/thermal state
