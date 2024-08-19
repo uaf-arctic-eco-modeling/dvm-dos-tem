@@ -59,7 +59,7 @@ get_ipython().system('rm -r /data/workflows/poker_flats_merged_data')
 
 
 #set working directory
-get_ipython().system('scripts/util/setup_working_directory.py  --input-data-path /data/input-catalog/caribou-poker_merged/  /data/workflows/poker_flats_merged_data/')
+get_ipython().system('/work/scripts/util/setup_working_directory.py  --input-data-path /data/input-catalog/caribou-poker_merged/  /data/workflows/poker_flats_merged_data/')
 
 
 # Adjust the config file
@@ -84,7 +84,7 @@ get_ipython().system('ls ../data/workflows/poker_flats_merged_data/')
 #poker flats: 0, 1
 #caribou creek: 3, 0
 # setup runmask
-get_ipython().system('runmask-util.py --reset  --yx 0 1  --show  /data/workflows/poker_flats_merged_data/run-mask.nc')
+get_ipython().system('/work/scripts/util/runmask.py --reset  --yx 0 1  --show  /data/workflows/poker_flats_merged_data/run-mask.nc')
 
 
 get_ipython().system('dvmdostem --help')
