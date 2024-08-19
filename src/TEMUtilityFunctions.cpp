@@ -438,14 +438,37 @@ namespace temutil {
     int scalar_var;
     temutil::nc( nc_inq_varid(ncid, var.c_str(), &scalar_var) );
 
-    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    BOOST_LOG_SEV(glg, note) << "Getting scalar value for pixel(y,x): ("<< y <<","<< x <<").";
     int yD, xD;
     size_t yD_len, xD_len;
 
-    temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
+
+    //This handles the difference in spatial dimension names
+    // between input and output files. Currently output files are
+    // lowercase (y,x) while input files are uppercase (Y,X).
+    std::string y_dimname = "Y";
+    std::string x_dimname = "X";
+
+    int ndims;
+    temutil::nc( nc_inq_ndims(ncid, &ndims) );
+
+    for(int idim=0; idim<ndims; idim++){
+      char dimension_name[NC_MAX_NAME+1];
+      temutil::nc( nc_inq_dimname(ncid, idim, dimension_name) );
+      std::string dim_name_str(dimension_name);
+
+      if(dim_name_str == "x"){
+        BOOST_LOG_SEV(glg, debug) << "Spatial dimension names are lowercase";
+        y_dimname = "y";
+        x_dimname = "x";
+        break;
+      }
+    }
+
+    temutil::nc( nc_inq_dimid(ncid, y_dimname.c_str(), &yD) );
     temutil::nc( nc_inq_dimlen(ncid, yD, &yD_len) );
 
-    temutil::nc( nc_inq_dimid(ncid, "X", &xD) );
+    temutil::nc( nc_inq_dimid(ncid, x_dimname.c_str(), &xD) );
     temutil::nc( nc_inq_dimlen(ncid, xD, &xD_len) );
 
     // specify start indices for each dimension (y, x)
@@ -503,6 +526,8 @@ namespace temutil {
     } else {
       BOOST_LOG_SEV(glg, err) << "Unknown datatype: '" << the_type << "'. Returning empty vector.";
     }
+
+    temutil::nc( nc_close(ncid) );
 
     return data2;
   }
