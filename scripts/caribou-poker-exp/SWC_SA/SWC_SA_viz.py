@@ -110,8 +110,8 @@ out_dir ='/data/workflows/US-Prr_SWC_SA/'
 
 run_dirs = [d for d in glob(out_dir+'*/', recursive = True) if 'sample' in d]
 run_dirs = ['/data/workflows/poker_flats/', '/data/workflows/poker_flats_unfrozen_water/', 
-            '/data/workflows/poker_flats_unfrozen_drain/']
-samples=['original', 'unfrozen', 'unfrozen_nodrain']
+            '/data/workflows/poker_flats_unfrozen_drain/', '/data/workflows/poker_flats_unfrozen_drain_new/']
+samples=['original', 'unfrozen', 'unfrozen_nodrain', 'unfrozen_nodrain_new']
 
 
 run_dirs
