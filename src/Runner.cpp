@@ -32,11 +32,12 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
 
 
   //Data assimilation controller
-  this->da_controller = new DAController();
-  da_controller->cohort = &this->cohort;
-  //this->da_controller->owner_runner = this;
+  if(md.data_assimilation){
+    this->dacontroller_ptr = new DAController();
+    dacontroller_ptr->cohort = &this->cohort;
 
-  this->cohort.DAcontroller = this->da_controller;
+    this->cohort.dacontroller_ptr = this->dacontroller_ptr;
+  }
 
   // within-grid cohort-level aggregated 'ed' (i.e. 'edall in 'cht')
   BOOST_LOG_SEV(glg, debug) << "Create some empty containers for 'cohort-level "

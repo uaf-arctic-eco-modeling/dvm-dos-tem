@@ -121,6 +121,7 @@
   },
 
   "model_settings": {
+    "data_assimilation_mode": false,
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
     "baseline_end": 1931     //end year for baseline EQ climate

@@ -111,6 +111,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
+  data_assimilation = controldata["model_settings"]["data_assimilation_mode"].asBool();
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();

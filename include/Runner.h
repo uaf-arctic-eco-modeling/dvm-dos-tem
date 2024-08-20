@@ -57,7 +57,7 @@ public:
   int error;    /* error index */
 
   //
-  DAController* da_controller;
+  DAController* dacontroller_ptr;
 
   void run_years(int year_start, int year_end, const std::string& stage);
   void modeldata_module_settings_from_args(const ArgHandler &args);

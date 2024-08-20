@@ -62,7 +62,7 @@ public :
   //double pfseason[NUM_FSEASON];
 
   //
-  DAController* DAcontroller;
+  DAController* dacontroller_ptr;
   
   //inputs
   CohortLookup chtlu;
