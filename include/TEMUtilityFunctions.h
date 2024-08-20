@@ -22,6 +22,7 @@
 #include "cohortconst.h" // needed for NUM_PFT
 #include "TEMLogger.h"
 #include "util_structs.h"
+#include "layerconst.h"
 
 #ifdef WITHMPI
 #include <mpi.h>
@@ -185,6 +186,7 @@ namespace temutil {
   std::list<std::string> parse_parameter_file(
       const std::string& fname, int cmtnumber, int linesofdata);
 
+  std::array<double, MAX_SOI_LAY> read_soil_var_timestep(const std::string &filename, const std::string &varname, const int y, const int x);
 
   template <typename PTYPE>
   void output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,

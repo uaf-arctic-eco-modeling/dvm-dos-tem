@@ -262,6 +262,19 @@ void DAController::run_DA(timestep_id current_step){
     }
   }
 
+  //VEGC
+
+  //STRN
+
+  //LWC
+  std::array<double, MAX_SOI_LAY> da_lwc;
+  da_lwc = temutil::read_soil_var_timestep(this->da_filename, "DA_LWC", curr_coords.yidx, curr_coords.xidx);
+
+  //SOMRAWC
+  //SOMA
+  //SOMPR
+  //SOMCR
+
 }
 
 

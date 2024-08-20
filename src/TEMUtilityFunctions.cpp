@@ -646,6 +646,46 @@ namespace temutil {
     return data;
   }
 
+  /**Developed for use in data assimilation, this reads the first (and
+  * likely only) timestep of a soil layer variable. This should be modified
+  * to accept a specific timestep.
+  */
+  std::array<double, MAX_SOI_LAY> read_soil_var_timestep(const std::string &filename, const std::string &varname, const int y, const int x){
+
+    BOOST_LOG_SEV(glg, fatal) << "Opening dataset: " << filename;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int varV;
+    temutil::nc( nc_inq_varid(ncid, varname.c_str(), &varV) );
+
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
+
+    // specify start indices for each dimension (y, x)
+    size_t start[4];
+    start[0] = 0; // from beginning of time
+    start[1] = 0; //soil layer
+    start[2] = y;
+    start[3] = x;
+
+    // specify counts for each dimension
+    size_t count[4];
+    count[0] = 1;     // One timestep
+    count[1] = MAX_SOI_LAY;
+    count[2] = 1;     // one location
+    count[3] = 1;     // one location
+
+    std::array<double, MAX_SOI_LAY> data;
+    temutil::nc( nc_get_vara_double(ncid, varV, start, count, &data[0]) );
+
+    temutil::nc( nc_close(ncid) );
+
+    return data;
+ }
+
   /** Return the calendar start year of a timeseries netcdf file. 
   * Usually this will be a climate file, but it should function with
   * any file that has a time variable with a units attribute
