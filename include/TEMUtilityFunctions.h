@@ -187,6 +187,7 @@ namespace temutil {
       const std::string& fname, int cmtnumber, int linesofdata);
 
   std::array<double, MAX_SOI_LAY> read_soil_var_timestep(const std::string &filename, const std::string &varname, const int y, const int x);
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> read_veg_var_timestep(const std::string &filename, const std::string &varname, const int y, const int x);
 
   template <typename PTYPE>
   void output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,

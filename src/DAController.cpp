@@ -252,6 +252,9 @@ void DAController::run_DA(timestep_id current_step){
     std::cin>>curr_input;
   }
 
+  BOOST_LOG_SEV(glg, note) << "Loading data assimilation values";
+
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for LAI";
   newLAI = this->read_scalar_var("DA_LAI");
   std::cout<<"new LAI: "<<newLAI<<std::endl;
 
@@ -263,17 +266,34 @@ void DAController::run_DA(timestep_id current_step){
   }
 
   //VEGC
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for VEGC";
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> da_vegc;
+  da_vegc = temutil::read_veg_var_timestep(this->da_filename, "DA_VEGC", curr_coords.yidx, curr_coords.xidx);
 
   //STRN
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for STRN";
 
   //LWC
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for LWC";
   std::array<double, MAX_SOI_LAY> da_lwc;
   da_lwc = temutil::read_soil_var_timestep(this->da_filename, "DA_LWC", curr_coords.yidx, curr_coords.xidx);
 
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    //std::cout<<da_lwc[il]<<std::endl;
+    cohort->edall->m_soid.lwc[il] = da_lwc[il];
+  }
+
   //SOMRAWC
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMRAWC";
+
   //SOMA
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMA";
+
   //SOMPR
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMPR";
+
   //SOMCR
+  BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMCR";
 
 }
 
@@ -404,15 +424,22 @@ void DAController::create_da_nc_file(){
 
   //Timestep variable - single value
 
+
   //Vegetation variables
   temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 2, vartype2D_dimids, &temLAI_V) );
+  temutil::nc( nc_put_att_double(ncid, temLAI_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 2, vartype2D_dimids, &daLAI_V) );
+  temutil::nc( nc_put_att_double(ncid, daLAI_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &temVEGC_V) );
+  temutil::nc( nc_put_att_double(ncid, temVEGC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &daVEGC_V) );
+  temutil::nc( nc_put_att_double(ncid, daVEGC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_STRN", NC_DOUBLE, 5, vartype5D_dimids, &temSTRN_V) );
+  temutil::nc( nc_put_att_double(ncid, temSTRN_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_STRN", NC_DOUBLE, 5, vartype5D_dimids, &daSTRN_V) );
+  temutil::nc( nc_put_att_double(ncid, daSTRN_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   //Soil variables
   int temLWC_V, daLWC_V;
@@ -422,19 +449,29 @@ void DAController::create_da_nc_file(){
   int temSOMCR_V, daSOMCR_V;
 
   temutil::nc( nc_def_var(ncid, "TEM_LWC", NC_DOUBLE, 4, vartype4D_dimids, &temLWC_V) );
+  temutil::nc( nc_put_att_double(ncid, temLWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_LWC", NC_DOUBLE, 4, vartype4D_dimids, &daLWC_V) );
+  temutil::nc( nc_put_att_double(ncid, daLWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_RAWC", NC_DOUBLE, 4, vartype4D_dimids, &temRAWC_V) );
+  temutil::nc( nc_put_att_double(ncid, temRAWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_RAWC", NC_DOUBLE, 4, vartype4D_dimids, &daRAWC_V) );
+  temutil::nc( nc_put_att_double(ncid, daRAWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_SOMA", NC_DOUBLE, 4, vartype4D_dimids, &temSOMA_V) );
+  temutil::nc( nc_put_att_double(ncid, temSOMA_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_SOMA", NC_DOUBLE, 4, vartype4D_dimids, &daSOMA_V) );
+  temutil::nc( nc_put_att_double(ncid, daSOMA_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_SOMPR", NC_DOUBLE, 4, vartype4D_dimids, &temSOMPR_V) );
+  temutil::nc( nc_put_att_double(ncid, temSOMPR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_SOMPR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMPR_V) );
+  temutil::nc( nc_put_att_double(ncid, daSOMPR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &temSOMCR_V) );
+  temutil::nc( nc_put_att_double(ncid, temSOMCR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMCR_V) );
+  temutil::nc( nc_put_att_double(ncid, daSOMCR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_enddef(ncid) );
   temutil::nc( nc_close(ncid) );

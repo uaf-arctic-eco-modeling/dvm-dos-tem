@@ -650,7 +650,10 @@ namespace temutil {
   * likely only) timestep of a soil layer variable. This should be modified
   * to accept a specific timestep.
   */
-  std::array<double, MAX_SOI_LAY> read_soil_var_timestep(const std::string &filename, const std::string &varname, const int y, const int x){
+  std::array<double, MAX_SOI_LAY> read_soil_var_timestep(
+                                          const std::string &filename,
+                                          const std::string &varname,
+                                          const int y, const int x){
 
     BOOST_LOG_SEV(glg, fatal) << "Opening dataset: " << filename;
 
@@ -684,7 +687,48 @@ namespace temutil {
     temutil::nc( nc_close(ncid) );
 
     return data;
- }
+  }
+
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> read_veg_var_timestep(
+                                          const std::string &filename,
+                                          const std::string &varname,
+                                          const int y, const int x){
+
+    BOOST_LOG_SEV(glg, fatal) << "Opening dataset: " << filename;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int varV;
+    temutil::nc( nc_inq_varid(ncid, varname.c_str(), &varV) );
+
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
+
+    // specify start indices for each dimension (y, x)
+    size_t start[5];
+    start[0] = 0; // from beginning of time
+    start[1] = 0; //compartment
+    start[2] = 0; //pft
+    start[3] = y;
+    start[4] = x;
+
+    // specify counts for each dimension
+    size_t count[5];
+    count[0] = 1;     // One timestep
+    count[1] = NUM_PFT_PART;
+    count[2] = NUM_PFT;
+    count[3] = 1;     // one location
+    count[4] = 1;     // one location
+
+    std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> data;
+    temutil::nc( nc_get_vara_double(ncid, varV, start, count, &data[0][0]) );
+
+    temutil::nc( nc_close(ncid) );
+
+    return data;
+  }
 
   /** Return the calendar start year of a timeseries netcdf file. 
   * Usually this will be a climate file, but it should function with
