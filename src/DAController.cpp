@@ -96,6 +96,10 @@ DAController::DAController(){
   this->vegc_outspec.data_type = NC_DOUBLE;
   this->vegc_outspec.dim_count = 5;//Maybe?
 
+  this->strn_outspec.file_path = output_base.string();
+  this->strn_outspec.filename_prefix = "DA_statefile";
+  this->strn_outspec.var_name = "TEM_STRN";
+  this->strn_outspec.data_type = NC_DOUBLE;
 
   this->lwc_outspec.file_path = output_base.string();
   this->lwc_outspec.filename_prefix = "DA_statefile";
@@ -200,12 +204,14 @@ void DAController::run_DA(timestep_id current_step){
 
   cell_coords curr_coords(0,0);
 
-  //Write accessory variables to file (if possible)
+  //Write accessory variables to file
+  //VEGC
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> vegc = cohort->get_vegc_pftandcomp_monthly();
   temutil::output_nc_5dim(&this->vegc_outspec, ".nc", &curr_coords, &vegc[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
 
-
-  //bdall->m_vegs.strn[ipp]
+  //STRN
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> strn = cohort->get_strn_pftandcomp_monthly();
+  temutil::output_nc_5dim(&this->strn_outspec, ".nc", &curr_coords, &strn[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
 
   //LWC
   temutil::output_nc_4dim(&this->lwc_outspec, ".nc", &curr_coords, &cohort->edall->m_soid.lwc[0], MAX_SOI_LAY, 0, 1);

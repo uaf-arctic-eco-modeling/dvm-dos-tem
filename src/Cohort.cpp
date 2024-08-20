@@ -1547,3 +1547,17 @@ std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> Cohort::get_vegc_pftandcom
   }
   return m_vegc;
 }
+
+std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> Cohort::get_strn_pftandcomp_monthly(){
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_strn{};
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+    if(cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        m_strn[ipp][ip] = bd[ip].m_vegs.strn[ipp];
+      }
+    }
+  }
+  return m_strn;
+}

@@ -126,6 +126,7 @@ public :
   void load_proj_explicit_fire(const std::string& proj_exp_fire_file);
 
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> get_vegc_pftandcomp_monthly();
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> get_strn_pftandcomp_monthly();
 
 private:
 
