@@ -36,7 +36,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   // processes, it seemed like tdrv1 needed to be converted from
   // degrees C to degrees K. However, we tested that change, and
   // it appears that not converting it produces better results.
-  double dse = fabs(tdrv1 * timestep); // the extra degree second
+  double dse = fabs(tdrv1 * timestep); // the extra degree second >>> try make this Ks
   double sumresabv  =0. ; // sum of resistence for above layers;
 
   if(tdrv1>0.0) {
@@ -179,11 +179,11 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
     volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
-    // volwat = sl->getUnfVolLiq() * sl->dz;
+    // >>> volwat = sl->getUnfVolLiq() * sl->dz;
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
     volwat = fmax(0.0, sl->getVolIce())*sl->dz;
-    // volwat = (1 - sl->getUnfVolLiq()) * sl->dz;
+    // >>> volwat = (1 - sl->getUnfVolLiq()) * sl->dz;
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -192,7 +192,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
     dz = 0.0001*sl->dz;
   }
 
-  dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
+  dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);// >>> try doubling/halving dsn here
   if(sl->tem < 0){ //if layer below 0, include energy needed to bring layer to 0 before thawing
     dsn += abs(sl->tem)*timestep;
   }
@@ -359,11 +359,11 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
     volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
-    // volwat = sl->getUnfVolLiq() * sl->dz;
+    // >>>volwat = sl->getUnfVolLiq() * sl->dz;
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
     volwat = fmax(0.0, sl->getVolIce())*sl->dz;
-    // volwat = (1 - sl->getUnfVolLiq()) * sl->dz;
+    // >>>volwat = (1 - sl->getUnfVolLiq()) * sl->dz;
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -538,7 +538,7 @@ double Stefan::getDegSecNeeded(const double & dz, const double & volwat,
   double effvolwat = volwat;
   double lhfv = LHFUS * 1000;//Converting units
   needed = lhfv * effvolwat * (sumresabv + 0.5 * dz/tk);
-  return needed;
+  return needed; // >>> brute forcings here potentially
 };
 
 //calculate partial depth based on extra degree seconds
@@ -729,12 +729,12 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
       } else { // no front at all
         if (currl->frozen==0 && currl->isSoil){ //suggests that this was a front layer but fronts have been swept out
           currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing.
-        }
+        } //>>> consider the logic of this loop, and setting frozen status to forcing
         else{
           if (currl->tem>0.) {
             currl->frozen = -1;
           }
-          if (currl->tem<=0.) {
+          if (currl->tem<=0.) {// >>> T* for each horizon 
           currl->frozen = 1;
           }
         }
@@ -770,7 +770,7 @@ void Stefan::updateWaterAfterFront(Layer* toplayer) {
     //there may be a situation that freezing may cause ice
     //  'expansion' over the maxice -
     double icebylwc = currl->getVolLiq()*DENICE*currl->dz;
-
+    // >>> review the use of frozen frac to redefine currl->liq
     if (currl->ice>=(currl->maxice-icebylwc)) {
       currl->ice=fmax(0., currl->maxice-icebylwc); //what to do about the 'extra' water??? - next step
     }
