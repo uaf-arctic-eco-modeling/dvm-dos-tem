@@ -873,7 +873,7 @@ void Cohort::updateMonthly_DIMveg(std::string stage, const int & yearind, const 
   if(this->dacontroller_ptr){
     timestep_id curr_step(0, 0, stage, yearind, currmind);
 
-    this->dacontroller_ptr->run_DA(curr_step);
+    this->dacontroller_ptr->run_DA_LAI(curr_step);
   }
 
   //LAI updated above for each PFT, but FPC

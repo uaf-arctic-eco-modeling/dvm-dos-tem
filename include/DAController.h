@@ -27,7 +27,7 @@ public:
   double read_scalar_var(const std::string& varname);
   bool check_for_pause(timestep_id current_step);
 
-  void run_DA(timestep_id current_step);
+  void run_DA_LAI(timestep_id current_step);
 
   Cohort* cohort;
 

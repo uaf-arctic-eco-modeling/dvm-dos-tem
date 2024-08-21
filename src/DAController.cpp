@@ -191,7 +191,7 @@ bool DAController::check_for_pause(timestep_id current_step){
 }
 
 
-void DAController::run_DA(timestep_id current_step){
+void DAController::run_DA_LAI(timestep_id current_step){
 
   //If not set to pause this time step
   if(!check_for_pause(current_step)){
@@ -366,6 +366,12 @@ void DAController::load_pause_dates(){
           new_pause.y = atoi(token.c_str());
         } 
         else if(ii == 2){//stage
+
+          //Assume the stage is specified as two chars, and
+          // needs to have -run appended for later string comparison.
+          if(token.find("run")==std::string::npos){
+            token.append("-run");
+          }
           new_pause.stage = token;
         }
         else if(ii == 3){//year
