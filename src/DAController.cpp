@@ -239,8 +239,6 @@ void DAController::run_DA(timestep_id current_step){
       totalLAI += templai;
     }
   }
-  //owner_runner.cohort.cd.m_veg.lai
-  //owner_runner.cohort.get_lai_pft();
 
   //write LAI to file
   temutil::output_nc_3dim(&this->lai_outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
@@ -262,7 +260,7 @@ void DAController::run_DA(timestep_id current_step){
 
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for LAI";
   newLAI = this->read_scalar_var("DA_LAI");
-  std::cout<<"new LAI: "<<newLAI<<std::endl;
+  //std::cout<<"new LAI: "<<newLAI<<std::endl;
 
   //Redistribute new LAI to PFTs based on original percentages
   for(int ip=0; ip<NUM_PFT; ip++){
@@ -278,29 +276,49 @@ void DAController::run_DA(timestep_id current_step){
 
   //STRN
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for STRN";
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> da_strn;
+  da_strn = temutil::read_veg_var_timestep(this->da_filename, "DA_STRN", curr_coords.yidx, curr_coords.xidx);
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+      cohort->bd[ip].m_vegs.c[ipp] = da_vegc[ipp][ip];
+      cohort->bd[ip].m_vegs.strn[ipp] = da_strn[ipp][ip];
+    }
+  }
 
   //LWC
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for LWC";
   std::array<double, MAX_SOI_LAY> da_lwc;
   da_lwc = temutil::read_soil_var_timestep(this->da_filename, "DA_LWC", curr_coords.yidx, curr_coords.xidx);
 
-  for(int il=0; il<MAX_SOI_LAY; il++){
-    //std::cout<<da_lwc[il]<<std::endl;
-    cohort->edall->m_soid.lwc[il] = da_lwc[il];
-  }
-
   //SOMRAWC
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMRAWC";
+  std::array<double, MAX_SOI_LAY> da_somrawc;
+  da_somrawc = temutil::read_soil_var_timestep(this->da_filename, "DA_RAWC", curr_coords.yidx, curr_coords.xidx);
 
   //SOMA
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMA";
+  std::array<double, MAX_SOI_LAY> da_soma;
+  da_soma = temutil::read_soil_var_timestep(this->da_filename, "DA_SOMA", curr_coords.yidx, curr_coords.xidx);
 
   //SOMPR
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMPR";
+  std::array<double, MAX_SOI_LAY> da_sompr;
+  da_sompr = temutil::read_soil_var_timestep(this->da_filename, "DA_SOMPR", curr_coords.yidx, curr_coords.xidx);
 
   //SOMCR
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMCR";
+  std::array<double, MAX_SOI_LAY> da_somcr;
+  da_somcr = temutil::read_soil_var_timestep(this->da_filename, "DA_SOMCR", curr_coords.yidx, curr_coords.xidx);
 
+  for(int il=0; il<MAX_SOI_LAY; il++){
+    //std::cout<<da_lwc[il]<<std::endl;
+    cohort->edall->m_soid.lwc[il] = da_lwc[il];
+    cohort->bdall->m_sois.rawc[il] = da_somrawc[il];
+    cohort->bdall->m_sois.soma[il] = da_soma[il];
+    cohort->bdall->m_sois.sompr[il] = da_sompr[il];
+    cohort->bdall->m_sois.somcr[il] = da_somcr[il];
+  }
 }
 
 
