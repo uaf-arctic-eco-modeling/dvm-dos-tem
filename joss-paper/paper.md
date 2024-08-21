@@ -153,7 +153,7 @@ ecosystem dynamics and predict local, regional and global climate impacts. As
 such, process-based models have the potential to provide critical information
 for adaptation and mitigation efforts around the globe.
 
-DVMDOSTEM is an advanced process-based terrestrial ecosystem model (TEM)
+`DVMDOSTEM` is an advanced process-based terrestrial ecosystem model (TEM)
 designed to study ecosystem responses to climate changes and disturbances. It
 has a particular focus on permafrost regions (i.e. regions characterized by
 soils that stay partially frozen all year round for at least two consecutive
@@ -298,12 +298,12 @@ nutrients). The CMT classification for each grid cell is static across the time
 dimension of a model simulation. These two factors limit the ability of the
 model to represent climate-driven biome shifts or succession trajectories from
 disturbances such as wildfire [@Johnstone2010]. Design discussions are in
-progress for adding these capabilities to DVMDOSTEM. 
+progress for adding these capabilities to `DVMDOSTEM`.
 
 
 ## Inputs and outputs
 
-DVMDOSTEM inputs and outputs are NetCDF files [@Rew1990], which conform
+`DVMDOSTEM` inputs and outputs are NetCDF files [@Rew1990], which conform
 to the CF Conventions v1.11 [@Eaton2011] where possible. The input variables
 used to drive `DVMDOSTEM` are: drainage classification (upland or lowland), CMT
 classification, topography (slope, aspect, elevation), soil texture (percent
@@ -323,7 +323,7 @@ be produced.
 
 # Parameterization
 
-DVMDOSTEM parameterization sets are developed for each CMT represented in the
+`DVMDOSTEM` parameterization sets are developed for each CMT represented in the
 model. Each CMT is defined by more than 200 parameters. Parameter values are
 estimated directly from field, lab or remote sensing observations, literature
 review or site-specific calibration. Calibration is required when (1) parameter
@@ -347,7 +347,7 @@ sub-components:
  - supporting tools, and
  - a development environment specification.
 
-At the core of the project is the DMVDOSTEM model itself. The `DVMDOSTEM` model
+At the core of the project is the `DVMDOSTEM` model itself. The `DVMDOSTEM` model
 is written in C++ and uses some object-oriented concepts. The model exposes a
 command line interface that allows users to start simulations individually or
 use a scripting language to drive the command line interface.
