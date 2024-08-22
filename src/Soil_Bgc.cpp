@@ -129,18 +129,16 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // plant-mediation declared in loop to sum pfts, units : umol L^-1 hr^-1
   double prod, ebul, oxid = 0.0;
   // Individual layer fluxes and efflux units : g m^-2 hr^-1
-  double prod_gm2hr, ebul_gm2hr, oxid_gm2hr, plant_gm2hr, efflux_gm2hr = 0.0;
+  double prod_gm2hr, ebul_gm2hr, oxid_gm2hr, plant_gm2hr, efflux_gm2hr = 0.0;// >> efflux per hour not used?
   // Flux components cumulated over a day in units of umol L^-1 day^-1
   double plant_daily, ebul_daily = 0.0;
   // Flux components cumulated over a day in units of g m^-2 day^-1
   double plant_gm2day, ebul_gm2day, oxid_gm2day, efflux_gm2day = 0.0;
-  // >>> Need to rewrite this description after finalizing equations
-  // Bunsen solubility coefficient (bun_sol - SB) in mL CH4/ mL H2O. Fan et al. 2010 
-  // supplement Eq. 15. bun_sol is converted into a volume of ch4 (vol_ch4) for the 
-  // ideal gas law. What is referred to as the mass-based Bunsen solubility coefficient
-  // (SM) in Fan et al. 2010 supplement Eq. 16 we are referring to as the max concentration
-  // for which methane can remain dissolved (i.e. not a bubble) this is given in
-  // umol to relate to ch4 layer pool given in umol L^-1
+  // Bunsen solubility coefficient (bun_sol - SB) in vol CH4/ vol H2O. Fan et al. 2010  
+  // bun_sol is used as volume in the ideal gas law. What is referred to as the mass-based 
+  // Bunsen solubility coefficient (SM) in Fan et al. 2010 supplement Eq. 16 we are 
+  // referring to as the max concentration for which methane can remain dissolved 
+  // (i.e. not a bubble) this is first calculated in mol m^3 then converted to umol L^1 
   double bun_sol, ch4_molm3_thresh, ch4_umolL_thresh;
   // Pressure on ch4 used in Fan Eq. 16 for ebullition calculation
   // consisting of atmospheric (Pstd) and hydrostatic pressure (p_hydro)
@@ -148,8 +146,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   updateKdyrly4all();
 
-  // >>> Can remove some of this once testing is complete
-  //Some declarations for testing CH4 balance conservation
+  // Some declarations for CH4 flux accounting
   double prev_pool[MAX_SOI_LAY] = {0};
   double curr_pool[MAX_SOI_LAY] = {0};
   double production[MAX_SOI_LAY] = {0};
@@ -158,14 +155,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double plant_transport[MAX_SOI_LAY] = {0};
   double diffusion[MAX_SOI_LAY] = {0};
   double diffusion_sum = 0;
-  double delta_pool[MAX_SOI_LAY] = {0};
-  double delta_pool_sum = 0;
 
-  // >>> Do we need any more of these? What is "flux"?
-  //For storing methane movement data by layer for output
+  // For storing methane movement data by layer for output
   double ch4_ebul_layer[MAX_SOI_LAY] = {0};
   double ch4_oxid_layer[MAX_SOI_LAY] = {0};
-  double ch4_flux_layer[MAX_SOI_LAY] = {0}; 
 
   // Defining number of soil layers
   int numsoill = cd->m_soil.numsl;
@@ -264,7 +257,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           pft_transport[ip] = 0.0;
         }
 
-        // >>> do we want 0.0 or e.g. 1e-10, consider for all rates
         // Catch for negative values
         if (pft_transport[ip] < 0.0){
           pft_transport[ip] = 0.0;
@@ -336,7 +328,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters
       // >>> Add to parameter files, see: Kinetics of methane oxidation in oxic soils, Bender, Conrad
       // >>> Do we need to include poro, volAir, volLiq, etc in any of these fluxes?
-      oxid = (1 - saturated_fraction) * (5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4)); // >>> currl->getVolAir() *
+      oxid = (1 - saturated_fraction) * (5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
 
       if (oxid < 0.000001){
         oxid = 0.0;
@@ -399,7 +391,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // Converting volume to concentration per vol (n [mol / m3]) using ideal gas law pV=nRT
       ch4_molm3_thresh = pressure_ch4 * bun_sol / (GASR * (currl->tem + 273.15)); 
-      // Converting mol / m3 to umol / L >>> and considering pore water volume per horizon???
+      // Converting mol / m3 to umol / L
       ch4_umolL_thresh = ch4_molm3_thresh * 1e6 * 1e-3 * currl->poro;
 
       if (ed->d_sois.ts[il]>=0.0){// if not frozen
@@ -527,7 +519,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     // Assuming the reaction-diffusion equation is
     // dCh4/dt = d^2Ch4/dx^2 + f(u, x)
-    // >>> ... add crank nicolson discretization
 
     // In our matrix form this looks similarly to 
     // A X = B + f(u,x)
@@ -575,7 +566,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   for(int layer=0; layer<MAX_SOI_LAY; layer++){
     bd->d_soi2soi.ch4_ebul[layer] = ch4_ebul_layer[layer];
     bd->d_soi2a.ch4_oxid[layer] = ch4_oxid_layer[layer];
-    bd->d_soi2soi.ch4_diff[layer] = diff[layer];
+    bd->d_soi2soi.ch4_diff[layer] = diff[layer]; // >>> diffusion coefficient not diffusion
   }
 
   // Store ebullition and veg flux values (mostly for output)
@@ -1617,6 +1608,12 @@ double Soil_Bgc::getRhq10(const  double & tsoil) {
   rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
   return rhq10;
 };
+
+// double Soil_Bgc::getQ10(const calpar param, const  double & tsoil) {
+//   double Q10;
+//   Q10 =  pow( This would be a cal par (prod or oxid), tsoil/10.0);
+//   return Q10;
+// };
 
 double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
                            const double & soilorgn, const double & availn,
