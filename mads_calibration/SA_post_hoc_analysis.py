@@ -2055,6 +2055,37 @@ def get_filtered_results(results, sample_matrix, check_filter):
   """
   return results[check_filter==True], sample_matrix[check_filter==True]
 
+def get_max_parameter_ranges(parameter, pftnum=None, path='/work/parameters/'):
+  '''
+  Return the minimum and maximum ranges for a given parameter
+
+  Parameters
+  ----------
+  parameter: string
+    parameter name
+
+  pftnum: int
+    pft specific number, defaults to None
+
+  path: string
+    path to parameter file directory
+
+  Returns
+  -------
+  params : pd.Dataframe
+    list of parameter for all cmts
+  '''
+  import sys
+  sys.path.insert(0, '/work/scripts')
+  import util.param as pa
+  psh = pa.ParamUtilSpeedHelper(path)
+  param_vals = []; cmt_nums = []
+  for cmt in pa.get_CMTs_in_file(path+'cmt_calparbgc.txt'):
+    cmt_nums.append(cmt['cmtnum'])
+    param_vals.append(psh.get_value(pname='kdcsomcr',cmtnum=cmt['cmtnum'],pftnum=None))
+  print(f'Range of {parameter} across CMTs: {min(param_vals)} - {max(param_vals)}')
+  return pd.DataFrame(index=cmt_nums, data=param_vals)
+
 def read_mads_iterationresults(iterationresults_file):
   '''
   Parse a Mads .iterationresults file and return data as 3 python lists.
