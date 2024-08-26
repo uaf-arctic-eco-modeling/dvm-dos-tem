@@ -27,12 +27,12 @@ double SoilLayer::getUnfVolHeatCapa() {
 
 //Yuan: unfrozen/frozen put together
 double SoilLayer::getMixVolHeatCapa() {
+
   double uwc = getUnfVolLiq();
   double vhcf = getFrzVolHeatCapa();
   double vhcu = getUnfVolHeatCapa();
 
-  // double vhc = vhcsolid * (1-poro) + (poro * uwc) * vhcu + (1 - uwc) * poro * vhcf;
-  double vhc = vhcsolid * (1 - poro) + pow(poro * vhcu, uwc) * pow(poro * vhcf, 1-uwc);
+  double vhc = vhcsolid * (1 - poro) + pow(poro * vhcu, uwc) * pow(poro * vhcf, 1 - uwc);
 
   if (tem>=0){
     vhc = vhcu;
@@ -101,7 +101,7 @@ double SoilLayer::getMixThermCond() {
   tcf = getFrzThermCond();
   tcu = getUnfThermCond();
 
-  tc = pow(tcf, 1 - min(uwc+vliq, 1.0)) * pow(tcu, min(uwc+vliq, 1.0));
+  tc = pow(tcf, 1 - min(uwc+vliq, poro)) * pow(tcu, min(uwc+vliq, poro));
 
   if (tem>=0){
     tc = tcu;

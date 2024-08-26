@@ -125,7 +125,8 @@ double Layer::getUnfVolLiq(){
   }
 
   if (tem < T_){
-    uwc = poro * pow(abs(T_), b) * pow(abs(tem), -b); 
+    // uwc = poro * pow(abs(T_), b) * pow(abs(tem), -b);
+    uwc = getVolWater() * pow(abs(T_), b) * pow(abs(tem), -b); // scaling by VWC where not fully saturated
   } else{
     uwc = 0.0;
   }
@@ -147,8 +148,8 @@ double Layer::getDeltaUnfVolLiq(){
     T_ = -0.05;
     b = 1.0;
   } else if (isFibric){
-    T_ = -0.2;
-    b = 0.75;
+    T_ = -0.1;
+    b = 0.7;
   } else if (isHumic){
     T_ = -0.5;
     b = 0.65;
@@ -158,7 +159,8 @@ double Layer::getDeltaUnfVolLiq(){
   }
 
   if (tem < T_){
-    d_uwc = b * poro * pow(abs(T_), b) * pow(abs(tem), -b - 1);
+    // d_uwc = b * poro * pow(abs(T_), b) * pow(abs(tem), -b - 1);
+    d_uwc = b * getVolWater() * pow(abs(T_), b) * pow(abs(tem), -b - 1); // scaling by VWC where not fully saturated
   } else {
     d_uwc = 0.0;
   }
@@ -170,7 +172,7 @@ double Layer::getDeltaUnfVolLiq(){
   return d_uwc;
 }
 
-double Layer::getVolWater() { // We could try implementing uwc here as well
+double Layer::getVolWater() {
   double vice = getVolIce();
   double vliq = getVolLiq();
   return fmin((double)poro,(double)vice+vliq);
@@ -232,8 +234,6 @@ double Layer::getVolLiq() {
   } else {
     return 0;
   }
-
-
 
 };
 
