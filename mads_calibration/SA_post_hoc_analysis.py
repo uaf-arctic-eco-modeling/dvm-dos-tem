@@ -1085,7 +1085,7 @@ def n_top_runs(results, targets, params, r2lim, N=None):
 
   return best_params, best_results
 
-def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, saveprefix=''):
+def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, saveprefix=''):
   '''
   Plots equilibrium timeseries for target variables in output directory
   
@@ -1093,9 +1093,9 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
   ==========
   path : str
     specifies path to sensitivity sample run directory
-  plot_metrics : bool
-    plot slope, coefficient of variation and pvalue in 30 yr 
-    increments, note this takes a long time
+  sumpftpart : bool
+    flag whether to sum results and targets across compartments
+    to compare pft totals
   save : bool
     saves figure if True
   saveprefix : string
@@ -1107,11 +1107,7 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
   .. image:: /images/SA_post_hoc_analysis/eq_rel_plot.png
   
   '''
-  if plot_metrics:
-    print("plot_metrics enabled, this may take several minutes")
-    print('|',end="")
-    progress = '='
-      
+     
   # defining list of strings for compartment reference
   comp_ref = ['Leaf', 'Stem', 'Root']
   
@@ -1136,39 +1132,22 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
     # operations depending on variable, pft, compartment
     if len(targ_var_info[0]) == 1:
       fig, ax = plt.subplots()
-      if plot_metrics:
-        fig_slope, ax_slope = plt.subplots()
-        fig_cv, ax_cv = plt.subplots()
-        fig_conv, ax_conv = plt.subplots()
     if len(targ_var_info[0]) == 2:
       fig, ax = plt.subplots(1, len(targ_var_info))
-      if plot_metrics:
-        fig_slope, ax_slope = plt.subplots(1, len(targ_var_info))
-        fig_cv, ax_cv = plt.subplots(1, len(targ_var_info))
-        fig_conv, ax_conv = plt.subplots(1, len(targ_var_info))
-
     if len(targ_var_info[0]) == 3:
-      fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
-      if plot_metrics:
-        fig_slope, ax_slope = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
-        fig_cv, ax_cv = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
-        fig_conv, ax_conv = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
-
+      if sum_pftpart==False:
+        fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+      elif sum_pftpart:
+        fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        
     # filtering for directories containing the name sample 
     samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
     
     # looping through sample folders in directory:
     for n, sample in enumerate(samples):
 
-      if plot_metrics:
-        print(progress, end="")
-
       # reading output variable for each sample
       output = nc.Dataset(path+sample+f'/output/{targ}_yearly_eq.nc').variables[targ][:].data
-
-      # array for plotting metrics
-      if plot_metrics:
-        met = np.arange(len(output) - int(len(output)/30)*30, len(output)+30, 30, dtype=int)
 
       # selecting variable dimensions based on whether pft, compartment is expected 
       # nopft:
@@ -1176,26 +1155,6 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
         ax.plot(output[:,0,0], 'gray', alpha=0.5)
         ax.plot(np.linspace(0, len(output[:,0,0]), len(output[:,0,0])), 
                           targets[targ].values[0]*np.ones(len(output[:,0,0])), 'k--', alpha=0.5)
-
-        if plot_metrics:
-          for i in range(0, len(met)-1):
-            slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],0,0])), output[met[i] : met[i+1],0,0])
-            cv = 100 * output[met[i] : met[i+1],0,0].std() / output[met[i] : met[i+1],0,0].mean()
-            
-            ax_slope.scatter(0.5*(met[i]+met[i+1]), abs(slope), color='grey')
-            ax_cv.scatter(0.5*(met[i]+met[i+1]), cv, color='grey')
-            if i != 0:
-              ax_conv.scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],0,0].mean() - output[met[i-1] : met[i],0,0].mean()), color=f'C{pft}')
-
-          fig_slope.supxlabel("Equilibrium years", fontsize=12)
-          fig_slope.supylabel(f"slope", fontsize=12)
-          fig_slope.tight_layout()
-          fig_conv.supxlabel("Equilibrium years", fontsize=12)
-          fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-          fig_conv.tight_layout()
-          fig_cv.supxlabel("Equilibrium years", fontsize=12)
-          fig_cv.supylabel(f"cv", fontsize=12)
-          fig_cv.tight_layout()
           
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
@@ -1208,65 +1167,17 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
 
           pft = int(p[1].split('pft')[1])
 
+          # catch if there is only a single variable for axis indexing
           if len(targ_var_info)<2:
             ax.plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
             ax.set_title(f"PFT{pft}")
             ax.plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
                   targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
-
-            if plot_metrics:
-              for i in range(0, len(met)-1):
-                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],pft,0,0])), output[met[i] : met[i+1],pft,0,0])
-                cv = 100 * output[met[i] : met[i+1],pft,0,0].std() / output[met[i] : met[i+1],pft,0,0].mean()
-
-                ax_slope.scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
-                ax_cv.scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
-                if i != 0:
-                  ax_conv.scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],pft,0,0].mean() - output[met[i-1] : met[i],pft,0,0].mean()), color=f'C{pft}')
-
-              ax_slope.set_title(f"PFT{pft}")
-              ax_conv.set_title(f"PFT{pft}")
-              ax_cv.set_title(f"PFT{pft}")
-
-              fig_slope.supxlabel("Equilibrium years", fontsize=12)
-              fig_slope.supylabel(f"slope", fontsize=12)
-              fig_slope.tight_layout()
-              fig_conv.supxlabel("Equilibrium years", fontsize=12)
-              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-              fig_conv.tight_layout()
-              fig_cv.supxlabel("Equilibrium years", fontsize=12)
-              fig_cv.supylabel(f"cv", fontsize=12)
-              fig_cv.tight_layout()
-
-          else:     
+          else:           
             ax[pft].plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
             ax[pft].set_title(f"PFT{pft}")
             ax[pft].plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
                   targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
-
-            if plot_metrics:
-              for i in range(0, len(met)-1):
-                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],pft,0,0])), output[met[i] : met[i+1],pft,0,0])
-                cv = 100 * output[met[i] : met[i+1],pft,0,0].std() / output[met[i] : met[i+1],pft,0,0].mean()
-
-                ax_slope[pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
-                ax_cv[pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
-                if i != 0:
-                  ax_conv[pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],pft,0,0].mean() - output[met[i-1] : met[i],pft,0,0].mean()), color=f'C{pft}')
-
-              ax_slope[pft].set_title(f"PFT{pft}")
-              ax_conv[pft].set_title(f"PFT{pft}")
-              ax_cv[pft].set_title(f"PFT{pft}")
-
-              fig_slope.supxlabel("Equilibrium years", fontsize=12)
-              fig_slope.supylabel(f"slope", fontsize=12)
-              fig_slope.tight_layout()
-              fig_conv.supxlabel("Equilibrium years", fontsize=12)
-              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-              fig_conv.tight_layout()
-              fig_cv.supxlabel("Equilibrium years", fontsize=12)
-              fig_cv.supylabel(f"cv", fontsize=12)
-              fig_cv.tight_layout()
 
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
@@ -1275,87 +1186,58 @@ def plot_equilibrium_relationships(path='', plot_metrics=False, save=False, save
       # pft and compartment
       if len(targ_var_info[0]) == 3:
 
-        for p in targ_var_info:
+        if sum_pftpart==False:
 
-          pft = int(p[1].split('pft')[1])
-
-          comp = p[2]; comp_index = comp_ref.index(comp)
-
-          if len(targ_var_info)<2:
-                    
-            ax[comp_index].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
-            ax[0].set_title(f"PFT{pft}")
-            ax[comp_index].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
-                  targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
-              
-            if plot_metrics:
-              for i in range(0, len(met)-1):
-                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],comp_index,pft,0,0])), output[met[i] : met[i+1],comp_index,pft,0,0])
-                cv = 100 * output[met[i] : met[i+1],comp_index,pft,0,0].std() / output[met[i] : met[i+1],comp_index,pft,0,0].mean()
-                
-                ax_slope[comp_index].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
-                ax_cv[comp_index].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
-                if i != 0:
-                  ax_conv[comp_index].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],comp_index,pft,0,0].mean() - output[met[i-1] : met[i],comp_index,pft,0,0].mean()), color=f'C{pft}')
-
-
-                yr_count += 30
-                if yr_count+30 > len(output[:,comp_index,pft,0,0]):
-                  eq_metric=False
-
-              fig_slope.supxlabel("Equilibrium years", fontsize=12)
-              fig_slope.supylabel(f"slope", fontsize=12)
-              fig_slope.tight_layout()
-              fig_conv.supxlabel("Equilibrium years", fontsize=12)
-              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-              fig_conv.tight_layout()
-              fig_cv.supxlabel("Equilibrium years", fontsize=12)
-              fig_cv.supylabel(f"cv", fontsize=12)
-              fig_cv.tight_layout()
-
-          else:
-
-            ax[comp_index, pft].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
-            ax[0, pft].set_title(f"PFT{pft}")
-            ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
-                  targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
-              
-            if plot_metrics:
-              for i in range(0, len(met)-1):
-                slope, intercept, r, pval, std_err = scipy.stats.linregress(range(len(output[met[i] : met[i+1],comp_index,pft,0,0])), output[met[i] : met[i+1],comp_index,pft,0,0])
-                cv = 100 * output[met[i] : met[i+1],comp_index,pft,0,0].std() / output[met[i] : met[i+1],comp_index,pft,0,0].mean()
-                
-                ax_slope[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), abs(slope), color=f'C{pft}')
-                ax_cv[comp_index,pft].scatter(0.5*(met[i]+met[i+1]), cv, color=f'C{pft}')
-                if i != 0:
-                  ax_conv[comp_index, pft].scatter(0.5*(met[i]+met[i+1]), abs(output[met[i] : met[i+1],comp_index,pft,0,0].mean() - output[met[i-1] : met[i],comp_index,pft,0,0].mean()), color=f'C{pft}')
-
-
-                yr_count += 30
-                if yr_count+30 > len(output[:,comp_index,pft,0,0]):
-                  eq_metric=False
-
-              fig_slope.supxlabel("Equilibrium years", fontsize=12)
-              fig_slope.supylabel(f"slope", fontsize=12)
-              fig_slope.tight_layout()
-              fig_conv.supxlabel("Equilibrium years", fontsize=12)
-              fig_conv.supylabel(r"$\Delta$: y$_{i+1}$ - y$_i$", fontsize=12)
-              fig_conv.tight_layout()
-              fig_cv.supxlabel("Equilibrium years", fontsize=12)
-              fig_cv.supylabel(f"cv", fontsize=12)
-              fig_cv.tight_layout()
-
-        ax[0, 0].set_ylabel("Leaf")
-        ax[1, 0].set_ylabel("Stem")
-        ax[2, 0].set_ylabel("Root")
-        fig.supxlabel("Equilibrium years", fontsize=12)
-        fig.supylabel(f"{targ}", fontsize=12)
-        fig.tight_layout()
+          for p in targ_var_info:
+  
+            pft = int(p[1].split('pft')[1])
+  
+            comp = p[2]; comp_index = comp_ref.index(comp)
           
-  if plot_metrics:
-    print("|")
+            # catch if there is only a single variable for axis indexing
+            if len(targ_var_info)<2:      
+              ax[comp_index].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+              ax[0].set_title(f"PFT{pft}")
+              ax[comp_index].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                    targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+            else:
+              ax[comp_index, pft].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+              ax[0, pft].set_title(f"PFT{pft}")
+              ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                    targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+  
+            ax[0, 0].set_ylabel("Leaf")
+            ax[1, 0].set_ylabel("Stem")
+            ax[2, 0].set_ylabel("Root")
+            fig.supxlabel("Equilibrium years", fontsize=12)
+            fig.supylabel(f"{targ}", fontsize=12)
+            fig.tight_layout()
+
+        elif sum_pftpart:
+
+          for p in targ_var_info:
+
+            pft = int(p[1].split('pft')[1])
+
+            target_group = [col for col in targets.columns if f'{targ}_pft{pft}' in col]
+            target_value = targets[target_group].sum(axis=1).values[0]
+              
+            # catch if there is only a single variable for axis indexing
+            if len(targ_var_info)<2:      
+              ax.plot(np.sum(output[:,:,pft,0,0], axis=1), f'C{pft}', alpha=0.5)
+              ax.set_title(f"PFT{pft}")
+              ax.plot(np.linspace(0, len(np.sum(output[:,:,pft,0,0], axis=1)), len(np.sum(output[:,:,pft,0,0], axis=1))), 
+                    target_value*np.ones(len(np.sum(output[:,:,pft,0,0], axis=1))), 'k--', alpha=0.5)
+            else:
+              ax[pft].plot(np.sum(output[:,:,pft,0,0], axis=1), f'C{pft}', alpha=0.5)
+              ax[pft].set_title(f"PFT{pft}")
+              ax[pft].plot(np.linspace(0, len(np.sum(output[:,:,pft,0,0], axis=1)), len(np.sum(output[:,:,pft,0,0], axis=1))), 
+                    target_value*np.ones(len(np.sum(output[:,:,pft,0,0], axis=1))), 'k--', alpha=0.5)
+  
+            fig.supxlabel("Equilibrium years", fontsize=12)
+            fig.supylabel(f"{targ}", fontsize=12)
+            fig.tight_layout()
           
-  # save if save=True
   if save:
     plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
 
