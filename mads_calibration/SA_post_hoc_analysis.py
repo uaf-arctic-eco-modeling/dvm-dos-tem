@@ -1139,8 +1139,8 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
         fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
       elif sum_pftpart:
         fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])))
-        
-    # filtering for directories containing the name sample 
+
+    # filtering for directories containing the name sample - SA
     samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
     
     # looping through sample folders in directory:
@@ -1240,6 +1240,163 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
           
   if save:
     plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
+
+def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, saveprefix=''):
+  '''
+  Plots equilibrium timeseries for target variables in mads output directory
+  
+  Parameters
+  ==========
+  targets : pandas.DataFrame
+    target values (used in sensitivity analysis step) for indexing
+    and comparing to final mads optimization
+  path : str
+    specifies path to mads run directory
+  sumpftpart : bool
+    flag whether to sum results and targets across compartments
+    to compare pft totals
+  save : bool
+    saves figure if True
+  saveprefix : string
+    path to use if saving is enabled
+  
+  Returns
+    None
+  
+  .. image:: /images/SA_post_hoc_analysis/eq_rel_plot.png
+  
+  '''
+     
+  # defining list of strings for compartment reference
+  comp_ref = ['Leaf', 'Stem', 'Root']
+    
+  # splitting column names to provide variable, pft, and compartment if available
+  targ_info = [i.split('_') for i in targets.columns]
+  
+  # returning only unique variable names for file selection
+  targ_vars = np.unique([i.split('_')[0] for i in targets.columns])
+
+  # looping through each target variable
+  for targ in targ_vars:
+    
+    # filtering for said target variable
+    targ_filter = [targ in info for info in targ_info]
+
+    # returning filtered information on variable, pft, compartment
+    targ_var_info = [i for indx,i in enumerate(targ_info) if targ_filter[indx] == True]
+
+    # operations depending on variable, pft, compartment
+    if len(targ_var_info[0]) == 1:
+      fig, ax = plt.subplots()
+    if len(targ_var_info[0]) == 2:
+      fig, ax = plt.subplots(1, len(targ_var_info))
+    if len(targ_var_info[0]) == 3:
+      if sum_pftpart==False:
+        fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+      elif sum_pftpart:
+        fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])))
+
+    # There should only be an output folder in this case 
+    # (adpated from plot_equilibrium_relationships)
+    samples = ['']
+    
+    # looping through sample folders in directory:
+    for n, sample in enumerate(samples):
+
+      # reading output variable for each sample
+      output = nc.Dataset(path+sample+f'output/{targ}_yearly_eq.nc').variables[targ][:].data
+
+      # selecting variable dimensions based on whether pft, compartment is expected 
+      # nopft:
+      if len(targ_var_info[0]) == 1:
+        ax.plot(output[:,0,0], 'gray', alpha=0.5)
+        ax.plot(np.linspace(0, len(output[:,0,0]), len(output[:,0,0])), 
+                          targets[targ].values[0]*np.ones(len(output[:,0,0])), 'k--', alpha=0.5)
+          
+        fig.supxlabel("Equilibrium years", fontsize=12)
+        fig.supylabel(f"{targ}", fontsize=12)
+        fig.tight_layout()
+          
+      # pft no compartment    
+      if len(targ_var_info[0]) == 2:
+        
+        for p in targ_var_info:
+
+          pft = int(p[1].split('pft')[1])
+
+          # catch if there is only a single variable for axis indexing
+          if len(targ_var_info)<2:
+            ax.plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
+            ax.set_title(f"PFT{pft}")
+            ax.plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
+                  targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
+          else:           
+            ax[pft].plot(output[:,pft,0,0], f'C{pft}', alpha=0.5)    
+            ax[pft].set_title(f"PFT{pft}")
+            ax[pft].plot(np.linspace(0, len(output[:,pft,0,0]), len(output[:,pft,0,0])), 
+                  targets[p[0]+'_'+p[1]].values[0]*np.ones(len(output[:,pft,0,0])), 'k--', alpha=0.5)
+
+        fig.supxlabel("Equilibrium years", fontsize=12)
+        fig.supylabel(f"{targ}", fontsize=12)
+        fig.tight_layout()
+          
+      # pft and compartment
+      if len(targ_var_info[0]) == 3:
+
+        if sum_pftpart==False:
+
+          for p in targ_var_info:
+  
+            pft = int(p[1].split('pft')[1])
+  
+            comp = p[2]; comp_index = comp_ref.index(comp)
+          
+            # catch if there is only a single variable for axis indexing
+            if len(targ_var_info)<2:      
+              ax[comp_index].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+              ax[0].set_title(f"PFT{pft}")
+              ax[comp_index].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                    targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+            else:
+              ax[comp_index, pft].plot(output[:,comp_index,pft,0,0], f'C{pft}', alpha=0.5)
+              ax[0, pft].set_title(f"PFT{pft}")
+              ax[comp_index, pft].plot(np.linspace(0, len(output[:,comp_index,pft,0,0]), len(output[:, comp_index,pft,0,0])), 
+                    targets[p[0]+'_'+p[1]+'_'+p[2]].values[0]*np.ones(len(output[:,comp_index,pft,0,0])), 'k--', alpha=0.5)
+  
+            ax[0, 0].set_ylabel("Leaf")
+            ax[1, 0].set_ylabel("Stem")
+            ax[2, 0].set_ylabel("Root")
+            fig.supxlabel("Equilibrium years", fontsize=12)
+            fig.supylabel(f"{targ}", fontsize=12)
+            fig.tight_layout()
+
+        elif sum_pftpart:
+
+          for p in targ_var_info:
+
+            pft = int(p[1].split('pft')[1])
+
+            target_group = [col for col in targets.columns if f'{targ}_pft{pft}' in col]
+            target_value = targets[target_group].sum(axis=1).values[0]
+              
+            # catch if there is only a single variable for axis indexing
+            if len(targ_var_info)<2:      
+              ax.plot(np.sum(output[:,:,pft,0,0], axis=1), f'C{pft}', alpha=0.5)
+              ax.set_title(f"PFT{pft}")
+              ax.plot(np.linspace(0, len(np.sum(output[:,:,pft,0,0], axis=1)), len(np.sum(output[:,:,pft,0,0], axis=1))), 
+                    target_value*np.ones(len(np.sum(output[:,:,pft,0,0], axis=1))), 'k--', alpha=0.5)
+            else:
+              ax[pft].plot(np.sum(output[:,:,pft,0,0], axis=1), f'C{pft}', alpha=0.5)
+              ax[pft].set_title(f"PFT{pft}")
+              ax[pft].plot(np.linspace(0, len(np.sum(output[:,:,pft,0,0], axis=1)), len(np.sum(output[:,:,pft,0,0], axis=1))), 
+                    target_value*np.ones(len(np.sum(output[:,:,pft,0,0], axis=1))), 'k--', alpha=0.5)
+  
+            fig.supxlabel("Equilibrium years", fontsize=12)
+            fig.supylabel(f"{targ}", fontsize=12)
+            fig.tight_layout()
+          
+  if save:
+    plt.savefig(saveprefix + f"{targ}_mads_rel_plot.png", bbox_inches='tight')
 
 def generate_eq_lim_dict(targets, cv_lim=[0], eps_lim=[0], slope_lim=[0]):
   '''
