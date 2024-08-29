@@ -149,9 +149,7 @@ The impacts of climate change on natural ecosystems are the result of complex
 physical and ecological processes operating and interacting at a variety of
 spatio-temporal scales. For this reason, process-based ecosystem models are
 efficient tools to formalize and extrapolate our current understanding of
-ecosystem dynamics and predict local, regional and global climate impacts. As
-such, process-based models have the potential to provide critical information
-for adaptation and mitigation efforts around the globe.
+ecosystem dynamics and predict local, regional and global climate impacts.
 
 `DVMDOSTEM` is an advanced process-based terrestrial ecosystem model (TEM)
 designed to study ecosystem responses to climate changes and disturbances. It
@@ -224,7 +222,7 @@ center.\label{fig:modeloverview}](dvmdostem-overview-export_2024-08-19.jpg)
 ## Snow and soil structure and processes
 
 The soil column is structured as a sequence of layers organized by soil horizons
-(i.e. fibric and humic organic horizons, mineral horizon and parent material).
+(i.e. fibric, humic, mineral, and parent material).
 The number and physical properties of layers may change throughout the
 simulation based on vegetation, thermal, hydrologic, and seasonal properties
 that are calculated at each time step [@Zhuang2003; @Euskirchen2014; @Yi2009;
@@ -250,7 +248,7 @@ etc.), each of which may have up to three compartments: leaf, stem, and root.
 Vegetation C and N fluxes are calculated at each time step based on
 environmental factors and soil properties. Assimilation of atmospheric $CO_2$ by
 the vegetation is estimated by computing gross primary productivity (GPP) for
-each PFT. This C flux is a function of foliage development (seasonal and
+each PFT. GPP is a function of foliage development (seasonal and
 successional patterns), air and soil temperature, water and nutrient
 availability, photosynthetically active radiation, and maximum assimilation rate
 (a calibrated parameter) [@McGuire1992; @Euskirchen2009]. Changes
@@ -292,7 +290,7 @@ multiple scenarios.
 `DVMDOSTEM` breaks up the landscape domain into grid cells, each of which is
 characterized by a set of input (forcing) values and a set of parameterization
 values. Parameterization values for a grid cell describe soil and vegetation
-characteristics and are associated with  a CMT. DMVDOSTEM does not include the
+characteristics and are associated with a CMT. `DMVDOSTEM` does not include the
 lateral transfer of information between grid cells (e.g. water, C, and
 nutrients). The CMT classification for each grid cell is static across the time
 dimension of a model simulation. These two factors limit the ability of the
@@ -315,10 +313,8 @@ except the time series of atmospheric $CO_2$.
 There are approximately 110 different variables available for output from
 `DVMDOSTEM`. One file will be produced per requested output variable. Users can
 specify the temporal and structural resolutions at which model outputs are
-produced (e.g. yearly or monthly soil carbon stocks across the whole soil column
-or by layer). This functionality allows the users to consider their
-computational resources and information needs in the selection of output data to
-be produced. 
+produced. This functionality allows users to consider their
+computational resources and information needs when setting up a model run.
 
 
 # Parameterization
@@ -335,21 +331,21 @@ state variables most influenced by the parameter to be calibrated. Due to the
 large number of parameters requiring calibration, and the non-linear nature of
 the relationships between parameters and state variables, model calibration can
 be a labor intensive process. We are actively developing a calibration process
-that allows automation, leveraging parameter optimization methods to improve
-calibration performance [@JafarovINPREP2024].
+that allows automation [@JafarovINPREP2024].
 
 
 # Software Design
 
 The `DVMDOSTEM` software repository is a combination of several tightly coupled
 sub-components: 
+
  - the `DVMDOSTEM` model itself,
  - supporting tools, and
  - a development environment specification.
 
 At the core of the project is the `DVMDOSTEM` model itself. The `DVMDOSTEM` model
 is written in C++ and uses some object-oriented concepts. The model exposes a
-command line interface that allows users to start simulations individually or
+command line interface that allows users to start simulations manually or
 use a scripting language to drive the command line interface.
 
 Surrounding the core model is a large body of supporting tooling to assist the
@@ -367,7 +363,7 @@ the repository provides definitions for Docker images [@Merkel2014]. The
 project includes the specification for several development images as well as a
 pared down runtime-only image.
 
-The software design is imperfect - it is a work in progress and stems from the
+The software design is a work in progress and stems from the
 organic growth of the project spanning 30+ years of development by research
 scientists, graduate students and programmers. Recent years have seen an
 increased effort to apply professional software development practices such as
@@ -380,7 +376,7 @@ The current version of `DVMDOSTEM` is the result of decades of model
 developments from the original TEM code developed at the Marine Biological
 Laboratory [@Raich1991]. Following is the list of recent and current
 programs and projects that supported model developments over the past ten years:
-(1)  the Integrated Ecosystem Model for Alaska and Northwest Canada project
+(1) the Integrated Ecosystem Model for Alaska and Northwest Canada project
 supported by the US Geological Survey and the Arctic, Western Alaska, and
 Northwest Boreal Landscape Conservation Cooperatives in Alaska, (2) the Bonanza
 Creek Long Term Ecological Research Program funded by the National Science
