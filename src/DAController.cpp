@@ -200,8 +200,6 @@ void DAController::run_DA_LAI(timestep_id current_step){
 
   BOOST_LOG_SEV(glg, debug) << "Data assimilation, LAI";
 
-  std::cout<<"LAI DA\n";
-
   cell_coords curr_coords(0,0);
 
   //Write accessory variables to file
@@ -245,12 +243,22 @@ void DAController::run_DA_LAI(timestep_id current_step){
   temutil::ppv(lai_by_pft);
   std::cout<<"total lai: "<<totalLAI<<std::endl;
 
-  //Block until DA has run and somehow signaled completion
-  std::cout<<"Enter new total LAI: "<<std::endl;
-  double newLAI;
+  //Write to "pause" file for controlling script to monitor
+  std::string pause_filename = this->lai_outspec.file_path + "/model_pause.txt";
+  std::ofstream pause_fh(pause_filename);
+  if(pause_fh.is_open()){
+    BOOST_LOG_SEV(glg, debug) << "Writing to DA pause indicator file";
+    pause_fh << "Stage: " << current_step.stage
+             << "\nYear: " << current_step.year
+             << "\nMonth: " << current_step.month;
+    pause_fh.close();
+  }
+  else{
+    BOOST_LOG_SEV(glg, fatal) << "Unable to open pause indicator file";
+  }
 
-  //Read LAI from file
-//      std::cin>>newLAI;
+  //Block until DA has run and somehow signaled completion
+  std::cout<<"Paused for DA, enter 'c' to continue"<<std::endl;
   char curr_input = 'p';
   while(curr_input != 'c'){
     std::cin>>curr_input;
@@ -259,6 +267,7 @@ void DAController::run_DA_LAI(timestep_id current_step){
   BOOST_LOG_SEV(glg, note) << "Loading data assimilation values";
 
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for LAI";
+  double newLAI;
   newLAI = this->read_scalar_var("DA_LAI");
   //std::cout<<"new LAI: "<<newLAI<<std::endl;
 
