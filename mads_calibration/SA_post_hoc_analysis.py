@@ -1131,14 +1131,18 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
 
     # operations depending on variable, pft, compartment
     if len(targ_var_info[0]) == 1:
-      fig, ax = plt.subplots()
+      fig, ax = plt.subplots(constrained_layout=True, figsize=(6.4,4.8))
     if len(targ_var_info[0]) == 2:
-      fig, ax = plt.subplots(1, len(targ_var_info))
+      width = 6.4 + ((12-6.4)/6) * (len(targ_var_info) - 5)
+      fig, ax = plt.subplots(1, len(targ_var_info),constrained_layout=True, figsize=(width,4.8))
     if len(targ_var_info[0]) == 3:
+      width = 6.4 + ((12-6.4)/6) * (len(np.unique(np.asarray(targ_var_info)[:,1])) - 5)
       if sum_pftpart==False:
-        fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])),constrained_layout=True,
+         figsize=(width,4.8))
       elif sum_pftpart:
-        fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])),constrained_layout=True, 
+        figsize=(width,4.8))
 
     # filtering for directories containing the name sample - SA
     samples = np.sort([name for name in os.listdir(path) if os.path.isdir(path+name) and "sample" in name])
@@ -1158,7 +1162,9 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
           
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
-        fig.tight_layout()
+
+        if save:
+          plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
           
       # pft no compartment    
       if len(targ_var_info[0]) == 2:
@@ -1181,7 +1187,9 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
 
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
-        fig.tight_layout()
+
+        if save:
+          plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
           
       # pft and compartment
       if len(targ_var_info[0]) == 3:
@@ -1211,7 +1219,9 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
             ax[2, 0].set_ylabel("Root")
             fig.supxlabel("Equilibrium years", fontsize=12)
             fig.supylabel(f"{targ}", fontsize=12)
-            fig.tight_layout()
+
+            if save:
+              plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
 
         elif sum_pftpart:
 
@@ -1236,10 +1246,9 @@ def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, savep
   
             fig.supxlabel("Equilibrium years", fontsize=12)
             fig.supylabel(f"{targ}", fontsize=12)
-            fig.tight_layout()
-          
-  if save:
-    plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
+
+            if save:
+              plt.savefig(saveprefix + f"{targ}_eq_rel_plot.png", bbox_inches='tight')
 
 def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, saveprefix=''):
   '''
@@ -1287,14 +1296,18 @@ def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, sav
 
     # operations depending on variable, pft, compartment
     if len(targ_var_info[0]) == 1:
-      fig, ax = plt.subplots()
+      fig, ax = plt.subplots(constrained_layout=True, figsize=(6.4,4.8))
     if len(targ_var_info[0]) == 2:
-      fig, ax = plt.subplots(1, len(targ_var_info))
+      width = 6.4 + ((12-6.4)/6) * (len(targ_var_info) - 5)
+      fig, ax = plt.subplots(1, len(targ_var_info),constrained_layout=True, figsize=(width,4.8))
     if len(targ_var_info[0]) == 3:
+      width = 6.4 + ((12-6.4)/6) * (len(np.unique(np.asarray(targ_var_info)[:,1])) - 5)
       if sum_pftpart==False:
-        fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig, ax = plt.subplots(3, len(np.unique(np.asarray(targ_var_info)[:,1])),constrained_layout=True,
+         figsize=(width,4.8))
       elif sum_pftpart:
-        fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])))
+        fig, ax = plt.subplots(1, len(np.unique(np.asarray(targ_var_info)[:,1])),constrained_layout=True, 
+        figsize=(width,4.8))
 
     # There should only be an output folder in this case 
     # (adpated from plot_equilibrium_relationships)
@@ -1315,7 +1328,9 @@ def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, sav
           
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
-        fig.tight_layout()
+
+        if save:
+          plt.savefig(saveprefix + f"{targ}_mads_rel_plot.png", bbox_inches='tight')
           
       # pft no compartment    
       if len(targ_var_info[0]) == 2:
@@ -1338,7 +1353,9 @@ def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, sav
 
         fig.supxlabel("Equilibrium years", fontsize=12)
         fig.supylabel(f"{targ}", fontsize=12)
-        fig.tight_layout()
+
+        if save:
+          plt.savefig(saveprefix + f"{targ}_mads_rel_plot.png", bbox_inches='tight')
           
       # pft and compartment
       if len(targ_var_info[0]) == 3:
@@ -1368,7 +1385,9 @@ def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, sav
             ax[2, 0].set_ylabel("Root")
             fig.supxlabel("Equilibrium years", fontsize=12)
             fig.supylabel(f"{targ}", fontsize=12)
-            fig.tight_layout()
+
+            if save:
+              plt.savefig(saveprefix + f"{targ}_mads_rel_plot.png", bbox_inches='tight')
 
         elif sum_pftpart:
 
@@ -1393,10 +1412,10 @@ def plot_mads_relationships(targets, path='', sum_pftpart=False, save=False, sav
   
             fig.supxlabel("Equilibrium years", fontsize=12)
             fig.supylabel(f"{targ}", fontsize=12)
-            fig.tight_layout()
-          
-  if save:
-    plt.savefig(saveprefix + f"{targ}_mads_rel_plot.png", bbox_inches='tight')
+
+            if save:
+              plt.savefig(saveprefix + f"{targ}_mads_rel_plot.png", bbox_inches='tight')
+    
 
 def generate_eq_lim_dict(targets, cv_lim=[0], eps_lim=[0], slope_lim=[0]):
   '''
