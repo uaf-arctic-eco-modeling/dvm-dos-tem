@@ -528,7 +528,7 @@ sns.lineplot(data=minec_bs_eq, x='time', y='MINEC')
 sns.lineplot(data=ald_bs_eq, x='time', y='ALD')
 
 
-sns.lineplot(data=df_yearly.loc[df_yearly['CMT']=='Black Spruce'], x='year', y='ALD', hue='CMT')
+sns.lineplot(data=df_yearly, x='year', y='ALD', hue='CMT')
 
 
 ald_bs_tr
@@ -912,6 +912,15 @@ df_bs[['date', 'GPP', 'NPP', 'RH', 'RECO', 'NEE']].to_csv('BONA_Black_Spruce_flu
 
 
 df_br[['date', 'GPP', 'NPP', 'RH', 'RECO', 'NEE']].to_csv('BONA_Birch_flux_hist.csv')
+
+
+
+
+
+
+
+
+
 
 
 

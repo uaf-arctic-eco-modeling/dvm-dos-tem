@@ -1152,10 +1152,6 @@ sns.lineplot(data=results_yearly.loc[results_yearly['cmt']=='birch'],
 results_yearly.columns
 
 
-emissions = results_yearly[['year', 'exp', 'cmt', 'burn_year', 'BURNSOIC', 'BURNVEG2AIRC']].groupby(by=['exp', 'cmt', 'burn_year']).sum().reset_index()
-emissions['total'] = emissions['BURNSOIC'] + emissions['BURNVEG2AIRC']
-
-
 fig, axes=plt.subplots(1,2, figsize=(8,3), sharex=True)
 sns.barplot(data=emissions.loc[emissions['exp']!='control'], x='burn_year', y='BURNSOIC', hue='cmt', ax=axes[0])
 sns.barplot(data=emissions.loc[emissions['exp']!='control'], x='burn_year', y='BURNVEG2AIRC', hue='cmt', ax=axes[1], legend=False)
@@ -1199,14 +1195,36 @@ carbon_summary = results_yearly_pft.groupby(by=['year', 'cmt', 'exp', 'burn_year
 results_yearly=results_yearly.merge(carbon_summary, on=['year', 'cmt', 'exp', 'burn_year'])
 
 
+year_before_fire = []
+pre_fire = results_yearly.loc[(results_yearly['YSD']-results_yearly['year'] == 0)].groupby(by=['exp', 'cmt', 'burn_year'])
+
+for name, group in pre_fire:
+    year_before_fire.append(group.loc[group['index']==group['year'].idxmax()])
+    
+year_before_fire = pd.concat(year_before_fire)
+
+
+year_before_fire
+
+
 ysd = results_yearly.loc[(results_yearly['YSD']-results_yearly['year'] != 0)]
 
-ysd
+ysd = ysd.merge(year_before_fire, on = ['exp', 'cmt', 'burn_year'], suffixes=['', '_prefire'])
 
 
-fig, ax=plt.subplots()
-sns.lineplot(data=ysd, x='YSD', y='VEGC', hue='exp', style='cmt', ax=ax)
-ax.set_ylabel('Vegetation Carbon (gC/m2)')
+fig, axes=plt.subplots(2, 1, figsize = (8,5), sharey=True, sharex=True)
+
+sns.lineplot(data=ysd.loc[ysd['cmt'] == 'black_spruce'], x='YSD', 
+             y=ysd['VEGC'] - ysd['VEGC_prefire'], hue='exp', ax=axes[0])
+
+sns.lineplot(data=ysd.loc[ysd['cmt'] == 'birch'], x='YSD', 
+             y=ysd['VEGC'] - ysd['VEGC_prefire'], hue='exp', ax=axes[1], legend=False)
+
+axes[0].axhline(y = 0, color = 'grey', linestyle = '--')
+axes[1].axhline(y = 0, color = 'grey', linestyle = '--') 
+
+axes[0].set_ylabel('Black Spruce VegC (gC/m2)')
+axes[1].set_ylabel('Birch VegC (gC/m2)')
 ax.set_xlabel('Years Since Disturbance')
 fig.tight_layout()
 plt.savefig('VegC_recovery.jpg', dpi=300)
@@ -1214,10 +1232,13 @@ plt.savefig('VegC_recovery.jpg', dpi=300)
 
 fig, axes=plt.subplots(2,1, sharex=True)
 
-sns.lineplot(data=ysd.loc[ysd['cmt']=='black_spruce'], x='YSD', y=ysd['DEEPC']+ysd['SHLWC']+ysd['MINEC'], 
+sns.lineplot(data=ysd.loc[ysd['cmt']=='black_spruce'], x='YSD', y=(ysd['DEEPC']+ysd['SHLWC']+ysd['MINEC']) - (ysd['DEEPC_prefire']+ysd['SHLWC_prefire']+ysd['MINEC_prefire']), 
              hue='exp', ax=axes[0])
-sns.lineplot(data=ysd.loc[ysd['cmt']=='birch'], x='YSD', y=ysd['DEEPC']+ysd['SHLWC']+ysd['MINEC'], 
+sns.lineplot(data=ysd.loc[ysd['cmt']=='birch'], x='YSD', y=(ysd['DEEPC']+ysd['SHLWC']+ysd['MINEC']) - (ysd['DEEPC_prefire']+ysd['SHLWC_prefire']+ysd['MINEC_prefire']), 
              hue='exp', ax=axes[1], legend=False)
+
+axes[0].axhline(y = 0, color = 'grey', linestyle = '--')
+axes[1].axhline(y = 0, color = 'grey', linestyle = '--')
 
 axes[0].set_ylabel('Black Spruce SOC (gC/m2)')
 axes[1].set_ylabel('Birch SOC (gC/m2)')
@@ -1227,19 +1248,24 @@ fig.tight_layout()
 plt.savefig('SoilC_recovery.jpg', dpi=300)
 
 
-fig, axes=plt.subplots(1,2, figsize=(10,5))
-sns.lineplot(data=ysd, x='YSD', y='GPP', hue='exp', style='cmt', ax=axes[0])
-sns.lineplot(data=ysd, x='YSD', y='RECO', hue='exp', style='cmt', ax=axes[1], legend=False)
+fig, axes=plt.subplots(2,1, figsize=(8,5), sharex=True)
+sns.lineplot(data=ysd.loc[ysd['cmt']=='black_spruce'], x='YSD', y=ysd['GPP'] - ysd['GPP_prefire'], hue='exp', style='cmt', ax=axes[0])
+sns.lineplot(data=ysd.loc[ysd['cmt']=='black_spruce'], x='YSD', y=ysd['RECO'] - ysd['RECO_prefire'], hue='exp', style='cmt', ax=axes[1], legend=False)
 
-axes[0].set_ylabel('GPP (gC/m2/yr)')
-axes[1].set_ylabel('RECO (gC/m2/yr)')
+axes[0].axhline(y = 0, color = 'grey', linestyle = '--')
+axes[1].axhline(y = 0, color = 'grey', linestyle = '--')
+
+axes[0].set_ylabel('Black Spruce GPP (gC/m2/yr)')
+axes[1].set_ylabel('Black Spruce RECO (gC/m2/yr)')
 axes[0].set_xlabel('Years Since Disturbance')
 axes[1].set_xlabel('Years Since Disturbance')
 
 
+emissions = results_yearly[['year', 'exp', 'cmt', 'burn_year', 'BURNSOIC', 'BURNVEG2AIRC']].groupby(by=['exp', 'cmt', 'burn_year']).sum().reset_index()
+emissions['total'] = emissions['BURNSOIC'] + emissions['BURNVEG2AIRC']
+
 flux_sum = results_yearly[['year', 'exp', 'cmt', 'burn_year', 'NEE']].groupby(by=['exp', 'cmt', 'burn_year']).sum().reset_index()
 flux_sum['burn_year'] = flux_sum['burn_year'].astype(int)
-
 
 fig, axes=plt.subplots(1,3,figsize=(10,3))
 
