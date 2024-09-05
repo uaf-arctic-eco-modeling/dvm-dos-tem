@@ -63,6 +63,9 @@ public:
   std::vector<double> somrawc_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> somrawc_for_output;
 
+  std::vector<double> avln_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> avln_for_output;
+
   std::vector<std::array<double, MAX_SOI_LAY>> layerdepth_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;

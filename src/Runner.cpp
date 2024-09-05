@@ -1168,25 +1168,52 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //By layer
       if(curr_spec.layer){
+        std::array<double, MAX_SOI_LAY> avln_arr{};
+
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.avln[0], MAX_SOI_LAY, month_timestep, 1);
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            avln_arr[il] = cohort.bdall->m_sois.avln[il];
+          }
+          outhold.avln_for_output.push_back(avln_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.avln_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.avln_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.avln[0], MAX_SOI_LAY, year, 1);
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            avln_arr[il] = cohort.bdall->y_sois.avln[il];
+          }
+          outhold.avln_for_output.push_back(avln_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.avln_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.avln_for_output.clear();
+          }
         }
       }
       //Total
       else if(!curr_spec.layer){
-
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.avlnsum, 1, month_timestep, 1);
+          outhold.avln_tot_for_output.push_back(cohort.bdall->m_soid.avlnsum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.avln_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.avln_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.avlnsum, 1, year, 1);
+          outhold.avln_tot_for_output.push_back(cohort.bdall->y_soid.avlnsum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.avln_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.avln_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputAVLN)
