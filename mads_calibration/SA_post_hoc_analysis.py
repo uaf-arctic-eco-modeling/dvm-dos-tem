@@ -2113,7 +2113,7 @@ def get_filtered_results(results, sample_matrix, check_filter):
   """
   return results[check_filter==True], sample_matrix[check_filter==True]
 
-def get_max_parameter_ranges(parameter, pftnum=None, path='/work/parameters/'):
+def get_max_parameter_ranges(parameter, path='/work/parameters/'):
   '''
   Return the minimum and maximum ranges for a given parameter
 
@@ -2122,27 +2122,29 @@ def get_max_parameter_ranges(parameter, pftnum=None, path='/work/parameters/'):
   parameter: string
     parameter name
 
-  pftnum: int
-    pft specific number, defaults to None
-
   path: string
     path to parameter file directory
 
   Returns
   -------
-  params : pd.Dataframe
-    list of parameter for all cmts
   '''
   import sys
   sys.path.insert(0, '/work/scripts')
   import util.param as pa
   psh = pa.ParamUtilSpeedHelper(path)
+  non_pft_params = psh.list_non_pft_params()
   param_vals = []; cmt_nums = []
   for cmt in pa.get_CMTs_in_file(path+'cmt_calparbgc.txt'):
     cmt_nums.append(cmt['cmtnum'])
-    param_vals.append(psh.get_value(pname='kdcsomcr',cmtnum=cmt['cmtnum'],pftnum=None))
+    if parameter in non_pft_params:
+      param_vals.append(psh.get_value(pname=parameter,cmtnum=cmt['cmtnum'],pftnum=None))
+    else:
+      for pft in range(0, 9):
+        pft_param = psh.get_value(pname=parameter,cmtnum=cmt['cmtnum'],pftnum=str(pft))
+        if pft_param != 0.0:
+          param_vals.append(pft_param)
   print(f'Range of {parameter} across CMTs: {min(param_vals)} - {max(param_vals)}')
-  return pd.DataFrame(index=cmt_nums, data=param_vals)
+  return
 
 def read_mads_iterationresults(iterationresults_file):
   '''
