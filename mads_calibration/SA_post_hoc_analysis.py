@@ -225,7 +225,11 @@ def plot_match(results, targets, check_filter=None, save=False, saveprefix=''):
 
 # This stuff is all about revising (tightening parameter ranges) leads into blue box
 def calc_metrics(results, targets):
-  '''Calculate a bunch of sklearn regression metrics & relative error'''
+  '''
+  Calculate a bunch of sklearn regression metrics & relative error
+  
+  returns r2, rmse, mape, re
+  '''
   # This is gonna need some help...not seeming to pick the right stuff.\
   # not sure if weights should be passed to metrics function, like this:
   #
