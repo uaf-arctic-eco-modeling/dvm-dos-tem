@@ -42,7 +42,7 @@ pytz==2020.4
 PyYAML==5.4
 Shapely==1.7.1
 six==1.15.0
-tornado==6.3.3
+tornado==6.4.1
 traitlets
 typing-extensions==3.7.4.3
 wcwidth==0.2.5
