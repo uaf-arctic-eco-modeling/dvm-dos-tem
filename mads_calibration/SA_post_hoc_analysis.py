@@ -225,7 +225,7 @@ def plot_match(results, targets, check_filter=None, save=False, saveprefix=''):
 
 # This stuff is all about revising (tightening parameter ranges) leads into blue box
 def calc_metrics(results, targets):
-  '''Calculate a bunch of sklearn regression metrics.'''
+  '''Calculate a bunch of sklearn regression metrics & relative error'''
   # This is gonna need some help...not seeming to pick the right stuff.\
   # not sure if weights should be passed to metrics function, like this:
   #
@@ -235,8 +235,10 @@ def calc_metrics(results, targets):
   r2 = [sklm.r2_score(targets.T, sample) for i,sample in results.iterrows()] 
   rmse = [sklm.mean_squared_error(targets.T, sample, squared=False) for i,sample in results.iterrows()]
   mape = [sklm.mean_absolute_percentage_error(targets.T, sample) for i,sample in results.iterrows()]
+  
+  re = [(100*(targets - sample)/sample) for i,sample in results.iterrows()] 
 
-  return r2, rmse, mape
+  return r2, rmse, mape, re
 
 def calc_correlation(model_results, sample_matrix):
   '''
