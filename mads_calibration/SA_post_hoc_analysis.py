@@ -561,7 +561,7 @@ def plot_output_scatter(results, targets,check_filter=None,
   .. image:: /images/SA_post_hoc_analysis/output_target_scatter.png
   '''
   # Calculate r2, rmse, mape metrics and create pandas data series
-  r2, rmse, mape = calc_metrics(results, targets)
+  r2, rmse, mape, re = calc_metrics(results, targets)
   df_r2 = pd.Series( r2,  name = '$R^2$'  )
   df_rmse = pd.Series( rmse,  name = 'RMSE'  )
   df_mape = pd.Series( mape,  name = 'MAPE'  )
@@ -663,7 +663,7 @@ def plot_r2_rmse(results, targets, check_filter=None, save=False, saveprefix='')
 
   '''
 
-  r2, rmse, mape = calc_metrics(results, targets)
+  r2, rmse, mape, re = calc_metrics(results, targets)
   r2 = pd.DataFrame(r2)
   rmse = pd.DataFrame(rmse)
   mape = pd.DataFrame(mape)
@@ -852,7 +852,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
 def calc_combined_score(results, targets):
   '''Calculate a combination score using r^2, and normalized mse and mape.'''
 
-  r2, rmse, mape = calc_metrics(results, targets)
+  r2, rmse, mape, re = calc_metrics(results, targets)
 
   # normalize mse and mape to be between 0 and 1
   norm_rmse = (rmse - np.nanmin(rmse)) / (np.nanmax(rmse) - np.nanmin(rmse))
@@ -1076,7 +1076,7 @@ def n_top_runs(results, targets, params, r2lim, N=None):
 
   '''
   # Calculate r2, rmse, mape metrics and create pandas data series
-  r2, rmse, mape = calc_metrics(results, targets)
+  r2, rmse, mape, re = calc_metrics(results, targets)
   df_r2 = pd.Series( r2,  name = '$R^2$'  )
 
   if N is not None:
