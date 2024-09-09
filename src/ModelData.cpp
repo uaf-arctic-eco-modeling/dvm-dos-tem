@@ -114,6 +114,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
+  ch4_module = controldata["model_settings"]["ch4"].asBool();
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
@@ -196,6 +197,18 @@ void ModelData::set_dynamic_lai_module(const std::string &s) {
 void ModelData::set_dynamic_lai_module(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting dynamic_lai_module to " << v;
   this->dynamic_lai_module = v;
+}
+
+bool ModelData::get_ch4_module() {
+  return this->ch4_module;
+}
+void ModelData::set_ch4_module(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << s;
+  this->ch4_module = temutil::onoffstr2bool(s);
+}
+void ModelData::set_ch4_module(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << v;
+  this->ch4_module = v;
 }
 
 bool ModelData::get_dslmodule() {

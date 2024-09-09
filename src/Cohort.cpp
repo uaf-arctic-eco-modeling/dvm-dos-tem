@@ -752,7 +752,10 @@ void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
   for (int id = 0; id < dinmcurr; id++){
     int doy = temutil::day_of_year(currmind, id);
 
-    soilbgc.CH4Flux(currmind, id);
+    if(md->get_ch4_module()){
+      soilbgc.CH4Flux(currmind, id);
+    }
+
     bdall->soil_endOfDay(dinmcurr, doy);
   }
 
