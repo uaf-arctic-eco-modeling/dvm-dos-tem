@@ -59,6 +59,12 @@ public:
   double ch4_ebul_rate;
   double ch4_transport_rate;
 
+  double prodq10_ch4;
+  double oxidq10_ch4;
+
+  double oxidkm_ch4;
+  double oxidVmax_ch4;
+
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area
   double klai[NUM_PFT]; //a coefficient to convert LAI to FPC

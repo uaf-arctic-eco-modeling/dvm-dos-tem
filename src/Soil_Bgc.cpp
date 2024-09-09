@@ -127,7 +127,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double diff_efflux, diff_efflux_daily, diff_efflux_gm2day = 0.0;
   // Individual layer fluxes production, ebullition, oxidation
   // plant-mediation declared in loop to sum pfts, units : umol L^-1 hr^-1
-  double prod, ebul, oxid = 0.0;
+  double prod, bubl, ebul, oxid = 0.0;
   // Individual layer fluxes and efflux units : g m^-2 hr^-1
   double prod_gm2hr, ebul_gm2hr, oxid_gm2hr, plant_gm2hr, efflux_gm2hr = 0.0;// >> efflux per hour not used?
   // Flux components cumulated over a day in units of umol L^-1 day^-1
@@ -222,6 +222,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     // zeroing rate-limiters before loading from parameter files
     double krawc_ch4, ksoma_ch4, ksompr_ch4, ksomcr_ch4 = 0.0;
 
+    // variable for storing bubble popping in layer
+    double bubble = 0.0;
+
     while(!currl->isMoss){
       // Unit conversion factors
       // Rates are in umol L^-1 hr^-1 unless stated in variable name
@@ -313,22 +316,20 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //>>> BM: https://doi.org/10.1073/pnas.1420797112 ?
       //>>> ^^ I don't think this is the one, but probably some kind of winter Q10
       if(currl->tem >= -2.0 && currl->tem < 0.000001){
-        TResp_unsat = getRhq10(-2.1) * 0.25; // >>> getq10 - non-specific RH/ methanogenesis
-        TResp_sat = getRhq10(-6.0) * 0.25;
-      }// >>> get Rhq10 is heterotrophic respiration, need ch4 based q10?
+        TResp_unsat = getQ10(calpar.oxidq10_ch4, -2.1) * 0.25;
+        TResp_sat = getQ10(calpar.prodq10_ch4, -6.0) * 0.25;
+      }
       else if(currl->tem < -2.0){
         TResp_unsat = 0.0;
         TResp_sat = 0.0;
       }
       else{
-        TResp_unsat = getRhq10(currl->tem-2.1);
-        TResp_sat = getRhq10(currl->tem - 6.0);
+        TResp_unsat = getQ10(calpar.oxidq10_ch4, currl->tem - 2.1);
+        TResp_sat = getQ10(calpar.prodq10_ch4, currl->tem - 6.0);
       }
 
       // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters
-      // >>> Add to parameter files, see: Kinetics of methane oxidation in oxic soils, Bender, Conrad
-      // >>> Do we need to include poro, volAir, volLiq, etc in any of these fluxes?
-      oxid = (1 - saturated_fraction) * (5.0 * currl->ch4 * TResp_unsat / (20.0 + currl->ch4));
+      oxid = (1 - saturated_fraction) * (calpar.oxidkm_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidVmax_ch4 + currl->ch4));
 
       if (oxid < 0.000001){
         oxid = 0.0;
@@ -405,14 +406,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         ebul = 0.0;
       }
 
-      // >>> NEED TO ACCOUNT FOR EBULLITION INTO OTHER LAYERS WITHIN THE LOOP I THINK, so
-      // it can still be diffused by the solver - check below
-
-      // Modifying ch4 pool by ebullitive flux if water table
       // is not at soil surface
       if (wtlayer != ground->fstshlwl){
-        wtlayer->ch4 += ebul;
-        ebul = 0.0;
+        bubble += ebul;
+        if (currl == wtlayer){
+          bubl = bubble;      
+        }
       }
 
       // flux accounting
@@ -446,7 +445,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // - Ebullition - Oxidation - CH4 emitted through plant process
       //This does not specifically include diff[] right now - see
       // calculation of V[] below
-      partial_delta_ch4 = prod - ebul - oxid - plant;
+      partial_delta_ch4 = prod + bubl - ebul - oxid - plant;
+
+      // bubble popped into layer
+      bubl = 0.0;
 
       // Main diagnonal
       if (il == (numsoill - 1)) {
@@ -933,6 +935,10 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsomcr_ch4 = chtlu->kdcsomcr_ch4;
   calpar.ch4_ebul_rate = chtlu->ch4_ebul_rate;
   calpar.ch4_transport_rate = chtlu->ch4_transport_rate;
+  calpar.prodq10_ch4 = chtlu->prodq10_ch4;
+  calpar.oxidq10_ch4 = chtlu->oxidq10_ch4;
+  calpar.oxidkm_ch4 = chtlu->oxidkm_ch4;
+  calpar.oxidVmax_ch4 = chtlu->oxidVmax_ch4;
   bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
@@ -1603,17 +1609,17 @@ double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
   return rhmoist;
 };
 
-double Soil_Bgc::getRhq10(const  double & tsoil) {
+double Soil_Bgc::getRhq10(const double & tsoil) {
   double rhq10;
   rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
   return rhq10;
 };
 
-// double Soil_Bgc::getQ10(const calpar param, const  double & tsoil) {
-//   double Q10;
-//   Q10 =  pow( This would be a cal par (prod or oxid), tsoil/10.0);
-//   return Q10;
-// };
+double Soil_Bgc::getQ10(const double & q10_param, const double & tsoil) {
+  double Q10;
+  Q10 = pow(q10_param, tsoil/10.0);
+  return Q10;
+};
 
 double Soil_Bgc::getNimmob(const double & soilh2o, const double & soilorgc,
                            const double & soilorgn, const double & availn,

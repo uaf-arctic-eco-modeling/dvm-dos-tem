@@ -162,6 +162,10 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsomcr_ch4 << "// kdcsompr_ch4:\n";
   s << this->ch4_ebul_rate << "// ch4_ebul_rate:\n";
   s << this->ch4_transport_rate << "// ch4_transport_rate:\n";
+  s << this->prodq10_ch4 << "// prodq10_ch4:\n";
+  s << this->oxidq10_ch4 << "// oxidq10_ch4:\n";
+  s << this->oxidkm_ch4 << "// oxidkm_ch4:\n";
+  s << this->oxidVmax_ch4 << "// oxidVmax_ch4:\n";
   return s.str();
 }
 
@@ -171,7 +175,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 24
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 28
   );
 
   // pop each line off the front of the list
@@ -203,6 +207,12 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   temutil::pfll2data(l, ch4_ebul_rate);
   temutil::pfll2data(l, ch4_transport_rate);
+
+  temutil::pfll2data(l, prodq10_ch4);
+  temutil::pfll2data(l, oxidq10_ch4);
+
+  temutil::pfll2data(l, oxidkm_ch4);
+  temutil::pfll2data(l, oxidVmax_ch4);
 }
 
 /** Assign "veg dimension?" from parameter file. */

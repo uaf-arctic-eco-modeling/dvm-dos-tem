@@ -157,10 +157,16 @@ struct soipar_cal {
   double ch4_ebul_rate;
   double ch4_transport_rate;
 
-  soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
-      kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
-      kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
-      ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D) {}
+  double prodq10_ch4;
+  double oxidq10_ch4;
+  double oxidkm_ch4;
+  double oxidVmax_ch4;
+
+  soipar_cal() : micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
+                 kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
+                 kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
+                 ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D), prodq10_ch4(UIN_D),
+                 oxidq10_ch4(UIN_D), oxidkm_ch4(UIN_D), oxidVmax_ch4(UIN_D) {}
 };
 
 struct soipar_dim {
@@ -246,12 +252,12 @@ struct soipar_bgc {
   double kdsompr_ch4[MAX_SOI_LAY];
   double kdsomcr_ch4[MAX_SOI_LAY];
 
-  soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
-                rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
-                fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
-                eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
-                lcclnc(UIN_D) {
-                
+  soipar_bgc() : kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
+                 rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
+                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
+                 eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
+                 lcclnc(UIN_D) {
+
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
       kdrawc[i] = UIN_D;
       kdsoma[i] = UIN_D;
@@ -263,7 +269,6 @@ struct soipar_bgc {
       kdsomcr_ch4[i] = UIN_D;
     }
   }
-
 };
 
 struct snwpar_dim {

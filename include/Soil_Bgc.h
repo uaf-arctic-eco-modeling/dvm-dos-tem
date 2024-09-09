@@ -137,6 +137,7 @@ private:
   double getRhmoist(const double &vsm, const double & moistmin,
                     const double & moistmax, const double & moistopt);
   double getRhq10(const double & tsoil);
+  double getQ10(const double & q10_param, const double & tsoil);
 
   double getNimmob(const double & soilh2o, const double & soilorgc,
                    const double & soilorgn, const double & availn,
