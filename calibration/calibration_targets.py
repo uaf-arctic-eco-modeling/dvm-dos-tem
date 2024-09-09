@@ -28,6 +28,7 @@ calibration_targets = {
     'CarbonMineralSum': {'units': 'g/m2', 'desc': '', 'comment': 'minec', 'ref': '', 'ncname': 'MINEC'},
     'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': '', 'ncname': 'ORGN'},
     'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': '', 'ncname': 'AVLN'},
+    'CH4All': {'units': '', 'desc': '', 'comment': 'ch4all', 'ref': '', 'ncname': 'CH4EFFLUXTOT'},
   },
 
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
@@ -54,6 +55,7 @@ calibration_targets = {
     'CarbonMineralSum':          0.00,    #  minec
     'OrganicNitrogenSum':        0.00,    #  soln
     'AvailableNitrogenSum':      0.00,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT01 - Black Spruce Forest, calibration for Murphy Dome climate.
   "black spruce forest": {
@@ -80,6 +82,7 @@ calibration_targets = {
     'CarbonMineralSum':      41665.00,    #  minec
     'OrganicNitrogenSum':     2145.87,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT02 - White Spruce Forest, calibration for Murphy Dome climate.
   "white spruce forest": {
@@ -106,6 +109,7 @@ calibration_targets = {
     'CarbonMineralSum':      11005.00,    #  minec
     'OrganicNitrogenSum':      699.81,    #  soln
     'AvailableNitrogenSum':      1.69,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT03 - Deciduous Forest, calibration for Murphy Dome climate.
   "deciduous forest": {
@@ -132,6 +136,7 @@ calibration_targets = {
     'CarbonMineralSum':      25915.00,    #  minec
     'OrganicNitrogenSum':     1513.10,    #  soln
     'AvailableNitrogenSum':       3.5,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT04 - Shrub Tundra, calibration for Toolik climate.
   "shrub tundra": {
@@ -158,6 +163,7 @@ calibration_targets = {
     'CarbonMineralSum':      37022.00,    #  minec
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT05 Tussock Tundra (updated 2/23/2016, JDC: GPPain, NPPain, NPPall, Nuptake, Veg from Shaver & Chapin 1991; 
   ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); MossDeathC from CTucker data;
@@ -188,6 +194,7 @@ calibration_targets = {
     'CarbonMineralSum':      43404.00,    #  minec
     'OrganicNitrogenSum':     2206.00,    #  soln
     'AvailableNitrogenSum':      8.958,   #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH toolik climate (also barrow climate)  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {
@@ -214,6 +221,7 @@ calibration_targets = {
     'CarbonMineralSum':      44252.00,    #  minec
     'OrganicNitrogenSum':     2698.00,    #  soln
     'AvailableNitrogenSum':      0.48,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT07 - HEATH TUNDRA - CALIBRATION TOOLIK CLIMATE   New Values from Helene, input by Joy 8 16 2019, except Nuptake and soilC numbers and forb
   "heath tundra": {
@@ -240,6 +248,7 @@ calibration_targets = {
     'CarbonMineralSum':      32640.00,    #  minec
     'OrganicNitrogenSum':     1405.00,    #  soln
     'AvailableNitrogenSum':      0.17,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## Prepared from Vijay Patil work in the Yukon Flats with the mentoring of Eugenie Euskirchen- soil data comes from unknown
   "Shrubland": {
@@ -266,6 +275,7 @@ calibration_targets = {
     'CarbonMineralSum':      24235.14,    #  minec
     'OrganicNitrogenSum':     2177.91,    #  soln
     'AvailableNitrogenSum':       0.8,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
  ## Prepared from EML??
   "Shrub tundra EML": {
@@ -292,6 +302,7 @@ calibration_targets = {
     'CarbonMineralSum':      36329.49,    #  minec
     'OrganicNitrogenSum':     1904.10,    #  soln
     'AvailableNitrogenSum':      4.00,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## Prepared from EML??  Need Nuptake   created from excel file sent by Helene August 2022
   "Tussock tundra EML": {
@@ -318,6 +329,7 @@ calibration_targets = {
     'CarbonMineralSum':      43416.95,    #  minec
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
+    'CH4All':      0.00,    #  ch4all
   },
   ## Updated by Heather Greaves 2017
   "Boreal Bog": {
@@ -343,7 +355,8 @@ calibration_targets = {
     'CarbonDeep':            40300.79,    #  deepc# From Mi et al, based on Manies
     'CarbonMineralSum':      60975.00,    #  minec# From Manies %C, %N, and BD
     'OrganicNitrogenSum':     5548.86,    #  soln # From Manies %C, %N, and BD
-    'AvailableNitrogenSum':      9.41     #  avln # Using Bayley et al 2005 extractable n
+    'AvailableNitrogenSum':      9.41,    #  avln # Using Bayley et al 2005 extractable n
+    'CH4All':      8.60,    #  ch4all
   },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
   "shrub tundra kougarok": {
@@ -370,6 +383,7 @@ calibration_targets = {
     'CarbonMineralSum':      37022.00,    #  minec
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln
+    'CH4All':      0.00,    #  ch4all
   }
 
 }

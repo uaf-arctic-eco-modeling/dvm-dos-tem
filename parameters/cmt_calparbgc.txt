@@ -29,8 +29,12 @@
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
 0.00      // kdcsomcrch4:
-0.0     // ch4ebulrate: ebullition rate, per hour
-0.0     // ch4transportrate: plant-mediated transport rate, per hour
+0.00      // ch4ebulrate: ebullition rate, per hour
+0.00      // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/29/20 boreal black spruce with Murphy Dome climate
 //EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
@@ -59,6 +63,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 boreal white spruce with Bonanza Creek climate
 //EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
@@ -87,6 +95,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // 7/7/20 boreal deciduous forest with Murphy Dome climate
 //EverTree  DecidShrub   DecidTree      Moss        PFT4     PFT5    PFT6    PFT7     PFT8     PFT9    // pftnames:
@@ -115,6 +127,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area. J.Clein updated, July 2019
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
@@ -143,6 +159,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT05 // Tussock Tundra // Updated by E.E. calibration, April, May 2017 //Reupdated July 2019 by Joy//Joy June 2022
 // Betula      Decid      EGreen      Sedges       Forbs      Lichens    Feather     Sphag       PFT8         PFT9    // pftnames:
@@ -171,6 +191,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7     PFT8      PFT9      // pftnames
@@ -199,6 +223,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT07 // Heath Tundra //
 //Decid     EGreen        Forbs        Lichens      Grasses      Moss       PFT6        PFT7       PFT8         PFT9         // pftnames:
@@ -227,6 +255,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland //
 //DecShrub   EvrShrub     DecTree      EvrTree       Forbs        Gram      Feather     Lichen    Equisetum      PFT9         // pftnames:
@@ -255,6 +287,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
@@ -283,6 +319,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT21 // EML Tussock Tundra // joy 8/9/22
 //Decidsh   Egreensh     Sedge      Forbs      Lichen    OMoss     Sphag       PFT7      PFT8        PFT9      // names: comments
@@ -311,6 +351,10 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
 //===========================================================
 // CMT31 // Boreal Bog
 //Sphagnum  Sedge        DecShrub    EvrShrub     Forbs         Moss       NotUsed  NotUsed  NotUsed  NotUsed  // names: comments
@@ -333,12 +377,16 @@
 0.250000     // kdcsoma:
 0.018000     // kdcsompr:
 0.000010     // kdcsomcr:
-0.0000002938 // kdcrawcch4:
-0.000000625973 // kdcsomach4:
-0.000000001355 // kdcsomprch4:
-0.0000000012 // kdcsomcrch4:
-1.0     // ch4ebulrate: ebullition rate, per hour
-0.01     // ch4transportrate: plant-mediated transport rate, per hour
+0.001477 // kdcrawcch4:
+0.000231 // kdcsomach4:
+0.001080 // kdcsomprch4:
+0.000024 // kdcsomcrch4:
+0.373562 // ch4ebulrate: ebullition rate, per hour
+0.162687 // ch4transportrate: plant-mediated transport rate, per hour
+11.25571 // prodq10ch4:
+1.997233 // oxidq10ch4:
+3.483228 // oxidkmch4:
+36.18378 // oxidvmaxch4:
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
@@ -367,3 +415,7 @@
 0.00      // kdcsomcrch4:
 0.0     // ch4ebulrate: ebullition rate, per hour
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+5.00      // oxidkmch4:
+20.0      // oxidvmaxch4:
