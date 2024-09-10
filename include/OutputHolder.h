@@ -64,6 +64,9 @@ public:
   std::vector<double> eet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> eet_for_output;
 
+  std::vector<double> lai_tot_for_output;
+  std::vector<std::array<double, NUM_PFT>> lai_for_output;
+
   std::vector<double> pet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> pet_for_output;
 
