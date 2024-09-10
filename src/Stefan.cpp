@@ -62,7 +62,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
     }
 
     tkunf = currl->getUnfThermCond();
-    tkfrz = currl->getMixThermCond();
+    tkfrz = currl->getMixThermCond(); //change to Frz
     tkmix = currl->getMixThermCond();
 
     if(tdrv1<0.0) {
@@ -173,11 +173,11 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   dz =sl->dz;  // this is the max. thickness
 
   if (freezing==1) {
-    dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
-                                        //  soil segments not mixed
+    // dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
+    //                                     //  soil segments not mixed
     volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
   } else {
-    dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
+    // dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
     volwat = fmax(0.0, sl->getVolIce())*sl->dz;
   }
 
@@ -351,11 +351,11 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
   dz =sl->dz;  //this is the max. thickness of water to be freezing/thawing
 
   if (freezing==1) {
-    dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
-                                        //  soil segments not mixed
+    // dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
+    //                                     //  soil segments not mixed
     volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
   } else {
-    dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
+    // dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
     volwat = fmax(0.0, sl->getVolIce())*sl->dz;
   }
 
@@ -529,20 +529,23 @@ double Stefan::getDegSecNeeded(const double & dz, const double & volwat,
    */
   double needed=0.;
   double effvolwat = volwat;
-  double lhfv = LHFUS * 1000;//Converting units
-  needed = lhfv * effvolwat * dz * (sumresabv + 0.5 * dz/tk); // need dz outside of parentheses too
+  double lhfv = LHFUS * 1000;//Converting units 
+  needed = lhfv * effvolwat * (sumresabv + 0.5 * dz/tk);
+
   return needed;
+
 };
 
 //calculate partial depth based on extra degree seconds
-double Stefan::getPartialDepth(const double & volwat, const double & tk,
-                               const double & sumresabv, const double & dse) {
+double Stefan::getPartialDepth(const double &volwat, const double &tk, //const double &tres,
+                               const double &sumresabv, const double &dse)
+{
   /* input
    *  dse: extra degree second
    */
   double partd;
   double effvolwat = volwat;
-  double lhfv = 3.34e8;
+  double lhfv = LHFUS * 1000;
   double firstp = tk * sumresabv;
   double second1 = tk * tk * sumresabv * sumresabv;
   double second2 = 2 * tk * dse/(lhfv * effvolwat);

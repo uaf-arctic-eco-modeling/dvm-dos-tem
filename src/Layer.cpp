@@ -110,23 +110,22 @@ double Layer::getUnfVolLiq(){
 
   double T_, b, uwc;
 
-    if (isMoss){
-    T_ = -0.05;
-    b = 1.0;
-  } else if (isFibric){
-    T_ = -0.2;
-    b = 0.75;
-  } else if (isHumic){
-    T_ = -0.5;
-    b = 0.65;
-  } else {
+  if (isMoss){
     T_ = -0.01;
+    b = 0.9;
+  } else if (isFibric){
+    T_ = -0.03;
+    b = 0.65;
+  } else if (isHumic){
+    T_ = -0.03;
+    b = 0.5;
+  } else {
+    T_ = -0.04;
     b = 0.5;
   }
 
   if (tem < T_){
-    // uwc = poro * pow(abs(T_), b) * pow(abs(tem), -b);
-    uwc = getVolWater() * pow(abs(T_), b) * pow(abs(tem), -b); // scaling by VWC where not fully saturated
+    uwc = poro * pow(abs(T_), b) * pow(abs(tem), -b);
   } else{
     uwc = 0.0;
   }
@@ -145,22 +144,21 @@ double Layer::getDeltaUnfVolLiq(){
   double T_, b, d_uwc;
 
   if (isMoss){
-    T_ = -0.05;
+    T_ = -0.01;
     b = 1.0;
   } else if (isFibric){
-    T_ = -0.1;
-    b = 0.7;
+    T_ = -0.02;
+    b = 0.75;
   } else if (isHumic){
-    T_ = -0.5;
+    T_ = -0.03;
     b = 0.65;
   } else {
-    T_ = -0.01;
+    T_ = -0.04;
     b = 0.5;
   }
 
   if (tem < T_){
-    // d_uwc = b * poro * pow(abs(T_), b) * pow(abs(tem), -b - 1);
-    d_uwc = b * getVolWater() * pow(abs(T_), b) * pow(abs(tem), -b - 1); // scaling by VWC where not fully saturated
+    d_uwc = b * poro * pow(abs(T_), b) * pow(abs(tem), -b - 1);
   } else {
     d_uwc = 0.0;
   }
