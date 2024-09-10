@@ -4687,37 +4687,68 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //SOMCR - soil organic matter, chemically resistant
+  // SOMCR - soil organic matter, chemically resistant
   map_itr = netcdf_outputs.find("SOMCR");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: SOMCR";
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOMCR";
     curr_spec = map_itr->second;
 
     #pragma omp critical(outputSOMCR)
     {
-      //By layer
-      if(curr_spec.layer){
-        if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.somcr[0], MAX_SOI_LAY, month_timestep, 1);
-        }
-        else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.somcr[0], MAX_SOI_LAY, year, 1);
-        }
-      }
-      //Total, instead of by layer
-      else if(!curr_spec.layer){
-        //monthly
-        if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.somcrsum, 1, month_timestep, 1);
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.somcrsum, 1, year, 1);
-        }
+      // By layer
+      if (curr_spec.layer)
+      {
+        // Monthly
+        if (curr_spec.monthly) {
+          std::array<double, MAX_SOI_LAY> m_somcr;
+          for (int i = 0; i < MAX_SOI_LAY; i++) {
+            m_somcr[i] = cohort.bdall->m_sois.somcr[i];
+          }
+          outhold.somcr_for_output.push_back(m_somcr);
 
+          if (output_this_timestep) {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.somcr_for_output[0][0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.somcr_for_output.clear();
+          }
+        }
+        // Yearly
+        else if (curr_spec.yearly) {
+          std::array<double, MAX_SOI_LAY> y_somcr;
+          for (int i = 0; i < MAX_SOI_LAY; i++) {
+            y_somcr[i] = cohort.bdall->y_sois.somcr[i];
+          }
+          outhold.somcr_for_output.push_back(y_somcr);
+
+          if (output_this_timestep) {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.somcr_for_output[0][0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.somcr_for_output.clear();
+          }
+        }
       }
-    }//end critical(outputSOMCR)
-  }//end SOMCR
+      // Total, instead of by layer
+      else if (!curr_spec.layer)
+      {
+        // Monthly
+        if (curr_spec.monthly) {
+          outhold.somcr_tot_for_output.push_back(cohort.bdall->m_soid.somcrsum);
+
+          if (output_this_timestep) {
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.somcr_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.somcr_tot_for_output.clear();
+          }
+        }
+        // Yearly
+        else if (curr_spec.yearly) {
+          outhold.somcr_tot_for_output.push_back(cohort.bdall->y_soid.somcrsum);
+
+          if (output_this_timestep) {
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.somcr_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.somcr_tot_for_output.clear();
+          }
+        }
+      }
+    } //end critical(outputSOMCR)
+  } //end SOMCR
   map_itr = netcdf_outputs.end();
 
 
