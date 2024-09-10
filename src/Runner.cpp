@@ -3096,11 +3096,29 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     curr_spec = map_itr->second;
     #pragma omp critical(outputLWCLAYER)
     {
+      std::array<double, MAX_SOI_LAY> lwc_layer{};
+
       if(curr_spec.monthly){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->m_soid.lwc[0], MAX_SOI_LAY, month_timestep, 1);
+        for(int i=0; i<MAX_SOI_LAY; i++){
+          lwc_layer[i] = cohort.edall->m_soid.lwc[i];
+        }
+        outhold.lwclayer_for_output.push_back(lwc_layer);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.lwclayer_for_output[0][0], MAX_SOI_LAY, month_start_idx, months_to_output);
+          outhold.lwclayer_for_output.clear();
+        }
       }
       else if(curr_spec.yearly){
-        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->y_soid.lwc[0], MAX_SOI_LAY, year, 1);
+        for(int i=0; i<MAX_SOI_LAY; i++){
+          lwc_layer[i] = cohort.edall->y_soid.lwc[i];
+        }
+        outhold.lwclayer_for_output.push_back(lwc_layer);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.lwclayer_for_output[0][0], MAX_SOI_LAY, year_start_idx, years_to_output);
+          outhold.lwclayer_for_output.clear();
+        }
       }
     }//end critical(outputLWCLAYER)
   }//end LWCLAYER
