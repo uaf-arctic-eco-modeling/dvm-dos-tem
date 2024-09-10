@@ -95,6 +95,11 @@ public:
   std::vector<std::array<double, NUM_PFT>> npp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> npp_for_output; 
 
+  std::vector<double> rg_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> rg_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> rg_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> rg_for_output; 
+
   std::vector<double> vegc_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> vegc_part_for_output;
   std::vector<std::array<double, NUM_PFT>> vegc_pft_for_output;
