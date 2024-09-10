@@ -4637,23 +4637,50 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //By layer
       if(curr_spec.layer){
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_sois.soma[0], MAX_SOI_LAY, month_timestep, 1);
+          std::array<double, MAX_SOI_LAY> m_soma;
+          for(int i = 0; i < MAX_SOI_LAY; i++) {
+            m_soma[i] = cohort.bdall->m_sois.soma[i];
+          }
+          outhold.soma_for_output.push_back(m_soma);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.soma_for_output[0][0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.soma_for_output.clear();
+          }
         }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_sois.soma[0], MAX_SOI_LAY, year, 1);
+          std::array<double, MAX_SOI_LAY> y_soma;
+          for(int i = 0; i < MAX_SOI_LAY; i++) {
+            y_soma[i] = cohort.bdall->y_sois.soma[i];
+          }
+          outhold.soma_for_output.push_back(y_soma);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.soma_for_output[0][0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.soma_for_output.clear();
+          }
         }
       }
       //Total, instead of by layer
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soid.somasum, 1, month_timestep, 1);
+          outhold.soma_tot_for_output.push_back(cohort.bdall->m_soid.somasum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soma_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.soma_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soid.somasum, 1, year, 1);
-        }
+          outhold.soma_tot_for_output.push_back(cohort.bdall->y_soid.somasum);
 
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soma_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.soma_tot_for_output.clear();
+          }
+        }
       }
     }//end critical(outputSOMA)
   }//end SOMA
