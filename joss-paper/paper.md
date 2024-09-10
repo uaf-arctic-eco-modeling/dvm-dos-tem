@@ -160,8 +160,7 @@ dynamic vegetation module (DVM) and a dynamic organic soil (DOS) module to
 simulate processes at yearly and monthly scales, with some physical processes
 operating at an even finer temporal resolution. Its versatility allows for
 site-specific to regional simulations, making it valuable for predicting shifts
-in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics across
-arctic, boreal, and alpine regions.
+in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics.
 
 # Statement of need
 
@@ -208,36 +207,34 @@ structure showing the layers and different properties that are tracked (purple
 bubble: carbon (C), nitrogen (N), temperature (T), volumetric water content
 (VWC), ice). Each of the layers with properties described above is also
 categorized as organic (fibric or humic) or mineral. Additionally, the model
-simulates snow layers and the removal of soil organic layers due to processes
-such as fire. On the right is the vegetation structure showing the plant
-functional types (PFTs) within a given community type (CMT) and the associated
-pools and fluxes of C and N. Each PFT is split into compartments (leaf, stem and
-root) which track their own C and N content and associated fluxes. The fluxes
-are represented with red text while the pools are black. In addition, there is
-competition among the PFTs for light, water, and available N, shown with the
-purple arrow in the top
+simulates snow layers and the removal of soil organic layers due to fire. On the
+right is the vegetation structure showing plant functional types (PFTs)
+within a community type (CMT) and the associated pools and fluxes of C and
+N. Each PFT is split into compartments (leaf, stem and root) which track their
+own C and N content and associated fluxes. The fluxes are represented with red
+text while the pools are black. In addition, there is competition among the PFTs
+for light, water, and available N, shown with the purple arrow in the top
 center.\label{fig:modeloverview}](dvmdostem-overview-export_2024-08-19.jpg)
 
 
 ## Snow and soil structure and processes
 
 The soil column is structured as a sequence of layers organized by soil horizons
-(i.e. fibric, humic, mineral, and parent material).
-The number and physical properties of layers may change throughout the
-simulation based on vegetation, thermal, hydrologic, and seasonal properties
-that are calculated at each time step [@Zhuang2003; @Euskirchen2014; @Yi2009;
-@McGuire2018]. The model uses the two-directional Stefan algorithm and the
-Richards equation to predict freezing/thawing fronts and soil moisture dynamics
-in the unfrozen layers, respectively [@Yi2009; @Yi2010; @Zhuang2003]. Snow is
-also represented with a dynamic stack of layers. The physical properties of the
-snowpack (density, thickness, and temperature) are calculated from snowfall,
-sublimation and snowmelt. The snow cover influences soil-thermal and
-hydrological seasonal dynamics. Changes in soil C stocks are a result of
-litterfall from the vegetation and decomposition of soil C stocks by microbes
-(heterotrophic respiration or Rh). Changes in soil organic and available N
-stocks are a result of litterfall, net mineralization of organic N, and plant N
-uptake. Soil organic layers and soil C and N stocks may also be modified as a
-result of wildfire.
+(i.e. fibric, humic, mineral, and parent material). The number and physical
+properties of layers may change throughout the simulation based on vegetation,
+thermal, hydrologic, and seasonal properties that are calculated at each time
+step [@Zhuang2003; @Euskirchen2014; @Yi2009; @McGuire2018]. The model uses the
+two-directional Stefan algorithm to predict freezing/thawing fronts and the
+ Richards equation to predict soil moisture dynamics in the unfrozen layers
+[@Yi2009; @Yi2010; @Zhuang2003]. Snow is also represented with a dynamic stack
+of layers. The physical properties of the snowpack (density, thickness, and
+temperature) are calculated from snowfall, sublimation and snowmelt. Snow
+cover influences soil-thermal and hydrological seasonal dynamics. Changes in
+soil C stocks are a result of litterfall from the vegetation and decomposition
+of soil C stocks by microbes (heterotrophic respiration or Rh). Changes in soil
+organic and available N stocks are a result of litterfall, net mineralization of
+organic N, and plant N uptake. Soil organic layers and soil C and N stocks may
+also be modified as a result of wildfire.
 
 
 ## Vegetation structure and processes
@@ -279,9 +276,8 @@ decreasing overall run-times, `DVMDOSTEM` uses two QSS stages: “Pre-run” and
 * Scenario (sc): future simulation.
 
 A complete model simulation requires advancing the model consecutively through
-all of the run stages, however users are able to selectively skip stages in
-order to save compute time for certain debugging workflows or when running
-multiple scenarios.
+all of the run stages, however users are able to selectively skip stages as
+needed to reduce compute time.
 
 
 ## Spatial considerations
@@ -291,12 +287,12 @@ multiple scenarios.
 characterized by a set of input (forcing) values and a set of parameterization
 values. Parameterization values for a grid cell describe soil and vegetation
 characteristics and are associated with a CMT. `DMVDOSTEM` does not include the
-lateral transfer of information between grid cells (e.g. water, C, and
-nutrients). The CMT classification for each grid cell is static across the time
-dimension of a model simulation. These two factors limit the ability of the
-model to represent climate-driven biome shifts or succession trajectories from
-disturbances such as wildfire [@Johnstone2010]. Design discussions are in
-progress for adding these capabilities to `DVMDOSTEM`.
+lateral transfer of information between grid cells. The CMT classification for
+each grid cell is static across the time dimension of a model simulation. These
+two factors limit the ability of the model to represent climate-driven biome
+shifts or succession trajectories from disturbances such as wildfire
+[@Johnstone2010]. Design discussions are in progress for adding these
+capabilities to `DVMDOSTEM`.
 
 
 ## Inputs and outputs
