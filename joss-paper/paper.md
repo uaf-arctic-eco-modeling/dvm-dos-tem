@@ -336,14 +336,14 @@ that allows automation [@JafarovINPREP2024].
 
 # Software Design
 
-The `DVMDOSTEM` software repository is a combination of several tightly coupled
+The `DVMDOSTEM` software repository is a combination of tightly coupled
 sub-components: 
 
  - the `DVMDOSTEM` model itself,
  - supporting tools, and
- - a development environment specification.
+ - development environment specifications.
 
-At the core of the project is the `DVMDOSTEM` model itself. The `DVMDOSTEM` model
+The core of the project is the `DVMDOSTEM` model. The `DVMDOSTEM` model
 is written in C++ and uses some object-oriented concepts. The model exposes a
 command line interface that allows users to start simulations manually or
 use a scripting language to drive the command line interface.
@@ -357,17 +357,16 @@ interfaces and a Python API which are documented in the User Guide.
 
 The model and tools target a UNIX-like operating system environment. The
 combination of the core `DVMDOSTEM` model and the supporting tools result in the
-need for a complex computing environment with many dependencies. To manage this
-complexity and provide consistent environments for development and production,
-the repository provides definitions for Docker images [@Merkel2014]. The
-project includes the specification for several development images as well as a
-pared down runtime-only image.
+need for a complex computing environment with many dependencies. Docker images
+are used to manage this complexity, providing consistent environments for
+development and production, [@Merkel2014]. The project includes the
+specification for development images as well as a pared down runtime-only image.
 
-The software design is a work in progress and stems from the
-organic growth of the project spanning 30+ years of development by research
-scientists, graduate students and programmers. Recent years have seen an
-increased effort to apply professional software development practices such as
-version control, automated documentation, containerization, and testing.
+The software design is a work in progress stemming from the organic growth
+spanning 30+ years of development by research scientists, graduate students and
+programmers. Recent years have seen an increased effort to apply professional
+software development practices such as version control, automated documentation,
+containerization, and testing.
 
 
 # Acknowledgements
