@@ -294,23 +294,66 @@ class MadsTEMDriver(BaseDriver):
     fd = pd.DataFrame(self.gather_model_outputs())
     return list(fd['value'])
 
-  def observed_vec(self):
-    '''Return a flat list of the observation values (aka targets).'''
-    # The target values are included in the model output data structures, and
-    # could be accessed exactly like the modeled_vec function but
-    # if you have not yet run the model you don't have outputs ready and
-    # therefore can't read them. There are cases where you would like to
-    # see the target values without running the model, so we will assemble
-    # them another way here.
+  def observed_vec(self, format='labeled'):
+    '''Return a list of the observation values (aka targets).
+
+    The target values are included in the model output data structures, and
+    could be accessed exactly like the `modeled_vec()` function but
+    if you have not yet run the model you don't have outputs ready and
+    therefore can't read them. There are cases where you would like to
+    see the target values without running the model, so we will assemble
+    them here from the `self.targets` data structure.
+
+    Parameters
+    ==========
+    format : {'labeled', 'flat'}
+      Choose the format that returned data will be in. 'labeled' data will be a
+      list of dicts that can be converted to Pandas DataFrame. 'flat' data will 
+      return a flat list in the order:
+      `[ pft0_leaf,pft0_stem,pft0_root, ... pftN_leaf, pftN_stem, pftN_root ]`
+
+    Returns
+    =======
+    target_data : iterable
+      The target data, organized as specified with `format` parameter.
+    '''
+
     pftnums = [i['pftnum'] for i in self.params]
-    for o in self.outputs:
-      ct = o['ctname']
-      # Not 100% sure this will work all the time?? PFTs? compartments???
-      # Likely going to need something like
-      # if type(self.targets[ct]) is dict:
-      #   sefl.targets[ct]['Leaf'][PFT]
-      targets = [self.targets[ct][PFT] for PFT in range(10) if PFT in pftnums]
-      return targets
+
+    if format == 'labeled':
+      # Builds a list of dicts that can be easily turned into Pandas DataFrame.
+      targets = []
+      for o in self.outputs:
+        ct = o['ctname']
+        if type(self.targets[ct]) is dict:
+          for PFT in range(10):
+            if PFT in pftnums:
+              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt='Leaf', observed=self.targets[ct]['Leaf'][PFT]))
+              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt='Stem', observed=self.targets[ct]['Stem'][PFT]))
+              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt='Root', observed=self.targets[ct]['Root'][PFT]))
+        else:
+          for PFT in range(10):
+            if PFT in pftnums:
+              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, observed=self.targets[ct][PFT]))
+
+    elif format == 'flat':
+      # Builds a flat list in this order:
+      # [ pft0_leaf, pft0_stem, pft1_root ... pftN_leaf, pftN_stem, pftN_root ]
+      targets = []
+      for o in self.outputs:
+        ct = o['ctname']
+        if type(self.targets[ct]) is dict:
+          for PFT in range(10):
+            if PFT in pftnums:
+              targets.append(self.targets[ct]['Leaf'][PFT])
+              targets.append(self.targets[ct]['Stem'][PFT])
+              targets.append(self.targets[ct]['Root'][PFT])
+        else:
+          for PFT in range(10):
+            if PFT in pftnums:
+              targets.append(self.targets[ct][PFT])
+
+    return targets
 
 
 
