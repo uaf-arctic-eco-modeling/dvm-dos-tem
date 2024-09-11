@@ -1563,6 +1563,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end BURNVEG2SOILBLWN
   map_itr = netcdf_outputs.end();
 
+
   //Community Type Code (CMT NUMBER)
   map_itr = netcdf_outputs.find("CMTNUM");
   if(map_itr != netcdf_outputs.end()) {
@@ -1570,15 +1571,19 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     curr_spec = map_itr->second;
     #pragma omp critical(outputCMTNUM)
     {
-
       int cmtnum;
       cmtnum = temutil::cmtcode2num(this->cohort.chtlu.cmtcode);
 
-      output_nc_3dim(&curr_spec, file_stage_suffix, &cmtnum, 1, year, 1);
+      outhold.cmtnum_for_output.push_back(cmtnum);
 
+      if(output_this_timestep){
+        output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.cmtnum_for_output[0], 1, year_start_idx, years_to_output);
+        outhold.cmtnum_for_output.clear();
+      }
     } //end critical(outputCMTNUM)
   } //end CMTNUM
   map_itr = netcdf_outputs.end();
+
 
   //Standing dead C
   map_itr = netcdf_outputs.find("DEADC");

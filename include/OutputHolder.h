@@ -25,6 +25,7 @@ public:
   int months_held;
   int years_held;
 
+  std::vector<int> cmtnum_for_output;
   std::vector<int> ysd_for_output;
 
   std::vector<double> ald_for_output;
