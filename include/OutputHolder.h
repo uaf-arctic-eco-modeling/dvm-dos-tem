@@ -120,6 +120,11 @@ public:
   std::vector<std::array<double, NUM_PFT>> vegc_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> vegc_for_output; 
 
+  std::vector<double> rm_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> rm_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> rm_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> rm_for_output; 
+
 };
 
 
