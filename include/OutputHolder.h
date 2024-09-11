@@ -81,6 +81,11 @@ public:
   std::vector<std::array<double, NUM_PFT>> ltrfalc_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> ltrfalc_for_output; 
 
+  std::vector<double> ingpp_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> ingpp_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> ingpp_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> ingpp_for_output; 
+
   std::vector<double> npp_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> npp_part_for_output;
   std::vector<std::array<double, NUM_PFT>> npp_pft_for_output;

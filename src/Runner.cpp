@@ -2383,91 +2383,151 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
   //INGPP
   map_itr = netcdf_outputs.find("INGPP");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: INGPP";
+  if (map_itr != netcdf_outputs.end())
+  {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: INGPP";
     curr_spec = map_itr->second;
 
     #pragma omp critical(outputINGPP)
     {
-      //PFT and compartment
-      if(curr_spec.pft && curr_spec.compartment){
+      // PFT and compartment
+      if (curr_spec.pft && curr_spec.compartment)
+      {
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_ingpp{};
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> y_ingpp{};
 
-        double m_ingpp[NUM_PFT_PART][NUM_PFT];
-        double y_ingpp[NUM_PFT_PART][NUM_PFT];
-        for(int ip=0; ip<NUM_PFT; ip++){
-          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        for (int ip = 0; ip < NUM_PFT; ip++)
+        {
+          for (int ipp = 0; ipp < NUM_PFT_PART; ipp++)
+          {
             m_ingpp[ipp][ip] = cohort.bd[ip].m_a2v.ingpp[ipp];
             y_ingpp[ipp][ip] = cohort.bd[ip].y_a2v.ingpp[ipp];
           }
         }
-        //monthly
-        if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_ingpp[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_ingpp[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
-        }
+        // monthly
+        if (curr_spec.monthly)
+        {
+          outhold.ingpp_for_output.push_back(m_ingpp);
 
+          if (output_this_timestep)
+          {
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ingpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            outhold.ingpp_for_output.clear();
+          }
+        }
+        // yearly
+        else if (curr_spec.yearly)
+        {
+          outhold.ingpp_for_output.push_back(y_ingpp);
+
+          if (output_this_timestep)
+          {
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ingpp_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            outhold.ingpp_for_output.clear();
+          }
+        }
       }
-      //PFT only (4 dimensions)
-      else if(curr_spec.pft && !curr_spec.compartment){
+      // PFT only (4 dimensions)
+      else if (curr_spec.pft && !curr_spec.compartment)
+      {
+        std::array<double, NUM_PFT> m_ingpp{};
+        std::array<double, NUM_PFT> y_ingpp{};
 
-        double m_ingpp[NUM_PFT], y_ingpp[NUM_PFT];
-        for(int ip=0; ip<NUM_PFT; ip++){
+        for (int ip = 0; ip < NUM_PFT; ip++)
+        {
           m_ingpp[ip] = cohort.bd[ip].m_a2v.ingppall;
           y_ingpp[ip] = cohort.bd[ip].y_a2v.ingppall;
         }
 
-        //monthly
-        if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_ingpp[0], NUM_PFT, month_timestep, 1);
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_ingpp[0], NUM_PFT, year, 1);
-        }
+        // monthly
+        if (curr_spec.monthly)
+        {
+          outhold.ingpp_pft_for_output.push_back(m_ingpp);
 
+          if (output_this_timestep)
+          {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ingpp_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.ingpp_pft_for_output.clear();
+          }
+        }
+        // yearly
+        else if (curr_spec.yearly)
+        {
+          outhold.ingpp_pft_for_output.push_back(y_ingpp);
+
+          if (output_this_timestep)
+          {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ingpp_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.ingpp_pft_for_output.clear();
+          }
+        }
       }
-      //Compartment only (4 dimensions)
-      else if(!curr_spec.pft && curr_spec.compartment){
+      // Compartment only (4 dimensions)
+      else if (!curr_spec.pft && curr_spec.compartment)
+      {
+        std::array<double, NUM_PFT_PART> m_ingpp{};
+        std::array<double, NUM_PFT_PART> y_ingpp{};
 
-        double m_ingpp[NUM_PFT_PART] = {0};
-        double y_ingpp[NUM_PFT_PART] = {0};
-
-        for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-          for(int ip=0; ip<NUM_PFT; ip++){
+        for (int ipp = 0; ipp < NUM_PFT_PART; ipp++)
+        {
+          for (int ip = 0; ip < NUM_PFT; ip++)
+          {
             m_ingpp[ipp] += cohort.bd[ip].m_a2v.ingpp[ipp];
             y_ingpp[ipp] += cohort.bd[ip].y_a2v.ingpp[ipp];
           }
         }
+        // monthly
+        if (curr_spec.monthly)
+        {
+          outhold.ingpp_part_for_output.push_back(m_ingpp);
 
-        //monthly
-        if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_ingpp[0], NUM_PFT_PART, month_timestep, 1);
+          if (output_this_timestep)
+          {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ingpp_part_for_output[0], NUM_PFT_PART, month_start_idx, months_to_output);
+            outhold.ingpp_part_for_output.clear();
+          }
         }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_ingpp[0], NUM_PFT_PART, year, 1);
-        }
+        // yearly
+        else if (curr_spec.yearly)
+        {
+          outhold.ingpp_part_for_output.push_back(y_ingpp);
 
+          if (output_this_timestep)
+          {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ingpp_part_for_output[0], NUM_PFT_PART, year_start_idx, years_to_output);
+            outhold.ingpp_part_for_output.clear();
+          }
+        }
       }
-      //Neither PFT nor Compartment - total instead
-      else if(!curr_spec.pft && !curr_spec.compartment){
-        //monthly
-        if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_a2v.ingppall, 1, month_timestep, 1);
-        }
-        //yearly
-        else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_a2v.ingppall, 1, year, 1);
-        }
+      // Neither PFT nor Compartment - total instead
+      else if (!curr_spec.pft && !curr_spec.compartment)
+      {
+        // monthly
+        if (curr_spec.monthly)
+        {
+          outhold.ingpp_tot_for_output.push_back(cohort.bdall->m_a2v.ingppall);
 
+          if (output_this_timestep)
+          {
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ingpp_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ingpp_tot_for_output.clear();
+          }
+        }
+        // yearly
+        else if (curr_spec.yearly)
+        {
+          outhold.ingpp_tot_for_output.push_back(cohort.bdall->y_a2v.ingppall);
+
+          if (output_this_timestep)
+          {
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ingpp_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ingpp_tot_for_output.clear();
+          }
+        }
       }
-    }//end critical(outputINGPP)
-  }//end INGPP
+    } // end critical(outputINGPP)
+  } // end INGPP
   map_itr = netcdf_outputs.end();
-
 
   //INNPP
   map_itr = netcdf_outputs.find("INNPP");
