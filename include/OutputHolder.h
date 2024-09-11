@@ -25,6 +25,7 @@ public:
   int months_held;
   int years_held;
 
+  std::vector<int> cmtnum_for_output;
   std::vector<int> ysd_for_output;
 
   std::vector<double> ald_for_output;
@@ -46,6 +47,9 @@ public:
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;
   std::vector<double> watertab_for_output;
+  std::vector<double> mossdz_for_output;
+  std::vector<double> mossdeathc_for_output;
+  std::vector<double> mossdeathn_for_output;
 
   //Variables by layer
   std::vector<double> rh_tot_for_output;
@@ -62,6 +66,9 @@ public:
 
   std::vector<double> somrawc_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> somrawc_for_output;
+
+  std::vector<double> avln_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> avln_for_output;
 
   std::vector<std::array<double, MAX_SOI_LAY>> layerdepth_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
@@ -116,6 +123,11 @@ public:
   std::vector<std::array<double, NUM_PFT_PART>> vegc_part_for_output;
   std::vector<std::array<double, NUM_PFT>> vegc_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> vegc_for_output; 
+
+  std::vector<double> rm_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> rm_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> rm_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> rm_for_output; 
 
 };
 
