@@ -1547,6 +1547,7 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   //   status based on 'fronts' if given
   getLayerFrozenstatusByFronts(lsl);
   getLayerFrozenstatusByFronts(usl);
+
   // update layer water contents, based on 'frozenfrac' update above
   // essentially in a layer if front exists, 'ice' and 'liq' are located
   //   separately by front
@@ -1557,23 +1558,27 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   double f2 = lsl->frozenfrac;
   double ice1, ice2;
 
-  // ice1, ice2 can be solved by the following 2 equations
-  // 1) ice1+ice2=totice
-  // 2) ice1/f1+ice2/f2=totwat // here, assuming that 'frozenfrac' derived
-  //      from both water and thickness
-  if (f2<=0.) {
-    ice1 = totice;
-    ice2 = 0.;
-  } else if (f1==f2) {
-    ice1 = (1.0-lslfrac)*totice;
-    ice2 = lslfrac*totice;
-  } else  {
-    ice2 = (totwat*f1-totice)/(f1/f2-1.0);
+  //Values for calculating redistribution of ice
+  double upper_frozen_dz = f1*usl->dz;
+  double lower_frozen_dz = f2*lsl->dz;
+  double total_frozen_dz = upper_frozen_dz + lower_frozen_dz;
+
+  //If either are partially or completely frozen based on frozen
+  // fraction, not state
+  if(f1>0. or f2>0.){
+    double lower_frozen_ratio = lower_frozen_dz/total_frozen_dz;
+    ice2 = lower_frozen_ratio * totice;
     ice1 = totice - ice2;
+  }
+  else{
+    ice2 = 0;
+    ice1 = totice; //Should be 0, but setting to totice just in case
   }
 
   usl->ice = fmin(ice1, usl->maxice);
   lsl->ice = fmin(ice2, lsl->maxice);
+
+  //Redistributing liquid water
   double liq1, liq2;
   f1=1.0-usl->frozenfrac;
   f2=1.0-lsl->frozenfrac;
@@ -1591,6 +1596,7 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
 
   usl->liq = fmin(liq1, usl->maxliq);
   lsl->liq = fmin(liq2, lsl->maxliq);
+
   //update C in new 'lsl' and 'usl' - note: at this point, 'usl' C must be
   //  not updated
   //first, assign 'lsl' C with original 'usl', then update it using actual
