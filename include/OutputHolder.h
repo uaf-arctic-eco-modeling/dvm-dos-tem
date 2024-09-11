@@ -51,9 +51,22 @@ public:
   std::vector<double> rh_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> rh_for_output;
 
+  std::vector<double> soma_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> soma_for_output;
+
+  std::vector<double> somcr_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> somcr_for_output;
+
+  std::vector<double> sompr_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> sompr_for_output;
+
+  std::vector<double> somrawc_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> somrawc_for_output;
+
   std::vector<std::array<double, MAX_SOI_LAY>> layerdepth_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> lwclayer_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
@@ -63,6 +76,9 @@ public:
   //Variables by PFT
   std::vector<double> eet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> eet_for_output;
+
+  std::vector<double> lai_tot_for_output;
+  std::vector<std::array<double, NUM_PFT>> lai_for_output;
 
   std::vector<double> pet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> pet_for_output;
@@ -90,6 +106,11 @@ public:
   std::vector<std::array<double, NUM_PFT_PART>> npp_part_for_output;
   std::vector<std::array<double, NUM_PFT>> npp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> npp_for_output; 
+
+  std::vector<double> rg_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> rg_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> rg_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> rg_for_output; 
 
   std::vector<double> vegc_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> vegc_part_for_output;
