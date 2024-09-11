@@ -48,6 +48,8 @@ public:
   std::vector<double> swe_for_output;
   std::vector<double> watertab_for_output;
   std::vector<double> mossdz_for_output;
+  std::vector<double> mossdeathc_for_output;
+  std::vector<double> mossdeathn_for_output;
 
   //Variables by layer
   std::vector<double> rh_tot_for_output;
