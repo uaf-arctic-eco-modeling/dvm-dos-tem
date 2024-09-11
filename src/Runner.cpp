@@ -3212,6 +3212,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end MOSSDEATHN
   map_itr = netcdf_outputs.end();
 
+
   //MOSSDZ
   map_itr = netcdf_outputs.find("MOSSDZ");
   if(map_itr != netcdf_outputs.end()){
@@ -3228,7 +3229,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         currL = currL->nextl;
       }
-      output_nc_3dim(&curr_spec, file_stage_suffix, &mossdz, 1, year, 1);
+
+      outhold.mossdz_for_output.push_back(mossdz);
+
+      if(output_this_timestep){
+        output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.mossdz_for_output[0], 1, year_start_idx, years_to_output);
+        outhold.mossdz_for_output.clear();
+      }
       //The following may never get set to anything useful?
       //y_soil.mossthick;
 

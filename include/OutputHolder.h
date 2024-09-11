@@ -47,6 +47,7 @@ public:
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;
   std::vector<double> watertab_for_output;
+  std::vector<double> mossdz_for_output;
 
   //Variables by layer
   std::vector<double> rh_tot_for_output;
