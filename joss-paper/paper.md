@@ -147,9 +147,7 @@ bibliography: joss-paper.bib
 
 The impacts of climate change on natural ecosystems are the result of complex
 physical and ecological processes operating and interacting at a variety of
-spatio-temporal scales. For this reason, process-based ecosystem models are
-efficient tools to formalize and extrapolate our current understanding of
-ecosystem dynamics and predict local, regional and global climate impacts.
+spatio-temporal scales, that can be represented in process-based ecosystem models.
 
 `DVMDOSTEM` is an advanced process-based terrestrial ecosystem model (TEM)
 designed to study ecosystem responses to climate changes and disturbances. It
@@ -166,7 +164,7 @@ in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics.
 
 Arctic and boreal regions underlain by permafrost store nearly half of the
 world’s soil organic C - approximately 1,440-1,600 Pg [@Hugelius2014;
-@Schuur2022]. These regions are warming roughly two to four times faster than
+@Schuur2022]. These regions are warming four times faster than
 the rest of the globe, driving widespread and rapid permafrost thaw
 [@Rantanen2022; @Smith2022]. As permafrost thaws, soil organic C becomes
 available for decomposition and release as greenhouse gasses (GHGs) to the
@@ -174,31 +172,29 @@ atmosphere. Climate-driven permafrost thaw and the associated release of GHGs
 can influence the global climate system, a phenomenon called the permafrost
 carbon-climate feedback or PCCF [@Koven2011; @Schuur2015]. The PCCF has been
 identified as one of the largest sources of uncertainty in future climate
-projections and therefore needs to be accurately represented in process-based
-ecosystem models that inform global earth system models [@Schadel2024].
-
+projections and therefore needs to be accurately represented in global earth 
+system models [@Schadel2024].
 
 # Model Design
 
-`DVMDOSTEM` is a process-based ecosystem model designed to simulate the key
+`DVMDOSTEM` is designed to simulate the key
 biophysical and biogeochemical processes between the soil, the vegetation and
 the atmosphere. The evolution and refinement of `DVMDOSTEM` have been shaped by
 extensive research programs and applications both in permafrost and
 non-permafrost regions [@Genet2013; @Genet2018; @Jafarov2013; @Yi2010;
 @Yi2009; @Euskirchen2022; @Briones2024]. The model is spatially explicit and
 represents ecosystem response to climate and disturbances at seasonal (i.e.
-monthly) up to centennial scales. The snow and soil columns are split into a
+monthly) to centennial scales. The snow and soil columns are split into a
 dynamic number of layers to represent their impact on thermal and hydrological
 dynamics and the consequences for soil C and N dynamics. Vegetation composition
 is modeled using community types (CMTs), each of which consists of multiple
 plant functional types (PFTs - groups of species sharing similar ecological
 traits). This structure allows the model to represent the effect of competition
-for light, water and nutrients on vegetation composition [@Euskirchen2009]. The
-model also represents the ecosystem N cycle to evaluate the role of nutrient
-limitations, characteristic of permafrost regions, on ecosystem dynamics, with
-coupling between the C and N cycles [@McGuire1992; @Euskirchen2009]. Finally,
+for light, water and nutrients on vegetation composition [@Euskirchen2009], as well
+as the role of nutrient limitation on permafrost ecosystem dynamics, with
+coupling between C and N cycles [@McGuire1992; @Euskirchen2009]. Finally,
 the model represents the effects of wildfire in order to evaluate the role of
-climate-driven fire intensification on ecosystem structure and functions
+climate-driven fire intensification on ecosystem structure and function
 [@Yi2010; @Genet2013]. The structure of `DVMDOSTEM` is represented visually in
 \autoref{fig:modeloverview}.
 
@@ -234,14 +230,14 @@ soil C stocks are a result of litterfall from the vegetation and decomposition
 of soil C stocks by microbes (heterotrophic respiration or Rh). Changes in soil
 organic and available N stocks are a result of litterfall, net mineralization of
 organic N, and plant N uptake. Soil organic layers and soil C and N stocks may
-also be modified as a result of wildfire.
+also be modified due to wildfire.
 
 
 ## Vegetation structure and processes
 
 Each vegetation CMT (e.g. “wet-sedge tundra”, “white spruce forest”, etc.), is
-modeled with up to ten PFTs (e.g., “deciduous shrubs”, “sedges”, “mosses”,
-etc.), each of which may have up to three compartments: leaf, stem, and root.
+modeled with up to ten PFTs (e.g., “deciduous shrubs”, “sedges”, “mosses”), 
+each of which may have up to three compartments: leaf, stem, and root.
 Vegetation C and N fluxes are calculated at each time step based on
 environmental factors and soil properties. Assimilation of atmospheric $CO_2$ by
 the vegetation is estimated by computing gross primary productivity (GPP) for
@@ -257,16 +253,14 @@ also be modified as a result of wildfire burn.
 
 ## Run stages
 
-To initialize an historical or future simulation, `DVMDOSTEM` needs to compute a
+To initialize historical or future simulations, `DVMDOSTEM` needs to compute a
 quasi steady-state (QSS) solution. This solution is forced by using averaged
 historical atmospheric and ecosystem properties (e.g. soil texture) to drive the
 model. QSS of physical processes (e.g. soil temperature and water content) are
 usually achieved in less than 100 years, while QSS of biogeochemical processes
 (e.g. soil and vegetation C and N stocks) are achieved in 1,000 to >10,000
-years. Additionally, biogeochemical QSS is achieved more rapidly if computed
-starting with QSS soil physical properties. To leverage this property for
-decreasing overall run-times, `DVMDOSTEM` uses two QSS stages: “Pre-run” and
-“Equilibrium”. The list of all `DVMDOSTEM` run stages is as follows:
+years. However, to decrease overall run-times, `DVMDOSTEM` uses two QSS stages: 
+“Pre-run” and “Equilibrium”. The list of all `DVMDOSTEM` run stages is as follows:
 
 * Pre-run (pr): QSS computation for the physical state variables.
 * Equilibrium (eq): QSS computation for the biogeochemical state variables. 
@@ -275,18 +269,16 @@ decreasing overall run-times, `DVMDOSTEM` uses two QSS stages: “Pre-run” and
 * Transient (tr): historical simulation.
 * Scenario (sc): future simulation.
 
-A complete model simulation requires advancing the model consecutively through
-all of the run stages, however users are able to selectively skip stages as
-needed to reduce compute time.
-
+Model simulation requires advancing the model consecutively through
+all of the run stages as needed (pr-eq-sp-tr).
 
 ## Spatial considerations
 
 `DVMDOSTEM` can be applied at the site level or across large regions. Spatially,
-`DVMDOSTEM` breaks up the landscape domain into grid cells, each of which is
-characterized by a set of input (forcing) values and a set of parameterization
-values. Parameterization values for a grid cell describe soil and vegetation
-characteristics and are associated with a CMT. `DMVDOSTEM` does not include the
+`DVMDOSTEM` breaks up the landscape into grid cells, each of which is
+characterized by a set of input forcing and parameterization
+values. Gridded parameterization values describe soil and vegetation
+characteristics associated with each CMT. `DVMDOSTEM` does not include the
 lateral transfer of information between grid cells. The CMT classification for
 each grid cell is static across the time dimension of a model simulation. These
 two factors limit the ability of the model to represent climate-driven biome
@@ -297,9 +289,9 @@ capabilities to `DVMDOSTEM`.
 
 ## Inputs and outputs
 
-`DVMDOSTEM` inputs and outputs are NetCDF files [@Rew1990], which conform
+NetCDF files [@Rew1990] are used as model inputs and outputs, conforming
 to the CF Conventions v1.11 [@Eaton2011] where possible. The input variables
-used to drive `DVMDOSTEM` are: drainage classification (upland or lowland), CMT
+used to drive `DVMDOSTEM` include: drainage classification (upland or lowland), CMT
 classification, topography (slope, aspect, elevation), soil texture (percent
 sand, silt, and clay), climate (air temperature, precipitation, vapor pressure,
 incoming shortwave radiation), atmospheric $CO_2$ concentration, and fire
@@ -315,8 +307,8 @@ computational resources and information needs when setting up a model run.
 
 # Parameterization
 
-`DVMDOSTEM` parameterization sets are developed for each CMT represented in the
-model. Each CMT is defined by more than 200 parameters. Parameter values are
+`DVMDOSTEM` parameterization sets are developed for each CMT. Each CMT is defined
+by more than 200 parameters. Parameter values are
 estimated directly from field, lab or remote sensing observations, literature
 review or site-specific calibration. Calibration is required when (1) parameter
 values cannot be determined directly from available data or published
@@ -326,7 +318,7 @@ acceptable agreement between measured field data and model prediction on the
 state variables most influenced by the parameter to be calibrated. Due to the
 large number of parameters requiring calibration, and the non-linear nature of
 the relationships between parameters and state variables, model calibration can
-be a labor intensive process. We are actively developing a calibration process
+be labor-intensive. We are actively developing a calibration process
 that allows automation [@JafarovINPREP2024].
 
 
@@ -335,16 +327,15 @@ that allows automation [@JafarovINPREP2024].
 The `DVMDOSTEM` software repository is a combination of tightly coupled
 sub-components: 
 
- - the `DVMDOSTEM` model itself,
+ - the `DVMDOSTEM` model,
  - supporting tools, and
  - development environment specifications.
 
-The core of the project is the `DVMDOSTEM` model. The `DVMDOSTEM` model
-is written in C++ and uses some object-oriented concepts. The model exposes a
-command line interface that allows users to start simulations manually or
-use a scripting language to drive the command line interface.
+The core `DVMDOSTEM` model is written in C++ and uses some object-oriented concepts.
+The model exposes a command line interface that allows users to start simulations 
+manually or use a scripting language to drive the command line interface.
 
-Surrounding the core model is a large body of supporting tooling to assist the
+Surrounding the core model is a large body of supporting tools to assist the
 user with preparing inputs, setting up and monitoring model runs and analyzing
 model outputs. This collection of tools is primarily written in Python and shell
 scripts, with some of the demonstration and exploratory analysis using Jupyter
@@ -354,16 +345,14 @@ interfaces and a Python API which are documented in the User Guide.
 The model and tools target a UNIX-like operating system environment. The
 combination of the core `DVMDOSTEM` model and the supporting tools result in the
 need for a complex computing environment with many dependencies. Docker images
-are used to manage this complexity, providing consistent environments for
-development and production, [@Merkel2014]. The project includes the
-specification for development images as well as a pared down runtime-only image.
+are used to manage this complexity, providing consistent environments
+for development and production, [@Merkel2014]. 
 
-The software design is a work in progress stemming from the organic growth
-spanning 30+ years of development by research scientists, graduate students and
-programmers. Recent years have seen an increased effort to apply professional
-software development practices such as version control, automated documentation,
-containerization, and testing.
-
+Software updates are ongoing, stemming from the organic growth spanning 30+ years 
+of development by research scientists, graduate students and programmers. Recent
+years have seen an increased effort to apply professional software development 
+practices such as version control, automated documentation, containerization, 
+and testing.
 
 # Acknowledgements
 
