@@ -1565,7 +1565,7 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
 
   //If either are partially or completely frozen based on frozen
   // fraction, not state
-  if(f1>0. or f2>0.){
+  if(f1>0.0 or f2>0.0){
     double lower_frozen_ratio = lower_frozen_dz/total_frozen_dz;
     ice2 = lower_frozen_ratio * totice;
     ice1 = totice - ice2;
@@ -1580,18 +1580,17 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
 
   //Redistributing liquid water
   double liq1, liq2;
-  f1=1.0-usl->frozenfrac;
-  f2=1.0-lsl->frozenfrac;
+  double unf1 = 1.0 - usl->frozenfrac;
+  double unf2 = 1.0 - lsl->frozenfrac;
 
-  if (f2<=0.) {
-    liq1 = totliq;
-    liq2 = 0.;
-  } else if (f1==f2) {
-    liq1 = (1.0-lslfrac)*totliq;
-    liq2 = lslfrac*totliq;
-  } else  {
-    liq2 = (totwat*f1-totliq)/(f1/f2-1.0);
+  //if either are partially or completely unfrozen
+  if(unf1>0.0 or unf2>0.0){
+    liq2 = lslfrac * totliq;
     liq1 = totliq - liq2;
+  }
+  else{ //if both are completely frozen
+    liq2 = 0;
+    liq1 = totliq; //Should be 0, but setting to totliq in case
   }
 
   usl->liq = fmin(liq1, usl->maxliq);
@@ -1601,31 +1600,31 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   //  not updated
   //first, assign 'lsl' C with original 'usl', then update it using actual
   //  thickness and depth
-  lsl->rawc =usl->rawc;
-  lsl->soma =usl->soma;
-  lsl->sompr=usl->sompr;
-  lsl->somcr=usl->somcr;
-  lsl->orgn =usl->orgn;
-  lsl->avln =usl->avln;
+  lsl->rawc = usl->rawc;
+  lsl->soma = usl->soma;
+  lsl->sompr = usl->sompr;
+  lsl->somcr = usl->somcr;
+  lsl->orgn = usl->orgn;
+  lsl->avln = usl->avln;
 
   if (usl->isOrganic) {
     double pldtop = updeptop + usl->dz;   //usl->dz has been updated above
     double pldbot = pldtop + lsl->dz;
     getOslCarbon5Thickness(lsl, pldtop, pldbot);
   } else {
-    lsl->rawc  *= lslfrac;
-    lsl->soma  *= lslfrac;
+    lsl->rawc *= lslfrac;
+    lsl->soma *= lslfrac;
     lsl->sompr *= lslfrac;
     lsl->somcr *= lslfrac;
-    lsl->orgn  *= lslfrac;
-    lsl->avln  *= lslfrac;
+    lsl->orgn *= lslfrac;
+    lsl->avln *= lslfrac;
   }
 
   // then update C for new 'usl'
   usl->rawc -= lsl->rawc;
   usl->soma -= lsl->soma;
-  usl->sompr-= lsl->sompr;
-  usl->somcr-= lsl->somcr;
+  usl->sompr -= lsl->sompr;
+  usl->somcr -= lsl->somcr;
   usl->orgn -= lsl->orgn;
   usl->avln -= lsl->avln;
 };
