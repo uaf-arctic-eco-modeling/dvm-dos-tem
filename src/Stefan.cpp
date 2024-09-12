@@ -62,14 +62,14 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
     }
 
     tkunf = currl->getUnfThermCond();
-    tkfrz = currl->getMixThermCond(); //change to Frz
+    tkfrz = currl->getFrzThermCond();
     tkmix = currl->getMixThermCond();
 
     if(tdrv1<0.0) {
-      tkres   = tkfrz;
+      tkres   = tkmix;
       tkfront = tkmix;
     } else {
-      tkres   = tkunf;
+      tkres   = tkmix;
       tkfront = tkmix;
     }
 
@@ -173,12 +173,12 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   dz =sl->dz;  // this is the max. thickness
 
   if (freezing==1) {
-    // dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
-    //                                     //  soil segments not mixed
-    volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
-  } else {
-    // dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    volwat = fmax(0.0, sl->getVolIce())*sl->dz;
+    dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
+                                        //  soil segments not mixed
+    volwat = fmax(0.0, fmax(sl->getVolLiq(),sl->getUnfVolLiq())) * dz;
+  } else { // >>> BM look at dos-tem, it looks like sumrescum should be calculated here also
+    dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
+    volwat = fmax(0.0, sl->getVolIce()) * dz;
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -199,8 +199,8 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
     dse -= dsn;
   } else {
     double partdz=0.;
-    //partdz=getPartialDepth(volwat, tkfront, sumrescum, dse); //may not be consistent
-    partdz = dse/dsn*dz;
+    partdz = getPartialDepth(volwat / dz, tkfront, sumrescum, dse); // may not be consistent
+    // partdz = dse/dsn*dz;
     // find the existing front(s) within the layer
     int fntnum = ground->frontsz.size();
     vector<int> fntsintype;
@@ -351,12 +351,12 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
   dz =sl->dz;  //this is the max. thickness of water to be freezing/thawing
 
   if (freezing==1) {
-    // dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
-    //                                     //  soil segments not mixed
-    volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
+    dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
+                                        //  soil segments not mixed
+    volwat = fmax(0.0, fmax(sl->getVolLiq(),sl->getUnfVolLiq())) * dz;
   } else {
-    // dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    volwat = fmax(0.0, sl->getVolIce())*sl->dz;
+    dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
+    volwat = fmax(0.0, sl->getVolIce()) * dz;
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -378,8 +378,8 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
     dse -= dsn;
   } else {
     double partdz=0.;
-    //partdz=getPartialDepth(volwat, tkfront, sumrescum, dse);  //may not be consistent
-    partdz = dse/dsn*dz;
+    partdz = getPartialDepth(volwat / dz, tkfront, sumrescum, dse); // may not be consistent
+    // partdz = dse/dsn*dz;
     //find the existing front(s) within the layer
     int fntnum = ground->frontsz.size();
     vector<int> fntsintype;
@@ -537,19 +537,15 @@ double Stefan::getDegSecNeeded(const double & dz, const double & volwat,
 };
 
 //calculate partial depth based on extra degree seconds
-double Stefan::getPartialDepth(const double &volwat, const double &tk, //const double &tres,
-                               const double &sumresabv, const double &dse)
-{
+double Stefan::getPartialDepth(const double & volwat, const double & tk,
+                               const double & sumresabv, const double & dse) {
   /* input
    *  dse: extra degree second
    */
   double partd;
-  double effvolwat = volwat;
-  double lhfv = LHFUS * 1000;
-  double firstp = tk * sumresabv;
-  double second1 = tk * tk * sumresabv * sumresabv;
-  double second2 = 2 * tk * dse/(lhfv * effvolwat);
-  partd = -1 * firstp  + sqrt(second1 + second2);
+  double lhfv = LHFUS * DENLIQ;
+
+  partd = -1 * tk * sumresabv + sqrt(tk*tk*sumresabv*sumresabv + (2*tk*dse)/(lhfv*volwat));
   return partd;
 };
 

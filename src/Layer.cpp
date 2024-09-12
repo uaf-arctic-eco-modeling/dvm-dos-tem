@@ -112,10 +112,10 @@ double Layer::getUnfVolLiq(){
 
   if (isMoss){
     T_ = -0.01;
-    b = 0.9;
+    b = 0.8;
   } else if (isFibric){
     T_ = -0.03;
-    b = 0.65;
+    b = 0.5;
   } else if (isHumic){
     T_ = -0.03;
     b = 0.5;
@@ -145,16 +145,16 @@ double Layer::getDeltaUnfVolLiq(){
 
   if (isMoss){
     T_ = -0.01;
-    b = 1.0;
+    b = 0.8;
   } else if (isFibric){
-    T_ = -0.02;
-    b = 0.75;
+    T_ = -0.03;
+    b = 0.4;
   } else if (isHumic){
     T_ = -0.03;
-    b = 0.65;
+    b = 0.4;
   } else {
-    T_ = -0.04;
-    b = 0.5;
+    T_ = -0.03;
+    b = 0.4;
   }
 
   if (tem < T_){
@@ -244,3 +244,17 @@ double Layer::getEffVolLiq() {
     return 0;
   }
 };
+
+ //peat-dos-tem:
+// double Layer::getEffVolWater(){
+//  	double effvol =0.;
+//  	if(isSoil()){
+//  	  effvol = getVolWater() -0.05 * poro;	
+//  	}else if (isSnow()){
+//  	  effvol = getVolWater();	
+//  	}
+//  	if(effvol<0){
+//  	 effvol =0.;	
+//  	}
+//  	return effvol;
+// };

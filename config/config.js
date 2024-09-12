@@ -21,7 +21,7 @@
     "output_dir":         "output/",
     "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1, //JSON specific
-    "output_nc_eq":       0,
+    "output_nc_eq":       1,
     "output_nc_sp":       1,
     "output_nc_tr":       1,
     "output_nc_sc":       1, 
@@ -77,7 +77,7 @@
       "avlnflg": true,
       "baseline": true,
       "dsb": false,
-      "dsl": true,
+      "dsl": false,
       "dyn_lai": true
     },
     "sp": {

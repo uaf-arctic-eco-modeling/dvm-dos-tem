@@ -158,7 +158,7 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, const double & t
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
     double hcap = currl->getHeatCapacity();
-    double pce = (currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
+    double pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
     cap[ind] = hca[ind] * dx[ind];
@@ -232,7 +232,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
     double hcap = currl->getHeatCapacity();
-    double pce = (currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
+    double pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
     cap[ind] = hca[ind] * dx[ind];
@@ -262,7 +262,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getHeatCapacity();
   }
-  double pce = (fstfntl->getUnfVolLiq() * DENLIQ) * LHFUS * fstfntl->getDeltaUnfVolLiq();
+  double pce = DENLIQ * LHFUS * fstfntl->getDeltaUnfVolLiq();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -334,7 +334,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getHeatCapacity();
   }
-  double pce = (fstfntl->getUnfVolLiq() * DENLIQ) * LHFUS * fstfntl->getDeltaUnfVolLiq();
+  double pce = DENLIQ * LHFUS * fstfntl->getDeltaUnfVolLiq();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -352,7 +352,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
-    pce = (currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
+    pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
     hca[ind] = pce + hcap;
     cn[ind] = tca[ind]/dx[ind];
     cap[ind] = hca[ind] * dx[ind];
@@ -381,7 +381,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getHeatCapacity();
   }
-  pce = (lstfntl->getUnfVolLiq() * DENLIQ) * LHFUS * lstfntl->getDeltaUnfVolLiq();
+  pce = DENLIQ * LHFUS * lstfntl->getDeltaUnfVolLiq();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -461,7 +461,7 @@ void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
     tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getHeatCapacity();
   }
-  double pce = (lstfntl->getUnfVolLiq() * DENLIQ) * LHFUS * lstfntl->getDeltaUnfVolLiq();
+  double pce = DENLIQ * LHFUS * lstfntl->getDeltaUnfVolLiq();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind] / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -476,7 +476,7 @@ void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
-    pce = (currl->getUnfVolLiq() * DENLIQ) * LHFUS * currl->getDeltaUnfVolLiq();
+    pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
     hca[ind] = pce + hcap;
     cn[ind] = tca[ind]/dx[ind];
     cap[ind] = hca[ind] * dx[ind];
