@@ -108,7 +108,7 @@ dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 # ridden from the mads config (parameter distributions, intial guesses, etc)
 
 # Save the targets...
-targets = dvmdostem.observed_vec(format="flat")
+targets = dvmdostem.observed_vec(format='flat')
 
 # Do the seed run and keep the results
 println("Performing seed run...")
