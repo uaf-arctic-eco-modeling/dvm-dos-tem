@@ -929,6 +929,8 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
+  calpar.rhq10 = chtlu->rhq10;
+  calpar.s2dfraction = chtlu->s2dfraction;
   calpar.kdcrawc_ch4 = chtlu->kdcrawc_ch4;
   calpar.kdcsoma_ch4 = chtlu->kdcsoma_ch4;
   calpar.kdcsompr_ch4 = chtlu->kdcsompr_ch4;
@@ -939,7 +941,7 @@ void Soil_Bgc::initializeParameter() {
   calpar.oxidq10_ch4 = chtlu->oxidq10_ch4;
   calpar.oxidkm_ch4 = chtlu->oxidkm_ch4;
   calpar.oxidVmax_ch4 = chtlu->oxidVmax_ch4;
-  bgcpar.rhq10      = chtlu->rhq10;
+  // bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
   bgcpar.moistopt   = chtlu->moistopt;
@@ -1374,7 +1376,7 @@ void Soil_Bgc::deltastate() {
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
-  double s2dfraction = 1.0;
+  double s2dfraction = calpar.s2dfraction;
   double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
   double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
   double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
@@ -1611,7 +1613,7 @@ double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
 
 double Soil_Bgc::getRhq10(const double & tsoil) {
   double rhq10;
-  rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
+  rhq10 =  pow( (double)calpar.rhq10, tsoil/10.0);
   return rhq10;
 };
 

@@ -25,6 +25,8 @@
 0.0108046       // kdcsoma:
 0.0020805       // kdcsompr:
 0.0000108       // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -57,6 +59,8 @@
 0.54       // kdcsoma:     .58
 0.002       // kdcsompr:     .003
 0.00007   // kdcsomcr: 0.000025  0.00025 bad
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -89,6 +93,8 @@
 0.48       // kdcsoma:    .48
 0.0048       // kdcsompr:   .0028  
 0.000025   // kdcsomcr: 
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -121,6 +127,8 @@
 0.58       // kdcsoma:   0.58
 0.003     // kdcsompr:   
 0.000025   // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -153,6 +161,8 @@
 0.93     // kdcsoma:
 0.40     // kdcsompr:
 0.00007  // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -185,6 +195,8 @@
 0.03      // kdcsoma:  was 0.07
 0.015      // kdcsompr:   was 0.05
 0.000005     // kdcsomcr:  was 0.00005 
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -217,6 +229,8 @@
 0.011       // kdcsoma:  was 0.12
 0.0025       // kdcsompr: was .03
 0.00025       // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -249,6 +263,8 @@
 0.36       // kdcsoma:  was 0.26      
 0.0332      // kdcsompr: was 0.0062   0.00962
 0.0000001   // kdcsomcr: was 0.0000005
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -281,6 +297,8 @@
 0.03       // kdcsoma:
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -313,6 +331,8 @@
 0.67       // kdcsoma:
 0.91      // kdcsompr:
 0.00025    // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -345,6 +365,8 @@
 0.258      // kdcsoma: .95 .9 .85
 0.008      // kdcsompr:
 0.00005    // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -377,6 +399,8 @@
 0.250000     // kdcsoma:
 0.018000     // kdcsompr:
 0.000010     // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.001477 // kdcrawcch4:
 0.000231 // kdcsomach4:
 0.001080 // kdcsomprch4:
@@ -409,6 +433,8 @@
 0.90     // kdcsoma:  was 0.93   then 0.68
 0.014     // kdcsompr:  was 0.40  then 0.01
 0.000007  // kdcsomcr:
+2.0          // rhq10:
+1.0          // s2dfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:

@@ -156,6 +156,8 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
+  s << this->rhq10 << "// rhq10:\n";
+  s << this->s2dfraction << "// s2dfraction \n:";
   s << this->kdcrawc_ch4 << "// kdcrawc_ch4:\n";
   s << this->kdcsoma_ch4 << "// kdcsoma_ch4:\n";
   s << this->kdcsompr_ch4 << "// kdcsompr_ch4:\n";
@@ -175,7 +177,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 28
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 30
   );
 
   // pop each line off the front of the list
@@ -199,6 +201,8 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsoma);
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
+  temutil::pfll2data(l, rhq10);
+  temutil::pfll2data(l, s2dfraction);
 
   temutil::pfll2data(l, kdcrawc_ch4);
   temutil::pfll2data(l, kdcsoma_ch4);
@@ -505,12 +509,12 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
   
   // get a list of data for the cmt number
   std::list<std::string> datalist = temutil::parse_parameter_file(
-      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 18
+      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 17
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  temutil::pfll2data(datalist, rhq10);
+  // temutil::pfll2data(datalist, rhq10);
   temutil::pfll2data(datalist, moistmin);
   temutil::pfll2data(datalist, moistopt);
   temutil::pfll2data(datalist, moistmax);

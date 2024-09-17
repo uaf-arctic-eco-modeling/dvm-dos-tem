@@ -50,6 +50,8 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
+  double rhq10;
+  double s2dfraction;
   //Soil methane calibrated values
   double kdcrawc_ch4;
   double kdcsoma_ch4;
@@ -224,7 +226,7 @@ public:
   // for soil mcrobial processes
 
   // Q10 and soil moisture factors for Rh
-  double rhq10;
+  // double rhq10;
   double moistmin;
   double moistopt;
   double moistmax;

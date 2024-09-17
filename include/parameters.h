@@ -148,6 +148,8 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
+  double rhq10;
+  double s2dfraction;
   //Methane related values
   double kdcrawc_ch4;
   double kdcsoma_ch4;
@@ -164,6 +166,7 @@ struct soipar_cal {
 
   soipar_cal() : micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
                  kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
+                 rhq10(UIN_D), s2dfraction(UIN_D),
                  kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
                  ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D), prodq10_ch4(UIN_D),
                  oxidq10_ch4(UIN_D), oxidkm_ch4(UIN_D), oxidVmax_ch4(UIN_D) {}
@@ -218,7 +221,7 @@ struct soipar_bgc {
   double moistmin;
   double moistmax;
   double moistopt;
-  double rhq10;
+  // double rhq10;
 
   double propftos;
   double nmincnsoil;
@@ -253,7 +256,8 @@ struct soipar_bgc {
   double kdsomcr_ch4[MAX_SOI_LAY];
 
   soipar_bgc() : kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
-                 rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
+                //  rhq10(UIN_D), 
+                 propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
                  fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
                  eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
                  lcclnc(UIN_D) {

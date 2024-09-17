@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/work/dvmdostem",
-            "args": ["-l", "fatal", "-p", "2", "-e", "2", "-s", "2", "-t", "2", "-n", "2"],
+            "args": ["-l", "fatal", "-p", "10", "-e", "20", "-s", "2", "-t", "2", "-n", "2", "--force-cmt", "31"],
             "stopAtEntry": false,
             "cwd": "/work/",
             "environment": [],
