@@ -228,20 +228,21 @@ void DAController::run_DA_LAI(timestep_id current_step){
 
 
   //calculate LAI stuff
-  double totalLAI = 0.0;
-  std::vector<double> lai_by_pft;
-  for(int ip=0; ip<NUM_PFT; ip++){
-    double templai = cohort->cd.m_veg.lai[ip];
-    if(templai > 0){
-      lai_by_pft.push_back(templai);
-      totalLAI += templai;
-    }
-  }
+//  double totalLAI = 0.0;
+//  std::vector<double> lai_by_pft;
+//  for(int ip=0; ip<NUM_PFT; ip++){
+//    double templai = cohort->cd.m_veg.lai[ip];
+//    if(templai > 0){
+//      lai_by_pft.push_back(templai);
+//      totalLAI += templai;
+//    }
+//  }
 
   //write LAI to file
-  temutil::output_nc_3dim(&this->lai_outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
-  temutil::ppv(lai_by_pft);
-  std::cout<<"total lai: "<<totalLAI<<std::endl;
+  temutil::output_nc_4dim(&this->lai_outspec, ".nc", &curr_coords, &cohort->cd.m_veg.lai[0], NUM_PFT, 0, 1);
+//  temutil::output_nc_3dim(&this->lai_outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
+//  temutil::ppv(lai_by_pft);
+//  std::cout<<"total lai: "<<totalLAI<<std::endl;
 
   //Write to "pause" file for controlling script to monitor
   std::string pause_filename = this->lai_outspec.file_path + "/model_pause.txt";
@@ -267,16 +268,20 @@ void DAController::run_DA_LAI(timestep_id current_step){
   BOOST_LOG_SEV(glg, note) << "Loading data assimilation values";
 
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for LAI";
-  double newLAI;
-  newLAI = this->read_scalar_var("DA_LAI");
+//  double newLAI;
+//  newLAI = this->read_scalar_var("DA_LAI");
   //std::cout<<"new LAI: "<<newLAI<<std::endl;
 
   //Redistribute new LAI to PFTs based on original percentages
-  for(int ip=0; ip<NUM_PFT; ip++){
-    if(cohort->cd.m_veg.lai[ip] > 0){
-      cohort->cd.m_veg.lai[ip] = newLAI * (lai_by_pft[ip] / totalLAI);
-    }
-  }
+//  for(int ip=0; ip<NUM_PFT; ip++){
+//    if(cohort->cd.m_veg.lai[ip] > 0){
+//      cohort->cd.m_veg.lai[ip] = newLAI * (lai_by_pft[ip] / totalLAI);
+//    }
+//  }
+
+  //LAI
+  std::array<double, NUM_PFT> da_lai;
+  da_lai = temutil::read_pft_var_timestep(this->da_filename, "DA_LAI", curr_coords.yidx, curr_coords.xidx);
 
   //VEGC
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for VEGC";
@@ -450,6 +455,12 @@ void DAController::create_da_nc_file(){
   vartype4D_dimids[2] = yD;
   vartype4D_dimids[3] = xD;
 
+  int pft4D_dimids[4];
+  pft4D_dimids[0] = timeD;
+  pft4D_dimids[1] = pftD;
+  pft4D_dimids[2] = yD;
+  pft4D_dimids[3] = xD;
+
   int vartype5D_dimids[5];
   vartype5D_dimids[0] = timeD;
   vartype5D_dimids[1] = pftpartD;
@@ -465,9 +476,9 @@ void DAController::create_da_nc_file(){
 
 
   //Vegetation variables
-  temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 2, vartype2D_dimids, &temLAI_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 4, pft4D_dimids, &temLAI_V) );
   temutil::nc( nc_put_att_double(ncid, temLAI_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 2, vartype2D_dimids, &daLAI_V) );
+  temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 4, pft4D_dimids, &daLAI_V) );
   temutil::nc( nc_put_att_double(ncid, daLAI_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_def_var(ncid, "TEM_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &temVEGC_V) );
