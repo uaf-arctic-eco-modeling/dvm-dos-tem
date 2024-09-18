@@ -200,7 +200,7 @@ void DAController::run_DA_LAI(timestep_id current_step){
 
   BOOST_LOG_SEV(glg, debug) << "Data assimilation, LAI";
 
-  cell_coords curr_coords(0,0);
+  cell_coords curr_coords(cohort->y, cohort->x);
 
   //Write accessory variables to file
   //VEGC
