@@ -32,10 +32,6 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   // driving force
   int freezing1; //the freezing/thawing force based on the driving temperature
   double tdrv1 = tdrv;
-  //20180820 While comparing the code to the papers describing these
-  // processes, it seemed like tdrv1 needed to be converted from
-  // degrees C to degrees K. However, we tested that change, and
-  // it appears that not converting it produces better results.
   double dse = fabs(tdrv1 * timestep); // the extra degree second
   double sumresabv  =0. ; // sum of resistence for above layers;
 
@@ -177,10 +173,10 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   if (freezing==1) {
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
-    volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
+    volwat = fmax(0.0, sl->getEffVolWater());
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    volwat = fmax(0.0, sl->getVolIce())*sl->dz;
+    volwat = fmax(0.0, sl->getEffVolWater());
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -201,8 +197,8 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
     dse -= dsn;
   } else {
     double partdz=0.;
-    //partdz=getPartialDepth(volwat, tkfront, sumrescum, dse); //may not be consistent
-    partdz = dse/dsn*dz;
+    partdz=getPartialDepth(volwat, tkfront, sumrescum, dse); //may not be consistent
+    // partdz = dse/dsn*dz;
     // find the existing front(s) within the layer
     int fntnum = ground->frontsz.size();
     vector<int> fntsintype;
@@ -355,10 +351,10 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
   if (freezing==1) {
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
-    volwat = fmax(0.0, sl->getVolLiq())*sl->dz;
+    volwat = fmax(0.0, sl->getEffVolWater());
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    volwat = fmax(0.0, sl->getVolIce())*sl->dz;
+    volwat = fmax(0.0, sl->getEffVolWater());
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -380,8 +376,8 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
     dse -= dsn;
   } else {
     double partdz=0.;
-    //partdz=getPartialDepth(volwat, tkfront, sumrescum, dse);  //may not be consistent
-    partdz = dse/dsn*dz;
+    partdz=getPartialDepth(volwat, tkfront, sumrescum, dse);  //may not be consistent
+    // partdz = dse/dsn*dz;
     //find the existing front(s) within the layer
     int fntnum = ground->frontsz.size();
     vector<int> fntsintype;
@@ -531,8 +527,8 @@ double Stefan::getDegSecNeeded(const double & dz, const double & volwat,
    */
   double needed=0.;
   double effvolwat = volwat;
-  double lhfv = LHFUS * 1000;//Converting units
-  needed = lhfv * effvolwat * (sumresabv + 0.5 * dz/tk);
+  double lhfv = LHFUS * 1000;
+  needed = lhfv * effvolwat * dz * (sumresabv + 0.5 * dz / tk);
   return needed;
 };
 
@@ -544,7 +540,7 @@ double Stefan::getPartialDepth(const double & volwat, const double & tk,
    */
   double partd;
   double effvolwat = volwat;
-  double lhfv = 3.34e8;
+  double lhfv = LHFUS * 1000.0;
   double firstp = tk * sumresabv;
   double second1 = tk * tk * sumresabv * sumresabv;
   double second2 = 2 * tk * dse/(lhfv * effvolwat);

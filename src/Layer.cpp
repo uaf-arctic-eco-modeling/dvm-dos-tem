@@ -116,7 +116,7 @@ double Layer::getEffVolWater() {
   double effvol = 0.;
 
   if(isSoil) {
-    effvol = getVolWater() - minliq/DENLIQ/dz;
+    effvol = getVolWater() - -0.05 * poro;
   } else if (isSnow) {
     effvol = getVolWater();
   }
