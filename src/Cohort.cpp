@@ -1525,11 +1525,14 @@ void Cohort::set_restartdata_from_state() {
   restartdata.wdebrisc = bdall->m_sois.wdebrisc;
   restartdata.wdebrisn = bdall->m_sois.wdebrisn;
 
-  for(int il =0; il<cd.m_soil.numsl; il++) {
+  std::array<double, MAX_SOI_LAY> temp_ch4_bylayer = ground.get_ch4_bylayer();
+
+  for(int il=0; il<cd.m_soil.numsl; il++) {
     restartdata.rawc[il]  = bdall->m_sois.rawc[il];
     restartdata.soma[il]  = bdall->m_sois.soma[il];
     restartdata.sompr[il] = bdall->m_sois.sompr[il];
     restartdata.somcr[il] = bdall->m_sois.somcr[il];
+    restartdata.ch4[il] = temp_ch4_bylayer[il];
     restartdata.orgn[il] = bdall->m_sois.orgn[il];
     restartdata.avln[il] = bdall->m_sois.avln[il];
     

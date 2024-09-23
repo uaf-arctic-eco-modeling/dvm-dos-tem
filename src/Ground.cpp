@@ -2408,3 +2408,39 @@ void Ground::setCohortLookup(CohortLookup* chtlup) {
   chtlu = chtlup;
 };
 
+void Ground::set_ch4_bylayer(const double* newch4){
+  BOOST_LOG_SEV(glg, debug) << "Setting by-layer ch4";
+
+  Layer* currl = fstsoill;
+  int il = 0;
+
+  while(currl!=NULL) {
+    if(currl->isSoil && newch4[il]>0) {
+      currl->ch4 = newch4[il];
+    }
+
+    currl = currl->nextl;
+    il++;
+  }
+};
+
+std::array<double, MAX_SOI_LAY> Ground::get_ch4_bylayer(){
+  BOOST_LOG_SEV(glg, debug) << "Getting by-layer ch4";
+
+  std::array<double, MAX_SOI_LAY> curr_ch4;
+
+  Layer* currl = fstsoill;
+  int il = 0;
+
+  while(currl!=NULL) {
+    if(currl->isSoil && currl->ch4>0) {
+      curr_ch4[il] = currl->ch4;
+    }
+
+    currl = currl->nextl;
+    il++;
+  }
+
+  return curr_ch4;
+};
+

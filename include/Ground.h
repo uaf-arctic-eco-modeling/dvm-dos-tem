@@ -140,6 +140,9 @@ public :
   //
   void checkWaterValidity();
 
+  void set_ch4_bylayer(const double* newch4);
+  std::array<double, MAX_SOI_LAY> get_ch4_bylayer();
+
 private :
 
   bool rocklayercreated;
