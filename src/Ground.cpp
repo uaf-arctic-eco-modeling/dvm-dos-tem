@@ -1570,9 +1570,12 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
     ice2 = lower_frozen_ratio * totice;
     ice1 = totice - ice2;
   }
-  else{
+  else{ //Both layers are completely thawed
+    if(totice > 0.0){
+      BOOST_LOG_SEV(glg, warn) << "Positive ice content when both layers are unfrozen";
+    }
     ice2 = 0;
-    ice1 = totice; //Should be 0, but setting to totice just in case
+    ice1 = 0;
   }
 
   usl->ice = fmin(ice1, usl->maxice);
@@ -1583,9 +1586,14 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   double unf1 = 1.0 - usl->frozenfrac;
   double unf2 = 1.0 - lsl->frozenfrac;
 
+  double upper_unfrozen_dz = unf1 * usl->dz;
+  double lower_unfrozen_dz = unf2 * lsl->dz;
+  double total_unfrozen_dz = upper_unfrozen_dz + lower_unfrozen_dz;
+
   //if either are partially or completely unfrozen
   if(unf1>0.0 or unf2>0.0){
-    liq2 = lslfrac * totliq;
+    double lower_unfrozen_ratio = lower_unfrozen_dz/total_unfrozen_dz;
+    liq2 = lower_unfrozen_ratio * totliq;
     liq1 = totliq - liq2;
   }
   else{ //if both are completely frozen
