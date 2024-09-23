@@ -1591,6 +1591,11 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
 
   usl->liq = fmin(liq1, usl->maxliq);
   lsl->liq = fmin(liq2, lsl->maxliq);
+
+  if (liq1<0 || liq2<0){
+    std::cout << "liq1   " << liq1;
+    std::cout << "liq2   " << liq2;
+  }
   //update C in new 'lsl' and 'usl' - note: at this point, 'usl' C must be
   //  not updated
   //first, assign 'lsl' C with original 'usl', then update it using actual

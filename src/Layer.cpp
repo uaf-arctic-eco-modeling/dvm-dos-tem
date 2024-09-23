@@ -239,13 +239,16 @@ double Layer::getEffVolLiq() {
   if (dz != 0) {
     double evliq = (liq-minliq)/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
     evliq = fmin((double)evliq,(double)poro);
+    if (liq < 0){
+      std::cout << "If getEffVolLiq gets -ve liq   " << liq;
+    }
     return evliq;
   } else {
     return 0;
   }
 };
 
- //peat-dos-tem:
+// peat-dos-tem:
 // double Layer::getEffVolWater(){
 //  	double effvol =0.;
 //  	if(isSoil()){
