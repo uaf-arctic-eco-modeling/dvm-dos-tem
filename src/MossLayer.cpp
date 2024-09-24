@@ -20,6 +20,8 @@ MossLayer::MossLayer(const double &pdz, const int & newmosstype, const CohortLoo
   dz       = pdz;
   poro     = chtlu->poro_moss;
   bulkden  = chtlu->bulkden_moss; // g/m3
+  temp_dep = chtlu->temp_dep_moss;
+  b_parameter = chtlu->b_moss;
   // light properties
   albsatvis = 0.09;
   albsatnir = 0.18;

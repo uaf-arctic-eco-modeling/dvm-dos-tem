@@ -27,7 +27,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   Layer * toplayer = ground->toplayer;
   double tkres; //thermal conductivity for calculating resistence
   double tkfront; //thermal conductivity for calculating part front depth
-  double tkunf, tkfrz;
+  double tkunf, tkfrz, tkmix;
   // top-down propogation of front
   // driving force
   int freezing1; //the freezing/thawing force based on the driving temperature
@@ -62,13 +62,14 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
 
     tkunf = currl->getUnfThermCond();
     tkfrz = currl->getFrzThermCond();
+    tkmix = currl->getMixThermCond();
 
     if(tdrv1<0.0) {
-      tkres   = tkfrz;
-      tkfront = tkunf;
+      tkres   = tkmix;
+      tkfront = tkmix;
     } else {
-      tkres   = tkunf;
-      tkfront = tkfrz;
+      tkres   = tkmix;
+      tkfront = tkmix;
     }
 
     sumresabv += currl->dz/tkres;
@@ -173,10 +174,12 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   if (freezing==1) {
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
-    volwat = fmax(0.0, sl->getEffVolWater());
+    // volwat = fmax(0.0, sl->getEffVolWater());
+    volwat = fmax(0.0, fmax(0.05, fmin(sl->getVolLiq() + sl->getUnfVolLiq(), sl->poro)));
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    volwat = fmax(0.0, sl->getEffVolWater());
+    // volwat = fmax(0.0, sl->getEffVolWater());
+    volwat = fmax(0.0, sl->getVolIce() - fmax(sl->getUnfVolLiq(),0.05));
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -351,10 +354,12 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
   if (freezing==1) {
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
-    volwat = fmax(0.0, sl->getEffVolWater());
+    // volwat = fmax(0.0, sl->getEffVolWater());
+    volwat = fmax(0.0, fmax(0.05, fmin(sl->getVolLiq() + sl->getUnfVolLiq(), sl->poro)));
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    volwat = fmax(0.0, sl->getEffVolWater());
+    // volwat = fmax(0.0, sl->getEffVolWater());
+    volwat = fmax(0.0, sl->getVolIce() - fmax(sl->getUnfVolLiq(),0.05));
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the

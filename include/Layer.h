@@ -70,6 +70,9 @@ public:
   double hksat;  //< saturated matric potential
   double bsw;    //< Clap and Hornberger constant
 
+  double temp_dep;
+  double b_parameter;
+
   // thermal status
   int frozen;        //< thermal state of a layer, 0: partially frozen, 1: frozen, -1: unfrozen
   double frozenfrac; //< frozen fraction of a layer (0 - 1)

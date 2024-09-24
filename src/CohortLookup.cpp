@@ -416,7 +416,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> datalist = temutil::parse_parameter_file(
-      dircmt + "cmt_envground.txt", temutil::cmtcode2num(this->cmtcode), 41
+      dircmt + "cmt_envground.txt", temutil::cmtcode2num(this->cmtcode), 49
   );
 
   // pop each line off the front of the list
@@ -451,6 +451,15 @@ void CohortLookup::assignEnv4Ground(string &dircmt) {
     temutil::pfll2data(datalist, initvwc[i]);
   }
 
+  temutil::pfll2data(datalist, temp_dep_moss);
+  temutil::pfll2data(datalist, temp_dep_f);
+  temutil::pfll2data(datalist, temp_dep_h);
+  temutil::pfll2data(datalist, temp_dep_min);
+
+  temutil::pfll2data(datalist, b_moss);
+  temutil::pfll2data(datalist, b_f);
+  temutil::pfll2data(datalist, b_h);
+  temutil::pfll2data(datalist, b_min);
 }
 
 /** Assign ground related bgc parameters from file...*/

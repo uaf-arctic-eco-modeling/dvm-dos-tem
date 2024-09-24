@@ -6,10 +6,12 @@
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
 
-MineralLayer::MineralLayer(const double & pdz,
-                           float psand, float psilt, float pclay
-                           //int sttype,
-                           ) {
+MineralLayer::MineralLayer(const double &pdz,
+                           float psand, float psilt, float pclay,
+                           const CohortLookup *chtlu
+                           // int sttype,
+)
+{
   BOOST_LOG_SEV(glg, debug) << "==> ==> Creating a MineralLayer...";
   tkey  = I_MINE;
   dz    = pdz;
@@ -21,7 +23,7 @@ MineralLayer::MineralLayer(const double & pdz,
   isOrganic = false;
   isFibric = false;
   isHumic  = false;
-  updateProperty5Lookup();
+  updateProperty5Lookup(chtlu);
 };
 MineralLayer::~MineralLayer() {
   BOOST_LOG_SEV(glg, debug) << "--> --> Deleting a MineraLayer object...";
@@ -33,7 +35,7 @@ MineralLayer::~MineralLayer() {
  * directly and to calculate various derived properties from these percentages
  * instead of looking the values up from the classificaiton 'tables'.
 */
-void MineralLayer::updateProperty5Lookup() {
+void MineralLayer::updateProperty5Lookup(const CohortLookup *chtlu) {
 
   // 10-27-2015
   // borrowed the following calculations/properties from H. Genet's dos-tem
@@ -56,6 +58,9 @@ void MineralLayer::updateProperty5Lookup() {
   bulkden = 2700 * (1 - poro);
 
   tcdry = (0.135 * bulkden + 64.7) / (2700 - 0.947 * bulkden);
+
+  temp_dep = chtlu->temp_dep_min;
+  b_parameter = chtlu->b_min;
 
   //prtlden = 2700.0; // not present in dvmdostem??
 

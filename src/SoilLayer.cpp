@@ -29,10 +29,14 @@ double SoilLayer::getUnfVolHeatCapa() {
 double SoilLayer::getMixVolHeatCapa() {
 
   double uwc = getUnfVolLiq();
+  double lwc = getVolLiq();
+
   double vhcf = getFrzVolHeatCapa();
   double vhcu = getUnfVolHeatCapa();
 
-  double vhc = vhcsolid * (1 - poro) + (poro * vhcu * uwc) + (poro * vhcf *(1 - uwc));
+  double scaler = fmin(uwc + lwc, poro);
+
+  double vhc = vhcsolid * (1 - poro) + (poro * vhcu * scaler) + (poro * vhcf * (1 - scaler));
 
   if (tem>=0){
     vhc = vhcu;
@@ -101,7 +105,7 @@ double SoilLayer::getMixThermCond() {
   tcf = getFrzThermCond();
   tcu = getUnfThermCond();
 
-  tc = pow(tcf, 1 - min(uwc+vliq, poro)) * pow(tcu, min(uwc+vliq, poro));
+  tc = pow(tcf, 1 - fmin(uwc+vliq, poro)) * pow(tcu, fmin(uwc+vliq, poro));
 
   if (tem>=0){
     tc = tcu;

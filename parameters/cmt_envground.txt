@@ -43,6 +43,14 @@
 0.15               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.20               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.20               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 0.8                // snwalbmax:
@@ -86,6 +94,14 @@
 0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 0.8                // snwalbmax:
@@ -129,6 +145,14 @@
 0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // JSC 6/20/20  JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 0.8                // snwalbmax:
@@ -172,6 +196,14 @@
 0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 0.8                // snwalbmax:
@@ -215,6 +247,14 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
 0.8                // snwalbmax:
@@ -258,7 +298,14 @@
 1.0               // initvwc(7): initial soil volume water content at every 10 cm interval
 1.0               // initvwc(8): initial soil volume water content at every 10 cm interval
 1.0               // initvwc(9): initial soil volume water content at every 10 cm interval
-
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 0.8                // snwalbmax:
@@ -302,6 +349,14 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT07 // Heath Tundra
 0.8                // snwalbmax:
@@ -345,6 +400,14 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 0.8                // snwalbmax:
@@ -388,6 +451,14 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT20 // EML Shrub Tundra
 0.8                // snwalbmax:
@@ -431,8 +502,16 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
-// CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
+// CMT21 // EML Tussock Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
 -1.5e7             // psimax:
@@ -474,6 +553,14 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT31 // Boreal Bog
 0.8                // snwalbmax:
@@ -482,20 +569,20 @@
 0.08               // evapmin:
 0.04               // drainmax: changed from 0.04
 0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
+0.2                // tcsolid(m): Soil thermal conductivity for moss (W/mK)
 0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
+0.5                // tcsolid(h): Soil thermal conductivity for humic (W/mK)
 0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
+0.97               // porosity(f): porosity for fibric layers
+0.88               // porosity(h): porosity for humic layers
+19987.3531615615   // bulkden(m): bulk density for moss (g/m3)
+45309.714571391    // bulkden(f): bulk density for fibric (g/m3)
+61332.1846271004   // bulkden(h): bulk density for humic (g/m3)
+0.82               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?), Silva et al. 1993
+0.28               // hksat(f): hydraulic conductivity at saturation for fibric, Letts et al. 2000
+0.0019             // hksat(h): hydraulic conductivity at saturation for humic, Liu et al. 2019
+1.39               // nfactor(s): Summer nfactor
+0.58               // nfactor(w): Winter nfactor
 -1.0               // initsnwtem: initial snow temperature (oC)
 -9.1               // initts(0): initial soil temperature at 10 cm interval (oC)
 -7.9               // initts(1): initial soil temperature at 10 cm interval (oC)
@@ -517,6 +604,14 @@
 0.93               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.98               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.89               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 0.8                // snwalbmax:
@@ -560,3 +655,11 @@
 0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+-0.01		   // tempdep(m): freezing temperature depression for moss horizon
+-0.03		   // tempdep(f): freezing temperature depression for fibric horizon
+-0.03		   // tempdep(h): freezing temperature depression for humic horizon
+-0.03		   // tempdep(min): freezing temperature depression for mineral horizon
+0.8		   // b(m): b parameter for moss horizon
+0.4		   // b(f): b parameter for fibric horizon
+0.4		   // b(h): b parameter for humic horizon
+0.4		   // b(min): b parameter for mineral horizon

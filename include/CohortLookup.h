@@ -155,6 +155,12 @@ public:
   double initvwc[10]; //10 soil initial input for each 10 cm thickness of layers
   double initts[10];
 
+  // Freezing temperature depression temperatures
+  double temp_dep_moss, temp_dep_f, temp_dep_h, temp_dep_min;
+
+  // b parameters for unfrozen water calculations
+  double b_moss, b_f, b_h, b_min;
+
   // for vegetation BGC
   //parameters for f(phenology) in GPP
   double minleaf[NUM_PFT]; //EET determined leaf phenology parameters

@@ -42,6 +42,8 @@ Layer::Layer() {
   psisat= MISSING_D;
   hksat = MISSING_D;
   bsw   = MISSING_D;
+  temp_dep = MISSING_D;
+  b_parameter = MISSING_D;
   // thermal status
   frozen    = MISSING_I;
   frozenfrac= MISSING_D;
@@ -108,24 +110,25 @@ double Layer::getThermalConductivity() {
 
 double Layer::getUnfVolLiq(){
 
-  double T_, b, uwc;
+  // double T_, b, 
+  double uwc;
 
-  if (isMoss){
-    T_ = -0.01;
-    b = 0.8;
-  } else if (isFibric){
-    T_ = -0.03;
-    b = 0.5;
-  } else if (isHumic){
-    T_ = -0.03;
-    b = 0.5;
-  } else {
-    T_ = -0.04;
-    b = 0.5;
-  }
+  // if (isMoss){
+  //   T_ = -0.01;
+  //   b = 0.8;
+  // } else if (isFibric){
+  //   T_ = -0.03;
+  //   b = 0.5;
+  // } else if (isHumic){
+  //   T_ = -0.03;
+  //   b = 0.5;
+  // } else {
+  //   T_ = -0.04;
+  //   b = 0.5;
+  // }
 
-  if (tem < T_){
-    uwc = poro * pow(abs(T_), b) * pow(abs(tem), -b);
+  if (tem < temp_dep){
+    uwc = poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter);
   } else{
     uwc = 0.0;
   }
@@ -141,24 +144,25 @@ double Layer::getUnfVolLiq(){
 
 double Layer::getDeltaUnfVolLiq(){
 
-  double T_, b, d_uwc;
+  // double T_, b, 
+  double d_uwc;
 
-  if (isMoss){
-    T_ = -0.01;
-    b = 0.8;
-  } else if (isFibric){
-    T_ = -0.03;
-    b = 0.4;
-  } else if (isHumic){
-    T_ = -0.03;
-    b = 0.4;
-  } else {
-    T_ = -0.03;
-    b = 0.4;
-  }
+  // if (isMoss){
+  //   T_ = -0.01;
+  //   b = 0.8;
+  // } else if (isFibric){
+  //   T_ = -0.03;
+  //   b = 0.4;
+  // } else if (isHumic){
+  //   T_ = -0.03;
+  //   b = 0.4;
+  // } else {
+  //   T_ = -0.03;
+  //   b = 0.4;
+  // }
 
-  if (tem < T_){
-    d_uwc = b * poro * pow(abs(T_), b) * pow(abs(tem), -b - 1);
+  if (tem < temp_dep){
+    d_uwc = b_parameter * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 1);
   } else {
     d_uwc = 0.0;
   }
@@ -180,7 +184,7 @@ double Layer::getEffVolWater() {
   double effvol = 0.;
 
   if(isSoil) {
-    effvol = getVolWater() - -0.05 * poro;
+    effvol = getVolWater() - 0.05 * poro;
   } else if (isSnow) {
     effvol = getVolWater();
   }
@@ -247,17 +251,3 @@ double Layer::getEffVolLiq() {
     return 0;
   }
 };
-
-// peat-dos-tem:
-// double Layer::getEffVolWater(){
-//  	double effvol =0.;
-//  	if(isSoil()){
-//  	  effvol = getVolWater() -0.05 * poro;	
-//  	}else if (isSnow()){
-//  	  effvol = getVolWater();	
-//  	}
-//  	if(effvol<0){
-//  	 effvol =0.;	
-//  	}
-//  	return effvol;
-// };

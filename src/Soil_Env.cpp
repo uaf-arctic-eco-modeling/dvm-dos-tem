@@ -527,7 +527,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
-    ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    ed->d_soi2l.qover = 0.0;//getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
     ed->d_soi2l.qover = 0.0;
   }

@@ -30,6 +30,8 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLoo
     bsw=2.7;
     psisat =-10.0;
     cfrac = 44.2; // %
+    temp_dep = chtlu->temp_dep_f;
+    b_parameter = chtlu->b_f;
   } else if (type==2) {
     tkey=I_HUM;
     isHumic =true;
@@ -45,6 +47,8 @@ OrganicLayer::OrganicLayer(const double & pdz, const int & type, const CohortLoo
     hksat = chtlu->hksat_h;
     psisat =-12;
     cfrac = 35.2; // %
+    temp_dep = chtlu->temp_dep_h;
+    b_parameter = chtlu->b_h;
   }
 
   derivePhysicalProperty();
@@ -70,6 +74,8 @@ void OrganicLayer::humify(const CohortLookup* chtlu) {
   hksat  = chtlu->hksat_h;
   psisat =-12;
   cfrac = 35.2; // %
+  temp_dep = chtlu->temp_dep_h;
+  b_parameter = chtlu->b_h;
   derivePhysicalProperty();
 };
 
