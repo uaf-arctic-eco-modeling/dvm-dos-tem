@@ -43,6 +43,7 @@ public:
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;
   std::vector<double> qrunoff_for_output;
+  std::vector<double> reco_for_output;
   std::vector<double> shlwc_for_output;
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;

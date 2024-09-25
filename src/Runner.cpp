@@ -4120,6 +4120,53 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //RECO
+  map_itr = netcdf_outputs.find("RECO");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RECO";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputRECO)
+    {
+
+      //RHSOM, DWDRH, RM, RG
+      //Needs CH4OXID added when methane is merged
+
+      //monthly
+      if(curr_spec.monthly){
+        double m_reco = cohort.bdall->m_soi2a.rhsom
+                      + cohort.bdall->m_soi2a.rhwdeb
+                      + cohort.bdall->m_v2a.rmall
+                      + cohort.bdall->m_v2a.rgall;
+
+        outhold.reco_for_output.push_back(m_reco);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.reco_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.reco_for_output.clear();
+        }
+      }
+      //yearly
+      else if(curr_spec.yearly){
+
+        double y_reco = cohort.bdall->y_soi2a.rhsom
+                      + cohort.bdall->y_soi2a.rhwdeb
+                      + cohort.bdall->y_v2a.rmall
+                      + cohort.bdall->m_v2a.rgall;
+
+        outhold.reco_for_output.push_back(y_reco);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.reco_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.reco_for_output.clear();
+        }
+
+      } 
+    }//end critical(outputRECO)
+  }//end RECO
+  map_itr = netcdf_outputs.end();
+
+
   //RG
   map_itr = netcdf_outputs.find("RG");
   if(map_itr != netcdf_outputs.end()){
@@ -4243,7 +4290,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //RH
+  //RHSOM
   map_itr = netcdf_outputs.find("RHSOM");
   if(map_itr != netcdf_outputs.end()){
     BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RHSOM";
