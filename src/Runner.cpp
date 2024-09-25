@@ -4244,12 +4244,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
 
   //RH
-  map_itr = netcdf_outputs.find("RH");
+  map_itr = netcdf_outputs.find("RHSOM");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RH";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: RHSOM";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputRH)
+    #pragma omp critical(outputRHSOM)
     {
       //By layer
       if(curr_spec.layer){
@@ -4307,8 +4307,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
         }
       }
-    }//end critical(outputRH)
-  }//end RH 
+    }//end critical(outputRHSOM)
+  }//end RHSOM
   map_itr = netcdf_outputs.end();
 
 
