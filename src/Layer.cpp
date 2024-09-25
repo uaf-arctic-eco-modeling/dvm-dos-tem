@@ -110,22 +110,7 @@ double Layer::getThermalConductivity() {
 
 double Layer::getUnfVolLiq(){
 
-  // double T_, b, 
   double uwc;
-
-  // if (isMoss){
-  //   T_ = -0.01;
-  //   b = 0.8;
-  // } else if (isFibric){
-  //   T_ = -0.03;
-  //   b = 0.5;
-  // } else if (isHumic){
-  //   T_ = -0.03;
-  //   b = 0.5;
-  // } else {
-  //   T_ = -0.04;
-  //   b = 0.5;
-  // }
 
   if (tem < temp_dep){
     uwc = poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter);
@@ -133,7 +118,7 @@ double Layer::getUnfVolLiq(){
     uwc = 0.0;
   }
 
-  uwc = fmin(uwc, 1.0);
+  uwc = fmin(uwc, poro-getVolLiq());
 
   if (isSnow){
     uwc = 0.0;
@@ -144,22 +129,7 @@ double Layer::getUnfVolLiq(){
 
 double Layer::getDeltaUnfVolLiq(){
 
-  // double T_, b, 
   double d_uwc;
-
-  // if (isMoss){
-  //   T_ = -0.01;
-  //   b = 0.8;
-  // } else if (isFibric){
-  //   T_ = -0.03;
-  //   b = 0.4;
-  // } else if (isHumic){
-  //   T_ = -0.03;
-  //   b = 0.4;
-  // } else {
-  //   T_ = -0.03;
-  //   b = 0.4;
-  // }
 
   if (tem < temp_dep){
     d_uwc = b_parameter * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 1);
