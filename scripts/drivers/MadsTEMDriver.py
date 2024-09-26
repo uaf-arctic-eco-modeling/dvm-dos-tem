@@ -317,24 +317,27 @@ class MadsTEMDriver(BaseDriver):
     target_data : iterable
       The target data, organized as specified with `format` parameter.
     '''
-
-    pftnums = [i['pftnum'] for i in self.params]
-
     if format == 'labeled':
-      # Builds a list of dicts that can be easily turned into Pandas DataFrame.
+      # Builds a flat list in this order:
+      # [ pft0_leaf, pft0_stem, pft1_root ... pftN_leaf, pftN_stem, pftN_root ]
       targets = []
       for o in self.outputs:
         ct = o['ctname']
+        # handle single soil variables
+        if type(self.targets[ct]) is float or type(self.targets[ct]) is int:
+          targets.append(dict(cmtnum=self.cmtnum, ctname=ct, observed=self.targets[ct]))
+        # handle pft variables
+        if type(self.targets[ct]) is list:
+          for PFT in range(10):
+            if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
+              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, observed=self.targets[ct][PFT])) 
+        # handle pft and compartment variables
         if type(self.targets[ct]) is dict:
           for PFT in range(10):
-            if PFT in pftnums:
-              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt='Leaf', observed=self.targets[ct]['Leaf'][PFT]))
-              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt='Stem', observed=self.targets[ct]['Stem'][PFT]))
-              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt='Root', observed=self.targets[ct]['Root'][PFT]))
-        else:
-          for PFT in range(10):
-            if PFT in pftnums:
-              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, observed=self.targets[ct][PFT]))
+            clu = {0:'Leaf', 1:'Stem', 2:'Root'}
+            for cmprt in range(0,3):
+              if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
+                targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt=clu[cmprt], observed=self.targets[ct][clu[cmprt]][PFT]))
 
     elif format == 'flat':
       # Builds a flat list in this order:
@@ -342,19 +345,23 @@ class MadsTEMDriver(BaseDriver):
       targets = []
       for o in self.outputs:
         ct = o['ctname']
+        # handle single soil variables
+        if type(self.targets[ct]) is float or type(self.targets[ct]) is int:
+          targets.append(self.targets[ct])
+        # handle pft variables
+        if type(self.targets[ct]) is list:
+          for PFT in range(10):
+            if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
+              targets.append(self.targets[ct][PFT]) 
+        # handle pft and compartment variables
         if type(self.targets[ct]) is dict:
           for PFT in range(10):
-            if PFT in pftnums:
-              targets.append(self.targets[ct]['Leaf'][PFT])
-              targets.append(self.targets[ct]['Stem'][PFT])
-              targets.append(self.targets[ct]['Root'][PFT])
-        else:
-          for PFT in range(10):
-            if PFT in pftnums:
-              targets.append(self.targets[ct][PFT])
+            clu = {0:'Leaf', 1:'Stem', 2:'Root'}
+            for cmprt in range(0,3):
+              if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
+                targets.append(self.targets[ct][clu[cmprt]][PFT])
 
     return targets
-
 
 
   def run_wrapper(self, parameter_vector):
@@ -463,12 +470,3 @@ class MadsTEMDriver(BaseDriver):
         raise RuntimeError("SOMETHING IS WRONG?")
 
     return final_data
-
-
-
-
-
-
-
-
-

@@ -273,6 +273,25 @@ println("targets=np.array(", targets, "),")
 
 # Generate a list of nicely formatted labels that can be used for plotting
 # These labels are for the output variables (aka calibration targets)
+
+### Suggestion for correcting outlabels issue:
+# outlabels = []
+
+# for x in dvmdostem.gather_model_outputs()
+
+#   if "pft" in keys(x) && "pftpart" in keys(x)
+#     push!(outlabels, string(x["ctname"], "_pft", x["pft"], "_", x["pftpart"]))
+
+#   elseif "pft" in keys(x) && "pftpart" not in keys(x)
+#     push!(outlabels, string(x["ctname"], "_pft", x["pft"]))
+
+#   else
+#     push!(outlabels, string(x["ctname"]))
+#   end
+# end
+
+
+
 outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
 println("out_labels=", outlabels)
 println("")
