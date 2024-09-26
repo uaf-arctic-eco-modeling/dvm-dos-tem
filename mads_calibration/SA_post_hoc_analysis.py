@@ -42,6 +42,287 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 # This stuff is diamond box in SA (orange half)
+from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
+from sklearn.metrics import mean_absolute_percentage_error
+
+def param_and_targets_box_plots(x,y,y_true):
+    ''' plots the box plots the difererence between best parameters values and their mean 
+        and best modeled values and targets 
+        x: parameter dataframe (nxm)
+        y: model output dataframe (nxm))
+        y_true: target dataframe
+    '''
+    
+    fig, axs = plt.subplots(1, 2, figsize=(8, 4))
+
+    axs[0].boxplot(x-x.mean().values, labels=x.columns);
+    axs[0].set_ylabel('parameters: x-$\overline{x}$', fontsize=12)
+    axs[0].set_xticklabels(x.columns, rotation=45, fontsize=12)
+
+    axs[1].boxplot(y-y_true.values, labels=y.columns);
+    axs[1].set_ylabel('targets: y-$y_{obs}$', fontsize=12)
+    axs[1].set_xticklabels(y.columns, rotation=45, fontsize=12)
+
+    plt.tight_layout()
+
+def best_mean_match_spagetti(df_x,df_y,site_name=''):
+    ''' plots the spaghetti plot of modeled v.s. observed values 
+        df_x: parameter dataframe (nxm)
+        df_y: model output dataframe (nx(m+1)), last columns must be targets
+        site_name: string 
+    '''
+    nrange=range(len(df_y.columns))
+    df_xx, df_yy =  get_match_metric(df_x,df_y)
+
+    rmetric='r2rmse'
+    nelem=10
+    order=True
+    y=df_yy.sort_values(by=[rmetric],ascending=order)[:nelem]
+
+    yy=y.iloc[:,:-6]
+    yy.columns = list(nrange)
+    fig, ax = plt.subplots(figsize=(6, 3))
+    ax.plot(yy.mean().transpose(),alpha=0.5,color='black',linewidth=2.5)
+    ax.plot(df_y.iloc[-1,:],'o',color='red')
+    ax.fill_between(nrange, df_y.iloc[0:-1,:].min(), df_y.iloc[0:-1,:].max(), alpha=0.5,color='grey')
+    ax.set_xticklabels(df_y.columns, rotation=45, fontsize=12)
+    ax.set_title(f"{site_name}")
+    #ax.setxtick(df_y.columns,fontsize=12)
+    #ax.setylabel(ylabel,fontsize=14)
+    #ax.xlim([-0.1,6.1])
+
+    return
+
+def plot_site_metric_matrix(metric_matrix, error, colorb=True):
+    import seaborn as sns
+    """Plot a heatmap for the given metric matrix."""
+    [x_size,y_size]=metric_matrix.shape
+    fig, ax = plt.subplots(figsize=(2+x_size, 3))
+
+    cbar_label = 'RMSE score' if error == 'RMSE' else 'RE score'
+    cmap = "GnBu" if colorb else "coolwarm"
+    
+    sns.heatmap(metric_matrix, cmap=cmap, annot=True, fmt=".3f",
+                cbar_kws={'label': '', "orientation": 'vertical'},
+                annot_kws={"fontsize": 12}, ax=ax, cbar=colorb)
+    
+    ax.tick_params(axis='x', rotation=45)
+    ax.set_title(cbar_label)
+
+    return
+
+def get_metric_matrix(df_x,df_y,pft_names,error):
+    ''' plots the metric matrix error between modeled and observed values for all pfts 
+        df_x: parameter dataframe (nxm)
+        df_y: model output dataframe (nx(m+1)), last columns must be targets
+        pft_names: string list
+        error: 'RMSE', 're' 
+
+        Example:
+        # for CMT1
+        pft_names=['EverTree', 'DecidShrub', 'DecidTree', 'Moss']
+        veg, soil = plot_veg_eq_metric_matrix(df_param,df_model,pft_names,'RMSE')
+
+        Returns: vegetation and soil metric matrices
+    '''
+    def rmse(x, x_true):
+        """Calculate Root Mean Square Error (RMSE)."""
+        mse = np.square(np.subtract(x.mean(), x_true))
+        return pd.DataFrame(np.sqrt(mse), index=x.columns)
+
+    def relative_error(x, x_true):
+        """Calculate Relative Error (RE)."""
+        mae = np.subtract(x.mean(), x_true)
+        return pd.DataFrame(np.abs(100 * mae / x_true ), index=x.columns)
+
+    def get_values_or_fill(df, fallback_len):
+        """
+        Get the values from the DataFrame column or fill with NaN if empty.
+        If the DataFrame has fewer rows than fallback_len, pad the result with NaN.
+
+        Parameters:
+        df (pd.DataFrame): The DataFrame from which to extract values.
+        fallback_len (int): The required length of the output array.
+
+        Returns:
+        list: A list of values from the DataFrame column or NaN-filled values.
+        """
+        # If the DataFrame is not empty, get the values
+        if not df.empty:
+            values = df[0].values
+            # Pad the values with NaN if it's shorter than fallback_len
+            if len(values) < fallback_len:
+                values = np.concatenate([values, [np.nan] * (fallback_len - len(values))])
+        else:
+            # If empty, fill with NaN
+            values = [np.nan] * fallback_len
+        
+        return values
+
+
+    def select_elements_from_df(df, word1, word2='', search_in='index'):
+        """
+        Select rows from a DataFrame where either the index or a specified column contains both word1 and word2.
+
+        Parameters:
+        df (pd.DataFrame): The DataFrame to search.
+        word1 (str): The first word to match.
+        word2 (str): The second word to match.
+        search_in (str or list of str): Specifies where to search. Can be 'index' to search in the index, or 
+                                        a column name (or list of column names) to search within specific columns.
+
+        Returns:
+        pd.DataFrame: A DataFrame containing rows where the index or specified columns match both words.
+        """
+        # Ensure case-insensitive matching by converting everything to lowercase
+        word1 = word1.lower()
+        word2 = word2.lower()
+        
+        if search_in == 'index':
+            # Search in the index
+            matched_rows = df[df.index.to_series().str.lower().str.contains(word1) & 
+                            df.index.to_series().str.lower().str.contains(word2)]
+        else:
+            # Search in specified columns
+            if isinstance(search_in, str):
+                search_in = [search_in]  # Convert to list if a single column is passed
+            mask = pd.Series(False, index=df.index)
+            for col in search_in:
+                mask = mask | (df[col].str.lower().str.contains(word1) & df[col].str.lower().str.contains(word2))
+            matched_rows = df[mask]
+        
+        return matched_rows
+
+        
+    # filtering parameters
+    nelem = 10
+    order = True
+    rmetric = 'r2rmse'
+
+    # Perform post-hoc analysis
+    xparams, ymodel = get_match_metric(df_x, df_y)
+
+    # Sort the model data by rmetric and select the top 5 rows
+    y_sort = ymodel.sort_values(by=[rmetric], ascending=order).iloc[:nelem, :-6].copy()
+
+    # Calculate error (RMSE or RE)
+    error_all = relative_error(y_sort, df_y.iloc[-1, :]) if error == 're' else rmse(y_sort, df_y.iloc[-1, :])
+    if error_all.index[0] == 'CarbonShallow':
+        error_all.index=['$C_{shallow}$','$C_{deep}$','$\sum C_{mineral}$','$\sum N_{avail}$']
+        return error_all 
+
+    # Select rows for INGPP, NPP, and VEGC0
+    df_ingpp = select_elements_from_df(error_all, 'GPP')
+    df_npp = select_elements_from_df(error_all, 'NPP')
+    df_vegc_leaf = select_elements_from_df(error_all, 'VEGC', 'Leaf')
+    df_vegc_stem = select_elements_from_df(error_all, 'VEGC', 'Stem')
+    df_vegc_root = select_elements_from_df(error_all, 'VEGC', 'Root')
+    df_vegn_leaf = select_elements_from_df(error_all, 'VEGN', 'Leaf')
+    df_vegn_stem = select_elements_from_df(error_all, 'VEGN', 'Stem')
+    df_vegn_root = select_elements_from_df(error_all, 'VEGN', 'Root')  
+    df_C_shallow = select_elements_from_df(error_all, 'SHLWC')  
+    df_C_deep    = select_elements_from_df(error_all, 'DEEPC' ) 
+    df_C_mineral = select_elements_from_df(error_all, 'MINEC' )
+    df_N_avail   = select_elements_from_df(error_all, 'AVLN' ) 
+
+    n_pft=len(pft_names)
+
+    # Handle missing data 
+    ingpp_values = get_values_or_fill(df_ingpp, n_pft)
+    npp_values = get_values_or_fill(df_npp, n_pft)
+    vegc_leaf_values = get_values_or_fill(df_vegc_leaf, n_pft)
+    vegc_stem_values = get_values_or_fill(df_vegc_stem, n_pft)
+    vegc_root_values = get_values_or_fill(df_vegc_root, n_pft)
+    vegn_leaf_values = get_values_or_fill(df_vegn_leaf, n_pft)
+    vegn_stem_values = get_values_or_fill(df_vegn_stem, n_pft)
+    vegn_root_values = get_values_or_fill(df_vegn_root, n_pft)
+    df_C_shallow_values = get_values_or_fill(df_C_shallow, 1)
+    df_C_deep_values = get_values_or_fill(df_C_deep, 1)
+    df_C_mineral_values = get_values_or_fill(df_C_mineral, 1) 
+    df_N_avail_values = get_values_or_fill(df_N_avail, 1) 
+
+    # Create the target matrix
+    veg_target_matrix = pd.DataFrame({
+        'INGPP': ingpp_values,
+        'NPP': npp_values,
+        '$C_{leaf}$': vegc_leaf_values,
+        '$C_{stem}$': vegc_stem_values,
+        '$C_{root}$': vegc_root_values,
+        '$N_{leaf}$': vegn_leaf_values,
+        '$N_{stem}$': vegn_stem_values,
+        '$N_{root}$': vegn_root_values
+    })
+
+    soil_target_matrix = pd.DataFrame({
+        '$C_{shallow}$': df_C_shallow_values,
+        '$C_{deep}$': df_C_deep_values,
+        '$\sum C_{mineral}$':df_C_mineral_values,
+        '$\sum N_{avail}$':df_N_avail_values
+    })
+    # Set the row labels
+    veg_target_matrix.index = pft_names
+
+    return veg_target_matrix, soil_target_matrix
+
+def get_match_metric(x,y):
+    '''
+    Inputs:
+    x: parameters dataframe 
+    y: model outputs dataframe, where last row are targets
+
+    Metrics:
+    r2lim: the R square limit
+    rmse: root mean square 
+    mape: mean absolute precentage
+    r2rmse: combined r2 & rmse
+    r2rmsemape: combined r2, rmse, & mape
+    df_combined_accuracy: Andrew's method
+
+    Outputs extended dataframe:
+    xresult: subset of the parameter with added 5 metric columns 
+    yresult: subset of the model outputs with added 5 metric columns
+    '''
+    [n,m]=np.shape(y)
+    r2=[r2_score(y.iloc[i,:], y.iloc[-1,:]) for i in range(n-1)]
+    rmse=[mean_squared_error(y.iloc[i,:], y.iloc[-1,:]) for i in range(n-1)]
+    mape=[mean_absolute_percentage_error(y.iloc[i,:], y.iloc[-1,:]) for i in range(n-1)]
+
+    #convert lists to pd.series 
+    df_r2 = pd.Series( r2,  name = 'R2'  )
+    df_rmse = pd.Series( rmse,  name = 'RMSE'  )
+    df_mape = pd.Series( mape,  name = 'MAPE'  )
+
+    #normalize rmse and mape between 0 and 1
+    df_rmse_normalized = pd.Series((df_rmse-np.nanmin(df_rmse))/(np.nanmax(df_rmse)-np.nanmin(df_rmse)), name='RMSE_NORM')
+    df_mape_normalized = pd.Series((df_mape-np.nanmin(df_mape))/(np.nanmax(df_mape)-np.nanmin(df_mape)), name='MAPE_NORM')
+
+    #create combined accuracy by subtracting average of rmse and mape from r2
+    df_combined_accuracy = pd.Series(df_r2 - ((df_rmse_normalized + df_mape_normalized)/2), name='COMBINED_ACC')
+
+    #merge r2, rmse, and others to the model table
+    xresult = pd.concat([x, df_r2], axis=1)
+    yresult = pd.concat([y.iloc[0:-1,:], df_r2], axis=1)
+    xresult = pd.concat([xresult, df_rmse], axis=1)
+    yresult = pd.concat([yresult, df_rmse], axis=1)
+    xresult = pd.concat([xresult, df_mape], axis=1)
+    yresult = pd.concat([yresult, df_mape], axis=1)
+    xresult = pd.concat([xresult, df_combined_accuracy], axis=1)
+    yresult = pd.concat([yresult, df_combined_accuracy], axis=1)
+
+    df_r2[df_r2<0]=0
+    ex = 1-df_r2
+    ey = rmse/max(rmse)
+    exy= pd.Series( np.sqrt(ex*ex+ey*ey),  name = 'r2rmse'  )
+    xresult = pd.concat([xresult, exy], axis=1)
+    yresult = pd.concat([yresult, exy], axis=1)
+
+    ez = df_mape/max(df_mape)
+    exyz= pd.Series( np.sqrt(ex*ex+ey*ey+ez*ez),  name = 'r2rmsemape'  )
+    xresult = pd.concat([xresult, exyz], axis=1)
+    yresult = pd.concat([yresult, exyz], axis=1)
+
+    return xresult, yresult
+
 def plot_boxplot(results, targets, check_filter=None, save=False, saveprefix=''):
   '''
   Plots a box and whiskers for each column in ``results``. Plots a dot for
