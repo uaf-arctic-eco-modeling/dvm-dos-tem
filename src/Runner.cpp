@@ -1858,37 +1858,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //Dead woody debris RH
-  map_itr = netcdf_outputs.find("DWDRH");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"DWDRH";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputDWDRH)
-    {
-      //monthly
-      if(curr_spec.monthly){
-        outhold.dwdrh_for_output.push_back(cohort.bdall->m_soi2a.rhwdeb);
-
-        if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.dwdrh_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.dwdrh_for_output.clear();
-        }
-      }
-      //yearly
-      else if(curr_spec.yearly){
-        outhold.dwdrh_for_output.push_back(cohort.bdall->y_soi2a.rhwdeb);
-
-        if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.dwdrh_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.dwdrh_for_output.clear();
-        }
-      }
-    }//end critical(outputDWDRH)
-  }//end DWDRH
-  map_itr = netcdf_outputs.end();
-
-
   //EET
   map_itr = netcdf_outputs.find("EET");
   if(map_itr != netcdf_outputs.end()){
@@ -4129,7 +4098,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputRECO)
     {
 
-      //RHSOM, DWDRH, RM, RG
+      //RHSOM, RHDWD, RM, RG
       //Needs CH4OXID added when methane is merged
 
       //monthly
@@ -4287,6 +4256,37 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputRG)
   }//end RG
+  map_itr = netcdf_outputs.end();
+
+
+  //Dead woody debris RH
+  map_itr = netcdf_outputs.find("RHDWD");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"RHDWD";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputRHDWD)
+    {
+      //monthly
+      if(curr_spec.monthly){
+        outhold.rhdwd_for_output.push_back(cohort.bdall->m_soi2a.rhwdeb);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.rhdwd_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.rhdwd_for_output.clear();
+        }
+      }
+      //yearly
+      else if(curr_spec.yearly){
+        outhold.rhdwd_for_output.push_back(cohort.bdall->y_soi2a.rhwdeb);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.rhdwd_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.rhdwd_for_output.clear();
+        }
+      }
+    }//end critical(outputRHDWD)
+  }//end RHDWD
   map_itr = netcdf_outputs.end();
 
 
