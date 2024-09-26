@@ -4755,6 +4755,93 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  // SOC
+  map_itr = netcdf_outputs.find("SOC");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC)
+    {
+      // By layer
+      if (curr_spec.layer) {
+        // Monthly
+        if (curr_spec.monthly) {
+          std::array<double, MAX_SOI_LAY> m_soc;
+          for (int il=0; il<MAX_SOI_LAY; il++) {
+            m_soc[il] = cohort.bdall->m_sois.rawc[il]
+                      + cohort.bdall->m_sois.soma[il]
+                      + cohort.bdall->m_sois.sompr[il]
+                      + cohort.bdall->m_sois.somcr[il];
+          }
+          outhold.soc_for_output.push_back(m_soc);
+
+          if (output_this_timestep) {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.soc_for_output[0][0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.soc_for_output.clear();
+          }
+        }
+        // Yearly
+        else if (curr_spec.yearly) {
+          std::array<double, MAX_SOI_LAY> y_soc;
+          for (int il=0; il<MAX_SOI_LAY; il++) {
+            y_soc[il] = cohort.bdall->y_sois.rawc[il]
+                      + cohort.bdall->y_sois.soma[il]
+                      + cohort.bdall->y_sois.sompr[il]
+                      + cohort.bdall->y_sois.somcr[il];
+          }
+          outhold.soc_for_output.push_back(y_soc);
+
+          if (output_this_timestep) {
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.soc_for_output[0][0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.soc_for_output.clear();
+          }
+        }
+      }
+      // Total, instead of by layer
+      else if (!curr_spec.layer) {
+        // Monthly
+        if (curr_spec.monthly) {
+
+          double m_soc_tot = 0.0;
+          for (int il=0; il<MAX_SOI_LAY; il++) {
+            m_soc_tot += cohort.bdall->m_sois.rawc[il]
+                       + cohort.bdall->m_sois.soma[il]
+                       + cohort.bdall->m_sois.sompr[il]
+                       + cohort.bdall->m_sois.somcr[il];
+          }
+
+          outhold.soc_tot_for_output.push_back(m_soc_tot);
+
+          if (output_this_timestep) {
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.soc_tot_for_output.clear();
+          }
+        }
+        // Yearly
+        else if (curr_spec.yearly) {
+
+          double y_soc_tot = 0.0;
+          for (int il=0; il<MAX_SOI_LAY; il++) {
+            y_soc_tot += cohort.bdall->y_sois.rawc[il]
+                       + cohort.bdall->y_sois.soma[il]
+                       + cohort.bdall->y_sois.sompr[il]
+                       + cohort.bdall->y_sois.somcr[il];
+          }
+
+          outhold.soc_tot_for_output.push_back(y_soc_tot);
+
+          if (output_this_timestep) {
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.soc_tot_for_output.clear();
+          }
+        }
+      }
+    } //end critical(outputSOC)
+  } //end SOC
+  map_itr = netcdf_outputs.end();
+
+
   //SOMA - soil organic matter, active
   map_itr = netcdf_outputs.find("SOMA");
   if(map_itr != netcdf_outputs.end()){

@@ -85,6 +85,7 @@ SNOWLAYERDZ,Snow pack thickness by layer,m,,,invalid,invalid,invalid,forced,doub
 SNOWLAYERTEMP,Snow temperature by layer,degree_C,,,invalid,invalid,invalid,forced,double,
 SNOWSTART,DOY of first snow fall,DOY,,invalid,invalid,invalid,invalid,invalid,int,
 SNOWTHICK,Snow pack thickness,m,,,,invalid,invalid,invalid,double,
+SOC,Soil organic C total,g/m2,,,invalid,invalid,invalid,,double,
 SOMA,Soil organic C active,g/m2,,,invalid,invalid,invalid,,double,
 SOMCR,Soil organic C chemically resistant,g/m2,,,invalid,invalid,invalid,,double,
 SOMPR,Soil organic C physically resistant,g/m2,,,invalid,invalid,invalid,,double,
