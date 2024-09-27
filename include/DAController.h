@@ -21,6 +21,10 @@ public:
   OutputSpec sompr_outspec;
   OutputSpec somcr_outspec;
 
+  //Reference variables, not to be updated with DA
+  OutputSpec layerdz_outspec;
+  OutputSpec tlayer_outspec;
+
   void set_month_pause(bool new_state);
   bool get_month_pause();
 

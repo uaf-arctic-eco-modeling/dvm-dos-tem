@@ -127,6 +127,15 @@ DAController::DAController(){
   this->somcr_outspec.var_name = "TEM_SOMCR";
   this->somcr_outspec.data_type = NC_DOUBLE;
 
+  this->layerdz_outspec.file_path = output_base.string();
+  this->layerdz_outspec.filename_prefix = "DA_statefile";
+  this->layerdz_outspec.var_name = "TEM_LAYERDZ";
+  this->layerdz_outspec.data_type = NC_DOUBLE;
+
+  this->tlayer_outspec.file_path = output_base.string();
+  this->tlayer_outspec.filename_prefix = "DA_statefile";
+  this->tlayer_outspec.var_name = "TEM_TLAYER";
+  this->tlayer_outspec.data_type = NC_DOUBLE;
 
 
   create_da_nc_file();
@@ -226,6 +235,11 @@ void DAController::run_DA_LAI(timestep_id current_step){
   //SOMCR
   temutil::output_nc_4dim(&this->somcr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.somcr[0], MAX_SOI_LAY, 0, 1);
 
+  //LAYERDZ (for reference, not to be updated by DA)
+  temutil::output_nc_4dim(&this->layerdz_outspec, ".nc", &curr_coords, &cohort->cd.m_soil.dz[0], MAX_SOI_LAY, 0, 1);
+
+  //TLAYER (for reference, not to be updated by DA)
+  temutil::output_nc_4dim(&this->tlayer_outspec, ".nc", &curr_coords, &cohort->edall->m_sois.ts[0], MAX_SOI_LAY, 0, 1);
 
   //calculate LAI stuff
 //  double totalLAI = 0.0;
@@ -497,6 +511,8 @@ void DAController::create_da_nc_file(){
   int temSOMA_V, daSOMA_V;
   int temSOMPR_V, daSOMPR_V;
   int temSOMCR_V, daSOMCR_V;
+  int temLAYERDZ_V;
+  int temTLAYER_V;
 
   temutil::nc( nc_def_var(ncid, "TEM_LWC", NC_DOUBLE, 4, vartype4D_dimids, &temLWC_V) );
   temutil::nc( nc_put_att_double(ncid, temLWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
@@ -522,6 +538,12 @@ void DAController::create_da_nc_file(){
   temutil::nc( nc_put_att_double(ncid, temSOMCR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "DA_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMCR_V) );
   temutil::nc( nc_put_att_double(ncid, daSOMCR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+
+  temutil::nc( nc_def_var(ncid, "TEM_LAYERDZ", NC_DOUBLE, 4, vartype4D_dimids, &temLAYERDZ_V) );
+  temutil::nc( nc_put_att_double(ncid, temLAYERDZ_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+
+  temutil::nc( nc_def_var(ncid, "TEM_TLAYER", NC_DOUBLE, 4, vartype4D_dimids, &temTLAYER_V) );
+  temutil::nc( nc_put_att_double(ncid, temTLAYER_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_enddef(ncid) );
   temutil::nc( nc_close(ncid) );
