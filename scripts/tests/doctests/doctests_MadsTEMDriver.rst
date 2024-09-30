@@ -52,8 +52,15 @@
 
 >>> d.setup_outputs(d.target_names)
 
-Grab the targets in two differnt formats (flat and labeled) and make sure the 
-values line up as expected.
+Grab the targets in two differnt formats (flat and labeled) and make sure the
+values line up as expected. 
+
+> Notice here that the `MadsTEMDriver.targets` datastructure includes **all**
+the target data that is included for that CMT (loaded from the
+calibration_targets.py file). In most cases, we are only interested in working
+with a certain subset of the target data - namely those targets that are
+specified in the config yaml. So the `MadsTEMDriver.observed_vec(..)` function
+is provided that can return only the targets of interest. 
 
 >>> import pandas as pd
 
@@ -62,6 +69,7 @@ values line up as expected.
 
 Check on the first block of data, which is a PFT target, but not by compartment.
 First print out the tables so we can see the expected shapes.
+
 >>> df_targets.loc[df_targets['ctname'] == 'GPPAllIgnoringNitrogen']
    cmtnum                  ctname  pft  observed cmprt
 0       6  GPPAllIgnoringNitrogen    0    11.833   NaN
@@ -76,13 +84,53 @@ First print out the tables so we can see the expected shapes.
 
 Then actually check the data so that we are confident in the output order for
 the flat list.
+
 >>> a = flat_targets[0:len(d.pftnums)]
 >>> b = df_targets.loc[df_targets['ctname'] == 'GPPAllIgnoringNitrogen']['observed']
 >>> all(a == b)
 True
 
-Then check on some compartment data. First print out the tables of data so we 
-can see the expected shapes.
+Then check on some compartment data. Here we need to make sure that only targets
+are included for PFTs, and compartments that are defined. So for example while
+the main targets data structure includes zero for undefined PFTs and
+compartments, these zero values should not be present in the `.observed_vec()`
+outputs. E.g.:
+
+>>> d.targets['VegCarbon']['Leaf']
+[2.0, 37.1, 8.06, 2.0, 2.0, 22.0, 23.0, 0.0, 0.0, 0.0]
+
+versus
+
+>>> df_targets.loc[(df_targets['ctname']=='VegCarbon') & (df_targets['pft']==4)]
+    cmtnum     ctname  pft  observed cmprt
+16       6  VegCarbon    4       2.0  Leaf
+
+
+>>> pd.DataFrame(d.observed_vec())
+    cmtnum                  ctname  pft  observed cmprt
+0        6  GPPAllIgnoringNitrogen    0    11.833   NaN
+1        6  GPPAllIgnoringNitrogen    1   197.867   NaN
+2        6  GPPAllIgnoringNitrogen    2    42.987   NaN
+3        6  GPPAllIgnoringNitrogen    3    10.667   NaN
+4        6  GPPAllIgnoringNitrogen    4     3.375   NaN
+5        6  GPPAllIgnoringNitrogen    5    16.000   NaN
+6        6  GPPAllIgnoringNitrogen    6     6.000   NaN
+7        6               VegCarbon    0     2.000  Leaf
+8        6               VegCarbon    0     4.000  Stem
+9        6               VegCarbon    0     0.297  Root
+10       6               VegCarbon    1    37.100  Leaf
+11       6               VegCarbon    1   161.280  Root
+12       6               VegCarbon    2     8.060  Leaf
+13       6               VegCarbon    2    11.040  Root
+14       6               VegCarbon    3     2.000  Leaf
+15       6               VegCarbon    3     3.200  Root
+16       6               VegCarbon    4     2.000  Leaf
+17       6               VegCarbon    5    22.000  Leaf
+18       6               VegCarbon    6    23.000  Leaf
+
+
+
+First print out the tables of data so we can see the expected shapes. 
 
 >>> flat_targets[len(d.pftnums):len(d.pftnums)+3]
 [2.0, 4.0, 0.297]
@@ -93,6 +141,8 @@ can see the expected shapes.
 9       6  VegCarbon    0     0.297  Root
 
 Then check the data so that we are confident that we understand the ordering.
+The following lines actually compare values. This is somewhat redundant in light
+of the above tests.
 
 >>> a = flat_targets[len(d.pftnums):len(d.pftnums)+3]
 >>> b = df_targets.loc[ (df_targets['ctname']=='VegCarbon') & (df_targets['pft']==0) ]['observed']
@@ -134,14 +184,10 @@ This makes sense because we haven't run the model yet so there are no outputs.
 
 Now check that the observed values that are put in the final output data are
 indeed the same as the observed values that are read and setup in the
-`self.targets` datastructure before running the model. This is harder because in
-the outputs, there are only rows for valid PFT/compartment combos, whereas in 
-the targets dataframe, there are rows with zero values for the observations for
-PFT/compartment combos that are not defined...for example the Stem and Root 
-compartments are not set for Lichen, but in the targets, there are (empty) rows
-for them. So here we drop the empty rows, and then compare with the final data.
+`self.targets` datastructure before running the model.
 
 >>> a = df_targets.loc[ (df_targets['ctname']=='VegCarbon') & (df_targets['pft']==2) ]['observed']
 >>> b = df_finaldata.loc[ (df_finaldata['ctname']=='VegCarbon') & (df_finaldata['pft']==2) ]['truth']
->>> all( a[a>0].values == b.values ) 
+>>> all( a.values == b.values ) 
 True
+
