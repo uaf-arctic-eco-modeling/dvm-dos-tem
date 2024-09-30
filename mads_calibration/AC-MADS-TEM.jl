@@ -275,24 +275,24 @@ println("targets=np.array(", targets, "),")
 # These labels are for the output variables (aka calibration targets)
 
 ### Suggestion for correcting outlabels issue:
-# outlabels = []
+outlabels = []
 
-# for x in dvmdostem.gather_model_outputs()
+for x in dvmdostem.gather_model_outputs()
 
-#   if "pft" in keys(x) && "pftpart" in keys(x)
-#     push!(outlabels, string(x["ctname"], "_pft", x["pft"], "_", x["pftpart"]))
+  if haskey(x, "pft") && haskey(x, "cmprt")
+    push!(outlabels, string(x["ctname"], "_pft", x["pft"], "_", x["cmprt"]))
 
-#   elseif "pft" in keys(x) && "pftpart" not in keys(x)
-#     push!(outlabels, string(x["ctname"], "_pft", x["pft"]))
+  elseif haskey(x, "pft") && !haskey(x, "cmprt")
+    push!(outlabels, string(x["ctname"], "_pft", x["pft"]))
 
-#   else
-#     push!(outlabels, string(x["ctname"]))
-#   end
-# end
+  else
+    push!(outlabels, string(x["ctname"]))
+  end
+end
 
 
 
-outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
+# outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
 println("out_labels=", outlabels)
 println("")
 
