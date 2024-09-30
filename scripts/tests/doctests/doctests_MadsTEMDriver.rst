@@ -5,7 +5,7 @@
 
 >>> my_yaml_string = """
 ... work_dir: /tmp/test_CA
-... site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
+... site: /work/testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
 ... PXx: 0
 ... PXy: 0
 ... calib_mode: GPPAllIgnoringNitrogen
