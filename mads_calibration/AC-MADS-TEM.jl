@@ -108,7 +108,7 @@ dvmdostem = PyCall.py"load_dvmdostem_from_configfile"(config_file)
 # ridden from the mads config (parameter distributions, intial guesses, etc)
 
 # Save the targets...
-targets = dvmdostem.observed_vec()
+targets = dvmdostem.observed_vec(format="flat")
 
 # Do the seed run and keep the results
 println("Performing seed run...")
@@ -273,7 +273,22 @@ println("targets=np.array(", targets, "),")
 
 # Generate a list of nicely formatted labels that can be used for plotting
 # These labels are for the output variables (aka calibration targets)
-outlabels=[string(x["ctname"],"_pft",x["pft"]) for x in dvmdostem.gather_model_outputs()]
+outlabels = []
+for x in dvmdostem.gather_model_outputs()
+
+  if haskey(x, "pft") && haskey(x, "cmprt")
+    push!(outlabels, string(x["ctname"], "_pft", x["pft"], "_", x["cmprt"]))
+
+  elseif haskey(x, "pft") && !haskey(x, "cmprt")
+    push!(outlabels, string(x["ctname"], "_pft", x["pft"]))
+
+  else
+    push!(outlabels, string(x["ctname"]))
+  end
+
+end
+
+
 println("out_labels=", outlabels)
 println("")
 

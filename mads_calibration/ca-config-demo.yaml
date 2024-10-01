@@ -5,7 +5,7 @@ mads_problemname: last_test
 
 # The location where your model run will be conducted and where your 
 # iteration and final results will be copied to at the end of the run(s)
-work_dir: /data/workflows/calibration/CMT06-IMNAVIAT/output/cmax_gppallignoringnitrogen/ca
+work_dir: /data/workflows/calibration/CMT06-TOOLIK/output/cmax_gppallignoringnitrogen/ca
 
 # The path to the "seed" directory that parameter will be read from. This could
 # be the main repository (/work/parameters if you are working inside the 
@@ -14,8 +14,8 @@ work_dir: /data/workflows/calibration/CMT06-IMNAVIAT/output/cmax_gppallignoringn
 # the strucutre of the calibration project you are working on. 
 seed_path: /work/parameters
 
-# The path to the driving input data set that will be used
-site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
+# The path to the driving input data set that will be used.
+site: /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10
 
 # The pixel from the driving inputs that iwll be used.
 PXx: 0
