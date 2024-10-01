@@ -125,7 +125,7 @@ def plot_optimization_fit(seed_params=None, ig_params=None, opt_params=None,
 
   # This handles annoyance with bar plots where the bar is centered, and
   # therfore hangs to the left of zero, and so messes with the auto-scaling...
-  for a in (axes[0], axes[1]):
+  for a in (axes[1], axes[2]):
     a.set_xlim(axes[2].get_xlim())
 
   #axes[2].legend()
