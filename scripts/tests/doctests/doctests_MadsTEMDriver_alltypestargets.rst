@@ -96,28 +96,41 @@ This makes sense because we haven't run the model yet so there are no outputs.
 
 >>> d.run()
 
+Collect the model outputs and then stuff them into a DataFrame for easy
+analysis.
+
 >>> final_data = d.gather_model_outputs()
 >>> import pandas as pd
 >>> df_finaldata = pd.DataFrame(final_data)
->>> df_finaldata
-      cmt                  ctname       value    truth  pft cmprt
-0   CMT06  GPPAllIgnoringNitrogen    9.008573   11.833  0.0   NaN
-1   CMT06  GPPAllIgnoringNitrogen  133.687429  197.867  1.0   NaN
-2   CMT06  GPPAllIgnoringNitrogen   25.611490   42.987  2.0   NaN
-3   CMT06  GPPAllIgnoringNitrogen    7.791676   10.667  3.0   NaN
-4   CMT06  GPPAllIgnoringNitrogen    3.388915    3.375  4.0   NaN
-5   CMT06  GPPAllIgnoringNitrogen    9.705867   16.000  5.0   NaN
-6   CMT06  GPPAllIgnoringNitrogen   17.169587    6.000  6.0   NaN
-7   CMT06              MossDeathC   10.570156  178.000  NaN   NaN
-8   CMT06               VegCarbon    2.138998    2.000  0.0  Leaf
-9   CMT06               VegCarbon    4.117513    4.000  0.0  Stem
-10  CMT06               VegCarbon    0.340910    0.297  0.0  Root
-11  CMT06               VegCarbon   42.925257   37.100  1.0  Leaf
-12  CMT06               VegCarbon  280.460292  161.280  1.0  Root
-13  CMT06               VegCarbon    0.156739    8.060  2.0  Leaf
-14  CMT06               VegCarbon   96.316317   11.040  2.0  Root
-15  CMT06               VegCarbon    2.602119    2.000  3.0  Leaf
-16  CMT06               VegCarbon    2.664471    3.200  3.0  Root
-17  CMT06               VegCarbon    2.250932    2.000  4.0  Leaf
-18  CMT06               VegCarbon   22.572059   22.000  5.0  Leaf
-19  CMT06               VegCarbon   22.400614   23.000  6.0  Leaf
+>>> df_finaldata.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 20 entries, 0 to 19
+Data columns (total 6 columns):
+ #   Column  Non-Null Count  Dtype  
+---  ------  --------------  -----  
+ 0   cmt     20 non-null     object 
+ 1   ctname  20 non-null     object 
+ 2   value   20 non-null     float64
+ 3   truth   20 non-null     float64
+ 4   pft     19 non-null     float64
+ 5   cmprt   12 non-null     object 
+dtypes: float64(3), object(3)
+memory usage: 1.1+ KB
+
+Print out the top and bottom of the frame.
+
+>>> df_finaldata.head()
+     cmt                  ctname       value    truth  pft cmprt
+0  CMT06  GPPAllIgnoringNitrogen    9.008573   11.833  0.0   NaN
+1  CMT06  GPPAllIgnoringNitrogen  133.687429  197.867  1.0   NaN
+2  CMT06  GPPAllIgnoringNitrogen   25.611490   42.987  2.0   NaN
+3  CMT06  GPPAllIgnoringNitrogen    7.791676   10.667  3.0   NaN
+4  CMT06  GPPAllIgnoringNitrogen    3.388915    3.375  4.0   NaN
+
+>>> df_finaldata.tail()
+      cmt     ctname      value  truth  pft cmprt
+15  CMT06  VegCarbon   2.602119    2.0  3.0  Leaf
+16  CMT06  VegCarbon   2.664471    3.2  3.0  Root
+17  CMT06  VegCarbon   2.250932    2.0  4.0  Leaf
+18  CMT06  VegCarbon  22.572059   22.0  5.0  Leaf
+19  CMT06  VegCarbon  22.400614   23.0  6.0  Leaf
