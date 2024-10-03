@@ -2117,9 +2117,40 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             outhold.ch4transport_sum_for_output.clear();
           }
         }
-
         //monthly
+        else if(curr_spec.monthly){
+
+          double ch4trans_tot = 0.0;
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_tot += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_sum_for_output.push_back(ch4trans_tot);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4transport_sum_for_output.clear();
+          }
+        }
         //yearly
+        else if(curr_spec.yearly){
+
+          double ch4trans_tot = 0.0;
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_tot += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_sum_for_output.push_back(ch4trans_tot);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4transport_sum_for_output.clear();
+          }
+        }
       }
 
     }//end critical(outputCH4TRANSPORT)
