@@ -527,7 +527,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
-    ed->d_soi2l.qover = 0.0;//getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
     ed->d_soi2l.qover = 0.0;
   }
@@ -1156,6 +1156,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
     ed->d_sois.ice[il] = MISSING_D;
     ed->d_soid.vwc[il] = MISSING_D;
     ed->d_soid.lwc[il] = MISSING_D;
+    ed->d_soid.uwc[il] = MISSING_D;
     ed->d_soid.iwc[il] = MISSING_D;
     ed->d_soid.sws[il] = MISSING_D;
     ed->d_soid.aws[il] = MISSING_D;
@@ -1192,9 +1193,10 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
       ed->d_sois.liq[soilind] = curr2->liq;
       ed->d_sois.ice[soilind] = curr2->ice;
       ed->d_soid.vwc[soilind]= curr2->getVolWater();
-      ed->d_soid.iwc[soilind]= curr2->getVolIce()-curr2->getUnfVolLiq();
-      ed->d_soid.lwc[soilind]= curr2->getVolLiq()+curr2->getUnfVolLiq();
-      ed->d_soid.sws[soilind]= (curr2->getVolLiq()+curr2->getUnfVolLiq())/curr2->poro;
+      ed->d_soid.iwc[soilind]= curr2->getVolIce();
+      ed->d_soid.lwc[soilind]= curr2->getVolLiq();
+      ed->d_soid.uwc[soilind] = curr2->getUnfVolLiq();
+      ed->d_soid.sws[soilind]= (curr2->getVolLiq())/curr2->poro;
       if (curr2->poro-curr2->getVolIce() < 0.00000000000001) {
         ed->d_soid.aws[soilind]          = 0.00000000000001;
       } else {

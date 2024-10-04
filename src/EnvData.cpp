@@ -322,6 +322,7 @@ void EnvData::grnd_beginOfMonth() {
   for (int il=0; il<MAX_SOI_LAY; il++) {
     m_soid.vwc[il] = 0.;
     m_soid.lwc[il] = 0.;
+    m_soid.uwc[il] = 0.;
     m_soid.iwc[il] = 0.;
     m_soid.sws[il] = 0.;
     m_soid.aws[il] = 0.;
@@ -541,6 +542,7 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   for(int il=0; il<numsoi; il++) {
     m_soid.vwc[il] += d_soid.vwc[il]/dinm;
     m_soid.lwc[il] += d_soid.lwc[il]/dinm;
+    m_soid.uwc[il] += d_soid.uwc[il] / dinm;
     m_soid.iwc[il] += d_soid.iwc[il]/dinm;
     m_soid.sws[il] += d_soid.sws[il]/dinm;
     m_soid.aws[il] += d_soid.aws[il]/dinm;
@@ -795,6 +797,7 @@ void EnvData::grnd_endOfMonth() {
     y_soid.tsave  += m_sois.ts[il]/numsoi/12.;
     y_soid.vwc[il] += m_soid.vwc[il]/12.;
     y_soid.lwc[il] += m_soid.lwc[il]/12.;
+    y_soid.uwc[il] += m_soid.uwc[il]/12.;
     y_soid.iwc[il] += m_soid.iwc[il]/12.;
     y_soid.sws[il] += m_soid.sws[il]/12.;
     y_soid.aws[il] += m_soid.aws[il]/12.;

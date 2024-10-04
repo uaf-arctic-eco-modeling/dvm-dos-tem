@@ -27,7 +27,7 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   Layer * toplayer = ground->toplayer;
   double tkres; //thermal conductivity for calculating resistence
   double tkfront; //thermal conductivity for calculating part front depth
-  double tkunf, tkfrz, tkmix;
+  double tkunf, tkfrz, tkmix, tksnw;
   // top-down propogation of front
   // driving force
   int freezing1; //the freezing/thawing force based on the driving temperature
@@ -35,16 +35,26 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
   double dse = fabs(tdrv1 * timestep); // the extra degree second
   double sumresabv  =0. ; // sum of resistence for above layers;
 
-  if(tdrv1>0.0) {
-    freezing1 = -1;
-  } else {
-    freezing1 =1;
+  // If top layer is soil compare to freezing temperature depression
+  // otherwise compare to 0.0 degrees
+  if (toplayer->isSoil){
+    if(tdrv1 >= toplayer->temp_dep) {
+      freezing1 = -1;
+    } else {
+      freezing1 =1;
+    }
+  } else{
+    if(tdrv1 > 0.0) {
+      freezing1 = -1;
+    } else {
+      freezing1 =1;
+    }
   }
 
   // find the new front
   double newfntz1 = 0.;
   Layer * currl=NULL;
-  if(ground->fstsoill->tem >0){ // if e.g. yesterday's tempupdater pushed the soil surface temp above zero
+  if(ground->fstsoill->tem >= ground->fstsoill->temp_dep){ // if e.g. yesterday's tempupdater pushed the soil surface temp above zero
     currl = ground->fstsoill; // skip any snow layers and force stefan to work in the soil
   } else {
     currl = toplayer; // otherwise, work in the snow layers (if any)
@@ -56,7 +66,6 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
         newfntz1 = currl->prevl->z+currl->prevl->dz; //this will weep out all
                                                      //fronts in the soil column
       }
-
       break; // for bedrock, break
     }
 
@@ -64,17 +73,30 @@ void Stefan::updateFronts(const double & tdrv, const double &timestep) {
     tkfrz = currl->getFrzThermCond();
     tkmix = currl->getMixThermCond();
 
-    if(tdrv1<0.0) {
-      tkres   = tkmix;
-      tkfront = tkmix;
+    // If top layer is soil compare to freezing temperature depression
+  // otherwise compare to 0.0 degrees
+  if (toplayer->isSoil){
+    if (tdrv1 < currl->temp_dep){
+      tkres = tkfrz;   // assume resistive tk above layer matches driving temperature
+      tkfront = tkmix; // assume tk of the layer containing the front is mixed
     } else {
-      tkres   = tkmix;
+      tkres = tkunf;
       tkfront = tkmix;
+    } 
+  } else {
+    if (tdrv1 < 0.0){                  
+      tkres = tkfrz;   // assume resistive tk above layer matches driving temperature
+      tkfront = tkunf; // assume tk of the layer containing the front is mixed
+    } else {
+      tkres = tkunf;
+      tkfront = tkfrz;
     }
+  }
 
+    // accumulating thermal resistance above the front layer
     sumresabv += currl->dz/tkres;
 
-    if (currl->frozen != freezing1){//if the layer has a different frozen status
+    if (currl->frozen != freezing1){ //if the layer has a different frozen status
       if(currl->isSnow) {
         meltingSnowLayer(tkfront, dse, sumresabv, tdrv1, currl, timestep);
       } else if(currl->isSoil) {
@@ -165,21 +187,25 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
                                           double & newfntz, Layer* sl,
                                           const double & timestep) {
   newfntz = 0.;
-  double volwat=0.; //volumetric ice/liq water (meters) to be thawing/freezing;
-  double dz=0.; //soil thickness (meters) to be thawing/freezing
-  double dsn=0.; //the degree seconds needed to fully
-                 //  freeze/thaw one layer of soil
-  dz =sl->dz;  // this is the max. thickness
+  double volwat=0.; // volumetric ice/liq water to be thawing/freezing;
+  double dz=0.;     // soil thickness (meters) to be thawing/freezing
+  double dsn=0.;    // the degree seconds needed to fully
+                    // freeze/thaw one layer of soil
+  dz =sl->dz;       // this is the max. thickness
 
   if (freezing==1) {
     dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
                                         //  soil segments not mixed
-    // volwat = fmax(0.0, sl->getEffVolWater());
-    volwat = fmax(0.0, fmax(0.05, fmin(sl->getVolLiq() + sl->getUnfVolLiq(), sl->poro)));
+
+    // Accounting for phase change in the layer between freezing of 
+    // mobile water and immobile unfrozen pore water 
+    volwat = fmax(sl->getVolLiq(), sl->getUnfVolLiq()); 
   } else {
     dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    // volwat = fmax(0.0, sl->getEffVolWater());
-    volwat = fmax(0.0, sl->getVolIce() - fmax(sl->getUnfVolLiq(),0.05));
+
+    // If thawing, we assume ice content is not greater than volume of
+    // unfrozen pore water present in the layer
+    volwat = fmax(0.0, sl->getVolIce() - sl->minliq / sl->dz / DENLIQ);
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -189,8 +215,12 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   }
 
   dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
-  if(sl->tem < 0){ //if layer below 0, include energy needed to bring layer to 0 before thawing
-    dsn += abs(sl->tem)*timestep;
+
+  // if layer below / above freezing temperature depression, include energy
+  // needed to bring layer to freezing temperature depression before thawing 
+  // or freezing
+  if(sl->tem != sl->temp_dep){ 
+    dsn += abs(sl->tem - sl->temp_dep) * timestep;
   }
 
   if(dse>=dsn) {
@@ -201,7 +231,7 @@ void Stefan::processNewFrontSoilLayerDown(const int &freezing,
   } else {
     double partdz=0.;
     partdz=getPartialDepth(volwat, tkfront, sumrescum, dse); //may not be consistent
-    // partdz = dse/dsn*dz;
+
     // find the existing front(s) within the layer
     int fntnum = ground->frontsz.size();
     vector<int> fntsintype;
@@ -351,15 +381,22 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
                  //  one layer of soil
   dz =sl->dz;  //this is the max. thickness of water to be freezing/thawing
 
-  if (freezing==1) {
-    dz *= fmax(0., 1.0-sl->frozenfrac); //assuming frozen/unfrozen
-                                        //  soil segments not mixed
-    // volwat = fmax(0.0, sl->getEffVolWater());
-    volwat = fmax(0.0, fmax(0.05, fmin(sl->getVolLiq() + sl->getUnfVolLiq(), sl->poro)));
-  } else {
-    dz *= sl->frozenfrac; //assuming frozen/unfrozen soil segments not mixed
-    // volwat = fmax(0.0, sl->getEffVolWater());
-    volwat = fmax(0.0, sl->getVolIce() - fmax(sl->getUnfVolLiq(),0.05));
+  if (freezing == 1)
+  {
+    dz *= fmax(0., 1.0 - sl->frozenfrac); // assuming frozen/unfrozen
+                                          //   soil segments not mixed
+
+    // Accounting for phase change in the layer between freezing of
+    // mobile water and immobile unfrozen pore water
+    volwat = fmax(sl->getVolLiq(), sl->getUnfVolLiq());
+  }
+  else
+  {
+    dz *= sl->frozenfrac; // assuming frozen/unfrozen soil segments not mixed
+
+    // If thawing, we assume ice content is not greater than volume of
+    // unfrozen pore water present in the layer
+    volwat = fmax(0.0, sl->getVolIce() - sl->minliq/sl->dz/DENLIQ);
   }
 
   if (dz<=0.0001*sl->dz) { //this will avoid 'front' exactly falling on the
@@ -370,19 +407,19 @@ void Stefan::processNewFrontSoilLayerUp(const int &freezing,
   }
 
   dsn = getDegSecNeeded(dz, volwat, tkfront, sumrescum);
-  //Unlike the other places dsn is calculated, it is not modified
+  // Unlike the other places dsn is calculated, it is not modified
   // by layer temperature and timestep here, because the bottom-up
   // calculations already allow for that.
 
   if(dse>=dsn) {
-    //whole layer will be frozen or unfrozen, and a new
+    // whole layer will be frozen or unfrozen, and a new
     //  front will add at the layer top
     newfntz = sl->z;
     dse -= dsn;
   } else {
     double partdz=0.;
     partdz=getPartialDepth(volwat, tkfront, sumrescum, dse);  //may not be consistent
-    // partdz = dse/dsn*dz;
+
     //find the existing front(s) within the layer
     int fntnum = ground->frontsz.size();
     vector<int> fntsintype;
@@ -577,9 +614,9 @@ double Stefan::prepareBottomDriving() {
       botdrvl = nxtl;
       double ntem = nxtl->tem;
       double dz2laybot = diffdz-dzthreshold+0.5*nxtl->dz;
-      double gradient = (ntem - 0.0)/(dz2front+dz2laybot);
-      double drvtemp =dz2front * gradient + 0.;
-      tdrvbot = drvtemp;
+      double gradient = (ntem - lstfrontl->temp_dep) / (dz2front + dz2laybot);
+      double drvtemp =dz2front * gradient + 0.; // Should there be a geothermal flux 
+      tdrvbot = drvtemp;                        // instead of 0.0 here?
     }
   } else {
     Layer* currl = lstfrontl->nextl;
@@ -727,32 +764,40 @@ void Stefan::updateLayerFrozenState(Layer * toplayer, const int freezing1) {
           currl->frozen = freezing1; // in this case, assume the layer now matches overall forcing.
         }
         else{
-          if (currl->tem>0.) {
-            currl->frozen = -1;
-          }
-          if (currl->tem<=0.) {
-          currl->frozen = 1;
+          // if the layer is soil compare to freezing temperature depression
+          if (currl->isSoil){
+            if (currl->tem >= currl->temp_dep) {
+              currl->frozen = -1;
+            } else {
+            currl->frozen = 1;
+            }
+          } else {
+            if (currl->tem>0.) {
+              currl->frozen = -1;
+            } else {
+            currl->frozen = 1;
+            }
           }
         }
       }
 
-      //
       if (currl->frozen==1) {
         currl->frozenfrac = 1.0;
       }
-
       if (currl->frozen==-1) {
         currl->frozenfrac = 0.0;
       }
     }
 
     currl=currl->nextl;
+
   }
 }
 
 // when a front moves through or in a layer
 // the corresponding liq and ice content should be changed due to phase change (no total water amount change)
 void Stefan::updateWaterAfterFront(Layer* toplayer) {
+
   Layer * currl = toplayer;
   double tice = 0.;
   double tliq = 0.;
@@ -760,9 +805,16 @@ void Stefan::updateWaterAfterFront(Layer* toplayer) {
   while (currl!=NULL) {
     tice = currl->ice;
     tliq = currl->liq;
-    currl->ice = (tice +tliq ) * currl->frozenfrac; //NOTE: 'frozenfrac' must
+    currl->ice = (tice + tliq ) * currl->frozenfrac; //NOTE: 'frozenfrac' must
                                                     //  be updated already
-    currl->liq = (tice +tliq ) * (1. - currl->frozenfrac);
+    currl->liq = (tice + tliq ) * (1. - currl->frozenfrac);
+
+    // Catch if currl liq drops below minimum liquid
+    // calculated as unfrozen water content
+    if (currl->liq<=currl->minliq){
+      currl->liq = currl->minliq;    
+    }
+
     //there may be a situation that freezing may cause ice
     //  'expansion' over the maxice -
     double icebylwc = currl->getVolLiq()*DENICE*currl->dz;
@@ -771,14 +823,17 @@ void Stefan::updateWaterAfterFront(Layer* toplayer) {
       currl->ice=fmax(0., currl->maxice-icebylwc); //what to do about the 'extra' water??? - next step
     }
 
-    // phase change energy
-    double dliq = currl->liq - tliq;
+    // The below commented code has been integrated into TemperatureUpdator.cpp
+    // during unfrozen water and apparent heat capacity implementation. This
+    // remains during testing.
 
-    if (dliq>0.0) {  // thawing, because 'liq' increased
-      currl->pce_t += (dliq*LHFUS);
-    } else if (dliq<0.0) {   // freezing, because 'liq' decreased
-      currl->pce_f += (-dliq*LHFUS);
-    }
+    // // phase change energy
+    // double dliq = currl->liq - tliq;
+    // if (dliq>0.0) {  // thawing, because 'liq' increased
+    //   currl->pce_t += (dliq*LHFUS);
+    // } else if (dliq<0.0) {   // freezing, because 'liq' decreased
+    //   currl->pce_f += (-dliq*LHFUS);
+    // }
 
     currl = currl->nextl;
   }

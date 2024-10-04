@@ -75,7 +75,7 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   double hcap = MISSING_D;
 
   if(isSoil) {
-    if(tem>=0) {
+    if(tem >= temp_dep) {
       hcap = getUnfVolHeatCapa();
     } else {
       hcap = getMixVolHeatCapa();
@@ -93,7 +93,7 @@ double Layer::getThermalConductivity() {
   double tc = MISSING_D;
 
   if(isSoil) {
-    if(tem>=0){
+    if(tem >= temp_dep){
       tc = getUnfThermCond();
     } else {
       tc = getMixThermCond();
@@ -201,7 +201,6 @@ double Layer::getVolLiq() {
     else{
       vliq = fmin((double)vliq,(double)poro);
     }
-    
     return vliq;
   } else {
     return 0;
@@ -213,9 +212,6 @@ double Layer::getEffVolLiq() {
   if (dz != 0) {
     double evliq = (liq-minliq)/DENLIQ/dz; // FIX THIS: divide by zero error when there is no thickness!
     evliq = fmin((double)evliq,(double)poro);
-    if (liq < 0){
-      std::cout << "If getEffVolLiq gets -ve liq   " << liq;
-    }
     return evliq;
   } else {
     return 0;

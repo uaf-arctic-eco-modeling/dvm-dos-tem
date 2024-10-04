@@ -25,7 +25,6 @@ double SoilLayer::getUnfVolHeatCapa() {
   return vhc;
 };
 
-//Yuan: unfrozen/frozen put together
 double SoilLayer::getMixVolHeatCapa() {
 
   double uwc = getUnfVolLiq();
@@ -34,15 +33,19 @@ double SoilLayer::getMixVolHeatCapa() {
   double vhcf = getFrzVolHeatCapa();
   double vhcu = getUnfVolHeatCapa();
 
+  // scaling based on mobile liquid water content (lwc) and immobile
+  // unfrozen pore water content (uwc) and porosity. These are summed
+  // as lwc freezes around 0 degC uwc begins to increase.
   double scaler = fmin(uwc + lwc, poro);
 
-  double vhc = vhcsolid * (1 - poro) + (poro * vhcu * scaler) + (poro * vhcf * (1 - scaler));
+  double vhc = (1 - poro) * vhcsolid + (poro * vhcu * scaler) + (poro * vhcf * (1 - scaler));
 
-  if (tem>=0){
+  if (tem >= temp_dep){
     vhc = vhcu;
   }
   
   return vhc;
+
 };
 
 // get frozen layer thermal conductivity
@@ -52,7 +55,7 @@ double SoilLayer::getFrzThermCond() {
   double vliq = getVolLiq();
   double s = (vice + vliq)/poro;
   s = min(s, 1.0);
-  double ke= s; // for frozen case
+  double ke = s; // for frozen case
 
   if(s < 1.e-7) {
     tc = tcdry;
@@ -88,7 +91,7 @@ double SoilLayer::getUnfThermCond() {
 
 double SoilLayer::getMixThermCond() { 
 
-  //Note: accounting for porosity, liquid, ice content is imperative when reviewing 
+  // Note: accounting for porosity, liquid, ice content is imperative when reviewing 
   // this equation, see reference:
 
   // Hailong He, Gerald N. Flerchinger, Yuki Kojima, Miles Dyck, Jialong Lv,
@@ -99,15 +102,20 @@ double SoilLayer::getMixThermCond() {
   double tcf = MISSING_D;
   double tcu = MISSING_D;
 
-  double vliq = getVolLiq();
+  double lwc = getVolLiq();
   double uwc = getUnfVolLiq();
 
   tcf = getFrzThermCond();
   tcu = getUnfThermCond();
 
-  tc = pow(tcf, 1 - fmin(uwc+vliq, poro)) * pow(tcu, fmin(uwc+vliq, poro));
+  // scaling based on mobile liquid water content (lwc) and immobile
+  // unfrozen pore water content (uwc) and porosity. These are summed
+  // as lwc freezes around 0 degC uwc begins to increase.
+  double scaler = fmin(uwc + lwc, poro);
 
-  if (tem>=0){
+  tc = pow(tcf, 1 - fmin(scaler, poro)) * pow(tcu, fmin(scaler, poro));
+
+  if (tem >= temp_dep){
     tc = tcu;
   }
 
@@ -166,9 +174,9 @@ double SoilLayer::getAlbedoNir() {
 // called when porosity/thickness is changed
 void SoilLayer::derivePhysicalProperty() {
   //hydraulic properties
-  minliq = 0.05*poro * DENLIQ * dz;
+  minliq = getUnfVolLiq() * poro * DENLIQ * dz;
   maxliq = poro * DENLIQ * dz;
-  maxice = poro * DENICE * dz;
+  maxice = poro * DENICE * dz - minliq;
   //thermal properties
   tcsatunf= pow((double)tcsolid , (double)1- poro) * pow((double)TCLIQ, (double)poro);
   tcsatfrz= pow((double)tcsolid , (double)1- poro) * pow((double)TCICE, (double)poro);

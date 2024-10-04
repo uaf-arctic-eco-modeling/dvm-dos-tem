@@ -3096,7 +3096,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end LTRFALN
   map_itr = netcdf_outputs.end();
 
-
   //LWCLAYER
   map_itr = netcdf_outputs.find("LWCLAYER");
   if(map_itr != netcdf_outputs.end()){
@@ -3130,6 +3129,42 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputLWCLAYER)
   }//end LWCLAYER
+  map_itr = netcdf_outputs.end();
+
+  //UWCLAYER - unfrozen liquid pore water content
+  //used in thermal calculations
+  map_itr = netcdf_outputs.find("UWCLAYER");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: UWCLAYER";
+    curr_spec = map_itr->second;
+    #pragma omp critical(outputUWCLAYER)
+    {
+      std::array<double, MAX_SOI_LAY> uwc_layer{};
+
+      if(curr_spec.monthly){
+        for(int i=0; i<MAX_SOI_LAY; i++){
+          uwc_layer[i] = cohort.edall->m_soid.uwc[i];
+        }
+        outhold.uwclayer_for_output.push_back(uwc_layer);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.uwclayer_for_output[0][0], MAX_SOI_LAY, month_start_idx, months_to_output);
+          outhold.uwclayer_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+        for(int i=0; i<MAX_SOI_LAY; i++){
+          uwc_layer[i] = cohort.edall->y_soid.uwc[i];
+        }
+        outhold.uwclayer_for_output.push_back(uwc_layer);
+
+        if(output_this_timestep){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.uwclayer_for_output[0][0], MAX_SOI_LAY, year_start_idx, years_to_output);
+          outhold.uwclayer_for_output.clear();
+        }
+      }
+    }//end critical(outputUWCLAYER)
+  }//end UWCLAYER
   map_itr = netcdf_outputs.end();
 
 

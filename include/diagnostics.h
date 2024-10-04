@@ -130,6 +130,9 @@ struct soidiag_env {
                            //  ice water/total soil volume (Theta)
   double lwc[MAX_SOI_LAY]; //Yuan: liquid water content: volume fraction of
                            //  liquid water/total soil volume (Theta)
+  double uwc[MAX_SOI_LAY]; //Maglio: unfrozen liquid pore water content: 
+                           //volume fraction of unfrozen liquid pore water/
+                           //total soil volume (Theta_u)
   double sws[MAX_SOI_LAY]; //soil liquid water saturation (liq vwc/
                            //  total porosity) for use in Soil_Bgc
   double aws[MAX_SOI_LAY]; //adjusted soil liquid water saturation (liq vwc/
@@ -193,6 +196,7 @@ struct soidiag_env {
       vwc[i] = UIN_D;
       iwc[i] = UIN_D;
       lwc[i] = UIN_D;
+      uwc[i] = UIN_D;
       sws[i] = UIN_D;
       aws[i] = UIN_D;
       minliq[i] = UIN_D;
