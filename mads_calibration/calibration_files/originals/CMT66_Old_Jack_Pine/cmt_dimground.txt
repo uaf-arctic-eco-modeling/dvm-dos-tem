@@ -1,0 +1,19 @@
+// dvmdostem parameter file
+// ground structure and dimensions
+//==========================================================
+// CMT66 // Mature Jack Pine // BOREAS
+    150.0000  // snwdenmax: kg/m3 // max. snow density //  // 
+    110.0000  // snwdennew: kg/m3 // new (min.) snow density //  // 
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.0350  // maxmossthick: m // max. dead moss thickness //  // 
+      0.0200  // initdmossthick: m // initial dead moss thickness(not using anymore) //  // 
+      2.0000  // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0300  // initfibthick: m //  //  // 
+      0.0900  // inithumthick: m //  //  // 
+      0.0120  // coefshlwa:  //  //  // 
+      1.1800  // coefshlwb:  //  //  // 
+      0.0080  // coefdeepa:  //  //  // 
+      1.0210  // coefdeepb:  //  //  // 
+      0.0995  // coefminea:  //  //  // 
+      0.2190  // coefmineb:  //  //  //

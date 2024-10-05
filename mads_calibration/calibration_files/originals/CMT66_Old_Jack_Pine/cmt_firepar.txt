@@ -1,0 +1,26 @@
+// dvmdostem parameter file
+// Fire disturbance parameters
+// Max of 10 PFTs over 1 soil column
+// PFT names should be CamelCase and must not have a period in them!
+//
+//==========================================================
+// CMT66 // Mature Jack Pine // BOREAS
+// EGreenTree   DecidShrub    Lichen  Feathermoss      PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+  0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev1: fraction of PFT vegetation combusted for severity 1 //  //  // 
+  0.1500       0.1500       0.8000       1.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev2: fraction of PFT vegetation combusted for severity 2 //  //  // 
+  0.2500       0.2500       0.9000       1.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev3: fraction of PFT vegetation combusted for severity 3 //  //  // 
+  0.3000       0.3000       1.0000       1.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev4: fraction of PFT vegetation combusted for severity 4 //  //  // 
+  0.3500       0.3500       1.0000       1.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev5: fraction of PFT vegetation combusted for severity 5 //  //  // 
+  0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev1: fraction of PFT vegetation killed for severity 1 //  //  // 
+  0.5000       0.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev2: fraction of PFT vegetation killed for severity 2 //  //  // 
+  0.6000       0.6000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev3: fraction of PFT vegetation killed for severity 3 //  //  // 
+  0.6400       0.6400       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev4: fraction of PFT vegetation killed for severity 4 //  //  // 
+  0.6400       0.6400       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev5: fraction of PFT vegetation killed for severity 5 //  //  //     
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
