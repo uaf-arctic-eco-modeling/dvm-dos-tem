@@ -1,0 +1,15 @@
+//==========================================================
+// CMT60 // PEAT PLATEAU // 
+//    EverTree    EricShrub       Lichen         Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // pftnames:
+0.1         0.1         0.1          0.1         0.0    0.0    0.0    0.0    0.0    0.0   // albvisnir: canopy albedo
+0.5         0.5         0.5          0.5         0.0    0.0    0.0    0.0    0.0    0.0   // er: light extinction coefficient
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // ircoef: rainfall interception 
+0.041       0.041       0.041        0.041       0.0    0.0    0.0    0.0    0.0    0.0   // iscoef: snow interception
+0.003       0.003       0.003        0.003       0.0    0.0    0.0    0.0    0.0    0.0   // glmax: max. canopy conductance (m/s)
+0.08        0.08        0.08         0.08        0.0    0.0    0.0    0.0    0.0    0.0   // gl_bl: boundary layer conductance
+0.00001     0.00001     0.00001      0.00001     0.0    0.0    0.0    0.0    0.0    0.0   // gl_c:  cuticular conductance
+930         930         930          930         0.0    0.0    0.0    0.0    0.0    0.0   // vpd_open:  vpd (pa) for leaf stomata fully openness
+4100        4100        4100         4100        0.0    0.0    0.0    0.0    0.0    0.0   // vpd_close: vpd (pa) for leaf stomata fully closure
+75          75          75           75          0.0    0.0    0.0    0.0    0.0    0.0   // ppfd50:
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegwater: initial intercepted rain water in canopy
+0.0         0.0         0.0          0.0         0.0    0.0    0.0    0.0    0.0    0.0   // initvegsnow: initial intercepted snow water in canopy
