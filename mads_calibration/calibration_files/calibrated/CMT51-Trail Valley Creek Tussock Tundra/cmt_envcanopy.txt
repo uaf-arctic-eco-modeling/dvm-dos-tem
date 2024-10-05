@@ -1,0 +1,20 @@
+//==========================================================
+// CMT51 // Tussock Tundra TVC// ##Values from Trail Valley###
+//  dvmdostem parameters // v0.7.0-183-gc44a88a1
+//  cmtdescription // ""A long winded description. Spaces? Quotes? Special charachters?"""
+//  calibration site // ""Trail Valley Creek"""
+//  references file // refs.bib
+//      Sedges     Sphagnum       Lichen         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // 
+        0.1000       0.1000       0.1000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // albvisnir:  // canopy albedo // 
+        0.5000       0.5000       0.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // er:  // light extinction coefficient //  
+        0.0410       0.0410       0.0410       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // ircoef:  // rainfall interception // 
+        0.0410       0.0410       0.0410       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // iscoef:  // snow interception //  
+        0.0030       0.0030       0.0030       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // glmax: m/s // max. canopy conductance // 
+        0.0800       0.0800       0.0800       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // gl_bl:  // boundary layer conductance //  
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // gl_c:  // cuticular conductance // 
+      930.0000     930.0000     930.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // vpd_open: pa // vpd (pa) for leaf stomata fully openness //  
+     4100.0000    4100.0000    4100.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // vpd_close: pa // vpd (pa) for leaf stomata fully closure // 
+       75.0000      75.0000      75.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // ppfd50:  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // initvegwater:  // initial intercepted rain water in canopy // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // initvegsnow:  // initial intercepted snow water in canopy // 
+

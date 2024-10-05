@@ -1,0 +1,25 @@
+// dvmdostem parameter file for BGC calibrated parameters
+// Maximum of 10 PFTs over one soil column.
+// PFT names should be CamelCase and must not have a period in them!
+//
+//==========================================================
+// CMT55 // Arctic Fen // Daring Creek
+//Sphagnum  EgreenShrub    Sedges        PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+295.00      25.4000      80.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cmax:  //  //  // 
+3.3200       2.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nmax:  //  //  // 
+0.0420       0.040        0.090        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(0):  leaf //  //  // 
+0.0000       0.0200       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(1):  stem //  //  // 
+0.0000       0.0230       0.0330       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(2):  root //  //  // 
+0.0034       0.005        0.005        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(0):  leaf //  //  // 
+0.0000       0.005        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(1):  stem //  //  // 
+0.0000       0.00400      0.0035       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(2):  root //  //  // 
+-8.060e-05   -8.060e-05   -8.060e-05   0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // kra:      //  //  // 
+-2.55        -5.038       -4.550       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // krb(0):  coeff(1) in maintenance resp.(leaf) //  //  // 
+0.0000      -4.166         0.0000      0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // krb(1):  coeff(1) in maintenance resp.(stem) //  //  // 
+0.0000      -4.00         -4.084       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // krb(2):  coeff(1) in maintenance resp.(root) //  //  // 
+0.2000       0.2000       0.2000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frg:  fraction of available NPP (GPP after rm) for growth resp. //  //  // 
+ 0.7300  // micbnup:  // parameter for soil microbial immobilization of N //  // 
+ 0.2250  // kdcrawc:  // raw-material (litter) C decomposition rates at reference condition //  // 
+ 0.0110  // kdcsoma:  //  //  // 
+ 0.0025  // kdcsompr:  //  //  // 
+ 0.00025  // kdcsomcr:  //  //  //

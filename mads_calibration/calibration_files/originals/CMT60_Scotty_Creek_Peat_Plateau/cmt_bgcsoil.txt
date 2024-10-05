@@ -1,0 +1,20 @@
+//==========================================================
+// CMT60 // Peat Plateau 
+2.27               // rhq10:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax: 
+60.00             // lcclnc:
+0.3717             // fsoma:
+0.6112             // fsompr:
+0.0171             // fsomcr:
+0.2571             // som2co2:
+0.0042            // kn2:
+27.37             // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+3329              // initshlwc:
+11106              // initdeepc:
+55667            // initminec:
+2561              // initsoln:
+1.38              // initavln:

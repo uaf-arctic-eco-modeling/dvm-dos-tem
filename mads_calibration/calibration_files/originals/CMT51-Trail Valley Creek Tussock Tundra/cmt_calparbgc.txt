@@ -1,0 +1,22 @@
+//==========================================================
+// CMT51 // Tussock Tundra TVC // ##Values from Trail Valley###
+//  dvmdostem parameters // v0.7.0-183-gc44a88a1
+//      Sedges     Sphagnum       Lichen         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+      450.0000     120.0000     300.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cmax:  //  //  // 
+       27.6000       3.0000       3.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nmax:  //  //  // 
+     5.999e-02       0.0410       0.0960       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(0):  // litterfall carbon rate for leaf //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(1):  // litterfall carbon rate for stem //  // 
+        0.0200       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(2):  // litterfall carbon rate for root //  // 
+        0.0001       0.0001       0.0010       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(0):  // litterfall nitrogen rate for leaf //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(1):  // litterfall nitrogen rate for stem //  // 
+     6.880e-03       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(2):  // litterfall nitrogen rate for root //  // 
+    -8.060e-05   -8.060e-05   -8.060e-05       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // kra:  // coeff(0) in maintenance resp. //  // 
+       -9.9010      -5.7000      -1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // krb(0):  // coeff(1) in maintenance resp.(leave) //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // krb(1):  // coeff(1) in maintenance resp.(stem) //  // 
+       -2.1000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // krb(2):  // coeff(1) in maintenance resp.(root) //  // 
+        0.2000       0.2000       0.2000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frg:  // fraction of available NPP (GPP after rm) for growth resp. //  // 
+      0.7500  // micbnup:  // parameter for soil microbial immobilization of N //  // 
+   9.195e-02  // kdcrawc:  // raw-material (litter) C decomposition rates at reference condition //  // 
+   2.309e-02  // kdcsoma:  //  //  // 
+      0.0208  // kdcsompr:  //  //  // 
+      0.0000  // kdcsomcr:  //  //  //  
