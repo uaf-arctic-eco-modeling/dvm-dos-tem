@@ -345,6 +345,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln
   },
+  ## CMT50 SHRUB TUNDRA AT TRAIL VALLEY CREEK
  "Shrub Tundra TVC" : {
      'cmtnumber': 50,
   'PFTNames':  ['DecidShrub', 'EgreenShrub', 'Forbs', 'Sedge', 'Moss', 'Lichen', 'PFT6', 'PFT7', 'PFT8', 'PFT9'],
@@ -369,6 +370,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 1880,
   'AvailableNitrogenSum': 0.443,
 },
+ ## CMT51 TUSSOCK TUNDRA TRAIL VALLEY CREEK
   "Tussock Tundra TVC" : {
     'cmtnumber': 51,
   'PFTNames':  ['Sedges', 'Sphagnum', 'Lichen', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT8', 'PFT9'],
@@ -393,6 +395,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 2788,
   'AvailableNitrogenSum': 0.392, 
 },
+  ## CMT52 HEATH LICHEN TUNDRA TRAIL VALLEY CREEK
   "Heath-lichen TVC" : {
     'cmtnumber': 52,
   'PFTNames':  ['Lichen', 'PFT1', 'PFT2', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
@@ -417,6 +420,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 3209,
   'AvailableNitrogenSum': 0.362,
 },
+  ## CMT55 ARCTIC FEN AT DARING LAKE
   "Arctic Fen" : {
     'cmtnumber': 55,
   'PFTNames':  ['Sphagnum', 'EgreenShrub', 'PFT2', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
@@ -441,6 +445,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 2341.5,
   'AvailableNitrogenSum': 0.706,
 },
+  ## CMT56 MIXED TUNDRA AT DARING LAKE
   "Mixed Tundra" : {
     'cmtnumber': 56,
   'PFTNames':  ['Lichen', 'Sphagnum', 'EgreenShrub', 'DecidShrub', 'Sedge', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
@@ -465,6 +470,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 1340.9,
   'AvailableNitrogenSum': 1.632,
 },
+  ## CMT57 HEATH TUNDRA AT DARING LAKE
   "Heath Tundra Daring Lake" : {
     'cmtnumber': 57,
   'PFTNames':  ['Lichen', 'Omoss', 'EgreenShrub', 'Graminoid', 'DecidShrub', 'PFT5', 'PFT6', 'PFT7', 'PFT8', 'PFT9'],
