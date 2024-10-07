@@ -18,4 +18,4 @@
 0.410000     // kdcrawc: 
 0.025000     // kdcsoma: 
 0.005000     // kdcsompr: 
--0.000000    // kdcsomcr: 
+0.00000052293    // kdcsomcr: 
