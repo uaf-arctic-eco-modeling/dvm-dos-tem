@@ -1886,6 +1886,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //Total, instead of by layer
       else{
+        //Daily
         if(curr_spec.daily){
 
           for(int id=0; id<DINM[month]; id++){
@@ -1901,13 +1902,24 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             outhold.ch4pool_for_output.clear();
           }
         }
-
+        //Monthly
         else if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &ch4_sum, 1, month_timestep, 1);
+          outhold.ch4pool_for_output.push_back(ch4_sum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4pool_for_output.clear();
+          }
         }
+        //Yearly
         else if(curr_spec.yearly){
           if(end_of_year){
-            output_nc_3dim(&curr_spec, file_stage_suffix, &ch4_sum, 1, year, 1);
+            outhold.ch4pool_for_output.push_back(ch4_sum);
+          }
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4pool_for_output.clear();
           }
         }
       }
