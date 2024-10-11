@@ -38,18 +38,19 @@ public:
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;
   std::vector<double> dwdc_for_output;
-  std::vector<double> dwdrh_for_output;
   std::vector<double> minec_for_output;
+  std::vector<double> mossdeathc_for_output;
+  std::vector<double> mossdeathn_for_output;
+  std::vector<double> mossdz_for_output;
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;
   std::vector<double> qrunoff_for_output;
+  std::vector<double> reco_for_output;
+  std::vector<double> rhdwd_for_output;
   std::vector<double> shlwc_for_output;
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;
   std::vector<double> watertab_for_output;
-  std::vector<double> mossdz_for_output;
-  std::vector<double> mossdeathc_for_output;
-  std::vector<double> mossdeathn_for_output;
 
   //Variables by layer
   std::vector<double> rh_tot_for_output;
@@ -66,6 +67,9 @@ public:
 
   std::vector<double> somrawc_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> somrawc_for_output;
+
+  std::vector<double> soc_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> soc_for_output;
 
   std::vector<double> avln_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> avln_for_output;
