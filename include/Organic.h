@@ -29,8 +29,8 @@ public:
   bool shlwchanged;
   double lstshlwdz;
 
-  void ShlwThickScheme(const double & totthickness);
-  void DeepThickScheme(const double & totthickness);
+  void ShlwThickScheme(const double & shlw_totthickness, const double & deep_totthickness);
+  void DeepThickScheme(const double & shlw_totthickness, const double & deep_totthickness);
 
   void assignShlwThicknesses(int type[], double dz[],const int & maxnum);
   void assignDeepThicknesses(int type[], double dz[],const int & maxnum);

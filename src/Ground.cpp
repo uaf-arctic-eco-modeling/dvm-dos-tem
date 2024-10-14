@@ -371,8 +371,8 @@ void Ground::initSnowSoilLayers() {
 
   //need to do shlw organic horizon division before organic deep horizon,
   //since the layers of deep are determined by the thickness of last shlw layer
-  organic.ShlwThickScheme(organic.shlwthick); //fibthick in m, which needs input
-  organic.DeepThickScheme(organic.deepthick); //humthick in m, which needs input
+  organic.ShlwThickScheme(organic.shlwthick, organic.deepthick); //fibthick in m, which needs input
+  organic.DeepThickScheme(organic.shlwthick, organic.deepthick); //humthick in m, which needs input
 
   // but for insertion of layers into the double-linked matrix, do the
   //   deep organic first
@@ -1282,7 +1282,7 @@ COMBINEBEGIN:
     updateSoilHorizons(); //all 'shlwl' are merged at this point,
                           //  and 'horizon' info updated
     // then, re-do the thickness division
-    organic.ShlwThickScheme(organic.shlwthick);
+    organic.ShlwThickScheme(organic.shlwthick, organic.deepthick);
 
     // restructure the double-linked 'shlw layer'
     if(organic.shlwnum==0) { // just in case
@@ -1338,7 +1338,7 @@ COMBINEBEGIN:
       organic.shlwchanged =true;
       double thick = thicknessFromCarbon(abvgfallC, soildimpar.coefshlwa, soildimpar.coefshlwb);
       //organic.ShlwThickScheme(MINSLWTHICK);
-      organic.ShlwThickScheme(thick);
+      organic.ShlwThickScheme(thick, organic.deepthick);
       OrganicLayer* plnew = new OrganicLayer(organic.shlwdz[0], 1, chtlu);
       //plnew->dz= MINSLWTHICK;
       plnew->dz= thick;
@@ -1417,7 +1417,7 @@ void Ground::redivideDeepLayers() {
     updateSoilHorizons(); //all 'deepl' are merged at this point, and
                           //info updated
     //Divide this one layer into up to pre-defined numbers of layers
-    organic.DeepThickScheme(organic.deepthick); //here, 'Soil Horizons'
+    organic.DeepThickScheme(organic.shlwthick, organic.deepthick); //here, 'Soil Horizons'
                                                 // info has updated
 
     if(organic.deepnum==0) { //remove all deep layer(s) from the
@@ -1468,7 +1468,7 @@ void Ground::redivideDeepLayers() {
     double somc = 0.5*lfibl->soma+lfibl->sompr+lfibl->somcr;
 
     if (somc>=deepcmin) {
-      organic.DeepThickScheme(MINDEPTHICK);
+      organic.DeepThickScheme(organic.shlwthick, MINDEPTHICK);
       OrganicLayer* plnew = new OrganicLayer(organic.deepdz[0], 2, chtlu);
       double frac = plnew->dz/lfibl->dz;
       // assign properties for the new-created 'deep' layer
