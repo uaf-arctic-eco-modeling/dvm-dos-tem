@@ -370,6 +370,8 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
+  calpar.s2dfraction = chtlu->s2dfraction;
+  calpar.d2mfraction = chtlu->d2mfraction;
   bgcpar.rhq10      = chtlu->rhq10;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
@@ -796,7 +798,8 @@ void Soil_Bgc::deltastate() {
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
-  double s2dfraction = 1.0;
+  double s2dfraction = calpar.s2dfraction;
+  double d2mfraction = calpar.d2mfraction;
   double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
   double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
   double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
@@ -889,7 +892,7 @@ void Soil_Bgc::deltastate() {
 
       if (rhsum > 0.0) {
         double totmobile = rhsum*mobiletoco2;
-        d2mcarbon += totmobile;
+        d2mcarbon += totmobile * d2mfraction;
         del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2;
         del_sois.soma[il]  -= del_soi2a.rhsoma[il]*mobiletoco2;
         del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2;

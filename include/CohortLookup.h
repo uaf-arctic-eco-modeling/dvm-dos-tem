@@ -49,7 +49,9 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
-
+  double s2dfraction;
+  double d2mfraction;
+  
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area
   double klai[NUM_PFT]; //a coefficient to convert LAI to FPC

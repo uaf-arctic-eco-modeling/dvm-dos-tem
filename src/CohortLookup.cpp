@@ -149,6 +149,8 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
+  s << this->s2dfraction << "// s2dfraction \n:";
+  s << this->d2mfraction << "// d2mfraction \n:";
   return s.str();
 }
 
@@ -158,7 +160,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 18
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 20
   );
 
   // pop each line off the front of the list
@@ -182,7 +184,8 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsoma);
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
-
+  temutil::pfll2data(l, s2dfraction);
+  temutil::pfll2data(l, d2mfraction);
 }
 
 /** Assign "veg dimension?" from parameter file. */

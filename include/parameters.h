@@ -148,8 +148,11 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
-  soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
-      kdcsompr(UIN_D), kdcsomcr(UIN_D) {}
+  double s2dfraction;
+  double d2mfraction;
+
+  soipar_cal() : micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
+                 kdcsompr(UIN_D), kdcsomcr(UIN_D), s2dfraction(UIN_D), d2mfraction(UIN_D) {}
 };
 
 struct soipar_dim {
