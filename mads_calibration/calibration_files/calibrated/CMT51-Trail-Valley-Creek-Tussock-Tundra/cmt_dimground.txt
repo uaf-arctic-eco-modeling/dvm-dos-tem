@@ -1,0 +1,22 @@
+//==========================================================
+// CMT51 // Tussock Tundra TVC // ##Values from Trail Valley###
+//  dvmdostem parameters // v0.7.0-183-gc44a88a1
+//  cmtdescription // ""A long winded description. Spaces? Quotes? Special charachters?"""
+//  calibration site // ""rail Valley Creek"""
+//  references file // refs.bib
+    300.0000  // snwdenmax: kg/m3 // max. snow density //  // Wang 2022
+    230.0000  // snwdennew: kg/m3 // new (min.) snow density //  // Marsh and Pomeroy 1996
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.3000  // maxmossthick: m // max. dead moss thickness //  // 
+      0.1000  // initdmossthick: m // initial dead moss thickness(not using anymore) //  //
+      1       // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.2000  // initfibthick: m //  //  // Voigt etal 2023
+      0.2000  // inithumthick: m //  //  // Voigt etal 2023
+      0.0130  // coefshlwa:  //  //  // 
+      1.3750  // coefshlwb:  //  //  // 
+      0.0230  // coefdeepa:  //  //  // 
+      1.2450  // coefdeepb:  //  //  // 
+      0.0995  // coefminea:  //  //  // 
+      0.7878  // coefmineb:  //  //  //  
+

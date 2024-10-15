@@ -1,0 +1,22 @@
+// dmvdostem parameter file
+// soil microbial activity (BGC) parameters and default initial conditions
+//==========================================================
+// CMT55 // Arctic Fen // Daring Creek
+      2.0000  // rhq10:  //  //
+      0.0000  // moistmin:  //  //
+      0.5000  // moistopt:  //  //
+      1.0000  // moistmax:  //  //
+     36.4000  // lcclnc:  //  //
+      0.3720  // fsoma:  //  //
+      0.6110  // fsompr:  //  //
+      0.0170  // fsomcr:  //  //
+      0.3460  // som2co2:  //  //
+      0.0042  // kn2:  //  //
+     18.43    // nmincnsoil:  // C:N totalC/orgN // calculated //
+      0.2000  // propftos:  //  //
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs // 
+   2320       // initshlwc:  // same as targets // 
+   26838     // initdeepc:  // same as targets // 
+   14000     // initminec:  // same as targets // 
+   2341.5      // initsoln:  // same as targets // 
+      0.7060  // initavln:  // same as targets // 
