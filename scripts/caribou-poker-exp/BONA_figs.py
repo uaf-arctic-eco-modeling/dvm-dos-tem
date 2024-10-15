@@ -704,9 +704,6 @@ sns.scatterplot(data=BONA_soil_flux.loc[BONA_soil_flux['year']==2021], x='Date',
 rh_br_tr_layer
 
 
-
-
-
 fig, ax = plt.subplots()
 
 sns.lineplot(data=df_br.loc[(df_br['date']>'2010-01-01') & (df_br['date']<'2024-01-01')], x='date', y='TLAYER_top', label = 'Birch', ax=ax)

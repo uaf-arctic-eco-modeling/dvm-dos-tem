@@ -24,7 +24,7 @@ cell_x_coord = 1
 #cell_x_coord = 0
 
 
-depthlist = [0.05, 0.1, 0.11, 0.2, 0.3]
+depthlist = [0.05, 0.051, 0.1, 0.11, 0.2, 0.3]
 
 def get_lwclayer_tlayer(depthlist, run_dir, var):
     
@@ -109,12 +109,8 @@ out_dir ='/data/workflows/US-Prr_SWC_SA/'
 
 
 run_dirs = [d for d in glob(out_dir+'*/', recursive = True) if 'sample' in d]
-run_dirs = ['/data/workflows/poker_flats/', '/data/workflows/poker_flats_unfrozen_water/', 
-            '/data/workflows/poker_flats_unfrozen_drain/', '/data/workflows/poker_flats_unfrozen_drain_new/']
-samples=['original', 'unfrozen', 'unfrozen_nodrain', 'unfrozen_nodrain_new']
-
-
-run_dirs
+#run_dirs = ['/data/workflows/poker_flats/', '/data/workflows/poker_flats_unfrozen_water/', '/data/workflows/poker_flats_unfrozen_drain_new/']
+samples=['original', 'unfr', 'unfr_runoff']
 
 
 lwc_layers = []
@@ -122,8 +118,9 @@ t_layers = []
 sample_dfs=[]
 for i, d in enumerate(run_dirs):
     if 'GPP_monthly_tr.nc' in os.listdir(os.path.join(d, 'output')):
-        #sample = int(d.split('/')[-2].split('_')[-1])
-        sample=samples[i]
+        print(i)
+        sample = int(d.split('/')[-2].split('_')[-1])
+        #sample=samples[i]
         
         TLAYER = ou.load_trsc_dataframe(var ='TLAYER', timeres='monthly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0]
         LAYERDEPTH = ou.load_trsc_dataframe(var ='LAYERDEPTH', timeres='monthly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0]
@@ -131,9 +128,11 @@ for i, d in enumerate(run_dirs):
         GPP = ou.load_trsc_dataframe(var ='GPP', timeres='monthly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0][0]
         ALD = ou.load_trsc_dataframe(var ='ALD', timeres='yearly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0][0]
         RH = ou.load_trsc_dataframe(var ='RH', timeres='monthly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0][0]
+        #RG = ou.load_trsc_dataframe(var ='RG', timeres='monthly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0][0]
+        #RM = ou.load_trsc_dataframe(var ='RM', timeres='monthly', px_y=cell_y_coord, px_x=cell_x_coord, fileprefix=f'{d}output/')[0][0]
         ALD.columns=['ALD']
         sample_df = pd.DataFrame({'date': GPP.index, 'sample': [sample]*len(GPP), #'LWCLAYER': LWCLAYER, 'TLAYER': TLAYER, 'LAYERDEPTH': LAYERDEPTH, 'LAYERDZ': LAYERDZ,
-                                  'GPP': GPP, 'RH':RH})
+                                  'GPP': GPP, 'RH':RH}) #'RG': RG, 'RM':RM})
         sample_df = pd.merge(sample_df, ALD, how='left', left_on='date', right_index=True)
         sample_dfs.append(sample_df)
         
@@ -174,9 +173,9 @@ sample_dfs[sample_dfs['date'].dt.year>2010]
 
 
 #9, 17, 18, 19, 23, 24, 37, 42
-#sns.lineplot(data=sample_dfs[sample_dfs['date'].dt.year>2010], x='date', y='GPP', alpha=0.7, linewidth=0.9, hue='sample')
-sns.lineplot(data=sample_dfs[sample_dfs['date'].dt.year>2010], x='date', y='GPP', color='grey', legend=False, alpha=0.7, errorbar = 'pi', linewidth=0.6)
-sns.lineplot(data=sample_dfs[(sample_dfs['date'].dt.year>2010) & (sample_dfs['sample']==4)], x='date', y='GPP', color='black', legend=False)
+sns.lineplot(data=sample_dfs[sample_dfs['date'].dt.year>2010], x='date', y='GPP', alpha=0.7, linewidth=0.9, hue='sample')
+#sns.lineplot(data=sample_dfs[sample_dfs['date'].dt.year>2010], x='date', y='GPP', color='grey', legend=False, alpha=0.7, errorbar = 'pi', linewidth=0.6)
+#sns.lineplot(data=sample_dfs[(sample_dfs['date'].dt.year>2010) & (sample_dfs['sample']==4)], x='date', y='GPP', color='black', legend=False)
 sns.lineplot(data=met_data, x='m_y', y='GPP1 (gC/m2/d)', color='grey', alpha=0.7, linewidth=0.9, linestyle='--')#
 #sns.scatterplot(data=met_data, x='m_y', y='GPP2 (gC/m2/d)', color='blue', alpha=0.7, s=10)
 
@@ -227,6 +226,12 @@ df_tlayer = pd.DataFrame({'sample': samples, 'r2_10cm': r2s_10cm, 'r2_20cm': r2s
 df_tlayer.sort_values(by='r2_20cm')
 
 
+#sns.lineplot(data=t_layers.loc[(t_layers['z']==0.051) & (t_layers['time'].dt.year>2010)], x='time', y='TLAYER', color = 'grey', alpha=0.5, hue='sample')
+sns.lineplot(data=t_layers.loc[(t_layers['z']==0.1) & (t_layers['time'].dt.year>2010)], x='time', y='TLAYER', color = 'grey', alpha=0.5, errorbar = 'pi')
+sns.lineplot(data=t_layers.loc[(t_layers['z']==0.1) & (t_layers['time'].dt.year>2010) & (t_layers['sample']==15)], x='time', y='TLAYER', color = 'black')
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='TS_1_1_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', label='station @ 5cm') #-0.1 m
+
+
 sns.lineplot(data=t_layers.loc[(t_layers['z']==0.11) & (t_layers['time'].dt.year>2010)], x='time', y='TLAYER', color = 'grey', alpha=0.5, hue='sample')
 #sns.lineplot(data=t_layers.loc[(t_layers['z']==0.1) & (t_layers['time'].dt.year>2010)], x='time', y='TLAYER', color = 'grey', alpha=0.5, errorbar = 'pi')
 #sns.lineplot(data=t_layers.loc[(t_layers['z']==0.1) & (t_layers['time'].dt.year>2010) & (t_layers['sample']==15)], x='time', y='TLAYER', color = 'black')
@@ -268,21 +273,23 @@ df_lwclayer = pd.DataFrame({'sample': samples, 'r2_10cm': lwclayer_r2s_10cm, 'r2
 df_lwclayer.sort_values(by='r2_20cm')
 
 
-#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.11) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', alpha = 0.5)
-sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.1) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', color = 'grey', alpha = 0.5, errorbar = 'pi')
-sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.1) & (lwc_layers['time'].dt.year>2010) & (lwc_layers['sample']==15)], x='time', y='LWCLAYER', color = 'black')
+sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.11) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', alpha = 0.5)
+#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.1) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', color = 'grey', alpha = 0.5, errorbar = 'pi')
+#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.1) & (lwc_layers['time'].dt.year>2010) & (lwc_layers['sample']==15)], x='time', y='LWCLAYER', color = 'black')
 sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_2_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', label='station (volumetric) @ 10cm') #-0.1 m
 
 
-#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', alpha = 0.5)
-sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', color = 'grey', alpha = 0.5, errorbar = 'pi')
-sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010) & (lwc_layers['sample']==15)], x='time', y='LWCLAYER', color = 'black', label='TEM')
+fig, ax = plt.subplots(figsize=(5,3))
+sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', alpha = 0.5)
+#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', color = 'grey', alpha = 0.5, errorbar = 'pi')
+#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010) & (lwc_layers['sample']==15)], x='time', y='LWCLAYER', color = 'black', label='TEM')
 sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_3_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', label='station (volumetric) @ 20cm') #-0.1 m
+fig.tight_layout()
 
 
-#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', alpha = 0.5)
-sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', color = 'grey', alpha = 0.5, errorbar = 'pi')
-sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010) & (lwc_layers['sample']==15)], x='time', y='LWCLAYER', color = 'black')
+sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', alpha = 0.5)
+#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', color = 'grey', alpha = 0.5, errorbar = 'pi')
+#sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010) & (lwc_layers['sample']==15)], x='time', y='LWCLAYER', color = 'black')
 sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_4_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', label='station (volumetric) @ 30cm') #-0.1 m
 
 
@@ -341,7 +348,64 @@ sns.pairplot(data=sample_summary_w, x_vars=['porosity(m)', 'porosity(f)', 'poros
              y_vars= ['GPP', 'RH', 'TLAYER', 'LWCLAYER'], hue='z', kind='reg')
 
 
+sample_dfs['RECO'] = sample_dfs['RH']+sample_dfs['RG']+sample_dfs['RM']
 
+
+t_layers.loc[(t_layers['sample']=='unfrozen_nodrain_new') & (t_layers['z']==0.11), 'TLAYER']
+
+
+sample_dfs.loc[sample_dfs['sample']=='unfrozen_nodrain_new', 'RECO'].values
+
+
+t_layers['sample'].unique()
+
+
+fig, axes = plt.subplots(3, 1, figsize = (3,8), sharex=True, sharey=True)
+
+sns.scatterplot(x=t_layers.loc[(t_layers['sample']=='original') & (t_layers['z']==0.051), 'TLAYER'].values, y=lwc_layers.loc[(lwc_layers['sample']=='original') & (lwc_layers['z']==0.051), 'LWCLAYER'].values, label = 'TEM', ax=axes[0])
+sns.scatterplot(data = met_data, x='TS_1_1_1', y='SWC_1_1_1', label='station @ 5cm', ax=axes[0])
+axes[0].set_ylabel('Liquid Water Content')
+axes[0].set_title('original')
+
+sns.scatterplot(x=t_layers.loc[(t_layers['sample']=='unfr') & (t_layers['z']==0.05), 'TLAYER'].values, y=lwc_layers.loc[(lwc_layers['sample']=='unfr') & (lwc_layers['z']==0.05), 'LWCLAYER'].values, legend=False, ax=axes[1])
+sns.scatterplot(data = met_data, x='TS_1_1_1', y='SWC_1_1_1', legend=False, ax=axes[1])
+axes[1].set_ylabel('Liquid Water Content')
+axes[1].set_title('unfrozen water')
+
+sns.scatterplot(x=t_layers.loc[(t_layers['sample']=='unfr_runoff') & (t_layers['z']==0.05), 'TLAYER'].values, y=lwc_layers.loc[(lwc_layers['sample']=='unfr_runoff') & (lwc_layers['z']==0.05), 'LWCLAYER'].values, legend=False, ax=axes[2])
+sns.scatterplot(data = met_data, x='TS_1_1_1', y='SWC_1_1_1', legend=False, ax=axes[2])
+axes[2].set_ylabel('Liquid Water Content')
+axes[2].set_xlabel('Soil Temperature')
+axes[2].set_title('unfrozen water + no runoff')
+fig.tight_layout()
+plt.savefig('LWC_TLAYER_5cm.jpg', dpi=300)
+
+
+fig, axes = plt.subplots(2,2, figsize=(10,4), sharex=True)
+sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.2) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', legend=False, alpha = 0.5, ax=axes[0,0])
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_3_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', legend=False, ax=axes[0,0]) #-0.1 m
+
+sns.lineplot(data=t_layers.loc[(t_layers['z']==0.2) & (t_layers['time'].dt.year>2010)], x='time', y='TLAYER', color = 'grey', alpha=0.5, hue='sample', ax=axes[0,1])
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='TS_1_3_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', label='station', ax=axes[0,1])
+ax2 = axes[0,1].twinx() 
+ax2.set_ylabel('20 cm', fontsize=13) 
+
+sns.lineplot(data=lwc_layers.loc[(lwc_layers['z']==0.3) & (lwc_layers['time'].dt.year>2010)], x='time', y='LWCLAYER', hue = 'sample', legend=False, alpha = 0.5, ax=axes[1,0])
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='SWC_1_4_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', legend=False, ax=axes[1,0]) #-0.1 m
+
+sns.lineplot(data=t_layers.loc[(t_layers['z']==0.3) & (t_layers['time'].dt.year>2010)], x='time', y='TLAYER', color = 'grey', alpha=0.5, hue='sample', legend=False, ax=axes[1,1])
+sns.lineplot(data = met_data.loc[met_data['year']>2010], x='m_y', y='TS_1_4_1', color='grey', alpha=0.7, linewidth=0.9, linestyle='--', legend=False, ax=axes[1,1])
+ax3 = axes[1,1].twinx() 
+ax3.set_ylabel('30 cm', fontsize=13)
+
+axes[1,0].set_xlabel('')
+axes[1,1].set_xlabel('')
+
+axes[0,1].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+                      ncol=4, mode="expand", borderaxespad=0.)
+
+fig.tight_layout()
+plt.savefig('TLAYER_LWCLAYER_timeseries.jpg', dpi=300)
 
 
 

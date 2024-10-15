@@ -152,8 +152,8 @@ run_model() {
 
     # Run model
     #dvmdostem --force-cmt=$cmt --log-level='debug' --eq-yrs=0 --sp-yrs=0 --pr=0 --tr-yrs=122 --sc-yrs=0 --restart-run --no-output-cleanup
-    #dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=1000 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
-    dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=1500 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
+    dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=300 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
+    #dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=1500 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
 
 }
 
