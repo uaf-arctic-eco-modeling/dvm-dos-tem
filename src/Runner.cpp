@@ -4842,6 +4842,93 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //SOCFROZEN
+  map_itr = netcdf_outputs.find("SOCFROZEN");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOCFROZEN";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOCFROZEN)
+    {
+      double frozenC = 0.0;
+
+      Layer* currl = this->cohort.ground.fstsoill;
+      while(currl != NULL && currl != cohort.ground.lstsoill){
+
+        double layerC = currl->rawc + currl->soma
+                      + currl->sompr + currl->somcr;
+
+        double temp_frozenC = currl->frozenfrac * layerC;
+
+        frozenC += currl->frozenfrac * layerC;
+
+        currl = currl->nextl;
+      }
+
+      outhold.socfrozen_for_output.push_back(frozenC);
+
+      //Monthly
+      if(curr_spec.monthly){
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.socfrozen_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.socfrozen_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.socfrozen_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.socfrozen_for_output.clear();
+        }
+      }
+    } //end critical(outputSOCFROZEN)
+  } //end SOCFROZEN
+  map_itr = netcdf_outputs.end();
+
+
+  //SOCUNFROZEN
+  map_itr = netcdf_outputs.find("SOCUNFROZEN");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOCUNFROZEN";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOCUNFROZEN)
+    {
+      double unfrozenC = 0.0;
+
+      Layer* currl = this->cohort.ground.fstsoill;
+      while(currl != NULL && currl != cohort.ground.lstsoill){
+
+        double layerC = currl->rawc + currl->soma
+                      + currl->sompr + currl->somcr;
+
+        unfrozenC += (1 - currl->frozenfrac) * layerC;
+
+        currl = currl->nextl;
+      }
+
+      outhold.socunfrozen_for_output.push_back(unfrozenC);
+
+      //Monthly
+      if(curr_spec.monthly){
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.socunfrozen_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.socunfrozen_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.socunfrozen_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.socunfrozen_for_output.clear();
+        }
+      }
+    } //end critical(outputSOCUNFROZEN)
+  } //end SOCUNFROZEN
+  map_itr = netcdf_outputs.end();
+
+
   //SOMA - soil organic matter, active
   map_itr = netcdf_outputs.find("SOMA");
   if(map_itr != netcdf_outputs.end()){
