@@ -12,8 +12,8 @@ from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
 
 
 #Set step, paths, pfts and run all
-#STEP = 1
-STEP = 'NPP_VegC_VegN_PFT'
+STEP = 1
+#STEP = 'NPP_VegC_VegN_PFT'
 CMT='black-spruce'
 #CMT ='birch'
 #STEP = 4
