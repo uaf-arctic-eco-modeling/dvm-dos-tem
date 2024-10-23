@@ -88,12 +88,14 @@ struct snwdiag_env {
   int snowfreeFst;       //used for estimating growing season
   int snowfreeLst;       //used for estimating growing season
   double tcond[MAX_SNW_LAY];
+  double hcapa[MAX_SNW_LAY];
 
   double fcmelt;         /*! melting factor */
 
   snwdiag_env(): snowfreeFst(UIN_D), snowfreeLst(UIN_D), fcmelt(UIN_D) {
     for (int i = 0; i < MAX_SNW_LAY; ++i) {
       tcond[i] = UIN_D;
+      hcapa[i] = UIN_D;
     }
   }
 
@@ -140,6 +142,7 @@ struct soidiag_env {
 
   double minliq[MAX_SOI_LAY];
   double tcond[MAX_SOI_LAY];
+  double hcapa[MAX_SOI_LAY];
   double hcond[MAX_SOI_LAY];
 
   double r_e_i[MAX_SOI_LAY]; //Effective root fraction per layer
@@ -201,6 +204,7 @@ struct soidiag_env {
       aws[i] = UIN_D;
       minliq[i] = UIN_D;
       tcond[i] = UIN_D;
+      hcapa[i] = UIN_D;
       hcond[i] = UIN_D;
       fbtran[i] = UIN_D;
     }

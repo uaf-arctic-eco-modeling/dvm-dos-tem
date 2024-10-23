@@ -78,6 +78,7 @@ public:
   double frozenfrac; //< frozen fraction of a layer (0 - 1)
   double tem;        //< temperature (oC)
   double tcond;      //< thermal conductivity
+  double hcapa;      //< heat capacity
   double pce_t;      //< phase-change energy for thawing
   double pce_f;      //< phase-change energy for freezing
 

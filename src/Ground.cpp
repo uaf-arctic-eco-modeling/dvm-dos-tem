@@ -163,6 +163,7 @@ std::string Ground::layer_report_string(const std::string& colunm_groups) {
            << std::right << setw(4) << std::setprecision(2) << "fzn" << " "
            << std::right << setw(9) << std::setprecision(3) << "fznfrac" << " "
            << std::right << setw(9) << std::setprecision(3) << "tcond" << " "
+           << std::right << setw(9) << std::setprecision(3) << "hcapa" << " "
            << std::right << setw(9) << std::setprecision(3) << "pce_t" << " "
            << std::right << setw(9) << std::setprecision(3) << "pce_f" << " ";
   }
@@ -209,6 +210,7 @@ std::string Ground::layer_report_string(const std::string& colunm_groups) {
          << std::right << setw(4) << std::setprecision(2) << current_layer->frozen << " "
          << std::right << setw(9) << std::setprecision(3) << current_layer->frozenfrac << " "
          << std::right << setw(9) << std::setprecision(3) << current_layer->tcond << " "
+         << std::right << setw(9) << std::setprecision(3) << current_layer->hcapa << " "
          << std::scientific
          << std::right << setw(9) << std::setprecision(1) << current_layer->pce_t << " "
          << std::right << setw(9) << std::setprecision(1) << current_layer->pce_f << " "

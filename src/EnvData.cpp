@@ -190,6 +190,7 @@ void EnvData::grnd_beginOfYear() {
     y_soid.aws[il] = 0.;
     y_soid.fbtran[il] = 0.;
     y_soid.tcond[il] = 0;
+    y_soid.hcapa[il] = 0;
     y_soid.hcond[il] = 0;
   }
 
@@ -328,6 +329,7 @@ void EnvData::grnd_beginOfMonth() {
     m_soid.aws[il] = 0.;
     m_soid.fbtran[il] = 0.;
     m_soid.tcond[il] = 0;
+    m_soid.hcapa[il] = 0;
     m_soid.hcond[il] = 0;
   }
 
@@ -548,6 +550,7 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
     m_soid.aws[il] += d_soid.aws[il]/dinm;
     m_soid.fbtran[il] += d_soid.fbtran[il]/dinm;
     m_soid.tcond[il] += d_soid.tcond[il]/dinm;
+    m_soid.hcapa[il] += d_soid.hcapa[il] / dinm;
     m_soid.hcond[il] += d_soid.hcond[il]/dinm;
     m_soid.liqsum += d_sois.liq[il]/dinm;
     m_soid.icesum += d_sois.ice[il]/dinm;
@@ -803,6 +806,7 @@ void EnvData::grnd_endOfMonth() {
     y_soid.aws[il] += m_soid.aws[il]/12.;
     y_soid.fbtran[il] += m_soid.fbtran[il]/12.;
     y_soid.tcond[il] += m_soid.tcond[il]/12.;
+    y_soid.hcapa[il] += m_soid.hcapa[il] / 12.;
     y_soid.hcond[il] += m_soid.hcond[il]/12.;
   }
 

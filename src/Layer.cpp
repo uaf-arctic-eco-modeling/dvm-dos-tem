@@ -49,6 +49,7 @@ Layer::Layer() {
   frozenfrac= MISSING_D;
   tem  = MISSING_D;
   tcond= MISSING_D;
+  hcapa = MISSING_D;
   pce_t= MISSING_D;
   pce_f= MISSING_D;
   // hydrological status
@@ -85,6 +86,8 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
   } else if(isRock) {
     hcap = getFrzVolHeatCapa();
   }
+
+  this->hcapa = hcap + DENLIQ * LHFUS * getDeltaUnfVolLiq();
 
   return hcap;
 };
@@ -132,7 +135,7 @@ double Layer::getDeltaUnfVolLiq(){
   double d_uwc;
 
   if (tem < temp_dep){
-    d_uwc = b_parameter * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 1);
+    d_uwc = -b_parameter * tem * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 2);
   } else {
     d_uwc = 0.0;
   }

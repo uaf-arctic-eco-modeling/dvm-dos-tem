@@ -5082,6 +5082,29 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end TCLAYER
   map_itr = netcdf_outputs.end();
 
+  // HCLAYER - heat capacity by layer - need to put this in alphabetical order, 
+  // but want to be consistent with TCLAYER output for now
+  map_itr = netcdf_outputs.find("HCLAYER");
+  if (map_itr != netcdf_outputs.end())
+  {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: HCLAYER";
+    curr_spec = map_itr->second;
+
+#pragma omp critical(outputHCLAYER)
+    {
+      // monthly
+      if (curr_spec.monthly)
+      {
+        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->m_soid.hcapa[0], MAX_SOI_LAY, month_timestep, 1);
+      }
+      // yearly
+      else if (curr_spec.yearly)
+      {
+        output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->y_soid.hcapa[0], MAX_SOI_LAY, year, 1);
+      }
+    } // end critical(outputHCLAYER)
+  } // end HCLAYER
+  map_itr = netcdf_outputs.end();
 
   //TCMINEA
   map_itr = netcdf_outputs.find("TCMINEA");

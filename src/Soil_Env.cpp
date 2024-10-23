@@ -1146,6 +1146,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
     ed->d_snws.snwice[i]= MISSING_D;
     ed->d_snws.snwliq[i]= MISSING_D;
     ed->d_snwd.tcond[i] = MISSING_D;
+    ed->d_snwd.hcapa[i] = MISSING_D;
   }
 
   for(int il =0; il<MAX_SOI_LAY; il++) {
@@ -1161,6 +1162,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
     ed->d_soid.sws[il] = MISSING_D;
     ed->d_soid.aws[il] = MISSING_D;
     ed->d_soid.tcond[il] = MISSING_D;
+    ed->d_soid.hcapa[il] = MISSING_D;
     ed->d_soid.hcond[il] = MISSING_D;
   }
 
@@ -1204,6 +1206,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
                                  / (curr2->poro-curr2->getVolIce());  // FIX THIS: divide by zero when poro == getVolIce()!
       }
       ed->d_soid.tcond[soilind] = curr2->tcond;
+      ed->d_soid.hcapa[soilind] = curr2->hcapa;
       ed->d_soid.hcond[soilind] = curr2->hcond;
       // some cumulative variables for whole soil column
       soldep   += curr2->dz;
@@ -1213,6 +1216,7 @@ void Soil_Env::retrieveDailyTM(Layer* toplayer, Layer *lstsoill) {
       soilind++;
     } else if (curr2->isSnow) {
       ed->d_snwd.tcond[snwind] = curr2->tcond;
+      ed->d_snwd.hcapa[snwind] = curr2->hcapa;
       ed->d_snws.tsnw[snwind]  = curr2->tem;
       ed->d_snws.snwliq[snwind]= curr2->liq;
       ed->d_snws.snwice[snwind]= curr2->ice;
