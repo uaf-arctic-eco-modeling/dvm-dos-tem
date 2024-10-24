@@ -47,6 +47,8 @@ public:
   std::vector<double> qrunoff_for_output;
   std::vector<double> reco_for_output;
   std::vector<double> rhdwd_for_output;
+  std::vector<double> socfrozen_for_output;
+  std::vector<double> socunfrozen_for_output;
   std::vector<double> shlwc_for_output;
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;
