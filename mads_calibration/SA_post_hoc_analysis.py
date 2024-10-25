@@ -1372,6 +1372,58 @@ def n_top_runs(results, targets, params, r2lim, N=None):
 
   return best_params, best_results
 
+def ecosystem_sum(results, targets):
+  '''
+  Calculates summed results and targets for the ecosystem (i.e. vegetation / soils)
+  allowing for overall comparison of carbon fluxes and stocks independent of pft
+  and compartment performance.
+
+  Example usage: results_sum, targets_sum = ecosystem_sum(results, targets)
+
+  Parameters
+  ==========
+  results : pandas.DataFrame
+    One column for each output variable, one row for each sample run.
+
+  targets : pandas.DataFrame
+    One column for each output (target) variable, single row with target value.
+
+  Returns
+  -------
+  results_sum : pandas.DataFrame
+    One column for each output variable summed across pfts compartments and soils,
+    one row for each sample run.
+
+  targets_sum : pandas.DataFrame
+    One column for each target variable summed across pfts compartments and soils, 
+    single row with target value.
+  '''
+  grouped_variables = list(np.unique([i.split('_')[0] for i in targets.columns]))
+  
+  if all(x in grouped_variables for x in ['DEEPC','MINEC','SHLWC']):
+    grouped_variables.remove('DEEPC');grouped_variables.remove('MINEC');grouped_variables.remove('SHLWC')
+    grouped_variables.append('SOILC')
+  
+  targets_sum = pd.DataFrame(columns = grouped_variables)
+  results_sum = pd.DataFrame(columns = grouped_variables)
+  
+  for var in grouped_variables:
+
+    fig, ax = plt.subplots()
+    
+    if var == 'SOILC':
+      results_sum[var] = results.filter(regex='SHLWC').sum(axis=1)+results.filter(regex='DEEPC').sum(axis=1)+results.filter(regex='MINEC').sum(axis=1)
+      targets_sum[var] = targets.filter(regex='SHLWC').sum(axis=1)+targets.filter(regex='DEEPC').sum(axis=1)+targets.filter(regex='MINEC').sum(axis=1)
+    else:
+      results_sum[var] = results.filter(regex=var).sum(axis=1)
+      targets_sum[var] = targets.filter(regex=var).sum(axis=1)
+
+    ax.scatter(np.linspace(0, len(results_sum), len(results_sum)), results_sum[var])
+    ax.plot(np.linspace(0, len(results_sum), len(results_sum)), targets_sum[var].values[0]*np.ones(len(results_sum[var])), 'k--')
+    ax.set_ylabel(var);ax.set_xlabel('Sample index')
+
+  return results_sum, targets_sum
+
 def plot_equilibrium_relationships(path='', sum_pftpart=False, save=False, saveprefix=''):
   '''
   Plots equilibrium timeseries for target variables in output directory
