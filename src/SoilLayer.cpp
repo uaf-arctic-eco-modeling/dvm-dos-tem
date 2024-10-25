@@ -16,12 +16,12 @@ SoilLayer::~SoilLayer() {
 };
 
 double SoilLayer::getFrzVolHeatCapa() {
-  double vhc = vhcsolid * (1 - poro) + (poro * DENICE / dz) * SHCICE;
+  double vhc = vhcsolid * (1 - poro) + (poro * DENICE) * SHCICE;
   return vhc;
 };
 
 double SoilLayer::getUnfVolHeatCapa() {
-  double vhc= vhcsolid * (1-poro) + (poro * DENLIQ / dz) * SHCLIQ; 
+  double vhc= vhcsolid * (1-poro) + (poro * DENLIQ) * SHCLIQ; 
   return vhc;
 };
 

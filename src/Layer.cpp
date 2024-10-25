@@ -130,27 +130,78 @@ double Layer::getUnfVolLiq(){
   return uwc;
 }
 
+// double Layer::getDeltaUnfVolLiq(){
+
+//   double d_uwc;
+
+//   if (tem < temp_dep){
+//     d_uwc = -b_parameter * tem * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 2);
+//   } else {
+//     d_uwc = 0.0;
+//   }
+
+//   if (isSnow){
+//     d_uwc = 0.0;
+//   }
+
+//   return d_uwc;
+// }
+
 double Layer::getDeltaUnfVolLiq(){
+  // Following numerical formulation in GIPL2.0
+  // based on Nicolsky et al. 2007
 
-  double d_uwc;
+  double T1, T2, W1, W2, H, D = 0.0;
+  double fhcap=0.0;
 
-  if (tem < temp_dep){
-    d_uwc = -b_parameter * tem * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 2);
+  
+
+  if (isSoil){
+    if (!prevl || !prevl->isSoil){
+      T1 = tem;
+      T2 = (nextl->tem + tem) / 2.0;
+      W1 = getUnfVolLiq();
+      W2 = nextl->getUnfVolLiq();
+      D = 1.0;
+    } else if (prevl->isSoil && nextl->isSoil){
+      T1 = (prevl->tem + tem) / 2.0;
+      T2 = tem;
+      W1 = prevl->getUnfVolLiq();
+      W2 = getUnfVolLiq();
+      D = dz / (prevl->dz + dz);
+    } else if (prevl->isSoil && nextl->isRock){
+      T1 = (prevl->tem + tem) / 2.0;
+      T2 = tem;
+      W1 = prevl->getUnfVolLiq();
+      W2 = getUnfVolLiq();
+      D = 1.0;
+    } else{
+      T1 = 1.0;
+      T2 = 1.0;
+      W1 = 0.0;
+      W2 = 0.0;
+      D = 0.0;
+    }
+  }
+
+  if (abs(T1 - T2) < 1e-6){
+      fhcap = 0.5 * (W1 + W2) * D;
   } else {
-    d_uwc = 0.0;
+      H = 1 / (T1 - T2);
+      fhcap = H * (W1 - W2) * D;
   }
 
-  if (isSnow){
-    d_uwc = 0.0;
+  if (!isSoil){
+      fhcap = 0.0;
   }
 
-  return d_uwc;
+  return fhcap;
 }
 
-double Layer::getVolWater() {
-  double vice = getVolIce();
-  double vliq = getVolLiq();
-  return fmin((double)poro,(double)vice+vliq);
+double Layer::getVolWater(){
+    double vice = getVolIce();
+    double vliq = getVolLiq();
+    return fmin((double)poro, (double)vice + vliq);
 };
 
 double Layer::getEffVolWater() {
