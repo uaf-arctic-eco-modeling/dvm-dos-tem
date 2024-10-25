@@ -1717,7 +1717,7 @@ double Ground::adjustSoilAfterburn() {
   currl = fstsoill;
 
   while (currl!=NULL) {
-    if(currl->isMoss || currl->isOrganic) {
+    if(currl->isMoss || currl->isFibric) { // only affecting fibric instead of whole organic layer - for Seismic line 
       double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
 
       if(tsomc <= 0.0) {
@@ -1744,54 +1744,57 @@ double Ground::adjustSoilAfterburn() {
 
   //The left fibrous organic layer(s) after fire should all be turned
   //  into humified organic layer
-  currl = toplayer;
 
-  while (currl!=NULL) {
-    if(currl->isFibric) {
-      OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
-      pl->humify(chtlu); //here only update 'physical' properties, but not states
-                    //  (will do below when adjusting 'dz'
-      pl->somcr += pl->rawc; //assuming all 'raw material' converted into
-                             //  'chemically-resistant' SOM
-      pl->rawc = 0.;
-    } else if (currl->isHumic || currl->isMineral || currl->isRock) {
-      break;
-    }
+  // Commenting below code so we maintain fibric layers
 
-    currl = currl->nextl;
-  }
+  // currl = toplayer;
+
+  // while (currl!=NULL) {
+  //   if(currl->isFibric) {
+  //     OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
+  //     pl->humify(chtlu); //here only update 'physical' properties, but not states
+  //                   //  (will do below when adjusting 'dz'
+  //     pl->somcr += pl->rawc; //assuming all 'raw material' converted into
+  //                            //  'chemically-resistant' SOM
+  //     pl->rawc = 0.;
+  //   } else if (currl->isHumic || currl->isMineral || currl->isRock) {
+  //     break;
+  //   }
+
+  //   currl = currl->nextl;
+  // }
 
   //re-do thickness of deep organic layers, because of changing of its
   //  original type from fibrous or partially burned
-  currl = toplayer;
-  double deepctop = 0.; //cumulative C for deep OSL horizon at the top of a
-                        //  layer, initialzed as 0
-  double deepcbot;
+  // currl = toplayer;
+  // double deepctop = 0.; //cumulative C for deep OSL horizon at the top of a
+  //                       //  layer, initialzed as 0
+  // double deepcbot;
 
-  while(currl!=NULL) {
-    if(currl->isHumic) {
-      double olddz = currl->dz;
-      OrganicLayer *pl=dynamic_cast<OrganicLayer*>(currl);
-      double plcarbon = pl->rawc+pl->soma+pl->sompr+pl->somcr;
+  // while(currl!=NULL) {
+  //   if(currl->isHumic) {
+  //     double olddz = currl->dz;
+  //     OrganicLayer *pl=dynamic_cast<OrganicLayer*>(currl);
+  //     double plcarbon = pl->rawc+pl->soma+pl->sompr+pl->somcr;
 
-      if (plcarbon > 0.) { //this may not be needed, if we do things carefully
-                           //  above. But just in case
-        // update 'dz' for 'pl' from its C content
-        deepcbot = deepctop+pl->rawc+pl->soma+pl->sompr+pl->somcr;
-        getOslThickness5Carbon(pl, deepctop, deepcbot);
-        deepctop = deepcbot;
-        bdepthadj += (olddz - pl->dz); //adjuting the difference to that
-                                       //  'err' counting
-      }
-    } else if (currl->isMineral || currl->isRock) {
-      break;
-    }
+  //     if (plcarbon > 0.) { //this may not be needed, if we do things carefully
+  //                          //  above. But just in case
+  //       // update 'dz' for 'pl' from its C content
+  //       deepcbot = deepctop+pl->rawc+pl->soma+pl->sompr+pl->somcr;
+  //       getOslThickness5Carbon(pl, deepctop, deepcbot);
+  //       deepctop = deepcbot;
+  //       bdepthadj += (olddz - pl->dz); //adjuting the difference to that
+  //                                      //  'err' counting
+  //     }
+  //   } else if (currl->isMineral || currl->isRock) {
+  //     break;
+  //   }
 
-    currl =currl->nextl;
-  }
+  //   currl =currl->nextl;
+  // }
 
-  resortGroundLayers();
-  updateSoilHorizons();
+  // resortGroundLayers();
+  // updateSoilHorizons();
   //finally, checking if further needed to divide/combine double-linked layer
   //  matrix, in case that some layers may be getting too thick or too thin due
   //  to layer adjustion above. Then, re-do layer division or combination is

@@ -554,51 +554,51 @@ double WildFire::getBurnOrgSoilthick(const int year) {
   //  4 = high + high surface
 
   double total_organic_thickness =  cd->m_soil.mossthick
-                                    + cd->m_soil.shlwthick
-                                    + cd->m_soil.deepthick ;
+                                    + cd->m_soil.shlwthick;
+                                    // + cd->m_soil.deepthick ;
 
   BOOST_LOG_SEV(glg, debug) << "Total organic thickness: " << total_organic_thickness;
 
   //compute the fraction of OL to burn FOLB
   double folb = 0.0;
 
-  if ( this->fri_derived ) {                    // FRI-derived fire regime
-    if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get folb from the parameter file;
-      folb = firpar.foslburn[this->fri_severity];
-    }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
-      if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
-        if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
-          if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
-            folb = 0.54;
-          } else {
-            folb = 0.69;
-          }
-        } else {                                // late fire (after July 31st);
-          folb = 0.80;
-        } 
-      } else {                                  // lowland;
-        folb = 0.48;
-      } 
-    }
-  } else {                                      // Explicit fire regime;
-    if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
-      folb = firpar.foslburn[this->exp_fire_severity[year]];
-    } else {  
-      if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011;
-        folb = 0.01*((21.5-6.1)/21.5);
-      } else {                                  // boreal forest: Genet et al.2013;
-         if(this->slope<2){
-          // AOB in km-2, see coefficient and paper.
-          folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->exp_jday_of_burn[year]+0.0127016155* log(this->exp_area_of_burn[year]);
-        } else {
-          folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*edall->m_soid.tshlw+0.0011413114*this->exp_jday_of_burn[year]+0.0336302905*log (this->exp_area_of_burn[year]);
-        }
-      }
-    }
-  }
+  // if ( this->fri_derived ) {                    // FRI-derived fire regime
+  //   if (this->fri_severity >= 0) {              // fire severity is available from the input files - so get folb from the parameter file;
+  //     folb = firpar.foslburn[this->fri_severity];
+  //   }else {                                     // fire severity is available from the input files - apply the lookup table from Yi et al. 2010;
+  //     if( cd->drainage_type == 0 ) {            // 0: well-drained; 1: poorly-drained;
+  //       if ( this->fri_jday_of_burn <= 212 ) {   // Early fire, before July 31st (from Turetsly et al. 2011);
+  //         if ( this->fri_area_of_burn < 1.0 ) { // Small fire year (less that 1% of the area burned);
+  //           folb = 0.54;
+  //         } else {
+  //           folb = 0.69;
+  //         }
+  //       } else {                                // late fire (after July 31st);
+  //         folb = 0.80;
+  //       } 
+  //     } else {                                  // lowland;
+  //       folb = 0.48;
+  //     } 
+  //   }
+  // } else {                                      // Explicit fire regime;
+  //   if (this->exp_fire_severity[year] >= 0) {    // fire severity is available from the input files - so get folb from the parameter file;
+  //     folb = firpar.foslburn[this->exp_fire_severity[year]];
+  //   } else {  
+  //     if ( cd->cmttype > 3) {                   // tundra ecosystems: Mack et al. 2011; >>> change CMT limiting
+  //       folb = 0.01*((21.5-6.1)/21.5);
+  //     } else {                                  // boreal forest: Genet et al.2013;
+  //        if(this->slope<2){
+  //         // AOB in km-2, see coefficient and paper.
+  //         folb = 0.1276966713-0.0319397467*this->slope+0.0020914862*this->exp_jday_of_burn[year]+0.0127016155* log(this->exp_area_of_burn[year]);
+  //       } else {
+  //         folb = -0.2758306315+0.0117609336*this->slope-0.0744057680*cos(this->asp * 3.14159265 / 180 ) +0.0260221684*edall->m_soid.tshlw+0.0011413114*this->exp_jday_of_burn[year]+0.0336302905*log (this->exp_area_of_burn[year]);
+  //       }
+  //     }
+  //   }
+  // }
 
-  if (folb > 1.0) folb=1.0;
-  if (folb < 0.0) folb=0.0;
+  // if (folb > 1.0) folb=1.0;
+  // if (folb < 0.0) folb=0.0;
 
 
   //  Lookup burn thickness, based on severity and
@@ -607,34 +607,38 @@ double WildFire::getBurnOrgSoilthick(const int year) {
   //burn_thickness = firpar.foslburn[severity] * total_organic_thickness;
 
 
-  burn_thickness = folb * total_organic_thickness;
+  burn_thickness = 0.2; // set burn thickness here, do we want to use deep carbon or not? limiter for <20cm OL
+
+  if (burn_thickness >= total_organic_thickness){
+    burn_thickness = 0.9 * total_organic_thickness;
+  }
 
   BOOST_LOG_SEV(glg, debug) << "Calc burn thickness (severity): " << burn_thickness;
 
   //  VSM constrained burn thickness
   //  Find all layers where there is not much volumentric water - infact, less
   //  water than specified in the fire parameters for 'vmsburn'
-  double total_dry_organic_thickness = 0.0;
+  // double total_dry_organic_thickness = 0.0;
 
-  for (int i = 0; i < cd->m_soil.numsl; i++) {
-    // 0:moss, 1:shlw peat, 2:deep peat, 3:mineral
-    if( cd->m_soil.type[i] <= 2 ) {
-      if (edall->m_soid.vwc[i] <= (firpar.vsmburn * cd->m_soil.por[i]) ) {
-        total_dry_organic_thickness += cd->m_soil.dz[i];
-      }
-      // layer is too wet to burn
-      // will all layers below this be too wet?
-      // should we break the layer loop here?
+  // for (int i = 0; i < cd->m_soil.numsl; i++) {
+  //   // 0:moss, 1:shlw peat, 2:deep peat, 3:mineral
+  //   if( cd->m_soil.type[i] <= 2 ) {
+  //     if (edall->m_soid.vwc[i] <= (firpar.vsmburn * cd->m_soil.por[i]) ) {
+  //       total_dry_organic_thickness += cd->m_soil.dz[i];
+  //     }
+  //     // layer is too wet to burn
+  //     // will all layers below this be too wet?
+  //     // should we break the layer loop here?
 
-    } else {
-      break; // can't burn mineral soil
-    }
-  }
-  if ( burn_thickness > total_dry_organic_thickness ) {
-    burn_thickness = total_dry_organic_thickness;
-    BOOST_LOG_SEV(glg, debug) << "Whoops! Burn thickness was greater than the thickness of dry organic material. Constraining burn thickness...";
-  }
-  BOOST_LOG_SEV(glg, debug) << "Calculated burn thickness using VSM constraint: " << burn_thickness;
+  //   } else {
+  //     break; // can't burn mineral soil
+  //   }
+  // }
+  // if ( burn_thickness > total_dry_organic_thickness ) {
+  //   burn_thickness = total_dry_organic_thickness;
+  //   BOOST_LOG_SEV(glg, debug) << "Whoops! Burn thickness was greater than the thickness of dry organic material. Constraining burn thickness...";
+  // }
+  // BOOST_LOG_SEV(glg, debug) << "Calculated burn thickness using VSM constraint: " << burn_thickness;
 
 
 // always burn all moss, even if the severity is really low.
