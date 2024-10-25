@@ -104,32 +104,33 @@ def plot_optimization_fit(seed_params=None, ig_params=None, opt_params=None,
   axes[1].set_title("Outputs")
   axes[2].set_title("Residuals (model outputs - targets)")
 
-  axes[0].plot(seed_params, marker='o', linewidth=0, alpha=0.6, label='seed')
-  axes[1].plot(seed_out, label='seed')
+  params_x = np.linspace(0, len(param_labels), len(param_labels))
 
-  axes[0].plot(ig_params, marker='^', linewidth=0, alpha=0.6, label='ig')
-  axes[1].plot(ig_out, label='ig')
+  axes[0].plot(params_x, seed_params, marker='o', linewidth=0, alpha=0.6, label='seed')
+  axes[0].plot(params_x, ig_params, marker='^', linewidth=0, alpha=0.6, label='ig')
+  axes[0].plot(params_x, opt_params, marker='+', linewidth=0, alpha=0.6, label='opt')
+  axes[0].set_xticks(params_x, param_labels, rotation=90)
+  axes[0].legend()
 
-  axes[0].plot(opt_params, marker='+', linewidth=0, alpha=0.6, label='opt')
-  axes[1].plot(opt_out, label='opt')
-  axes[1].plot(targets, color='red', marker='o', linewidth=0, label='targets')
+  outputs_x = np.linspace(0, len(out_labels), len(out_labels))
 
-  axes[0].set_xticklabels(param_labels, rotation=45)
-  #axes[1].set_xticklabels(out_labels, rotation=45) 
-  axes[2].set_xticklabels(out_labels, rotation=45) 
+  axes[1].plot(outputs_x, seed_out, label='seed')
+  axes[1].plot(outputs_x, ig_out, label='ig')
+  axes[1].plot(outputs_x, opt_out, label='opt')
+  axes[1].plot(outputs_x, targets, color='red', marker='o', linewidth=0, label='targets')
+  axes[1].legend()
+  axes[1].set_xticks(outputs_x, out_labels, rotation=90)
 
   # Plot the residuals as a bar graph
   axes[2].bar(out_labels, opt_out-targets, align='center', width=.6, 
               color='red', alpha=.75)
-  #axes[1].set_xticklabels([])
+  axes[2].set_xticks(outputs_x, out_labels, rotation=90) 
 
   # This handles annoyance with bar plots where the bar is centered, and
   # therfore hangs to the left of zero, and so messes with the auto-scaling...
-  for a in (axes[0], axes[1]):
+  for a in (axes[1], axes[2]):
     a.set_xlim(axes[2].get_xlim())
 
-  axes[0].legend()
-  axes[1].legend()
   #axes[2].legend()
 
   plt.tight_layout()

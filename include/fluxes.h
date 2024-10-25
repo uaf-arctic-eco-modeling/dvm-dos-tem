@@ -244,7 +244,7 @@ struct soi2atm_bgc {
   double rhsomprsum;
   double rhsomcrsum;
 
-  double rhtot;  //total rhs
+  double rhsom;  //RH for soil organic matter
   
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D) {

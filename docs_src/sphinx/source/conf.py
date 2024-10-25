@@ -21,12 +21,12 @@ sys.path.insert(0, os.path.abspath("../../../scripts"))
 # -- Project information -----------------------------------------------------
 
 project = 'dvmdostem'
-copyright = '2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
+copyright = '2024, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
 author = 'Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.7.0'
-version = 'v0.7.0'
+release = 'v0.8.0'
+version = 'v0.8.0'
 
 
 # -- General configuration ---------------------------------------------------

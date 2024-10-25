@@ -234,7 +234,7 @@ void Soil_Bgc::clear_del_structs(){
   del_soi2a.rhsomasum = 0.0;
   del_soi2a.rhsomprsum = 0.0;
   del_soi2a.rhsomcrsum = 0.0;
-  del_soi2a.rhtot = 0.0;
+  del_soi2a.rhsom = 0.0;
 
   //soi2lnd_bgc del_soi2l
   del_soi2l.doclost = 0.0;

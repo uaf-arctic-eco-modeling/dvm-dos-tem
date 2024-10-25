@@ -738,13 +738,13 @@ print("Generating single plots...")
 os.mkdir(os.path.join(POD,'results'))
 
 print("Generating timeseries flux plots...")
-VARlist=['RH','GPP','NPP','LTRFALC','RG','RM']
+VARlist=['RHSOM','GPP','NPP','LTRFALC','RG','RM']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series','eq')
 
 VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LTRFALN']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', 'eq')
 
-VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','DWDRH', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
+VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
 ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', 'eq')
 
 print("Generating ts stock plots...")
@@ -758,7 +758,7 @@ VARlist=['DEADC','DWDC','DEADN','DWDN']
 ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', 'eq')
 
 print("Generating seasonality plots...")
-VARlist=['GPP','RH','LAI']
+VARlist=['GPP','RHSOM','LAI']
 seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio','eq')
 
 VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
