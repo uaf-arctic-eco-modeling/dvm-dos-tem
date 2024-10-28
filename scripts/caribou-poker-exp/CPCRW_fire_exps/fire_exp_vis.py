@@ -85,12 +85,12 @@ burn_year = [1900,
              1930, 
              1960, 
              1990,
-             2030,
+             2033,
              1900, 
              1930, 
              1960, 
              1990,
-             2030]
+             2033]
 
 #variable-level information, assuming same outputs from each model run
 var_list = ['GPP', 
@@ -1212,10 +1212,16 @@ for name, group in pre_fire:
 year_before_fire = pd.concat(year_before_fire)
 
 
-year_before_fire
+pd.set_option('display.max_rows', None) 
 
 
-ysd = results_yearly.loc[(results_yearly['years_since_fire'] != 0)]
+
+
+
+results_yearly.loc[(results_yearly['cmt'] == 'birch') & (results_yearly['burn_year'] == 2033), ['year', 'VEGC']]
+
+
+#ysd = results_yearly.loc[(results_yearly['years_since_fire'] != 0)]
 ysd = results_yearly.loc[(results_yearly['YSD'] < 500)]
 
 ysd = ysd.merge(year_before_fire, on = ['exp', 'cmt', 'burn_year'], suffixes=['', '_prefire'])
