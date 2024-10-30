@@ -99,7 +99,7 @@ void Soil_Env::initializeState() {
 
         currl->tem = ts;
 
-        if (currl->tem>0.) {
+        if (currl->tem>=currl->temp_dep) {
           currl->liq = fmax(currl->minliq, fmax(currl->maxliq,
                             vwc*currl->dz*DENLIQ));
           currl->ice = 0.;
@@ -138,14 +138,14 @@ void Soil_Env::initializeState() {
 
         currl->tem = ed->d_atms.ta; // <== PROBLEM: what if ed->d_atms.ta is not set yet !??
 
-        if (currl->tem > 0.0) { // Above freezing
+        if (currl->tem >= currl->temp_dep) { // Above freezing
           currl->liq = fmax(currl->minliq,
                             fmax(currl->maxliq, vwc*currl->dz*DENLIQ));
           currl->ice = 0.0;
           currl->frozen = -1;
         } else {                // Below freezing
           currl->ice = fmax(0.0, fmax(currl->maxice, vwc*currl->dz*DENICE));
-          currl->liq = 0.0;
+          currl->liq = currl->minliq;
           currl->frozen = 1;
         }
 
@@ -262,8 +262,8 @@ void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
 
   if (ground->toplayer->isSoil) {
     //when there is an abrupt change of surface status, reduce timestep
-    if((ground->fstsoill->frozen==1 and tsurface>0.0)
-        || (ground->fstsoill->frozen==-1 and tsurface<0.0)
+    if((ground->fstsoill->frozen==1 and tsurface>=ground->fstsoill->temp_dep)
+        || (ground->fstsoill->frozen==-1 and tsurface<ground->fstsoill->temp_dep)
         || ground->fstsoill->frozen==0) {
       nstep = 24;
     }
@@ -284,8 +284,8 @@ void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
     int tstate = ground->ststate;
 
     if(ground->fstfntl==NULL && ground->lstfntl==NULL ) {  // no front
-      if((tstate == 1 && tsurface>0) // frozen soil and above-zero air
-         || (tstate == -1 && tsurface<0) // unfrozen soil and below-zero air
+      if((tstate == 1 && tsurface>=ground->fstsoill->temp_dep) // frozen soil and above-zero air
+         || (tstate == -1 && tsurface<ground->fstsoill->temp_dep) // unfrozen soil and below-zero air
          ||  tstate == 0) { // partially frozen soil column
         stefan.updateFronts(tsurface, timestep);
       }
@@ -331,9 +331,9 @@ void Soil_Env::updateDailySurfFlux(Layer* toplayer, const double & dayl) {
       if(dzsum <totthick) {
         if(dzsum + currl->dz <totthick) {
           dzsum +=currl->dz;
-          availliq += fmax(0., currl->liq-0.01*currl->maxliq);
+          availliq += fmax(0., currl->liq-currl->minliq);
         } else {
-          availliq += fmax(0., currl->liq-0.01*currl->maxliq)
+          availliq += fmax(0., currl->liq-currl->minliq)
                       * (totthick-dzsum)/totthick;
           dzsum = totthick;
         }
@@ -1360,19 +1360,18 @@ double  Soil_Env::updateLayerTemp5Lat(Layer* currl, const double & infil) {
   if(frozen==1 || frozen ==0) { //frozen or partly frozen;
     double tem = currl->tem;
     //SoilLayer* sl = dynamic_cast<SoilLayer*>(currl);
-    double vhp = currl->getHeatCapacity();
-    double heatprovide = infil * 3.34e5; // provide latent heat
+    double vhp = currl->getHeatCapacity() + currl->fapp_hcap() * DENLIQ * LHFUS;
+    double heatprovide = infil * LHFUS; // provide latent heat
     double heatneed = fabs(tem) * vhp * currl->dz; //needed heat for increasing
                                                    //temperature from minus
                                                    //to zero
     if(heatprovide >=heatneed) {
       currl->tem =0.;
-      extraliq = (heatprovide -heatneed)/3.34e5;
+      extraliq = (heatprovide -heatneed)/LHFUS;
     } else {
       if(currl->tem<0) { // a double check
         currl->tem += heatprovide/(vhp *currl->dz);
       }
-
       extraliq =0.;
     }
   };

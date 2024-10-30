@@ -108,8 +108,16 @@ public:
   double getEffVolLiq();
   double getVolIce();
 
+  // first unfrozen water / apparent heat capacity functions
   double getUnfVolLiq();
   double getDeltaUnfVolLiq();
+
+  // functions based on Nicolsky et al. 2007 and GIPL2.0
+  double funf_water(double const & Temperature);    // unfrozen water
+  double fdunf_water(double const & Temperature);   // unfrozen water derivative with respect to temperature
+  double fhcap(const double &T1, const double &T2); // phase change component of apparent heat capacity
+  double fapp_hcap();                               // apparent heat capacity
+
 
   virtual double getFrzThermCond()=0; // get frozen layer thermal conductivity
   virtual double getUnfThermCond()=0; // get unfrozen layer thermal conductivity

@@ -158,7 +158,9 @@ void TemperatureUpdator::processColumnNofront(Layer* fstvalidl, const double & t
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
     double hcap = currl->getHeatCapacity();
-    double pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
+    double column_depth = ground->lstsoill->z + ground->lstsoill->dz;
+    double hcscale = (column_depth * column_depth) / SEC_IN_DAY;
+    double pce = (DENLIQ * LHFUS) * currl->fapp_hcap();
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
     cap[ind] = hca[ind] * dx[ind];
@@ -232,7 +234,9 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     t[ind] = currl->tem;
     tca[ind] = currl->getThermalConductivity();
     double hcap = currl->getHeatCapacity();
-    double pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
+    double column_depth = ground->lstsoill->z + ground->lstsoill->dz;
+    double hcscale = (column_depth * column_depth) / SEC_IN_DAY;
+    double pce = (DENLIQ * LHFUS) * currl->fapp_hcap();
     hca[ind] = (pce + hcap);
     cn[ind] = tca[ind] / dx[ind];
     cap[ind] = hca[ind] * dx[ind];
@@ -244,7 +248,7 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
   ind = fstfntl->indl;
   int frnttype = ground->frontstype[0];
   if (frnttype == 1) { // Assume that the frontlayer temp is near zero
-    t[ind] = -zerodegc;  // freezing front, so top of layer < 0
+    t[ind] = -zerodegc; // freezing front, so top of layer < 0
   } else {
     t[ind] = zerodegc;  // thawing front, so top of layer > 0
   }
@@ -262,7 +266,9 @@ void TemperatureUpdator::processAboveFronts(Layer* fstvalidl, Layer*fstfntl,
     tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getHeatCapacity();
   }
-  double pce = DENLIQ * LHFUS * fstfntl->getDeltaUnfVolLiq();
+  double column_depth = ground->lstsoill->z + ground->lstsoill->dz;
+  double hcscale = (column_depth * column_depth) / SEC_IN_DAY;
+  double pce = (DENLIQ * LHFUS) * fstfntl->fapp_hcap();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -316,7 +322,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
   if (frnttype1 == 1) {  // Assume that the frontlayer temp is near zero
     t[ind] = zerodegc; // Freezing front: bottom of layer is > 0
   } else {
-    t[ind] = -zerodegc; // Thawing front: bottom of layer is < 0
+    t[ind] = fstfntl->temp_dep; // Thawing front: bottom of layer is < 0
   }
   e[ind] = t[ind];
   s[ind] = 0.;
@@ -334,7 +340,9 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     tca[ind] = fstfntl->getThermalConductivity();
     hcap = fstfntl->getHeatCapacity();
   }
-  double pce = DENLIQ * LHFUS * fstfntl->getDeltaUnfVolLiq();
+  double column_depth = ground->lstsoill->z + ground->lstsoill->dz;
+  double hcscale = (column_depth * column_depth) / SEC_IN_DAY;
+  double pce = (DENLIQ * LHFUS) * fstfntl->fapp_hcap();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -352,7 +360,9 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
-    pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
+    double column_depth = ground->lstsoill->z + ground->lstsoill->dz;
+    double hcscale = (column_depth * column_depth) / SEC_IN_DAY;
+    pce = (DENLIQ * LHFUS) * currl->fapp_hcap();
     hca[ind] = pce + hcap;
     cn[ind] = tca[ind]/dx[ind];
     cap[ind] = hca[ind] * dx[ind];
@@ -381,7 +391,7 @@ void TemperatureUpdator::processBetweenFronts(Layer*fstfntl, Layer*lstfntl,
     tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getHeatCapacity();
   }
-  pce = DENLIQ * LHFUS * lstfntl->getDeltaUnfVolLiq();
+  pce = (DENLIQ * LHFUS) * lstfntl->fapp_hcap();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind]  / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -461,7 +471,9 @@ void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
     tca[ind] = lstfntl->getThermalConductivity();
     hcap = lstfntl->getHeatCapacity();
   }
-  double pce = DENLIQ * LHFUS * lstfntl->getDeltaUnfVolLiq();
+  double column_depth = ground->lstsoill->z + ground->lstsoill->dz ;
+  double hcscale = (column_depth * column_depth) / SEC_IN_DAY;
+  double pce = (DENLIQ * LHFUS) * lstfntl->fapp_hcap();
   hca[ind] = (pce + hcap);
   cn[ind] = tca[ind] / dx[ind];
   cap[ind] = hca[ind] * dx[ind];
@@ -476,7 +488,7 @@ void TemperatureUpdator::processBelowFronts(Layer*lstfntl,
     dx[ind] = temutil::NON_ZERO(dx[ind], 1);
     tca[ind] = currl->getThermalConductivity();
     hcap = currl->getHeatCapacity();
-    pce = DENLIQ * LHFUS * currl->getDeltaUnfVolLiq();
+    pce = (DENLIQ * LHFUS) * currl->fapp_hcap();
     hca[ind] = pce + hcap;
     cn[ind] = tca[ind]/dx[ind];
     cap[ind] = hca[ind] * dx[ind];

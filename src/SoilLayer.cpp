@@ -21,13 +21,13 @@ double SoilLayer::getFrzVolHeatCapa() {
 };
 
 double SoilLayer::getUnfVolHeatCapa() {
-  double vhc= vhcsolid * (1-poro) + (poro * DENLIQ) * SHCLIQ; 
+  double vhc= vhcsolid * (1 - poro) + (poro * DENLIQ) * SHCLIQ; 
   return vhc;
 };
 
 double SoilLayer::getMixVolHeatCapa() {
 
-  double uwc = getUnfVolLiq();
+  double uwc = funf_water(tem)/getVolWater();
   double lwc = getVolLiq();
 
   double vhcf = getFrzVolHeatCapa();
@@ -36,9 +36,9 @@ double SoilLayer::getMixVolHeatCapa() {
   // scaling based on mobile liquid water content (lwc) and immobile
   // unfrozen pore water content (uwc) and porosity. These are summed
   // as lwc freezes around 0 degC uwc begins to increase.
-  double scaler = fmin(uwc + lwc, poro);
+  double scaler = fmin(fmax(uwc, lwc), poro);
 
-  double vhc = (1 - poro) * vhcsolid + (poro * vhcu * scaler) + (poro * vhcf * (1 - scaler));
+  double vhc = (vhcu * scaler) + (vhcf * (1 - scaler));
 
   if (tem >= temp_dep){
     vhc = vhcu;
@@ -103,7 +103,7 @@ double SoilLayer::getMixThermCond() {
   double tcu = MISSING_D;
 
   double lwc = getVolLiq();
-  double uwc = getUnfVolLiq();
+  double uwc = funf_water(tem)/getVolWater();
 
   tcf = getFrzThermCond();
   tcu = getUnfThermCond();
@@ -111,9 +111,9 @@ double SoilLayer::getMixThermCond() {
   // scaling based on mobile liquid water content (lwc) and immobile
   // unfrozen pore water content (uwc) and porosity. These are summed
   // as lwc freezes around 0 degC uwc begins to increase.
-  double scaler = fmin(uwc + lwc, poro);
+  double scaler = fmin(fmax(uwc, lwc), poro);
 
-  tc = pow(tcf, 1 - fmin(scaler, poro)) * pow(tcu, fmin(scaler, poro));
+  tc = pow(tcf, 1 - scaler) * pow(tcu, scaler);
 
   if (tem >= temp_dep){
     tc = tcu;
@@ -174,7 +174,7 @@ double SoilLayer::getAlbedoNir() {
 // called when porosity/thickness is changed
 void SoilLayer::derivePhysicalProperty() {
   //hydraulic properties
-  minliq = getUnfVolLiq() * poro * DENLIQ * dz;
+  minliq = 0.05 * poro * DENLIQ * dz;
   maxliq = poro * DENLIQ * dz;
   maxice = poro * DENICE * dz - minliq;
   //thermal properties

@@ -1826,7 +1826,7 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
   }
   int fntnum = frontsz.size();
   if (fntnum<=0) { // no fronts exist, use temp to assign frozen status
-    if (soill->tem > 0.) {
+    if (soill->tem >= soill->temp_dep) {
       soill->frozen = -1;
       soill->frozenfrac = 0.;
     } else {
@@ -2287,7 +2287,7 @@ void Ground::checkWaterValidity() {
     }
 
     if (fabs(currl->liq) < 1.e-9) {
-      currl->liq = 0.0;
+      currl->liq = currl->minliq;
     }
 
     if (currl->ice < 0.0 || currl->liq < 0.0) {
@@ -2296,7 +2296,7 @@ void Ground::checkWaterValidity() {
     }
 
     if (currl->frozen == 1) {
-      if (currl->liq > 0.0) {
+      if (currl->liq > currl->minliq) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl
                                 << " is fully frozen but has liquid water";
       }
@@ -2321,7 +2321,7 @@ void Ground::checkWaterValidity() {
                                 << " is fully thawed but has ice";
       }
 
-      if ((currl->liq-currl->maxliq)>1.e-6 && currl->isSoil) {
+      if ((currl->liq-currl->maxliq-currl->minliq)>1.e-6 && currl->isSoil) {
         BOOST_LOG_SEV(glg, warn) << "Layer " << currl->indl << " (soil) "
                                 << " has "<< currl->liq-currl->maxliq <<" mm too much liquid water";
       }

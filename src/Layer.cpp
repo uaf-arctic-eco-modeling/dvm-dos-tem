@@ -87,9 +87,10 @@ double Layer::getHeatCapacity() { // volumetric heat capacity
     hcap = getFrzVolHeatCapa();
   }
 
-  this->hcapa = hcap + DENLIQ * LHFUS * getDeltaUnfVolLiq();
+  this->hcapa = hcap + (DENLIQ * LHFUS) * fapp_hcap();
 
   return hcap;
+
 };
 
 double Layer::getThermalConductivity() {
@@ -121,81 +122,30 @@ double Layer::getUnfVolLiq(){
     uwc = 0.0;
   }
 
-  uwc = fmin(uwc, poro-getVolLiq());
+  uwc = fmin(uwc, getVolWater());
 
   if (isSnow){
     uwc = 0.0;
   }
 
-  return uwc;
+  return 0.0;
 }
 
-// double Layer::getDeltaUnfVolLiq(){
-
-//   double d_uwc;
-
-//   if (tem < temp_dep){
-//     d_uwc = -b_parameter * tem * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 2);
-//   } else {
-//     d_uwc = 0.0;
-//   }
-
-//   if (isSnow){
-//     d_uwc = 0.0;
-//   }
-
-//   return d_uwc;
-// }
-
 double Layer::getDeltaUnfVolLiq(){
-  // Following numerical formulation in GIPL2.0
-  // based on Nicolsky et al. 2007
 
-  double T1, T2, W1, W2, H, D = 0.0;
-  double fhcap=0.0;
+  double d_uwc;
 
-  
-
-  if (isSoil){
-    if (!prevl || !prevl->isSoil){
-      T1 = tem;
-      T2 = (nextl->tem + tem) / 2.0;
-      W1 = getUnfVolLiq();
-      W2 = nextl->getUnfVolLiq();
-      D = 1.0;
-    } else if (prevl->isSoil && nextl->isSoil){
-      T1 = (prevl->tem + tem) / 2.0;
-      T2 = tem;
-      W1 = prevl->getUnfVolLiq();
-      W2 = getUnfVolLiq();
-      D = dz / (prevl->dz + dz);
-    } else if (prevl->isSoil && nextl->isRock){
-      T1 = (prevl->tem + tem) / 2.0;
-      T2 = tem;
-      W1 = prevl->getUnfVolLiq();
-      W2 = getUnfVolLiq();
-      D = 1.0;
-    } else{
-      T1 = 1.0;
-      T2 = 1.0;
-      W1 = 0.0;
-      W2 = 0.0;
-      D = 0.0;
-    }
-  }
-
-  if (abs(T1 - T2) < 1e-6){
-      fhcap = 0.5 * (W1 + W2) * D;
+  if (tem < temp_dep){
+    d_uwc = -b_parameter * tem * poro * pow(abs(temp_dep), b_parameter) * pow(abs(tem), -b_parameter - 2);
   } else {
-      H = 1 / (T1 - T2);
-      fhcap = H * (W1 - W2) * D;
+    d_uwc = 0.0;
   }
 
-  if (!isSoil){
-      fhcap = 0.0;
+  if (isSnow){
+    d_uwc = 0.0;
   }
 
-  return fhcap;
+  return 0.0;
 }
 
 double Layer::getVolWater(){
@@ -232,7 +182,7 @@ double Layer::getVolIce() {
       vice = fmax(0.0, vice);
     }
     else{
-      vice = fmin((double)vice, (double)poro);
+      vice = fmin((double)vice, (double)maxice);
     }
 
     return vice;
@@ -254,6 +204,7 @@ double Layer::getVolLiq() {
     }
     else{
       vliq = fmin((double)vliq,(double)poro);
+      vliq = fmax((double)vliq, (double)minliq/DENLIQ/dz);
     }
     return vliq;
   } else {
@@ -270,4 +221,120 @@ double Layer::getEffVolLiq() {
   } else {
     return 0;
   }
+};
+
+  /* 
+  Incorporating equations from Nicolsky et al. 2007
+  mimicking GIPL2.0 unfrozen water and apparent
+  heat capacity formulation. 
+
+  prevl, nextl are assigned based on finite difference
+  method, and fitting within the Layer class structure
+  so in certain cases prevl->fhcap will be used which
+  corresponds to this work around. See GIPL2.0 and 
+  Nicolsky et al. 2007 for more information on the 
+  finite difference method used.
+
+   */
+
+double Layer::funf_water(double const & Temperature){
+  /* Calculate unfrozen water content based on 
+     temperature using empirical parameters */
+  double uwc = 0.0;
+
+  if (Temperature < temp_dep){
+    uwc = poro * pow(abs(temp_dep), b_parameter) * pow(abs(Temperature), -b_parameter);
+  } // We may want to include a smoothing function when / if T=temp_dep, see GIPL 
+  else {
+    uwc = 0.5;
+  }
+
+  uwc = fmin(uwc, getVolWater());
+
+  if (!isSoil){
+    uwc = 0.0;
+  }
+
+  return uwc;
+};
+
+double Layer::fdunf_water(double const & Temperature) {
+  /* Calculate derivative of unfrozen water 
+     content based on temperature and empirical
+     parameters */
+  double duwc = 0.0;
+
+  if (Temperature < temp_dep){
+    duwc = abs(-b_parameter * Temperature * poro * pow(abs(temp_dep), b_parameter) * pow(abs(Temperature), -b_parameter - 2));
+  } else {
+    duwc = 0.0;
+  }
+
+  if (!isSoil){
+    duwc = 0.0;
+  }
+
+  return duwc;
+};
+
+double Layer::fhcap(const double &T1, const double &T2){
+  /* Calculate phase change component of
+     apparent heat capacity */
+  double fhcap, H = 0.0;
+
+  if (abs(T1 - T2) < 1e-1){
+    fhcap = 0.5 * (fdunf_water(T1) + nextl->fdunf_water(T2));
+  } else {
+    if (tkey != nextl->tkey){
+      H = 1 / (T1 - T2);
+      fhcap = 0.5 * (H * (funf_water(T1) - funf_water(T2)) + H * (nextl->funf_water(T1) - nextl->funf_water(T2)));
+    }else{
+      H = 1 / (T1 - T2);
+      fhcap = H * (funf_water(T1) - nextl->funf_water(T2));
+    }
+  }
+  return abs(fhcap);
+};
+
+double Layer::fapp_hcap(){
+  /* Assign temperatures for calculating 
+     phase change component of apparent 
+     heat capacity using finite 
+     difference */
+  double app_hcap, T1, T2 = 0.0;
+
+  if (isSoil){
+    // for first soil layer in stack
+    if (!prevl || !prevl->isSoil){ // isfstsoil?
+
+      T1 = tem;
+      T2 = (nextl->tem + tem)/2.0;
+      app_hcap = fhcap(T1, T2);  
+
+    // for all layers in the column exept the last 
+    } else if (prevl->isSoil && !nextl->isRock){ // islstsoil?
+
+      T1 = (prevl->tem+tem)/2.0;
+      T2 = tem;
+      app_hcap = prevl->fhcap(T1, T2) * dz / (prevl->dz + dz); 
+
+      T1 = tem;
+      T2 = (nextl->tem + tem)/2.0;
+      app_hcap += fhcap(T1, T2) * nextl->dz / (nextl->dz + dz);
+
+      // last soil layer before bedrock
+    } else if (nextl->isRock && prevl->isSoil){
+
+      T1 = (prevl->tem + tem)/2.0;
+      T2 = tem;
+      app_hcap = prevl->fhcap(T1, T2); 
+
+      // otherwise we assume snow, or rock so ignore   
+    } else {
+      app_hcap = 0.0;
+    }
+  } else {
+    app_hcap = 0.0;
+  } 
+  return app_hcap;
 };
