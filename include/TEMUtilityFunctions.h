@@ -233,6 +233,45 @@ namespace temutil {
   }
 
   template <typename PTYPE>
+  void output_nc_3dim_notime(OutputSpec* out_spec, std::string stage_suffix,
+                             cell_coords* coords, PTYPE data,
+                             int max_var_count){
+    BOOST_LOG_SEV(glg, debug)<<"output_nc_3dim_notime, var: "<<out_spec->var_name;
+    //timestep, row, col
+    size_t datastart[3];
+    datastart[0] = 0;
+    datastart[1] = coords->yidx;
+    datastart[2] = coords->xidx;
+
+    size_t datacount[3];
+    datacount[0] = max_var_count;
+    datacount[1] = 1;
+    datacount[2] = 1;
+
+    int ncid, cv;
+    std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+  #ifdef WITHMPI
+    temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  #else
+    temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+  #endif
+
+    temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
+    BOOST_LOG_SEV(glg, debug)<<"inq_varid completed";
+
+  #ifdef WITHMPI
+    temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+  #endif
+
+    temutil::nc( nc_put_vara(ncid, cv, datastart, datacount, data) );
+    BOOST_LOG_SEV(glg, debug)<<"put_vara completed";
+
+    temutil::nc( nc_close(ncid) );
+    BOOST_LOG_SEV(glg, debug)<<"close completed";
+  }
+
+  template <typename PTYPE>
   void output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix,
                       cell_coords* coords, PTYPE data, int max_var_count,
                       int start_timestep, int timesteps){
@@ -247,6 +286,45 @@ namespace temutil {
     size_t datacount[4];
     datacount[0] = timesteps;
     datacount[1] = max_var_count;
+    datacount[2] = 1;
+    datacount[3] = 1;
+
+    int ncid, cv;
+    std::string output_filename = out_spec->file_path + out_spec->filename_prefix + stage_suffix;
+
+  #ifdef WITHMPI
+    temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  #else
+    temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+  #endif
+
+    temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
+
+  #ifdef WITHMPI
+    temutil::nc( nc_var_par_access(ncid, cv, NC_INDEPENDENT) );
+  #endif
+
+    temutil::nc( nc_put_vara(ncid, cv, datastart, datacount, data) );
+
+    temutil::nc( nc_close(ncid) );
+  }
+
+  template<typename PTYPE>
+  void output_nc_4dim_notime(OutputSpec* out_spec, std::string stage_suffix,
+                             cell_coords* coords, PTYPE data,
+                              int max_var_count_1, int max_var_count_2){
+
+    BOOST_LOG_SEV(glg, debug)<<"output_nc_4dim_notime, var: "<<out_spec->var_name;
+    //compartment, pft, row, col
+    size_t datastart[4];
+    datastart[0] = 0;
+    datastart[1] = 0;
+    datastart[2] = coords->yidx;
+    datastart[3] = coords->xidx;
+
+    size_t datacount[4];
+    datacount[0] = max_var_count_1;
+    datacount[1] = max_var_count_2;
     datacount[2] = 1;
     datacount[3] = 1;
 

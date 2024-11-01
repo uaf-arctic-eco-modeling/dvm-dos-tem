@@ -214,32 +214,32 @@ void DAController::run_DA_LAI(timestep_id current_step){
   //Write accessory variables to file
   //VEGC
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> vegc = cohort->get_vegc_pftandcomp_monthly();
-  temutil::output_nc_5dim(&this->vegc_outspec, ".nc", &curr_coords, &vegc[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
+  temutil::output_nc_4dim_notime(&this->vegc_outspec, ".nc", &curr_coords, &vegc[0][0], NUM_PFT_PART, NUM_PFT);
 
   //STRN
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> strn = cohort->get_strn_pftandcomp_monthly();
-  temutil::output_nc_5dim(&this->strn_outspec, ".nc", &curr_coords, &strn[0][0], NUM_PFT_PART, NUM_PFT, 0, 1);
+  temutil::output_nc_4dim_notime(&this->strn_outspec, ".nc", &curr_coords, &strn[0][0], NUM_PFT_PART, NUM_PFT);
 
   //LWC
-  temutil::output_nc_4dim(&this->lwc_outspec, ".nc", &curr_coords, &cohort->edall->m_soid.lwc[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->lwc_outspec, ".nc", &curr_coords, &cohort->edall->m_soid.lwc[0], MAX_SOI_LAY);
 
   //SOMRAWC
-  temutil::output_nc_4dim(&this->rawc_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.rawc[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->rawc_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.rawc[0], MAX_SOI_LAY);
 
   //SOMA
-  temutil::output_nc_4dim(&this->soma_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.soma[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->soma_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.soma[0], MAX_SOI_LAY);
 
   //SOMPR
-  temutil::output_nc_4dim(&this->sompr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.sompr[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->sompr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.sompr[0], MAX_SOI_LAY);
 
   //SOMCR
-  temutil::output_nc_4dim(&this->somcr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.somcr[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->somcr_outspec, ".nc", &curr_coords, &cohort->bdall->m_sois.somcr[0], MAX_SOI_LAY);
 
   //LAYERDZ (for reference, not to be updated by DA)
-  temutil::output_nc_4dim(&this->layerdz_outspec, ".nc", &curr_coords, &cohort->cd.m_soil.dz[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->layerdz_outspec, ".nc", &curr_coords, &cohort->cd.m_soil.dz[0], MAX_SOI_LAY);
 
   //TLAYER (for reference, not to be updated by DA)
-  temutil::output_nc_4dim(&this->tlayer_outspec, ".nc", &curr_coords, &cohort->edall->m_sois.ts[0], MAX_SOI_LAY, 0, 1);
+  temutil::output_nc_3dim_notime(&this->tlayer_outspec, ".nc", &curr_coords, &cohort->edall->m_sois.ts[0], MAX_SOI_LAY);
 
   //calculate LAI stuff
 //  double totalLAI = 0.0;
@@ -253,7 +253,7 @@ void DAController::run_DA_LAI(timestep_id current_step){
 //  }
 
   //write LAI to file
-  temutil::output_nc_4dim(&this->lai_outspec, ".nc", &curr_coords, &cohort->cd.m_veg.lai[0], NUM_PFT, 0, 1);
+  temutil::output_nc_3dim_notime(&this->lai_outspec, ".nc", &curr_coords, &cohort->cd.m_veg.lai[0], NUM_PFT);
 //  temutil::output_nc_3dim(&this->lai_outspec, ".nc", &curr_coords, &totalLAI, 1, 0, 1);
 //  temutil::ppv(lai_by_pft);
 //  std::cout<<"total lai: "<<totalLAI<<std::endl;
@@ -440,12 +440,12 @@ void DAController::create_da_nc_file(){
   this->da_filename = new_file;
   temutil::nc( nc_create(new_file.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
 
-  int timeD;
+//  int timeD;
   int yD, xD;
   int pftD, pftpartD;
   int soillayerD;
 
-  temutil::nc( nc_def_dim(ncid, "time", 1, &timeD) );
+//  temutil::nc( nc_def_dim(ncid, "time", 1, &timeD) );
 
   temutil::nc( nc_def_dim(ncid, "y", 1, &yD) );
   temutil::nc( nc_def_dim(ncid, "x", 1, &xD) );
@@ -454,55 +454,50 @@ void DAController::create_da_nc_file(){
   temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
   temutil::nc( nc_def_dim(ncid, "soillayer", MAX_SOI_LAY, &soillayerD) );
 
-  int vartype2D_dimids[2];
-  vartype2D_dimids[0] = yD;
-  vartype2D_dimids[1] = xD;
+//  int vartype2D_dimids[2];
+//  vartype2D_dimids[0] = yD;
+//  vartype2D_dimids[1] = xD;
+//
+//  int vartype3D_dimids[3];
+//  vartype3D_dimids[0] = soillayerD;
+//  vartype3D_dimids[1] = yD;
+//  vartype3D_dimids[2] = xD;
 
-  int vartype3D_dimids[3];
-  vartype3D_dimids[0] = soillayerD;
-  vartype3D_dimids[1] = yD;
-  vartype3D_dimids[2] = xD;
+  int layer3D_dimids[3];
+  layer3D_dimids[0] = soillayerD;
+  layer3D_dimids[1] = yD;
+  layer3D_dimids[2] = xD;
 
-  int vartype4D_dimids[4];
-  vartype4D_dimids[0] = timeD;
-  vartype4D_dimids[1] = soillayerD;
-  vartype4D_dimids[2] = yD;
-  vartype4D_dimids[3] = xD;
+  int pft3D_dimids[3];
+  pft3D_dimids[0] = pftD;
+  pft3D_dimids[1] = yD;
+  pft3D_dimids[2] = xD;
 
-  int pft4D_dimids[4];
-  pft4D_dimids[0] = timeD;
-  pft4D_dimids[1] = pftD;
-  pft4D_dimids[2] = yD;
-  pft4D_dimids[3] = xD;
-
-  int vartype5D_dimids[5];
-  vartype5D_dimids[0] = timeD;
-  vartype5D_dimids[1] = pftpartD;
-  vartype5D_dimids[2] = pftD;
-  vartype5D_dimids[3] = yD;
-  vartype5D_dimids[4] = xD;
+  int pft_comp_4D_dimids[4];
+  pft_comp_4D_dimids[0] = pftpartD;
+  pft_comp_4D_dimids[1] = pftD;
+  pft_comp_4D_dimids[2] = yD;
+  pft_comp_4D_dimids[3] = xD;
 
   int temLAI_V, daLAI_V;
   int temVEGC_V, daVEGC_V;
   int temSTRN_V, daSTRN_V;
 
-  //Timestep variable - single value
-
 
   //Vegetation variables
-  temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 4, pft4D_dimids, &temLAI_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 3, pft3D_dimids, &temLAI_V) );
   temutil::nc( nc_put_att_double(ncid, temLAI_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 4, pft4D_dimids, &daLAI_V) );
+  temutil::nc( nc_def_var(ncid, "DA_LAI", NC_DOUBLE, 3, pft3D_dimids, &daLAI_V) );
   temutil::nc( nc_put_att_double(ncid, daLAI_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &temVEGC_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_VEGC", NC_DOUBLE, 4, pft_comp_4D_dimids, &temVEGC_V) );
   temutil::nc( nc_put_att_double(ncid, temVEGC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_VEGC", NC_DOUBLE, 5, vartype5D_dimids, &daVEGC_V) );
+  temutil::nc( nc_def_var(ncid, "DA_VEGC", NC_DOUBLE, 4, pft_comp_4D_dimids, &daVEGC_V) );
   temutil::nc( nc_put_att_double(ncid, daVEGC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_STRN", NC_DOUBLE, 5, vartype5D_dimids, &temSTRN_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_STRN", NC_DOUBLE, 4, pft_comp_4D_dimids, &temSTRN_V) );
   temutil::nc( nc_put_att_double(ncid, temSTRN_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_STRN", NC_DOUBLE, 5, vartype5D_dimids, &daSTRN_V) );
+  temutil::nc( nc_def_var(ncid, "DA_STRN", NC_DOUBLE, 4, pft_comp_4D_dimids, &daSTRN_V) );
   temutil::nc( nc_put_att_double(ncid, daSTRN_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   //Soil variables
@@ -514,35 +509,35 @@ void DAController::create_da_nc_file(){
   int temLAYERDZ_V;
   int temTLAYER_V;
 
-  temutil::nc( nc_def_var(ncid, "TEM_LWC", NC_DOUBLE, 4, vartype4D_dimids, &temLWC_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_LWC", NC_DOUBLE, 3, layer3D_dimids, &temLWC_V) );
   temutil::nc( nc_put_att_double(ncid, temLWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_LWC", NC_DOUBLE, 4, vartype4D_dimids, &daLWC_V) );
+  temutil::nc( nc_def_var(ncid, "DA_LWC", NC_DOUBLE, 3, layer3D_dimids, &daLWC_V) );
   temutil::nc( nc_put_att_double(ncid, daLWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_RAWC", NC_DOUBLE, 4, vartype4D_dimids, &temRAWC_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_RAWC", NC_DOUBLE, 3, layer3D_dimids, &temRAWC_V) );
   temutil::nc( nc_put_att_double(ncid, temRAWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_RAWC", NC_DOUBLE, 4, vartype4D_dimids, &daRAWC_V) );
+  temutil::nc( nc_def_var(ncid, "DA_RAWC", NC_DOUBLE, 3, layer3D_dimids, &daRAWC_V) );
   temutil::nc( nc_put_att_double(ncid, daRAWC_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_SOMA", NC_DOUBLE, 4, vartype4D_dimids, &temSOMA_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_SOMA", NC_DOUBLE, 3, layer3D_dimids, &temSOMA_V) );
   temutil::nc( nc_put_att_double(ncid, temSOMA_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_SOMA", NC_DOUBLE, 4, vartype4D_dimids, &daSOMA_V) );
+  temutil::nc( nc_def_var(ncid, "DA_SOMA", NC_DOUBLE, 3, layer3D_dimids, &daSOMA_V) );
   temutil::nc( nc_put_att_double(ncid, daSOMA_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_SOMPR", NC_DOUBLE, 4, vartype4D_dimids, &temSOMPR_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_SOMPR", NC_DOUBLE, 3, layer3D_dimids, &temSOMPR_V) );
   temutil::nc( nc_put_att_double(ncid, temSOMPR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_SOMPR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMPR_V) );
+  temutil::nc( nc_def_var(ncid, "DA_SOMPR", NC_DOUBLE, 3, layer3D_dimids, &daSOMPR_V) );
   temutil::nc( nc_put_att_double(ncid, daSOMPR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &temSOMCR_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_SOMCR", NC_DOUBLE, 3, layer3D_dimids, &temSOMCR_V) );
   temutil::nc( nc_put_att_double(ncid, temSOMCR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
-  temutil::nc( nc_def_var(ncid, "DA_SOMCR", NC_DOUBLE, 4, vartype4D_dimids, &daSOMCR_V) );
+  temutil::nc( nc_def_var(ncid, "DA_SOMCR", NC_DOUBLE, 3, layer3D_dimids, &daSOMCR_V) );
   temutil::nc( nc_put_att_double(ncid, daSOMCR_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_LAYERDZ", NC_DOUBLE, 4, vartype4D_dimids, &temLAYERDZ_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_LAYERDZ", NC_DOUBLE, 3, layer3D_dimids, &temLAYERDZ_V) );
   temutil::nc( nc_put_att_double(ncid, temLAYERDZ_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  temutil::nc( nc_def_var(ncid, "TEM_TLAYER", NC_DOUBLE, 4, vartype4D_dimids, &temTLAYER_V) );
+  temutil::nc( nc_def_var(ncid, "TEM_TLAYER", NC_DOUBLE, 3, layer3D_dimids, &temTLAYER_V) );
   temutil::nc( nc_put_att_double(ncid, temTLAYER_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   temutil::nc( nc_enddef(ncid) );
