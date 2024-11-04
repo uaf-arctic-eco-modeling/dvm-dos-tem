@@ -32,6 +32,12 @@ void Organic::ShlwThickScheme(const double & shlw_totthickness, const double & d
   array range_of_thicknesses = {}
   array range_of_layerNumbers ={}
 
+  // come up with a way to reference the shlw / deep thickness against
+  // an allowed list of sublayer numbers.
+  // add a catch for cannot be larger than shlwnum_max / deep_num_max
+  // which should be one larger than the recommended max described in
+  // the study.
+
   int shlwnum = something;
   int deepnum = something;
 
