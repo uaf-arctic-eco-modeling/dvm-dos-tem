@@ -185,7 +185,10 @@ void WildFire::burn(int year) {
   BOOST_LOG_SEV(glg, info) << "Burning (simply clearing?) the 'FireData object...";
   fd->burn();
   BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After FirData::burn(..)");
-  
+
+  // remove snow layer for simulating seismic line disturbance
+  cd->d_snow.extramass = -100;
+
   // for soil part and root burning
   // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
   // as it has already set the "burn thickness" value in FirData...

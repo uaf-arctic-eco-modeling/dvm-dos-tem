@@ -783,6 +783,12 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
     //  - Update C/N pools for each pft through 'bd', but not soil structure.
     //  - Soil root fraction also updated through 'cd'.
     fire.burn(year);
+
+    // Hacky way to compress snow layers for a seismic line disturbance
+    int numsl = this->ground.snow.numl;
+    if (this->ground.snow.thick>0.0){
+      this->ground.snow.thick = this->ground.snow.thick/10;
+    }
     
     BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
 
