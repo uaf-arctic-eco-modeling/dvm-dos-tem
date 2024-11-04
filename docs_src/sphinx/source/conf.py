@@ -45,7 +45,11 @@ extensions = [
   #'numpydoc',
   'sphinx.ext.napoleon',
   'sphinxarg.ext',
+  'sphinxcontrib.bibtex',
 ]
+
+bibtex_bibfiles = ["bibliography.bib"]
+bibtex_reference_style = "author_year"
 
 
 # -- Config for some extensions ----------------------------------------------
