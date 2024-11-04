@@ -122,7 +122,21 @@ vegetation, and soil.
 =======================
 Vegetation Types (PFTs)
 =======================
-    WRITE THIS...
+Each vegetation CMT (e.g. “wet-sedge tundra”, “white spruce forest”, etc.), is
+modeled with up to ten PFTs (e.g., “deciduous shrubs”, “sedges”, “mosses”), each
+of which may have up to three compartments: leaf, stem, and root. Vegetation
+:math:`C` and :math:`N` fluxes are calculated at each time step based on
+environmental factors and soil properties. Assimilation of atmospheric
+:math:`CO_2` by the vegetation is estimated by computing gross primary
+productivity (GPP) for each PFT. GPP is a function of foliage development
+(seasonal and successional patterns), air and soil temperature, water and
+nutrient availability, photosynthetically active radiation, and maximum
+assimilation rate (a calibrated parameter) (:cite:p:`McGuire1992interactions`;
+:cite:p:`Euskirchen2009changes`). Changes in vegetation C stocks are calculated
+using GPP, autotrophic respiration (Ra), and litterfall (transfer from
+vegetation to soil). Vegetation N stocks are calculated using plant N uptake and
+litterfall. Vegetation C and N stocks may also be modified as a result of
+wildfire burn.
 
 .. raw:: html
 
@@ -130,9 +144,28 @@ Vegetation Types (PFTs)
    <img src="https://docs.google.com/drawings/d/14vNsPCuorCy3PuE6ucgAmerAks42SxZCtWr4vV5p4Pg/pub?w=960&amp;h=720">
 
 =======================
-Soil (Layers)
+Soil and Snow (Layers)
 =======================
-    WRITE THIS...
+
+The soil column is structured as a sequence of layers organized by soil horizons
+(i.e. fibric, humic, mineral, and parent material). The number and physical
+properties of layers may change throughout the simulation based on vegetation,
+thermal, hydrologic, and seasonal properties that are calculated at each time
+step (:cite:p:`Zhuang2003modeling`; :cite:p:`Euskirchen2014changes`;
+:cite:p:`Yi2009interactions`; :cite:p:`McGuire2018assessing`). The model uses
+the two-directional Stefan algorithm to predict freezing/thawing fronts and the
+Richards equation to predict soil moisture dynamics in the unfrozen layers
+(:cite:p:`Yi2009interactions`; :cite:p:`Yi2010dynamic`;
+:cite:p:`Zhuang2003modeling`). Snow is also represented with a dynamic stack of
+layers. The physical properties of the snowpack (density, thickness, and
+temperature) are calculated from snowfall, sublimation and snowmelt. Snow cover
+influences soil-thermal and hydrological seasonal dynamics. Changes in soil C
+stocks are a result of litterfall from the vegetation and decomposition of soil
+C stocks by microbes (heterotrophic respiration or Rh). Changes in soil organic
+and available N stocks are a result of litterfall, net mineralization of organic
+N, and plant N uptake. Soil organic layers and soil C and N stocks may also be
+modified due to wildfire.
+
 
 .. raw:: html
 
