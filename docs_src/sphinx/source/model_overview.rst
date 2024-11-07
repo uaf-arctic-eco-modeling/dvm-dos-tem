@@ -131,11 +131,11 @@ environmental factors and soil properties. Assimilation of atmospheric
 productivity (GPP) for each PFT. GPP is a function of foliage development
 (seasonal and successional patterns), air and soil temperature, water and
 nutrient availability, photosynthetically active radiation, and maximum
-assimilation rate (a calibrated parameter) (:cite:p:`McGuire1992interactions`;
-:cite:p:`Euskirchen2009changes`). Changes in vegetation :math:`C` stocks are
-calculated using GPP, autotrophic respiration (Ra), and litterfall (transfer
+assimilation rate (a calibrated parameter) (:cite:p:`mcguire1992interactions`;
+:cite:p:`euskirchen2009changes`). Changes in vegetation :math:`C` stocks are
+calculated using GPP, autotrophic respiration (Ra), and litter-fall (transfer
 from vegetation to soil). Vegetation :math:`N` stocks are calculated using plant
-:math:`N` uptake and litterfall. Vegetation :math:`C` and :math:`N` stocks may
+:math:`N` uptake and litter-fall. Vegetation :math:`C` and :math:`N` stocks may
 also be modified as a result of wildfire burn.
 
 .. raw:: html
@@ -151,19 +151,19 @@ The soil column is structured as a sequence of layers organized by soil horizons
 (i.e. fibric, humic, mineral, and parent material). The number and physical
 properties of layers may change throughout the simulation based on vegetation,
 thermal, hydrologic, and seasonal properties that are calculated at each time
-step (:cite:p:`Zhuang2003modeling`; :cite:p:`Euskirchen2014changes`;
-:cite:p:`Yi2009interactions`; :cite:p:`McGuire2018assessing`). The model uses
+step (:cite:p:`zhuang2003modeling`; :cite:p:`euskirchen2014changes`;
+:cite:p:`yi2009interactions`; :cite:p:`mcguire2018assessing`). The model uses
 the two-directional Stefan algorithm to predict freezing/thawing fronts and the
 Richards equation to predict soil moisture dynamics in the unfrozen layers
-(:cite:p:`Yi2009interactions`; :cite:p:`Yi2010dynamic`;
-:cite:p:`Zhuang2003modeling`). Snow is also represented with a dynamic stack of
+(:cite:p:`yi2009interactions`; :cite:p:`yi2010dynamic`;
+:cite:p:`zhuang2003modeling`). Snow is also represented with a dynamic stack of
 layers. The physical properties of the snowpack (density, thickness, and
 temperature) are calculated from snowfall, sublimation and snowmelt. Snow cover
 influences soil-thermal and hydrological seasonal dynamics. Changes in soil
-:math:`C` stocks are a result of litterfall from the vegetation and
+:math:`C` stocks are a result of litter-fall from the vegetation and
 decomposition of soil :math:`C` stocks by microbes (heterotrophic respiration or
 Rh). Changes in soil organic and available :math:`N` stocks are a result of
-litterfall, net mineralization of organic :math:`N` , and plant :math:`N`
+litter-fall, net mineralization of organic :math:`N` , and plant :math:`N`
 uptake. Soil organic layers and soil :math:`C` and :math:`N` stocks may also be
 modified due to wildfire.
 
