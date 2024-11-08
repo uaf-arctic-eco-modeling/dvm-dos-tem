@@ -929,6 +929,9 @@ void create_empty_run_status_file(const std::string& fname,
   std::string runtime_units = "seconds";
   temutil::nc( nc_put_att_text(ncid, total_runtimeV, "units", runtime_units.length(), runtime_units.c_str()) );
 
+  // Global attributes
+  temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA) );
+
   /* End Define Mode (not strictly necessary for netcdf 4) */
   BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode' ["<<fname<<"]";
   temutil::nc( nc_enddef(ncid) );

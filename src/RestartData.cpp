@@ -1280,7 +1280,8 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "prvltrfcnA", NC_DOUBLE, 4, vartype4D_dimids, &prvltrfcnAV) );
   temutil::nc( nc_put_att_double(ncid, prvltrfcnAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
-  /* Create Attributes?? */
+  /* Global Attributes */
+  temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
   /* End Define Mode (not strictly necessary for netcdf 4) */
   BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
