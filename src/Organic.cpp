@@ -29,20 +29,28 @@ void Organic::ShlwThickScheme(const double & shlw_totthickness, const double & d
   // Define the number of layers in each horizon based on stability study:
 
   // define a range of thickness and correspoding number of layers required.
-  array range_of_thicknesses = {}
-  array range_of_layerNumbers ={}
-
-  // come up with a way to reference the shlw / deep thickness against
-  // an allowed list of sublayer numbers.
-  // add a catch for cannot be larger than shlwnum_max / deep_num_max
-  // which should be one larger than the recommended max described in
-  // the study.
-
-  int shlwnum = something;
-  int deepnum = something;
+  int thickness_thresholds = {10, 20, 30, 40};
+  // int layer_number_thresholds = {1,2,4,5}
+  // can use a shlwCount variable as an index for the vector above
+  int shlwnum, deepnum = 1;
+  for (int threshold : thickness_thresholds) {
+      if (shlw_totthickness < threshold) {
+        shlwnum++;
+      } else if (deep_totthickness < threshold){
+        deepnum++;
+      } else {
+        break; // Stop checking if the current threshold is not met
+      }
+  }
 
   // catch if shlwnum is greater than shlwnum_max
-  //catch if deepnum is greater than deepnum_max
+  if (shlwnum > shlwnum_max){
+    shlwnum = shlwnum_max;
+  }
+  // catch if deepnum is greater than deepnum_max
+  if (deepnum > deepnum_max){
+    deepnum = deepnum_max;
+  }
 
   //Creating uniform shlw thickness, uniform_deep used for scaling factor
   double uniform_shlw = shlw_totthickness / shlwnum;
@@ -79,16 +87,48 @@ void Organic::ShlwThickScheme(const double & shlw_totthickness, const double & d
 };
 
 void Organic::DeepThickScheme(const double & shlw_totthickness, const double & deep_totthickness) {
-   //BM: implementing a layer "forcing" scheme to test organic layer resolution on soil thermal and hydrological regimes
-  //    This is based on assuming uniform or linearly increasing layers. A scaling factor is used to find an optimum between uniform and linear schemes.
+  // Maglio, B. (2024) - implementing a new dynamic layer scheme based on the results of work presented
+  // at AGU 2023 (manuscript in preparation) with the dsl off forcing the number of layers in each horizon
+  // to equal MAX_LAY in layerconst.h. Then varying MAX_LAY from 1 - 10 and analyzing the results of 
+  // equilibrium run. Sites analyzed included: heath, wet-sedge, tussock tundra at Imnavait, a black spruce
+  // peatland (based on parameterization developed by Mullen, A.) at Caribou-Poker Creek Research Watershed,
+  // a deciduous forest at Murphy Dome, and black spruce peat plateau and thermokarst bog at Bonanza Creek
+  // LTER. This yielded a range of organic layer thickness from ~ 4 - 90 cm. We examined stability by 
+  // analyzing the root mean square deviation between annual, summer, and winter soil temperature and 
+  // moisture profiles between a preceeding and subsequent number of forced layers. This allowed us to 
+  // estimate minimum and maximum numbers of layers required to give stable solutions to the heat equation
+  // and to Richard's equation.    
 
-  // Initialize total thickness of shlw horizon - do I even need to initialize these?
-  shlwthick = shlw_totthickness;
-  deepthick = deep_totthickness;
+  // Calculate total thickness organic layer
+  double totthickness = shlw_totthickness + deep_totthickness;
 
-  // Force number of layers to MAX_LAY values from layerconst.h - not necessary if dsl on (non-forced)
-  shlwnum = sizeof(shlwdz) / sizeof(double);
-  deepnum = sizeof(deepdz) / sizeof(double);
+  // Define the maximum number of layers given in MAX_LAY values from layerconst.h
+  int shlwnum_max = sizeof(shlwdz) / sizeof(double);
+  int deepnum_max = sizeof(deepdz) / sizeof(double);
+
+  // Define the number of layers in each horizon based on stability study:
+
+  // define a range of thickness and correspoding number of layers required.
+  int thickness_thresholds = {10, 20, 30, 40};
+  int shlwnum, deepnum = 1;
+  for (int threshold : thickness_thresholds) {
+      if (shlw_totthickness >= threshold) {
+        shlwnum++;
+      } else if (deep_totthickness >= threshold){
+        deepnum++;
+      } else {
+        break; // Stop checking if the current threshold is not met
+      }
+  }
+
+  // catch if shlwnum is greater than shlwnum_max
+  if (shlwnum > shlwnum_max){
+    shlwnum = shlwnum_max;
+  }
+  // catch if deepnum is greater than deepnum_max
+  if (deepnum > deepnum_max){
+    deepnum = deepnum_max;
+  }
 
   //Creating uniform shlw thickness, uniform_deep used for scaling factor
   double uniform_shlw = shlwthick / shlwnum;
