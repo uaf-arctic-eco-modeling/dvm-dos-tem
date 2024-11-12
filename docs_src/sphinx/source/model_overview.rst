@@ -33,83 +33,83 @@ input files provided. Recent work has been done with 1km spatial resolution.
 ========
 Temporal
 ========
-TEM is a temporal model in the sense that a run operates processes at consecutive
-time-steps. In addition, with TEM, the concept of a "run stage" is used to run 
-the model over different climatic periods of generally increasing complexity.
-There are 5 possible “run stages”:
 
-* Pre-run (pr)
-* Equilibrium (eq)
-* Spinup (sp)
-* Transient (tr)
-* Scenario (sc)
+`DVMDOSTEM` is a temporal model: a run consists of executing the ecologic
+processes through consecutive time-steps. Much of the modeling is occurring at 
+a monthly time step, although some process execute at a daily resolution and
+some processes are yearly.
 
-The primary difference between the run stages is the nature of the input climate
-dataset, and specifically whether there is annual variability in the driving 
-climate data that the model uses. A complete, future-projecting, simulation is 
-usually only made after advancing the model through several of the previous run 
-stages to stabilize the system. Typically the ending state from each stage is 
-used as the beginning state for each subsequent stage.
+To initialize historical or future simulations, `DVMDOSTEM` needs to compute a
+quasi steady-state (QSS) solution. This solution is forced by using averaged
+historical atmospheric and ecosystem properties (e.g. soil texture) to drive the
+model. QSS of physical processes (e.g. soil temperature and water content) are
+usually achieved in less than 100 years, while QSS of biogeochemical processes
+(e.g. soil and vegetation :math:`C` and :math:`N` stocks) are achieved in 1,000
+to >10,000 years. However, to decrease overall run-times, `DVMDOSTEM` uses two
+QSS stages: “Pre-run” and “Equilibrium”. The list of all `DVMDOSTEM` run stages
+is as follows:
 
-A complete run utilizes all 5 stages. It is possible to work with any subset of 
-the stages.
+* Pre-run (pr): QSS computation for the physical state variables.
+* Equilibrium (eq): QSS computation for the biogeochemical state variables. 
+* Spinup (sp): introduction of pre-industrial climate variability and fire
+  regime.
+* Transient (tr): historical simulation.
+* Scenario (sc): future simulation.
 
-------------
-pre-run (pr)
-------------
+Model simulation requires advancing the model consecutively through all of the
+run stages as needed (``pr -> eq -> sp -> tr ->``). It is possible to work with
+any subset of the stages using the command line ``--restart`` flag.
 
-The pre-run is an equilibrium run for the physical variables of the model. It is
-typically 100 years, uses constant climate (typically monthly average computed
-from the [1901-1930] period). 
+.. note:: Automatic equilibrium (QSS) detection.
+
+   `DVMDOSTEM` does not have an internal test for whether or not equilibrium
+   (quasi steady state; QSS) has been reached. In other words, if you specify
+   ``--max-eq=20000``, the model will run for 20,000 years no matter what
+   internal state it reached. It appears that some of the variable and constant
+   names and the command line flag ``--max-eq`` are vestigial remains of an
+   attempt at "automatic equilibrium detection".
 
 
-----------------
-equilibrium (eq)
-----------------
-In the equilibrium stage, the climate is fixed. That is, the climate does not 
-vary from year to year. There will be intra-annual variability to represent the 
-seasons, but from year to year the calculations will be carried out using the 
-same annual cycles. Equilibrium run stage is used in the calibration mode, 
-and is typically the first stage run for any complete simulation. During the 
-eq stage, the annual climate inputs used are actually calculated as the mean 
-of the first 30 years of the historic climate dataset, so the mean of the 
-values from 1901-1930.
+.. collapse:: pre-run (pr)
 
-.. note:: Automatic equilibrium detection.
-   TEM does not have an internal test for whether or not equilibrium has
-   been reached. In other words, if you specify ``--max-eq=20000``, the model 
-   will run for 20,000 years no matter what internal state it reached. It 
-   appears that some of the variable and constant names and the command 
-   line flag ``--max-eq`` are vestigial remains of an attempt at "automatic 
-   equilibrium detection".
+    The pre-run is an equilibrium run for the physical variables of the model.
+    It is typically 100 years, uses constant climate (typically monthly average
+    computed from the [1901-1930] period). 
 
------------
-spinup (sp)
------------
-In the spinup stage, the climate is not fixed. In the sp stage, the driving 
-climate is used from the first 30 years of the historic climate dataset. Should 
-the spstage be set to run longer than 30 years, the 30 year climate period is 
-re-used. Another difference between eq and sp stages is that the sp stage is set 
-to run for a fixed number of years, regardless of the internal state that the 
-model reaches. In the sp stage the fire date is fixed, occuring at an interval 
-equal to the Fire Recurrence Interval (FRI).
 
---------------
-transient (tr)
---------------
-In the transient stage, the climate varies from year to year. The tr stage is 
-used to run the model over the period of historical record. The input climate 
-data for the tr stage should be the historic climate. This is typically the 
-climate data for the 20th century, so roughly 1901-2009.
+.. collapse:: equilibrium (eq)
 
---------------
-scenario (sc)
---------------
-In the scenario stage, the climate also varies from year to year, but rather
-than observed variability, a predicted climate scenario is used.
+    In the equilibrium stage, the climate is fixed. That is, the climate does
+    not vary from year to year. There will be intra-annual variability to
+    represent the seasons, but from year to year the calculations will be
+    carried out using the same annual cycles. Equilibrium run stage is used in
+    the calibration mode, and is typically the first stage run for any complete
+    simulation. During the eq stage, the annual climate inputs used are actually
+    calculated as the mean of the first 30 years of the historic climate dataset
+    (specified in the config file), so the mean of the values from 1901-1930.
 
-A complete run utilizes all 5 stages. It is possible to work with any subset of
-the stages
+
+.. collapse:: spinup (sp)
+
+    In the spinup stage, the climate is not fixed: the driving climate is used
+    from the first 30 years of the historic climate dataset. Should the spstage
+    be set to run longer than 30 years, the 30 year climate period is re-used.
+    In the sp stage the fire date is fixed, occuring at an interval equal to the
+    Fire Recurrence Interval (FRI).
+
+
+.. collapse:: transient (tr)
+
+    In the transient stage, the climate varies from year to year. The tr stage
+    is used to run the model over the period of historical record. The input
+    climate data for the tr stage should be the historic climate. This is
+    typically the climate data for the 20th century, so roughly 1901-2009.
+
+
+.. collapse:: scenario (sc)
+
+    In the scenario stage, the climate also varies from year to year, but rather
+    than observed variability, a predicted climate scenario is used.
 
 
 =======================
