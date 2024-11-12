@@ -237,10 +237,21 @@ modified due to wildfire.
 Inputs/Outputs (IO)
 *********************
 
+NetCDF files :cite:p:`rew1990netcdf` are used as model inputs and outputs,
+conforming to the CF Conventions v1.11 :cite:p:`eaton2011netcdf` where possible.
+
 
 ========
 Inputs
 ========
+
+The input variables used to drive `DVMDOSTEM` include: drainage classification
+(upland or lowland), CMT classification, topography (slope, aspect, elevation),
+soil texture (percent sand, silt, and clay), climate (air temperature,
+precipitation, vapor pressure, incoming shortwave radiation), atmospheric
+:math:`CO_2` concentration, and fire occurrence (date and severity). All input
+datasets are spatially explicit, except the time series of atmospheric
+:math:`CO_2`. 
 
 Generally TEM requires several types of inputs:
 
@@ -407,10 +418,17 @@ The complete list of required TEM input variables is shown below.
 Outputs
 ==========
 
-The outputs that are available for DVM-DOS-TEM are listed in the
-``config/output_spec.csv`` file that is shipped ith the repo. The following table
-is built from that csv file:
+There are approximately 110 different variables available for output from
+`DVMDOSTEM`. One file will be produced per requested output variable. Users can
+specify the temporal and structural resolutions at which model outputs are
+produced. This functionality allows users to consider their computational
+resources and information needs when setting up a model run.
 
+The outputs that are available for DVM-DOS-TEM are listed in the
+``config/output_spec.csv`` file that is shipped with the repo. The following
+table is built from that csv file:
+
+.. hint:: Wide table, scroll right to see all columns!
 
 .. csv-table:: output_spec.csv
     :file: ../../../config/output_spec.csv

@@ -213,24 +213,6 @@ for light, water, and available N, shown with the purple arrow in the top
 center.\label{fig:modeloverview}](dvmdostem-overview-export_2024-08-19.jpg)
 
 
-## Inputs and outputs
-
-NetCDF files [@Rew1990] are used as model inputs and outputs, conforming
-to the CF Conventions v1.11 [@Eaton2011] where possible. The input variables
-used to drive `DVMDOSTEM` include: drainage classification (upland or lowland), CMT
-classification, topography (slope, aspect, elevation), soil texture (percent
-sand, silt, and clay), climate (air temperature, precipitation, vapor pressure,
-incoming shortwave radiation), atmospheric $CO_2$ concentration, and fire
-occurrence (date and severity). All input datasets are spatially explicit,
-except the time series of atmospheric $CO_2$. 
-
-There are approximately 110 different variables available for output from
-`DVMDOSTEM`. One file will be produced per requested output variable. Users can
-specify the temporal and structural resolutions at which model outputs are
-produced. This functionality allows users to consider their
-computational resources and information needs when setting up a model run.
-
-
 # Parameterization
 
 `DVMDOSTEM` parameterization sets are developed for each CMT. Each CMT is defined
