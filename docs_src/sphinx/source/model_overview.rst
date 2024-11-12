@@ -19,16 +19,27 @@ Model Overview
 Structure
 *********
 
-`dvmdostem` is multi-dimensional. It operates across spatial and temporal 
+`DVMDOSTEM` is multi-dimensional. It operates across spatial and temporal 
 dimensions, soil layers, and plant functional types.
 
 =======
 Spatial
 =======
-TEM is a spatially explicit model. The run domain is divided into grid cells,
-or pixels. There is no communication between the grid cells. TEM itself is 
-agnostic to the spatial resolution - the resolution is controlled by the 
-input files provided. Recent work has been done with 1km spatial resolution.
+`DVMDOSTEM` can be applied at the site level or across large regions. Spatially,
+`DVMDOSTEM` breaks up the landscape into grid cells, each of which is
+characterized by a set of input forcing and parameterization values. Gridded
+parameterization values describe soil and vegetation characteristics associated
+with each Community Type (CMT). `DVMDOSTEM` does not include the lateral
+transfer of information between grid cells. The CMT classification for each grid
+cell is static across the time dimension of a model simulation. These two
+factors limit the ability of the model to represent climate-driven biome shifts
+or succession trajectories from disturbances such as wildfire [@Johnstone2010].
+Design discussions are in progress for adding these capabilities to `DVMDOSTEM`.
+
+`DVMDOSTEM` itself is agnostic to the spatial resolution - the resolution is
+controlled by the input files provided. Recent work has been done with 1km
+spatial resolution.
+
 
 ========
 Temporal
