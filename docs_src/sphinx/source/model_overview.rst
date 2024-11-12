@@ -417,61 +417,21 @@ is built from that csv file:
     :header-rows: 1
 
 
-------------------
-Output Selection
-------------------
-    WRITE THIS...
+********************
+Parameterization
+********************
 
-.. note:: draft thoughts: 
-    NetCDF outputs are specified in a csv file named in config/config.js. The 
-    csv file specifies a variable name (for identification only - it does not 
-    correspond to the variable name in the code), a short description, units, 
-    and what level of detail to output on (timestep and variable part).
-    [Link to default file after PR merge] Variable name, Description, 
-    Units, Yearly, Monthly, Daily, PFT, Compartment, Layer,
-    Example entry: VEGC,Total veg. biomass C,gC/m2,y,m,,p,c,,
-    This will output VegC every month, and provide both PFT and PFT 
-    compartment values.
-    The file is more user-friendly when viewed in a spreadsheet.
-    [example]
-    A complete list of output combinations is below
-    The initial list of outputs can be found at Issue #252
-    LAYERDEPTH, LAYERDZ, and LAYERTYPE should be automatically output if 
-    the user specifies any by-layer output. They are not currently, so ensure
-    that they are specified on the same timestep as the desired output.
-    HKLAYER, LAYERDEPTH, LAYERDZ, LAYERTYPE, TCLAYER, TLAYER, and VWCLAYER 
-    must have the layer option specified or they will generate NetCDF 
-    dimension bound errors.
-
-
--------------
-Process
--------------
-    WRITE THIS...
-
-.. note:: draft thoughts:
-    A single output file will be produced for each entry in the specifying file, 
-    based on variable name, timestep, and run stage.
-    VEGC_monthly_eq.nc
-    At the beginning of the model run, an output file will be constructed for each 
-    variable specified, for each run stage where NetCDF output is indicated and that 
-    has more than 0 years of run time.
-    Currently the model tracks the variables specified for each timestep as separate 
-    sets (i.e. monthly separate from yearly, etc). This reduces the number of map 
-    lookups every time the output function is called, but increases the number of 
-    monthly vs. yearly string comparisons.
-
-------------------------------
-Variable Output Combinations
-------------------------------
-    WRITE THIS...
-
-.. note:: draft thoughts:
-    '-' indicates that the combination is not an option 'x' indicates that the
-    combination has been implemented in the code '?' indicates that it is undecided 
-    if the combination should be made available, or that structure in the code needs 
-    to be modified to make data available for output.
-    Three variables should be automatically written out if any by-layer variable is 
-    specified: Layer type Layer depth Layer thickness Currently they are written out 
-    like standard variables. Automation will need to be added in the future.
+`DVMDOSTEM` parameterization sets are developed for each CMT. Each CMT is
+defined by more than 200 parameters. Parameter values are estimated directly
+from field, lab or remote sensing observations, literature review or
+site-specific calibration. Calibration is required when (1) parameter values
+cannot be determined directly from available data or published information, and
+(2) model sensitivity to the parameter is substantial. The calibration process
+consists of adjusting parameter values until there is acceptable agreement
+between measured field data and model prediction on the state variables most
+influenced by the parameter to be calibrated. Due to the large number of
+parameters requiring calibration, and the non-linear nature of the relationships
+between parameters and state variables, model calibration can be
+labor-intensive. We are actively developing a calibration process that allows
+automation :cite:p:`jafarovINPREP2024`.
 
