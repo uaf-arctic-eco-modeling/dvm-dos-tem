@@ -1547,6 +1547,7 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   //   status based on 'fronts' if given
   getLayerFrozenstatusByFronts(lsl);
   getLayerFrozenstatusByFronts(usl);
+
   // update layer water contents, based on 'frozenfrac' update above
   // essentially in a layer if front exists, 'ice' and 'liq' are located
   //   separately by front
@@ -1557,69 +1558,81 @@ void Ground::splitOneSoilLayer(SoilLayer*usl, SoilLayer* lsl,
   double f2 = lsl->frozenfrac;
   double ice1, ice2;
 
-  // ice1, ice2 can be solved by the following 2 equations
-  // 1) ice1+ice2=totice
-  // 2) ice1/f1+ice2/f2=totwat // here, assuming that 'frozenfrac' derived
-  //      from both water and thickness
-  if (f2<=0.) {
-    ice1 = totice;
-    ice2 = 0.;
-  } else if (f1==f2) {
-    ice1 = (1.0-lslfrac)*totice;
-    ice2 = lslfrac*totice;
-  } else  {
-    ice2 = (totwat*f1-totice)/(f1/f2-1.0);
+  //Values for calculating redistribution of ice
+  double upper_frozen_dz = f1*usl->dz;
+  double lower_frozen_dz = f2*lsl->dz;
+  double total_frozen_dz = upper_frozen_dz + lower_frozen_dz;
+
+  //If either are partially or completely frozen based on frozen
+  // fraction, not state
+  if(f1>0.0 or f2>0.0){
+    double lower_frozen_ratio = lower_frozen_dz/total_frozen_dz;
+    ice2 = lower_frozen_ratio * totice;
     ice1 = totice - ice2;
+  }
+  else{ //Both layers are completely thawed
+    if(totice > 0.0){
+      BOOST_LOG_SEV(glg, warn) << "Positive ice content when both layers are unfrozen";
+    }
+    ice2 = 0;
+    ice1 = 0;
   }
 
   usl->ice = fmin(ice1, usl->maxice);
   lsl->ice = fmin(ice2, lsl->maxice);
-  double liq1, liq2;
-  f1=1.0-usl->frozenfrac;
-  f2=1.0-lsl->frozenfrac;
 
-  if (f2<=0.) {
-    liq1 = totliq;
-    liq2 = 0.;
-  } else if (f1==f2) {
-    liq1 = (1.0-lslfrac)*totliq;
-    liq2 = lslfrac*totliq;
-  } else  {
-    liq2 = (totwat*f1-totliq)/(f1/f2-1.0);
+  //Redistributing liquid water
+  double liq1, liq2;
+  double unf1 = 1.0 - usl->frozenfrac;
+  double unf2 = 1.0 - lsl->frozenfrac;
+
+  double upper_unfrozen_dz = unf1 * usl->dz;
+  double lower_unfrozen_dz = unf2 * lsl->dz;
+  double total_unfrozen_dz = upper_unfrozen_dz + lower_unfrozen_dz;
+
+  //if either are partially or completely unfrozen
+  if(unf1>0.0 or unf2>0.0){
+    double lower_unfrozen_ratio = lower_unfrozen_dz/total_unfrozen_dz;
+    liq2 = lower_unfrozen_ratio * totliq;
     liq1 = totliq - liq2;
+  }
+  else{ //if both are completely frozen
+    liq2 = 0;
+    liq1 = totliq; //Should be 0, but setting to totliq in case
   }
 
   usl->liq = fmin(liq1, usl->maxliq);
   lsl->liq = fmin(liq2, lsl->maxliq);
+
   //update C in new 'lsl' and 'usl' - note: at this point, 'usl' C must be
   //  not updated
   //first, assign 'lsl' C with original 'usl', then update it using actual
   //  thickness and depth
-  lsl->rawc =usl->rawc;
-  lsl->soma =usl->soma;
-  lsl->sompr=usl->sompr;
-  lsl->somcr=usl->somcr;
-  lsl->orgn =usl->orgn;
-  lsl->avln =usl->avln;
+  lsl->rawc = usl->rawc;
+  lsl->soma = usl->soma;
+  lsl->sompr = usl->sompr;
+  lsl->somcr = usl->somcr;
+  lsl->orgn = usl->orgn;
+  lsl->avln = usl->avln;
 
   if (usl->isOrganic) {
     double pldtop = updeptop + usl->dz;   //usl->dz has been updated above
     double pldbot = pldtop + lsl->dz;
     getOslCarbon5Thickness(lsl, pldtop, pldbot);
   } else {
-    lsl->rawc  *= lslfrac;
-    lsl->soma  *= lslfrac;
+    lsl->rawc *= lslfrac;
+    lsl->soma *= lslfrac;
     lsl->sompr *= lslfrac;
     lsl->somcr *= lslfrac;
-    lsl->orgn  *= lslfrac;
-    lsl->avln  *= lslfrac;
+    lsl->orgn *= lslfrac;
+    lsl->avln *= lslfrac;
   }
 
   // then update C for new 'usl'
   usl->rawc -= lsl->rawc;
   usl->soma -= lsl->soma;
-  usl->sompr-= lsl->sompr;
-  usl->somcr-= lsl->somcr;
+  usl->sompr -= lsl->sompr;
+  usl->somcr -= lsl->somcr;
   usl->orgn -= lsl->orgn;
   usl->avln -= lsl->avln;
 };

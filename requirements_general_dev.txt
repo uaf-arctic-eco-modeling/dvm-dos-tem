@@ -12,6 +12,8 @@ Sphinx==5.1.1
 sphinx-rtd-theme==1.1.0
 sphinx-toolbox==3.4.0
 sphinx-argparse==0.4.0
+xarray==2023.1.*
+pypdf==5.1.*
 
 # for SA - maybe merits its own file??
 scikit-learn
