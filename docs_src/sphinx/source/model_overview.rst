@@ -169,9 +169,9 @@ any subset of the stages using the command line ``--restart`` flag.
 =======================
 Community Types (CMTs)
 =======================
-Each TEM grid cell can be assigned one “community type” (CMT). A community 
-type is essentially a parameterization that specifies many properties for 
-vegetation, and soil.
+Each `DVMDOSTEM` grid cell can be assigned one “community type” (CMT). A
+community type is essentially a parameterization that specifies many properties
+for vegetation, and soil.
 
 =======================
 Vegetation Types (PFTs)
