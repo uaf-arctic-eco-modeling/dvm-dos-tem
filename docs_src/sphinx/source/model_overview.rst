@@ -230,45 +230,7 @@ modified due to wildfire.
    <!-- From Tobey Carman's google drawing "dvmdostem-soil-detail" -->
    <img src="https://docs.google.com/drawings/d/1TPZNC_DazpOpkxSKkTJ3oMQlLvzBjUaY6DmBW9LR9cY/pub?w=1005&amp;h=746">
 
-***********
-Processes
-***********
-    WRITE THIS...
 
-==========
-Carbon
-==========
-    WRITE THIS...
-
-==========
-Water
-==========
-    WRITE THIS...
-
-==========
-Nitrogen
-==========
-    WRITE THIS...
-
-=================
-Energy Balance
-=================
-    WRITE THIS...
-
-==========
-Permafrost
-==========
-    WRITE THIS...
-
-==============
-Disturbance
-==============
-    WRITE THIS...
-
-==========
-Methane
-==========
-    WRITE THIS...
 
 *********************
 Inputs/Outputs (IO)
