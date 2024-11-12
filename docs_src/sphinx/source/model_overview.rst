@@ -76,8 +76,9 @@ with each Community Type (CMT). `DVMDOSTEM` does not include the lateral
 transfer of information between grid cells. The CMT classification for each grid
 cell is static across the time dimension of a model simulation. These two
 factors limit the ability of the model to represent climate-driven biome shifts
-or succession trajectories from disturbances such as wildfire [@Johnstone2010].
-Design discussions are in progress for adding these capabilities to `DVMDOSTEM`.
+or succession trajectories from disturbances such as wildfire
+:cite:p:`johnstone2010changes`. Design discussions are in progress for adding
+these capabilities to `DVMDOSTEM`.
 
 `DVMDOSTEM` itself is agnostic to the spatial resolution - the resolution is
 controlled by the input files provided. Recent work has been done with 1km
