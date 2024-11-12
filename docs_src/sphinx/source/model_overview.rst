@@ -10,6 +10,49 @@
 Model Overview
 ##############
 
+`DVMDOSTEM` is designed to simulate the key biophysical and biogeochemical
+processes between the soil, the vegetation and the atmosphere. The evolution and
+refinement of `DVMDOSTEM` have been shaped by extensive research programs and
+applications both in permafrost and non-permafrost regions
+(:cite:p:`genet2013modeling`; :cite:p:`genet2018role`;
+:cite:p:`jafarov2013effects`; :cite:p:`yi2010dynamic`;
+:cite:p:`yi2009interactions`; :cite:p:`euskirchen2022assessing`;
+:cite:p:`briones2024exploring`). The model is spatially explicit and represents
+ecosystem response to climate and disturbances at seasonal (i.e. monthly) to
+centennial scales. The snow and soil columns are split into a dynamic number of
+layers to represent their impact on thermal and hydrological dynamics and the
+consequences for soil C and N dynamics. Vegetation composition is modeled using
+community types (CMTs), each of which consists of multiple plant functional
+types (PFTs - groups of species sharing similar ecological traits). This
+structure allows the model to represent the effect of competition for light,
+water and nutrients on vegetation composition :cite:p:`euskirchen2009changes`,
+as well as the role of nutrient limitation on permafrost ecosystem dynamics,
+with coupling between C and N cycles (:cite:p:`mcguire1992interactions`;
+:cite:p:`euskirchen2009changes`). Finally, the model represents the effects of
+wildfire in order to evaluate the role of climate-driven fire intensification on
+ecosystem structure and function(:cite:p:`yi2010dynamic`;
+:cite:p:`genet2013modeling`). The structure of `DVMDOSTEM` is represented
+visually in :numref:`Fig. %s <modeloverview>` .
+
+.. figure:: images/dvmdostem-overview-export_2024-08-19.jpg
+    :name:  modeloverview
+    :alt: Visual overview of DVMDOSTEM.
+
+    Overview of `DVMDOSTEM` soil and vegetation structure. On the left is the
+    soil structure showing the layers and different properties that are tracked
+    (purple bubble: carbon (C), nitrogen (N), temperature (T), volumetric water
+    content (VWC), ice). Each of the layers with properties described above is
+    also categorized as organic (fibric or humic) or mineral. Additionally, the
+    model simulates snow layers and the removal of soil organic layers due to
+    fire. On the right is the vegetation structure showing plant functional
+    types (PFTs) within a community type (CMT) and the associated pools and
+    fluxes of C and N. Each PFT is split into compartments (leaf, stem and root)
+    which track their own C and N content and associated fluxes. The fluxes are
+    represented with red text while the pools are black. In addition, there is
+    competition among the PFTs for light, water, and available N, shown with the
+    purple arrow in the top center.
+
+
 .. raw:: html
 
    <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
