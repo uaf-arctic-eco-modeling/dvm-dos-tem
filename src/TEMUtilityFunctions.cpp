@@ -689,6 +689,48 @@ namespace temutil {
     return data;
   }
 
+  /**Developed for use in data assimilation, this reads soil layer data
+  * from a single-entry file, no time dimension.
+  */
+  std::array<double, MAX_SOI_LAY> read_soil_var_notime(
+                                          const std::string &filename,
+                                          const std::string &varname,
+                                          const int y, const int x){
+
+    BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename
+                              << " for variable: " << varname;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int varV;
+    temutil::nc( nc_inq_varid(ncid, varname.c_str(), &varV) );
+
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
+
+    // specify start indices for each dimension (y, x)
+    size_t start[3];
+    start[0] = 0; //soil layer
+    start[1] = y;
+    start[2] = x;
+
+    // specify counts for each dimension
+    size_t count[3];
+    count[0] = MAX_SOI_LAY;
+    count[1] = 1;     // one location
+    count[2] = 1;     // one location
+
+    std::array<double, MAX_SOI_LAY> data;
+    temutil::nc( nc_get_vara_double(ncid, varV, start, count, &data[0]) );
+
+    temutil::nc( nc_close(ncid) );
+
+    return data;
+  }
+
+
   std::array<double, NUM_PFT> read_pft_var_timestep(
                                     const std::string &filename,
                                     const std::string &varname,
@@ -728,6 +770,44 @@ namespace temutil {
     return data;
   }
 
+  std::array<double, NUM_PFT> read_pft_var_notime(
+                                    const std::string &filename,
+                                    const std::string &varname,
+                                    const int y, const int x){
+
+    BOOST_LOG_SEV(glg, fatal) << "Opening dataset: " << filename;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int varV;
+    temutil::nc( nc_inq_varid(ncid, varname.c_str(), &varV) );
+
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
+
+    // specify start indices for each dimension (y, x)
+    size_t start[3];
+    start[0] = 0; //pft
+    start[1] = y;
+    start[2] = x;
+
+    // specify counts for each dimension
+    size_t count[3];
+    count[0] = NUM_PFT;
+    count[1] = 1;     // one location
+    count[2] = 1;     // one location
+
+    std::array<double, NUM_PFT> data;
+    temutil::nc( nc_get_vara_double(ncid, varV, start, count, &data[0]) );
+
+    temutil::nc( nc_close(ncid) );
+
+    return data;
+  }
+
+
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> read_veg_var_timestep(
                                           const std::string &filename,
                                           const std::string &varname,
@@ -760,6 +840,45 @@ namespace temutil {
     count[2] = NUM_PFT;
     count[3] = 1;     // one location
     count[4] = 1;     // one location
+
+    std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> data;
+    temutil::nc( nc_get_vara_double(ncid, varV, start, count, &data[0][0]) );
+
+    temutil::nc( nc_close(ncid) );
+
+    return data;
+  }
+
+  std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> read_veg_var_notime(
+                                          const std::string &filename,
+                                          const std::string &varname,
+                                          const int y, const int x){
+
+    BOOST_LOG_SEV(glg, fatal) << "Opening dataset: " << filename;
+
+    int ncid;
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+
+    int varV;
+    temutil::nc( nc_inq_varid(ncid, varname.c_str(), &varV) );
+
+    BOOST_LOG_SEV(glg, note) << "Getting value for pixel(y,x): ("<< y <<","<< x <<").";
+    int yD, xD;
+    size_t yD_len, xD_len;
+
+    // specify start indices for each dimension (y, x)
+    size_t start[4];
+    start[0] = 0; //compartment
+    start[1] = 0; //pft
+    start[2] = y;
+    start[3] = x;
+
+    // specify counts for each dimension
+    size_t count[4];
+    count[0] = NUM_PFT_PART;
+    count[1] = NUM_PFT;
+    count[2] = 1;     // one location
+    count[3] = 1;     // one location
 
     std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> data;
     temutil::nc( nc_get_vara_double(ncid, varV, start, count, &data[0][0]) );

@@ -295,17 +295,17 @@ void DAController::run_DA_LAI(timestep_id current_step){
 
   //LAI
   std::array<double, NUM_PFT> da_lai;
-  da_lai = temutil::read_pft_var_timestep(this->da_filename, "DA_LAI", curr_coords.yidx, curr_coords.xidx);
+  da_lai = temutil::read_pft_var_notime(this->da_filename, "DA_LAI", curr_coords.yidx, curr_coords.xidx);
 
   //VEGC
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for VEGC";
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> da_vegc;
-  da_vegc = temutil::read_veg_var_timestep(this->da_filename, "DA_VEGC", curr_coords.yidx, curr_coords.xidx);
+  da_vegc = temutil::read_veg_var_notime(this->da_filename, "DA_VEGC", curr_coords.yidx, curr_coords.xidx);
 
   //STRN
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for STRN";
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> da_strn;
-  da_strn = temutil::read_veg_var_timestep(this->da_filename, "DA_STRN", curr_coords.yidx, curr_coords.xidx);
+  da_strn = temutil::read_veg_var_notime(this->da_filename, "DA_STRN", curr_coords.yidx, curr_coords.xidx);
 
   for(int ip=0; ip<NUM_PFT; ip++){
     for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
@@ -317,27 +317,27 @@ void DAController::run_DA_LAI(timestep_id current_step){
   //LWC
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for LWC";
   std::array<double, MAX_SOI_LAY> da_lwc;
-  da_lwc = temutil::read_soil_var_timestep(this->da_filename, "DA_LWC", curr_coords.yidx, curr_coords.xidx);
+  da_lwc = temutil::read_soil_var_notime(this->da_filename, "DA_LWC", curr_coords.yidx, curr_coords.xidx);
 
   //SOMRAWC
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMRAWC";
   std::array<double, MAX_SOI_LAY> da_somrawc;
-  da_somrawc = temutil::read_soil_var_timestep(this->da_filename, "DA_RAWC", curr_coords.yidx, curr_coords.xidx);
+  da_somrawc = temutil::read_soil_var_notime(this->da_filename, "DA_RAWC", curr_coords.yidx, curr_coords.xidx);
 
   //SOMA
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMA";
   std::array<double, MAX_SOI_LAY> da_soma;
-  da_soma = temutil::read_soil_var_timestep(this->da_filename, "DA_SOMA", curr_coords.yidx, curr_coords.xidx);
+  da_soma = temutil::read_soil_var_notime(this->da_filename, "DA_SOMA", curr_coords.yidx, curr_coords.xidx);
 
   //SOMPR
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMPR";
   std::array<double, MAX_SOI_LAY> da_sompr;
-  da_sompr = temutil::read_soil_var_timestep(this->da_filename, "DA_SOMPR", curr_coords.yidx, curr_coords.xidx);
+  da_sompr = temutil::read_soil_var_notime(this->da_filename, "DA_SOMPR", curr_coords.yidx, curr_coords.xidx);
 
   //SOMCR
   BOOST_LOG_SEV(glg, debug) << "Loading DA values for SOMCR";
   std::array<double, MAX_SOI_LAY> da_somcr;
-  da_somcr = temutil::read_soil_var_timestep(this->da_filename, "DA_SOMCR", curr_coords.yidx, curr_coords.xidx);
+  da_somcr = temutil::read_soil_var_notime(this->da_filename, "DA_SOMCR", curr_coords.yidx, curr_coords.xidx);
 
   for(int il=0; il<MAX_SOI_LAY; il++){
     //std::cout<<da_lwc[il]<<std::endl;
