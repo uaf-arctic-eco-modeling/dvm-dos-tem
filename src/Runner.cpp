@@ -1692,6 +1692,85 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //CH4EFFLUXEBUL
+  map_itr = netcdf_outputs.find("CH4EFFLUXEBUL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUXEBUL";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4EFFLUXEBUL)
+    {
+
+      //Because of how methane fluxes are calculated, we do not
+      // have efflux due to ebullition directly and it must be
+      // calculated as:
+      // (total efflux - efflux from diffusion - plant transport)
+
+      //Daily
+      if(curr_spec.daily){
+        for(int id=0; id<DINM[month]; id++){
+
+          double effluxebul = cohort.bdall->daily_ch4_efflux[id]
+                            - cohort.bdall->daily_ch4_effdiff[id]
+                            - cohort.bdall->daily_total_plant_ch4[id];
+
+          outhold.ch4effebul_for_output.push_back(effluxebul);
+        }
+
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4effebul_for_output[0], 1, day_timestep, DINY);
+          outhold.ch4effebul_for_output.clear();
+        }
+      }
+      //Monthly
+      else if(curr_spec.monthly){
+
+        double ch4trans_tot = 0;
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            if(cohort.cd.m_veg.vegcov[ip] > 0.0){
+              ch4trans_tot += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+        }
+
+        double effluxebul = cohort.bdall->m_soi2a.ch4efflux
+                          - cohort.bdall->m_soi2a.ch4effdiff
+                          - ch4trans_tot;
+
+        outhold.ch4effebul_for_output.push_back(effluxebul);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4effebul_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.ch4effebul_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double ch4trans_tot = 0;
+        for(int il=0; il<MAX_SOI_LAY; il++){
+          for(int ip=0; ip<NUM_PFT; ip++){
+            ch4trans_tot += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+          }
+        }
+
+        double effluxebul = cohort.bdall->y_soi2a.ch4efflux
+                          - cohort.bdall->y_soi2a.ch4effdiff
+                          - ch4trans_tot;
+
+        outhold.ch4effebul_for_output.push_back(effluxebul);
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4effebul_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.ch4effebul_for_output.clear();
+        }
+      }
+
+    }//end critical(outputCH4EFFLUXEBUL)
+  }//end CH4EFFLUXEBUL
+  map_itr = netcdf_outputs.end();
+
+
   //CH4EFFLUXTOT
   map_itr = netcdf_outputs.find("CH4EFFLUXTOT");
   if(map_itr != netcdf_outputs.end()){
