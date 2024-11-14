@@ -2194,7 +2194,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
       //Leaving the cross-pft and cross-layer cases unimplemented for now
 
-      else{ //sum
+      //This would usually not be an else if, but we need to skip
+      // the cross-pft and cross-layer cases.
+      else if(!curr_spec.layer && !curr_spec.pft && !curr_spec.compartment){ //sum
         //daily
         if(curr_spec.daily){
 

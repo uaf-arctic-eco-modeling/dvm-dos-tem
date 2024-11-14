@@ -350,6 +350,10 @@ void BgcData::soil_beginOfYear() {
     y_soi2soi.ch4_soma[il] = 0.;
     y_soi2soi.ch4_sompr[il] = 0.;
     y_soi2soi.ch4_somcr[il] = 0.;
+
+    for(int ip=0; ip<NUM_PFT; ip++){
+      y_soi2a.ch4_transport[il][ip] = 0.0;
+    }
   }
 
   //
