@@ -213,55 +213,6 @@ for light, water, and available N, shown with the purple arrow in the top
 center.\label{fig:modeloverview}](dvmdostem-overview-export_2024-08-19.jpg)
 
 
-# Parameterization
-
-`DVMDOSTEM` parameterization sets are developed for each CMT. Each CMT is defined
-by more than 200 parameters. Parameter values are
-estimated directly from field, lab or remote sensing observations, literature
-review or site-specific calibration. Calibration is required when (1) parameter
-values cannot be determined directly from available data or published
-information, and (2) model sensitivity to the parameter is substantial. The
-calibration process consists of adjusting parameter values until there is
-acceptable agreement between measured field data and model prediction on the
-state variables most influenced by the parameter to be calibrated. Due to the
-large number of parameters requiring calibration, and the non-linear nature of
-the relationships between parameters and state variables, model calibration can
-be labor-intensive. We are actively developing a calibration process
-that allows automation [@JafarovINPREP2024].
-
-
-# Software Design
-
-The `DVMDOSTEM` software repository is a combination of tightly coupled
-sub-components: 
-
- - the `DVMDOSTEM` model,
- - supporting tools, and
- - development environment specifications.
-
-The core `DVMDOSTEM` model is written in C++ and uses some object-oriented concepts.
-The model exposes a command line interface that allows users to start simulations 
-manually or use a scripting language to drive the command line interface.
-
-Surrounding the core model is a large body of supporting tools to assist the
-user with preparing inputs, setting up and monitoring model runs and analyzing
-model outputs. This collection of tools is primarily written in Python and shell
-scripts, with some of the demonstration and exploratory analysis using Jupyter
-Notebooks. The supporting tooling is partially exposed via command line
-interfaces and a Python API which are documented in the User Guide. 
-
-The model and tools target a UNIX-like operating system environment. The
-combination of the core `DVMDOSTEM` model and the supporting tools result in the
-need for a complex computing environment with many dependencies. Docker images
-are used to manage this complexity, providing consistent environments
-for development and production, [@Merkel2014]. 
-
-Software updates are ongoing, stemming from the organic growth spanning 30+ years 
-of development by research scientists, graduate students and programmers. Recent
-years have seen an increased effort to apply professional software development 
-practices such as version control, automated documentation, containerization, 
-and testing.
-
 # Acknowledgements
 
 The current version of `DVMDOSTEM` is the result of decades of model
