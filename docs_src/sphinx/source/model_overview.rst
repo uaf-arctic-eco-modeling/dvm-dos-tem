@@ -34,6 +34,7 @@ ecosystem structure and function(:cite:p:`yi2010dynamic`;
 :cite:p:`genet2013modeling`). The structure of `DVMDOSTEM` is represented
 visually in :numref:`Fig. %s <modeloverview>` .
 
+.. See shared drive, "Documentation Embed Images > dvmdostem-overview"
 .. figure:: images/dvmdostem-overview-export_2024-08-19.jpg
     :name:  modeloverview
     :alt: Visual overview of DVMDOSTEM.
@@ -53,17 +54,25 @@ visually in :numref:`Fig. %s <modeloverview>` .
     purple arrow in the top center.
 
 
-.. raw:: html
-
-   <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
-   <img src="https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;h=720">
-    
 *********
 Structure
 *********
 
 `DVMDOSTEM` is multi-dimensional. It operates across spatial and temporal 
 dimensions, soil layers, and plant functional types.
+
+.. See shared drive "Documentation Embed Images > dvmdostem-general-pixel"
+.. figure:: images/dvmdostem-general-pixel_export_2024-15-11.jpg
+    :name: dvmdostem-pixel-overview
+    :alt: Visual overview of DVMDOSTEM pixel
+
+    DVMDOSTEM is a spatially explicit. The base unit of computation is a pixel.
+    There pixels are laid out in a grid. Each pixel is run based on the status
+    of a run mask, which is one of the required input files. Each pixel is
+    parameterized for both soil and vegetation properties. Together the
+    parameterizaton values define a Community Type (CMT). Each pixel is modeled
+    using Plant Functional Types (PFTs) and a layer stack for soil and snow.
+
 
 =======
 Spatial
@@ -453,3 +462,36 @@ between parameters and state variables, model calibration can be
 labor-intensive. We are actively developing a calibration process that allows
 automation :cite:p:`jafarovINPREP2024`.
 
+******************
+Software Design
+******************
+
+The `DVMDOSTEM` software repository is a combination of tightly coupled
+sub-components: 
+
+ - the `DVMDOSTEM` model,
+ - supporting tools, and
+ - development environment specifications.
+
+The core `DVMDOSTEM` model is written in C++ and uses some object-oriented concepts.
+The model exposes a command line interface that allows users to start simulations 
+manually or use a scripting language to drive the command line interface.
+
+Surrounding the core model is a large body of supporting tools to assist the
+user with preparing inputs, setting up and monitoring model runs and analyzing
+model outputs. This collection of tools is primarily written in Python and shell
+scripts, with some of the demonstration and exploratory analysis using Jupyter
+Notebooks. The supporting tooling is partially exposed via command line
+interfaces and a Python API which are documented in the User Guide. 
+
+The model and tools target a UNIX-like operating system environment. The
+combination of the core `DVMDOSTEM` model and the supporting tools result in the
+need for a complex computing environment with many dependencies. Docker images
+are used to manage this complexity, providing consistent environments
+for development and production, :cite:p:`merkel2014docker`. 
+
+Software updates are ongoing, stemming from the organic growth spanning 30+ years 
+of development by research scientists, graduate students and programmers. Recent
+years have seen an increased effort to apply professional software development 
+practices such as version control, automated documentation, containerization, 
+and testing.
