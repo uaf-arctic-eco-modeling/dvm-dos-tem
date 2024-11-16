@@ -141,8 +141,6 @@ date: 19 August 2024
 bibliography: joss-paper.bib
 ---
 
-![Logo for `DVMDOSTEM`\label{fig:logo}](ddt_logo_910x705_alpha.png){width="20%"} 
-
 # Summary
 
 The impacts of climate change on natural ecosystems are the result of complex
@@ -159,6 +157,9 @@ simulate processes at yearly and monthly scales, with some physical processes
 operating at an even finer temporal resolution. Its versatility allows for
 site-specific to regional simulations, making it valuable for predicting shifts
 in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics.
+
+![Logo for `DVMDOSTEM`\label{fig:logo}](ddt_logo_910x705_alpha.png){width="20%"} 
+
 
 # Statement of need
 
@@ -184,19 +185,7 @@ extensive research programs and applications both in permafrost and
 non-permafrost regions [@Genet2013; @Genet2018; @Jafarov2013; @Yi2010;
 @Yi2009; @Euskirchen2022; @Briones2024]. The model is spatially explicit and
 represents ecosystem response to climate and disturbances at seasonal (i.e.
-monthly) to centennial scales. The snow and soil columns are split into a
-dynamic number of layers to represent their impact on thermal and hydrological
-dynamics and the consequences for soil C and N dynamics. Vegetation composition
-is modeled using community types (CMTs), each of which consists of multiple
-plant functional types (PFTs - groups of species sharing similar ecological
-traits). This structure allows the model to represent the effect of competition
-for light, water and nutrients on vegetation composition [@Euskirchen2009], as well
-as the role of nutrient limitation on permafrost ecosystem dynamics, with
-coupling between C and N cycles [@McGuire1992; @Euskirchen2009]. Finally,
-the model represents the effects of wildfire in order to evaluate the role of
-climate-driven fire intensification on ecosystem structure and function
-[@Yi2010; @Genet2013]. The structure of `DVMDOSTEM` is represented visually in
-\autoref{fig:modeloverview}.
+monthly) to centennial scales. 
 
 ![Overview of `DVMDOSTEM` soil and vegetation structure. On the left is the soil
 structure showing the layers and different properties that are tracked (purple
@@ -211,6 +200,20 @@ own C and N content and associated fluxes. The fluxes are represented with red
 text while the pools are black. In addition, there is competition among the PFTs
 for light, water, and available N, shown with the purple arrow in the top
 center.\label{fig:modeloverview}](dvmdostem-overview-export_2024-08-19.jpg)
+
+
+The snow and soil columns are split into a dynamic number of layers to represent
+their impact on thermal and hydrological dynamics and the consequences for soil
+C and N dynamics. Vegetation composition is modeled using community types
+(CMTs), each of which consists of multiple plant functional types (PFTs - groups
+of species sharing similar ecological traits). This structure allows the model
+to represent the effect of competition for light, water and nutrients on
+vegetation composition [@Euskirchen2009], as well as the role of nutrient
+limitation on permafrost ecosystem dynamics, with coupling between C and N
+cycles [@McGuire1992; @Euskirchen2009]. Finally, the model represents the
+effects of wildfire in order to evaluate the role of climate-driven fire
+intensification on ecosystem structure and function [@Yi2010; @Genet2013]. The
+structure of `DVMDOSTEM` is represented visually in \autoref{fig:modeloverview}.
 
 
 # Acknowledgements
