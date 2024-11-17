@@ -158,6 +158,7 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsomcr << "// kdcsomcr:\n";
   s << this->rhq10 << "// rhq10:\n";
   s << this->s2dfraction << "// s2dfraction \n:";
+  s << this->d2mfraction << "// d2mfraction \n:";
   s << this->kdcrawc_ch4 << "// kdcrawc_ch4:\n";
   s << this->kdcsoma_ch4 << "// kdcsoma_ch4:\n";
   s << this->kdcsompr_ch4 << "// kdcsompr_ch4:\n";
@@ -166,6 +167,8 @@ std::string CohortLookup::calparbgc2str() {
   s << this->ch4_transport_rate << "// ch4_transport_rate:\n";
   s << this->prodq10_ch4 << "// prodq10_ch4:\n";
   s << this->oxidq10_ch4 << "// oxidq10_ch4:\n";
+  s << this->prodTref_ch4 << "// prodTref_ch4:\n";
+  s << this->oxidTref_ch4 << "// oxidTref_ch4:\n";
   s << this->oxidkm_ch4 << "// oxidkm_ch4:\n";
   s << this->oxidVmax_ch4 << "// oxidVmax_ch4:\n";
   return s.str();
@@ -177,7 +180,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 30
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 33
   );
 
   // pop each line off the front of the list
@@ -203,6 +206,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsomcr);
   temutil::pfll2data(l, rhq10);
   temutil::pfll2data(l, s2dfraction);
+  temutil::pfll2data(l, d2mfraction);
 
   temutil::pfll2data(l, kdcrawc_ch4);
   temutil::pfll2data(l, kdcsoma_ch4);
@@ -214,6 +218,9 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   temutil::pfll2data(l, prodq10_ch4);
   temutil::pfll2data(l, oxidq10_ch4);
+
+  temutil::pfll2data(l, prodTref_ch4);
+  temutil::pfll2data(l, oxidTref_ch4);
 
   temutil::pfll2data(l, oxidkm_ch4);
   temutil::pfll2data(l, oxidVmax_ch4);

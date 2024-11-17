@@ -527,13 +527,13 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
-    ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    ed->d_soi2l.qover = 0.0;//getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
     ed->d_soi2l.qover = 0.0;
   }
 
   //Calculate infiltration (mm/day)
-  double infil = rnth + melt - ed->d_soi2l.qover;
+  double infil = rnth + melt - ed->d_soi2l.qover + getRunoff(fstsoill, drainl, rnth, melt);
 
   //Get unsaturated space potentially available for liq infiltration (mm)
   double space_for_liq = 0.0;

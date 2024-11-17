@@ -150,6 +150,7 @@ struct soipar_cal {
                    // respiration rate (at 0oC)
   double rhq10;
   double s2dfraction;
+  double d2mfraction;
   //Methane related values
   double kdcrawc_ch4;
   double kdcsoma_ch4;
@@ -161,15 +162,20 @@ struct soipar_cal {
 
   double prodq10_ch4;
   double oxidq10_ch4;
+
+  double prodTref_ch4;
+  double oxidTref_ch4;
+
   double oxidkm_ch4;
   double oxidVmax_ch4;
 
   soipar_cal() : micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
                  kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
-                 rhq10(UIN_D), s2dfraction(UIN_D),
+                 rhq10(UIN_D), s2dfraction(UIN_D), d2mfraction(UIN_D),
                  kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
                  ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D), prodq10_ch4(UIN_D),
-                 oxidq10_ch4(UIN_D), oxidkm_ch4(UIN_D), oxidVmax_ch4(UIN_D) {}
+                 oxidq10_ch4(UIN_D), prodTref_ch4(UIN_D), oxidTref_ch4(UIN_D),
+                 oxidkm_ch4(UIN_D), oxidVmax_ch4(UIN_D) {}
 };
 
 struct soipar_dim {

@@ -265,8 +265,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
           pft_transport[ip] = 0.0;
         }
 
-        // accumulating across all pfts
-        plant += pft_transport[ip];
+        // accumulating across all pfts, assuming 50% oxidation in rhizosphere
+        plant += 0.5 * pft_transport[ip];
 
         //Storing plant transport values for output
         bd->d_soi2a.ch4_transport[il][ip] = pft_transport[ip];
@@ -315,21 +315,23 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       //>>> Why >= -2.0? and why 0.25?
       //>>> BM: https://doi.org/10.1073/pnas.1420797112 ?
       //>>> ^^ I don't think this is the one, but probably some kind of winter Q10
-      if(currl->tem >= -2.0 && currl->tem < 0.000001){
-        TResp_unsat = getQ10(calpar.oxidq10_ch4, -2.1) * 0.25;
-        TResp_sat = getQ10(calpar.prodq10_ch4, -6.0) * 0.25;
-      }
-      else if(currl->tem < -2.0){
+      // if(currl->tem >= -2.0 && currl->tem < 0.000001){
+      //   TResp_unsat = getQ10(calpar.oxidq10_ch4, -2.1) * 0.25;
+      //   TResp_sat = getQ10(calpar.prodq10_ch4, -6.0) * 0.25;
+      // }
+      // else 
+      if(currl->tem < 0.0){
         TResp_unsat = 0.0;
         TResp_sat = 0.0;
       }
       else{
-        TResp_unsat = getQ10(calpar.oxidq10_ch4, currl->tem - 2.1);
-        TResp_sat = getQ10(calpar.prodq10_ch4, currl->tem - 6.0);
+        TResp_unsat = getQ10(calpar.oxidq10_ch4, currl->tem - calpar.oxidTref_ch4);
+        TResp_sat = getQ10(calpar.prodq10_ch4, currl->tem - calpar.prodTref_ch4);
       }
 
-      // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters
-      oxid = (1 - saturated_fraction) * (calpar.oxidkm_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidVmax_ch4 + currl->ch4));
+      // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters.
+      // Plant is added here to account for 50% rhizospheric oxidation
+      oxid = (1 - saturated_fraction) * (calpar.oxidkm_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidVmax_ch4 + currl->ch4)) + plant;
 
       if (oxid < 0.000001){
         oxid = 0.0;
@@ -371,9 +373,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         prod_somcr_ch4[il] = 0.0;
       }
 
-      // output for production
       prod_gm2hr = (prod_rawc_ch4[il] + prod_soma_ch4[il] + prod_sompr_ch4[il] + prod_somcr_ch4[il]);
-
+          
       // Fan 2013 Eq. 9, converted back to umolL^-1hr^-1 for solver
       prod = (convert_gm2_to_umolL) * prod_gm2hr; 
 
@@ -408,10 +409,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // is not at soil surface
       if (wtlayer != ground->fstshlwl){
-        bubble += ebul;
         if (currl == wtlayer){
-          bubl = bubble;      
+          ebul = 0.0;      
         }
+        wtlayer->ch4 += ebul;
       }
 
       // flux accounting
@@ -428,7 +429,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       plant_daily += plant;        // cumulated over 1 day, 24 time steps, Y.MI
       plant_gm2day += plant_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI - in units of g m^-2 day^-1
 
-      oxid_gm2day += oxid_gm2hr;     // cumulated over 1 day, 24 time steps, Y.MI
+      oxid_gm2day += oxid_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI
       ed->d_soid.oxid = oxid_gm2day; // - in units of g m^-2 day^-1
 
       ebul_daily += ebul;        // cumulated over 1 time step, 1 hour Y.MI
@@ -445,10 +446,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // - Ebullition - Oxidation - CH4 emitted through plant process
       //This does not specifically include diff[] right now - see
       // calculation of V[] below
-      partial_delta_ch4 = prod + bubl - ebul - oxid - plant;
+      // partial_delta_ch4 = prod + bubl - ebul - oxid - plant;
+      partial_delta_ch4 = prod - ebul - oxid - plant;
 
       // bubble popped into layer
-      bubl = 0.0;
+      // bubl = 0.0;
 
       // Main diagnonal
       if (il == (numsoill - 1)) {
@@ -557,7 +559,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     diff_efflux = -diffusion_sum;
     // diff_efflux = diff[1] * (ground->fstshlwl->ch4 - upper_bound) / ground->fstshlwl->dz; // flux of every time step, 1 hour, Y.MI
 
-    // if (diff_efflux < 0.000001) { //This can be negative
+    // if (diff_efflux < 0.000001) { // Only allow efflux
     //   diff_efflux = 0.0;
     // }
 
@@ -933,6 +935,7 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsomcr   = chtlu->kdcsomcr;
   calpar.rhq10 = chtlu->rhq10;
   calpar.s2dfraction = chtlu->s2dfraction;
+  calpar.d2mfraction = chtlu->d2mfraction;
   calpar.kdcrawc_ch4 = chtlu->kdcrawc_ch4;
   calpar.kdcsoma_ch4 = chtlu->kdcsoma_ch4;
   calpar.kdcsompr_ch4 = chtlu->kdcsompr_ch4;
@@ -941,9 +944,11 @@ void Soil_Bgc::initializeParameter() {
   calpar.ch4_transport_rate = chtlu->ch4_transport_rate;
   calpar.prodq10_ch4 = chtlu->prodq10_ch4;
   calpar.oxidq10_ch4 = chtlu->oxidq10_ch4;
+  calpar.prodTref_ch4 = chtlu->prodTref_ch4;
+  calpar.oxidTref_ch4 = chtlu->oxidTref_ch4;
   calpar.oxidkm_ch4 = chtlu->oxidkm_ch4;
   calpar.oxidVmax_ch4 = chtlu->oxidVmax_ch4;
-  // bgcpar.rhq10      = chtlu->rhq10;
+  // bgcpar.rhq10      = chtlu->rhq10; moved to calparbgc for ch4 calibration and testing
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
   bgcpar.moistopt   = chtlu->moistopt;
@@ -1379,6 +1384,7 @@ void Soil_Bgc::deltastate() {
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
   double s2dfraction = calpar.s2dfraction;
+  double d2mfraction = calpar.d2mfraction;
   double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
   double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
   double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
@@ -1472,7 +1478,7 @@ void Soil_Bgc::deltastate() {
 
       if (rhsum > 0.0) {
         double totmobile = rhsum*mobiletoco2;
-        d2mcarbon += totmobile;
+        d2mcarbon += totmobile * d2mfraction;
         del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2;
         del_sois.soma[il]  -= del_soi2a.rhsoma[il]*mobiletoco2;
         del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2;

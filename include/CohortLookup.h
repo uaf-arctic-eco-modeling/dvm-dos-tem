@@ -52,6 +52,7 @@ public:
                    //  SOM respiration rate (at 0oC)
   double rhq10;
   double s2dfraction;
+  double d2mfraction;
   //Soil methane calibrated values
   double kdcrawc_ch4;
   double kdcsoma_ch4;
@@ -63,6 +64,9 @@ public:
 
   double prodq10_ch4;
   double oxidq10_ch4;
+
+  double prodTref_ch4;
+  double oxidTref_ch4;
 
   double oxidkm_ch4;
   double oxidVmax_ch4;

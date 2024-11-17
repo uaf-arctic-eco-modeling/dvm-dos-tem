@@ -223,11 +223,11 @@
 19.34             // nmincnsoil: Updated
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-6029              // initshlwc: Updated
-40300             // initdeepc: Updated
-37000             // initminec: Updated
-5548              // initsoln: Updated
-9.41              // initavln: Updated
+8731.942664       // initshlwc: Updated
+24091.95591       // initdeepc: Updated
+61545.45455       // initminec: Updated
+4138              // initsoln: Updated
+7.134             // initavln: Updated
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 0.0               // moistmin:

@@ -42,7 +42,7 @@ Layer::Layer() {
   psisat= MISSING_D;
   hksat = MISSING_D;
   bsw   = MISSING_D;
-  ch4   = 0.07; //initialization value hardcoded here
+  ch4 = MISSING_D;
   // thermal status
   frozen    = MISSING_I;
   frozenfrac= MISSING_D;

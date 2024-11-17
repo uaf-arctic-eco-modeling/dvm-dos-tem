@@ -27,6 +27,7 @@
 0.0000108       // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -35,6 +36,8 @@
 0.00      // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -61,6 +64,7 @@
 0.00007   // kdcsomcr: 0.000025  0.00025 bad
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -69,6 +73,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -95,6 +101,7 @@
 0.000025   // kdcsomcr: 
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -103,6 +110,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -129,6 +138,7 @@
 0.000025   // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -137,6 +147,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -163,6 +175,7 @@
 0.00007  // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -171,6 +184,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -197,6 +212,7 @@
 0.000005     // kdcsomcr:  was 0.00005 
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -205,6 +221,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -231,6 +249,7 @@
 0.00025       // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -239,6 +258,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -265,6 +286,7 @@
 0.0000001   // kdcsomcr: was 0.0000005
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -273,6 +295,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -299,6 +323,7 @@
 0.000025    // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -307,6 +332,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -333,6 +360,7 @@
 0.00025    // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -341,6 +369,8 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
@@ -367,6 +397,7 @@
 0.00005    // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -375,32 +406,35 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
 //===========================================================
 // CMT31 // Boreal Bog
-//Sphagnum  Sedge        DecShrub    EvrShrub     Forbs         Moss       NotUsed  NotUsed  NotUsed  NotUsed  // names: comments
- 925.00000  310.000000   31.000000   485.000000   158.000000    60.500000  0.00     0.00     0.00     0.00     // cmax:
- 25.000000    7.500000    2.800000    10.000000     8.500000     4.150000  0.00     0.00     0.00     0.00     // nmax:
-  0.145000    0.027500    0.100000     0.042500     0.040000     0.050000  0.00     0.00     0.00     0.00     // cfall(0): leave
-  0.000000    0.050000    0.025000     0.062500     0.000000     0.000000  0.00     0.00     0.00     0.00     // cfall(1): stem
-  0.000000    0.050000    0.020000     0.040000     0.045000     0.000000  0.00     0.00     0.00     0.00     // cfall(2): root
-  0.050001    0.002500    0.001500     0.004500     0.002500     0.050000  0.00     0.00     0.00     0.00     // nfall(0): leave
-  0.000000    0.002500    0.001500     0.003000     0.000000     0.000000  0.00     0.00     0.00     0.00     // nfall(1): stem
-  0.000000    0.000050    0.001500     0.007500     0.002500     0.000000  0.00     0.00     0.00     0.00     // nfall(2): root
- -0.000081   -0.000081   -0.000081    -0.000081    -0.000081    -0.000081  0.00     0.00     0.00     0.00     // kra: (don't touch) coeff(0) in maintenance resp.
- -0.250000   -1.500000   -2.100000    -3.750000    -3.750000    -3.400000  0.00     0.00     0.00     0.00     // krb(0): coeff(1) in maintenance resp.(leave)
-  0.000000   -3.500000   -4.500000    -3.750000     0.000000     0.000000  0.00     0.00     0.00     0.00     // krb(1): coeff(1) in maintenance resp.(stem)
-  0.000000   -4.000000   -3.500000    -1.500000    -3.250000     0.000000  0.00     0.00     0.00     0.00     // krb(2): coeff(1) in maintenance resp.(root)
-  0.200000    0.200000    0.200000     0.200000     0.200000     0.200000  0.00     0.00     0.00     0.00     // frg: fraction of available NPP (GPP after rm) for growth resp.
+//Sphag        Eshrub       Sedge        Dshrub       PFT4         PFT5         PFT6         PFT7         PFT8         PFT9        // pftnames:
+ 892.499275    174.2293966  272.43346    65.84997303   0.00         0.00         0.00         0.00         0.00         0.00        // cmax:
+ 25.420863     3.213869     8.630761     27.441983     0.00         0.00         0.00         0.00         0.00         0.00        // nmax:
+ 0.05185131    0.0279206    0.976481     0.00021452    0.00         0.00         0.00         0.00         0.00         0.00        // cfall(0): leave
+ 0.000000      0.0223775    0.00000      0.0575406     0.00         0.00         0.00         0.00         0.00         0.00        // cfall(1): stem
+ 0.000000      0.0479786    0.016585     0.0595081     0.00         0.00         0.00         0.00         0.00         0.00        // cfall(2): root
+ 0.0748704     2.9468e-5    0.001761     0.0025506     0.00         0.00         0.00         0.00         0.00         0.00        // nfall(0): leave
+ 0.000000      0.0012649    0.00000      0.0018392     0.00         0.00         0.00         0.00         0.00         0.00        // nfall(1): stem 
+ 0.000000      5.000218e-5  7.10005e-5   0.0006415     0.00         0.00         0.00         0.00         0.00         0.00        // nfall(2): root
+ -0.000081     -0.000081    -0.000081    -0.000081     0.00         0.00         0.00         0.00         0.00         0.00        // kra: (don't touch) coeff(0) in maintenance resp.
+ -1.096804     -1.4182442   -1.208842    -9.4874375    0.00         0.00         0.00         0.00         0.00         0.00        // krb(0): coeff(1) in maintenance resp.(leave)
+ 0.000000      -1.5960866   0.00000      -0.362771     0.00         0.00         0.00         0.00         0.00         0.00        // krb(1): coeff(1) in maintenance resp.(stem)
+ 0.000000      -5.8851057   -0.130490    -0.862808     0.00         0.00         0.00         0.00         0.00         0.00        // krb(2): coeff(1) in maintenance resp.(root)
+ 0.200000      0.200000     0.200000     0.200000      0.00         0.00         0.00         0.00         0.00         0.00        // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-2.750000     // micbnup: parameter for soil microbial immobilization of N 
+2.750000     // micbnup: parameter for soil microbial immobilization of N
 0.500000     // kdcrawc: raw-material (litter) C decomposition rates at reference condition
 0.250000     // kdcsoma:
-0.018000     // kdcsompr:
-0.000010     // kdcsomcr:
+0.0129902     // kdcsompr:
+0.0304609     // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.001477 // kdcrawcch4:
 0.000231 // kdcsomach4:
 0.001080 // kdcsomprch4:
@@ -409,6 +443,8 @@
 0.162687 // ch4transportrate: plant-mediated transport rate, per hour
 11.25571 // prodq10ch4:
 1.997233 // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 3.483228 // oxidkmch4:
 36.18378 // oxidvmaxch4:
 //===========================================================
@@ -435,6 +471,7 @@
 0.000007  // kdcsomcr:
 2.0          // rhq10:
 1.0          // s2dfraction:
+1.0          // d2mfraction:
 0.00      // kdcrawcch4:
 0.00      // kdcsomach4:
 0.00      // kdcsomprch4:
@@ -443,5 +480,7 @@
 0.0     // ch4transportrate: plant-mediated transport rate, per hour
 4.00      // prodq10ch4:
 2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
