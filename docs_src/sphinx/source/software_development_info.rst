@@ -115,7 +115,8 @@ To build the Sphinx documentation (this document) locally, then do the following
     .. code:: shell
 
       $ make clean
-      $ PYTHONPATH="/work:/work/calibration:$PYTHONPATH" make html
+      $ export PYTHONPATH="/work:/work/scripts:/work/scripts/util:/work/calibration:$PYTHONPATH" 
+      $ make html
 
 
 The resulting files are in the ``docs_src/sphinx/build/html`` directory and can
