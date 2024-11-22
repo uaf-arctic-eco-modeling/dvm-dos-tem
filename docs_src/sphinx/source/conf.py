@@ -31,6 +31,9 @@ version = 'v0.8.0'
 
 # -- General configuration ---------------------------------------------------
 
+numfig = True # auto-numbering for figures, reference by name
+
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -45,8 +48,11 @@ extensions = [
   #'numpydoc',
   'sphinx.ext.napoleon',
   'sphinxarg.ext',
+  'sphinxcontrib.bibtex',
 ]
 
+bibtex_bibfiles = ["bibliography.bib"]
+bibtex_reference_style = "author_year"
 
 # -- Config for some extensions ----------------------------------------------
 autosectionlabel_prefix_document = True
