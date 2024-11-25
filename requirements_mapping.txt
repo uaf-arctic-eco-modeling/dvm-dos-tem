@@ -11,7 +11,7 @@ commentjson==0.8.3
 configobj==5.0.6
 cycler==0.10.0
 decorator==4.4.2
-Fiona==1.8.18
+Fiona==1.10.0
 GDAL==3.2.2.1
 geojson==2.5.0
 geopandas==0.8.1
