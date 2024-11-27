@@ -2189,10 +2189,113 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           }
         }
       }
+      //Per layer, total across all PFTs
+      else if(curr_spec.layer && !curr_spec.pft){
 
-      //Leaving the cross-pft and cross-layer cases unimplemented for now
+        std::array<double, MAX_SOI_LAY> ch4trans_arr{};
 
-      //This would usually not be an else if, but we need to skip
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              for(int ip=0; ip<NUM_PFT; ip++){
+                ch4trans_arr[il] += cohort.bdall->daily_ch4_transport[id][il][ip];
+              }
+            }
+            outhold.ch4transport_layer_for_output.push_back(ch4trans_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4transport_layer_for_output.clear();
+          }
+
+        }
+        //monthly
+        if(curr_spec.monthly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il] += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_layer_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4transport_layer_for_output.clear();
+          }
+        }
+        //yearly
+        if(curr_spec.yearly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il] += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_layer_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4transport_layer_for_output.clear();
+          }
+        }
+      }
+      //Per PFT, total across all layers
+      else if(curr_spec.pft && !curr_spec.layer){
+
+        std::array<double, NUM_PFT> ch4trans_arr{};
+
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              for(int ip=0; ip<NUM_PFT; ip++){
+                ch4trans_arr[ip] += cohort.bdall->daily_ch4_transport[id][il][ip];
+              }
+            }
+            outhold.ch4transport_pft_for_output.push_back(ch4trans_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_pft_for_output[0], NUM_PFT, day_timestep, DINY);
+            outhold.ch4transport_pft_for_output.clear();
+          }
+
+        }
+        //monthly
+        if(curr_spec.monthly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[ip] += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_pft_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.ch4transport_pft_for_output.clear();
+          }
+        }
+        //yearly
+        if(curr_spec.yearly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[ip] += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_pft_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.ch4transport_pft_for_output.clear();
+          }
+        }
+      }
+      //This would usually not be an else if, but we needed to skip
       // the cross-pft and cross-layer cases.
       else if(!curr_spec.layer && !curr_spec.pft && !curr_spec.compartment){ //sum
         //daily
