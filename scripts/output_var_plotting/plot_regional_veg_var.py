@@ -24,25 +24,56 @@ matplotlib.use('TkAgg')
 #################################################
 var_name = "NPP"
 
+#What time step is the output data? Set one to True
+Monthly = True 
+Yearly = False
+
+#If Monthly, set one of the following to True depending on what
+# the variable is (for example sum for NPP, december for VEGC,
+# or annual_max for LAI)
+sum_across_months = True
+december_value = False
+annual_max = False
+
+#Specify a y-axis label (units, for example)
+y_axis_label = "gC/year"
+main_title = "YKD 50sq, ncar historical"
+
 #The data filenames will be generated automatically, so just
 # put the directory here. The trailing slash is necessary.
 mri_directory = "temp_outputs/regional_output_plotting/YKD/mri/"
 ncar_directory = "temp_outputs/regional_output_plotting/YKD/ncar/"
+#mri_directory = "/home/rarutter/development/ddt_regional_outputs/20201223_YKD_w_mri_50x50_compressed/"
+#mri_directory = "/home/rarutter/development/ddt_regional_outputs/20210106_YKD_w_ncar_50x50_compressed/"
+#ncar_directory = "/home/rarutter/development/ddt_regional_outputs/20210106_YKD_w_ncar_50x50_compressed/"
 #The vegetation file needs to be specified in full (not just
 # the directory)
 veg_filename = "temp_outputs/regional_output_plotting/YKD/mri/vegetation.nc"
 
-#Set these based on the data:
-byPFT = False
+#Set these based on the settings in the dvmdostem output files:
+byPFT = False 
 byPFTCompartment = False
-Monthly = True
-Yearly = False
 hist_years = 115
 proj_years = 85
 
 #Specify which CMTs you want plotted. If they do not appear in the
 # data set they will be skipped.
 CMTs_to_plot = [4,5,6] 
+
+#Force each subplot to the same y-axis range?
+share_y_axis = True
+
+###### Window/plot formatting
+
+title_fontsize = 30
+tick_fontsize = 18
+legend_fontsize = 18
+label_fontsize = 16
+
+#Initial window width and height. These values are inches, modified
+# by dpi
+init_window_w = 20
+init_window_h = 12
 
 #################################################
 #################################################
@@ -55,7 +86,7 @@ elif Yearly:
   timestep = "yearly"
 
 #Construct data filenames
-hist_filename = mri_directory + var_name + "_" + timestep + "_tr.nc"
+hist_filename = ncar_directory + var_name + "_" + timestep + "_tr.nc"
 mri_filename = mri_directory + var_name + "_" + timestep + "_sc.nc"
 ncar_filename = ncar_directory + var_name + "_" + timestep + "_sc.nc"
 
@@ -154,7 +185,9 @@ proj_len = len(data_mri)
 #Each sub plot will have three lines: transient, mri, and ncar, each
 # with a shaded envelope around them +- standard deviation
 
-fig = plt.figure()
+#The values passed to figsize are designated as inches - they may need
+# to be modified for different users.
+fig = plt.figure(figsize=(init_window_w,init_window_h))
 man = plt.get_current_fig_manager()
 man.set_window_title(var_name)
 num_rows = len(CMTs_to_plot)
@@ -178,11 +211,13 @@ for cmt in CMTs_to_plot:
 
   #Add a subplot for the current CMT, using the subplot_index to move
   # to the new subplot
-  ax = fig.add_subplot(num_rows, num_columns, subplot_index, label=cmt, title="CMT "+str(cmt))
+  ax = fig.add_subplot(num_rows, num_columns, subplot_index, label=cmt)
+  #Set title and title size for the current CMT
+  ax.set_title("CMT "+str(cmt), fontsize=16)
 
   #Setting x ticks and labels to the values defined above
   ax.set_xticks(xticks)
-  ax.set_xticklabels(xticklabels)
+  ax.set_xticklabels(xticklabels, fontsize=tick_fontsize)
 
   #Set each subplot to use the same y axis as the first subplot
   if share_y_axis:
@@ -237,13 +272,15 @@ for cmt in CMTs_to_plot:
   ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg, label='ncar')
   ax.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
 
-  ax.legend()
+  ax.legend(loc='upper left',prop={'size': legend_fontsize})
 
 x_label = 'Year'
-y_label = f'{data_units} (if monthly summed to yearly)'
+#y_label = f'{data_units} (if monthly summed to yearly)'
 
-fig.text(0.5, 0.04, x_label, ha='center', va='center', fontsize=18)
-fig.text(0.06, 0.5, y_label, ha='center', va='center', fontsize=18, rotation='vertical')
+
+plt.suptitle(main_title, x=0.05, y=0.98, ha='left', fontsize=title_fontsize)
+fig.text(0.5, 0.04, x_label, ha='center', va='center', fontsize=label_fontsize)
+fig.text(0.06, 0.5, y_axis_label, ha='center', va='center', fontsize=label_fontsize, rotation='vertical')
 
 
 #Display the plot
