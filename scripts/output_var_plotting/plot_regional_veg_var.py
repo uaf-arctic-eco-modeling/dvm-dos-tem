@@ -26,11 +26,11 @@ var_name = "NPP"
 
 #The data filenames will be generated automatically, so just
 # put the directory here. The trailing slash is necessary.
-mri_directory = "YKD/mri/"
-ncar_directory = "YKD/ncar/"
+mri_directory = "temp_outputs/regional_output_plotting/YKD/mri/"
+ncar_directory = "temp_outputs/regional_output_plotting/YKD/ncar/"
 #The vegetation file needs to be specified in full (not just
 # the directory)
-veg_filename = "YKD/mri/vegetation.nc"
+veg_filename = "temp_outputs/regional_output_plotting/YKD/mri/vegetation.nc"
 
 #Set these based on the data:
 byPFT = False
@@ -155,7 +155,8 @@ proj_len = len(data_mri)
 # with a shaded envelope around them +- standard deviation
 
 fig = plt.figure()
-fig.canvas.set_window_title(var_name)
+man = plt.get_current_fig_manager()
+man.set_window_title(var_name)
 num_rows = len(CMTs_to_plot)
 num_columns = 1
 
@@ -184,8 +185,10 @@ for cmt in CMTs_to_plot:
   ax.set_xticklabels(xticklabels)
 
   #Set each subplot to use the same y axis as the first subplot
-  allaxes = fig.get_axes()
-  allaxes[0].get_shared_y_axes().join(allaxes[0], allaxes[CMT_index])
+  if share_y_axis:
+    allaxes = fig.get_axes()
+    for axes in allaxes:
+      axes.sharey(allaxes[0])
 
   #Create a mask based on the current CMT - mask out all cells
   # where the vegtype does not match.
