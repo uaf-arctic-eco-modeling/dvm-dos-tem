@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. Model Overview &mdash; dvmdostem v0.8.0 documentation</title>
+  <title>1. Model Overview &mdash; dvmdostem v0.8.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -22,6 +22,7 @@
         <script src="_static/thebelab-helper.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.0
+                v0.8.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -52,39 +53,19 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">1. Model Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#structure">1.1. Structure</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#spatial">1.1.1. Spatial</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#temporal">1.1.2. Temporal</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#pre-run-pr">pre-run (pr)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#equilibrium-eq">equilibrium (eq)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spinup-sp">spinup (sp)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transient-tr">transient (tr)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#scenario-sc">scenario (sc)</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#temporal">1.1.2. Temporal</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#community-types-cmts">1.1.3. Community Types (CMTs)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vegetation-types-pfts">1.1.4. Vegetation Types (PFTs)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#soil-layers">1.1.5. Soil (Layers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#soil-and-snow-layers">1.1.5. Soil and Snow (Layers)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#processes">1.2. Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#carbon">1.2.1. Carbon</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#water">1.2.2. Water</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#nitrogen">1.2.3. Nitrogen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#energy-balance">1.2.4. Energy Balance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#permafrost">1.2.5. Permafrost</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#disturbance">1.2.6. Disturbance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#methane">1.2.7. Methane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inputs-outputs-io">1.2. Inputs/Outputs (IO)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inputs">1.2.1. Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#outputs">1.2.2. Outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#inputs-outputs-io">1.3. Inputs/Outputs (IO)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#inputs">1.3.1. Inputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#outputs">1.3.2. Outputs</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#output-selection">Output Selection</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#process">Process</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#variable-output-combinations">Variable Output Combinations</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameterization">1.3. Parameterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#software-design">1.4. Software Design</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a></li>
@@ -154,167 +135,208 @@
              
   <section id="model-overview">
 <h1><span class="section-number">1. </span>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this heading"></a></h1>
-<!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
-<img src="https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;h=720"><section id="structure">
+<p><cite>DVMDOSTEM</cite> is designed to simulate the key biophysical and biogeochemical
+processes between the soil, the vegetation and the atmosphere. The evolution and
+refinement of <cite>DVMDOSTEM</cite> have been shaped by extensive research programs and
+applications both in permafrost and non-permafrost regions
+(<span id="id1">[<a class="reference internal" href="references.html#id15" title="H. Genet, A. D. McGuire, K. Barrett, A. Breen, E. S. Euskirchen, J. F. Johnstone, E. S. Kasischke, A. M. Melvin, A. Bennett, M. C. Mack, T. S. Rupp, A. E.G. Schuur, M. R. Turetsky, and F. Yuan. Modeling the effects of fire severity and climate warming on active layer thickness and soil carbon storage of black spruce forests across the landscape in interior alaska. Environmental Research Letters, 2013. doi:10.1088/1748-9326/8/4/045016.">Genet <em>et al.</em>, 2013</a>]</span>; <span id="id2">[<a class="reference internal" href="references.html#id16" title="Hélène Genet, Yujie He, Zhou Lyu, A. David McGuire, Qianlai Zhuang, Joy Clein, David D'Amore, Alec Bennett, Amy Breen, Frances Biles, Eugénie S. Euskirchen, Kristofer Johnson, Tom Kurkowski, Svetlana Kushch Schroder, Neal Pastick, T. Scott Rupp, Bruce Wylie, Yujin Zhang, Xiaoping Zhou, and Zhiliang Zhu. The role of driving factors in historical and projected carbon dynamics of upland ecosystems in alaska:. Ecological Applications, 28:5–27, 1 2018. doi:10.1002/EAP.1641.">Genet <em>et al.</em>, 2018</a>]</span>;
+<span id="id3">[<a class="reference internal" href="references.html#id20" title="E. E. Jafarov, V. E. Romanovsky, H. Genet, A. D. McGuire, and S. S. Marchenko. The effects of fire on the thermal stability of permafrost in lowland and upland black spruce forests of interior alaska in a changing climate. Environmental Research Letters, 2013. doi:10.1088/1748-9326/8/3/035030.">Jafarov <em>et al.</em>, 2013</a>]</span>; <span id="id4">[<a class="reference internal" href="references.html#id39" title="Shuhua Yi, A. David McGuire, Eric Kasischke, Jennifer Harden, Kristen Manies, Michelle MacK, and Merritt Turetsky. A dynamic organic soil biogeochemical model for simulating the effects of wildfire on soil environmental conditions and carbon dynamics of black spruce forests. Journal of Geophysical Research: Biogeosciences, 12 2010. doi:10.1029/2010JG001302.">Yi <em>et al.</em>, 2010</a>]</span>;
+<span id="id5">[<a class="reference internal" href="references.html#id38" title="Shuhua Yi, A. David McGuire, Jennifer Harden, Eric Kasischke, Kristen Manies, Larry Hinzman, Anna Liljedahl, Jim Randerson, Heping Liu, Vladimir Romanovsky, Sergei Marchenko, and Yongwon Kim. Interactions between soil thermal and hydrological dynamics in the response of alaska ecosystems to fire disturbance. Journal of Geophysical Research: Biogeosciences, 6 2009. doi:10.1029/2008JG000841.">Yi <em>et al.</em>, 2009</a>]</span>; <span id="id6">[<a class="reference internal" href="references.html#id13" title="Eugénie S. Euskirchen, Shawn P. Serbin, Tobey B. Carman, Jennifer M. Fraterrigo, Hélène Genet, Colleen M. Iversen, Verity Salmon, and A. David McGuire. Assessing dynamic vegetation model parameter uncertainty across alaskan arctic tundra plant communities. Ecological Applications, 3 2022. doi:10.1002/EAP.2499.">Euskirchen <em>et al.</em>, 2022</a>]</span>;
+<span id="id7">[<a class="reference internal" href="references.html#id6" title="Valeria Briones, Elchin E Jafarov, Hélène Genet, Brendan M Rogers, Ruth M Rutter, Tobey B Carman, Joy Clein, Eugénie S Euschkirchen, Edward AG Schuur, Jennifer D Watts, and Susan M Natali. Exploring the interplay between soil thermal and hydrological changes and their impact on carbon fluxes in permafrost ecosystems. Environmental Research Letters, 19:074003, 7 2024. doi:10.1088/1748-9326/ad50ed.">Briones <em>et al.</em>, 2024</a>]</span>). The model is spatially explicit and represents
+ecosystem response to climate and disturbances at seasonal (i.e. monthly) to
+centennial scales. The snow and soil columns are split into a dynamic number of
+layers to represent their impact on thermal and hydrological dynamics and the
+consequences for soil C and N dynamics. Vegetation composition is modeled using
+community types (CMTs), each of which consists of multiple plant functional
+types (PFTs - groups of species sharing similar ecological traits). This
+structure allows the model to represent the effect of competition for light,
+water and nutrients on vegetation composition <span id="id8">[<a class="reference internal" href="references.html#id10" title="E. S. Euskirchen, A. D. Mcguire, F. S. Chapin, S. Yi, and C. C. Thompson. Changes in vegetation in northern alaska under scenarios of climate change, 2003-2100: implications for climate feedbacks. Ecological Applications, 19:1022–1043, 7 2009. doi:10.1890/08-0806.1.">Euskirchen <em>et al.</em>, 2009</a>]</span>,
+as well as the role of nutrient limitation on permafrost ecosystem dynamics,
+with coupling between C and N cycles (<span id="id9">[<a class="reference internal" href="references.html#id27" title="A. D. McGuire, J. M. Melillo, L. A. Joyce, D. W. Kicklighter, A. L. Grace, B. Moore, and C. J. Vorosmarty. Interactions between carbon and nitrogen dynamics in estimating net primary productivity for potential vegetation in north america. Global Biogeochemical Cycles, 6:101–124, 1992. doi:10.1029/92GB00219.">McGuire <em>et al.</em>, 1992</a>]</span>;
+<span id="id10">[<a class="reference internal" href="references.html#id10" title="E. S. Euskirchen, A. D. Mcguire, F. S. Chapin, S. Yi, and C. C. Thompson. Changes in vegetation in northern alaska under scenarios of climate change, 2003-2100: implications for climate feedbacks. Ecological Applications, 19:1022–1043, 7 2009. doi:10.1890/08-0806.1.">Euskirchen <em>et al.</em>, 2009</a>]</span>). Finally, the model represents the effects of
+wildfire in order to evaluate the role of climate-driven fire intensification on
+ecosystem structure and function(<span id="id11">[<a class="reference internal" href="references.html#id39" title="Shuhua Yi, A. David McGuire, Eric Kasischke, Jennifer Harden, Kristen Manies, Michelle MacK, and Merritt Turetsky. A dynamic organic soil biogeochemical model for simulating the effects of wildfire on soil environmental conditions and carbon dynamics of black spruce forests. Journal of Geophysical Research: Biogeosciences, 12 2010. doi:10.1029/2010JG001302.">Yi <em>et al.</em>, 2010</a>]</span>;
+<span id="id12">[<a class="reference internal" href="references.html#id15" title="H. Genet, A. D. McGuire, K. Barrett, A. Breen, E. S. Euskirchen, J. F. Johnstone, E. S. Kasischke, A. M. Melvin, A. Bennett, M. C. Mack, T. S. Rupp, A. E.G. Schuur, M. R. Turetsky, and F. Yuan. Modeling the effects of fire severity and climate warming on active layer thickness and soil carbon storage of black spruce forests across the landscape in interior alaska. Environmental Research Letters, 2013. doi:10.1088/1748-9326/8/4/045016.">Genet <em>et al.</em>, 2013</a>]</span>). The structure of <cite>DVMDOSTEM</cite> is represented
+visually in <a class="reference internal" href="#modeloverview"><span class="std std-numref">Fig. 1.1</span></a> .</p>
+<figure class="align-default" id="modeloverview">
+<img alt="Visual overview of DVMDOSTEM." src="_images/dvmdostem-overview-export_2024-08-19.jpg" />
+<figcaption>
+<p><span class="caption-number">Fig. 1.1 </span><span class="caption-text">Overview of <cite>DVMDOSTEM</cite> soil and vegetation structure. On the left is the
+soil structure showing the layers and different properties that are tracked
+(purple bubble: carbon (C), nitrogen (N), temperature (T), volumetric water
+content (VWC), ice). Each of the layers with properties described above is
+also categorized as organic (fibric or humic) or mineral. Additionally, the
+model simulates snow layers and the removal of soil organic layers due to
+fire. On the right is the vegetation structure showing plant functional
+types (PFTs) within a community type (CMT) and the associated pools and
+fluxes of C and N. Each PFT is split into compartments (leaf, stem and root)
+which track their own C and N content and associated fluxes. The fluxes are
+represented with red text while the pools are black. In addition, there is
+competition among the PFTs for light, water, and available N, shown with the
+purple arrow in the top center.</span><a class="headerlink" href="#modeloverview" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<section id="structure">
 <h2><span class="section-number">1.1. </span>Structure<a class="headerlink" href="#structure" title="Permalink to this heading"></a></h2>
-<p><cite>dvmdostem</cite> is multi-dimensional. It operates across spatial and temporal
+<p><cite>DVMDOSTEM</cite> is multi-dimensional. It operates across spatial and temporal
 dimensions, soil layers, and plant functional types.</p>
+<figure class="align-default" id="dvmdostem-pixel-overview">
+<img alt="Visual overview of DVMDOSTEM pixel" src="_images/dvmdostem-general-pixel_export_2024-15-11.jpg" />
+<figcaption>
+<p><span class="caption-number">Fig. 1.2 </span><span class="caption-text">DVMDOSTEM is a spatially explicit. The base unit of computation is a pixel.
+There pixels are laid out in a grid. Each pixel is run based on the status
+of a run mask, which is one of the required input files. Each pixel is
+parameterized for both soil and vegetation properties. Together the
+parameterizaton values define a Community Type (CMT). Each pixel is modeled
+using Plant Functional Types (PFTs) and a layer stack for soil and snow.</span><a class="headerlink" href="#dvmdostem-pixel-overview" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
 <section id="spatial">
 <h3><span class="section-number">1.1.1. </span>Spatial<a class="headerlink" href="#spatial" title="Permalink to this heading"></a></h3>
-<p>TEM is a spatially explicit model. The run domain is divided into grid cells,
-or pixels. There is no communication between the grid cells. TEM itself is
-agnostic to the spatial resolution - the resolution is controlled by the
-input files provided. Recent work has been done with 1km spatial resolution.</p>
+<p><cite>DVMDOSTEM</cite> can be applied at the site level or across large regions. Spatially,
+<cite>DVMDOSTEM</cite> breaks up the landscape into grid cells, each of which is
+characterized by a set of input forcing and parameterization values. Gridded
+parameterization values describe soil and vegetation characteristics associated
+with each Community Type (CMT). <cite>DVMDOSTEM</cite> does not include the lateral
+transfer of information between grid cells. The CMT classification for each grid
+cell is static across the time dimension of a model simulation. These two
+factors limit the ability of the model to represent climate-driven biome shifts
+or succession trajectories from disturbances such as wildfire
+<span id="id13">[<a class="reference internal" href="references.html#id21" title="Jill F. Johnstone, Teresa N. Hollingsworth, F. Stuart Chapin, and Michelle C. Mack. Changes in fire regime break the legacy lock on successional trajectories in alaskan boreal forest. Global Change Biology, 2010. doi:10.1111/j.1365-2486.2009.02051.x.">Johnstone <em>et al.</em>, 2010</a>]</span>. Design discussions are in progress for adding
+these capabilities to <cite>DVMDOSTEM</cite>.</p>
+<p><cite>DVMDOSTEM</cite> itself is agnostic to the spatial resolution - the resolution is
+controlled by the input files provided. Recent work has been done with 1km
+spatial resolution.</p>
 </section>
 <section id="temporal">
 <h3><span class="section-number">1.1.2. </span>Temporal<a class="headerlink" href="#temporal" title="Permalink to this heading"></a></h3>
-<p>TEM is a temporal model in the sense that a run operates processes at consecutive
-time-steps. In addition, with TEM, the concept of a “run stage” is used to run
-the model over different climatic periods of generally increasing complexity.
-There are 5 possible “run stages”:</p>
+<p><cite>DVMDOSTEM</cite> is a temporal model: a run consists of executing the ecologic
+processes through consecutive time-steps. Much of the modeling is occurring at
+a monthly time step, although some process execute at a daily resolution and
+some processes are yearly.</p>
+<p>To initialize historical or future simulations, <cite>DVMDOSTEM</cite> needs to compute a
+quasi steady-state (QSS) solution. This solution is forced by using averaged
+historical atmospheric and ecosystem properties (e.g. soil texture) to drive the
+model. QSS of physical processes (e.g. soil temperature and water content) are
+usually achieved in less than 100 years, while QSS of biogeochemical processes
+(e.g. soil and vegetation <span class="math notranslate nohighlight">\(C\)</span> and <span class="math notranslate nohighlight">\(N\)</span> stocks) are achieved in 1,000
+to &gt;10,000 years. However, to decrease overall run-times, <cite>DVMDOSTEM</cite> uses two
+QSS stages: “Pre-run” and “Equilibrium”. The list of all <cite>DVMDOSTEM</cite> run stages
+is as follows:</p>
 <ul class="simple">
-<li><p>Pre-run (pr)</p></li>
-<li><p>Equilibrium (eq)</p></li>
-<li><p>Spinup (sp)</p></li>
-<li><p>Transient (tr)</p></li>
-<li><p>Scenario (sc)</p></li>
+<li><p>Pre-run (pr): QSS computation for the physical state variables.</p></li>
+<li><p>Equilibrium (eq): QSS computation for the biogeochemical state variables.</p></li>
+<li><p>Spinup (sp): introduction of pre-industrial climate variability and fire
+regime.</p></li>
+<li><p>Transient (tr): historical simulation.</p></li>
+<li><p>Scenario (sc): future simulation.</p></li>
 </ul>
-<p>The primary difference between the run stages is the nature of the input climate
-dataset, and specifically whether there is annual variability in the driving
-climate data that the model uses. A complete, future-projecting, simulation is
-usually only made after advancing the model through several of the previous run
-stages to stabilize the system. Typically the ending state from each stage is
-used as the beginning state for each subsequent stage.</p>
-<p>A complete run utilizes all 5 stages. It is possible to work with any subset of
-the stages.</p>
-<section id="pre-run-pr">
-<h4>pre-run (pr)<a class="headerlink" href="#pre-run-pr" title="Permalink to this heading"></a></h4>
-<p>The pre-run is an equilibrium run for the physical variables of the model. It is
-typically 100 years, uses constant climate (typically monthly average computed
-from the [1901-1930] period).</p>
-</section>
-<section id="equilibrium-eq">
-<h4>equilibrium (eq)<a class="headerlink" href="#equilibrium-eq" title="Permalink to this heading"></a></h4>
-<p>In the equilibrium stage, the climate is fixed. That is, the climate does not
-vary from year to year. There will be intra-annual variability to represent the
-seasons, but from year to year the calculations will be carried out using the
-same annual cycles. Equilibrium run stage is used in the calibration mode,
-and is typically the first stage run for any complete simulation. During the
-eq stage, the annual climate inputs used are actually calculated as the mean
-of the first 30 years of the historic climate dataset, so the mean of the
-values from 1901-1930.</p>
+<p>Model simulation requires advancing the model consecutively through all of the
+run stages as needed (<code class="docutils literal notranslate"><span class="pre">pr</span> <span class="pre">-&gt;</span> <span class="pre">eq</span> <span class="pre">-&gt;</span> <span class="pre">sp</span> <span class="pre">-&gt;</span> <span class="pre">tr</span> <span class="pre">-&gt;</span></code>). It is possible to work with
+any subset of the stages using the command line <code class="docutils literal notranslate"><span class="pre">--restart</span></code> flag.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Automatic equilibrium detection.
-TEM does not have an internal test for whether or not equilibrium has
-been reached. In other words, if you specify <code class="docutils literal notranslate"><span class="pre">--max-eq=20000</span></code>, the model
-will run for 20,000 years no matter what internal state it reached. It
-appears that some of the variable and constant names and the command
-line flag <code class="docutils literal notranslate"><span class="pre">--max-eq</span></code> are vestigial remains of an attempt at “automatic
-equilibrium detection”.</p>
+<p>Automatic equilibrium (QSS) detection.</p>
+<p><cite>DVMDOSTEM</cite> does not have an internal test for whether or not equilibrium
+(quasi steady state; QSS) has been reached. In other words, if you specify
+<code class="docutils literal notranslate"><span class="pre">--max-eq=20000</span></code>, the model will run for 20,000 years no matter what
+internal state it reached. It appears that some of the variable and constant
+names and the command line flag <code class="docutils literal notranslate"><span class="pre">--max-eq</span></code> are vestigial remains of an
+attempt at “automatic equilibrium detection”.</p>
 </div>
-</section>
-<section id="spinup-sp">
-<h4>spinup (sp)<a class="headerlink" href="#spinup-sp" title="Permalink to this heading"></a></h4>
-<p>In the spinup stage, the climate is not fixed. In the sp stage, the driving
-climate is used from the first 30 years of the historic climate dataset. Should
-the spstage be set to run longer than 30 years, the 30 year climate period is
-re-used. Another difference between eq and sp stages is that the sp stage is set
-to run for a fixed number of years, regardless of the internal state that the
-model reaches. In the sp stage the fire date is fixed, occuring at an interval
-equal to the Fire Recurrence Interval (FRI).</p>
-</section>
-<section id="transient-tr">
-<h4>transient (tr)<a class="headerlink" href="#transient-tr" title="Permalink to this heading"></a></h4>
-<p>In the transient stage, the climate varies from year to year. The tr stage is
-used to run the model over the period of historical record. The input climate
-data for the tr stage should be the historic climate. This is typically the
-climate data for the 20th century, so roughly 1901-2009.</p>
-</section>
-<section id="scenario-sc">
-<h4>scenario (sc)<a class="headerlink" href="#scenario-sc" title="Permalink to this heading"></a></h4>
-<p>In the scenario stage, the climate also varies from year to year, but rather
+<details class="summary-pre-run-pr">
+<summary>pre-run (pr)</summary><p>The pre-run is an equilibrium run for the physical variables of the model.
+It is typically 100 years, uses constant climate (typically monthly average
+computed from the [1901-1930] period).</p>
+</details><details class="summary-equilibrium-eq">
+<summary>equilibrium (eq)</summary><p>In the equilibrium stage, the climate is fixed. That is, the climate does
+not vary from year to year. There will be intra-annual variability to
+represent the seasons, but from year to year the calculations will be
+carried out using the same annual cycles. Equilibrium run stage is used in
+the calibration mode, and is typically the first stage run for any complete
+simulation. During the eq stage, the annual climate inputs used are actually
+calculated as the mean of the first 30 years of the historic climate dataset
+(specified in the config file), so the mean of the values from 1901-1930.</p>
+</details><details class="summary-spinup-sp">
+<summary>spinup (sp)</summary><p>In the spinup stage, the climate is not fixed: the driving climate is used
+from the first 30 years of the historic climate dataset. Should the spstage
+be set to run longer than 30 years, the 30 year climate period is re-used.
+In the sp stage the fire date is fixed, occuring at an interval equal to the
+Fire Recurrence Interval (FRI).</p>
+</details><details class="summary-transient-tr">
+<summary>transient (tr)</summary><p>In the transient stage, the climate varies from year to year. The tr stage
+is used to run the model over the period of historical record. The input
+climate data for the tr stage should be the historic climate. This is
+typically the climate data for the 20th century, so roughly 1901-2009.</p>
+</details><details class="summary-scenario-sc">
+<summary>scenario (sc)</summary><p>In the scenario stage, the climate also varies from year to year, but rather
 than observed variability, a predicted climate scenario is used.</p>
-<p>A complete run utilizes all 5 stages. It is possible to work with any subset of
-the stages</p>
-</section>
-</section>
+</details></section>
 <section id="community-types-cmts">
 <h3><span class="section-number">1.1.3. </span>Community Types (CMTs)<a class="headerlink" href="#community-types-cmts" title="Permalink to this heading"></a></h3>
-<p>Each TEM grid cell can be assigned one “community type” (CMT). A community
-type is essentially a parameterization that specifies many properties for
-vegetation, and soil.</p>
+<p>Each <cite>DVMDOSTEM</cite> grid cell can be assigned one “community type” (CMT). A
+community type is essentially a parameterization that specifies many properties
+for vegetation, and soil.</p>
 </section>
 <section id="vegetation-types-pfts">
 <h3><span class="section-number">1.1.4. </span>Vegetation Types (PFTs)<a class="headerlink" href="#vegetation-types-pfts" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>Each vegetation CMT (e.g. “wet-sedge tundra”, “white spruce forest”, etc.), is
+modeled with up to ten PFTs (e.g., “deciduous shrubs”, “sedges”, “mosses”), each
+of which may have up to three compartments: leaf, stem, and root. Vegetation
+<span class="math notranslate nohighlight">\(C\)</span> and <span class="math notranslate nohighlight">\(N\)</span> fluxes are calculated at each time step based on
+environmental factors and soil properties. Assimilation of atmospheric
+<span class="math notranslate nohighlight">\(CO_2\)</span> by the vegetation is estimated by computing gross primary
+productivity (GPP) for each PFT. GPP is a function of foliage development
+(seasonal and successional patterns), air and soil temperature, water and
+nutrient availability, photosynthetically active radiation, and maximum
+assimilation rate (a calibrated parameter) (<span id="id14">[<a class="reference internal" href="references.html#id27" title="A. D. McGuire, J. M. Melillo, L. A. Joyce, D. W. Kicklighter, A. L. Grace, B. Moore, and C. J. Vorosmarty. Interactions between carbon and nitrogen dynamics in estimating net primary productivity for potential vegetation in north america. Global Biogeochemical Cycles, 6:101–124, 1992. doi:10.1029/92GB00219.">McGuire <em>et al.</em>, 1992</a>]</span>;
+<span id="id15">[<a class="reference internal" href="references.html#id10" title="E. S. Euskirchen, A. D. Mcguire, F. S. Chapin, S. Yi, and C. C. Thompson. Changes in vegetation in northern alaska under scenarios of climate change, 2003-2100: implications for climate feedbacks. Ecological Applications, 19:1022–1043, 7 2009. doi:10.1890/08-0806.1.">Euskirchen <em>et al.</em>, 2009</a>]</span>). Changes in vegetation <span class="math notranslate nohighlight">\(C\)</span> stocks are
+calculated using GPP, autotrophic respiration (Ra), and litter-fall (transfer
+from vegetation to soil). Vegetation <span class="math notranslate nohighlight">\(N\)</span> stocks are calculated using plant
+<span class="math notranslate nohighlight">\(N\)</span> uptake and litter-fall. Vegetation <span class="math notranslate nohighlight">\(C\)</span> and <span class="math notranslate nohighlight">\(N\)</span> stocks may
+also be modified as a result of wildfire burn.</p>
 <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-pft"-->
 <img src="https://docs.google.com/drawings/d/14vNsPCuorCy3PuE6ucgAmerAks42SxZCtWr4vV5p4Pg/pub?w=960&amp;h=720"></section>
-<section id="soil-layers">
-<h3><span class="section-number">1.1.5. </span>Soil (Layers)<a class="headerlink" href="#soil-layers" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<section id="soil-and-snow-layers">
+<h3><span class="section-number">1.1.5. </span>Soil and Snow (Layers)<a class="headerlink" href="#soil-and-snow-layers" title="Permalink to this heading"></a></h3>
+<p>The soil column is structured as a sequence of layers organized by soil horizons
+(i.e. fibric, humic, mineral, and parent material). The number and physical
+properties of layers may change throughout the simulation based on vegetation,
+thermal, hydrologic, and seasonal properties that are calculated at each time
+step (<span id="id16">[<a class="reference internal" href="references.html#id42" title="Q. Zhuang, A. D. McGuire, K. P. O'Neill, J. W. Harden, V. E. Romanovsky, and J. Yarie. Modeling soil thermal and carbon dynamics of a fire chronosequence in interior alaska. Journal of Geophysical Research: Atmospheres, 1 2003. doi:10.1029/2001JD001244.">Zhuang <em>et al.</em>, 2003</a>]</span>; <span id="id17">[<a class="reference internal" href="references.html#id11" title="Eugénie S. Euskirchen, Tobey B. Carman, and A. David Mcguire. Changes in the structure and function of northern alaskan ecosystems when considering variable leaf-out times across groupings of species in a dynamic vegetation model. Global Change Biology, 20:963–978, 3 2014. doi:10.1111/GCB.12392.">Euskirchen <em>et al.</em>, 2014</a>]</span>;
+<span id="id18">[<a class="reference internal" href="references.html#id38" title="Shuhua Yi, A. David McGuire, Jennifer Harden, Eric Kasischke, Kristen Manies, Larry Hinzman, Anna Liljedahl, Jim Randerson, Heping Liu, Vladimir Romanovsky, Sergei Marchenko, and Yongwon Kim. Interactions between soil thermal and hydrological dynamics in the response of alaska ecosystems to fire disturbance. Journal of Geophysical Research: Biogeosciences, 6 2009. doi:10.1029/2008JG000841.">Yi <em>et al.</em>, 2009</a>]</span>; <span id="id19">[<a class="reference internal" href="references.html#id28" title="A. David McGuire, Hélène Genet, Zhou Lyu, Neal Pastick, Sarah Stackpoole, Richard Birdsey, David D'Amore, Yujie He, T. Scott Rupp, Robert Striegl, Bruce K. Wylie, Xiaoping Zhou, Qianlai Zhuang, and Zhiliang Zhu. Assessing historical and projected carbon balance of alaska: a synthesis of results and policy/management implications. Ecological Applications, 28:1396–1412, 9 2018. doi:10.1002/EAP.1768.">McGuire <em>et al.</em>, 2018</a>]</span>). The model uses
+the two-directional Stefan algorithm to predict freezing/thawing fronts and the
+Richards equation to predict soil moisture dynamics in the unfrozen layers
+(<span id="id20">[<a class="reference internal" href="references.html#id38" title="Shuhua Yi, A. David McGuire, Jennifer Harden, Eric Kasischke, Kristen Manies, Larry Hinzman, Anna Liljedahl, Jim Randerson, Heping Liu, Vladimir Romanovsky, Sergei Marchenko, and Yongwon Kim. Interactions between soil thermal and hydrological dynamics in the response of alaska ecosystems to fire disturbance. Journal of Geophysical Research: Biogeosciences, 6 2009. doi:10.1029/2008JG000841.">Yi <em>et al.</em>, 2009</a>]</span>; <span id="id21">[<a class="reference internal" href="references.html#id39" title="Shuhua Yi, A. David McGuire, Eric Kasischke, Jennifer Harden, Kristen Manies, Michelle MacK, and Merritt Turetsky. A dynamic organic soil biogeochemical model for simulating the effects of wildfire on soil environmental conditions and carbon dynamics of black spruce forests. Journal of Geophysical Research: Biogeosciences, 12 2010. doi:10.1029/2010JG001302.">Yi <em>et al.</em>, 2010</a>]</span>;
+<span id="id22">[<a class="reference internal" href="references.html#id42" title="Q. Zhuang, A. D. McGuire, K. P. O'Neill, J. W. Harden, V. E. Romanovsky, and J. Yarie. Modeling soil thermal and carbon dynamics of a fire chronosequence in interior alaska. Journal of Geophysical Research: Atmospheres, 1 2003. doi:10.1029/2001JD001244.">Zhuang <em>et al.</em>, 2003</a>]</span>). Snow is also represented with a dynamic stack of
+layers. The physical properties of the snowpack (density, thickness, and
+temperature) are calculated from snowfall, sublimation and snowmelt. Snow cover
+influences soil-thermal and hydrological seasonal dynamics. Changes in soil
+<span class="math notranslate nohighlight">\(C\)</span> stocks are a result of litter-fall from the vegetation and
+decomposition of soil <span class="math notranslate nohighlight">\(C\)</span> stocks by microbes (heterotrophic respiration or
+Rh). Changes in soil organic and available <span class="math notranslate nohighlight">\(N\)</span> stocks are a result of
+litter-fall, net mineralization of organic <span class="math notranslate nohighlight">\(N\)</span> , and plant <span class="math notranslate nohighlight">\(N\)</span>
+uptake. Soil organic layers and soil <span class="math notranslate nohighlight">\(C\)</span> and <span class="math notranslate nohighlight">\(N\)</span> stocks may also be
+modified due to wildfire.</p>
 <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-soil"-->
 <img src="https://docs.google.com/drawings/d/1cGr4b90CHsh98TxpB5_ymMaft1wJ62t1gsWGdBVy6QM/pub?w=820&amp;h=884">
 
 <!-- From Tobey Carman's google drawing "dvmdostem-soil-detail" -->
 <img src="https://docs.google.com/drawings/d/1TPZNC_DazpOpkxSKkTJ3oMQlLvzBjUaY6DmBW9LR9cY/pub?w=1005&amp;h=746"></section>
 </section>
-<section id="processes">
-<h2><span class="section-number">1.2. </span>Processes<a class="headerlink" href="#processes" title="Permalink to this heading"></a></h2>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-<section id="carbon">
-<h3><span class="section-number">1.2.1. </span>Carbon<a class="headerlink" href="#carbon" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-<section id="water">
-<h3><span class="section-number">1.2.2. </span>Water<a class="headerlink" href="#water" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-<section id="nitrogen">
-<h3><span class="section-number">1.2.3. </span>Nitrogen<a class="headerlink" href="#nitrogen" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-<section id="energy-balance">
-<h3><span class="section-number">1.2.4. </span>Energy Balance<a class="headerlink" href="#energy-balance" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-<section id="permafrost">
-<h3><span class="section-number">1.2.5. </span>Permafrost<a class="headerlink" href="#permafrost" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-<section id="disturbance">
-<h3><span class="section-number">1.2.6. </span>Disturbance<a class="headerlink" href="#disturbance" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-<section id="methane">
-<h3><span class="section-number">1.2.7. </span>Methane<a class="headerlink" href="#methane" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-</section>
-</section>
 <section id="inputs-outputs-io">
-<h2><span class="section-number">1.3. </span>Inputs/Outputs (IO)<a class="headerlink" href="#inputs-outputs-io" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">1.2. </span>Inputs/Outputs (IO)<a class="headerlink" href="#inputs-outputs-io" title="Permalink to this heading"></a></h2>
+<p>NetCDF files <span id="id23">[<a class="reference internal" href="references.html#id33" title="Russ Rew and Glenn Davis. Netcdf: an interface for scientific data access. IEEE Computer Graphics and Applications, 1990. doi:10.1109/38.56302.">Rew and Davis, 1990</a>]</span> are used as model inputs and outputs,
+conforming to the CF Conventions v1.11 <span id="id24">[<a class="reference internal" href="references.html#id8" title="B. Eaton, J. Gregory, B. Drach, K. Taylor, S. Hankin, J. Caron, R. Signell, P. Bentley, G. Rappa, H. Höck, A. Pamment, and M. Juckes. Netcdf climate and forecast (cf) metadata conventions. 2011. URL: https://cfconventions.org/Data/cf-conventions/cf-conventions-1.11/cf-conventions.html.">Eaton <em>et al.</em>, 2011</a>]</span> where possible.</p>
 <section id="inputs">
-<h3><span class="section-number">1.3.1. </span>Inputs<a class="headerlink" href="#inputs" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">1.2.1. </span>Inputs<a class="headerlink" href="#inputs" title="Permalink to this heading"></a></h3>
+<p>The input variables used to drive <cite>DVMDOSTEM</cite> include: drainage classification
+(upland or lowland), CMT classification, topography (slope, aspect, elevation),
+soil texture (percent sand, silt, and clay), climate (air temperature,
+precipitation, vapor pressure, incoming shortwave radiation), atmospheric
+<span class="math notranslate nohighlight">\(CO_2\)</span> concentration, and fire occurrence (date and severity). All input
+datasets are spatially explicit, except the time series of atmospheric
+<span class="math notranslate nohighlight">\(CO_2\)</span>.</p>
 <p>Generally TEM requires several types of inputs:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -586,12 +608,21 @@ HH:MM:SS</p></td>
 </div>
 </section>
 <section id="outputs">
-<h3><span class="section-number">1.3.2. </span>Outputs<a class="headerlink" href="#outputs" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">1.2.2. </span>Outputs<a class="headerlink" href="#outputs" title="Permalink to this heading"></a></h3>
+<p>There are approximately 110 different variables available for output from
+<cite>DVMDOSTEM</cite>. One file will be produced per requested output variable. Users can
+specify the temporal and structural resolutions at which model outputs are
+produced. This functionality allows users to consider their computational
+resources and information needs when setting up a model run.</p>
 <p>The outputs that are available for DVM-DOS-TEM are listed in the
-<code class="docutils literal notranslate"><span class="pre">config/output_spec.csv</span></code> file that is shipped ith the repo. The following table
-is built from that csv file:</p>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">output_spec.csv</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<code class="docutils literal notranslate"><span class="pre">config/output_spec.csv</span></code> file that is shipped with the repo. The following
+table is built from that csv file:</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Wide table, scroll right to see all columns!</p>
+</div>
+<table class="docutils align-default" id="id27">
+<caption><span class="caption-number">Table 1.1 </span><span class="caption-text">output_spec.csv</span><a class="headerlink" href="#id27" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 9%" />
 <col style="width: 9%" />
@@ -932,19 +963,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>DWDRH</p></td>
-<td><p>Dead woody debris HR</p></td>
-<td><p>g/m2/time</p></td>
-<td></td>
-<td></td>
-<td><p>invalid</p></td>
-<td><p>invalid</p></td>
-<td><p>invalid</p></td>
-<td><p>invalid</p></td>
-<td><p>double</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>EET</p></td>
+<tr class="row-even"><td><p>EET</p></td>
 <td><p>Actual ET</p></td>
 <td><p>mm/m2/time</p></td>
 <td></td>
@@ -956,7 +975,7 @@ is built from that csv file:</p>
 <td></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>FRONTSDEPTH</p></td>
+<tr class="row-odd"><td><p>FRONTSDEPTH</p></td>
 <td><p>Depth of fronts</p></td>
 <td><p>mm</p></td>
 <td></td>
@@ -968,7 +987,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>FRONTSTYPE</p></td>
+<tr class="row-even"><td><p>FRONTSTYPE</p></td>
 <td><p>Front types</p></td>
 <td></td>
 <td></td>
@@ -980,7 +999,7 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>GPP</p></td>
+<tr class="row-odd"><td><p>GPP</p></td>
 <td><p>GPP</p></td>
 <td><p>g/m2/time</p></td>
 <td><p>y</p></td>
@@ -992,7 +1011,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>GROWEND</p></td>
+<tr class="row-even"><td><p>GROWEND</p></td>
 <td><p>Growing ending day</p></td>
 <td><p>DOY</p></td>
 <td></td>
@@ -1004,7 +1023,7 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>GROWSTART</p></td>
+<tr class="row-odd"><td><p>GROWSTART</p></td>
 <td><p>Growing starting day</p></td>
 <td><p>DOY</p></td>
 <td></td>
@@ -1016,7 +1035,7 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>HKDEEP</p></td>
+<tr class="row-even"><td><p>HKDEEP</p></td>
 <td><p>Hydraulic conductivity in amorphous horizon</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1028,7 +1047,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>HKLAYER</p></td>
+<tr class="row-odd"><td><p>HKLAYER</p></td>
 <td><p>Hydraulic conductivity by layer</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1040,7 +1059,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>HKMINEA</p></td>
+<tr class="row-even"><td><p>HKMINEA</p></td>
 <td><p>Hydraulic conductivity top mineral</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1052,7 +1071,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>HKMINEB</p></td>
+<tr class="row-odd"><td><p>HKMINEB</p></td>
 <td><p>Hydraulic conductivity middle mineral</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1064,7 +1083,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>HKMINEC</p></td>
+<tr class="row-even"><td><p>HKMINEC</p></td>
 <td><p>Hydraulic conductivity bottom mineral</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1076,7 +1095,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>HKSHLW</p></td>
+<tr class="row-odd"><td><p>HKSHLW</p></td>
 <td><p>Hydraulic conductivity in fibrous horizon</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1088,7 +1107,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>INGPP</p></td>
+<tr class="row-even"><td><p>INGPP</p></td>
 <td><p>GPP without N limitation</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1100,7 +1119,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>INNPP</p></td>
+<tr class="row-odd"><td><p>INNPP</p></td>
 <td><p>NPP witout N limitation</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1112,7 +1131,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>INNUPTAKE</p></td>
+<tr class="row-even"><td><p>INNUPTAKE</p></td>
 <td><p>Unlimited N uptake by plants. N uptake by happy plants when N is not limited.</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1124,7 +1143,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>IWCLAYER</p></td>
+<tr class="row-odd"><td><p>IWCLAYER</p></td>
 <td><p>IWC by layer</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -1136,7 +1155,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>LAI</p></td>
+<tr class="row-even"><td><p>LAI</p></td>
 <td><p>LAI</p></td>
 <td><p>m2/m2</p></td>
 <td></td>
@@ -1148,7 +1167,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>LAYERDEPTH</p></td>
+<tr class="row-odd"><td><p>LAYERDEPTH</p></td>
 <td><p>Layer depth from the surface</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1160,7 +1179,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>LAYERDZ</p></td>
+<tr class="row-even"><td><p>LAYERDZ</p></td>
 <td><p>Thickness of layer</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1172,7 +1191,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>LAYERTYPE</p></td>
+<tr class="row-odd"><td><p>LAYERTYPE</p></td>
 <td><p>0:moss 1:shlw 2:deep 3:mineral</p></td>
 <td></td>
 <td></td>
@@ -1184,7 +1203,7 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>LTRFALC</p></td>
+<tr class="row-even"><td><p>LTRFALC</p></td>
 <td><p>Litterfall C</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1196,7 +1215,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>LTRFALN</p></td>
+<tr class="row-odd"><td><p>LTRFALN</p></td>
 <td><p>Litterfall N</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1208,7 +1227,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>LWCLAYER</p></td>
+<tr class="row-even"><td><p>LWCLAYER</p></td>
 <td><p>LWC by layer</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -1220,7 +1239,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>MINEC</p></td>
+<tr class="row-odd"><td><p>MINEC</p></td>
 <td><p>Mineral SOM C</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1232,7 +1251,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>MOSSDEATHC</p></td>
+<tr class="row-even"><td><p>MOSSDEATHC</p></td>
 <td><p>Moss death carbon</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1244,7 +1263,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>MOSSDEATHN</p></td>
+<tr class="row-odd"><td><p>MOSSDEATHN</p></td>
 <td><p>Moss death nitrogen</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1256,7 +1275,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>MOSSDZ</p></td>
+<tr class="row-even"><td><p>MOSSDZ</p></td>
 <td><p>Moss thickness</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1268,7 +1287,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NDRAIN</p></td>
+<tr class="row-odd"><td><p>NDRAIN</p></td>
 <td><p>N losses from drainage (AVLN)</p></td>
 <td><p>g/m2/time</p></td>
 <td><p>invalid</p></td>
@@ -1280,7 +1299,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NETNMIN</p></td>
+<tr class="row-even"><td><p>NETNMIN</p></td>
 <td><p>Soil net N mineralization</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1292,7 +1311,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NIMMOB</p></td>
+<tr class="row-odd"><td><p>NIMMOB</p></td>
 <td><p>Nitrogen immobilization</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1304,7 +1323,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NINPUT</p></td>
+<tr class="row-even"><td><p>NINPUT</p></td>
 <td><p>N inputs into soil (AVLN)</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1316,7 +1335,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NLOST</p></td>
+<tr class="row-odd"><td><p>NLOST</p></td>
 <td><p>N losses from soil (AVLN)</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1328,7 +1347,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NPP</p></td>
+<tr class="row-even"><td><p>NPP</p></td>
 <td><p>NPP</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1340,7 +1359,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NRESORB</p></td>
+<tr class="row-odd"><td><p>NRESORB</p></td>
 <td><p>NRESORB</p></td>
 <td><p>??</p></td>
 <td></td>
@@ -1352,7 +1371,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NUPTAKELAB</p></td>
+<tr class="row-even"><td><p>NUPTAKELAB</p></td>
 <td><p>Labile N uptake by plants</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1364,7 +1383,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NUPTAKEST</p></td>
+<tr class="row-odd"><td><p>NUPTAKEST</p></td>
 <td><p>Structural N uptake by plants</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1376,7 +1395,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ORGN</p></td>
+<tr class="row-even"><td><p>ORGN</p></td>
 <td><p>Total soil organic N</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1388,7 +1407,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>PERCOLATION</p></td>
+<tr class="row-odd"><td><p>PERCOLATION</p></td>
 <td><p>Percolation by layer</p></td>
 <td></td>
 <td><p>invalid</p></td>
@@ -1400,7 +1419,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>PERMAFROST</p></td>
+<tr class="row-even"><td><p>PERMAFROST</p></td>
 <td><p>Permafrost (1 or 0)</p></td>
 <td></td>
 <td></td>
@@ -1412,7 +1431,7 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>PET</p></td>
+<tr class="row-odd"><td><p>PET</p></td>
 <td><p>Potential ET</p></td>
 <td><p>mm/m2/time</p></td>
 <td></td>
@@ -1424,7 +1443,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>QDRAINAGE</p></td>
+<tr class="row-even"><td><p>QDRAINAGE</p></td>
 <td><p>Water drainage quotient (~ratio)</p></td>
 <td></td>
 <td></td>
@@ -1436,7 +1455,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>QDRAINLAYER</p></td>
+<tr class="row-odd"><td><p>QDRAINLAYER</p></td>
 <td><p>Qdrain per layer</p></td>
 <td><p>mm</p></td>
 <td><p>invalid</p></td>
@@ -1448,7 +1467,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>QINFILTRATION</p></td>
+<tr class="row-even"><td><p>QINFILTRATION</p></td>
 <td><p>Water infiltration quotient (~ratio)</p></td>
 <td></td>
 <td></td>
@@ -1460,7 +1479,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>QRUNOFF</p></td>
+<tr class="row-odd"><td><p>QRUNOFF</p></td>
 <td><p>Water runoff quotient (~ratio)</p></td>
 <td></td>
 <td></td>
@@ -1472,9 +1491,21 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>RAINFALL</p></td>
+<tr class="row-even"><td><p>RAINFALL</p></td>
 <td><p>Total rainfall</p></td>
 <td><p>mm</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>RECO</p></td>
+<td><p>Summed ecosystem respiration</p></td>
+<td><p>g/m2/time</p></td>
 <td></td>
 <td></td>
 <td><p>invalid</p></td>
@@ -1496,7 +1527,19 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>RH</p></td>
+<tr class="row-odd"><td><p>RHDWD</p></td>
+<td><p>Dead woody debris HR</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>RHSOM</p></td>
 <td><p>Heterotrophic respiration</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1508,7 +1551,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>RM</p></td>
+<tr class="row-odd"><td><p>RM</p></td>
 <td><p>Maintenance respiration</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1520,7 +1563,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ROLB</p></td>
+<tr class="row-even"><td><p>ROLB</p></td>
 <td><p>Relative organic horizon burned ratio C</p></td>
 <td><p>g/g</p></td>
 <td></td>
@@ -1532,7 +1575,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ROOTWATERUPTAKE</p></td>
+<tr class="row-odd"><td><p>ROOTWATERUPTAKE</p></td>
 <td><p>Water uptake by roots per layer</p></td>
 <td></td>
 <td><p>invalid</p></td>
@@ -1544,7 +1587,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SHLWC</p></td>
+<tr class="row-even"><td><p>SHLWC</p></td>
 <td><p>Fibrous SOM C</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1556,7 +1599,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SHLWDZ</p></td>
+<tr class="row-odd"><td><p>SHLWDZ</p></td>
 <td><p>Fibrous SOM horizon thickness</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1568,7 +1611,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SNOWEND</p></td>
+<tr class="row-even"><td><p>SNOWEND</p></td>
 <td><p>DOY of last snow fall</p></td>
 <td><p>DOY</p></td>
 <td></td>
@@ -1580,7 +1623,7 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SNOWFALL</p></td>
+<tr class="row-odd"><td><p>SNOWFALL</p></td>
 <td><p>Total snowfall</p></td>
 <td><p>mm</p></td>
 <td></td>
@@ -1592,7 +1635,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SNOWLAYERDZ</p></td>
+<tr class="row-even"><td><p>SNOWLAYERDZ</p></td>
 <td><p>Snow pack thickness by layer</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1604,7 +1647,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SNOWLAYERTEMP</p></td>
+<tr class="row-odd"><td><p>SNOWLAYERTEMP</p></td>
 <td><p>Snow temperature by layer</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1616,7 +1659,7 @@ is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SNOWSTART</p></td>
+<tr class="row-even"><td><p>SNOWSTART</p></td>
 <td><p>DOY of first snow fall</p></td>
 <td><p>DOY</p></td>
 <td></td>
@@ -1628,12 +1671,48 @@ is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SNOWTHICK</p></td>
+<tr class="row-odd"><td><p>SNOWTHICK</p></td>
 <td><p>Snow pack thickness</p></td>
 <td><p>m</p></td>
 <td></td>
 <td></td>
 <td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SOC</p></td>
+<td><p>Soil organic C total</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SOCFROZEN</p></td>
+<td><p>Soil organic C frozen (if yearly Dec. only)</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SOCUNFROZEN</p></td>
+<td><p>Soil organic C unfrozen (if yearly Dec. only)</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
@@ -1978,73 +2057,54 @@ is built from that csv file:</p>
 </tr>
 </tbody>
 </table>
-<section id="output-selection">
-<h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this heading"></a></h4>
+</section>
+</section>
+<section id="parameterization">
+<h2><span class="section-number">1.3. </span>Parameterization<a class="headerlink" href="#parameterization" title="Permalink to this heading"></a></h2>
+<p><cite>DVMDOSTEM</cite> parameterization sets are developed for each CMT. Each CMT is
+defined by more than 200 parameters. Parameter values are estimated directly
+from field, lab or remote sensing observations, literature review or
+site-specific calibration. Calibration is required when (1) parameter values
+cannot be determined directly from available data or published information, and
+(2) model sensitivity to the parameter is substantial. The calibration process
+consists of adjusting parameter values until there is acceptable agreement
+between measured field data and model prediction on the state variables most
+influenced by the parameter to be calibrated. Due to the large number of
+parameters requiring calibration, and the non-linear nature of the relationships
+between parameters and state variables, model calibration can be
+labor-intensive. We are actively developing a calibration process that allows
+automation <span id="id25">[<a class="reference internal" href="references.html#id19" title="Elchin E. Jafarov, Hélène Genet Genet, Velimir V. (Monty) Vesselinov, Valeria Briones, Aiza Kabeer, Andrew L. Mullen, Benjamin Maglio, Tobey Carman, Ruth Rutter, Joy Clein, Chu-Chun Chang, Dogukan Teber, Trevor Smith, Joshua Rady, Christina Schädel, Jennifer D. Watts, Brendan M. Rogers, and Susan Natali. Estimation of above- and below-ground ecosystem parameters for the dvm-dos-tem model using mads: a synthetic case study. Manuscript submitted for publication, 2024.">Jafarov <em>et al.</em>, 2024</a>]</span>.</p>
+</section>
+<section id="software-design">
+<h2><span class="section-number">1.4. </span>Software Design<a class="headerlink" href="#software-design" title="Permalink to this heading"></a></h2>
+<p>The <cite>DVMDOSTEM</cite> software repository is a combination of tightly coupled
+sub-components:</p>
 <blockquote>
-<div><p>WRITE THIS…</p>
+<div><ul class="simple">
+<li><p>the <cite>DVMDOSTEM</cite> model,</p></li>
+<li><p>supporting tools, and</p></li>
+<li><p>development environment specifications.</p></li>
+</ul>
 </div></blockquote>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>draft thoughts:
-NetCDF outputs are specified in a csv file named in config/config.js. The
-csv file specifies a variable name (for identification only - it does not
-correspond to the variable name in the code), a short description, units,
-and what level of detail to output on (timestep and variable part).
-[Link to default file after PR merge] Variable name, Description,
-Units, Yearly, Monthly, Daily, PFT, Compartment, Layer,
-Example entry: VEGC,Total veg. biomass C,gC/m2,y,m,,p,c,,
-This will output VegC every month, and provide both PFT and PFT
-compartment values.
-The file is more user-friendly when viewed in a spreadsheet.
-[example]
-A complete list of output combinations is below
-The initial list of outputs can be found at Issue #252
-LAYERDEPTH, LAYERDZ, and LAYERTYPE should be automatically output if
-the user specifies any by-layer output. They are not currently, so ensure
-that they are specified on the same timestep as the desired output.
-HKLAYER, LAYERDEPTH, LAYERDZ, LAYERTYPE, TCLAYER, TLAYER, and VWCLAYER
-must have the layer option specified or they will generate NetCDF
-dimension bound errors.</p>
-</div>
-</section>
-<section id="process">
-<h4>Process<a class="headerlink" href="#process" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>draft thoughts:
-A single output file will be produced for each entry in the specifying file,
-based on variable name, timestep, and run stage.
-VEGC_monthly_eq.nc
-At the beginning of the model run, an output file will be constructed for each
-variable specified, for each run stage where NetCDF output is indicated and that
-has more than 0 years of run time.
-Currently the model tracks the variables specified for each timestep as separate
-sets (i.e. monthly separate from yearly, etc). This reduces the number of map
-lookups every time the output function is called, but increases the number of
-monthly vs. yearly string comparisons.</p>
-</div>
-</section>
-<section id="variable-output-combinations">
-<h4>Variable Output Combinations<a class="headerlink" href="#variable-output-combinations" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>draft thoughts:
-‘-’ indicates that the combination is not an option ‘x’ indicates that the
-combination has been implemented in the code ‘?’ indicates that it is undecided
-if the combination should be made available, or that structure in the code needs
-to be modified to make data available for output.
-Three variables should be automatically written out if any by-layer variable is
-specified: Layer type Layer depth Layer thickness Currently they are written out
-like standard variables. Automation will need to be added in the future.</p>
-</div>
-</section>
-</section>
+<p>The core <cite>DVMDOSTEM</cite> model is written in C++ and uses some object-oriented concepts.
+The model exposes a command line interface that allows users to start simulations
+manually or use a scripting language to drive the command line interface.</p>
+<p>Surrounding the core model is a large body of supporting tools to assist the
+user with preparing inputs, setting up and monitoring model runs and analyzing
+model outputs. This collection of tools is primarily written in Python and shell
+scripts, with some of the demonstration and exploratory analysis using Jupyter
+Notebooks. The supporting tooling is partially exposed via command line
+interfaces and a Python API which are documented in the User Guide.</p>
+<p>The model and tools target a UNIX-like operating system environment. The
+combination of the core <cite>DVMDOSTEM</cite> model and the supporting tools result in the
+need for a complex computing environment with many dependencies. Docker images
+are used to manage this complexity, providing consistent environments
+for development and production, <span id="id26">[<a class="reference internal" href="references.html#id29" title="Dirk Merkel. Docker: lightweight linux containers for consistent development and deployment. Linux J., 3 2014.">Merkel, 2014</a>]</span>.</p>
+<p>Software updates are ongoing, stemming from the organic growth spanning 30+ years
+of development by research scientists, graduate students and programmers. Recent
+years have seen an increased effort to apply professional software development
+practices such as version control, automated documentation, containerization,
+and testing.</p>
 </section>
 </section>
 

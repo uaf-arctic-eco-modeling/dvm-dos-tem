@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Running &mdash; dvmdostem v0.8.0 documentation</title>
+  <title>2. Running &mdash; dvmdostem v0.8.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.0
+                v0.8.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -79,7 +79,12 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#running-a-sensitivity-analysis">2.1.5. Running a Sensitivity Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parallel-options">2.1.6. Parallel Options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#processing-outputs">2.1.7. Processing Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processing-outputs">2.1.7. Processing Outputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#output-selection">Output Selection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#process">Process</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#variable-output-combinations">Variable Output Combinations</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#processing-inputs">2.1.8. Processing Inputs</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#from-iem-snap-data">From IEM/SNAP data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#from-era5">From ERA5</a></li>
@@ -505,8 +510,74 @@ year counts would be something like this: <code class="docutils literal notransl
 <section id="processing-outputs">
 <h3><span class="section-number">2.1.7. </span>Processing Outputs<a class="headerlink" href="#processing-outputs" title="Permalink to this heading"></a></h3>
 <blockquote>
+<div><p>WRITE THIS….</p>
+</div></blockquote>
+<section id="output-selection">
+<h4>Output Selection<a class="headerlink" href="#output-selection" title="Permalink to this heading"></a></h4>
+<blockquote>
 <div><p>WRITE THIS…</p>
 </div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>draft thoughts:
+NetCDF outputs are specified in a csv file named in config/config.js. The
+csv file specifies a variable name (for identification only - it does not
+correspond to the variable name in the code), a short description, units,
+and what level of detail to output on (timestep and variable part).
+[Link to default file after PR merge] Variable name, Description,
+Units, Yearly, Monthly, Daily, PFT, Compartment, Layer,
+Example entry: VEGC,Total veg. biomass C,gC/m2,y,m,,p,c,,
+This will output VegC every month, and provide both PFT and PFT
+compartment values.
+The file is more user-friendly when viewed in a spreadsheet.
+[example]
+A complete list of output combinations is below
+The initial list of outputs can be found at Issue #252
+LAYERDEPTH, LAYERDZ, and LAYERTYPE should be automatically output if
+the user specifies any by-layer output. They are not currently, so ensure
+that they are specified on the same timestep as the desired output.
+HKLAYER, LAYERDEPTH, LAYERDZ, LAYERTYPE, TCLAYER, TLAYER, and VWCLAYER
+must have the layer option specified or they will generate NetCDF
+dimension bound errors.</p>
+</div>
+</section>
+<section id="process">
+<h4>Process<a class="headerlink" href="#process" title="Permalink to this heading"></a></h4>
+<blockquote>
+<div><p>WRITE THIS…</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>draft thoughts:
+A single output file will be produced for each entry in the specifying file,
+based on variable name, timestep, and run stage.
+VEGC_monthly_eq.nc
+At the beginning of the model run, an output file will be constructed for each
+variable specified, for each run stage where NetCDF output is indicated and that
+has more than 0 years of run time.
+Currently the model tracks the variables specified for each timestep as separate
+sets (i.e. monthly separate from yearly, etc). This reduces the number of map
+lookups every time the output function is called, but increases the number of
+monthly vs. yearly string comparisons.</p>
+</div>
+</section>
+<section id="variable-output-combinations">
+<h4>Variable Output Combinations<a class="headerlink" href="#variable-output-combinations" title="Permalink to this heading"></a></h4>
+<blockquote>
+<div><p>WRITE THIS…</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>draft thoughts:
+‘-’ indicates that the combination is not an option ‘x’ indicates that the
+combination has been implemented in the code ‘?’ indicates that it is undecided
+if the combination should be made available, or that structure in the code needs
+to be modified to make data available for output.
+Three variables should be automatically written out if any by-layer variable is
+specified: Layer type Layer depth Layer thickness Currently they are written out
+like standard variables. Automation will need to be added in the future.</p>
+</div>
+</section>
 </section>
 <section id="processing-inputs">
 <h3><span class="section-number">2.1.8. </span>Processing Inputs<a class="headerlink" href="#processing-inputs" title="Permalink to this heading"></a></h3>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. Dev Info &mdash; dvmdostem v0.8.0 documentation</title>
+  <title>3. Dev Info &mdash; dvmdostem v0.8.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.0
+                v0.8.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -243,7 +243,8 @@ $<span class="w"> </span>make<span class="w"> </span>clean<span class="w"> </spa
 be imported and documented during this build process. Not sure the best way
 /place to set this yet, so showing an example here:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>clean
-$<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work:/work/calibration:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span><span class="w"> </span>make<span class="w"> </span>html
+$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work:/work/scripts:/work/scripts/util:/work/calibration:</span><span class="nv">$PYTHONPATH</span><span class="s2">&quot;</span>
+$<span class="w"> </span>make<span class="w"> </span>html
 </pre></div>
 </div>
 </div>
@@ -367,8 +368,8 @@ the link</p></li>
 and this may not be possible in all languages/environments. In the Github
 wiki, which uses, Markdown, including something like this will allow the
 image to render, directly from Google Docs when someone loads the page:</p>
-<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- From Tobey Carman&#39;s google drawing &quot;dvmdostem-general-idea-science&quot;--&gt;</span>
-<span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;amp;h=720&quot;</span><span class="p">&gt;</span>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- From Shared Drive &gt; &quot;Documentation Embed Images, dvmdostem-general-idea-science&quot;--&gt;</span>
+<span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://docs.google.com/drawings/d/e/2PACX-1vT8BiV8S8_oCTOghlwsSkdyoxY7bm1sArD6y_JVx8PEBQF5OF3KYEonCH1v5T0bDbqsGw8zMDaZvoSh/pub?w=966&amp;amp;h=519&quot;</span><span class="p">&gt;</span>
 </pre></div>
 </div>
 <p>If the original Google Drawing is updated, then the drawing seen in the wiki
@@ -378,14 +379,14 @@ on the original drawing!</p>
 <p class="admonition-title">Warning</p>
 <p>When you are editing an image that is embedded, the edits are automatically
 live on the published website! This is fine for quick edits such as fixing a
-typo, but for anything more substantial, it is reccomended that you make a
+typo, but for anything more substantial, it is recommended that you make a
 duplicate of the Google Drawing, edit the duplicate and then copy it back
 over the original. This will keep your edits from showing up on the live site
 until you are done with them!</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Soure drawings for this document should probably be stored in the
+<p>Soucre drawings for this document should probably be stored in the
 Shared Google Drive so that they are not tied to an individual’s account.</p>
 </div>
 <p>In Google Docs, there is a way to insert a Google Drawing from a menu:

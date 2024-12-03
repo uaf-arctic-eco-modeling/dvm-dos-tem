@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.8.0 documentation</title>
+  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.8.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="#" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.0
+                v0.8.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -148,39 +148,19 @@ executable does not have hyphens.</p>
 <li class="toctree-l1"><a class="reference internal" href="model_overview.html">1. Model Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="model_overview.html#structure">1.1. Structure</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="model_overview.html#spatial">1.1.1. Spatial</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#temporal">1.1.2. Temporal</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#pre-run-pr">pre-run (pr)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#equilibrium-eq">equilibrium (eq)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#spinup-sp">spinup (sp)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#transient-tr">transient (tr)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#scenario-sc">scenario (sc)</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#temporal">1.1.2. Temporal</a></li>
 <li class="toctree-l3"><a class="reference internal" href="model_overview.html#community-types-cmts">1.1.3. Community Types (CMTs)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="model_overview.html#vegetation-types-pfts">1.1.4. Vegetation Types (PFTs)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#soil-layers">1.1.5. Soil (Layers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#soil-and-snow-layers">1.1.5. Soil and Snow (Layers)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="model_overview.html#processes">1.2. Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#carbon">1.2.1. Carbon</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#water">1.2.2. Water</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#nitrogen">1.2.3. Nitrogen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#energy-balance">1.2.4. Energy Balance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#permafrost">1.2.5. Permafrost</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#disturbance">1.2.6. Disturbance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#methane">1.2.7. Methane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_overview.html#inputs-outputs-io">1.2. Inputs/Outputs (IO)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#inputs">1.2.1. Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_overview.html#outputs">1.2.2. Outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="model_overview.html#inputs-outputs-io">1.3. Inputs/Outputs (IO)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#inputs">1.3.1. Inputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_overview.html#outputs">1.3.2. Outputs</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#output-selection">Output Selection</a></li>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#process">Process</a></li>
-<li class="toctree-l4"><a class="reference internal" href="model_overview.html#variable-output-combinations">Variable Output Combinations</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="model_overview.html#parameterization">1.3. Parameterization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_overview.html#software-design">1.4. Software Design</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="running_dvmdostem.html">2. Running</a><ul>
@@ -218,7 +198,12 @@ executable does not have hyphens.</p>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#running-a-sensitivity-analysis">2.1.5. Running a Sensitivity Analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#parallel-options">2.1.6. Parallel Options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#processing-outputs">2.1.7. Processing Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#processing-outputs">2.1.7. Processing Outputs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#output-selection">Output Selection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#process">Process</a></li>
+<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#variable-output-combinations">Variable Output Combinations</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#processing-inputs">2.1.8. Processing Inputs</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#from-iem-snap-data">From IEM/SNAP data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#from-era5">From ERA5</a></li>

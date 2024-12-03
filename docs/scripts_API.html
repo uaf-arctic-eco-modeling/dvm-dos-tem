@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>drivers.BaseDriver &mdash; dvmdostem v0.8.0 documentation</title>
+  <title>drivers.BaseDriver &mdash; dvmdostem v0.8.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.0
+                v0.8.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -1061,8 +1061,28 @@ to the parameters files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="drivers.MadsTEMDriver.MadsTEMDriver.observed_vec">
-<span class="sig-name descname"><span class="pre">observed_vec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.observed_vec" title="Permalink to this definition"></a></dt>
-<dd><p>Return a flat list of the observation values (aka targets).</p>
+<span class="sig-name descname"><span class="pre">observed_vec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'labeled'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#drivers.MadsTEMDriver.MadsTEMDriver.observed_vec" title="Permalink to this definition"></a></dt>
+<dd><p>Return a list of the observation values (aka targets).</p>
+<p>The target values are included in the model output data structures, and
+could be accessed exactly like the <cite>modeled_vec()</cite> function but
+if you have not yet run the model you don’t have outputs ready and
+therefore can’t read them. There are cases where you would like to
+see the target values without running the model, so we will assemble
+them here from the <cite>self.targets</cite> data structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>format</strong> (<em>{'labeled'</em><em>, </em><em>'flat'}</em>) – Choose the format that returned data will be in. ‘labeled’ data will be a
+list of dicts that can be converted to Pandas DataFrame. ‘flat’ data will
+return a flat list in the order:
+<cite>[ pft0_leaf,pft0_stem,pft0_root, … pftN_leaf, pftN_stem, pftN_root ]</cite></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>target_data</strong> – The target data, organized as specified with <cite>format</cite> parameter.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>iterable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

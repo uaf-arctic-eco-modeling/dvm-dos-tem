@@ -115,7 +115,8 @@ To build the Sphinx documentation (this document) locally, then do the following
     .. code:: shell
 
       $ make clean
-      $ PYTHONPATH="/work:/work/calibration:$PYTHONPATH" make html
+      $ export PYTHONPATH="/work:/work/scripts:/work/scripts/util:/work/calibration:$PYTHONPATH" 
+      $ make html
 
 
 The resulting files are in the ``docs_src/sphinx/build/html`` directory and can
@@ -256,8 +257,8 @@ image to render, directly from Google Docs when someone loads the page:
 
 .. code:: html
 
-   <!-- From Tobey Carman's google drawing "dvmdostem-general-idea-science"-->
-   <img src="https://docs.google.com/drawings/d/17AWgyjGv3fWRLhEPX7ayJKSZt3AXcBILXN2S-FGQHeY/pub?w=960&amp;h=720">
+   <!-- From Shared Drive > "Documentation Embed Images, dvmdostem-general-idea-science"-->
+   <img src="https://docs.google.com/drawings/d/e/2PACX-1vT8BiV8S8_oCTOghlwsSkdyoxY7bm1sArD6y_JVx8PEBQF5OF3KYEonCH1v5T0bDbqsGw8zMDaZvoSh/pub?w=966&amp;h=519">
 
 If the original Google Drawing is updated, then the drawing seen in the wiki 
 will be updated too. Take caution with the permissions granted for editing 
@@ -267,14 +268,14 @@ on the original drawing!
 
    When you are editing an image that is embedded, the edits are automatically
    live on the published website! This is fine for quick edits such as fixing a
-   typo, but for anything more substantial, it is reccomended that you make a
+   typo, but for anything more substantial, it is recommended that you make a
    duplicate of the Google Drawing, edit the duplicate and then copy it back
    over the original. This will keep your edits from showing up on the live site
    until you are done with them!
 
 .. warning:: 
    
-   Soure drawings for this document should probably be stored in the 
+   Soucre drawings for this document should probably be stored in the 
    Shared Google Drive so that they are not tied to an individual's account.
 
 In Google Docs, there is a way to insert a Google Drawing from a menu: 
