@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
 import pandas as pd
+#import xarray as xr
 import collections
 
 
@@ -159,6 +160,92 @@ def average_monthly_pool_to_yearly(data):
     output[i] = data[yr_start:yr_end].mean(axis=0)
 
   return output
+
+
+def load_output_dataframe(var=None, stage=None, timeres=None, px_y=None,
+                          px_x=None, fileprefix=None):
+  '''Builds a pandas.DataFrame for the requested output variable.
+
+  Parameters
+  ==========
+  var : str
+    The variable of interest. Must be a dvmdostem output variable, i.e.
+    GPP.
+
+  timeres : str
+    String: 'yearly', 'monthly', or 'daily'. Used to find
+    and open the appropriate files as well as set the DatetimeIndex.
+
+  px_y : int
+    Index of the pixel to work with, latitude dimension.
+
+  px_x : int
+    Index of pixel to work with, longitude dimension.
+
+  fileprefix : str
+    The path, absolute or relative, where the function will look for files.
+
+  Returns
+  ========
+  df : pandas.DataFrame
+    A DataFrame with data for the requested ``var``.
+    The DataFrame should have a complete DatetimeIndex.
+
+  meta : dict
+    A small dictionary containing metadata about the datasets in the
+    dataframe. Namely, the units.
+  '''
+
+  expected_filename = "{}_{}_{}.nc".format(var, timeres, stage)
+  expected_filename = os.path.join(fileprefix, expected_filename)
+
+#  dataset = xr.open_dataset(expected_filename)
+#  dataframe = ds.to_dataframe()
+#
+#  dataframe = dataframe[(dataframe['x'] == px_x)]
+#  dataframe = dataframe[(dataframe['y'] == px_y)]
+#  dataframe.drop(columns=['y','x'])
+#
+#  if 'albers_conical_equal_area' in dataframe:
+#    dataframe.drop('albers_conical_equal_area')
+#
+#  return dataframe
+
+  data = np.array([])
+  units = ''
+  with nc.Dataset(expected_filename, 'r') as f:
+    data = f.variables[var][:]
+    units = f.variables[var].units
+    dims = f.variables[var].dimensions
+    time = f.variables['time'][:]
+
+  timeslice = slice(0, None, 1)
+  yslice = slice(px_y, px_y+1, 1)
+  xslice = slice(px_x, px_x+1, 1)
+  pftslice = None
+  layerslice = None
+
+  if 'pft' in dims:
+    pftslice = slice(0, None, 1)
+  elif 'layer' in dims:
+    layerslice = slice(0, None, 1)
+
+  if pftslice is not None:
+    slice_tuple = (timeslice, pftslice, yslice, xslice)
+    final_shape = (data.shape[0], data.shape[1])
+  elif layerslice is not None:
+    slice_tuple = (timeslice, layerslice, yslice, xslice)
+    final_shape = (data.shape[0], data.shape[1])
+  else:
+    slice_tuple = (timeslice, yslice, xslice)
+    final_shape = (data.shape[0])
+
+  meta = {
+    'var_units': units,
+  }
+
+  return pd.DataFrame(data[slice_tuple].reshape(final_shape)), meta
+
 
 def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, 
                         fileprefix=None):
