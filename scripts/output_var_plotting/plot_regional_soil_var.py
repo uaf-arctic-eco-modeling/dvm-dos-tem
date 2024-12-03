@@ -26,8 +26,8 @@ var_name = "LWCLAYER"
 
 #The data filenames will be generated automatically, so just
 # put the directory here. The trailing slash is necessary.
-mri_directory = "toolik_soil/"
-ncar_directory = "toolik_soil/"
+mri_directory = "temp_outputs/regional_output_plotting/toolik_soil/"
+ncar_directory = "temp_outputs/regional_output_plotting/toolik_soil/"
 
 #Set these based on the data:
 byLayer = True 
@@ -125,7 +125,8 @@ proj_len = len(data_mri)
 # with a shaded envelope around them +- standard deviation
 
 fig = plt.figure()
-fig.canvas.set_window_title(var_name)
+man = plt.get_current_fig_manager()
+man.set_window_title(var_name)
 num_rows = 1 
 num_columns = 1
 
@@ -154,7 +155,8 @@ for il in np.arange(0,num_rows):
 
   #Set each subplot to use the same y axis as the first subplot
   allaxes = fig.get_axes()
-  allaxes[0].get_shared_y_axes().join(allaxes[0], allaxes[il])
+  for axes in allaxes:
+    axes.sharey(allaxes[0])
 
   #Calculate the mean per year
   data_hist_avg = np.ma.mean(data_hist, axis=(1,2))
