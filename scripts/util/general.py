@@ -7,6 +7,7 @@ def breakdown_outfile_name(outfilepath):
   '''
   Takes a TEM output file name, with or without full path,
   and returns the path, variable name, time step, and stage.
+  Assumes validity of (optional) path and filename.
 
   Example inputs:
     /data/workflows/testing1/output/ALD_yearly_sc.nc
