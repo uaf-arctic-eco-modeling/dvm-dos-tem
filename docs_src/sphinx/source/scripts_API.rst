@@ -78,3 +78,9 @@ util.metrics
 .. automodule:: util.metrics
     :members:
 
+###########################################
+util.general
+###########################################
+
+.. automodule:: util.general
+    :members:
