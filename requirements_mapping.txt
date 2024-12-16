@@ -8,7 +8,7 @@ cftime==1.2.1
 click-plugins==1.1.1
 #cligj==0.7.1
 commentjson==0.8.3
-configobj==5.0.6
+configobj==5.0.9
 cycler==0.10.0
 decorator==4.4.2
 Fiona==1.10.0
