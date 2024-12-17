@@ -21,15 +21,18 @@ sys.path.insert(0, os.path.abspath("../../../scripts"))
 # -- Project information -----------------------------------------------------
 
 project = 'dvmdostem'
-copyright = '2022, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
+copyright = '2024, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
 author = 'Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.7.0'
-version = 'v0.7.0'
+release = 'v0.8.1'
+version = 'v0.8.1'
 
 
 # -- General configuration ---------------------------------------------------
+
+numfig = True # auto-numbering for figures, reference by name
+
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -45,8 +48,11 @@ extensions = [
   #'numpydoc',
   'sphinx.ext.napoleon',
   'sphinxarg.ext',
+  'sphinxcontrib.bibtex',
 ]
 
+bibtex_bibfiles = ["bibliography.bib"]
+bibtex_reference_style = "author_year"
 
 # -- Config for some extensions ----------------------------------------------
 autosectionlabel_prefix_document = True

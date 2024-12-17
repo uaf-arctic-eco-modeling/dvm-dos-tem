@@ -268,7 +268,7 @@ class MadsTEMDriver(BaseDriver):
     '''
     program = '/work/dvmdostem'
     ctrl_file = os.path.join(self.work_dir, 'run', 'config','config.js')
-    opt_str = f" -l err --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
+    opt_str = f" -l monitor --force-cmt {self.cmtnum} --ctrl-file {ctrl_file}"
     cmdline = program + ' ' + self.opt_run_setup + opt_str
     completed_process = subprocess.run(
       cmdline,             # The program + options 
@@ -294,24 +294,74 @@ class MadsTEMDriver(BaseDriver):
     fd = pd.DataFrame(self.gather_model_outputs())
     return list(fd['value'])
 
-  def observed_vec(self):
-    '''Return a flat list of the observation values (aka targets).'''
-    # The target values are included in the model output data structures, and
-    # could be accessed exactly like the modeled_vec function but
-    # if you have not yet run the model you don't have outputs ready and
-    # therefore can't read them. There are cases where you would like to
-    # see the target values without running the model, so we will assemble
-    # them another way here.
-    pftnums = [i['pftnum'] for i in self.params]
-    for o in self.outputs:
-      ct = o['ctname']
-      # Not 100% sure this will work all the time?? PFTs? compartments???
-      # Likely going to need something like
-      # if type(self.targets[ct]) is dict:
-      #   sefl.targets[ct]['Leaf'][PFT]
-      targets = [self.targets[ct][PFT] for PFT in range(10) if PFT in pftnums]
-      return targets
+  def observed_vec(self, format='labeled'):
+    '''Return a list of the observation values (aka targets).
 
+    The target values are included in the model output data structures, and
+    could be accessed exactly like the `modeled_vec()` function but
+    if you have not yet run the model you don't have outputs ready and
+    therefore can't read them. There are cases where you would like to
+    see the target values without running the model, so we will assemble
+    them here from the `self.targets` data structure.
+
+    Parameters
+    ==========
+    format : {'labeled', 'flat'}
+      Choose the format that returned data will be in. 'labeled' data will be a
+      list of dicts that can be converted to Pandas DataFrame. 'flat' data will 
+      return a flat list in the order:
+      `[ pft0_leaf,pft0_stem,pft0_root, ... pftN_leaf, pftN_stem, pftN_root ]`
+
+    Returns
+    =======
+    target_data : iterable
+      The target data, organized as specified with `format` parameter.
+    '''
+    if format == 'labeled':
+      # Builds a flat list in this order:
+      # [ pft0_leaf, pft0_stem, pft1_root ... pftN_leaf, pftN_stem, pftN_root ]
+      targets = []
+      for o in self.outputs:
+        ct = o['ctname']
+        # handle single soil variables
+        if type(self.targets[ct]) is float or type(self.targets[ct]) is int:
+          targets.append(dict(cmtnum=self.cmtnum, ctname=ct, observed=self.targets[ct]))
+        # handle pft variables
+        if type(self.targets[ct]) is list:
+          for PFT in range(10):
+            if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
+              targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, observed=self.targets[ct][PFT])) 
+        # handle pft and compartment variables
+        if type(self.targets[ct]) is dict:
+          for PFT in range(10):
+            clu = {0:'Leaf', 1:'Stem', 2:'Root'}
+            for cmprt in range(0,3):
+              if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
+                targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt=clu[cmprt], observed=self.targets[ct][clu[cmprt]][PFT]))
+
+    elif format == 'flat':
+      # Builds a flat list in this order:
+      # [ pft0_leaf, pft0_stem, pft1_root ... pftN_leaf, pftN_stem, pftN_root ]
+      targets = []
+      for o in self.outputs:
+        ct = o['ctname']
+        # handle single soil variables
+        if type(self.targets[ct]) is float or type(self.targets[ct]) is int:
+          targets.append(self.targets[ct])
+        # handle pft variables
+        if type(self.targets[ct]) is list:
+          for PFT in range(10):
+            if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
+              targets.append(self.targets[ct][PFT]) 
+        # handle pft and compartment variables
+        if type(self.targets[ct]) is dict:
+          for PFT in range(10):
+            clu = {0:'Leaf', 1:'Stem', 2:'Root'}
+            for cmprt in range(0,3):
+              if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
+                targets.append(self.targets[ct][clu[cmprt]][PFT])
+
+    return targets
 
 
   def run_wrapper(self, parameter_vector):
@@ -420,12 +470,3 @@ class MadsTEMDriver(BaseDriver):
         raise RuntimeError("SOMETHING IS WRONG?")
 
     return final_data
-
-
-
-
-
-
-
-
-

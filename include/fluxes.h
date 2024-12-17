@@ -244,8 +244,6 @@ struct soi2atm_bgc {
   double rhsomprsum;
   double rhsomcrsum;
 
-  double rhtot;  //total rhs
-
   double ch4efflux;
   double ch4effdiff; //Efflux from diffusion
   double ch4_oxid[MAX_SOI_LAY];
@@ -254,6 +252,8 @@ struct soi2atm_bgc {
 
   double ch4_transport[MAX_SOI_LAY][NUM_PFT];
 
+  double rhsom;  //RH for soil organic matter
+  
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
                  rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D),
                  ch4efflux(UIN_D), ch4effdiff(UIN_D), ch4_oxid_sum(UIN_D) {

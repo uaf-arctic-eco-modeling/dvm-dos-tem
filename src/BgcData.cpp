@@ -55,7 +55,7 @@ void BgcData::clear() {
 };
 
 void BgcData::land_endOfMonth() {
-  m_l2a.nep = m_a2v.nppall - m_soi2a.rhtot;
+  m_l2a.nep = m_a2v.nppall - m_soi2a.rhsom - m_soi2a.rhwdeb;
   y_l2a.nep += m_l2a.nep;
 };
 
@@ -309,7 +309,7 @@ void BgcData::soil_beginOfYear() {
   y_soid.orgnsum = 0.;
   y_soid.avlnsum = 0.;
   y_soid.ch4ebulsum = 0.;
-  y_soi2a.rhtot  =0.;
+  y_soi2a.rhsom = 0.;
   y_soi2a.rhwdeb    =0.;
   y_soi2a.rhrawcsum =0.;
   y_soi2a.rhsomasum =0.;
@@ -481,11 +481,10 @@ void BgcData::soil_endOfMonth(const int currmind) {
     m_soi2soi.nimmobsum += m_soi2soi.nimmob[il];
   }
 
-  m_soi2a.rhtot = m_soi2a.rhrawcsum +
+  m_soi2a.rhsom = m_soi2a.rhrawcsum +
                   m_soi2a.rhsomasum +
                   m_soi2a.rhsomprsum +
-                  m_soi2a.rhsomcrsum +
-                  m_soi2a.rhwdeb;
+                  m_soi2a.rhsomcrsum;
 
   //cumulative annually
   y_soi2a.rhwdeb += m_soi2a.rhwdeb;
@@ -493,7 +492,8 @@ void BgcData::soil_endOfMonth(const int currmind) {
   y_soi2a.rhsomasum += m_soi2a.rhsomasum;
   y_soi2a.rhsomprsum += m_soi2a.rhsomprsum;
   y_soi2a.rhsomcrsum += m_soi2a.rhsomcrsum;
-  y_soi2a.rhtot += m_soi2a.rhtot;
+  y_soi2a.rhsom += m_soi2a.rhsom;
+
   y_soi2a.ch4_oxid_sum += m_soi2a.ch4_oxid_sum;
   y_soi2a.ch4efflux += m_soi2a.ch4efflux;
   y_soi2a.ch4effdiff += m_soi2a.ch4effdiff;
