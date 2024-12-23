@@ -303,6 +303,13 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         ebul_efflux = 0.0;
         currl->ch4 -= ebul;
         wtlayer->ch4 += ebul;
+
+        // OR 50% is emitted via preferential pathways - this number could be tuned to
+        // represent the partitioning between plant, ebullition, and diffusion fluxes
+        // ebul_efflux = 0.5 * ebul;
+        // currl->ch4 -= ebul;
+        // wtlayer->ch4 += 0.5 * ebul;
+        // i.e. half ebullition is reassigned and half is emitted
       }
 
       // This assump- tion is supported by the fact that wetland soils are generally very porous, 
