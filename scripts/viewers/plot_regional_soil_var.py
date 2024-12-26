@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 #This script will plot the historical, mri, and ncar outputs
-# for a single vegetation variable from a regional run. Each specified
-# PFT will have a subplot, and the standard deviation will be displayed as
+# for a single soil variable from a regional run. Each layer can have
+# a subplot, and the standard deviation will be displayed as
 # a translucent range around the average (mean) line.
 
 import subprocess
@@ -22,27 +22,22 @@ matplotlib.use('TkAgg')
 # Set the values in the following section
 #################################################
 #################################################
-var_name = "NPP"
+var_name = "LWCLAYER"
 
 #The data filenames will be generated automatically, so just
 # put the directory here. The trailing slash is necessary.
-mri_directory = "YKD/mri/"
-ncar_directory = "YKD/ncar/"
-#The vegetation file needs to be specified in full (not just
-# the directory)
-veg_filename = "YKD/mri/vegetation.nc"
+mri_directory = "temp_outputs/regional_output_plotting/toolik_soil/"
+ncar_directory = "temp_outputs/regional_output_plotting/toolik_soil/"
 
 #Set these based on the data:
-byPFT = False
-byPFTCompartment = False
+byLayer = True 
 Monthly = True
 Yearly = False
 hist_years = 115
 proj_years = 85
 
-#Specify which CMTs you want plotted. If they do not appear in the
-# data set they will be skipped.
-CMTs_to_plot = [4,5,6] 
+plot_per_layer = False
+num_layers = 22
 
 #################################################
 #################################################
@@ -59,28 +54,9 @@ hist_filename = mri_directory + var_name + "_" + timestep + "_tr.nc"
 mri_filename = mri_directory + var_name + "_" + timestep + "_sc.nc"
 ncar_filename = ncar_directory + var_name + "_" + timestep + "_sc.nc"
 
-print(f'Vegetation file: {veg_filename}')
 print(f'Transient file: {hist_filename}')
 print(f'mri file: {mri_filename}')
 print(f'ncar file: {ncar_filename}')
-
-#Load vegtype data for masking by CMT
-with nc.Dataset(veg_filename, 'r') as ncFile:
-  vegtype = np.array(ncFile.variables['veg_class'][:])
-#CMT types and counts from the data set
-all_CMTs,CMT_cell_count = np.unique(vegtype, return_counts=True)
-#Merge types and counts into a single list
-all_CMTs = list(zip(all_CMTs, CMT_cell_count))
-#Exclude CMT '0' because it's not real
-valid_CMTs = np.array([cmt for cmt in all_CMTs if cmt[0] != 0])
-print(valid_CMTs)
-
-#Remove specified CMTs that do not appear in the data set
-for cmt in CMTs_to_plot:
-  if not cmt in valid_CMTs:
-    print(f'Specified CMT {cmt} not found, removing from list')
-    CMTs_to_plot.remove(cmt) 
-    continue
 
 #Load data from output files
 with nc.Dataset(hist_filename, 'r') as ncFile:
@@ -97,17 +73,11 @@ with nc.Dataset(ncar_filename, 'r') as ncFile:
   data_ncar = np.array(ncFile.variables[var_name][:])
 
 #The following sum calls assume the following order of dimensions:
-# time, pftpart, pft, y, x
+# time, layer, y, x
 # This should be assured by dvmdostem's output
 
-#If output is by PFT compartment, sum to by PFT or total
-if byPFTCompartment:
-  data_hist = np.ma.sum(data_hist, axis=1)
-  data_mri = np.ma.sum(data_mri, axis=1)
-  data_ncar = np.ma.sum(data_ncar, axis=1)
-
-#If output is by PFT, sum to total
-if byPFT:
+#If output is by layer and this is not wanted, sum to total 
+if byLayer and not plot_per_layer:
   data_hist = np.ma.sum(data_hist, axis=1)
   data_mri = np.ma.sum(data_mri, axis=1)
   data_ncar = np.ma.sum(data_ncar, axis=1)
@@ -149,15 +119,19 @@ hist_len = len(data_hist)
 proj_len = len(data_mri)
 
 
-#One sub plot per selected CMT
+#One sub plot per layer (if specified)
 #All sub plots will share a y axis scale
 #Each sub plot will have three lines: transient, mri, and ncar, each
 # with a shaded envelope around them +- standard deviation
 
 fig = plt.figure()
-fig.canvas.set_window_title(var_name)
-num_rows = len(CMTs_to_plot)
+man = plt.get_current_fig_manager()
+man.set_window_title(var_name)
+num_rows = 1 
 num_columns = 1
+
+if plot_per_layer:
+  num_rows = num_layers
 
 #x ticks will be every 10 x units, starting from 0 and running to
 # the length of transient and scenario plus ten 
@@ -167,17 +141,13 @@ num_columns = 1
 xticks = np.arange(0, hist_len+proj_len+10, 10)
 xticklabels = np.arange(1900, 1900+hist_len+proj_len+10, 10)
 
-print(f'Plotting CMTs: {CMTs_to_plot}')
-for cmt in CMTs_to_plot:
-  #Finding an index so that we can identify different subplots
-  CMT_index = CMTs_to_plot.index(cmt)
-  #The index() function above returns a 0-based index, but the subplot
-  # system uses a 1-based indexing scheme so we increment by 1.
-  subplot_index = CMT_index + 1
+for il in np.arange(0,num_rows):
+  #The subplot system uses a 1-based indexing scheme so we increment by 1.
+  subplot_index = il + 1
 
   #Add a subplot for the current CMT, using the subplot_index to move
   # to the new subplot
-  ax = fig.add_subplot(num_rows, num_columns, subplot_index, label=cmt, title="CMT "+str(cmt))
+  ax = fig.add_subplot(num_rows, num_columns, subplot_index, label=il, title="Layer "+str(il))
 
   #Setting x ticks and labels to the values defined above
   ax.set_xticks(xticks)
@@ -185,27 +155,18 @@ for cmt in CMTs_to_plot:
 
   #Set each subplot to use the same y axis as the first subplot
   allaxes = fig.get_axes()
-  allaxes[0].get_shared_y_axes().join(allaxes[0], allaxes[CMT_index])
-
-  #Create a mask based on the current CMT - mask out all cells
-  # where the vegtype does not match.
-  cmt_masked = ma.masked_where(vegtype != cmt, vegtype)
-  broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, data_hist.shape)
-  data_hist_cmt_masked = np.ma.array(data_hist, mask=broadcast_cmt_mask)
-  #Repeat for mri and ncar
-  broadcast_cmt_mask = np.broadcast_to(cmt_masked.mask, data_mri.shape)
-  data_mri_cmt_masked = np.ma.array(data_mri, mask=broadcast_cmt_mask)
-  data_ncar_cmt_masked = np.ma.array(data_ncar, mask=broadcast_cmt_mask)
+  for axes in allaxes:
+    axes.sharey(allaxes[0])
 
   #Calculate the mean per year
-  data_hist_avg = np.ma.mean(data_hist_cmt_masked, axis=(1,2))
-  data_mri_avg = np.mean(data_mri_cmt_masked, axis=(1,2))
-  data_ncar_avg = np.mean(data_ncar_cmt_masked, axis=(1,2))
+  data_hist_avg = np.ma.mean(data_hist, axis=(1,2))
+  data_mri_avg = np.mean(data_mri, axis=(1,2))
+  data_ncar_avg = np.mean(data_ncar, axis=(1,2))
 
   #Calculate standard deviation per timestep
-  data_hist_stddev = np.ma.std(data_hist_cmt_masked, axis=(1,2))
-  data_mri_stddev = np.ma.std(data_mri_cmt_masked, axis=(1,2))
-  data_ncar_stddev = np.ma.std(data_ncar_cmt_masked, axis=(1,2))
+  data_hist_stddev = np.ma.std(data_hist, axis=(1,2))
+  data_mri_stddev = np.ma.std(data_mri, axis=(1,2))
+  data_ncar_stddev = np.ma.std(data_ncar, axis=(1,2))
 
 
   #Calculating the upper and lower bounds for the standard deviation
@@ -214,7 +175,7 @@ for cmt in CMTs_to_plot:
   hist_upper_bound = [a_i + b_i for a_i, b_i in zip(data_hist_avg, data_hist_stddev)]
 
   #Plot the average line
-  ax.plot(range(hist_len), data_hist_avg, label='Transient')
+  ax.plot(range(hist_len), data_hist_avg)
 
   #Plot the "envelope" plus and minus standard deviation
   ax.fill_between(range(hist_len), hist_lower_bound, hist_upper_bound, alpha=0.5)
@@ -224,17 +185,16 @@ for cmt in CMTs_to_plot:
   mri_low_bound = [a_i - b_i for a_i, b_i in zip(data_mri_avg, data_mri_stddev)]
   mri_up_bound = [a_i + b_i for a_i, b_i in zip(data_mri_avg, data_mri_stddev)]
 
-  ax.plot(range(hist_len, hist_len+proj_len), data_mri_avg, label='mri')
+  ax.plot(range(hist_len, hist_len+proj_len), data_mri_avg)
   ax.fill_between(range(hist_len, hist_len+proj_len), mri_up_bound, mri_low_bound, alpha=0.3)
 
   #Repeating for ncar
   ncar_low_bound = [a_i - b_i for a_i, b_i in zip(data_ncar_avg, data_ncar_stddev)]
   ncar_up_bound = [a_i + b_i for a_i, b_i in zip(data_ncar_avg, data_ncar_stddev)]
 
-  ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg, label='ncar')
+  ax.plot(range(hist_len, hist_len+proj_len), data_ncar_avg)
   ax.fill_between(range(hist_len, hist_len+proj_len), ncar_up_bound, ncar_low_bound, alpha=0.3)
 
-  ax.legend()
 
 x_label = 'Year'
 y_label = f'{data_units} (if monthly summed to yearly)'
@@ -245,7 +205,6 @@ fig.text(0.06, 0.5, y_label, ha='center', va='center', fontsize=18, rotation='ve
 
 #Display the plot
 plt.show()
-
 
 exit()
 
