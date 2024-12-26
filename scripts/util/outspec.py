@@ -87,6 +87,8 @@ def csv_file_to_data_dict_list(fname):
   
   data = []  
   for r in csv.DictReader(s):
+    if None in r.keys():
+      raise RuntimeError(f"Bad output spec file! Check your fields for {r['Name']}")
     if sorted(r.keys()) != expected_cols_sorted:
       print("PROBLEM WITH KEYS: ", sorted(r.keys()))
       if 'Name' in list(r.keys()):

@@ -188,7 +188,7 @@ ENV PYTHONPATH="/work/scripts:/work/mads_calibration"
 # A stand-alone container that can be used to compile the dvmdostem binary
 # without needing to mount volumes when the container is started. Here the
 # required source files are copied directly to the image. This is in constrast
-# to the dev image, where there is no source code present in the imag instead it
+# to the dev image, where there is no source code present in the image instead it
 # must be provided by mounting a volume at container run-time.
 FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
 ARG UNAME
