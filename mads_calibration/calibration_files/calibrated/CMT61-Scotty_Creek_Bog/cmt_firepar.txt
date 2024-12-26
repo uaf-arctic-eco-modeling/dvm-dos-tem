@@ -1,0 +1,385 @@
+// dvmdostem parameter file
+// Fire disturbance parameters
+// Max of 10 PFTs over 1 soil column
+// PFT names should be CamelCase and must not have a period in them!
+//
+//===========================================================
+// CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
+//PFT0      PFT1        PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // names: units // description // comments // refs                 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1: // // fraction of PFT vegetation combusted for severity 1 //
+0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // fvcomb_sev2: // // fraction of PFT vegetation combusted for severity 2 //
+0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev3: // // fraction of PFT vegetation combusted for severity 3 //
+0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev4: // // fraction of PFT vegetation combusted for severity 4 //
+0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5: // // fraction of PFT vegetation combusted for severity 5 //
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1: // // fraction of PFT vegetation killed for severity 1  //
+0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2: // // fraction of PFT vegetation killed for severity 2 //
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3: // // fraction of PFT vegetation killed for severity 3 //
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4: // // fraction of PFT vegetation killed for severity 4 //
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5: // // fraction of PFT vegetation killed for severity 5 //
+// ground
+0.00         // foslburn_sev1: // // fraction of OS layer burned for severity 1
+0.48         // foslburn_sev2: // // fraction of OS layer burned for severity 2
+0.54         // foslburn_sev3: // // fraction of OS layer burned for severity 3
+0.69         // foslburn_sev4: // // fraction of OS layer burned for severity 4
+0.80         // foslburn_sev5: // // fraction of OS layer burned for severity 5
+// other
+0.50         // vsmburn: // // volume soil moisture to define wet soil for prevent organic layer burning
+0.10         // r_retain_c: // // ratio of burning residue C (retained into soil) 
+0.10         // r_retain_n: // // ratio of burning residue N (retained into soil)
+//============
+// CMT01 // Boreal Black Spruce // Calibrated for Murphy Dome.
+//EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
+//===========================================================
+// CMT02 // Boreal White Spruce Forest // Calibrated with Bonanza Creek climate.
+//EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //  
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80    // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //  
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //  
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //  
+//===========================================================
+// CMT03 // Boreal Deciduous Forest // Calibrated for Murphy Dome.
+//EverTree  DecShrub    DecTree      Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
+//===========================================================
+// CMT04 // Shrub Tundra // Calibrated for Toolik area.
+//Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //    
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //    
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //    
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //    
+//===========================================================
+// CMT05 // Tussock Tundra
+//Betula     Decid       EGreen      Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.30         0.90         0.90         0.999        0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.35         0.999        0.999        0.999        0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //    
+0.1    // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 //  
+0.3    // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 //  
+0.5    // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 //  
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //    
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //    
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //    
+//===========================================================
+// CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
+//Decid      Sedges      Grasses     Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.30         0.90         0.90         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.35         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
+//===========================================================
+// CMT07 // Heath Tundra
+//Decid      EGreen      Forbs       Lichens      Grasses      Moss         PFT6         PFT7         PFT8         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.30         0.90         0.90         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.35         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
+//===========================================================
+// CMT12 // Lowland Boreal Wet Shrubland
+//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram      Feather        Lichen    Equisetum        PFT9      // name: units // description // comment // refs
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15         0.15         0.15         0.15         0.70         0.70         0.80         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25         0.25         0.25         0.25         0.80         0.80         0.90         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30         0.30         0.30         0.30         0.90         0.90         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35         0.35         0.35         0.35         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50         0.50         0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60         0.60         0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64         0.64         0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64         0.64         0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
+//===========================================================
+// CMT20 // EML Shrub Tundra
+//Betnan     Carex       Ericoid      Feather     Lichen       OthMoss      Rubcha       Misc1        Misc2        Misc3     // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.30         0.90         0.90         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.35         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //   
+//===========================================================
+// CMT21 // EML Tussock Tundra
+//Betnan     Carex       Ericoid     Erivag       Feather     Lichen      OtherMoss    Rubcha     Sphagnum         PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.15         0.70         0.70         0.80         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.25         0.80         0.80         0.90         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.30         0.90         0.90         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.35         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 //
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 //
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 //
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 //
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //
+//===========================================================
+// CMT31 // Boreal Bog
+//DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    Misc.     // name: units // description // comment // refs
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15         0.15         0.15         0.15         0.70         0.70         0.80         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25         0.25         0.25         0.25         0.80         0.80         0.90         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30         0.30         0.30         0.30         0.90         0.90         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35         0.35         0.35         0.35         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50         0.50         0.50         0.50         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60         0.60         0.60         0.60         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64         0.64         0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64         0.64         0.64         0.64         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00    // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //
+0.48    // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 //
+0.54    // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 //
+0.69    // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 //
+0.80    // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 //
+0.50    // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //
+0.10    // r_retain_c:  //  // ratio of burning residue C (retained into soil) //
+0.10    // r_retain_n:  //  // ratio of burning residue N (retained into soil) //
+//===========================================================
+// CMT44 // Shrub Tundra Kougarok
+//Salix      Betula      Decid       EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9      // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.80         0.80         0.80         1.00         1.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         1.00         1.00         1.00         1.00         1.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.20         0.20         0.20         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 //   
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning //   
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) //   
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //
+//==========================================================
+// CMT50 // Shrub Tundra TVC // ##Values from Trail Valley###
+//  DecidShrub  EgreenShrub        Forbs        Sedge         Moss       Lichen         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
+//==========================================================
+// CMT51 // Tussock Tundra TVC // ##Values from Trail Valley###
+//Sedges     Sphagnum    Lichen       PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
+//==========================================================
+// CMT52 // Heath-lichen // ##Values from Trail Valley###
+//Lichen      PFT1    PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment //  
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) //
+//==========================================================
+// CMT60 // PEAT PLATEAU // 
+//    EverTree    EricShrub       Lichen         Moss         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev1:  //  // fraction of PFT vegetation combusted for severity 1 // 
+0.15         0.15        0.15        0.15         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev2:  //  // fraction of PFT vegetation combusted for severity 2 // 
+0.25         0.25        0.25        0.25         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev3:  //  // fraction of PFT vegetation combusted for severity 3 // 
+0.30         0.30        0.30        0.30         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev4:  //  // fraction of PFT vegetation combusted for severity 4 // 
+0.35         0.35        0.35        0.35         0.00         0.00         0.00         0.00         0.00         0.00      // fvcomb_sev5:  //  // fraction of PFT vegetation combusted for severity 5 // 
+0.00         0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev1:  //  // fraction of PFT vegetation killed for severity 1 // 
+0.50         0.50        0.50        0.50         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev2:  //  // fraction of PFT vegetation killed for severity 2 // 
+0.60         0.60        0.60        0.60         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev3:  //  // fraction of PFT vegetation killed for severity 3 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev4:  //  // fraction of PFT vegetation killed for severity 4 // 
+0.64         0.64        0.64        0.64         0.00         0.00         0.00         0.00         0.00         0.00      // fvdead_sev5:  //  // fraction of PFT vegetation killed for severity 5 // 
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
+//==========================================================
+// CMT61 // Scotty Creek BOG // 
+//Sphagnum   EgreenTree    Sedges     EricShrubs    Forbs        PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev1: fraction of PFT vegetation combusted for severity 1     
+0.1500       0.1500       0.1500       0.1500       0.1500       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev2: fraction of PFT vegetation combusted for severity 2      
+0.2500       0.2500       0.2500       0.2500       0.2500       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev3: fraction of PFT vegetation combusted for severity 3     
+0.3000       0.3000       0.3000       0.3000       0.3000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev4: fraction of PFT vegetation combusted for severity 4      
+0.3500       0.3500       0.3500       0.3500       0.3500       0.0000       0.0000       0.0000       0.0000       0.0000 // fvcomb_sev5: fraction of PFT vegetation combusted for severity 5      
+0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev1: fraction of PFT vegetation killed for severity 1      
+0.5000       0.5000       0.5000       0.5000       0.5000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev2: fraction of PFT vegetation killed for severity 2      
+0.6000       0.6000       0.6000       0.6000       0.6000       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev3: fraction of PFT vegetation killed for severity 3      
+0.6400       0.6400       0.6400       0.6400       0.6400       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev4: fraction of PFT vegetation killed for severity 4      
+0.6400       0.6400       0.6400       0.6400       0.6400       0.0000       0.0000       0.0000       0.0000       0.0000 // fvdead_sev5: fraction of PFT vegetation killed for severity 5      
+0.00   // foslburn_sev1:  //  // fraction of OS layer burned for severity 1 // 
+0.48   // foslburn_sev2:  //  // fraction of OS layer burned for severity 2 // 
+0.54   // foslburn_sev3:  //  // fraction of OS layer burned for severity 3 // 
+0.69   // foslburn_sev4:  //  // fraction of OS layer burned for severity 4 // 
+0.80   // foslburn_sev5:  //  // fraction of OS layer burned for severity 5 // 
+0.50   // vsmburn:  //  // volume soil moisture to define wet soil for prevent organic layer burning // 
+0.10   // r_retain_c:  //  // ratio of burning residue C (retained into soil) // 
+0.10   // r_retain_n:  //  // ratio of burning residue N (retained into soil) // 
