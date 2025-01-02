@@ -1940,7 +1940,11 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
       std::array<double, MAX_SOI_LAY> ch4_output{};
       double ch4_sum = 0.0;
-      int il = 0;
+      // moss ch4 pool is used as a boundary node
+      // hence is forced to atmospheric concentration
+      // moss is ignored here so it is not included
+      // in the pool
+      int il = 0 + this->cohort.ground.moss.num;
       Layer* currL = this->cohort.ground.fstshlwl;
 
       while(currL != NULL){
@@ -2376,24 +2380,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     }//end critical(outputCH4TRANSPORT)
   }//end CH4TRANSPORT
   map_itr = netcdf_outputs.end();
-
-
-  //CH4TRANSPORTDAILY
-  map_itr = netcdf_outputs.find("CH4TRANSPORTDAILY");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4TRANSPORTDAILY";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputCH4TRANSPORTDAILY)
-    {
-
-      if(curr_spec.daily){
-        //output_nc_4dim(&curr_spec, file_stage_suffix, &cohort.edall->daily_total_plant_ch4[0], 1, doy, dinm);
-      }
-    }//end critical(outputCH4TRANSPORTDAILY)
-  }//end CH4TRANSPORTDAILY
-  map_itr = netcdf_outputs.end();
-
 
   //Community Type Code (CMT NUMBER)
   map_itr = netcdf_outputs.find("CMTNUM");

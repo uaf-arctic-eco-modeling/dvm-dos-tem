@@ -428,8 +428,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       plant_daily += plant;        // cumulated over 1 day, 24 time steps, Y.MI
       plant_gm2day += plant_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI - in units of g m^-2 day^-1
 
-      oxid_gm2day += oxid_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI
       // ed->d_soid.oxid = oxid_gm2day; // - in units of g m^-2 day^-1
+      oxid_gm2day += oxid_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI
 
       ebul_daily += ebul;        // cumulated over 1 time step, 1 hour Y.MI
       ebul_gm2day += ebul_gm2hr; // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1

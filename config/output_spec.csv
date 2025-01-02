@@ -21,7 +21,6 @@ CH4OXIDATION,Oxidation of methane to carbon dioxide,g/m2/time,,,,invalid,invalid
 CH4POOL,Methane pool,g/m2,,,,invalid,invalid,,double,
 CH4PRODUCTION,Methane production,g/m2/time,,,,invalid,invalid,,double,
 CH4TRANSPORT,Methane transport by vegetation,g/m2/time,,,,,invalid,,double,
-CH4TRANSPORTDAILY,Daily total methane transport by vegetation,g/m2/time,invalid,invalid,,invalid,invalid,invalid,double,
 CMTNUM,Community Type Number,m,,invalid,invalid,invalid,invalid,invalid,int,
 DEADC,Standing dead C,g/m2,,,invalid,invalid,invalid,invalid,double,
 DEADN,Standing dead N,g/m2/time,,,invalid,invalid,invalid,invalid,double,
