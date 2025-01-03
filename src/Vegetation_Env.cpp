@@ -342,20 +342,11 @@ double Vegetation_Env::getLeafStomaCond(const double & ta,
 
 double Vegetation_Env::getRainInterception(const double & rain,
                                            const double & lai) {
-  // input: rain mm/day
-  double rinter;
-  double raincm = rain/10.; // convert to cm
-  //20200930 We do not have a citation for these equations
-  // and do not know why ircoef from the parameter files is not used.
-  double max_int = raincm - ((raincm*0.77-0.05)+0.02 * raincm);
-  // may need to add LAI adjustment?
-  //
-  max_int *= 10. ; // convert back to mm;
+  // Based on CLM5.0 Technical Note
+  double rinter = rain * envpar.ircoef * (1 - tanh(-0.5 * lai));
 
-  if(rain <= max_int) { // all intercepted
+  if(rain <= rinter) {
     rinter = rain;
-  } else { //partly intercepted
-    rinter= max_int;
   }
 
   return rinter;
@@ -363,18 +354,11 @@ double Vegetation_Env::getRainInterception(const double & rain,
 
 double Vegetation_Env::getSnowInterception(const double & snow,
                                            const double & lai) {
-  double sinter;
-  double psinter; //potential snow interception
-  double ISmax = envpar.iscoef ; //this is parameter for snow interception
-                                 //  by canopy
-  //it should be vegetation specific [mm /LAI /day ],
-  //  e.g., for tussock tundra set to 0
-  psinter = ISmax * lai;
+  // Based on CLM5.0 Technical Note
+  double sinter = snow * envpar.iscoef * (1 - exp(-0.5 * lai));
 
-  if(psinter >= snow) {
+  if(snow <= sinter) {
     sinter = snow;
-  } else {
-    sinter = psinter;
   }
 
   return sinter;
