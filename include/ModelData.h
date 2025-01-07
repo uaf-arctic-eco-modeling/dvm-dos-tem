@@ -91,6 +91,8 @@ public:
   int baseline_start;//Start year for baseline EQ climate
   int baseline_end;//End year for baseline EQ climate
 
+  bool veg_succession;//Allow cmt change following disturbance
+
   // Maps holding data about variables to be output at specific timesteps
   // C++11 would allow the use of unordered_maps, which have a faster
   // by-key access time.

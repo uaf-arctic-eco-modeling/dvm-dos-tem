@@ -682,3 +682,8 @@ int WildFire::getFRI(){
   return fri;
 }
 
+int WildFire::getSeverity(int year){
+  return exp_fire_severity[year];
+}
+
+

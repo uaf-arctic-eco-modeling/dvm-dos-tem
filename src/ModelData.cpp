@@ -114,6 +114,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
+  veg_succession = controldata["model_settings"]["veg_succession"].asBool();
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();

@@ -45,6 +45,8 @@ public:
   void setEnvData(const int &ip, EnvData * edp);
   void setBgcData(const int &ip, BgcData * bdp);
 
+  void successionAbrupt();
+
 private:
   CohortLookup * chtlu;
   CohortData * cd;

@@ -36,7 +36,8 @@ public:
   void load_projected_explicit_data(const std::string& exp_fname, int y, int x);
 
   int getFRI();
- 
+  int getSeverity(int year);
+
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
   void setBgcData(BgcData* bdp, const int &ip);
