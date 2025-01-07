@@ -760,9 +760,11 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
 
   //updateMonthly_Flood(...)
 
-  // if (fire.getSeverity(yrind) >= 4 && cd.mthsdist == 0){ //md->veg_succession && 
-  //   veg.successionAbrupt();
-  // }
+  if(md->veg_succession
+     && fire.getSeverity(yrind) >= 4
+     && cd.mthsdist == 0){
+    veg.successionAbrupt();
+  }
 }
 
 /** Fire Disturbance module. */
