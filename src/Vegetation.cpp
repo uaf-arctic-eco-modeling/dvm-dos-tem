@@ -539,62 +539,75 @@ void Vegetation::updateFrootfrac() {
           cd->m_veg.frootfrac[il][ip] = 0.0;
         }
       }
-    } // end of 'vegcov[ip]>0'
+    } // end of 'vegcov[ip]>0'o
   }
 };
 
-void Vegetation::successionAbrupt(){
+void Vegetation::cmtChange(){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
   std::string new_cmt = "CMT03";
 
   // Load relevant parameters from new CMT
-  // chtlu->assignBgc4Vegetation(new_cmt);
-  // chtlu->assignEnv4Canopy(new_cmt);
-  // chtlu->assignVegDimension(new_cmt);
-  // chtlu->assignFirePar(new_cmt);
   chtlu->cmtcode = new_cmt;
-  chtlu->init();
 
-  // Will need to modulate calpar vegetation NOT soil
-  // chtlu->assignBgcCalpar(new_cmt);
+  // reinitializing ALL parameters, we only want
+  // some... need to make a list of neccessary parameters
+  chtlu->init();
 
   // reassign pools to new PFTs
   double cpool, npool, labnpool = 0.0;
+
   for(int ip=0; ip<NUM_PFT; ip++){
+
     if(cd->m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
       labnpool += bd[ip]->m_vegs.labn;
+
       for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+
         cpool += bd[ip]->m_vegs.c[ipp];
         npool += bd[ip]->m_vegs.strn[ipp];
+
       }
     }
   }
 
   /*
-  option#1
-  n_pft0_leaf = m_vegs.c[ipp] * cnevenl;
-  
-    unused to labile N
+  How to redistribute nitrogen:
 
-  option#2
-  n_pft0_leaf = (initvegc_pft[ip][ipp] / initvegc_tot) * npool
+  init_vegc * cneven = init_vegn
 
+  init_vegn_tot = sum (init_vegn)
 
+  npool = (initvegn_pft[ip] / initvegn_tot) * npool
 
   */
 
   double initvegc_tot = 0.0;
+  
+  // total expected nitrogen for new cmt based on
+  // cn ratio parameters
+  double initvegn_tot = 0.0;
+
   double initvegc_pft[NUM_PFT] = {0.0};
+  double initvegn_part_pft[NUM_PFT_PART][NUM_PFT] = {0.0};
+
   for(int ip=0; ip<NUM_PFT; ip++){
+
     for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+
       initvegc_pft[ip] += chtlu->initvegc[ipp][ip];
+      initvegn_part_pft[ipp][ip] = chtlu->initvegc[ipp][ip] / chtlu->initc2neven[ipp][ip];
+      initvegn_tot += initvegn_part_pft[ipp][ip];
+
     }
     // break out of loop once all new pfts have been
     // accounted for
     if (initvegc_pft[ip] == 0.0){
       break;
     }
+
     initvegc_tot += initvegc_pft[ip];
   }
 
@@ -608,8 +621,15 @@ void Vegetation::successionAbrupt(){
     double new_pft_pool = (initvegc_pft[ip] / initvegc_tot) * cpool;
     bd[ip]->m_vegs.call = new_pft_pool;
 
+    //FIX NANS
+
     for (int ipp = 0; ipp < NUM_PFT_PART; ipp++){
+      // redistribute carbon to compartments
       bd[ip]->m_vegs.c[ipp] = chtlu->cpart[ipp][ip] * new_pft_pool;
+      // calculate new nitrogen distribution based on 
+      // percentage from new c:n ratios while maintaining
+      // total nitrogen 
+      bd[ip]->m_vegs.strn[ipp] = (initvegn_part_pft[ipp][ip] / initvegn_tot) * npool;
     }
   }
 };

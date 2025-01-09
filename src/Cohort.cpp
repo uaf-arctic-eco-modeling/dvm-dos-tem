@@ -760,10 +760,10 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
 
   //updateMonthly_Flood(...)
 
-  if(md->veg_succession
-     && fire.getSeverity(yrind) >= 4
+  if(md->cmt_change
+     && fire.getSeverity(yrind) >= 4 // we may this to be based on remaining OLT
      && cd.mthsdist == 0){
-    veg.successionAbrupt();
+    veg.cmtChange();
   }
 }
 
