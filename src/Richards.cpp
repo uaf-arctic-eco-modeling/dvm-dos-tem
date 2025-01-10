@@ -277,8 +277,61 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         currl = currl->nextl;
       }
     }
+  } else { // for unsaturated layers
+    double fgroundwater = 1.0;
+     //CLM5 Equations 7.103 and 7.102
+    double slope_rads = cell_slope * PI / 180;//Converting to radians
+    double kgroundwater_perch = 10.e-5* sin(slope_rads) //original factor 10e-5; to be adjusted per S.Swenson
+                        * (eq7103_num / eq7103_den);
+    double qgroundwater_perch = kgroundwater_perch * (bdraindepth - watertab)
+                        * fgroundwater; // adding a ground water input factor to unsaturated layers
+    
+    //Calculate input to unsaturated layers
+    currl = fstsoill;
+    while(currl != NULL && currl->indl<=drainind && currl->isSoil){
+      int ind = currl->indl;
+      if(vol_liq[ind] / liq_poro[ind] <= 0.9){
+        double layer_max_input = currl->poro - effminliq[ind];
+        double layer_calc_input = qgroundwater_perch * SEC_IN_DAY
+                                * ((dzmm[ind]/1.e3) / eq7103_den);
+        layer_input[ind] = fmin(layer_max_input, layer_calc_input);
+        qdrain -= layer_input[ind]; //mm/day
+      }
+      currl = currl->nextl;
+    }
+    //Drainage has been calculated from saturated layers (usually bottom layers);
+    //however, to avoid creating isolated unsaturated deep layers,
+    //remove the calculated drainage from the top down.
+    if(qdrain > 0){
+      double to_drain = qdrain;
+      currl = fstsoill;
+      while(currl != NULL && currl->indl <= drainind && to_drain > 0 && currl->isSoil){
+        int ind = currl->indl;
+        double avail_liq = currl->liq - effminliq[ind];
+        double take_liq = fmin(to_drain, avail_liq);
+        currl->liq -= take_liq;
+        to_drain -= take_liq;
+
+        currl = currl->nextl;
+      }
+    } else if (qdrain < 0){
+      double to_drain = qdrain;
+      currl = fstsoill;
+      while(currl != NULL && currl->indl <= drainind && to_drain < 0 && currl->isSoil){
+        double to_input = - to_drain;
+        int ind = currl->indl;
+        double avail_space = currl->poro - currl->liq - effminliq[ind];
+        double give_liq = fmin(to_input, avail_space);
+        currl->liq += give_liq;
+        to_input -= give_liq;
+        to_drain += give_liq;
+
+        currl = currl->nextl;
+      }
+    } 
   }
 }
+
 
 void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
 //This collects already-known values into arrays for ease of use, and
@@ -491,6 +544,7 @@ void Richards::clearRichardsArrays(){
 
     percolation[ii] = 0.0;
     layer_drain[ii] = 0.0;
+    layer_input[ii] = 0.0;
   }
 }
 

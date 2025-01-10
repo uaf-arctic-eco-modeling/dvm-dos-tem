@@ -203,12 +203,14 @@ struct soi2lnd_env {
   double qover;
   double qdrain;
   double layer_drain[MAX_SOI_LAY];
+  double layer_input[MAX_SOI_LAY];
   double magic_puddle;//This is an artificial construct to prevent
                       // losing too much water to runoff.
   soi2lnd_env(): qinfl(UIN_D), qover(UIN_D), qdrain(UIN_D),
                  magic_puddle(UIN_D) {
     for(int il=0; il<MAX_SOI_LAY; il++){
       layer_drain[il] = UIN_D;
+      layer_input[il] = UIN_D;
     }
   }
 };
