@@ -1,0 +1,50 @@
+'''
+pyTEM
+pytem
+dvmdostem
+pydvmdostem
+dvmdostempy
+tempy
+TEMpy
+pyddt
+pyDDT
+
+
+
+
+pyddt
+  README
+  pyproject.toml
+  
+  docs/
+
+  tests/
+    pull_request_test.py
+    doctests/
+      doctests_outspec_utils.md
+
+  util
+    general.py
+    metrics.py
+    param.py
+    runmask.py
+    outspec.py
+    
+  drivers
+    BaseDriver.py
+    MadsTEMDriver.py
+    Sensitivity.py
+  
+  calibration
+    ca-config-demo.yaml
+    AC-MADS-TEM.jl
+    AC-SCIPY-TEM.py
+
+  sensitivity
+    SA_setup_and_run.py
+    SA_post_hoc_analysis.py
+    sa-demo-config.yaml
+  
+  
+
+'''

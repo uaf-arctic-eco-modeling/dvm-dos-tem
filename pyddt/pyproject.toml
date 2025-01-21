@@ -1,0 +1,26 @@
+#[build-system]
+#requires = ["setuptools>=61.0"]
+#build-backend = "setuptools.build_meta"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyddt"
+version = "0.0.0"
+authors = [
+  { name="Tobey Carman", email="tcarman2@alaska.edu" },
+]
+description = "All the dvmdostem tools."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem"
+Issues = "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues"

@@ -7,7 +7,6 @@ def breakdown_outfile_name(outfilepath):
   '''
   Takes a TEM output file name, with or without full path,
   and returns the path, variable name, time step, and stage.
-  Assumes validity of (optional) path and filename.
 
   Example inputs:
     /data/workflows/testing1/output/ALD_yearly_sc.nc
@@ -38,6 +37,48 @@ def breakdown_outfile_name(outfilepath):
   return path_prefix, varname, timeres, stage
 
 
+'''
+pyTEM
+pytem
+dvmdostem
+pydvmdostem
+dvmdostempy
+tempy
+TEMpy
 
 
+pyddt
+  README
+  pyproject.toml
+  
+  docs/
 
+  tests/
+    pull_request_test.py
+    doctests/
+      doctests_outspec_utils.md
+        
+  util.general.py
+  util.metrics.py
+  util.param.py
+  util.runmask.py
+  util.outspec.py
+    
+  util.drivers
+    BaseDriver.py
+    MadsTEMDriver.py
+    Sensitivity.py
+  
+  calibration
+    ca-config-demo.yaml
+    AC-MADS-TEM.jl
+    AC-SCIPY-TEM.py
+
+  sensitivity
+    SA_setup_and_run.py
+    SA_post_hoc_analysis.py
+    sa-demo-config.yaml
+  
+  
+
+'''

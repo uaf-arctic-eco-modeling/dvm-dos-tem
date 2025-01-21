@@ -17,15 +17,9 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 
-from drivers.BaseDriver import BaseDriver
 
-import util.metrics
-import util.param
-import util.output
-import util.setup_working_directory
-import util.runmask
-import util.outspec
-
+from . import basedriver
+from .. import util
 
 @contextmanager
 def log_wrapper(message):
@@ -257,7 +251,7 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
   
 
 
-class Sensitivity(BaseDriver):
+class Sensitivity(basedriver.BaseDriver):
   '''
   Sensitivity Analysis Driver class.
 

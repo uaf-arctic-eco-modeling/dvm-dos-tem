@@ -6,15 +6,18 @@ import subprocess
 import shutil
 import pandas as pd
 
-import util.param as pu
-import util.setup_working_directory
-import util.runmask
-import util.outspec
-import util.output
+#import pyddt.drivers.BaseDriver
+from . import basedriver
 
-from drivers.BaseDriver import BaseDriver
+# import util.param as pu
+# import util.setup_working_directory
+# import util.runmask
+# import util.outspec
+# import util.output
 
-class MadsTEMDriver(BaseDriver):
+# from drivers.BaseDriver import BaseDriver
+
+class MadsTEMDriver(basedriver.BaseDriver):
   '''
   MadsTEMDriver class for controlling and running the driving the dvmdostem
   model from a Julia script with the Mads package.
