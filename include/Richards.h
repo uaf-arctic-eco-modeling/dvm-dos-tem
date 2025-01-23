@@ -22,6 +22,7 @@ public :
 
   int num_al;   // active layers' layer numbers
   double qdrain; // mm/day
+  double qgroundwater; //mm/day
   double qinfil; // mm/day
   double qevap; // mm/day
   double e_ice; //ice impedance factor (CLM5)
