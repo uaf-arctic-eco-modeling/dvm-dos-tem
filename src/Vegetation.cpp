@@ -551,9 +551,8 @@ void Vegetation::cmtChange(){
   // Load relevant parameters from new CMT
   chtlu->cmtcode = new_cmt;
 
-  // reinitializing ALL parameters, we only want
-  // some... need to make a list of neccessary parameters
-  chtlu->init();
+  // reinitializing vegetation parameters
+  chtlu->loadVegetationParams();
 
   // reassign pools to new PFTs
   double cpool, npool, labnpool = 0.0;
@@ -573,17 +572,6 @@ void Vegetation::cmtChange(){
     }
   }
 
-  /*
-  How to redistribute nitrogen:
-
-  init_vegc * cneven = init_vegn
-
-  init_vegn_tot = sum (init_vegn)
-
-  npool = (initvegn_pft[ip] / initvegn_tot) * npool
-
-  */
-
   double initvegc_tot = 0.0;
   
   // total expected nitrogen for new cmt based on
@@ -597,13 +585,19 @@ void Vegetation::cmtChange(){
 
     for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
 
+      // accumulating pft specific carbon values
       initvegc_pft[ip] += chtlu->initvegc[ipp][ip];
-      initvegn_part_pft[ipp][ip] = chtlu->initvegc[ipp][ip] / chtlu->initc2neven[ipp][ip];
-      initvegn_tot += initvegn_part_pft[ipp][ip];
 
+      // only calculate nitrogen if c:n ratio is non-zero
+      // otherwise NaNs created from divide by zero due to
+      // PFTs without all compartments
+      if (chtlu->initc2neven[ipp][ip]>0){
+        initvegn_part_pft[ipp][ip] = chtlu->initvegc[ipp][ip] / chtlu->initc2neven[ipp][ip];
+        initvegn_tot += initvegn_part_pft[ipp][ip];
+      }
     }
-    // break out of loop once all new pfts have been
-    // accounted for
+
+    // break out of loop once all new pfts have been summed
     if (initvegc_pft[ip] == 0.0){
       break;
     }
@@ -621,11 +615,10 @@ void Vegetation::cmtChange(){
     double new_pft_pool = (initvegc_pft[ip] / initvegc_tot) * cpool;
     bd[ip]->m_vegs.call = new_pft_pool;
 
-    //FIX NANS
-
     for (int ipp = 0; ipp < NUM_PFT_PART; ipp++){
       // redistribute carbon to compartments
       bd[ip]->m_vegs.c[ipp] = chtlu->cpart[ipp][ip] * new_pft_pool;
+
       // calculate new nitrogen distribution based on 
       // percentage from new c:n ratios while maintaining
       // total nitrogen 

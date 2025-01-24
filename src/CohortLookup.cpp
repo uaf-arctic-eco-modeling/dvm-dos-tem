@@ -51,6 +51,15 @@ void CohortLookup::init() {
   assignFirePar(dir);
 }
 
+void CohortLookup::loadVegetationParams() {
+  BOOST_LOG_SEV(glg, info) << "Cohort Lookup init function. Assigning all values from various config/* files...";
+  // assignBgcCalpar(dir); // only load pft specific parameters - call a load VegCalPar
+  assignVegDimension(dir);
+  assignEnv4Canopy(dir);
+  assignBgc4Vegetation(dir);
+  // assignFirePar(dir);
+}
+
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file,
  * but only for one cmt type which ever one "this->cmtcode" refers to..
  */

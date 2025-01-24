@@ -26,6 +26,9 @@ public:
   std::string calparbgc2str();
   void init();
   void assignBgcCalpar(string & dirname);
+  // For loading only vegetation related parameters
+  // following a cmt change
+  void loadVegetationParams();
 
   //calibration related
   //vegetation
