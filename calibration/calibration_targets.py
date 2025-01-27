@@ -596,9 +596,9 @@ calibration_targets = {
   "Mature Jack Pine" : {
     'cmtnumber': 66,
   'PFTNames':  ['EGreenTree', 'DecidShrub', 'Lichen', 'FeatherMoss', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
-  'GPPAllIgnoringNitrogen':  [138.000, 60.400, 15.600, 22.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAllIgnoringNitrogen':  [86.250, 37.750, 9.750, 13.750, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAll':  [199.300, 13.800, 0.960, 13.440, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'GPPAllIgnoringNitrogen':  [672.688, 46.683, 3.242, 45.386, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [420.431, 29.177, 2.026, 28.366, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [336.344, 23.341, 1.620, 22.693, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   'Nuptake':  [2.600, 0.150, 0.140, 0.310, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   'VegCarbon': {
     'Leaf' : [173.000, 15.000, 10.000, 140.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
@@ -616,7 +616,7 @@ calibration_targets = {
   'CarbonMineralSum': 2973,
   'OrganicNitrogenSum': 157,
   'AvailableNitrogenSum': 5.4,
-  'EcosystemRespiration': 188.81,
+  'EcosystemRespiration': 521.46,
 },
   ## CMT67 - Mixed Forest-Groundhog River
   "Mixed Forest-Groundhog River" : {
