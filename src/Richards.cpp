@@ -42,7 +42,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     if(qinfil > 0.0){//add infil back to ponding/qover
       qinfil *= SEC_IN_DAY;// -->mm/day
       //Add to ponding TODO replace hardcoded 100 mm with ponding_max_mm from soil env?
-      double space_in_puddle = 100.0 - ed.d_soi2l.magic_puddle;
+      double space_in_puddle = 1000.0 - ed.d_soi2l.magic_puddle;
       double add_to_puddle = fmin(space_in_puddle, qinfil);
       ed.d_soi2l.magic_puddle += add_to_puddle;
       qinfil -= add_to_puddle;
