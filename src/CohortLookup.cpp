@@ -164,6 +164,16 @@ std::string CohortLookup::calparbgc2str() {
 /** Set calibrated BCG parameters based on values in file. */
 void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
+  // loading calibrated BGC vegetation 
+  // and soil parameters independently
+  assignBgcCalparVeg(dircmt);
+  assignBgcCalparSoil(dircmt);
+
+}
+
+/** Set calibrated BCG vegetation parameters based on values in file. */
+void CohortLookup::assignBgcCalparVeg(std::string & dircmt) {
+
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
       dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 18
@@ -185,37 +195,30 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data_pft(l, krb[I_root]);
   temutil::pfll2data_pft(l, frg);
 
+  // ignoring last five lines as these are soil parameters
+
+}
+
+/** Set calibrated BCG soil parameters based on values in file. */
+void CohortLookup::assignBgcCalparSoil(std::string & dircmt) {
+
+  // get a list of data for the cmt number
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 18
+  );
+
+  // ignoring vegetation parameters by erasing lines read in 
+  // from parameter file 
+  std::list<std::string>::iterator it_begin_veg, it_end_veg;
+  it_begin_veg = it_end_veg = l.begin();
+  advance(it_end_veg, 13);
+  l.erase(it_begin_veg, it_end_veg);
+
   temutil::pfll2data(l, micbnup);
   temutil::pfll2data(l, kdcrawc);
   temutil::pfll2data(l, kdcsoma);
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
-
-}
-
-void CohortLookup::assignBgcCalparVeg(std::string & dircmt) {
-
-  // get a list of data for the cmt number
-  std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 13
-  );
-
-  // pop each line off the front of the list
-  // and assign to the right data member.
-  temutil::pfll2data_pft(l, cmax);
-  temutil::pfll2data_pft(l, nmax);
-  temutil::pfll2data_pft(l, cfall[I_leaf]);
-  temutil::pfll2data_pft(l, cfall[I_stem]);
-  temutil::pfll2data_pft(l, cfall[I_root]);
-  temutil::pfll2data_pft(l, nfall[I_leaf]);
-  temutil::pfll2data_pft(l, nfall[I_stem]);
-  temutil::pfll2data_pft(l, nfall[I_root]);
-  temutil::pfll2data_pft(l, kra);
-  temutil::pfll2data_pft(l, krb[I_leaf]);
-  temutil::pfll2data_pft(l, krb[I_stem]);
-  temutil::pfll2data_pft(l, krb[I_root]);
-  temutil::pfll2data_pft(l, frg);
-
 }
 
 /** Assign "veg dimension?" from parameter file. */

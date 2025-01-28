@@ -543,6 +543,11 @@ void Vegetation::updateFrootfrac() {
   }
 };
 
+/**
+ * Changing CMT vegetation following disturbance, reloading 
+ * vegetation parameters, and redistributing carbon and 
+ * nitrogen pools based on new init and C:N values
+ */
 void Vegetation::cmtChange(){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
