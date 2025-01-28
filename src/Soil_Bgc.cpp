@@ -292,21 +292,22 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
 
       // if watertable is not at surface and in the same layer ignore flux
-      if (wtlayer != ground->fstsoill && wtlayer == currl){
+      // however if there is surface ponding calculated assume ebullition
+      if (wtlayer != ground->fstsoill && wtlayer == currl && ed->d_soi2l.magic_puddle == 0.0){
         ebul = 0.0;
       }
-      
+
       // if watertable at soil surface ch4 is emitted out of the system 
-      if (wtlayer == ground->fstsoill){
+      if (wtlayer == ground->fstsoill || ed->d_soi2l.magic_puddle > 0.0){
         ebul_efflux = ebul;
         ebul = 0.0;
       } else {
         // ch4 is transfered out of current layer to layer containing water table
         // redistribution is necessary so transfered ch4 can be oxidized or emitted
         // via plant-mediate transport
-        ebul_efflux = 0.0;
-        currl->ch4 -= ebul;
-        wtlayer->ch4 += ebul;
+        // ebul_efflux = 0.0;
+        // currl->ch4 -= ebul;
+        // wtlayer->ch4 += ebul;
 
         // OR 50% is emitted via preferential pathways - this number could be tuned to
         // represent the partitioning between plant, ebullition, and diffusion fluxes
@@ -317,9 +318,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
         // This could also be calculated based on distance from soil surface:
         double frac_ebul = exp(1-(currl->z/0.1));
-        // ebul_efflux = frac_ebul * ebul;
-        // currl->ch4 -= ebul;
-        // wtlayer->ch4 += ebul - ebul_efflux;
+        ebul_efflux = frac_ebul * ebul;
+        currl->ch4 -= ebul;
+        wtlayer->ch4 += ebul - ebul_efflux;
       }
  
       ebul_gm2hr = ebul * convert_umolL_to_gm2;
