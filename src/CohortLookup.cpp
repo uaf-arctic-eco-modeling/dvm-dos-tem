@@ -53,11 +53,10 @@ void CohortLookup::init() {
 
 void CohortLookup::loadVegetationParams() {
   BOOST_LOG_SEV(glg, info) << "Cohort Lookup init function. Assigning all values from various config/* files...";
-  // assignBgcCalpar(dir); // only load pft specific parameters - call a load VegCalPar
+  assignBgcCalparVeg(dir);
   assignVegDimension(dir);
   assignEnv4Canopy(dir);
   assignBgc4Vegetation(dir);
-  // assignFirePar(dir);
 }
 
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file,
@@ -191,6 +190,31 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsoma);
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
+
+}
+
+void CohortLookup::assignBgcCalparVeg(std::string & dircmt) {
+
+  // get a list of data for the cmt number
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 13
+  );
+
+  // pop each line off the front of the list
+  // and assign to the right data member.
+  temutil::pfll2data_pft(l, cmax);
+  temutil::pfll2data_pft(l, nmax);
+  temutil::pfll2data_pft(l, cfall[I_leaf]);
+  temutil::pfll2data_pft(l, cfall[I_stem]);
+  temutil::pfll2data_pft(l, cfall[I_root]);
+  temutil::pfll2data_pft(l, nfall[I_leaf]);
+  temutil::pfll2data_pft(l, nfall[I_stem]);
+  temutil::pfll2data_pft(l, nfall[I_root]);
+  temutil::pfll2data_pft(l, kra);
+  temutil::pfll2data_pft(l, krb[I_leaf]);
+  temutil::pfll2data_pft(l, krb[I_stem]);
+  temutil::pfll2data_pft(l, krb[I_root]);
+  temutil::pfll2data_pft(l, frg);
 
 }
 
