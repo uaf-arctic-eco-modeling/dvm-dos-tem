@@ -8,10 +8,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyddt"
-version = "0.0.0"
+version = "0.0.1"
 authors = [
-  { name="Tobey Carman", email="tcarman2@alaska.edu" },
-]
+  {name="Tobey Carman", email="tcarman2@alaska.edu"},
+  {name="Ruth Rutter", email="rarutter@alaska.edu"}
+  ]
 description = "All the dvmdostem tools."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -20,6 +21,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem"
