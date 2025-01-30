@@ -117,6 +117,9 @@ public :
   void load_proj_co2(const std::string& proj_co2_file);
   // Overwrites/fills explicit fire data containers with data from the projected fire input file.
   void load_proj_explicit_fire(const std::string& proj_exp_fire_file);
+
+  void load_ch4(const std::string& ch4_file);
+
 private:
 
   Integrator vegintegrator[NUM_PFT];

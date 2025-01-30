@@ -517,9 +517,17 @@ void Climate::load_proj_climate(const std::string& fname, int y, int x){
 
   this->load_from_file(fname, y, x);
 }
+
+/** Loads projected carbon dioxide input file, overwriting any old data */
 void Climate::load_proj_co2(const std::string& fname){
   BOOST_LOG_SEV(glg, info) << "CO2, loading projected data!";
   this->co2 = temutil::get_timeseries(fname, "co2");
+}
+
+/** Load a methane input file, overwriting any old data */
+void Climate::load_ch4(const std::string& fname){
+  BOOST_LOG_SEV(glg, info) << "Loading ch4 from file";
+  this->ch4 = temutil::get_timeseries(fname, "ch4");
 }
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int start_yr, const int end_yr) {
@@ -668,6 +676,8 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // for all days!
     co2_d = co2.at(0);
 
+    ch4_d = ch4.at(0);
+
     // Create daily data by interpolating
     tair_d = monthly2daily(eq_range(avgX_tair));
     vapo_d = monthly2daily(eq_range(avgX_vapo));
@@ -681,6 +691,8 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // Spin-up, Transient, Scenario
     // Uses the same value of CO2 every day of the year
     co2_d = co2.at(iy);
+
+    ch4_d = ch4.at(iy);
 
     // Create daily data by interpolating
     // straight up interpolated....

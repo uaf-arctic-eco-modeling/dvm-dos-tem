@@ -96,7 +96,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // Initial atmospheric CH4 concentration upper boundary condition
   // Fan et al. 2010 supplement Eq. 13. Units: umol L^-1
-  const double upper_bound = 0.076;
+  const double upper_bound = ed->atmospheric_ch4;
   // upper_bound = ed->y_atms.ch4;
   // Defining hourly time step
   double dt = 1.0 / HR_IN_DAY;

@@ -33,6 +33,9 @@ public:
   std::vector<float> cld;
   std::vector<float> par;
 
+  // Supplemental variables, only loaded if module is specified
+  std::vector<float> ch4;
+
   // simplified climate, averaged over some number of years
   std::vector<float> avgX_tair;
   std::vector<float> avgX_prec;
@@ -50,6 +53,8 @@ public:
   // this is not really a daily value, but for scope/access
   // reasons it is easier to treat it as such. Every day of the year has the same co2 value...
   float co2_d;
+
+  float ch4_d;
 
   //  ->> should be interpolated from the monthly containers
   std::vector<float> tair_d;
@@ -80,6 +85,8 @@ public:
 
   void load_proj_climate(const std::string&, int, int);
   void load_proj_co2(const std::string&);
+
+  void load_ch4(const std::string&);
 
   void prep_avg_climate();
 

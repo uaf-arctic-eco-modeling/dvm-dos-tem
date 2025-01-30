@@ -69,6 +69,10 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // overwritten by projected climate later when necessary.
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
 
+  if(modeldatapointer->get_ch4_module()){
+    this->climate.load_ch4(modeldatapointer->ch4_file);
+  }
+
   this->climate.baseline_start = modeldatapointer->baseline_start;
   this->climate.baseline_end = modeldatapointer->baseline_end;
   //Prepare averaged input set for EQ stage
@@ -142,6 +146,11 @@ void Cohort::load_proj_climate(const std::string& proj_climate_file){
 void Cohort::load_proj_co2(const std::string& proj_co2_file){
   climate.load_proj_co2(proj_co2_file);
 }
+
+void Cohort::load_ch4(const std::string& ch4_file){
+  climate.load_ch4(ch4_file);
+}
+
 
 // initialization of pointers used in modules called here
 void Cohort::initialize_internal_pointers() {
