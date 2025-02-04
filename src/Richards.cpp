@@ -228,9 +228,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // Using an inverted for of the above equations to calculate an
   // approximate subsurface input in unsaturated layers. This is
   // to be used for estimating groundwater inputs in lowlands.
-  double eq7103_unsat_num = 0.0;
-  double eq7103_unsat_den = 0.0;
-  bool unsat_soil = false; // If there is at least one saturated layer
+  double eq_rework = 0.0;
+  bool first_unsat_soill = false; // If there is at least one saturated layer
 
   for(int ind=topind; ind<=drainind; ind++){
     //For any saturated layer
@@ -241,10 +240,10 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //but impedance was removed to achieve sufficient drainage
       eq7103_num += ksat[ind] * dzmm[ind]/1.e3;
       eq7103_den += dzmm[ind]/1.e3;
-    } else {
-      unsat_soil = true;
-      eq7103_unsat_num += imped[ind] * ksat[ind] * dzmm[ind] / 1.e3;
-      eq7103_unsat_den += dzmm[ind] / 1.e3;
+    } else if (vol_liq[ind] / liq_poro[ind] >= 0.9 && vol_liq[ind-1] / liq_poro[ind-1] < 0.9) {
+      // identify first unsaturated soil layer, as this can be used for subsurface input
+      first_unsat_soill = true;
+      eq_rework = ksat[ind] * dzmm[ind] / 1.e3;
     }
   }
 
@@ -290,15 +289,17 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       }
     }
   } 
-  else { // for unsaturated layers
+  else if (first_unsat_soill){ // for first unsaturated layer
 
+    // scaler for tuning groundwater input to match observed water table depth
     double fgroundwater = 1000.0;
-     //CLM5 Equations 7.103 and 7.102
+
+     // Reworking CLM5 Equations 7.103 and 7.102 
     double slope_rads = cell_slope * PI / 180;//Converting to radians
-    double kgroundwater_perch = 10.e-5* sin(slope_rads) //original factor 10e-5; to be adjusted per S.Swenson
-                        * (eq7103_unsat_num / eq7103_unsat_den);
-    double qgroundwater_perch = kgroundwater_perch * (bdraindepth - watertab)
-                        * fgroundwater; // adding a ground water input factor to unsaturated layers
+
+    double kgroundwater_perch = sin(slope_rads) * (eq7103_unsat_num / eq7103_unsat_den);
+
+    double qgroundwater_perch = fgroundwater * sin(slope_rads) * eq_rework;
     
     // Calculate liquid space available in each layer
     currl = fstsoill;
@@ -306,10 +307,12 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       int ind = currl->indl;
       if(vol_liq[ind] / liq_poro[ind] <= 0.9){
         double layer_max_input = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
-        double layer_calc_input = qgroundwater_perch * SEC_IN_DAY
-                                * ((dzmm[ind]/1.e3) / eq7103_unsat_den);
+        double layer_calc_input = qgroundwater_perch * SEC_IN_DAY;
+
         layer_input[ind] = fmin(layer_max_input, layer_calc_input);
+
         qgroundwater += layer_input[ind]; //mm/day
+        
       }
       currl = currl->nextl;
     }
