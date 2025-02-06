@@ -560,7 +560,9 @@ void Vegetation::cmtChange(){
   chtlu->loadVegetationParams();
 
   // reassign pools to new PFTs
-  double cpool, npool, labnpool = 0.0;
+  double cpool = 0.0;
+  double npool = 0.0;
+  double labnpool = 0.0;
 
   for(int ip=0; ip<NUM_PFT; ip++){
 
