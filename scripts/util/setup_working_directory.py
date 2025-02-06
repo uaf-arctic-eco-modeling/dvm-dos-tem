@@ -164,6 +164,8 @@ def cmdline_run(args):
   config['IO']['soil_texture_file']    = os.path.join(input_data_path, 'soil-texture.nc')
   config['IO']['co2_file']             = os.path.join(input_data_path, 'co2.nc')
   config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected-co2.nc')
+  config['IO']['ch4_file']             = os.path.join(input_data_path, 'ch4.nc')
+  config['IO']['proj_ch4_file']        = os.path.join(input_data_path, 'projected-ch4.nc')
   config['IO']['topo_file']            = os.path.join(input_data_path, 'topo.nc')
   config['IO']['fri_fire_file']        = os.path.join(input_data_path, 'fri-fire.nc')
   config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, 'historic-explicit-fire.nc')
@@ -188,6 +190,8 @@ def cmdline_run(args):
     "soil_texture_file",
     "co2_file",
     "proj_co2_file",
+    "ch4_file",
+    "proj_ch4_file",
     "topo_file",
     "fri_fire_file",
     "hist_exp_fire_file",
