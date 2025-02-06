@@ -11,7 +11,7 @@
             "program": "/work/dvmdostem",
             "args": ["-l", "fatal", "-p", "0", "-e", "0", "-s", "0", "-t", "10", "-n", "0", "--force-cmt", "1","--restart-run"],
             "stopAtEntry": false,
-            "cwd": "/data/workflows/cmt_change_initial",
+            "cwd": "/data/workflows/cmt_change/cmt_change_initial",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
