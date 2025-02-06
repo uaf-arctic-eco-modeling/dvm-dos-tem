@@ -6,16 +6,13 @@ import subprocess
 import shutil
 import pandas as pd
 
-#import pyddt.drivers.BaseDriver
 from . import basedriver
 
-# import util.param as pu
-# import util.setup_working_directory
-# import util.runmask
-# import util.outspec
-# import util.output
-
-# from drivers.BaseDriver import BaseDriver
+from ..util import param
+from ..util import setup_working_directory
+from ..util import runmask
+from ..util import outspec
+from ..util import output
 
 class MadsTEMDriver(basedriver.BaseDriver):
   '''
@@ -92,12 +89,12 @@ class MadsTEMDriver(basedriver.BaseDriver):
     assert len(self.paramnames) == len(self.pftnums), "params list and pftnums list must be same length!"
 
     self.params = []
-    plu = pu.build_param_lookup(self._seedpath)
+    plu = param.build_param_lookup(self._seedpath)
 
     for pname, pftnum in zip(self.paramnames, self.pftnums):
-      original_pdata_file = pu.which_file(self._seedpath, pname, lookup_struct=plu)
-      p_db = pu.get_CMT_datablock(original_pdata_file, self.cmtnum)
-      p_dd = pu.cmtdatablock2dict(p_db)
+      original_pdata_file = param.which_file(self._seedpath, pname, lookup_struct=plu)
+      p_db = param.get_CMT_datablock(original_pdata_file, self.cmtnum)
+      p_dd = param.cmtdatablock2dict(p_db)
       if pname in p_dd.keys():
         p_val = p_dd[pname]
       else:
@@ -120,14 +117,14 @@ class MadsTEMDriver(basedriver.BaseDriver):
     run_dir = os.path.join(self.work_dir, 'run')
 
     # Make the working directory
-    util.setup_working_directory.cmdline_entry([
+    setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
       '--seed-parameters', self._seedpath,
       run_dir
     ])
 
     # Adjust run mask for appropriate pixel
-    util.runmask.cmdline_entry([
+    runmask.cmdline_entry([
       '--reset',
       '--yx',self.PXy, self.PXx,
       '{}/run-mask.nc'.format(run_dir)
@@ -137,14 +134,14 @@ class MadsTEMDriver(basedriver.BaseDriver):
     # copy of the template output spec file.
     # maybe a flag should be added to setup_working_directory.py that can
     # enforce starting with an empty outspec file...
-    util.outspec.cmdline_entry([
+    outspec.cmdline_entry([
       '{}/config/output_spec.csv'.format(run_dir),
       '--empty',
     ])
 
     # Next run thru the requested outputs toggling them on in the file.
     for output_spec in self.outputs:
-      util.outspec.cmdline_entry([
+      outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(run_dir),
         '--on', output_spec['ncname'], 
         output_spec['timeres'],
@@ -155,7 +152,7 @@ class MadsTEMDriver(basedriver.BaseDriver):
 
     # Setup all the auxillary outputs...
     for output_spec in self.aux_outputs:
-      util.outspec.cmdline_entry([
+      outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(run_dir),
         '--on', output_spec['ncname'], 
         output_spec['timeres'],
@@ -166,13 +163,13 @@ class MadsTEMDriver(basedriver.BaseDriver):
 
 
     # Make sure CMTNUM output is on
-    util.outspec.cmdline_entry([
+    outspec.cmdline_entry([
       '{}/config/output_spec.csv'.format(run_dir),
       '--on','CMTNUM','y'
     ])
 
     # Strip all extra CMTs from parameter files
-    util.param.cmdline_entry([
+    param.cmdline_entry([
       '--extract-cmt',
       os.path.join(run_dir, 'parameters'),
       f'CMT{self.cmtnum:02d}',
@@ -245,14 +242,14 @@ class MadsTEMDriver(basedriver.BaseDriver):
 
     This method iterates through the parameters in the internal params table and
     updates the corresponding values in the run directory using the
-    `pu.update_inplace` function.
+    `param.update_inplace` function.
 
     Returns
     -------
     None
     '''
     for param in self.params:
-      pu.update_inplace(param['val'],
+      param.update_inplace(param['val'],
                         os.path.join(self.work_dir, 'run', 'parameters'),
                         param['name'],
                         param['cmtnum'],
@@ -332,14 +329,14 @@ class MadsTEMDriver(basedriver.BaseDriver):
         # handle pft variables
         if type(self.targets[ct]) is list:
           for PFT in range(10):
-            if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
+            if param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
               targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, observed=self.targets[ct][PFT])) 
         # handle pft and compartment variables
         if type(self.targets[ct]) is dict:
           for PFT in range(10):
             clu = {0:'Leaf', 1:'Stem', 2:'Root'}
             for cmprt in range(0,3):
-              if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
+              if param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
                 targets.append(dict(cmtnum=self.cmtnum, ctname=ct, pft=PFT, cmprt=clu[cmprt], observed=self.targets[ct][clu[cmprt]][PFT]))
 
     elif format == 'flat':
@@ -354,14 +351,14 @@ class MadsTEMDriver(basedriver.BaseDriver):
         # handle pft variables
         if type(self.targets[ct]) is list:
           for PFT in range(10):
-            if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
+            if param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, ref_params_dir=self._seedpath): 
               targets.append(self.targets[ct][PFT]) 
         # handle pft and compartment variables
         if type(self.targets[ct]) is dict:
           for PFT in range(10):
             clu = {0:'Leaf', 1:'Stem', 2:'Root'}
             for cmprt in range(0,3):
-              if util.param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
+              if param.is_ecosys_contributor(f'CMT{self.cmtnum}', PFT, clu[cmprt], ref_params_dir=self._seedpath): 
                 targets.append(self.targets[ct][clu[cmprt]][PFT])
 
     return targets
@@ -428,7 +425,7 @@ class MadsTEMDriver(basedriver.BaseDriver):
     ref_param_dir = os.path.join(self.work_dir, 'run', 'parameters')
     final_data = []
     for o in self.outputs:
-      data, dims = util.output.get_last_n_eq(o['ncname'],
+      data, dims = output.get_last_n_eq(o['ncname'],
                                              'yearly',
                                              os.path.join(self.work_dir, 'run', 'output'),
                                              n=10)
@@ -443,7 +440,7 @@ class MadsTEMDriver(basedriver.BaseDriver):
 
       elif dnames == ('time','y','x','pft'):
         for pft in range(0,10):
-          if pu.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
+          if param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=ref_param_dir):
             truth = self.targets[o['ctname']][pft]
             value = data[:,pft,self.PXy,self.PXx].mean()
 
@@ -458,7 +455,7 @@ class MadsTEMDriver(basedriver.BaseDriver):
           clu = {0:'Leaf', 1:'Stem', 2:'Root'}
           for cmprt in range(0,3):
             #print "analyzing... ctname {} (nc output: {}) for pft {} compartment {}".format(ctname, ncname, pft, cmprt),
-            if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
+            if param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=ref_param_dir):
               truth = self.targets[o['ctname']][clu[cmprt]][pft]
               value = data[:,cmprt,pft,self.PXy,self.PXx].mean()
 

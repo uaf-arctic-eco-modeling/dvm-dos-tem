@@ -1,5 +1,5 @@
-# Testing, developing and describing the interface for MadsTEMDriver.py
-=========================================================================
+# Testing, developing and describing the interface for ``MadsTEMDriver`` class
+==============================================================================
 
 >>> import yaml
 
@@ -34,9 +34,9 @@
 
 >>> config_dict = yaml.load(my_yaml_string, Loader=yaml.FullLoader)
 
->>> import drivers.MadsTEMDriver
+>>> import pyddt.drivers.madstem
 
->>> d = drivers.MadsTEMDriver.MadsTEMDriver(config_dict)
+>>> d = pyddt.drivers.madstem.MadsTEMDriver(config_dict)
 
 >>> d.set_seed_path('/work/parameters')
 
