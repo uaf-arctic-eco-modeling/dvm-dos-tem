@@ -3,8 +3,8 @@ Load the tools
     >>> import shutil
     >>> import os
 
-    >>> import util.setup_working_directory
-    >>> import util.param
+    >>> import pyddt.util.setup_working_directory
+    >>> import pyddt.util.param
   
 Cleanup
 
@@ -14,7 +14,7 @@ Cleanup
 
 Run the tool on some arguments. Lets try working ones first.
 
-    >>> args = util.setup_working_directory.cmdline_parse(
+    >>> args = pyddt.util.setup_working_directory.cmdline_parse(
     ... [ '--input-data-path',
     ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
     ...   '/tmp/test-setup_working_directory'
@@ -26,14 +26,14 @@ See what we got:
     Namespace(copy_inputs=False, force=False, input_data_path='demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False, seed_parameters=None, seed_targets=None)
 
 Now that we've parsed them, lets run the primary functionality of the utility -
-setting up a new working directroy for a `dvmdostem` run!
+setting up a new working directory for a `dvmdostem` run!
 
-    >>> util.setup_working_directory.cmdline_run(args)
+    >>> pyddt.util.setup_working_directory.cmdline_run(args)
 
 If we try to run again, it should fail because the files exist and we don't want
 to overwrite them: 
 
-    >>> util.setup_working_directory.cmdline_entry([
+    >>> pyddt.util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
     ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
     ...   '/tmp/test-setup_working_directory'
@@ -50,7 +50,7 @@ to overwrite them:
 
 If we would like to overwrite the files, then pass the `--force` flag:
 
-    >>> util.setup_working_directory.cmdline_entry([
+    >>> pyddt.util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
     ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
     ...   '--force',
@@ -59,7 +59,7 @@ If we would like to overwrite the files, then pass the `--force` flag:
 
 If you want a custom parameter seed path, you can pass an option for that:
 
-    >>> util.setup_working_directory.cmdline_entry([
+    >>> pyddt.util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
     ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10', 
     ...   '--force',
@@ -71,5 +71,5 @@ Now if we look in the new directory, there should be only a single CMT of data
 in the parameters (whereas if we had not set the seed, there would be many
 CMTs of data):
 
-    >>> util.param.get_CMTs_in_file("/tmp/test-setup_working_directory/parameters/cmt_calparbgc.txt")
+    >>> pyddt.util.param.get_CMTs_in_file("/tmp/test-setup_working_directory/parameters/cmt_calparbgc.txt")
     [{'cmtkey': 'CMT01', 'cmtnum': 1, 'cmtname': 'Boreal Black Spruce', 'cmtcomment': '6/29/20 boreal black spruce with Murphy Dome climate'}]

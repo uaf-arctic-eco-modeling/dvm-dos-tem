@@ -104,7 +104,10 @@ def cmdline_run(args):
   # to run this script. This is presumably where the user would 
   # like the config and parameters to come from.
   # Alternatively: os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
-  ddt_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+  # Hmmm kinda unwieldly...added a few more layers to get out of the pyhon package layout...
+            #                  pyddt         src             pyddt            util
+  ddt_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
+  #import sys; sys.exit()
 
   if args.no_cal_targets:
     pass
