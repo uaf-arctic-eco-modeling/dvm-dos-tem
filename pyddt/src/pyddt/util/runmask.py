@@ -10,7 +10,7 @@ import textwrap
 import os
 import numpy as np
 
-import util.input
+from . import input
 
 '''
 This script is for creating, modifying, and viewing run masks for dvmdostem. 
@@ -96,7 +96,7 @@ def conform_mask_to_inputs(in_folder, verbose=False):
   where any of the data for that pixel in the inputs is bad or missing.
   '''
 
-  util.input.verify_input_files(in_folder)
+  input.verify_input_files(in_folder)
 
   ###########################################################
   # First set the run mask based on the veg map

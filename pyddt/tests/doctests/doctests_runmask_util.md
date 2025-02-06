@@ -1,6 +1,6 @@
 Load the tool.
 
-    >>> import util.runmask
+    >>> import pyddt.util.runmask
 
 Next, make a copy of the demo input files so we can modify it without damaging
 the original.
@@ -19,7 +19,7 @@ the original.
 
 Show the copy:
 
-    >>> util.runmask.show_mask("/tmp/test/run-mask.nc", 'Just a note')
+    >>> pyddt.util.runmask.show_mask("/tmp/test/run-mask.nc", 'Just a note')
     ========== Just a note ==================================
     ** Keep in mind that in this display the origin is the upper 
     ** left of the grid! This is opposite of the way that ncdump 
@@ -63,13 +63,13 @@ Count the number of enabled pixels in the demo file.
     2
     >>> d.close()
 
-Try clearing out the file with `util.runmask`. 
+Try clearing out the file with `pyddt.util.runmask`. 
 
 > This style of programming uses the command line interface, but is designed to
   be "programable" for use in a testing system. Normal use of the command line
   interface would be something like this `$ ./runmask-util.py --help`
 
-    >>> util.runmask.cmdline_run(util.runmask.cmdline_parse(["--reset", "/tmp/test/run-mask.nc"]))
+    >>> pyddt.util.runmask.cmdline_run(pyddt.util.runmask.cmdline_parse(["--reset", "/tmp/test/run-mask.nc"]))
     0
 
 And then check our file again - there should not be any pixels enabled after a
