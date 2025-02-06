@@ -97,12 +97,16 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Initial atmospheric CH4 concentration upper boundary condition
   // Fan et al. 2010 supplement Eq. 13. Units: umol L^-1
   // Convert ppb to umolL^-1
-  // mol/L = ppm / (molar mass [g/mol] * 1000)
-  // mol/L = (ppb/1000) / (16.04 * 1000)
-  // umol/L = 1E6 * (ppb / 1000) / (16.04 * 1000)
-  // umol/L = ppb / 16.04
+  // 1 ppb = 1 nmol CH4 / 1 mol air
+  // 1 nmol = 0.001 umol
+  // C [umol/mol] = C [ppb] / 1000
+  // Using the ideal gas law for air at 25degC and 1 atm
+  // pV = nRT -> nRT/p = V [m3/mol] = 0.001 V [L/mol]
+  // (8.31 * 298) / 101325 = 0.02444 [m3/mol] = 24.45 [L/mol]
+  // C [umol/L] = C[umol/mol] / [L/mol] = [ppb] / 1000 / 24.45
+  // C [umol/L] = C[ppb] / 24450
+  const double upper_bound = ed->atmospheric_ch4 / 24450;
   // Defining hourly time step
-  const double upper_bound = ed->atmospheric_ch4;
   double dt = 1.0 / HR_IN_DAY;
   // Unit conversion factors
   // Rates are in umol L^-1 hr^-1 unless stated in variable name
@@ -297,21 +301,21 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // if watertable is not at surface and in the same layer ignore flux
       // however if there is surface ponding calculated assume ebullition
-      if (wtlayer != ground->fstsoill && wtlayer == currl && ed->d_soi2l.magic_puddle == 0.0){
+      if (wtlayer != ground->fstsoill && wtlayer == currl){// && ed->d_soi2l.magic_puddle == 0.0){
         ebul = 0.0;
       }
 
       // if watertable at soil surface ch4 is emitted out of the system 
-      if (wtlayer == ground->fstsoill || ed->d_soi2l.magic_puddle > 0.0){
+      if (wtlayer == ground->fstsoill){// || ed->d_soi2l.magic_puddle > 0.0){
         ebul_efflux = ebul;
         ebul = 0.0;
       } else {
         // ch4 is transfered out of current layer to layer containing water table
         // redistribution is necessary so transfered ch4 can be oxidized or emitted
         // via plant-mediate transport
-        // ebul_efflux = 0.0;
-        // currl->ch4 -= ebul;
-        // wtlayer->ch4 += ebul;
+        ebul_efflux = 0.0;
+        currl->ch4 -= ebul;
+        wtlayer->ch4 += ebul;
 
         // OR 50% is emitted via preferential pathways - this number could be tuned to
         // represent the partitioning between plant, ebullition, and diffusion fluxes
@@ -321,10 +325,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // i.e. half ebullition is reassigned and half is emitted
 
         // This could also be calculated based on distance from soil surface:
-        double frac_ebul = exp(1-(currl->z/0.1));
-        ebul_efflux = frac_ebul * ebul;
-        currl->ch4 -= ebul;
-        wtlayer->ch4 += ebul - ebul_efflux;
+        // double frac_ebul = exp(1-(currl->z/0.1));
+        // ebul_efflux = frac_ebul * ebul;
+        // currl->ch4 -= ebul;
+        // wtlayer->ch4 += ebul - ebul_efflux;
       }
  
       ebul_gm2hr = ebul * convert_umolL_to_gm2;
