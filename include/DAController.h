@@ -11,6 +11,8 @@ public:
 
   DAController();
 
+  OutputSpec sla_outspec;
+
   OutputSpec lai_outspec;
   OutputSpec vegc_outspec;
   OutputSpec strn_outspec;

@@ -84,6 +84,12 @@ DAController::DAController(){
 
   //TODO replace placeholder - artificially constructing outspec for testing
   boost::filesystem::path output_base = "output/";
+
+  this->sla_outspec.file_path = output_base.string();
+  this->sla_outspec.filename_prefix = "DA_statefile";
+  this->sla_outspec.var_name = "TEM_SLA";
+  this->sla_outspec.data_type = NC_DOUBLE;
+
   this->lai_outspec.file_path = output_base.string();
   this->lai_outspec.filename_prefix = "DA_statefile";
   this->lai_outspec.var_name = "TEM_LAI";
@@ -211,6 +217,10 @@ void DAController::run_DA_LAI(timestep_id current_step){
 
   cell_coords curr_coords(cohort->y, cohort->x);
 
+  //Write parameters to file
+  //sla
+  temutil::output_nc_3dim_notime(&this->sla_outspec, ".nc", &curr_coords, &cohort->veg.vegdimpar.sla[0], NUM_PFT);
+
   //Write accessory variables to file
   //VEGC
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> vegc = cohort->get_vegc_pftandcomp_monthly();
@@ -293,6 +303,10 @@ void DAController::run_DA_LAI(timestep_id current_step){
 //    }
 //  }
 
+  //SLA
+  std::array<double, NUM_PFT> da_sla;
+  da_sla = temutil::read_pft_var_notime(this->da_filename, "DA_SLA", curr_coords.yidx, curr_coords.xidx);
+
   //LAI
   std::array<double, NUM_PFT> da_lai;
   da_lai = temutil::read_pft_var_notime(this->da_filename, "DA_LAI", curr_coords.yidx, curr_coords.xidx);
@@ -307,7 +321,11 @@ void DAController::run_DA_LAI(timestep_id current_step){
   std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> da_strn;
   da_strn = temutil::read_veg_var_notime(this->da_filename, "DA_STRN", curr_coords.yidx, curr_coords.xidx);
 
+  //Assign vegetation values back to model variables
   for(int ip=0; ip<NUM_PFT; ip++){
+    cohort->cd.m_veg.lai[ip] = da_lai[ip];
+    cohort->veg.vegdimpar.sla[ip] = da_sla[ip];
+
     for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
       cohort->bd[ip].m_vegs.c[ipp] = da_vegc[ipp][ip];
       cohort->bd[ip].m_vegs.strn[ipp] = da_strn[ipp][ip];
@@ -339,6 +357,7 @@ void DAController::run_DA_LAI(timestep_id current_step){
   std::array<double, MAX_SOI_LAY> da_somcr;
   da_somcr = temutil::read_soil_var_notime(this->da_filename, "DA_SOMCR", curr_coords.yidx, curr_coords.xidx);
 
+  //Assign soil values back to model variables
   for(int il=0; il<MAX_SOI_LAY; il++){
     //std::cout<<da_lwc[il]<<std::endl;
     cohort->edall->m_soid.lwc[il] = da_lwc[il];
@@ -479,10 +498,16 @@ void DAController::create_da_nc_file(){
   pft_comp_4D_dimids[2] = yD;
   pft_comp_4D_dimids[3] = xD;
 
+  int temSLA_V, daSLA_V;
   int temLAI_V, daLAI_V;
   int temVEGC_V, daVEGC_V;
   int temSTRN_V, daSTRN_V;
 
+  //Vegetation params
+  temutil::nc( nc_def_var(ncid, "TEM_SLA", NC_DOUBLE, 3, pft3D_dimids, &temSLA_V) );
+  temutil::nc( nc_put_att_double(ncid, temSLA_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+  temutil::nc( nc_def_var(ncid, "DA_SLA", NC_DOUBLE, 3, pft3D_dimids, &daSLA_V) );
+  temutil::nc( nc_put_att_double(ncid, daSLA_V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
   //Vegetation variables
   temutil::nc( nc_def_var(ncid, "TEM_LAI", NC_DOUBLE, 3, pft3D_dimids, &temLAI_V) );
