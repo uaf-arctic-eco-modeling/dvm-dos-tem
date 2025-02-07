@@ -93,7 +93,6 @@ void Soil_Bgc::TriSolver(int matrix_size, double *A, double *B, double *C, doubl
 }
 
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
-
   // Initial atmospheric CH4 concentration upper boundary condition
   // Fan et al. 2010 supplement Eq. 13. Units: umol L^-1
   // Convert ppb to umolL^-1
@@ -118,28 +117,43 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // From Fan Eq. 8, components of CH4 mass balance prior to solver
   // equal to prod - oxid - ebul - plant, units : umol L^-1 hr^-1
   // representing the reaction term in the reaction-diffusion equation
-  double reaction_term;
+  double reaction_term = 0.0;
   // Diffusion-specific efflux from top soil layer to atmosphere
   // in units umolL^-1hr^-1, umolL^-1day^-1, gm^-2day^-1 respectively
-  double diff_efflux, diff_efflux_daily, diff_efflux_gm2day = 0.0;
+  double diff_efflux = 0.0;
+  double diff_efflux_daily = 0.0;
+  double diff_efflux_gm2day = 0.0;
   // Individual layer fluxes production, ebullition, oxidation
   // plant-mediation declared in loop to sum pfts, units : umol L^-1 hr^-1
-  double prod, ebul, ebul_efflux, oxid = 0.0;
+  double prod = 0.0;
+  double ebul = 0.0;
+  double ebul_efflux = 0.0;
+  double oxid = 0.0;
   // Individual layer fluxes units : g m^-2 hr^-1
-  double prod_gm2hr, ebul_gm2hr, oxid_gm2hr, plant_gm2hr = 0.0;
+  double prod_gm2hr = 0.0;
+  double ebul_gm2hr = 0.0;
+  double oxid_gm2hr = 0.0;
+  double plant_gm2hr = 0.0;
   // Flux components cumulated over a day in units of umol L^-1 day^-1
-  double plant_daily, ebul_daily = 0.0;
+  double plant_daily = 0.0;
+  double ebul_daily = 0.0;
   // Flux components cumulated over a day in units of g m^-2 day^-1
-  double plant_gm2day, ebul_gm2day, oxid_gm2day, efflux_gm2day = 0.0;
+  double plant_gm2day = 0.0;
+  double ebul_gm2day = 0.0;
+  double oxid_gm2day = 0.0;
+  double efflux_gm2day = 0.0;
   // Bunsen solubility coefficient (bun_sol - SB) in vol CH4/ vol H2O. Fan et al. 2010
   // bun_sol is used as volume in the ideal gas law. What is referred to as the mass-based
   // Bunsen solubility coefficient (SM) in Fan et al. 2010 supplement Eq. 16 we are
   // referring to as the max concentration for which methane can remain dissolved
   // (i.e. not a bubble) this is first calculated in mol m^3 then converted to umol L^1
-  double bun_sol, ch4_molm3_thresh, ch4_umolL_thresh;
+  double bun_sol = 0.0;
+  double ch4_molm3_thresh = 0.0;
+  double ch4_umolL_thresh = 0.0;
   // Pressure on ch4 used in Fan Eq. 16 for ebullition calculation
   // consisting of atmospheric (Pstd) and hydrostatic pressure (p_hydro)
-  double p_hydro, pressure_ch4;
+  double p_hydro = 0.0;
+  double pressure_ch4 = 0.0;
 
   updateKdyrly4all();
 
@@ -150,7 +164,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
   // Storing pool + reaction term * dt prior to solver for calculating efflux
   double prev_pool_R[MAX_SOI_LAY] = {0};
-  
+
   // For storing methane movement data by layer for output
   double ch4_ebul_layer[MAX_SOI_LAY] = {0};
   double ch4_oxid_layer[MAX_SOI_LAY] = {0};
@@ -175,7 +189,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double prod_somcr_ch4[MAX_SOI_LAY] = {0};
 
   // Temperature response (q10) for unsaturated and saturated layers
-  double TResp_unsat, TResp_sat = 0;
+  double TResp_unsat = 0.0;
+  double TResp_sat = 0;
 
   // Function of LAI to describe relative plant size for ch4 transport
   double fLAI[NUM_PFT];
