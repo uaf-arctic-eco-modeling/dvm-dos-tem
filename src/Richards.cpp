@@ -289,15 +289,17 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       }
     }
   } 
+  // This whole else if statement should be prefaced by limits:
+  // - poor drainage
+  // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
+  
   else if (first_unsat_soill){ // for first unsaturated layer
 
     // scaler for tuning groundwater input to match observed water table depth
-    double fgroundwater = 1000.0;
+    double fgroundwater = 1.0; // this may want to be replaced by TPI or TWI
 
      // Reworking CLM5 Equations 7.103 and 7.102 
     double slope_rads = cell_slope * PI / 180;//Converting to radians
-
-    double kgroundwater_perch = sin(slope_rads) * (eq7103_unsat_num / eq7103_unsat_den);
 
     double qgroundwater_perch = fgroundwater * sin(slope_rads) * eq_rework;
     
