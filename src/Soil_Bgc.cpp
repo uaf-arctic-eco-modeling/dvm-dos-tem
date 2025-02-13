@@ -77,6 +77,20 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   // What about mineral C ??
 }
 
+/*
+  Tridiagonal matrix algorithm used for solving the reaction-
+  diffusion equation in CH4Flux function. Matrix is composed
+  of the Crank-Nicolson discretization for the equation with
+  A the lower diagonal, B the main diagonal, and C the upper
+  diagonal, D is the right-hand side of the discretization to
+  be solved for and X is the solution output following the 
+  algorithm. There exist other Crank-Nicolson and tridiagonal
+  solvers in DVM-DOS-TEM. This one was developed from work in
+  Peat-dos-tem, published in Fan et al., 2013. This solver 
+  has since been modified to work with DVM-DOS-TEM and thus
+  remains independent to the other solvers present elsewhere
+  in the code.
+*/
 void Soil_Bgc::TriSolver(int matrix_size, double *A, double *B, double *C, double *D, double *X) {
     // Forward elimination
     for (int i = 1; i < matrix_size; i++) { 
@@ -92,6 +106,20 @@ void Soil_Bgc::TriSolver(int matrix_size, double *A, double *B, double *C, doubl
     }
 }
 
+/*
+  This function is called to calculate methane fluxes and
+  update the soil methane pool. Production (methanogenesis),
+  oxidation (methanotrophy), and transport pathways, 
+  diffusion, ebullition, and plant-mediation are calculated
+  here. This function is fairly self-contained, with fluxes 
+  and updates to the pool somewhat independent of the rest
+  of the code. However, methane calculation rely heavily on 
+  determination of the water table to delineate anoxic and
+  oxic processes. Also, soil organic matter (SOM) stocks are 
+  used to determine methane production with the subsequent 
+  carbon removed from the SOM pools in Integrator.cpp. This 
+  is a continuation from code developed by Y. Mi.  
+*/
 void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Initial atmospheric CH4 concentration upper boundary condition
   // Fan et al. 2010 supplement Eq. 13. Units: umol L^-1
@@ -132,6 +160,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Individual layer fluxes units : g m^-2 hr^-1
   double prod_gm2hr = 0.0;
   double ebul_gm2hr = 0.0;
+  double ebul_efflux_gm2hr = 0.0;
   double oxid_gm2hr = 0.0;
   double plant_gm2hr = 0.0;
   // Flux components cumulated over a day in units of umol L^-1 day^-1
@@ -140,6 +169,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Flux components cumulated over a day in units of g m^-2 day^-1
   double plant_gm2day = 0.0;
   double ebul_gm2day = 0.0;
+  double ebul_efflux_gm2day = 0.0;
   double oxid_gm2day = 0.0;
   double efflux_gm2day = 0.0;
   // Bunsen solubility coefficient (bun_sol - SB) in vol CH4/ vol H2O. Fan et al. 2010
@@ -204,8 +234,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       fLAI[ip] = cd->m_vegd.ffoliage[ip];
     }
   }
-
-  // ed->d_soid.oxid = 0.0;
 
   // Setting layer pointer to track current layer
   Layer *currl;
@@ -347,6 +375,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
  
       ebul_gm2hr = ebul * convert_umolL_to_gm2;
+      ebul_efflux_gm2hr = ebul_efflux * convert_umolL_to_gm2;
 
       // summing ch4 for conservation testing, following ebullition calculation due to 
       // layer ch4 reassignment
@@ -448,15 +477,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       prod = (convert_gm2_to_umolL) * prod_gm2hr; 
 
       // Accumulating to daily fluxes
-
-      plant_daily += plant;        // cumulated over 1 day, 24 time steps, Y.MI
       plant_gm2day += plant_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI - in units of g m^-2 day^-1
 
-      // ed->d_soid.oxid = oxid_gm2day; // - in units of g m^-2 day^-1
       oxid_gm2day += oxid_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI
 
-      ebul_daily += ebul;        // cumulated over 1 time step, 1 hour Y.MI
       ebul_gm2day += ebul_gm2hr; // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
+      ebul_efflux_gm2day += ebul_efflux_gm2hr; // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
 
       //Accumulating ebullitions per layer across timesteps for output
       ch4_ebul_layer[il] += ebul_gm2hr;
@@ -592,7 +618,6 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   for(int layer=0; layer<MAX_SOI_LAY; layer++){
     bd->d_soi2soi.ch4_ebul[layer] = ch4_ebul_layer[layer];
     bd->d_soi2a.ch4_oxid[layer] = ch4_oxid_layer[layer];
-    // bd->d_soi2soi.ch4_diff[layer] = diff[layer];
   }
 
   // Store ebullition and veg flux values (mostly for output)
@@ -614,14 +639,15 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   diff_efflux_gm2day = diff_efflux_daily * convert_umolL_to_gm3; 
 
   //Fan Eq. 21
-  efflux_gm2day = plant_gm2day + diff_efflux_gm2day + ebul_gm2day;
+  efflux_gm2day = plant_gm2day + diff_efflux_gm2day + ebul_efflux_gm2day;
 
   //Store ebullition and veg flux values (mostly for output)
   bd->daily_total_plant_ch4[id] = plant_gm2day;
 
-  diff_efflux_daily = 0.0; //Y.Mi
-  plant_gm2day =0.0; //Y.Mi
-  ebul_gm2day = 0.0; //Y.Mi
+  diff_efflux_daily = 0.0; 
+  plant_gm2day =0.0; 
+  ebul_gm2day = 0.0;
+  ebul_efflux_gm2day = 0.0; 
 
   bd->d_soi2a.ch4efflux = efflux_gm2day;
 
