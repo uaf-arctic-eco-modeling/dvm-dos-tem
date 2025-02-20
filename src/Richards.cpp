@@ -229,7 +229,8 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // approximate subsurface input in unsaturated layers. This is
   // to be used for estimating groundwater inputs in lowlands.
   double eq_rework = 0.0;
-  bool first_unsat_soill = false; // If there is at least one saturated layer
+  bool unsat_soill = false; // If there is at least one unsaturated layer
+  int inputl_ind = 0;    // Store index to first unsaturated layer
 
   for(int ind=topind; ind<=drainind; ind++){
     //For any saturated layer
@@ -240,11 +241,14 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       //but impedance was removed to achieve sufficient drainage
       eq7103_num += ksat[ind] * dzmm[ind]/1.e3;
       eq7103_den += dzmm[ind]/1.e3;
-    } else if (vol_liq[ind] / liq_poro[ind] >= 0.9 && vol_liq[ind-1] / liq_poro[ind-1] < 0.9) {
-      // identify first unsaturated soil layer, as this can be used for subsurface input
-      first_unsat_soill = true;
-      eq_rework = ksat[ind] * dzmm[ind] / 1.e3;
-    }
+    } 
+    // Find the first unsaturated layer above a saturated one
+    else if (vol_liq[ind] / liq_poro[ind] < 0.9 && vol_liq[ind+1] / liq_poro[ind+1] >= 0.9) {
+      // check there is an unsaturated soil layer for groundwater to flow into
+      unsat_soill = true;
+      // identify first unsaturated soil layer index
+      inputl_ind = ind;
+    } 
   }
 
   //If there is at least one saturated layer, calculate lateral drainage
@@ -289,49 +293,75 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       }
     }
   } 
+
   // This whole else if statement should be prefaced by limits:
   // - poor drainage
   // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
+
+  // // scaler for tuning groundwater input to match observed water table depth
+  double fgroundwater = 10000; // this may want to be replaced by TPI or TWI
+
+  // Reworking CLM5 Equations 7.103 and 7.102
+  double slope_rads = cell_slope * PI / 180; // Converting to radians
   
-  else if (first_unsat_soill){ // for first unsaturated layer
+  double qgroundwater_perch = 0.0;
 
-    // scaler for tuning groundwater input to match observed water table depth
-    double fgroundwater = 1.0; // this may want to be replaced by TPI or TWI
+  if (unsat_soill){ // If there is any unsaturated soil layers
 
-     // Reworking CLM5 Equations 7.103 and 7.102 
-    double slope_rads = cell_slope * PI / 180;//Converting to radians
+    // Calculate a potential amount of water to enter the unsaturated layer
+    qgroundwater_perch = fgroundwater * sin(slope_rads) * hk[inputl_ind];
 
-    double qgroundwater_perch = fgroundwater * sin(slope_rads) * eq_rework;
-    
-    // Calculate liquid space available in each layer
-    currl = fstsoill;
+    // start at saturated layers, these should be skipped by the loop
+    // until unsaturated layers are found
+    currl = drainl;
+
     while(currl != NULL && currl->indl<=drainind && currl->isSoil){
+
+      // looping upwards to calculate groundwater input to simulate upwelling
+      // from deeper groundwater flow
       int ind = currl->indl;
-      if(vol_liq[ind] / liq_poro[ind] <= 0.9){
+
+      // check if unsaturated layer have been reached yet
+      bool sat = true;
+
+      // checking layer is unsaturated and layer below it is saturated
+      if(vol_liq[ind] / liq_poro[ind] < 0.9 && vol_liq[ind+1] / liq_poro[ind+1] >= 0.9){
+
+        sat=false;
+
         double layer_max_input = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
+
         double layer_calc_input = qgroundwater_perch * SEC_IN_DAY;
 
-        layer_input[ind] = fmin(layer_max_input, layer_calc_input);
+        layer_input[ind] = fmin(layer_calc_input, layer_max_input);
+
+        qgroundwater_perch -= layer_input[ind];
 
         qgroundwater += layer_input[ind]; //mm/day
-        
+
+        // breakout of loop when groundwater input is depleted
+        if (layer_calc_input > layer_max_input){
+          currl = currl->prevl;
+        } else{
+          break;
+        }
+      } else if (sat){
+        currl = currl->prevl;
       }
-      currl = currl->nextl;
     }
-    // Drainage has been calculated from saturated layers (usually bottom layers);
-    // however, to avoid creating isolated unsaturated deep layers,
-    // remove the calculated drainage from the top down.
+
     if(qgroundwater > 0){
       double to_input = qgroundwater;
-      currl = fstsoill;
-      while(currl != NULL && currl->indl <= drainind && to_input > 0 && currl->isSoil){
+      currl = drainl;
+      while(currl != NULL && currl->indl<=drainind && to_input > 0 && currl->isSoil){
         int ind = currl->indl;
-        double avail_space = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
-        double give_liq = fmin(currl->liq * 0.5, avail_space);
-        currl->liq += give_liq;
-        to_input -= give_liq;
-
-        currl = currl->nextl;
+        if (ind>=inputl_ind){
+          double avail_space = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
+          double give_liq = fmin(to_input, avail_space);
+          currl->liq += give_liq;
+          to_input -= give_liq;
+        }
+        currl = currl->prevl;
       }
     }
   } 
