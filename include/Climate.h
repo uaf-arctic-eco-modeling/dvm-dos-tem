@@ -42,6 +42,10 @@ public:
   std::vector<float> avgX_nirr;
   std::vector<float> avgX_vapo;
 
+  // co2 and ch4 averaged over baseline years
+  double avgX_co2;
+  double avgX_ch4;
+
   // repetitive climate, repeated over a specified number of years
   //std::vector<float> rptX_tair;
   //std::vector<float> rptX_prec;
@@ -97,6 +101,9 @@ private:
   void split_precip();
 
   std::vector<float> avg_over(const std::vector<float> & var, const int start_yr, const int end_yr);
+
+  double avg_over_yearly(const std::vector<float> & var, const int start_yr, const int end_yr);
+
   std::vector<float> rpt_years(const std::vector<float> &, const int);
 
   std::vector<float> interpolate_daily(const std::vector<float> & var);

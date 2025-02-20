@@ -245,6 +245,7 @@ struct soi2atm_bgc {
   double rhsomcrsum;
 
   double ch4efflux;
+  double ch4efflux_ebul;
   double ch4effdiff; //Efflux from diffusion
   double ch4_oxid[MAX_SOI_LAY];
 
