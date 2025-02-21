@@ -583,7 +583,7 @@ double Climate::avg_over_yearly(const std::vector<float> & var, const int start_
   int end_idx = end_yr - tseries_start_year;
 
   // accumulate the data over the number of years specified
-  double sum = std::accumulate(var.at(start_idx), var.at(end_idx), 0.0);
+  double sum = std::accumulate(var.begin() + start_idx, var.begin() + end_idx, 0.0);
   double result = sum / nyears; 
 
   BOOST_LOG_SEV(glg, debug) << "averaged atmospheric gas result = " << result;
