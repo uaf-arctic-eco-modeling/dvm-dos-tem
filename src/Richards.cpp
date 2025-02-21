@@ -299,7 +299,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
 
   // // scaler for tuning groundwater input to match observed water table depth
-  double fgroundwater = 10000; // this may want to be replaced by TPI or TWI
+  double fgroundwater = 50000000; // this may want to be replaced by TPI or TWI
 
   // Reworking CLM5 Equations 7.103 and 7.102
   double slope_rads = cell_slope * PI / 180; // Converting to radians
@@ -309,7 +309,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   if (unsat_soill){ // If there is any unsaturated soil layers
 
     // Calculate a potential amount of water to enter the unsaturated layer
-    qgroundwater_perch = fgroundwater * sin(slope_rads) * hk[inputl_ind];
+    qgroundwater_perch = fgroundwater * sin(slope_rads);
 
     // start at saturated layers, these should be skipped by the loop
     // until unsaturated layers are found
@@ -331,7 +331,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
         double layer_max_input = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
 
-        double layer_calc_input = qgroundwater_perch * SEC_IN_DAY;
+        double layer_calc_input = qgroundwater_perch * SEC_IN_DAY * hk[ind] * dzmm[ind] / 1.e3;
 
         layer_input[ind] = fmin(layer_calc_input, layer_max_input);
 
@@ -339,7 +339,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
 
         qgroundwater += layer_input[ind]; //mm/day
 
-        // breakout of loop when groundwater input is depleted
+        // breakout of loop when groundwater input is depleted or timestep is ended
         if (layer_calc_input > layer_max_input){
           currl = currl->prevl;
         } else{
