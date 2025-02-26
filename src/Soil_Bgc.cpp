@@ -356,22 +356,22 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // ch4 is transfered out of current layer to layer containing water table
         // redistribution is necessary so transfered ch4 can be oxidized or emitted
         // via plant-mediate transport
-        ebul_efflux = 0.0;
-        currl->ch4 -= ebul;
-        wtlayer->ch4 += ebul;
+        // ebul_efflux = 0.0;
+        // currl->ch4 -= ebul;
+        // wtlayer->ch4 += ebul;
 
         // OR 50% is emitted via preferential pathways - this number could be tuned to
         // represent the partitioning between plant, ebullition, and diffusion fluxes
         // ebul_efflux = 0.5 * ebul;
         // currl->ch4 -= ebul;
-        // wtlayer->ch4 += 0.5 * ebul;
+        // wtlayer->ch4 += ebul - 0.5 * ebul;
         // i.e. half ebullition is reassigned and half is emitted
 
         // This could also be calculated based on distance from soil surface:
-        // double frac_ebul = exp(1-(currl->z/0.1));
-        // ebul_efflux = frac_ebul * ebul;
-        // currl->ch4 -= ebul;
-        // wtlayer->ch4 += ebul - ebul_efflux;
+        double frac_ebul = exp(1-(currl->z/0.1));
+        ebul_efflux = frac_ebul * ebul;
+        currl->ch4 -= ebul;
+        wtlayer->ch4 += ebul - ebul_efflux;
       }
  
       ebul_gm2hr = ebul * convert_umolL_to_gm2;
@@ -636,18 +636,14 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   Layer* topsoil = ground->fstshlwl;
 
   // diffusion efflux unit conversion - g m^-2 d^-1
-  diff_efflux_gm2day = diff_efflux_daily * convert_umolL_to_gm3; 
+  diff_efflux_gm2day = diff_efflux_daily * convert_umolL_to_gm3 * topsoil->dz;
 
   //Fan Eq. 21
   efflux_gm2day = plant_gm2day + diff_efflux_gm2day + ebul_efflux_gm2day;
 
   //Store ebullition and veg flux values (mostly for output)
   bd->daily_total_plant_ch4[id] = plant_gm2day;
-
-  diff_efflux_daily = 0.0; 
-  plant_gm2day = 0.0; 
-  ebul_gm2day = 0.0;
-  ebul_efflux_gm2day = 0.0; 
+ 
 
   bd->d_soi2a.ch4efflux = efflux_gm2day;
   bd->d_soi2a.ch4efflux_ebul = ebul_efflux_gm2day;
@@ -656,6 +652,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   //Store daily values for output
   bd->daily_ch4_efflux[id] = bd->d_soi2a.ch4efflux;
   bd->daily_ch4_efflux_ebul[id] = bd->d_soi2a.ch4efflux_ebul;
+
+  diff_efflux_daily = 0.0;
+  plant_gm2day = 0.0;
+  ebul_gm2day = 0.0;
+  ebul_efflux_gm2day = 0.0;
 }
 
 /** Writes Carbon values from each of the Ground object's Layers into the bd 
@@ -1402,7 +1403,7 @@ void Soil_Bgc::deltastate() {
                    if (cd->m_soil.type[il] > 0)
     {
       // So note that: root death is the reason for deep SOM increment
-      // BM: Also note that, ch4_prod is only calculated if ch4 is enabled 
+      // ch4 processes are only calculated if ch4 is enabled in config file
       del_sois.rawc[il] = ltrflc[il] - del_soi2a.rhrawc[il] * (1.0+somtoco2) - del_soi2soi.ch4_rawc[il];
 
       del_sois.soma[il] = (rhsum * somtoco2 * fsoma) -
