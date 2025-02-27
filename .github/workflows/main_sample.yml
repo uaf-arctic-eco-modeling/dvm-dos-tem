@@ -36,8 +36,13 @@ jobs:
         run: echo "$GITHUB_SHA"
       - name: git sha
         run: echo "$(echo $GITHUB_SHA | cut -c1-7)"
-      - name: get git sha 
-        run: GIT_VERSION="$(echo $GITHUB_SHA | cut -c1-7)"
+      - name: Hope this works
+        run: |
+          GIT_VERSION="$(echo $GITHUB_SHA | cut -c1-7)"
+          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
+      
+      # - name: get git sha 
+      #   run: GIT_VERSION="$(echo $GITHUB_SHA | cut -c1-7)"
       - name: print something
         run: echo "$GIT_VERSION"
       - name: build first image layer
