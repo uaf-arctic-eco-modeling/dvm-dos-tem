@@ -30,6 +30,8 @@ jobs:
         run: echo "Hello, world!"
       - name: Run thing
         run: echo $(pwd)
+      - name: where am i
+        run: echo "$(ls)"
       - name: build first image layer
         run: docker-build-wrapper.sh --cpp-dev
       - name: build second image layer
