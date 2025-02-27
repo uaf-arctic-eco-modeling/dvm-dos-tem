@@ -1801,6 +1801,120 @@ double Ground::adjustSoilAfterburn() {
   return bdepthadj;
 };
 
+// The following module will re-constructure double-linked layer matrix based
+//   on C content change after thermokarst
+// So, it must be called after 'bd' layerd C content was assigned to the
+//   orginal double-linked layer matrix
+// double Ground::adjustSoilAfterThermokarst() {
+//   BOOST_LOG_SEV(glg, debug) << "Beginning of adjustSoilAfterburn(..)" << this->layer_report_string();
+
+//   double bdepthadj = 0.; // this is used to check if thickness change here
+//                          // would be modifying burn thickness in 'Thermokarst.cpp'
+
+//   // and 'frontz'
+//   Layer *currl  = toplayer;
+
+//   // if there is snow, remove it
+//   while(currl!=NULL) {
+//     if(currl->isSnow) {
+//       removeLayer(currl);
+//     } else {
+//       break;
+//     }
+//     //Tucker Feb 2015: moved this statement from if(currl->isSnow){}
+//     //for consistency with DOSTEM ground.cpp line 1641.
+//     currl = toplayer; //then the new toplayer is currl->next
+//                       //  (otherwise, bug here)
+//   }
+
+//   // remove all moss/organic layers, if C is zero, after fire
+//   currl = fstsoill;
+
+//   while (currl!=NULL) {
+//     if(currl->isMoss || currl->isOrganic) {
+//       double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+
+//       if(tsomc <= 0.0) {
+//         bdepthadj += currl->dz; //adding the removed layer thickness to
+//                                 //  that 'err' counting
+//         //need to adjust 'freezing/thawing front depth' due to top
+//         //  layer removal below
+//         adjustFrontsAfterThickchange(0, -currl->dz);
+//         removeLayer(currl);
+//         currl = toplayer; //then the new toplayer is currl->nextl
+//                           //  (otherwise, bug here)
+//       } else {
+//         break;
+//       }
+//     } else {
+//       break;
+//     }
+//   }
+
+//   //Note: at this point, the toplayer(s) may have been moved up due to snow/moss
+//   //        horizons removal above, so need resort the double-linked structure
+//   resortGroundLayers();
+//   updateSoilHorizons();
+
+//   //The left fibrous organic layer(s) after fire should all be turned
+//   //  into humified organic layer
+//   currl = toplayer;
+
+//   while (currl!=NULL) {
+//     if(currl->isFibric) {
+//       OrganicLayer * pl = dynamic_cast<OrganicLayer*>(currl);
+//       pl->humify(chtlu); //here only update 'physical' properties, but not states
+//                     //  (will do below when adjusting 'dz'
+//       pl->somcr += pl->rawc; //assuming all 'raw material' converted into
+//                              //  'chemically-resistant' SOM
+//       pl->rawc = 0.;
+//     } else if (currl->isHumic || currl->isMineral || currl->isRock) {
+//       break;
+//     }
+
+//     currl = currl->nextl;
+//   }
+
+//   //re-do thickness of deep organic layers, because of changing of its
+//   //  original type from fibrous or partially burned
+//   currl = toplayer;
+//   double deepctop = 0.; //cumulative C for deep OSL horizon at the top of a
+//                         //  layer, initialzed as 0
+//   double deepcbot;
+
+//   while(currl!=NULL) {
+//     if(currl->isHumic) {
+//       double olddz = currl->dz;
+//       OrganicLayer *pl=dynamic_cast<OrganicLayer*>(currl);
+//       double plcarbon = pl->rawc+pl->soma+pl->sompr+pl->somcr;
+
+//       if (plcarbon > 0.) { //this may not be needed, if we do things carefully
+//                            //  above. But just in case
+//         // update 'dz' for 'pl' from its C content
+//         deepcbot = deepctop+pl->rawc+pl->soma+pl->sompr+pl->somcr;
+//         getOslThickness5Carbon(pl, deepctop, deepcbot);
+//         deepctop = deepcbot;
+//         bdepthadj += (olddz - pl->dz); //adjuting the difference to that
+//                                        //  'err' counting
+//       }
+//     } else if (currl->isMineral || currl->isRock) {
+//       break;
+//     }
+
+//     currl =currl->nextl;
+//   }
+
+//   resortGroundLayers();
+//   updateSoilHorizons();
+//   //finally, checking if further needed to divide/combine double-linked layer
+//   //  matrix, in case that some layers may be getting too thick or too thin due
+//   //  to layer adjustion above. Then, re-do layer division or combination is
+//   //  necessary for better thermal/hydrological simulation
+//   redivideSoilLayers();
+//   // for checking the adjusted burned thickness
+//   return bdepthadj;
+// };
+
 //if OS thickness changes, the following needs to be called
 void Ground::adjustFrontsAfterThickchange(const double &depth,
                                           const double &thickadding) {
