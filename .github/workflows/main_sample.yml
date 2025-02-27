@@ -39,7 +39,7 @@ jobs:
       - name: get git sha 
         run: GIT_VERSION="$(echo $GITHUB_SHA | cut -c1-7)"
       - name: print something
-        run: echo $GIT_VERSION
+        run: echo "$GIT_VERSION"
       - name: build first image layer
         run: bash docker-build-wrapper.sh --cpp-dev
       - name: build second image layer
