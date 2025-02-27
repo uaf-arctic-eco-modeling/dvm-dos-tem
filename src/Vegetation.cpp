@@ -551,7 +551,7 @@ void Vegetation::updateFrootfrac() {
 void Vegetation::cmtChange(){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT03";
+  std::string new_cmt = "CMT31";
 
   // Load relevant parameters from new CMT
   chtlu->cmtcode = new_cmt;
@@ -621,6 +621,9 @@ void Vegetation::cmtChange(){
 
     double new_pft_pool = (initvegc_pft[ip] / initvegc_tot) * cpool;
     bd[ip]->m_vegs.call = new_pft_pool;
+    // clearing structural nitrogen summed for each pft and calculating
+    // after partitioning between compartments in loop below
+    bd[ip]->m_vegs.strnall = 0.0;
 
     for (int ipp = 0; ipp < NUM_PFT_PART; ipp++){
       // redistribute carbon to compartments
@@ -630,7 +633,10 @@ void Vegetation::cmtChange(){
       // percentage from new c:n ratios while maintaining
       // total nitrogen 
       bd[ip]->m_vegs.strn[ipp] = (initvegn_part_pft[ipp][ip] / initvegn_tot) * npool;
+      // sum across compartments to calculate new strnall
+      bd[ip]->m_vegs.strnall += bd[ip]->m_vegs.strn[ipp];
     }
+    bd[ip]->m_vegs.labn = (bd[ip]->m_vegs.strnall/ npool) * labnpool;
   }
 };
 
