@@ -19,7 +19,11 @@ from contextlib import contextmanager
 
 
 from . import basedriver
-from .. import util
+from ..util import param as pu
+from ..util import runmask as ru
+from ..util import output as ou
+from ..util import outspec osu
+
 
 @contextmanager
 def log_wrapper(message):
@@ -219,13 +223,13 @@ def params_from_seed(seedpath, params, pftnums, percent_diffs, cmtnum):
   assert len(params) == len(percent_diffs), "params list and percent_diffs list must be same length"
 
   final = []
-  plu = util.param.build_param_lookup(seedpath)
+  plu = pu.build_param_lookup(seedpath)
 
   for pname, pftnum, perturbation in zip(params, pftnums, percent_diffs):
-    original_pdata_file = util.param.which_file(seedpath, pname, lookup_struct=plu)
+    original_pdata_file = pu.which_file(seedpath, pname, lookup_struct=plu)
 
-    p_db = util.param.get_CMT_datablock(original_pdata_file, cmtnum)
-    p_dd = util.param.cmtdatablock2dict(p_db)
+    p_db = pu.get_CMT_datablock(original_pdata_file, cmtnum)
+    p_dd = pu.cmtdatablock2dict(p_db)
 
     if pname in p_dd.keys():
       p_initial = p_dd[pname]
@@ -421,7 +425,7 @@ class Sensitivity(basedriver.BaseDriver):
         return pft_verbose_name
 
       if row.pftnum >= 0 and row.pftnum < 10:
-        pft_verbose_name = util.param.get_pft_verbose_name(
+        pft_verbose_name = pu.get_pft_verbose_name(
           cmtnum=self.cmtnum, pftnum=row.pftnum, 
           lookup_path=lookup_path,
         )
@@ -765,14 +769,14 @@ class Sensitivity(basedriver.BaseDriver):
       sample_specific_folder = self._ssrf_name(idx)
 
     # Make the working directory
-    util.setup_working_directory.cmdline_entry([
+    setup_working_directory.cmdline_entry([
       '--input-data-path', self.site, 
       '--seed-parameters', self._seedpath,
       sample_specific_folder
     ])
 
     # Strip all extra CMTs from parameter files
-    util.param.cmdline_entry([
+    pu.cmdline_entry([
       '--extract-cmt',
       os.path.join(sample_specific_folder, 'parameters'),
       f'CMT{self.cmtnum:02d}',
@@ -786,7 +790,7 @@ class Sensitivity(basedriver.BaseDriver):
               os.path.join(sample_specific_folder, 'parameters'))
 
     # Adjust run mask for appropriate pixel
-    util.runmask.cmdline_entry([
+    runmask.cmdline_entry([
       '--reset',
       '--yx',self.PXy, self.PXx,
       '{}/run-mask.nc'.format(sample_specific_folder)
@@ -797,7 +801,7 @@ class Sensitivity(basedriver.BaseDriver):
     # configurable in the .yaml file...which worked, but was inefficient when
     # the user is only looking at one or two of the output variables.
     #
-    #util.outspec.cmdline_entry([
+    #outspec.cmdline_entry([
     #  '--enable-cal-vars',
     #  '{}/config/output_spec.csv'.format(sample_specific_folder),
     #])
@@ -806,14 +810,14 @@ class Sensitivity(basedriver.BaseDriver):
     # copy of the template output spec file.
     # maybe a flag should be added to setup_working_directory.py that can
     # enforce starting with an empty outspec file...
-    util.outspec.cmdline_entry([
+    outspec.cmdline_entry([
       '{}/config/output_spec.csv'.format(sample_specific_folder),
       '--empty',
     ])
 
     # Next run thru the requested outputs toggling them on in the file.
     for output_spec in self.outputs:
-      util.outspec.cmdline_entry([
+      outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on', output_spec['ncname'], 
         output_spec['timeres'],
@@ -823,7 +827,7 @@ class Sensitivity(basedriver.BaseDriver):
       ])
 
     for output_spec in self.aux_outputs:
-      util.outspec.cmdline_entry([
+      outspec.cmdline_entry([
         '{}/config/output_spec.csv'.format(sample_specific_folder),
         '--on', output_spec['ncname'],
         output_spec['timeres'],
@@ -834,7 +838,7 @@ class Sensitivity(basedriver.BaseDriver):
 
 
     # Make sure CMTNUM output is on
-    util.outspec.cmdline_entry([
+    outspec.cmdline_entry([
       '{}/config/output_spec.csv'.format(sample_specific_folder),
       '--on','CMTNUM','y'
     ])
@@ -882,7 +886,7 @@ class Sensitivity(basedriver.BaseDriver):
         if pname == pdict['name']:
           if not pft and pdict['pftnum'] is None:
             #with log_wrapper(f"Updating a non-PFT param {rowkey=} {pval=} {pname=} {pft=} {pdict=}") as _: pass
-            util.param.update_inplace(
+            pu.update_inplace(
               pval, os.path.join(sample_specific_folder, 'parameters'), 
               pdict['name'], pdict['cmtnum'], pft
             )
@@ -890,7 +894,7 @@ class Sensitivity(basedriver.BaseDriver):
             if pdict['pftnum'] is not None:
               if int(pft) == int(pdict['pftnum']):
                 #with log_wrapper(f"Updating a PFT param {rowkey=} {pval=} {pname=} {pft=} {pdict=}") as _: pass
-                util.param.update_inplace(
+                pu.update_inplace(
                   pval, os.path.join(sample_specific_folder, 'parameters'), 
                   pdict['name'], pdict['cmtnum'], pft
                 )
@@ -1012,7 +1016,7 @@ class Sensitivity(basedriver.BaseDriver):
     # Make a csv file summarizing equlibrium state for each variable
     # has several columns per PFT with a few equlibrium metrics...
     for var in self.outputs:
-      res = util.metrics.eq_quality(
+      res = metrics.eq_quality(
           var['ncname'],
           cmtkey=f"CMT{self.cmtnum:02d}",
           PXx=self.PXx,
@@ -1096,12 +1100,12 @@ class Sensitivity(basedriver.BaseDriver):
           stg_data = nc.Dataset(f, 'r')
           d = stg_data.variables[o['name']][:]
           if o['type'] == 'pool':
-            d = util.output.average_monthly_pool_to_yearly(d)
+            d = output.average_monthly_pool_to_yearly(d)
           elif o['type'] == 'flux':
-            d = util.output.sum_monthly_flux_to_yearly(d)
+            d = output.sum_monthly_flux_to_yearly(d)
           else:
             print("What the heck??")
-          d = util.output.sum_across_pfts(d)
+          d = output.sum_across_pfts(d)
           d = pd.DataFrame(d[:,self.PXy,self.PXx], columns=[o['name']])
           all_data = all_data.append(d, ignore_index=True)
 
@@ -1212,7 +1216,7 @@ class Sensitivity(basedriver.BaseDriver):
       ctname = output['ctname']
       resspec = standardize(output['timeres'])
 
-      data, dims = util.output.get_last_n_eq(ncname, resspec, output_directory_path, n=last_N_timesteps)
+      data, dims = ou.get_last_n_eq(ncname, resspec, output_directory_path, n=last_N_timesteps)
       dsizes, dnames = list(zip(*dims))
 
       #print(ctname, output_directory_path, ncname, dims, dnames, dsizes)
@@ -1224,7 +1228,7 @@ class Sensitivity(basedriver.BaseDriver):
 
       elif dnames == ('time','y','x','pft'):
         for pft in range(0,10):
-          if util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=pref):
+          if pu.is_ecosys_contributor(cmtkey, pft, ref_params_dir=pref):
             truth = self.targets[ctname][pft]
             value = data[:,pft,self.PXy,self.PXx].mean()
             d = dict(cmt=cmtkey, ncname=ncname, ctname=ctname, modeled_value=value, target_value=truth, pft=pft)
@@ -1236,7 +1240,7 @@ class Sensitivity(basedriver.BaseDriver):
         for pft in range(0,10):
           clu = {0:'Leaf', 1:'Stem', 2:'Root'}
           for cmprt in range(0,3):
-            if util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=pref):
+            if pu.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=pref):
               truth = self.targets[ctname][clu[cmprt]][pft]
               value = data[:,cmprt,pft,self.PXy,self.PXx].mean()
               d = dict(cmt=cmtkey, ncname=ncname, ctname=ctname, modeled_value=value, target_value=truth, pft=pft, cmprt=clu[cmprt])

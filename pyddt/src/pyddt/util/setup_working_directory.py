@@ -105,7 +105,8 @@ def cmdline_run(args):
   # like the config and parameters to come from.
   # Alternatively: os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
   # Hmmm kinda unwieldly...added a few more layers to get out of the pyhon package layout...
-            #                  pyddt         src             pyddt            util
+  # This data really should be passed or stored in some kind of config data structure
+  #                           pyddt         src             pyddt            util
   ddt_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
   #import sys; sys.exit()
 

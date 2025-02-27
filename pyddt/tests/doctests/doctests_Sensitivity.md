@@ -16,7 +16,7 @@ that provides a lot of the common operations amongst drivers.
 
 Load the library
 
-    >>> import drivers.Sensitivity
+    >>> import pyddt.drivers.sensitivity
 
 In order to conduct a sensitivity analysis we must consider the following:
 
@@ -25,7 +25,7 @@ In order to conduct a sensitivity analysis we must consider the following:
  - the list of parameters that should be tested
  - for each parameter, which PFT should be tested
  - the community type that should be analyzed
- - the scheme by which to modify parameter values (sampling stragegy and bounds)
+ - the scheme by which to modify parameter values (sampling strategy and bounds)
  - the outputs variables upon which the analysis will be conducted
 
 The driver object constructor requires a configuration dict which allows for
@@ -41,11 +41,11 @@ providing data to answer the above questions.
     ... cmtnum=6,
     ... N_samples=10
     ... )
-    >>> sd = drivers.Sensitivity.Sensitivity(config=config_dict)
+    >>> sd = pyddt.drivers.sensitivity.Sensitivity(config=config_dict)
 
 The `Sensitivity` object has properties and methods that will allow us to
 further address the issues outlined above so that we can setup and conduct an
-anlysis.
+analysis.
 
 > NOTE: at present the module is under construction, and not all of the above
 > concerns are easily modified with the API. 
@@ -55,7 +55,7 @@ The `Sensitivity` object has the concept of a "working directory", and a
 setup and carried out. Each run will have its own folder which holds the
 run-specific configuration, parameters, and output files. There is one special
 run folder named the `initial_params_run_dir` which holds the run with the
-intial parameter values. The parameter values in the `initial_params_run_dir`
+initial parameter values. The parameter values in the `initial_params_run_dir`
 are set from the `seed_path`. Each of the other run directories within the
 working directory has parameter values that vary according to the data in the
 `sample_matrix`. The values in the `sample_matrix` are set based on:
@@ -223,7 +223,7 @@ be overwritten when we run the ``load_experiment`` function on the new driver.
     ... cmtnum=2,
     ... N_samples=1
     ... )
-    >>> sd2 = drivers.Sensitivity.Sensitivity(config=junk_config)
+    >>> sd2 = pyddt.drivers.Sensitivity.Sensitivity(config=junk_config)
 
 This new driver should not have its `work_dir` set:
 
@@ -358,7 +358,7 @@ and sample folders but for now, we'll assume its working.
 
 Next we can check that the multi-PFT functionality works:
 
-    >>> sd = drivers.Sensitivity.Sensitivity(config=config_dict)
+    >>> sd = pyddt.drivers.Sensitivity.Sensitivity(config=config_dict)
     >>> sd.set_work_dir('/tmp/tests-Sensitivity')
     >>> sd.set_seed_path('/work/parameters')
 

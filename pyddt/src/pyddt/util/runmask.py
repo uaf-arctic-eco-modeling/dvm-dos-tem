@@ -10,7 +10,7 @@ import textwrap
 import os
 import numpy as np
 
-from . import input
+import input
 
 '''
 This script is for creating, modifying, and viewing run masks for dvmdostem. 
