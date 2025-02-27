@@ -32,6 +32,10 @@ jobs:
         run: echo $(pwd)
       - name: where am i
         run: echo "$(ls)"
+      - name: git sha
+        run: echo "$GITHUB_SHA"
+      - name: git sha
+        run: echo "$(echo $GITHUB_SHA | cut -c1-7)"
       - name: get git sha 
         run: GIT_VERSION=$(git rev-parse --short "$GITHUB_SHA")
       - name: print something
