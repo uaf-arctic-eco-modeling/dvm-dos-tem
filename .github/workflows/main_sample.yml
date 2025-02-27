@@ -33,9 +33,9 @@ jobs:
       - name: where am i
         run: echo "$(ls)"
       - name: build first image layer
-        run: docker-build-wrapper.sh --cpp-dev
+        run: bash docker-build-wrapper.sh --cpp-dev
       - name: build second image layer
-        run : docker-build-wrapper.sh --dev
+        run : bash docker-build-wrapper.sh --dev
 
 
       # Runs a set of commands using the runners shell
