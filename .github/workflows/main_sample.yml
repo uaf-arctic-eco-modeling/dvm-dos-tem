@@ -33,7 +33,7 @@ jobs:
       - name: where am i
         run: echo "$(ls)"
       - name: get git sha 
-        run: export GIT_VERSION=$(git rev-parse --short "$GITHUB_SHA")
+        run: GIT_VERSION=$(git rev-parse --short "$GITHUB_SHA")
       - name: print something
         run: echo $GIT_VERSION
       - name: build first image layer
