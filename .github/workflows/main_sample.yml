@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-focal
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,7 +31,7 @@ jobs:
       - name: Run thing
         run: echo $(pwd)
       - name: build first image layer
-        run: docker-build-wrapper.sh --cpp-dev     #run: docker build --target cpp-dev --tag cpp-dev:0.0.1 . 
+        run: docker-build-wrapper.sh --cpp-dev
       - name: build second image layer
         run : docker-build-wrapper.sh --dev
 
