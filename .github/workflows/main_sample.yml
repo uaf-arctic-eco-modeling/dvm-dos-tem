@@ -36,6 +36,9 @@ jobs:
           echo "$?"
           echo "$HOSTUID"
           echo "$HOSTGID"
+          echo "$(id -u)"
+          echo "$(id -g)"
+          echo "$?"
           echo "here..."
       - name: Run thing
         run: echo $(pwd)
