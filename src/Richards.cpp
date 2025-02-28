@@ -299,7 +299,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
 
   // // scaler for tuning groundwater input to match observed water table depth
-  double fgroundwater = 50000000; // this may want to be replaced by TPI or TWI
+  double fgroundwater  = inflow_factor; // this may want to be replaced by TPI or TWI
 
   // Reworking CLM5 Equations 7.103 and 7.102
   double slope_rads = cell_slope * PI / 180; // Converting to radians

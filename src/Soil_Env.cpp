@@ -48,6 +48,7 @@ void Soil_Env::initializeParameter() {
   envpar.nfactor_w = chtlu->nfactor_w;
   envpar.drainmax = chtlu->drainmax;
   envpar.rtdp4gdd = chtlu->rtdp4gdd;
+  richards.inflow_factor = chtlu->inflow_factor;
 };
 
 void Soil_Env::initializeState() {

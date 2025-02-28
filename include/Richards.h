@@ -26,6 +26,7 @@ public :
   double qinfil; // mm/day
   double qevap; // mm/day
   double e_ice; //ice impedance factor (CLM5)
+  double inflow_factor; //groundwater input stuff
 
   //Array to hold lateral drainage values for output to file.
   double layer_drain[MAX_SOI_LAY];
