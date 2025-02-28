@@ -36,8 +36,8 @@ jobs:
           echo "$?"
           echo "$HOSTUID"
           echo "$HOSTGID"
-          echo "$(id -u)"
-          echo "$(id -g)"
+          echo "$(id -u $(logname))"
+          echo "$(id -g $(logname))"
           echo "$?"
           echo "here..."
       - name: Run thing
