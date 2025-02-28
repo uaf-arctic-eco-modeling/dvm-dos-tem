@@ -36,7 +36,7 @@ jobs:
           echo "$?"
           echo "$HOSTUID"
           echo "$HOSTGID"
-          echo "here...
+          echo "here..."
       - name: Run thing
         run: echo $(pwd)
       - name: where am i
