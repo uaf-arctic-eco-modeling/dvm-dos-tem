@@ -2,7 +2,10 @@
  * Thermokarst.cpp
  *
  * NOTE: this is the first iteration for testing thermokarst in DVM-DOS-TEM (subject to many changes)
- * also, this was based on Thermokarst.cpp so there may be some / lots of duplicate code      
+ * also, this was based on Thermokarst.cpp so there may be some / lots of duplicate code.      
+ *
+ * First iteration will be focused on representing a retrogressive thaw slump, however thermokarst
+ * will be used generally throughout code for the time being.
  *
  * This is for thermokarst (or abrupt thaw) occurrence and C/N pool dynamics due to thermokarst
  *   (1) Thermokarst occurrence must be given by input initially for testing 
@@ -37,135 +40,112 @@ Thermokarst::Thermokarst() {}
 
 Thermokarst::~Thermokarst() {}
 
-Thermokarst::Thermokarst(const std::string& fri_fname,
-                   const std::string& exp_fname, const double cell_slope,
+Thermokarst::Thermokarst(const std::string& exp_fname, const double cell_slope,
                    const double cell_aspect, const double cell_elevation,
                    const int y, const int x) {
 
-  #pragma omp critical(load_input)
-  {
-    BOOST_LOG_SEV(glg, info) << "Setting up FRI fire data...";
-    this->fri = temutil::get_scalar<int>(fri_fname, "fri", y, x);
-    this->fri_severity = temutil::get_scalar<int>(fri_fname, "fri_severity", y, x);
-    this->fri_jday_of_burn = temutil::get_scalar<int>(fri_fname, "fri_jday_of_burn", y, x);
-    this->fri_area_of_burn = temutil::get_scalar<int>(fri_fname, "fri_area_of_burn", y, x);
-  }//End critical(fri)
-
-  #pragma omp critical(load_input)
-  {
-    BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-    this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
-    this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
-    this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
-    this->exp_area_of_burn = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_burn", y, x);
-  }//End critical(exp_fir) 
+  #pragma omp critical(load_input){
+    BOOST_LOG_SEV(glg, info) << "Setting up explicit thermokarst data...";
+    this->exp_thermokarst_mask = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_mask", y, x);
+    this->exp_thermokarst_severity = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_severity", y, x);
+    this->exp_jday_of_thermokarst = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_thermokarst", y, x);
+    this->exp_area_of_thermokarst = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_thermokarst", y, x);
+  }//End critical(exp_thermokarst) 
 
   this->slope = cell_slope;
   this->asp = cell_aspect;
   this->elev = cell_elevation;
 
   BOOST_LOG_SEV(glg, debug) << "Done making Thermokarst object.";
-  BOOST_LOG_SEV(glg, debug) << this->report_fire_inputs();
+  BOOST_LOG_SEV(glg, debug) << this->report_thermokarst_inputs();
 
 }
 
+// This will be kept for now as we may be able to produce projected likelihood of thermokarst
+// which could be used to force the model under future scenarios (or experimental scenarios).
 void Thermokarst::load_projected_explicit_data(const std::string& exp_fname, int y, int x) {
-    BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-    this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
-    this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
-    this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
-    this->exp_area_of_burn = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_burn", y, x);
+  BOOST_LOG_SEV(glg, info) << "Setting up explicit projected thermokarst data...";
+  this->exp_thermokarst_mask = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_mask", y, x);
+  this->exp_thermokarst_severity = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_severity", y, x);
+  this->exp_jday_of_thermokarst = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_thermokarst", y, x);
+  this->exp_area_of_thermokarst = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_thermokarst", y, x);
 }
 
 /** Assemble and return a string with a bunch of data from this class */
-std::string Thermokarst::report_fire_inputs() {
+std::string Thermokarst::report_thermokarst_inputs() {
 
   std::stringstream report_string;
-  report_string << "FRI based fire vectors/data:" << std::endl;
-  report_string << "FRI:              " << this->fri << std::endl;
-  report_string << "FRI jday_of_burn:  " << this->fri_jday_of_burn << std::endl;
-  report_string << "FRI area_of_burn:  " << this->fri_area_of_burn << std::endl;
-  report_string << "FRI severity:     " << this->fri_severity << std::endl;
-  report_string << "exp fire vectors/data:" << std::endl;
-  report_string << "explicit fire year:         [" << temutil::vec2csv(this->exp_burn_mask) << "]" << std::endl;
-  report_string << "explicit fire jday_of_burn: [" << temutil::vec2csv(this->exp_jday_of_burn) << "]" << std::endl;
-  report_string << "explicit fire area_of_burn: [" << temutil::vec2csv(this->exp_area_of_burn) << "]" << std::endl;
-  report_string << "explicit fire severity:     [" << temutil::vec2csv(this->exp_fire_severity) << "]" << std::endl;
-
+  report_string << "exp thermokarst vectors/data:" << std::endl;
+  report_string << "explicit thermokarst year:         [" << temutil::vec2csv(this->exp_bthermokarst_mask) << "]" << std::endl;
+  report_string << "explicit thermokarst jday_of_thermokarst: [" << temutil::vec2csv(this->exp_jday_of_thermokarst) << "]" << std::endl;
+  report_string << "explicit thermokarst area_of_thermokarst: [" << temutil::vec2csv(this->exp_area_of_thermokarst) << "]" << std::endl;
+  report_string << "explicit thermokarst severity:     [" << temutil::vec2csv(this->exp_thermokarst_severity) << "]" << std::endl;
 
   return report_string.str();
 
 }
 
-// Looks like this is just used when setting up a Cohort...
-void Thermokarst::initializeParameter() {
-  for (int i=0; i<NUM_FSEVR; i++) {
-    for (int ip=0; ip<NUM_PFT; ip++) {
-      firpar.fvcomb[i][ip] = chtlu->fvcombust[i][ip];
-      firpar.fvdead[i][ip] = chtlu->fvslash[i][ip];
-    }
+// These will be left as they are from Wildfire, but may be
+// useful for modifications later on following appropriate
+// literature review. For now we are focusing on model 
+// mechanics.
 
-    firpar.foslburn[i] = chtlu->foslburn[i];
-  }
+// void Thermokarst::initializeParameter() {
+//   for (int i=0; i<NUM_FSEVR; i++) {
+//     for (int ip=0; ip<NUM_PFT; ip++) {
+//       firpar.fvcomb[i][ip] = chtlu->fvcombust[i][ip];
+//       firpar.fvdead[i][ip] = chtlu->fvslash[i][ip];
+//     }
 
-  firpar.vsmburn = chtlu->vsmburn; // a threshold value of VWC for burn
-                                   //   organic layers
-  firpar.r_retain_c = chtlu->r_retain_c;
-  firpar.r_retain_n = chtlu->r_retain_n;
-};
+//     firpar.foslburn[i] = chtlu->foslburn[i];
+//   }
 
-void Thermokarst::initializeState() {
-  fd->fire_a2soi.orgn = 0.0;
-};
+//   firpar.vsmburn = chtlu->vsmburn; // a threshold value of VWC for burn
+//                                    //   organic layers
+//   firpar.r_retain_c = chtlu->r_retain_c;
+//   firpar.r_retain_n = chtlu->r_retain_n;
+// };
+
+// void Thermokarst::initializeState() {
+//   fd->fire_a2soi.orgn = 0.0;
+// };
 
 // Looks like this is just used when setting up a Cohort from a Restart file...
-void Thermokarst::set_state_from_restartdata(const RestartData & rdata) {
-  fd->fire_a2soi.orgn = rdata.firea2sorgn;
-}
+// void Thermokarst::set_state_from_restartdata(const RestartData & rdata) {
+//   fd->fire_a2soi.orgn = rdata.firea2sorgn;
+// }
 
 
-/** Figure out whether or not there should be a fire, based on stage, yr, month.
- *
- *  There are two modes of operation: "FRI" (fire recurrence interval) and
- *  "exp". Pre-run, equilibrium, and spin-up stages all use the FRI settings
- *  for determining whether or not a fire should ignite, while transient and 
- *  scenario stages use explicit dates for fire occurrence.
- *
- *  The settings for FRI and the data for explicit fire dates are held in data
- *  members of this (Thermokarst) object. This function looks at those data
- *  and sets the "actual_severity" member accordingly.
- *
- *  NOTE: how to handle fire severity, to be determined.
- *
-*/
-bool Thermokarst::should_ignite(const int yr, const int midx, const std::string& stage) {
+/** Figure out whether or not there should be thermokarst, based on stage, yr, month.*/
+bool Thermokarst::should_thermokarst(const int yr, const int midx, const std::string& stage) {
 
   BOOST_LOG_SEV(glg, info) << "determining fire ignition for yr:" << yr
                            << ", monthidx:" << midx << ", stage:" << stage;
 
-  bool ignite = false;
-  bool fri_derived = false;
+  bool initiate = false;
 
-  if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
+  // For testing we will only be running during transient and scenario based in explicit inputs
+  // to determine whether mechanics are working as prescribed.
 
-    this->fri_derived = true;
-    BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
+  // if ( stage.compare("pre-run") == 0 || stage.compare("eq-run") == 0 || stage.compare("sp-run") == 0 ) {
 
-    if ( (yr % this->fri) == 0 && yr > 0 ) {
-      if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
-        ignite = true;
-      }
-      // do nothing: correct year, wrong month.
-    }
+  //   this->fri_derived = true;
+  //   BOOST_LOG_SEV(glg, debug) << "Determine fire from FRI.";
 
-  } else if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
+  //   if ( (yr % this->fri) == 0 && yr > 0 ) {
+  //     if (midx == temutil::doy2month(this->fri_jday_of_burn)) {
+  //       ignite = true;
+  //     }
+  //     // do nothing: correct year, wrong month.
+  //   }
 
-    this->fri_derived = false;
-    BOOST_LOG_SEV(glg, debug) << "Determine fire from explicit fire regime.";
+  if ( stage.compare("tr-run") == 0 || stage.compare("sc-run") == 0 ) {
 
-    if ( this->exp_burn_mask[yr] == 1 ){
-      if ( temutil::doy2month(this->exp_jday_of_burn[yr]) == midx ) {
-        ignite = true;
+    BOOST_LOG_SEV(glg, debug) << "Determine thermokarst from explicit thermokarst regime.";
+
+    if ( this->exp_thermokarst_mask[yr] == 1 ){
+      if ( temutil::doy2month(this->exp_jday_of_thermokarst[yr]) == midx ) {
+        initiate = true;
       }
       // do nothing: correct year, wrong month
     }
@@ -173,38 +153,37 @@ bool Thermokarst::should_ignite(const int yr, const int midx, const std::string&
     BOOST_LOG_SEV(glg, warn) << "Unknown stage! (" << stage << ")";
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Should we ignite a fire?:" << ignite;
+  BOOST_LOG_SEV(glg, debug) << "Should we initiate thermokarst?:" << initiate;
 
-  return ignite;
+  return initiate;
 }
 
-/** Burning vegetation and soil organic C */
-void Thermokarst::burn(int year) {
-  BOOST_LOG_NAMED_SCOPE("burning");
-  BOOST_LOG_SEV(glg, info) << "HELP!! - WILD FIRE!! RUN FOR YOUR LIFE!";
+/** Changes to vegetation and soil organic C based on abrupt thaw (thermokarst) */
+void Thermokarst::thaw(int year) {
+  BOOST_LOG_NAMED_SCOPE("Thermokarst!");
+  BOOST_LOG_SEV(glg, info) << "HELP!! - THERMOKARST!! RUN FOR YOUR LIFE!";
 
-  BOOST_LOG_SEV(glg, debug) << fd->report_to_string("Before Thermokarst::burn(..)");
-  BOOST_LOG_SEV(glg, info) << "Burning (simply clearing?) the 'FireData object...";
-  fd->burn();
-  BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After FirData::burn(..)");
+  BOOST_LOG_SEV(glg, debug) << thd->report_to_string("Before Thermokarst::thaw(..)");
+  BOOST_LOG_SEV(glg, info) << "Thawing (simply clearing?) the 'ThermokarstData object...";
+  thd->thaw();
+  BOOST_LOG_SEV(glg, debug) << thd->report_to_string("After ThermokarstData::thaw(..)");
   
-  // for soil part and root burning
-  // FIX: there isn't really a reason for getBurnOrgSoilthick to return a value
-  // as it has already set the "burn thickness" value in FirData...
-  double burndepth = getBurnOrgSoilthick(year);
-  BOOST_LOG_SEV(glg, debug) << fd->report_to_string("After Thermokarst::getBurnOrgSoilthick(..)");
+  double thermokarstdepth = getThermokarstOrgSoilthick(year);
+  BOOST_LOG_SEV(glg, debug) << thd->report_to_string("After Thermokarst::getThermokarstOrgSoilthick(..)");
 
-  BOOST_LOG_SEV(glg, info) << "Setup some temporary pools for tracking various burn related attributes (depths, C, N)";
+  BOOST_LOG_SEV(glg, info) << "Setup some temporary pools for tracking various thermokarst related attributes (depths, C, N)";
   double totbotdepth = 0.0;
-  double burnedsolc = 0.0;
-  double burnedsoln = 0.0;
+  double thermokarstsolc = 0.0;
+  double thermokarstsoln = 0.0;
+
+  // Haven't change below, not sure how best to adjust this for thermokarst yet
   double r_burn2bg_cn[NUM_PFT]; // ratio of dead veg. after burning
   for (int ip=0; ip<NUM_PFT; ip++) {
     r_burn2bg_cn[ip] = 0.; //  used for vegetation below-ground (root) loss,
                            //  and calculated below
   }
 
-  BOOST_LOG_SEV(glg, debug) << "Handle burning the soil (loop over all soil layers)...";
+  BOOST_LOG_SEV(glg, debug) << "Handle subsidence of the soil (loop over all soil layers)...";
   for (int il = 0; il < cd->m_soil.numsl; il++) {
 
     BOOST_LOG_SEV(glg, debug) << "== Layer Info == "
@@ -212,7 +191,10 @@ void Thermokarst::burn(int year) {
                               << "   dz:" << cd->m_soil.dz[il]
                               << "   top:" << cd->m_soil.z[il]
                               << "   bottom:"<< cd->m_soil.z[il] + cd->m_soil.dz[il];
-
+    
+    // We may have to update the below as particulate matter is also lost during
+    // thermokarst process, which may affect soil_texture too.                          
+    // for organics and moss:
     if(cd->m_soil.type[il] <= 2) {
 
       totbotdepth += cd->m_soil.dz[il];
@@ -222,10 +204,10 @@ void Thermokarst::burn(int year) {
 
       double ilsoln =  bdall->m_sois.orgn[il] + bdall->m_sois.avln[il];
 
-      if(totbotdepth <= burndepth) { //remove all the orgc/n in this layer
-        BOOST_LOG_SEV(glg, debug) << "Haven't reached burndepth (" << burndepth << ") yet. Remove all org C and N in this layer";
-        burnedsolc += ilsolc;
-        burnedsoln += ilsoln;
+      if(totbotdepth <= thermokarstdepth) { //remove all the orgc/n in this layer
+        BOOST_LOG_SEV(glg, debug) << "Haven't reached thermokarstdepth (" << thermokarstdepth << ") yet. Remove all org C and N in this layer";
+        thermokarstsolc += ilsolc;
+        thermokarstsoln += ilsoln;
         bdall->m_sois.rawc[il] = 0.0;
         bdall->m_sois.soma[il] = 0.0;
         bdall->m_sois.sompr[il]= 0.0;
@@ -240,14 +222,14 @@ void Thermokarst::burn(int year) {
           }
         }
       } else {
-        BOOST_LOG_SEV(glg, debug) << "The bottom of this layer (il: " << il << ") is past the 'burndepth'. Find the remaining C and N as a fraction of layer thickness";
-        double partleft = totbotdepth - burndepth;
+        BOOST_LOG_SEV(glg, debug) << "The bottom of this layer (il: " << il << ") is past the 'thermokarstdepth'. Find the remaining C and N as a fraction of layer thickness";
+        double partleft = totbotdepth - thermokarstdepth;
 
         // Calculate the remaining C, N
         if (partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
           BOOST_LOG_SEV(glg, debug) << "Burning all but "<<partleft<<"of layer "<<il;
-          burnedsolc += (1.0-partleft/cd->m_soil.dz[il]) * ilsolc;
-          burnedsoln += (1.0-partleft/cd->m_soil.dz[il]) * ilsoln;
+          thermokarstsolc += (1.0 - partleft / cd->m_soil.dz[il]) * ilsolc;
+          thermokarstsoln += (1.0 - partleft / cd->m_soil.dz[il]) * ilsoln;
           bdall->m_sois.rawc[il] *= partleft/cd->m_soil.dz[il];
           bdall->m_sois.soma[il] *= partleft/cd->m_soil.dz[il];
           bdall->m_sois.sompr[il] *= partleft/cd->m_soil.dz[il];
@@ -273,9 +255,9 @@ void Thermokarst::burn(int year) {
       BOOST_LOG_SEV(glg, info) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
       BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really burn non-organic layers.";
 
-      if(totbotdepth <= burndepth) { //may not be needed, but just in case
+      if(totbotdepth <= thermokarstdepth) { //may not be needed, but just in case
         BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= burndepth, so we are setting fd->fire_soid.burnthick = totbotdepth??";
-        fd->fire_soid.burnthick = totbotdepth;
+        thd->thermokarst_soid.thermokarstthick = totbotdepth;
       }
     }
   } // end soil layer loop
@@ -539,8 +521,8 @@ void Thermokarst::getBurnAbgVegetation(const int ipft, const int year) {
 *   2. can't exceed a pixel specified 'max burn thickness'
 *   3. should not burn into "wet" organic soil layers
 */
-double Thermokarst::getBurnOrgSoilthick(const int year) {
-
+double Thermokarst::getThermokarstOrgSoilthick(const int year)
+{
 
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is burned as a function of fire severity.";
 //assert((0 <= severity && severity < 5) && "Invalid fire severity! ");
@@ -676,11 +658,7 @@ void Thermokarst::setBgcData(BgcData* bdp, const int &ip) {
   bd[ip] = bdp;
 };
 
-void Thermokarst::setFirData(FirData* fdp) {
-  fd =fdp;
-}
-
-int Thermokarst::getFRI(){
-  return fri;
+void Thermokarst::setThermokarstData(ThermokarstData* thdp) {
+  thd = thdp;
 }
 

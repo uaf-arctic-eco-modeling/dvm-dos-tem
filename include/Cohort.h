@@ -15,6 +15,7 @@
 #include "Soil_Bgc.h"
 
 #include "WildFire.h"
+#include "Thermokarst.h"
 
 #include "CohortData.h"
 
@@ -77,6 +78,7 @@ public :
   Soil_Bgc soilbgc;
 
   WildFire fire;
+  Thermokarst thermokarst;
 
   // data
   EnvData ed[NUM_PFT];
@@ -86,6 +88,9 @@ public :
 
   FirData year_fd[12]; //Monthly fire data, for all PFTs and soil
   FirData * fd;   //Fire data for an individual month 
+
+  ThermokarstData year_fd[12]; //Monthly thermokarst data, for all PFTs and soil
+  ThermokarstData * thd;   //thermokarst data for an individual month 
 
   ModelData * md;
 
