@@ -53,6 +53,17 @@ The run will output a single variable (GPP), and will run for 2 pixels.
 - Analyze run (``develop@56ef79004e31:/work$ ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
 ![GPP_plot_output_var](https://github.com/user-attachments/assets/678be9a7-2e48-479e-ae27-1a96c95da7be)
 
+## Testing and Continuous Integration (CI)
+
+This project has a very basic CI workflow implemented using Github Actions. When
+a pull request is made to the `master` branch, an action is run that checks out
+the code, builds one of the Docker images, compiles the `dvmdostem` binary and
+runs the model using the demo data for a short number of years. This test does
+not confirm any of the scientific aspects of the model and does not exercise any
+of the supporting pre- and post-processing tools. Extending and improving the
+CI coverage remains an open project. We would like for future development to 
+improve overall test coverage and setup more actions to run the tests. For more 
+information about the testing and CI, see the [Testing and Deployment](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/software_development_info.html#testing-and-deployment) of the User Guide.
 
 > [!WARNING]
 > Sept 2022 - We are in the process of updating the entire documentation
