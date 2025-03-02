@@ -73,9 +73,9 @@ jobs:
           services: dvmdostem-dev
           cwd: source
         env:
-          DDT_WORKFLOWS: $GITHUB_WORKSPACE/workflows
-          DDT_INPUT_CATALOG: $GITHUB_WORKSPACE/input-catalog
-          PWD: $GITHUB_WORKSPACE/source
+          DDT_WORKFLOWS: /home/runner/work/dvm-dos-tem/dvm-dos-tem/workflows
+          DDT_INPUT_CATALOG: /home/runner/work/dvm-dos-tem/dvm-dos-tem/input-catalog
+          PWD: /home/runner/work/dvm-dos-tem/dvm-dos-tem/source
       
 
       - name: compile in the running service
