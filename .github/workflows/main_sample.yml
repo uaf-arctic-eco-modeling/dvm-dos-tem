@@ -46,7 +46,8 @@ jobs:
       - run: git fetch --prune --unshallow
         working-directory: source
 
-      - name: Set v tag
+      - name: Set various env vars for docker compose to work
+        working-directory: source
         run: | 
           GIT_VERSION="$(git describe --tags)"
           DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
@@ -58,59 +59,53 @@ jobs:
           echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
           echo "PWD=${SOURCE_DIR}" >> $GITHUB_ENV
 
-        working-directory: source
 
-      - name: look at env
+      - name: inspect the environment
         run: |
+          echo "The github environment looks like this:"
           echo $GITHUB_ENV
 
-      # # Not sure why but running the docekr build wrapper in this context
-      # # returns 1 which is considered an error and the subsequent steps
-      # # don't run, even though by all indications from the information
-      # # # printed to the console, the image build just fine.
-      # - name: build first image layer
-      #   run: bash docker-build-wrapper.sh --cpp-dev
-      #   continue-on-error: true
-      #   working-directory: source
+      # Not sure why but running the docekr build wrapper in this context
+      # returns 1 which is considered an error and the subsequent steps
+      # don't run, even though by all indications from the information
+      # # printed to the console, the image build just fine.
+      - name: build first image layer
+        run: bash docker-build-wrapper.sh --cpp-dev
+        continue-on-error: true
+        working-directory: source
       
-      # - name: build second image layer
-      #   run: bash docker-build-wrapper.sh --dev
-      #   continue-on-error: true
-      #   working-directory: source
+      - name: build second image layer
+        run: bash docker-build-wrapper.sh --dev
+        continue-on-error: true
+        working-directory: source
 
-      # - name: Set v tag
-      #   run: | 
-      #     GIT_VERSION="$(git describe --tags)"
-      #     echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
-      #   working-directory: source
-
-      # - name: Run docker compose
-      #   uses: hoverkraft-tech/compose-action@v2.0.1
-      #   with:
-      #     compose-file: "docker-compose.yml"
-      #     services: dvmdostem-dev
-      #     cwd: source
-      #   env:
-      #     DDT_WORKFLOWS: /home/runner/work/dvm-dos-tem/dvm-dos-tem/workflows
-      #     DDT_INPUT_CATALOG: /home/runner/work/dvm-dos-tem/dvm-dos-tem/input-catalog
-      #     PWD: /home/runner/work/dvm-dos-tem/dvm-dos-tem/source
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "docker-compose.yml"
+          services: dvmdostem-dev
+          cwd: source
+        # env:
+        #   DDT_WORKFLOWS: /home/runner/work/dvm-dos-tem/dvm-dos-tem/workflows
+        #   DDT_INPUT_CATALOG: /home/runner/work/dvm-dos-tem/dvm-dos-tem/input-catalog
+        #   PWD: /home/runner/work/dvm-dos-tem/dvm-dos-tem/source
       
 
-      # - name: compile in the running service
-      #   run: |
-      #     docker compose exec dvmdostem-dev make
-      #   working-directory: source
+      - name: compile in the running service
+        run: |
+          docker compose exec dvmdostem-dev make
+        working-directory: source
 
-      # - name: run help
-      #   run: docker compose exec dvmdostem-dev dvmdostem --help
-      #   working-directory: source
+      - name: run help
+        run: docker compose exec dvmdostem-dev dvmdostem --help
+        working-directory: source
 
-      # - name: run model
-      #   run: docker compose exec dvmdostem-dev dvmdostem -l monitor -p 10 -e 10 -s 10 -t 10 -n 10
-      #   working-directory: source
+      - name: run model
+        run: docker compose exec dvmdostem-dev dvmdostem -l monitor -p 10 -e 10 -s 10 -t 10 -n 10
+        working-directory: source
 
-      # - name: see output
-      #   run: ls source/output
+      - name: see output
+        run: ls source/output
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
