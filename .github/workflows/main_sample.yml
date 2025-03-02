@@ -29,14 +29,22 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+     - name: Make input catalog and workflows dir
+       run: |
+         mkdir -p source
+         mkdir -p input-catalog
+         mkdir -p workflows
 
+      - name: Checkout
+        uses: actions/checkout@v4
+        path: source
+      
       # We need to run this so that later when building the docker images, 
       # a call to git describe returns something to get used for the 
       # image tag.
       - run: git fetch --prune --unshallow
-      
+        working-directory: source
+
       # Not sure why but running the docekr build wrapper in this context
       # returns 1 which is considered an error and the subsequent steps
       # don't run, even though by all indications from the information
@@ -44,22 +52,38 @@ jobs:
       - name: build first image layer
         run: bash docker-build-wrapper.sh --cpp-dev
         continue-on-error: true
+        working-directory: source
       
       - name: build second image layer
         run: bash docker-build-wrapper.sh --dev
         continue-on-error: true
+        working-direcory: source
+
+      - name: Set v tag
+        run | 
+          GIT_VERSION="$(git describe --tags)"
+          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
+        working-directory: source
 
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          compose-file: "./docker-compose.yml"
+          compose-file: "./source/docker-compose.yml"
+        env:
+          DDT_WORKFLOWS: workflows
+          DDT_INPUT_CATALOG: input-catalog
+          PWD: source
+      
 
       - name: compile in the running service
         run: |
           docker compose dvmdostem-dev exec make
+        working-directory: source
 
       - name: run help
         run: docker compsoe exec dvmdostem-dev dvmdostem --help
+        working-directory: source
+
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
