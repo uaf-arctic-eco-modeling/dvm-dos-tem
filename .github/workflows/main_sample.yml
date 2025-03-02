@@ -80,7 +80,7 @@ jobs:
 
       - name: compile in the running service
         run: |
-          docker compose dvmdostem-dev exec make
+          docker compose exec dvmdostem-dev make
         working-directory: source
 
       - name: run help
