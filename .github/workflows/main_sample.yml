@@ -70,6 +70,8 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "./source/docker-compose.yml"
+          services: dvmdostem-dev
+          cwd: source
         env:
           DDT_WORKFLOWS: workflows
           DDT_INPUT_CATALOG: input-catalog
