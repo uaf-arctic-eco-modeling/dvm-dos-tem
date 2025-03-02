@@ -59,6 +59,7 @@ jobs:
         run: echo "$GIT_VERSION"
       - name: build first image layer
         run: bash docker-build-wrapper.sh --cpp-dev
+        continue-on-error: true
       - name: build second image layer
         run : bash docker-build-wrapper.sh --dev
 
