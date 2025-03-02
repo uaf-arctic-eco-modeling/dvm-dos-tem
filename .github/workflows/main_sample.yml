@@ -37,43 +37,29 @@ jobs:
       # image tag.
       - run: git fetch --prune --unshallow
       
-      - name: investigate
-        run: |
-          echo "$(logname)"
-          echo "$?"
-          echo "$HOSTUID"
-          echo "$(ls)"
-          echo "$(pwd)"
-
-      - name: git sha
-        run: echo "$GITHUB_SHA"
-      
-      - name: git sha
-        run: echo "$(echo $GITHUB_SHA | cut -c1-7)"
-      
-      - name: Hope this works
-        run: |
-          GIT_VERSION="$(echo $GITHUB_SHA | cut -c1-7)"
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-      
-      # - name: get git sha 
-      #   run: GIT_VERSION="$(echo $GITHUB_SHA | cut -c1-7)"
-      - name: print something
-        run: echo "$GIT_VERSION"
-
-      - name: hmm
-        run: echo "$(git describe --tags)"
       # Not sure why but running the docekr build wrapper in this context
       # returns 1 which is considered an error and the subsequent steps
       # don't run, even though by all indications from the information
       # # printed to the console, the image build just fine.
-      # - name: build first image layer
-      #   run: bash docker-build-wrapper.sh --cpp-dev
-      #   continue-on-error: true
+      - name: build first image layer
+        run: bash docker-build-wrapper.sh --cpp-dev
+        continue-on-error: true
       
-      # - name: build second image layer
-      #   run : bash docker-build-wrapper.sh --dev
-      #   continue-on-error: true
+      - name: build second image layer
+        run: bash docker-build-wrapper.sh --dev
+        continue-on-error: true
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose.yml"
+
+      - name: compile in the running service
+        run: |
+          docker compose dvmdostem-dev exec make
+
+      - name: run help
+        run: docker compsoe exec dvmdostem-dev dvmdostem --help
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
