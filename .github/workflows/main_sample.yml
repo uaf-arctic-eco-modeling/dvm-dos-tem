@@ -37,7 +37,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-        path: source
+        with: 
+          path: source
       
       # We need to run this so that later when building the docker images, 
       # a call to git describe returns something to get used for the 
