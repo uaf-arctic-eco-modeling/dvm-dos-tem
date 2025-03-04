@@ -42,7 +42,7 @@ and visualization, see the :ref:`Plotting Example
      - Any custom target data (``calibration/calibration_targets.py``).
 
   - Start the model run (``develop@56ef79004e31:/work$ ./dvmdostem --log-level monitor -p 100 -e 1000 -s 250 -t 115 -n 85``).
-  - Analyze run (``develop@56ef79004e31:/work ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
+  - Analyze run (``develop@56ef79004e31:/work ./scripts/viewers/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
  
 .. note::
 

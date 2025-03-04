@@ -50,7 +50,7 @@ The run will output a single variable (GPP), and will run for 2 pixels.
    - Any custom parameters (``parameters/``)
    - Any custom target data (``calibration/calibration_targets.py``).
 - Start the model run (``develop@56ef79004e31:/work$ ./dvmdostem --log-level monitor -p 100 -e 1000 -s 250 -t 115 -n 85``).
-- Analyze run (``develop@56ef79004e31:/work$ ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
+- Analyze run (``develop@56ef79004e31:/work$ ./scripts/viewers/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
 ![GPP_plot_output_var](https://github.com/user-attachments/assets/678be9a7-2e48-479e-ae27-1a96c95da7be)
 
 
