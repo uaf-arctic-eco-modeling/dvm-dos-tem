@@ -1,5 +1,3 @@
-version: '3.2'
-
 # Docker Compose file for coordinating several dvmdostem containers.
 #
 # First you should build your images. This can be done individually or you can 
