@@ -30,13 +30,17 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
 
+  //General config settings
+  run_name = controldata["general"]["output_global_attributes"]["run_name"].asString();
+  run_description = controldata["general"]["output_global_attributes"]["description"].asString();
+
   //Config Stage Settings  
-  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
+//  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
-  tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
-  sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
+  tr_yrs = controldata["stage_settings"]["tr_yrs"].asInt();
+  sc_yrs = controldata["stage_settings"]["sc_yrs"].asInt();
 
   //PR stage module settings
   pr_env = controldata["stage_settings"]["pr"]["env"].asBool();
@@ -460,6 +464,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
       temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
+
+      temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "run_name", this->run_name.length(), this->run_name.c_str() ) );
+      temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "run_description", this->run_description.length(), this->run_description.c_str() ) );
 
       //Calculating total timesteps
       int stage_timestep_count = 0;

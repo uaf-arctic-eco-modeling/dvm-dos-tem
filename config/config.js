@@ -1,6 +1,9 @@
 {
   "general": {
-    "run_name": "A sample dvmdostem run. Modify this text to suit your needs."
+    "output_global_attributes": {
+        "run_name": "Demo dvmdostem run",
+        "description": "A basic test run. Data is not scientifically sound."
+    }
   },
 
   "IO": {
