@@ -149,6 +149,8 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
+  s << this->inflow_factor << "// inflowfactor:\n";
+  s << this->max_ponding << "// maxponding:\n";
   return s.str();
 }
 
@@ -158,7 +160,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 18
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 20
   );
 
   // pop each line off the front of the list
@@ -183,6 +185,8 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
 
+  temutil::pfll2data(l, inflow_factor);
+  temutil::pfll2data(l, max_ponding);
 }
 
 /** Assign "veg dimension?" from parameter file. */
@@ -416,7 +420,7 @@ void CohortLookup::assignEnv4Ground(string &dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> datalist = temutil::parse_parameter_file(
-      dircmt + "cmt_envground.txt", temutil::cmtcode2num(this->cmtcode), 42
+      dircmt + "cmt_envground.txt", temutil::cmtcode2num(this->cmtcode), 41
   );
 
   // pop each line off the front of the list
@@ -442,7 +446,6 @@ void CohortLookup::assignEnv4Ground(string &dircmt) {
   temutil::pfll2data(datalist, nfactor_s);
   temutil::pfll2data(datalist, nfactor_w);
   temutil::pfll2data(datalist, initsnwtem);
-  temutil::pfll2data(datalist, inflow_factor);
 
   for (int i = 0; i < 10; i++) {
     temutil::pfll2data(datalist, initts[i]);

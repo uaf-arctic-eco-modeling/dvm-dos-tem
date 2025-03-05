@@ -153,6 +153,7 @@ public:
                      //  (note: initial water of snow can be from
                      //   initial thickness and density)
   double inflow_factor; // groundwater scaler
+  double max_ponding; // ponding parameter
   double initvwc[10]; //10 soil initial input for each 10 cm thickness of layers
   double initts[10];
 

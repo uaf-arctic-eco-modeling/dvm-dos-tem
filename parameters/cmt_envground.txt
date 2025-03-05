@@ -497,7 +497,6 @@
 1.5                // nfactor(s): Summer nfactor
 1.0                // nfactor(w): Winter nfactor
 -1.0               // initsnwtem: initial snow temperature (oC)
-0.0                // inflowfactor: factor for scaling amount of groundwater input for wetlands
 -9.1               // initts(0): initial soil temperature at 10 cm interval (oC)
 -7.9               // initts(1): initial soil temperature at 10 cm interval (oC)
 -6.8               // initts(2): initial soil temperature at 10 cm interval (oC)

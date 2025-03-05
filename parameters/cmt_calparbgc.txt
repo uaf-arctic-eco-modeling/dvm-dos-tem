@@ -25,6 +25,8 @@
 0.0108046       // kdcsoma:
 0.0020805       // kdcsompr:
 0.0000108       // kdcsomcr:
+0.000000        // inflowfactor:
+1000.000        // maxponding:
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/29/20 boreal black spruce with Murphy Dome climate
 //EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
@@ -267,6 +269,8 @@
 0.250000     // kdcsoma:
 0.018000     // kdcsompr:
 0.000010     // kdcsomcr:
+100.000000     // inflowfactor:
+1000.000     // maxponding:
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:

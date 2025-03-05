@@ -42,7 +42,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     if(qinfil > 0.0){//add infil back to ponding/qover
       qinfil *= SEC_IN_DAY;// -->mm/day
       //Add to ponding TODO replace hardcoded 100 mm with ponding_max_mm from soil env?
-      double space_in_puddle = 1000.0 - ed.d_soi2l.magic_puddle;
+      double space_in_puddle = max_ponding - ed.d_soi2l.magic_puddle;
       double add_to_puddle = fmin(space_in_puddle, qinfil);
       ed.d_soi2l.magic_puddle += add_to_puddle;
       qinfil -= add_to_puddle;
@@ -298,18 +298,18 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   // - poor drainage
   // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
 
-  // // scaler for tuning groundwater input to match observed water table depth
-  double fgroundwater  = inflow_factor; // this may want to be replaced by TPI or TWI
-
   // Reworking CLM5 Equations 7.103 and 7.102
   double slope_rads = cell_slope * PI / 180; // Converting to radians
   
+  // Potential amount of water that can enter the soil above the 
+  // watertable - representing groundwater recharge. Initialize
+  // as zero.
   double qgroundwater_perch = 0.0;
 
   if (unsat_soill){ // If there is any unsaturated soil layers
 
     // Calculate a potential amount of water to enter the unsaturated layer
-    qgroundwater_perch = fgroundwater * sin(slope_rads);
+    qgroundwater_perch = inflow_factor * sin(slope_rads);
 
     // start at saturated layers, these should be skipped by the loop
     // until unsaturated layers are found
@@ -321,46 +321,37 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
       // from deeper groundwater flow
       int ind = currl->indl;
 
-      // check if unsaturated layer have been reached yet
-      bool sat = true;
-
       // checking layer is unsaturated and layer below it is saturated
       if(vol_liq[ind] / liq_poro[ind] < 0.9 && vol_liq[ind+1] / liq_poro[ind+1] >= 0.9){
 
-        sat=false;
-
+        // maximum available space for liquid water to enter 
         double layer_max_input = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
-
+        // calculating liquid water entering based on scaler, slope, hydraulic conductivity, 
+        // and layer thickness.
         double layer_calc_input = qgroundwater_perch * SEC_IN_DAY * hk[ind] * dzmm[ind] / 1.e3;
 
+        // if calculated input is larger than the maximum space use the maximum (i.e. layer is filled)
         layer_input[ind] = fmin(layer_calc_input, layer_max_input);
 
+        // if calculated input is larger than the potential liquid available only remove that
+        // liquid and break loop
+        layer_input[ind] = fmin(layer_input[ind], qgroundwater_perch);
+
+        // add to total groundwater input used in subsequent loop
+        // qgroundwater += layer_input[ind]; // mm/day
+        currl->liq += layer_input[ind];
+
+        // remove the liquid input from the potential and move to the next unsaturated layer
         qgroundwater_perch -= layer_input[ind];
 
-        qgroundwater += layer_input[ind]; //mm/day
-
         // breakout of loop when groundwater input is depleted or timestep is ended
-        if (layer_calc_input > layer_max_input){
+        if (qgroundwater_perch >= 0.0){
           currl = currl->prevl;
         } else{
           break;
         }
-      } else if (sat){
-        currl = currl->prevl;
-      }
-    }
-
-    if(qgroundwater > 0){
-      double to_input = qgroundwater;
-      currl = drainl;
-      while(currl != NULL && currl->indl<=drainind && to_input > 0 && currl->isSoil){
-        int ind = currl->indl;
-        if (ind>=inputl_ind){
-          double avail_space = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
-          double give_liq = fmin(to_input, avail_space);
-          currl->liq += give_liq;
-          to_input -= give_liq;
-        }
+      // continue to loop upwards until unsaturated layers have been reached
+      } else {
         currl = currl->prevl;
       }
     }
