@@ -46,6 +46,10 @@ public:
   int tr_yrs;
   int sc_yrs;
 
+  //General config settings
+  std::string run_name;
+  std::string run_description;
+
   //Config Stage Settings
   bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
   //PR modules
