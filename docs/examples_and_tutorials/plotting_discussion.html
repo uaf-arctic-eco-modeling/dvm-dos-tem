@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5. Plotting &mdash; dvmdostem v0.8.1 documentation</title>
+  <title>5. Plotting &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1
+                v0.8.1-31-gde5483c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -72,7 +72,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#general-process">5.2. General Process</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#example-plots">5.3. Example Plots</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#basic-1-pixel-timeseries">5.3.1. Basic 1 pixel timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-1-pixel-time-series">5.3.1. Basic 1 pixel time-series</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#interactive-map-of-inputs-using-bokeh">5.3.2. Interactive map of inputs using Bokeh</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#starting-the-server">Starting the server</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#view-in-your-browser">View in your browser</a></li>
@@ -135,7 +135,7 @@
              
   <section id="plotting">
 <h1><span class="section-number">5. </span>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h1>
-<p>Plotting is a natural and essential step in the modelling process. The use-cases
+<p>Plotting is a natural and essential step in the modeling process. The use-cases
 and limitations are numerous and there is not a single silver bullet plotting
 solution that is sure to work for you.</p>
 <p>For more general information on the different approaches to plotting, please see
@@ -175,8 +175,8 @@ changes to paths, file names, etc.</p>
 directory. While the project has used Notebooks on occasion, in general we
 prefer to avoid them for the following reasons:</p>
 <ul class="simple">
-<li><p>The notebook format is very challenging to work with in a verison
-controled environment.</p></li>
+<li><p>The notebook format is very challenging to work with in a version
+controlled environment.</p></li>
 <li><p>Notebooks can produce ambiguous or unrepeatable outputs due to the ability
 to execute cells out of order.</p></li>
 </ul>
@@ -278,8 +278,8 @@ starts simple, then you end up</p></li>
 <h2><span class="section-number">5.3. </span>Example Plots<a class="headerlink" href="#example-plots" title="Permalink to this heading"></a></h2>
 <p>Following are bunch of examples showing how you might plot and interact with
 <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> related data.</p>
-<section id="basic-1-pixel-timeseries">
-<h3><span class="section-number">5.3.1. </span>Basic 1 pixel timeseries<a class="headerlink" href="#basic-1-pixel-timeseries" title="Permalink to this heading"></a></h3>
+<section id="basic-1-pixel-time-series">
+<h3><span class="section-number">5.3.1. </span>Basic 1 pixel time-series<a class="headerlink" href="#basic-1-pixel-time-series" title="Permalink to this heading"></a></h3>
 <p>One of the easiest things we might want to look at is a time series plot of GPP
 for a single pixel in a run. This can easily be done with <code class="docutils literal notranslate"><span class="pre">ncview</span></code>, but you
 will almost certainly encounter the problems described in the note about Docker
@@ -307,14 +307,14 @@ attractive. Some of the advantages are:</p>
 <div><ul class="simple">
 <li><p>interactivity,</p></li>
 <li><p>rich javascript front-end tools,</p></li>
-<li><p>ubibiquity of web browsers, and</p></li>
+<li><p>ubiquity of web browsers, and</p></li>
 <li><p>decoupling of plot generation computing environment and display environment.</p></li>
 </ul>
 </div></blockquote>
-<p>The final point is particularly helpful in a Docker environmnt or when working
+<p>The final point is particularly helpful in a Docker environment or when working
 on a remote computer via only the console. It is even possible, using an <code class="docutils literal notranslate"><span class="pre">ssh</span>
 <span class="pre">tunnel</span></code> to view pages that are generated on a computer behind a firewall that
-are not typically web-acessible.</p>
+are not typically web-accessible.</p>
 <p>The concept is as follows:</p>
 <blockquote>
 <div><ul class="simple">
@@ -325,7 +325,7 @@ the server application started above.</p></li>
 </ul>
 </div></blockquote>
 <p>Then access the web browser which should display the plots.</p>
-<p>The challengs to this approach mainly lie in debugging and understanding the
+<p>The challenge to this approach mainly lie in debugging and understanding the
 source of errors when things don’t work. Not only do you have the plotting code
 to think about, but you also must be cognizant of the networking and the
 web-server.</p>
@@ -371,8 +371,8 @@ systems.</p></li>
 <section id="plot-driving-inputs">
 <h3><span class="section-number">5.3.3. </span>Plot Driving Inputs<a class="headerlink" href="#plot-driving-inputs" title="Permalink to this heading"></a></h3>
 <p>This plot shows the data for an input dataset, summarized over the spatial
-dimensions and for the full timeseries. In this example, the historic and
-projected timeseries are stitched together.</p>
+dimensions and for the full time-series. In this example, the historic and
+projected time-series are stitched together.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">scripts</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">climate</span><span class="o">-</span><span class="n">ts</span><span class="o">-</span><span class="n">plot</span> \
   <span class="o">--</span><span class="nb">type</span> <span class="n">spatial</span><span class="o">-</span><span class="n">temporal</span><span class="o">-</span><span class="n">summary</span> \
   <span class="o">--</span><span class="n">yx</span> <span class="mi">0</span> <span class="mi">0</span> <span class="o">--</span><span class="n">stitch</span> \

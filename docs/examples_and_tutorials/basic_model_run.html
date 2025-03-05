@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.8.1 documentation</title>
+  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1
+                v0.8.1-31-gde5483c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -143,36 +143,40 @@ bunch of the supporting tools, including Docker, and Git. For post processing
 and visualization, see the <a class="reference internal" href="plotting_discussion.html#plotting"><span class="std std-ref">Plotting Example</span></a>.</p>
 <div class="admonition hint">
 <p class="admonition-title">Hint</p>
-<p>Quickstart Summary</p>
-<p>For users who have Docker and Git installed.</p>
-<p>The default settings will run the model in the source code directory, using the
-sample data that is included with the repository in the <code class="docutils literal notranslate"><span class="pre">demo-data/</span></code> directory.
-The run will output a single variable (GPP), and will run for 2 pixels.</p>
-<ul>
-<li><p>Clone the repository (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git</span></code>).</p></li>
-<li><p>Change into directory (<code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">dvm-dos-tem</span></code>).</p></li>
-<li><p>Get some input data (optional).</p></li>
-<li><p>Build Docker images (<code class="docutils literal notranslate"><span class="pre">./docker-build-wrapper.sh</span> <span class="pre">cpp-dev</span> <span class="pre">&amp;&amp;</span> <span class="pre">./docker-build-wrapper.sh</span> <span class="pre">dev</span></code>).</p></li>
-<li><p>Setup your environment variables in <code class="docutils literal notranslate"><span class="pre">.env</span></code> file for <code class="docutils literal notranslate"><span class="pre">V_TAG</span></code>, <code class="docutils literal notranslate"><span class="pre">DDT_INPUT_CATALOG</span></code>, and <code class="docutils literal notranslate"><span class="pre">DDT_WORKFLOWS</span></code> (optional).</p></li>
-<li><p>Start Docker containers (<code class="docutils literal notranslate"><span class="pre">V_TAG=$(git</span> <span class="pre">describe)</span> <span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">up</span> <span class="pre">-d</span> <span class="pre">dvmdostem-dev</span></code>).</p></li>
-<li><p>Obtain shell in container (<code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">exec</span> <span class="pre">dvmdostem-dev</span> <span class="pre">bash</span></code>)</p></li>
-<li><p>Compile code (<code class="docutils literal notranslate"><span class="pre">develop&#64;56ef79004e31:/work$</span> <span class="pre">make</span></code>)</p></li>
-<li><p>Setup working directory (optional).</p></li>
-<li><p>Change into working directory (optional) .</p></li>
-<li><p>Adjust as needed (optional):</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Your run mask (<code class="docutils literal notranslate"><span class="pre">run-mask.nc</span></code>)</p></li>
-<li><p>The outputs you would like to generate (<code class="docutils literal notranslate"><span class="pre">output_spec.csv</span></code>)</p></li>
-<li><p>Any other configuration items (<code class="docutils literal notranslate"><span class="pre">config.js</span></code>)</p></li>
-<li><p>Any custom parameters (<code class="docutils literal notranslate"><span class="pre">parameters/</span></code>)</p></li>
-<li><p>Any custom target data (<code class="docutils literal notranslate"><span class="pre">calibration/calibration_targets.py</span></code>).</p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p>Start the model run (<code class="docutils literal notranslate"><span class="pre">develop&#64;56ef79004e31:/work$</span> <span class="pre">./dvmdostem</span> <span class="pre">--log-level</span> <span class="pre">monitor</span> <span class="pre">-p</span> <span class="pre">100</span> <span class="pre">-e</span> <span class="pre">1000</span> <span class="pre">-s</span> <span class="pre">250</span> <span class="pre">-t</span> <span class="pre">115</span> <span class="pre">-n</span> <span class="pre">85</span></code>).</p></li>
-<li><p>Analyze run (<code class="docutils literal notranslate"><span class="pre">develop&#64;56ef79004e31:/work</span> <span class="pre">./scripts/plot_output_var.py</span> <span class="pre">--yx</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">--file</span> <span class="pre">output/GPP_yearly_tr.nc</span></code>).</p></li>
-</ul>
+<p>Quick-start summary</p>
+<p>For users who have Docker and Git installed and some familiarity with the
+command line.</p>
+<p>The settings shown here will use the input data that is shipped with the code
+in the repository’s <code class="docutils literal notranslate"><span class="pre">demo-data/</span></code> directory. The run will output a single
+variable (GPP), and will run for 2 pixels.</p>
+<p>Only the steps are described here. For quick-start instructions with example
+commands see the <a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/">README</a>.</p>
+<ol class="arabic simple">
+<li><p>Clone the repository and change into the directory:</p></li>
+<li><p>Make yourself locations for input data and your modeling workflows. We
+don’t actually use the input directory for this quick-start, but creating
+it and setting the <code class="docutils literal notranslate"><span class="pre">env</span></code> variable below prevents some warnings. On some
+systems you will need to make Docker usable by non-root users. <a class="reference external" href="https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo">See here</a>.</p></li>
+<li><p>Build Docker images. For this demo we only build 2 of the images. For your
+needs you might want to build the other images. See
+<code class="docutils literal notranslate"><span class="pre">./docker-build-wrapper.sh</span> <span class="pre">--help</span></code> for more info.</p></li>
+<li><p>Setup your environment variables <code class="docutils literal notranslate"><span class="pre">V_TAG</span></code>, <code class="docutils literal notranslate"><span class="pre">DDT_INPUT_CATALOG</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">DDT_WORKFLOWS</span></code>. You can do this in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file, your <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code>, or
+by exporting them to your shell. For example using the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p></li>
+<li><p>Start the Docker containers.</p></li>
+<li><p>Obtain a shell in the container.</p></li>
+<li><p>Compile the code.</p></li>
+<li><p>Setup a working directory for your model run and change into it. The
+<code class="docutils literal notranslate"><span class="pre">setup_working_directory.py</span></code> script bootstraps a new directory to hold
+your model run. This includes a few configuration files and a folder for
+the outputs.</p></li>
+<li><p>Adjust run mask, config, outputs as necessary. The default settings should
+run 1 or 2 pixels and produce outputs for GPP. There are more tools
+provided in the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory for working with the config file,
+run mask, output specifications and parameters.</p></li>
+<li><p>Start the model run.</p></li>
+<li><p>Visualize run.</p></li>
+</ol>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

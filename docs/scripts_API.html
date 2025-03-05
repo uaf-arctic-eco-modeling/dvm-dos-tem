@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>drivers.BaseDriver &mdash; dvmdostem v0.8.1 documentation</title>
+  <title>drivers.BaseDriver &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1
+                v0.8.1-31-gde5483c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -2829,6 +2829,34 @@ it gets the lasy year?</p>
 <dt class="sig sig-object py" id="util.output.get_start_end">
 <span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">get_start_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timevar</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.get_start_end" title="Permalink to this definition"></a></dt>
 <dd><p>Returns CF Times. use .strftime() to convert to python datetimes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="util.output.load_output_dataframe">
+<span class="sig-prename descclassname"><span class="pre">util.output.</span></span><span class="sig-name descname"><span class="pre">load_output_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeres</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">px_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileprefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.output.load_output_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Builds a pandas.DataFrame for the requested output variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var</strong> (<em>str</em>) – The variable of interest. Must be a dvmdostem output variable, i.e.
+GPP.</p></li>
+<li><p><strong>timeres</strong> (<em>str</em>) – String: ‘yearly’, ‘monthly’, or ‘daily’. Used to find
+and open the appropriate files as well as set the DatetimeIndex.</p></li>
+<li><p><strong>px_y</strong> (<em>int</em>) – Index of the pixel to work with, latitude dimension.</p></li>
+<li><p><strong>px_x</strong> (<em>int</em>) – Index of pixel to work with, longitude dimension.</p></li>
+<li><p><strong>fileprefix</strong> (<em>str</em>) – The path, absolute or relative, where the function will look for files.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – A DataFrame with data for the requested <code class="docutils literal notranslate"><span class="pre">var</span></code>.
+The DataFrame should have a complete DatetimeIndex.</p></li>
+<li><p><strong>meta</strong> (<em>dict</em>) – A small dictionary containing metadata about the datasets in the
+dataframe. Namely, the units.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. Dev Info &mdash; dvmdostem v0.8.1 documentation</title>
+  <title>3. Dev Info &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1
+                v0.8.1-31-gde5483c2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -73,7 +73,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#keeping-your-repo-up-to-date-with-upstream">3.4.5. Keeping your repo up to date with <code class="docutils literal notranslate"><span class="pre">upstream</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-and-deployment">3.5. Testing and Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-and-deployment">3.5. Testing and Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#continuous-integration-and-deployment">3.5.1. Continuous Integration and Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">3.5.2. Testing</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-a-dev-environment">3.6. Setting up a dev environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#setting-up-with-vagrant">3.6.1. Setting up with Vagrant</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#setting-up-with-docker">3.6.2. Setting up with Docker</a></li>
@@ -386,7 +390,7 @@ until you are done with them!</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Soucre drawings for this document should probably be stored in the
+<p>Source drawings for this document should probably be stored in the
 Shared Google Drive so that they are not tied to an individual’s account.</p>
 </div>
 <p>In Google Docs, there is a way to insert a Google Drawing from a menu:
@@ -604,7 +608,7 @@ commits!</p>
 </section>
 <section id="releases-and-version-numbering">
 <h3><span class="section-number">3.4.4. </span>Releases and Version Numbering<a class="headerlink" href="#releases-and-version-numbering" title="Permalink to this heading"></a></h3>
-<p>Begining in 2021, we started using the “Releases” feature of Github to package
+<p>Beginning in 2021, we started using the “Releases” feature of Github to package
 and distribute specific versions of <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>. We would like to make this a
 fully or nearly fully automated process but for the time being it is rather
 manual.</p>
@@ -640,7 +644,7 @@ that release is visible here: <a class="reference external" href="https://github
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>A common developer issue is that you may have installed custom libraries that
-are not available yet inside the dvmdostem Docker image. When you shutdown
+are not available yet inside the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code> Docker image. When you shutdown
 your Docker containers, then any custom libraries you have installed will be
 lost. When you start your containers again, you will have to re-install these
 libraries. This can be somewhat tedious. One solution for this is that you
@@ -653,7 +657,7 @@ file in your repository <code class="docutils literal notranslate"><span class="
 </pre></div>
 </div>
 <p>And then when you start up your Docker container, you can run the following to
-install your custom pacakges:</p>
+install your custom packages:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>develop@263004fd19aa:/work$ pip install -r requirements_custom.txt
 </pre></div>
 </div>
@@ -698,17 +702,49 @@ usually a good idea to add it and make a commit first.</p>
 </section>
 <section id="testing-and-deployment">
 <h2><span class="section-number">3.5. </span>Testing and Deployment<a class="headerlink" href="#testing-and-deployment" title="Permalink to this heading"></a></h2>
-<p>There is currently (Sept 2022) a very limited set of tests and their execution
+<p>There is currently (March 2025) a limited set of tests and their execution
 is not automated. It is a goal to increase the test coverage and automate the
-test exectution in the near future. We are hoping to setup a CI/CD pipeline
-using Github Actions that can automatically test and deploy the <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>
-model and supporting tooling.</p>
+test execution in the future.</p>
+<section id="continuous-integration-and-deployment">
+<h3><span class="section-number">3.5.1. </span>Continuous Integration and Deployment<a class="headerlink" href="#continuous-integration-and-deployment" title="Permalink to this heading"></a></h3>
+<p>We currently have a very basic GitHub Action configured for this project. The
+existing workflow is defined in the <cite>main_sample.yml</cite> file and primarily focuses
+on setting up the environment, building Docker images, and running the model.</p>
+<p>The current workflow includes the following steps:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Setting up directories and checking out the source code.</p></li>
+<li><p>Fetching git history to ensure proper version tagging.</p></li>
+<li><p>Setting environment variables for Docker Compose.</p></li>
+<li><p>Building Docker images in two layers.</p></li>
+<li><p>Running Docker Compose to start the services.</p></li>
+<li><p>Compiling the code within the running Docker container.</p></li>
+<li><p>Running the model and confirming that an output file was created.</p></li>
+</ul>
+</div></blockquote>
+<p>While this setup is a good starting point, we aim to extend it further to
+include additional actions such as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Running the existing Python <cite>doctest</cite> tests.</p></li>
+<li><p>Building and publishing Docker images to a container registry.</p></li>
+<li><p>Automating the deployment of documentation updates.</p></li>
+</ul>
+</div></blockquote>
+<p>These enhancements will help ensure that our code is thoroughly tested and that
+our Docker images and documentation are consistently up-to-date and available
+for use.</p>
+<p>Future improvements to the GitHub Actions workflow will be tracked and
+implemented as part of our ongoing development efforts.</p>
+</section>
+<section id="testing">
+<h3><span class="section-number">3.5.2. </span>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h3>
 <p>Testing is currently implemented for some of the Python scripts in the
 <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory using the Python <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The style and
-structure of tests reflects the challenges we have had getting testing intgrated
-into this project. The <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module has a nice feature that allows tests
-to be written in a literate fashion with much explanatory text. This allows us
-to hit several goals with one set of testing material:</p>
+structure of tests reflects the challenges we have had getting testing
+integrated into this project. The <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module has a nice feature that
+allows tests to be written in a literate fashion with much explanatory text.
+This allows us to hit several goals with one set of testing material:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>explanations and examples of code/script usage;</p></li>
@@ -729,7 +765,7 @@ specially formatted test code.</p></li>
 </div></blockquote>
 <p>The tests that are in the docstrings of a given file or function should be very
 narrow in their scope and should only check the functionality of that specific
-function, independant from everything else, whereas tests in a standalone file
+function, independent from everything else, whereas tests in a standalone file
 can be much broader and more flexible in their design - i.e. module level tests.</p>
 <p>At present we have had much more luck writing the broader tests (that also serve
 as examples of usage) in stand alone files named with the following pattern:
@@ -764,6 +800,7 @@ be made of scripts and tools in the scripts folder.</p>
 </pre></div>
 </div>
 </section>
+</section>
 <section id="setting-up-a-dev-environment">
 <h2><span class="section-number">3.6. </span>Setting up a dev environment<a class="headerlink" href="#setting-up-a-dev-environment" title="Permalink to this heading"></a></h2>
 <p>There are many paths to setting up a development environment and the specific
@@ -777,31 +814,24 @@ tried all of the following:</p>
 <li><p>Docker container stack.</p></li>
 </ul>
 </div></blockquote>
-<p>The current (2022) preference is generally for the Docker container stack,
-although on some systems a local installation is still preferable.</p>
+<p>The current (2025) preference is generally for the Docker container stack,
+although on some systems a local installation may be preferable.</p>
 <section id="setting-up-with-vagrant">
 <h3><span class="section-number">3.6.1. </span>Setting up with Vagrant<a class="headerlink" href="#setting-up-with-vagrant" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>The Vagrant approach is not actively maintained, but there are some legacy files
+in the <cite>virtualmachines/</cite> directory that would be a start.</p>
 </section>
 <section id="setting-up-with-docker">
 <h3><span class="section-number">3.6.2. </span>Setting up with Docker<a class="headerlink" href="#setting-up-with-docker" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…
-Install docker desktop
-Make sure you have docker and docker compose available on the command line
-Find a place on your computer for:
-Your dvmdostem repo
-Your catalog of inputs
-Your catalog of “workflows”</p>
-</div></blockquote>
+<p>See the quick start instructions on the main <a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem?tab=readme-ov-file#">README</a>.
+For a more comprehensive walkthrough, see the <a class="reference internal" href="examples_and_tutorials/basic_model_run.html#basic-model-setup-and-run"><span class="std std-ref">Basic Model Setup and
+Run</span></a> page.</p>
 </section>
 <section id="setting-up-with-ubuntu">
 <h3><span class="section-number">3.6.3. </span>Setting up with Ubuntu<a class="headerlink" href="#setting-up-with-ubuntu" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>WRITE THIS…</p>
-</div></blockquote>
+<p>We don’t maintain explicit documentation for this, however the Docker stack is
+built using an Ubuntu base image, so it would be easy to simply use the
+Dockerfile for a guide to setting up an installation directly on an Ubuntu host.</p>
 </section>
 </section>
 <section id="debugging-strategies">
@@ -814,7 +844,7 @@ printed to your console will be overwhelming and likely saturate your scrollback
 buffer, making it impossible to read messages from the beginning of the run,
 which is where you usually want to look to diagnose initialization errors. One
 trick to overcome this is to redirect the standard output (<code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>)
-and standard error (<code class="docutils literal notranslate"><span class="pre">stderr</span></code>, <code class="docutils literal notranslate"><span class="pre">2`</span></code>) streams to a file which you can search
+and standard error (<code class="docutils literal notranslate"><span class="pre">stderr</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>) streams to a file which you can search
 thru post-hoc using <code class="docutils literal notranslate"><span class="pre">less</span></code> or a text editor. For example:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dvmdostem<span class="w"> </span>--log-level<span class="w"> </span>debug<span class="w"> </span>&gt;<span class="w"> </span>MY_OUTPUT.txt<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
 </pre></div>
