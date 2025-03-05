@@ -1,5 +1,5 @@
 ---
-title: 'DVMDOSTEM: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics'
+title: 'DVMDOSTEM v0.8.2: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics'
 tags:
   - C++
   - Python
@@ -174,7 +174,9 @@ can influence the global climate system, a phenomenon called the permafrost
 carbon-climate feedback or PCCF [@Koven2011; @Schuur2015]. The PCCF has been
 identified as one of the largest sources of uncertainty in future climate
 projections and therefore needs to be accurately represented in global earth 
-system models [@Schadel2024].
+system models [@Schadel2024]. The DVMDOSTEM ecosystem model has been developed
+with particular attention to physical and biological processes in high latitude
+systems and is therefore well suited to assessing the PCCF.
 
 # Model Design
 
