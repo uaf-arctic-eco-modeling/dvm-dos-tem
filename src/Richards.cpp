@@ -355,6 +355,10 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         currl = currl->prevl;
       }
     }
+    for (int il = 0; il<MAX_SOI_LAY; il++){
+      std::cout << layer_input[il] << "," ;
+    }
+    std::cout << std::endl;
   } 
 }
 
