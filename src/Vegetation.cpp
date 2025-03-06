@@ -548,10 +548,10 @@ void Vegetation::updateFrootfrac() {
  * vegetation parameters, and redistributing carbon and 
  * nitrogen pools based on new init and C:N values
  */
-void Vegetation::cmtChange(){
+void Vegetation::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT31";
+  std::string new_cmt = "CMT3";
 
   // Load relevant parameters from new CMT
   chtlu->cmtcode = new_cmt;
@@ -616,6 +616,9 @@ void Vegetation::cmtChange(){
     // break out of loop once all new pfts have been
     // accounted for
     if (initvegc_pft[ip] == 0.0){
+      // bd[ip]->m_vegs.c[ipp] = 0.0;
+      // and other places where needed to be updated
+      // continue
       break;
     }
 
@@ -628,7 +631,7 @@ void Vegetation::cmtChange(){
     for (int ipp = 0; ipp < NUM_PFT_PART; ipp++){
       // redistribute carbon to compartments
       bd[ip]->m_vegs.c[ipp] = chtlu->cpart[ipp][ip] * new_pft_pool;
-
+      
       // calculate new nitrogen distribution based on 
       // percentage from new c:n ratios while maintaining
       // total nitrogen 
@@ -636,8 +639,36 @@ void Vegetation::cmtChange(){
       // sum across compartments to calculate new strnall
       bd[ip]->m_vegs.strnall += bd[ip]->m_vegs.strn[ipp];
     }
+
+    // if(!update_LAI_from_vegc) {
+    //   // logging statement: need DVM on for FIRE;
+    // }
+
+    // also update lai from redistributed leaf carbon
+    // this calculation assumes leaf carbon has been tested
+    // for existence and updated accordingly. Post disturbance
+    // we assume there is a non-zero leaf carbon for all PFTs
+    // assigned above
+    cd->m_veg.lai[ip] = vegdimpar.sla[ip] * bd[ip]->m_vegs.c[I_leaf];
+
+    // update labile nitrogen     
     bd[ip]->m_vegs.labn = (bd[ip]->m_vegs.strnall/ npool) * labnpool;
   }
+  // update monthly phenological variables (factors used for GPP), and LAI
+  // veg.phenology(currmind);
+  // veg.updateLai(currmind); // this must be done after phenology
+
+  // LAI updated above for each PFT, but FPC
+  //    (foliage percent cover) may need adjustment
+
+  veg.updateVegcov();
+  veg.updateFpc();
+  
+  // veg.updateFrootfrac();
+
+  // NEED TO UPDATE FINE ROOT FRACTION SIMILARLY TO ABOVE CARBON AND 
+  // NITROGEN BUT USING FROOTFRAC values from parameter files and
+  // splitting the remaining FROOTFRAC
 };
 
 
