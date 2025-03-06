@@ -319,6 +319,33 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
   },
+  ## CMT 31 - BOREAL BOG - CALIBRATION BONANZA CREEK THERMOKARST BOG - EUSKIRCHEN TOWER BZB - B. MAGLIO
+   "Boreal Bog": {
+     'cmtnumber': 31,
+                                #   pft0          pft1           pft2           pft3          pft4  pft5  pft6  pft7  pft8  pft9   
+                                #   Sphag         Eshrub         Sedge          Dshrub        Misc. Misc. Misc. Misc. Misc. Misc.
+     'GPPAllIgnoringNitrogen':    [   479.2101837,   92.14549605,    118.8998794,     30.18051452,  0,    0,   0,      0,      0,      0 ], # ingpp     (gC/m2/year)   GPP without N limitation 
+     'NPPAllIgnoringNitrogen':    [   239.6050919,   46.07274803,    59.4499397,    15.09025726,  0,   0,    0,    0,      0,      0 ], # innpp     (gC/m2/year)   NPP without N limitation
+     'NPPAll':                    [   191.6840735,   36.85819842,    47.55995176,     12.07220581,    0,   0,      0,      0,      0,      0 ], # npp       (gC/m2/year)   NPP with N limitation
+     'Nuptake':                   [   4.259646078,     0.9450820108, 1.219485943,     0.3095437387, 0,     0,      0,      0,      0,      0 ], # nuptake   (gN/m2/year)
+     'VegCarbon': {
+       'Leaf':                    [   293.995652,      8.9926087,    8.859734807,     6.406304385,    0,   0,      0,    0,      0,    0 ], # vegcl     (gC/m2) 
+       'Stem':                    [   0,             41.63577828,    0,               11.01434789,  0,    0,     0,      0,      0,      0 ], # vegcw     (gC/m2)
+       'Root':                    [   0,             39.29770002,    38.51852619,     5.057608725,    0,     0,      0,      0,      0,      0 ], # vegcr     (gC/m2)
+     },
+     'VegStructuralNitrogen': {
+       'Leaf':                    [   3.665087447,   0.3034250666,    0.3543893923,    0.2350333634,0,     0,      0,    0,      0,      0 ], # vegnl     (gN/m2)
+       'Stem':                    [   0,             0.7083564987,    0,               0.1911383582, 0,   0,      0,      0,      0,      0 ], # vegnw     (gN/m2)
+       'Root':                    [   0,             0.9767043623,    1.041604278,     0.1257017205, 0,   0,      0,      0,      0,      0 ], # vegnr     (gN/m2)
+    },
+    'MossDeathC':                    0.00,    #  dmossc ## IGNORE
+    'CarbonShallow':                 8732,    #  shlwc 
+    'CarbonDeep':                    24092,    #  deepc 
+    'CarbonMineralSum':              61545,    #  minec 
+    'OrganicNitrogenSum':            4138,    #  soln  
+    'AvailableNitrogenSum':          7.134,     #  avln 
+    # 'EcosystemRespiration':          596,
+    },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
   "shrub tundra kougarok": {
     'cmtnumber': 44,

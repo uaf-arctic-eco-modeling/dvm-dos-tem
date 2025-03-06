@@ -49,6 +49,8 @@
 0.54       // kdcsoma:     .58
 0.002       // kdcsompr:     .003
 0.00007   // kdcsomcr: 0.000025  0.00025 bad
+0.000000        // inflowfactor:
+1000.000        // maxponding:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 boreal white spruce with Bonanza Creek climate
 //EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
@@ -159,6 +161,8 @@
 0.011       // kdcsoma:  was 0.12
 0.0025       // kdcsompr: was .03
 0.00025       // kdcsomcr:
+0.000001     // inflowfactor:
+1000.000     // maxponding:
 //===========================================================
 // CMT07 // Heath Tundra //
 //Decid     EGreen        Forbs        Lichens      Grasses      Moss       PFT6        PFT7       PFT8         PFT9         // pftnames:
@@ -203,6 +207,8 @@
 0.03       // kdcsoma:
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
+0.000000        // inflowfactor:
+40.000        // maxponding:
 //===========================================================
 // CMT20 // EML Shrub Tundra //
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
@@ -269,7 +275,7 @@
 0.250000     // kdcsoma:
 0.018000     // kdcsompr:
 0.000010     // kdcsomcr:
-100.000000     // inflowfactor:
+0.000001     // inflowfactor:
 1000.000     // maxponding:
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB

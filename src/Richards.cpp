@@ -345,7 +345,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         qgroundwater_perch -= layer_input[ind];
 
         // breakout of loop when groundwater input is depleted or timestep is ended
-        if (qgroundwater_perch >= 0.0){
+        if (qgroundwater_perch > 0.0){
           currl = currl->prevl;
         } else{
           break;
