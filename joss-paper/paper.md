@@ -156,7 +156,10 @@ dynamic vegetation module (DVM) and a dynamic organic soil (DOS) module to
 simulate processes at yearly and monthly scales, with some physical processes
 operating at an even finer temporal resolution. Its versatility allows for
 site-specific to regional simulations, making it valuable for predicting shifts
-in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics.
+in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics. While 
+`DVMDOSTEM` has been described in the methods sections of many manuscripts, 
+this paper is the first stand alone description of `DVMDOSTEM`, independent of a 
+particular scientific investigation.
 
 ![Logo for `DVMDOSTEM`\label{fig:logo}](ddt_logo_910x705_alpha.png){width="20%"} 
 
@@ -174,9 +177,10 @@ can influence the global climate system, a phenomenon called the permafrost
 carbon-climate feedback or PCCF [@Koven2011; @Schuur2015]. The PCCF has been
 identified as one of the largest sources of uncertainty in future climate
 projections and therefore needs to be accurately represented in global earth 
-system models [@Schadel2024]. The DVMDOSTEM ecosystem model has been developed
+system models [@Schadel2024]. The `DVMDOSTEM` ecosystem model has been developed
 with particular attention to physical and biological processes in high latitude
-systems and is therefore well suited to assessing the PCCF.
+systems and is therefore well suited to assessing and informing our
+understanding of the PCCF.
 
 # Model Design
 
