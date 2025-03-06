@@ -205,7 +205,7 @@ N. Each PFT is split into compartments (leaf, stem and root) which track their
 own C and N content and associated fluxes. The fluxes are represented with red
 text while the pools are black. In addition, there is competition among the PFTs
 for light, water, and available N, shown with the purple arrow in the top
-center.\label{fig:modeloverview}](dvmdostem-overview-export_2024-08-19.jpg)
+center.\label{fig:modeloverview}](dvmdostem-overview-export_2025-03-06.jpg)
 
 
 The snow and soil columns are split into a dynamic number of layers to represent
@@ -220,6 +220,7 @@ cycles [@McGuire1992; @Euskirchen2009]. Finally, the model represents the
 effects of wildfire in order to evaluate the role of climate-driven fire
 intensification on ecosystem structure and function [@Yi2010; @Genet2013]. The
 structure of `DVMDOSTEM` is represented visually in \autoref{fig:modeloverview}.
+
 
 
 # Acknowledgements
