@@ -137,7 +137,7 @@ affiliations:
   - name: Department(s) of Plant Biology and Geography, University of Illinois Urbana-Champaign, Urbana, IL 61801
     index: 6
 
-date: 19 August 2024
+date: 06 March 2025
 bibliography: joss-paper.bib
 ---
 
