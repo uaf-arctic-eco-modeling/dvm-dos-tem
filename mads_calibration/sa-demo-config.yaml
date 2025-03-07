@@ -8,7 +8,7 @@ seed_path: /work/parameters
 observations: /work/calibration
 
 # The number of samples to draw over the parameter space
-N_samples: 100
+N_samples: 20
 
 # The location where all the individual sample folders will be setup.
 work_dir: /data/workflows/groundwater_test_SA
@@ -67,17 +67,23 @@ target_names:
 # for a variable that is one of your target variables. This will make the
 # plotting in SA_post_hoc_analysis not work.
 aux_outputs:
+- VEGC y
 - TLAYER m
 - LWCLAYER m
 - VWCLAYER m
 - WATERTAB m
 - ALD y
 - LAYERDEPTH m
-- QRUNOFF m
-- QINFILTRATION m
-- EET m
-- TRANSPIRATION m
-- QDRAINAGE m
+- LAYERTYPE m
+- LAYERDZ m
+- SNOWTHICK m
+# - QRUNOFF m
+# - QINFILTRATION m
+# - EET m
+# - TRANSPIRATION m
+# - QDRAINAGE m
+- SHLWDZ y
+- DEEPDZ y
 
 # The community number that is being calibrated.
 cmtnum: 31
