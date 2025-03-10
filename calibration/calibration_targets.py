@@ -382,7 +382,7 @@ calibration_targets = {
   'CarbonMineralSum': 38121,
   'OrganicNitrogenSum': 1880,
   'AvailableNitrogenSum': 0.443,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 266.55,
 },
  ## CMT51 TUSSOCK TUNDRA TRAIL VALLEY CREEK
   "Tussock Tundra TVC" : {
@@ -398,17 +398,17 @@ calibration_targets = {
     'Root' : [17.950, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
   'VegStructuralNitrogen': {
-    'Leaf' : [8.884, 6.013, 0.910, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [4.1455, 1.8855, 0.4614, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
     'Stem' : [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-    'Root' : [0.181, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [0.3554, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
   'MossDeathC': 0,
-  'CarbonShallow': 8000,
-  'CarbonDeep': 9629,
+  'CarbonShallow': 5437,
+  'CarbonDeep': 10113,
   'CarbonMineralSum': 38121,
-  'OrganicNitrogenSum': 2788,
+  'OrganicNitrogenSum': 2716,
   'AvailableNitrogenSum': 0.392,
-  'EcosystemRespiration': 0.00, 
+  'EcosystemRespiration': 236.32, 
 },
   ## CMT52 HEATH LICHEN TUNDRA TRAIL VALLEY CREEK
   "Heath-lichen TVC" : {
@@ -434,7 +434,7 @@ calibration_targets = {
   'CarbonMineralSum': 38121,
   'OrganicNitrogenSum': 3209,
   'AvailableNitrogenSum': 0.362,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 52.55,
 },
   ## CMT55 ARCTIC FEN AT DARING LAKE
   "Arctic Fen" : {
@@ -460,7 +460,7 @@ calibration_targets = {
   'CarbonMineralSum': 14000,
   'OrganicNitrogenSum': 2341.5,
   'AvailableNitrogenSum': 0.706,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 250.8,
 },
   ## CMT56 MIXED TUNDRA AT DARING LAKE
   "Mixed Tundra" : {
@@ -486,7 +486,7 @@ calibration_targets = {
   'CarbonMineralSum': 14000,
   'OrganicNitrogenSum': 1340.9,
   'AvailableNitrogenSum': 1.632,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 203.82,
 },
   ## CMT57 HEATH TUNDRA AT DARING LAKE
   "Heath Tundra Daring Lake" : {
@@ -512,7 +512,7 @@ calibration_targets = {
   'CarbonMineralSum': 14000,
   'OrganicNitrogenSum': 700.346,
   'AvailableNitrogenSum': 2.457,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 206.12,
 },
   ## CMT60 - PEAT PLATEAU - Scotty Creek
   "peat plateau" : {
@@ -538,7 +538,7 @@ calibration_targets = {
   'CarbonMineralSum': 55667.00,
   'OrganicNitrogenSum': 2561.00,
   'AvailableNitrogenSum': 1.38,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 479.0,
 },
   ## CMT61 - BOG - Scotty Creek
   "scotty creek bog" : {
@@ -564,7 +564,7 @@ calibration_targets = {
   'CarbonMineralSum': 77803.0,
   'OrganicNitrogenSum': 3548.0,
   'AvailableNitrogenSum': 0.14,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 265.0,
 },
  ## CMT65 - Mature Aspen - BOREAS
   "Mature Aspen" : {
@@ -590,15 +590,15 @@ calibration_targets = {
   'CarbonMineralSum': 11707,
   'OrganicNitrogenSum': 1405.54,
   'AvailableNitrogenSum': 0.80,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 993.06,
 },
   ## CMT66 - Mature Jack Pine - BOREAS
   "Mature Jack Pine" : {
     'cmtnumber': 66,
   'PFTNames':  ['EGreenTree', 'DecidShrub', 'Lichen', 'FeatherMoss', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
-  'GPPAllIgnoringNitrogen':  [138.000, 60.400, 15.600, 22.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAllIgnoringNitrogen':  [86.250, 37.750, 9.750, 13.750, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAll':  [199.300, 13.800, 0.960, 13.440, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'GPPAllIgnoringNitrogen':  [672.688, 46.683, 3.242, 45.386, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [420.431, 29.177, 2.026, 28.366, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [336.344, 23.341, 1.620, 22.693, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   'Nuptake':  [2.600, 0.150, 0.140, 0.310, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   'VegCarbon': {
     'Leaf' : [173.000, 15.000, 10.000, 140.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
@@ -616,7 +616,7 @@ calibration_targets = {
   'CarbonMineralSum': 2973,
   'OrganicNitrogenSum': 157,
   'AvailableNitrogenSum': 5.4,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 521.46,
 },
   ## CMT67 - Mixed Forest-Groundhog River
   "Mixed Forest-Groundhog River" : {
@@ -642,7 +642,7 @@ calibration_targets = {
   'CarbonMineralSum': 15842,
   'OrganicNitrogenSum': 624,
   'AvailableNitrogenSum': 7.857,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 899.12,
 },
   ## CMT69 - Black Spruce - BOREAS
   "Black Spruce- BOREAS" : {
@@ -653,13 +653,13 @@ calibration_targets = {
   'NPPAll':  [227.500, 175.800, 5.600, 9.920, 8.590, 0.870, 0.000, 0.000, 0.000, 0.000, ],
   'Nuptake':  [1.760, 0.790, 0.083, 0.081, 0.095, 0.004, 0.000, 0.000, 0.000, 0.000, ],
   'VegCarbon': {
-    'Leaf' : [547.140, 38.560, 17.500, 119.600, 103.500, 10.400, 0.000, 0.000, 0.000, 0.000, ],
-    'Stem' : [2194.390, 2079.900, 32.500, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [547.140, 124.989, 17.500, 119.600, 103.500, 10.400, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [2194.390, 1993.472, 32.500, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
     'Root' : [981.950, 339.730, 58.330, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
   'VegStructuralNitrogen': {
-    'Leaf' : [8.180, 1.750, 0.390, 1.930, 2.250, 0.104, 0.000, 0.000, 0.000, 0.000, ],
-    'Stem' : [19.950, 13.080, 0.780, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [8.180, 5.681, 0.390, 1.930, 2.250, 0.104, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [19.950, 12.530, 0.780, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
     'Root' : [13.830, 3.990, 0.810, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
   'MossDeathC': 0,
@@ -668,7 +668,7 @@ calibration_targets = {
   'CarbonMineralSum': 9227.79,
   'OrganicNitrogenSum': 490.33,
   'AvailableNitrogenSum': 17.2,
-  'EcosystemRespiration': 0.00,
+  'EcosystemRespiration': 806.96,
 },
 }
 

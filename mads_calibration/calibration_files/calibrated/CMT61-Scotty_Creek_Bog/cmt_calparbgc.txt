@@ -1,0 +1,27 @@
+// dvmdostem parameter file for BGC calibrated parameters
+// Maximum of 10 PFTs over one soil column.
+// PFT names should be CamelCase and must not have a period in them!
+//
+//==========================================================
+// CMT61 // Scotty Creek Bog // Values from Scotty Creek
+// Sphagnum   EgreenTree    Sedges   EricShrubs        Forbs         PFT5         PFT6         PFT7         PFT8         PFT9   // name: units // description // comment // refs
+   123.693    224.645       55.961      237.471     24.522            0.0000       0.0000       0.0000       0.0000       0.0000 // cmax:  
+   5.3517     6.10284       0.686655    1.9613      5.5741            0.0000       0.0000       0.0000       0.0000       0.0000 // nmax:
+   0.02992    0.44212       0.020114    0.005722    0.181176          0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(0):  leaf 
+   0.0000     0.03000       0.0000      0.080768    0.0000            0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(1):  stem 
+   0.0000     0.06808       0.000299    0.06886     0.044663          0.0000       0.0000       0.0000       0.0000       0.0000 // cfall(2):  root 
+   0.00033    0.004056      0.000462    0.000818    0.001182          0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(0):  leaf
+   0.0000     0.000268      0.0000      0.000358    0.0000            0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(1):  stem
+   0.0000     0.003003      0.000363    0.003941    0.000934          0.0000       0.0000       0.0000       0.0000       0.0000 // nfall(2):  root
+  -8.100e-05 -8.060e-05    -8.100e-05  -8.100e-05  -8.100e-05         0.0000       0.0000       0.0000       0.0000       0.0000 // kra: 
+  -3.4508    -5.8796       -0.4407     -0.5414     -0.27944           0.0000       0.0000       0.0000       0.0000       0.0000 // krb(0):  coeff(1) in maintenance resp.(leaf)   
+   0.0000    -14.053        0.0000     -1.6799      0.0000            0.0000       0.0000       0.0000       0.0000       0.0000 // krb(1):  coeff(1) in maintenance resp.(stem) 
+   0.0000    -9.6965       -9.2423     -0.682      -0.7886            0.0000       0.0000       0.0000       0.0000       0.0000 // krb(2):  coeff(1) in maintenance resp.(root)
+   0.2000     0.1100        0.2000      0.2000      0.2000            0.0000       0.0000       0.0000       0.0000       0.0000 // frg:  fraction of available NPP (GPP after rm) for growth resp.
+   9.8556     // micbnup: 
+   0.0293     // kdcrawc:
+   0.3120     // kdcsoma:
+   3.1e-5     // kdcsompr:
+   9.0e-7     // kdcsomcr:
+   1.0             // s2dfraction:
+   1.0             // d2mfraction:
