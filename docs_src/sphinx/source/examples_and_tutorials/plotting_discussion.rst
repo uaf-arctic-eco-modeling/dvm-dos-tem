@@ -9,7 +9,7 @@
 Plotting
 ################
 
-Plotting is a natural and essential step in the modelling process. The use-cases
+Plotting is a natural and essential step in the modeling process. The use-cases
 and limitations are numerous and there is not a single silver bullet plotting
 solution that is sure to work for you.
 
@@ -50,8 +50,8 @@ Existing Tools and Patterns
     directory. While the project has used Notebooks on occasion, in general we
     prefer to avoid them for the following reasons:
     
-    - The notebook format is very challenging to work with in a verison
-      controled environment.
+    - The notebook format is very challenging to work with in a version
+      controlled environment.
  
     - Notebooks can produce ambiguous or unrepeatable outputs due to the ability
       to execute cells out of order.
@@ -161,7 +161,7 @@ Example Plots
 Following are bunch of examples showing how you might plot and interact with 
 ``dvmdostem`` related data.
 
-Basic 1 pixel timeseries
+Basic 1 pixel time-series
 ==========================
 One of the easiest things we might want to look at is a time series plot of GPP
 for a single pixel in a run. This can easily be done with ``ncview``, but you
@@ -200,13 +200,13 @@ attractive. Some of the advantages are:
 
  - interactivity,
  - rich javascript front-end tools,
- - ubibiquity of web browsers, and
+ - ubiquity of web browsers, and
  - decoupling of plot generation computing environment and display environment.
  
-The final point is particularly helpful in a Docker environmnt or when working
+The final point is particularly helpful in a Docker environment or when working
 on a remote computer via only the console. It is even possible, using an ``ssh
 tunnel`` to view pages that are generated on a computer behind a firewall that
-are not typically web-acessible.
+are not typically web-accessible.
 
 The concept is as follows:
 
@@ -217,7 +217,7 @@ The concept is as follows:
 
 Then access the web browser which should display the plots.
 
-The challengs to this approach mainly lie in debugging and understanding the
+The challenge to this approach mainly lie in debugging and understanding the
 source of errors when things don't work. Not only do you have the plotting code
 to think about, but you also must be cognizant of the networking and the
 web-server.
@@ -269,8 +269,8 @@ Plot Driving Inputs
 ========================
 
 This plot shows the data for an input dataset, summarized over the spatial
-dimensions and for the full timeseries. In this example, the historic and
-projected timeseries are stitched together.
+dimensions and for the full time-series. In this example, the historic and
+projected time-series are stitched together.
 
 .. code:: 
 
