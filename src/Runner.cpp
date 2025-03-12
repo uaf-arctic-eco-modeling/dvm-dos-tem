@@ -1697,10 +1697,15 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputDRIVINGNIRR)
     {
-
+      //This does not need an entry in OutputHolder because the
+      // driving data is already holding a year's worth of values
+      // and daily outputs are not held for multiple years.
       if(curr_spec.daily){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.nirr_d[doy], 1, day_timestep, dinm);
+        if(end_of_year){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.nirr_d[0], 1, day_timestep, DINY);
+        }
       }
+
     }//end critical(outputDRIVINGNIRR)
   }//end DRIVINGNIRR
   map_itr = netcdf_outputs.end();
@@ -1716,7 +1721,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //daily
       if(curr_spec.daily){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.rain_d[doy], 1, day_timestep, dinm);
+        if(end_of_year){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.rain_d[0], 1, day_timestep, DINY);
+        }
       }
       //monthly
       else if(curr_spec.monthly){
@@ -1749,7 +1756,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //daily
       if(curr_spec.daily){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.snow_d[doy], 1, day_timestep, dinm);
+        if(end_of_year){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.snow_d[0], 1, day_timestep, DINY);
+        }
       }
       //monthly
       else if(curr_spec.monthly){
@@ -1780,10 +1789,15 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputDRIVINGTAIR)
     {
-
+      //This does not need an entry in OutputHolder because the
+      // driving data is already holding a year's worth of values
+      // and daily outputs are not held for multiple years.
       if(curr_spec.daily){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.tair_d[doy], 1, day_timestep, dinm);
+        if(end_of_year){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.tair_d[0], 1, day_timestep, DINY);
+        }
       }
+
     }//end critical(outputDRIVINGTAIR)
   }//end DRIVINGTAIR
   map_itr = netcdf_outputs.end();
@@ -1797,10 +1811,15 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputDRIVINGVAPO)
     {
-
+      //This does not need an entry in OutputHolder because the
+      // driving data is already holding a year's worth of values
+      // and daily outputs are not held for multiple years.
       if(curr_spec.daily){
-        output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.vapo_d[doy], 1, day_timestep, dinm);
+        if(end_of_year){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.climate.vapo_d[0], 1, day_timestep, DINY);
+        }
       }
+
     }//end critical(outputDRIVINGVAPO)
   }//end DRIVINGVAPO
   map_itr = netcdf_outputs.end();
