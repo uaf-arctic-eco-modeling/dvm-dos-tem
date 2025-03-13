@@ -298,7 +298,18 @@ struct atm2soi_fir {
   atm2soi_fir(): orgn(UIN_D){}
 };
 
+struct atm2soi_thermokarst {
+  double orgn;
+  atm2soi_thermokarst(): orgn(UIN_D){}
+};
+
 struct soi2atm_fir {
+  double orgc;
+  double orgn;
+  soi2atm_fir(): orgc(UIN_D), orgn(UIN_D) {}
+};
+
+struct soi2atm_thermokarst {
   double orgc;
   double orgn;
   soi2atm_fir(): orgc(UIN_D), orgn(UIN_D) {}
@@ -310,6 +321,12 @@ struct veg2atm_fir {
   veg2atm_fir(): orgc(UIN_D), orgn(UIN_D) {}
 };
 
+struct veg2atm_thermokarst {
+  double orgc;
+  double orgn;
+  veg2atm_thermokarst(): orgc(UIN_D), orgn(UIN_D) {}
+};
+
 struct veg2soi_fir {
   double abvc;
   double abvn;
@@ -319,10 +336,24 @@ struct veg2soi_fir {
 
 };
 
+struct veg2soi_thermokarst {
+  double abvc;
+  double abvn;
+  double blwc;
+  double blwn;
+  veg2soi_thermokarst() : abvc(UIN_D), abvn(UIN_D), blwc(UIN_D), blwn(UIN_D) {}
+};
+
 struct veg2dead_fir{
   double vegC;
   double strN;
   veg2dead_fir(): vegC(UIN_D), strN(UIN_D) {}
+};
+
+struct veg2dead_thermokarst{
+  double vegC;
+  double strN;
+  veg2dead_thermokarst() : vegC(UIN_D), strN(UIN_D) {}
 };
 
 #endif /*FLUXES_H_*/
