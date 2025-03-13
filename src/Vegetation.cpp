@@ -551,13 +551,14 @@ void Vegetation::updateFrootfrac() {
 void Vegetation::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT3";
+  std::string new_cmt = "CMT31";
 
   // Load relevant parameters from new CMT
   chtlu->cmtcode = new_cmt;
 
   // reinitializing vegetation parameters
   chtlu->loadVegetationParams();
+  initializeParameter();
 
   // reassign pools to new PFTs
   double cpool = 0.0;
@@ -650,7 +651,7 @@ void Vegetation::cmtChange(const int & currmind){
     // we assume there is a non-zero leaf carbon for all PFTs
     // assigned above
     cd->m_veg.lai[ip] = vegdimpar.sla[ip] * bd[ip]->m_vegs.c[I_leaf];
-
+    
     // update labile nitrogen     
     bd[ip]->m_vegs.labn = (bd[ip]->m_vegs.strnall/ npool) * labnpool;
   }
@@ -661,14 +662,32 @@ void Vegetation::cmtChange(const int & currmind){
   // LAI updated above for each PFT, but FPC
   //    (foliage percent cover) may need adjustment
 
-  veg.updateVegcov();
-  veg.updateFpc();
+  updateVegcov();
+  updateFpc();
   
+  for(int ip=0; ip<NUM_PFT; ip++){
+    cd->d_veg.ifwoody[ip] = cd->m_veg.ifwoody[ip];
+    cd->d_veg.ifdeciwoody[ip] = cd->m_veg.ifdeciwoody[ip];
+    cd->d_veg.ifperenial[ip] = cd->m_veg.ifperenial[ip];
+    cd->d_veg.nonvascular[ip] = cd->m_veg.nonvascular[ip];
+    cd->d_veg.vegcov[ip] = cd->m_veg.vegcov[ip];
+    cd->d_veg.lai[ip] = cd->m_veg.lai[ip];
+    cd->d_veg.fpc[ip] = cd->m_veg.fpc[ip];
+    // cd->d_veg.frootfrac[ip] = cd->m_veg.frootfrac[ip];
+  }
+
   // veg.updateFrootfrac();
 
   // NEED TO UPDATE FINE ROOT FRACTION SIMILARLY TO ABOVE CARBON AND 
   // NITROGEN BUT USING FROOTFRAC values from parameter files and
   // splitting the remaining FROOTFRAC
+
+  // NOTES FROM LAST TIME:
+  // variables in ed not updated, to do this we will probably need to 
+  // write some new methods. 
+  // Start by identifying order of operations for some kind of replication.
+  // Look at ed.d_vegd variables to begin with.
+  
 };
 
 
