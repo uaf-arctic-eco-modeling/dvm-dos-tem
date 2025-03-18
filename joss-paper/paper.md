@@ -151,15 +151,17 @@ spatio-temporal scales, that can be represented in process-based ecosystem model
 designed to study ecosystem responses to climate changes and disturbances. It
 has a particular focus on permafrost regions (i.e. regions characterized by
 soils that stay partially frozen all year round for at least two consecutive
-years), encompassing boreal, arctic, and alpine landscapes. The model couples a
-dynamic vegetation module (DVM) and a dynamic organic soil (DOS) module to
-simulate processes at yearly and monthly scales, with some physical processes
-operating at an even finer temporal resolution. Its versatility allows for
-site-specific to regional simulations, making it valuable for predicting shifts
-in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics. While 
-`DVMDOSTEM` has been described in the methods sections of many manuscripts, 
-this paper is the first stand alone description of `DVMDOSTEM`, independent of a 
-particular scientific investigation.
+years), encompassing boreal, arctic, and alpine landscapes. The model couples
+two previous versions of the Terrestrial Ecosystem Model (TEM), [@McGuire1992]:
+DVMTEM that includes a dynamic vegetation module (DVM) [@Euskirchen2009], and
+DOSTEM that includes a dynamic organic soil module (DOS) [@Yi2010; @Genet2013].
+`DVMDOSTEM` simulates processes at yearly and monthly scales, with some physical
+processes operating at an even finer temporal resolution. Its versatility allows
+for site-specific to regional simulations, making it valuable for predicting
+shifts in permafrost, vegetation, and carbon (C) and nitrogen (N) dynamics.
+While `DVMDOSTEM` has been described in the methods sections of many
+manuscripts, this paper is the first stand alone description of `DVMDOSTEM`,
+independent of a particular scientific investigation.
 
 ![Logo for `DVMDOSTEM`\label{fig:logo}](ddt_logo_910x705_alpha.png){width="20%"} 
 
