@@ -4121,7 +4121,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         double y_reco = cohort.bdall->y_soi2a.rhsom
                       + cohort.bdall->y_soi2a.rhwdeb
                       + cohort.bdall->y_v2a.rmall
-                      + cohort.bdall->m_v2a.rgall;
+                      + cohort.bdall->y_v2a.rgall;
 
         outhold.reco_for_output.push_back(y_reco);
 
