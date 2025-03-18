@@ -170,19 +170,18 @@ independent of a particular scientific investigation.
 
 Arctic and boreal regions underlain by permafrost store nearly half of the
 world’s soil organic C - approximately 1,440-1,600 Pg [@Hugelius2014;
-@Schuur2022]. These regions are warming four times faster than
-the rest of the globe, driving widespread and rapid permafrost thaw
-[@Rantanen2022; @Smith2022]. As permafrost thaws, soil organic C becomes
-available for decomposition and release as greenhouse gasses (GHGs) to the
-atmosphere. Climate-driven permafrost thaw and the associated release of GHGs
-can influence the global climate system, a phenomenon called the permafrost
-carbon-climate feedback or PCCF [@Koven2011; @Schuur2015]. The PCCF has been
-identified as one of the largest sources of uncertainty in future climate
-projections and therefore needs to be accurately represented in global earth 
-system models [@Schadel2024]. The `DVMDOSTEM` ecosystem model has been developed
-with particular attention to physical and biological processes in high latitude
-systems and is therefore well suited to assessing and informing our
-understanding of the PCCF.
+@Schuur2022]. These regions are warming four times faster than the rest of the
+globe, driving widespread and rapid permafrost thaw [@Rantanen2022; @Smith2022].
+As permafrost thaws, soil organic C becomes available for decomposition and
+release as greenhouse gasses (GHGs) to the atmosphere. Climate-driven permafrost
+thaw and the associated release of GHGs can influence the global climate system,
+a phenomenon called the permafrost carbon-climate feedback or PCCF [@Koven2011;
+@Schuur2015]. The PCCF has been identified as one of the largest sources of
+uncertainty in future climate projections and therefore needs to be accurately
+represented in global earth system models [@Schadel2024]. `DVMDOSTEM` has been
+developed with special emphasis on physical and biological processes driving
+permafrost and carbon cycling in high latitude ecosystems. `DVMDOSTEM` is
+therefore well suited to assessing and informing our understanding of the PCCF.
 
 # Model Design
 
