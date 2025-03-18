@@ -5,8 +5,8 @@ README for dvm-dos-tem
 [![Slack](https://img.shields.io/badge/slack-login-green.svg)](https://arctic-eco-modeling.slack.com) 
 
 The dvm-dos-tem (`dvmdostem`) model is a process based bio-geo-chemical
-ecosystem model that focuses on C and N dynamics as well as soil thermal
-dynamics in high latitude ecosystems.
+ecosystem model that focuses on C and N cycles, vegetation dynamics and soil
+thermal dynamics in high latitude ecosystems.
 
 For more information see the [User Guide](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/index.html).
 
