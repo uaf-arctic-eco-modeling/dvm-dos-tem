@@ -514,7 +514,9 @@ void Climate::prep_avg_climate(){
   // averaging yearly co2 and ch4 time series over baseline years
   // produces a scalar value 
   avgX_co2 = avg_over_yearly(co2, baseline_start, baseline_end);
-  avgX_ch4 = avg_over_yearly(ch4, baseline_start, baseline_end);
+  if (!ch4.empty()){
+    avgX_ch4 = avg_over_yearly(ch4, baseline_start, baseline_end);
+  }
 }
 
 
