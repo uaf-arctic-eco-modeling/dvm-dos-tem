@@ -5767,10 +5767,58 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
     #pragma omp critical(outputVEGN)
     {
+      //Neither PFT nor compartment (total ecosystem)
+      if(!curr_spec.pft && !curr_spec.compartment){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_vegs.nall, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.nall, 1, year, 1);
+        }
+      }
+    }//end critical(outputVEGN)
+  }//end VEGN
+  map_itr = netcdf_outputs.end();
+
+
+  //VEGNLAB
+  map_itr = netcdf_outputs.find("VEGNLAB");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VEGNLAB";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputVEGNLAB)
+    {
+      //Neither PFT nor compartment (total ecosystem)
+      if(!curr_spec.pft && !curr_spec.compartment){
+        //monthly
+        if(curr_spec.monthly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_vegs.labn, 1, month_timestep, 1);
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.labn, 1, year, 1);
+        }
+      }
+    }//end critical(outputVEGNLAB)
+  }//end VEGNLAB
+  map_itr = netcdf_outputs.end();
+
+
+  //VEGNSTR
+  map_itr = netcdf_outputs.find("VEGNSTR");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VEGNSTR";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputVEGNSTR)
+    {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
-        double m_vegn[NUM_PFT_PART][NUM_PFT];
-        double y_vegn[NUM_PFT_PART][NUM_PFT];
+        double m_vegn[NUM_PFT_PART][NUM_PFT] = {0};
+        double y_vegn[NUM_PFT_PART][NUM_PFT] = {0};
         for(int ip=0; ip<NUM_PFT; ip++){
           if(cohort.cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
 
@@ -5835,15 +5883,15 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.pft && !curr_spec.compartment){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_vegs.nall, 1, month_timestep, 1);
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_vegs.strnall, 1, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.nall, 1, year, 1);
+          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.strnall, 1, year, 1);
         }
       }
-    }//end critical(outputVEGN)
-  }//end VEGN
+    }//end critical(outputVEGNSTR)
+  }//end VEGNSTR
   map_itr = netcdf_outputs.end();
 
 
