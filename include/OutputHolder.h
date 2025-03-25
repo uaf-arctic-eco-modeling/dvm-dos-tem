@@ -105,10 +105,10 @@ public:
   std::vector<std::array<double, NUM_PFT>> gpp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> gpp_for_output; 
 
-  std::vector<double> ltrfalc_tot_for_output;
-  std::vector<std::array<double, NUM_PFT_PART>> ltrfalc_part_for_output;
-  std::vector<std::array<double, NUM_PFT>> ltrfalc_pft_for_output;
-  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> ltrfalc_for_output; 
+  std::vector<double> lfvc_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> lfvc_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> lfvc_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> lfvc_for_output; 
 
   std::vector<double> ingpp_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> ingpp_part_for_output;
