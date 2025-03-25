@@ -2985,92 +2985,102 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //LTRFALN
-  map_itr = netcdf_outputs.find("LTRFALN");
+  //LFVN (Litterfall N for vascular PFTs)
+  map_itr = netcdf_outputs.find("LFVN");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LTRFALN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LFVN";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputLTRFALN)
+    #pragma omp critical(outputLFVN)
     {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
 
-        double m_ltrfaln[NUM_PFT_PART][NUM_PFT];
-        double y_ltrfaln[NUM_PFT_PART][NUM_PFT];
+        double m_lfvn[NUM_PFT_PART][NUM_PFT] = {0};
+        double y_lfvn[NUM_PFT_PART][NUM_PFT] = {0};
+
         for(int ip=0; ip<NUM_PFT; ip++){
-          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-            m_ltrfaln[ipp][ip] = cohort.bd[ip].m_v2soi.ltrfaln[ipp];
-            y_ltrfaln[ipp][ip] = cohort.bd[ip].y_v2soi.ltrfaln[ipp];
+          if(cohort.cd.m_veg.nonvascular[ip] == 0){
+            for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+              m_lfvn[ipp][ip] = cohort.bd[ip].m_v2soi.ltrfaln[ipp];
+              y_lfvn[ipp][ip] = cohort.bd[ip].y_v2soi.ltrfaln[ipp];
+            }
           }
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_ltrfaln[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          output_nc_5dim(&curr_spec, file_stage_suffix, &m_lfvn[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_ltrfaln[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          output_nc_5dim(&curr_spec, file_stage_suffix, &y_lfvn[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
         }
       }
       //PFT only (4 dimensions)
       else if(curr_spec.pft && !curr_spec.compartment){
 
-        double m_ltrfaln[NUM_PFT], y_ltrfaln[NUM_PFT];
+        double m_lfvn[NUM_PFT] = {0}, y_lfvn[NUM_PFT] = {0};
 
         for(int ip=0; ip<NUM_PFT; ip++){
-          m_ltrfaln[ip] = cohort.bd[ip].m_v2soi.ltrfalnall;
-          y_ltrfaln[ip] = cohort.bd[ip].y_v2soi.ltrfalnall;
+          if(cohort.cd.m_veg.nonvascular[ip] == 0){
+            m_lfvn[ip] = cohort.bd[ip].m_v2soi.ltrfalnall;
+            y_lfvn[ip] = cohort.bd[ip].y_v2soi.ltrfalnall;
+          }
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_ltrfaln[0], NUM_PFT, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &m_lfvn[0], NUM_PFT, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_ltrfaln[0], NUM_PFT, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &y_lfvn[0], NUM_PFT, year, 1);
         }
       }
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
 
-        double m_ltrfaln[NUM_PFT_PART] = {0};
-        double y_ltrfaln[NUM_PFT_PART] = {0};
+        double m_lfvn[NUM_PFT_PART] = {0};
+        double y_lfvn[NUM_PFT_PART] = {0};
 
         for(int ip=0; ip<NUM_PFT; ip++){
-          for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
-            m_ltrfaln[ipp] += cohort.bd[ip].m_v2soi.ltrfaln[ipp];
-            y_ltrfaln[ipp] += cohort.bd[ip].y_v2soi.ltrfaln[ipp];
+          if(cohort.cd.m_veg.nonvascular[ip] == 0){
+            for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+              m_lfvn[ipp] += cohort.bd[ip].m_v2soi.ltrfaln[ipp];
+              y_lfvn[ipp] += cohort.bd[ip].y_v2soi.ltrfaln[ipp];
+            }
           }
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_ltrfaln[0], NUM_PFT_PART, month_timestep, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &m_lfvn[0], NUM_PFT_PART, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_ltrfaln[0], NUM_PFT_PART, year, 1);
+          output_nc_4dim(&curr_spec, file_stage_suffix, &y_lfvn[0], NUM_PFT_PART, year, 1);
         }
       }
       //Neither PFT nor compartment - totals
       else if(!curr_spec.pft && !curr_spec.compartment){
 
-        double m_ltrfaln = 0., y_ltrfaln = 0.;
+        double m_lfvn = 0., y_lfvn = 0.;
+
         for(int ip=0; ip<NUM_PFT; ip++){
-          m_ltrfaln += cohort.bd[ip].m_v2soi.ltrfalnall;
-          y_ltrfaln += cohort.bd[ip].y_v2soi.ltrfalnall;
+          if(cohort.cd.m_veg.nonvascular[ip] == 0){
+            m_lfvn += cohort.bd[ip].m_v2soi.ltrfalnall;
+            y_lfvn += cohort.bd[ip].y_v2soi.ltrfalnall;
+          }
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &m_ltrfaln, 1, month_timestep, 1);
+          output_nc_3dim(&curr_spec, file_stage_suffix, &m_lfvn, 1, month_timestep, 1);
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &y_ltrfaln, 1, year, 1);
+          output_nc_3dim(&curr_spec, file_stage_suffix, &y_lfvn, 1, year, 1);
         }
       }
-    }//end critical(outputLTRFALN)
-  }//end LTRFALN
+    }//end critical(outputLFVN)
+  }//end LFVN
   map_itr = netcdf_outputs.end();
 
 
