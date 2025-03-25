@@ -39,8 +39,8 @@ public:
   std::vector<double> deepc_for_output;
   std::vector<double> dwdc_for_output;
   std::vector<double> minec_for_output;
-  std::vector<double> mossdeathc_for_output;
-  std::vector<double> mossdeathn_for_output;
+  std::vector<double> lfnvc_for_output; //non-vascular litterfall C
+  std::vector<double> lfnvn_for_output; //non-vascular litterfall N
   std::vector<double> mossdz_for_output;
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;

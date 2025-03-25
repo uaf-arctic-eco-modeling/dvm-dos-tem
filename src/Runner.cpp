@@ -2849,6 +2849,68 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //LFNVC (Litterfall for Non-Vascular PFTs)
+  map_itr = netcdf_outputs.find("LFNVC");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LFNVC";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputLFNVC)
+    {
+      //monthly
+      if(curr_spec.monthly){
+        outhold.lfnvc_for_output.push_back(cohort.bdall->m_v2soi.mossdeathc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.lfnvc_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.lfnvc_for_output.clear();
+        }
+      }
+      //yearly
+      else if(curr_spec.yearly){
+        outhold.lfnvc_for_output.push_back(cohort.bdall->y_v2soi.mossdeathc);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.lfnvc_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.lfnvc_for_output.clear();
+        }
+      }
+    }//end critical(outputLFNVC)
+  }//end LFNVC
+  map_itr = netcdf_outputs.end();
+
+
+  //LFNVN
+  map_itr = netcdf_outputs.find("LFNVN");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: LFNVN";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputLFNVN)
+    {
+      //monthly
+      if(curr_spec.monthly){
+        outhold.lfnvn_for_output.push_back(cohort.bdall->m_v2soi.mossdeathn);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.lfnvn_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.lfnvn_for_output.clear();
+        }
+      }
+      //yearly
+      else if(curr_spec.yearly){
+        outhold.lfnvn_for_output.push_back(cohort.bdall->y_v2soi.mossdeathn);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.lfnvn_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.lfnvn_for_output.clear();
+        }
+      }
+    }//end critical(outputLFNVN)
+  }//end LFNVN
+  map_itr = netcdf_outputs.end();
+
+
   //LFVC (prior LTRFALC)
   map_itr = netcdf_outputs.find("LFVC");
   if(map_itr != netcdf_outputs.end()){
@@ -3155,68 +3217,6 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputMINEC)
   }//end MINEC
-  map_itr = netcdf_outputs.end();
-
-
-  //MOSSDEATHC
-  map_itr = netcdf_outputs.find("MOSSDEATHC");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHC";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputMOSSDEATHC)
-    {
-      //monthly
-      if(curr_spec.monthly){
-        outhold.mossdeathc_for_output.push_back(cohort.bdall->m_v2soi.mossdeathc);
-
-        if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.mossdeathc_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.mossdeathc_for_output.clear();
-        }
-      }
-      //yearly
-      else if(curr_spec.yearly){
-        outhold.mossdeathc_for_output.push_back(cohort.bdall->y_v2soi.mossdeathc);
-
-        if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.mossdeathc_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.mossdeathc_for_output.clear();
-        }
-      }
-    }//end critical(outputMOSSDEATHC)
-  }//end MOSSDEATHC
-  map_itr = netcdf_outputs.end();
-
-
-  //MOSSDEATHN
-  map_itr = netcdf_outputs.find("MOSSDEATHN");
-  if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: MOSSDEATHN";
-    curr_spec = map_itr->second;
-
-    #pragma omp critical(outputMOSSDEATHN)
-    {
-      //monthly
-      if(curr_spec.monthly){
-        outhold.mossdeathn_for_output.push_back(cohort.bdall->m_v2soi.mossdeathn);
-
-        if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.mossdeathn_for_output[0], 1, month_start_idx, months_to_output);
-          outhold.mossdeathn_for_output.clear();
-        }
-      }
-      //yearly
-      else if(curr_spec.yearly){
-        outhold.mossdeathn_for_output.push_back(cohort.bdall->y_v2soi.mossdeathn);
-
-        if(output_this_timestep){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.mossdeathn_for_output[0], 1, year_start_idx, years_to_output);
-          outhold.mossdeathn_for_output.clear();
-        }
-      }
-    }//end critical(outputMOSSDEATHN)
-  }//end MOSSDEATHN
   map_itr = netcdf_outputs.end();
 
 
