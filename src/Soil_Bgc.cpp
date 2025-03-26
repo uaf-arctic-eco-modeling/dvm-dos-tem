@@ -368,7 +368,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // i.e. half ebullition is reassigned and half is emitted
 
         // This could also be calculated based on distance from soil surface:
-        double frac_ebul = exp(1-(currl->z/0.1));
+        double frac_ebul = exp(1 - (currl->z / calpar.ch4_ebul_rate));
         ebul_efflux = frac_ebul * ebul;
         currl->ch4 -= ebul;
         wtlayer->ch4 += ebul - ebul_efflux;
