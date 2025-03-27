@@ -24,8 +24,7 @@ class Thermokarst {
 public:
   Thermokarst();
 
-  Thermokarst(const std::string &fri_fname,
-              const std::string &exp_fname,
+  Thermokarst(const std::string &exp_fname,
               const double cell_slope,
               const double cell_aspect,
               const double cell_elevation,
