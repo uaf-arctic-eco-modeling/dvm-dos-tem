@@ -551,7 +551,7 @@ void Vegetation::updateFrootfrac() {
 void Vegetation::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT31";
+  std::string new_cmt = "CMT3";
 
   // Load relevant parameters from new CMT
   chtlu->cmtcode = new_cmt;
@@ -560,11 +560,24 @@ void Vegetation::cmtChange(const int & currmind){
   chtlu->loadVegetationParams();
   initializeParameter();
 
+  // // pft needs to be initialized individually for 'envmodule' and 'bgcmodule'
+  // for (int ip = 0; ip < NUM_PFT; ip++)
+  // {
+  //   vegenv[ip].ipft = ip;
+  //   vegbgc[ip].ipft = ip;
+  //   // set-up paramters for vegetation processes
+
+  //   vegbgc[ip].initializeParameter();
+
+  // }
+
   // reassign pools to new PFTs
   double cpool = 0.0;
   double npool = 0.0;
   double labnpool = 0.0;
 
+  // Looping over previous set of PFTs to accumulate remaining
+  // carbon and nitrogen pools
   for(int ip=0; ip<NUM_PFT; ip++){
 
     if(cd->m_veg.vegcov[ip]>0.){//only check PFTs that exist

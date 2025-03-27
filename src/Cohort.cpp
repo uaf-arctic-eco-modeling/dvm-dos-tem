@@ -764,6 +764,14 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
      && fire.getSeverity(yrind) >= 1 // we may this to be based on remaining OLT
      && cd.mthsdist == 0){
     veg.cmtChange(currmind);
+
+    // Calling below functions as they are not available in
+    // Vegetation.cpp
+    for (int ip = 0; ip < NUM_PFT; ip++){
+      vegenv[ip].initializeState();
+      vegenv[ip].initializeParameter();
+      vegbgc[ip].initializeParameter();
+    }
   }
 }
 
