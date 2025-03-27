@@ -30,7 +30,7 @@
 #include <string>
 #include <sstream>
 
-#include "../include/WildFire.h" // >>> this will need to be Thermokarst.h
+#include "../include/Thermokarst.h"
 
 #include "../include/TEMUtilityFunctions.h"
 #include "../include/TEMLogger.h"
@@ -41,8 +41,7 @@ Thermokarst::Thermokarst() {}
 
 Thermokarst::~Thermokarst() {}
 
-Thermokarst::Thermokarst(const std::string &fri_fname, // >>> fri not required, exp will be a thermokarst specific input which needs updating
-                         const std::string &exp_fname, const double cell_slope,
+Thermokarst::Thermokarst(const std::string &exp_fname, const double cell_slope,
                          const double cell_aspect, const double cell_elevation,
                          const int y, const int x){
 
