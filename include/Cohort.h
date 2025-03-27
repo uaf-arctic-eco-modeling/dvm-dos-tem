@@ -149,6 +149,7 @@ private:
 
   void assignSoilBd2pfts_monthly();
   void getBd4allveg_monthly();
+  void cmtChange(const int &currmind);
 
-};
+  };
 #endif /*COHORT_H_*/

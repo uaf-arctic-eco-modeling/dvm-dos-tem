@@ -763,15 +763,7 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
   if(md->cmt_change
      && fire.getSeverity(yrind) >= 1 // we may this to be based on remaining OLT
      && cd.mthsdist == 0){
-    veg.cmtChange(currmind);
-
-    // Calling below functions as they are not available in
-    // Vegetation.cpp
-    for (int ip = 0; ip < NUM_PFT; ip++){
-      vegenv[ip].initializeState();
-      vegenv[ip].initializeParameter();
-      vegbgc[ip].initializeParameter();
-    }
+    cmtChange(currmind);
   }
 }
 
@@ -1354,6 +1346,160 @@ void Cohort::getBd4allveg_monthly() {
   }
 }
 
+/**
+ * Changing CMT vegetation following disturbance, reloading 
+ * vegetation parameters, and redistributing carbon and 
+ * nitrogen pools based on new init and C:N values
+ */
+void Cohort::cmtChange(const int & currmind){
+  // Determine cmt to succeed to (for testing we are
+  // using cmt1 -> cmt3)
+  std::string new_cmt = "CMT3";
+
+  // Load relevant parameters from new CMT
+  chtlu.cmtcode = new_cmt;
+
+  // reinitializing vegetation parameters
+  chtlu.loadVegetationParams();
+  veg.initializeParameter();
+
+  // reassign pools to new PFTs
+  double cpool = 0.0;
+  double npool = 0.0;
+  double labnpool = 0.0;
+
+  // Looping over previous set of PFTs to accumulate remaining
+  // carbon and nitrogen pools
+  for(int ip=0; ip<NUM_PFT; ip++){
+
+    if(cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+      labnpool += bd[ip].m_vegs.labn;
+
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+
+        cpool += bd[ip].m_vegs.c[ipp];
+        npool += bd[ip].m_vegs.strn[ipp];
+
+      }
+    }
+  }
+
+  double initvegc_tot = 0.0;
+  
+  // total expected nitrogen for new cmt based on
+  // cn ratio parameters
+  double initvegn_tot = 0.0;
+
+  double initvegc_pft[NUM_PFT] = {0.0};
+  double initvegn_part_pft[NUM_PFT_PART][NUM_PFT] = {0.0};
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+
+    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+
+      // accumulating pft specific carbon values
+      initvegc_pft[ip] += chtlu.initvegc[ipp][ip];
+
+      // only calculate nitrogen if c:n ratio is non-zero
+      // otherwise NaNs created from divide by zero due to
+      // PFTs without all compartments
+      if (chtlu.initc2neven[ipp][ip]>0){
+        initvegn_part_pft[ipp][ip] = chtlu.initvegc[ipp][ip] / chtlu.initc2neven[ipp][ip];
+        initvegn_tot += initvegn_part_pft[ipp][ip];
+      }
+    }
+
+    // break out of loop once all new pfts have been summed
+    if (initvegc_pft[ip] == 0.0){
+      break;
+    }
+
+    initvegc_tot += initvegc_pft[ip];
+  }
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+    // break out of loop once all new pfts have been
+    // accounted for
+    if (initvegc_pft[ip] == 0.0){
+      // bd[ip].m_vegs.c[ipp] = 0.0;
+      // and other places where needed to be updated
+      // continue
+      break;
+    }
+
+    double new_pft_pool = (initvegc_pft[ip] / initvegc_tot) * cpool;
+    bd[ip].m_vegs.call = new_pft_pool;
+    // clearing structural nitrogen summed for each pft and calculating
+    // after partitioning between compartments in loop below
+    bd[ip].m_vegs.strnall = 0.0;
+
+    for (int ipp = 0; ipp < NUM_PFT_PART; ipp++){
+      // redistribute carbon to compartments
+      bd[ip].m_vegs.c[ipp] = chtlu.cpart[ipp][ip] * new_pft_pool;
+      
+      // calculate new nitrogen distribution based on 
+      // percentage from new c:n ratios while maintaining
+      // total nitrogen 
+      bd[ip].m_vegs.strn[ipp] = (initvegn_part_pft[ipp][ip] / initvegn_tot) * npool;
+      // sum across compartments to calculate new strnall
+      bd[ip].m_vegs.strnall += bd[ip].m_vegs.strn[ipp];
+    }
+
+    // if(!update_LAI_from_vegc) {
+    //   // logging statement: need DVM on for FIRE;
+    // }
+
+    // also update lai from redistributed leaf carbon
+    // this calculation assumes leaf carbon has been tested
+    // for existence and updated accordingly. Post disturbance
+    // we assume there is a non-zero leaf carbon for all PFTs
+    // assigned above
+    cd.m_veg.lai[ip] = veg.vegdimpar.sla[ip] * bd[ip].m_vegs.c[I_leaf];
+    
+    // update labile nitrogen     
+    bd[ip].m_vegs.labn = (bd[ip].m_vegs.strnall/ npool) * labnpool;
+  }
+  // update monthly phenological variables (factors used for GPP), and LAI
+  // veg.phenology(currmind);
+  // veg.updateLai(currmind); // this must be done after phenology
+
+  // LAI updated above for each PFT, but FPC
+  //    (foliage percent cover) may need adjustment
+
+  veg.updateVegcov();
+  veg.updateFpc();
+  
+  for(int ip=0; ip<NUM_PFT; ip++){
+    cd.d_veg.ifwoody[ip] = cd.m_veg.ifwoody[ip];
+    cd.d_veg.ifdeciwoody[ip] = cd.m_veg.ifdeciwoody[ip];
+    cd.d_veg.ifperenial[ip] = cd.m_veg.ifperenial[ip];
+    cd.d_veg.nonvascular[ip] = cd.m_veg.nonvascular[ip];
+    cd.d_veg.vegcov[ip] = cd.m_veg.vegcov[ip];
+    cd.d_veg.lai[ip] = cd.m_veg.lai[ip];
+    cd.d_veg.fpc[ip] = cd.m_veg.fpc[ip];
+
+    // re-initialization of some bgc and env states and
+    // parameter values required following cmt change
+    vegenv[ip].initializeState();
+    vegenv[ip].initializeParameter();
+    vegbgc[ip].initializeParameter();
+    // cd.d_veg.frootfrac[ip] = cd.m_veg.frootfrac[ip];
+  }
+
+  // veg.updateFrootfrac();
+
+  // NEED TO UPDATE FINE ROOT FRACTION SIMILARLY TO ABOVE CARBON AND 
+  // NITROGEN BUT USING FROOTFRAC values from parameter files and
+  // splitting the remaining FROOTFRAC
+
+  // NOTES FROM LAST TIME:
+  // variables in ed not updated, to do this we will probably need to 
+  // write some new methods. 
+  // Start by identifying order of operations for some kind of replication.
+  // Look at ed.d_vegd variables to begin with.
+  
+};
 
 /** Synchronizes Cohort and CohortData's internal fields from the
  * RestartData object.
