@@ -35,40 +35,40 @@ statlist = ('stock','stock','flux','flux','mean','mean','flux','flux','stock','f
 sc = 'y'
 yearly = pd.DataFrame(columns = ['year'])
 for i, var in enumerate(varlist):
-	print(var)
-	dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_yearly_tr.nc')).isel(x=0, y=0)
-	dd['time'] = dd.indexes['time'].to_datetimeindex()
-	dd = dd.to_dataframe()
-	dd.reset_index(inplace=True)
-	dd['year'] = dd['time'].dt.year
-	dd = dd.drop(columns=['time'])
-	yearly = pd.merge(yearly, dd, on=['year'], how='outer')
+  print(var)
+  dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_yearly_tr.nc')).isel(x=0, y=0)
+  dd['time'] = dd.indexes['time'].to_datetimeindex()
+  dd = dd.to_dataframe()
+  dd.reset_index(inplace=True)
+  dd['year'] = dd['time'].dt.year
+  dd = dd.drop(columns=['time'])
+  yearly = pd.merge(yearly, dd, on=['year'], how='outer')
 
 
 sc = 'm'
 monthly = pd.DataFrame(columns = ['year','month'])
 m2y = pd.DataFrame(columns = ['year'])
 for i, var in enumerate(varlist):
-	dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
-	dd['time'] = dd.indexes['time'].to_datetimeindex()
-	dd = dd.to_dataframe()
-	dd.reset_index(inplace=True)
-	dd['year'] = dd['time'].dt.year
-	dd['month'] = dd['time'].dt.month
-	dd = dd.drop(columns=['time'])
-	monthly = pd.merge(monthly, dd, on=['year','month'], how='outer')
-	if statlist[i] == 'flux':
-		dy = pd.DataFrame(dd.groupby('year')[var].sum())
-	if statlist[i] == 'mean':
-		dy = pd.DataFrame(dd.groupby('year')[var].mean())
-	if statlist[i] == 'stock':
-		dy = dd[dd['month'] == 12]
-		dy = dy.drop(columns=['month'])
-	dy.reset_index(inplace=True)
-	if 'index' in dy.columns:
-		dy = dy.drop(columns=['index'])
-#	dy = dy.rename(columns={var: var + '_m2y'}) 
-	m2y = pd.merge(m2y, dy, on=['year'], how='outer')
+  dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
+  dd['time'] = dd.indexes['time'].to_datetimeindex()
+  dd = dd.to_dataframe()
+  dd.reset_index(inplace=True)
+  dd['year'] = dd['time'].dt.year
+  dd['month'] = dd['time'].dt.month
+  dd = dd.drop(columns=['time'])
+  monthly = pd.merge(monthly, dd, on=['year','month'], how='outer')
+  if statlist[i] == 'flux':
+    dy = pd.DataFrame(dd.groupby('year')[var].sum())
+  if statlist[i] == 'mean':
+    dy = pd.DataFrame(dd.groupby('year')[var].mean())
+  if statlist[i] == 'stock':
+    dy = dd[dd['month'] == 12]
+    dy = dy.drop(columns=['month'])
+  dy.reset_index(inplace=True)
+  if 'index' in dy.columns:
+    dy = dy.drop(columns=['index'])
+#  dy = dy.rename(columns={var: var + '_m2y'}) 
+  m2y = pd.merge(m2y, dy, on=['year'], how='outer')
 
 
 test = pd.DataFrame((m2y-yearly).mean())
@@ -88,14 +88,14 @@ varlist = ('EET','GPP','LAI','LTRFALC','LTRFALN','NPP','NRESORB','NUPTAKELAB','N
 sc = 'm_pft_layer'
 pft = pd.DataFrame(columns = ['year','month','pft'])
 for i, var in enumerate(varlist):
-	dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
-	dd['time'] = dd.indexes['time'].to_datetimeindex()
-	dd = dd.to_dataframe()
-	dd.reset_index(inplace=True)
-	dd['year'] = dd['time'].dt.year
-	dd['month'] = dd['time'].dt.month
-	dd = dd.drop(columns=['time'])
-	pft = pd.merge(pft, dd, on=['year','month','pft'], how='outer')
+  dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
+  dd['time'] = dd.indexes['time'].to_datetimeindex()
+  dd = dd.to_dataframe()
+  dd.reset_index(inplace=True)
+  dd['year'] = dd['time'].dt.year
+  dd['month'] = dd['time'].dt.month
+  dd = dd.drop(columns=['time'])
+  pft = pd.merge(pft, dd, on=['year','month','pft'], how='outer')
 
 pft2eco = pft.groupby(['year','month']).sum()
 pft2eco.reset_index(inplace=True)
@@ -118,14 +118,14 @@ varlist = ('GPP','LTRFALC','LTRFALN','NPP','NRESORB','NUPTAKEST','RG','RM','VEGC
 sc = 'm_pft_part'
 part = pd.DataFrame(columns = ['year','month','pft','pftpart'])
 for i, var in enumerate(varlist):
-	dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
-	dd['time'] = dd.indexes['time'].to_datetimeindex()
-	dd = dd.to_dataframe()
-	dd.reset_index(inplace=True)
-	dd['year'] = dd['time'].dt.year
-	dd['month'] = dd['time'].dt.month
-	dd = dd.drop(columns=['time'])
-	part = pd.merge(part, dd, on=['year','month','pft','pftpart'], how='outer')
+  dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
+  dd['time'] = dd.indexes['time'].to_datetimeindex()
+  dd = dd.to_dataframe()
+  dd.reset_index(inplace=True)
+  dd['year'] = dd['time'].dt.year
+  dd['month'] = dd['time'].dt.month
+  dd = dd.drop(columns=['time'])
+  part = pd.merge(part, dd, on=['year','month','pft','pftpart'], how='outer')
 
 part2pft = part.groupby(['year','month','pft']).sum()
 part2pft.reset_index(inplace=True)
@@ -149,14 +149,14 @@ varlist = ('AVLN','NETNMIN','NIMMOB','ORGN','RHSOM','SOMA','SOMCR','SOMPR','SOMR
 sc = 'm_pft_layer'
 layer = pd.DataFrame(columns = ['year','month','layer'])
 for i, var in enumerate(varlist):
-	dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
-	dd['time'] = dd.indexes['time'].to_datetimeindex()
-	dd = dd.to_dataframe()
-	dd.reset_index(inplace=True)
-	dd['year'] = dd['time'].dt.year
-	dd['month'] = dd['time'].dt.month
-	dd = dd.drop(columns=['time'])
-	layer = pd.merge(layer, dd, on=['year','month','layer'], how='outer')
+  dd = xr.open_dataset(os.path.join(outdir,'output_'+str(sc), var + '_monthly_tr.nc')).isel(x=0, y=0)
+  dd['time'] = dd.indexes['time'].to_datetimeindex()
+  dd = dd.to_dataframe()
+  dd.reset_index(inplace=True)
+  dd['year'] = dd['time'].dt.year
+  dd['month'] = dd['time'].dt.month
+  dd = dd.drop(columns=['time'])
+  layer = pd.merge(layer, dd, on=['year','month','layer'], how='outer')
 
 layer2column = layer.groupby(['year','month']).sum()
 layer2column.reset_index(inplace=True)
