@@ -48,6 +48,9 @@ void Soil_Env::initializeParameter() {
   envpar.nfactor_w = chtlu->nfactor_w;
   envpar.drainmax = chtlu->drainmax;
   envpar.rtdp4gdd = chtlu->rtdp4gdd;
+  richards.max_ponding = chtlu->max_ponding_w;
+  richards.inflow_factor = chtlu->inflow_factor;
+
 };
 
 void Soil_Env::initializeState() {
@@ -554,7 +557,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   space_for_liq = fmax(space_for_liq, 0.0);
 
   //Add runoff (up to 10 mm) to surface water storage (magic puddle)
-  double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+  double space_in_puddle = chtlu->max_ponding_s - ed->d_soi2l.magic_puddle;
   double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
   ed->d_soi2l.magic_puddle += add_to_puddle;
   //Subtracting surface water storage from runoff
@@ -631,7 +634,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     if(infil > 0.0){
       infil *= SEC_IN_DAY;// -->mm/day
       //Add to ponding
-      space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+      space_in_puddle = chtlu->max_ponding_s - ed->d_soi2l.magic_puddle;
       add_to_puddle = fmin(space_in_puddle, infil);
       ed->d_soi2l.magic_puddle += add_to_puddle;
       infil -= add_to_puddle;
@@ -1007,7 +1010,7 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
     if (currl->liq > effmaxliq[ind]){
       double sink_liq = currl->liq - effmaxliq[ind];
       currl->liq -= sink_liq;
-      double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+      double space_in_puddle = chtlu->max_ponding_s - ed->d_soi2l.magic_puddle;
       double to_puddle = fmin(sink_liq, space_in_puddle);
       ed->d_soi2l.magic_puddle += to_puddle;
       sink_liq -= to_puddle;

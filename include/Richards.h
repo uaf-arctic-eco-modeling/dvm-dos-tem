@@ -26,8 +26,12 @@ public :
   double qevap; // mm/day
   double e_ice; //ice impedance factor (CLM5)
 
+  double max_ponding;
+  double inflow_factor;
+
   //Array to hold lateral drainage values for output to file.
   double layer_drain[MAX_SOI_LAY];
+  double layer_input[MAX_SOI_LAY];
   double percolation[MAX_SOI_LAY];
 
   void update(Layer *fstsoill, Layer* bdrainl, const double & bdraindepth,

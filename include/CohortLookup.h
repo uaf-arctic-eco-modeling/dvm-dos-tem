@@ -51,6 +51,10 @@ public:
                    //  SOM respiration rate (at 0oC)
   double s2dfraction;
   double d2mfraction;
+
+  double max_ponding_s;
+  double max_ponding_w;
+  double inflow_factor;
   
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area
