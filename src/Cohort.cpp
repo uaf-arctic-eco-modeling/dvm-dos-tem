@@ -665,7 +665,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //accumulate daily vars into monthly for 'ed' of each PFT
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.d_veg.vegcov[ip] > 0.0) {
-        ed[ip].atm_endOfDay(dinmcurr);
+        ed[ip].atm_endOfDay(dinmcurr, id);
         ed[ip].veg_endOfDay(dinmcurr);
         ed[ip].grnd_endOfDay(dinmcurr, doy);
 
@@ -679,7 +679,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     }
 
     //accumulate daily vars into monthly for 'ed' of all pfts
-    edall->atm_endOfDay(dinmcurr);
+    edall->atm_endOfDay(dinmcurr, id);
     edall->veg_endOfDay(dinmcurr); //be sure 'getEd4allpfts_daily' called above
     edall->grnd_endOfDay(dinmcurr, doy);
 
