@@ -1867,7 +1867,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputEET)
     {
       //by PFT
-      if(curr_spec.pft){
+//by PFT is disabled for now because it erroneously
+// includes soil and snow evaporation per PFT, which
+// throws off results if the PFT values are summed.
+/*      if(curr_spec.pft){
         std::array<double, NUM_PFT> eet_arr{};
 
         //daily
@@ -1909,9 +1912,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             outhold.eet_for_output.clear();
           }
         }
-      }
+      }*/
       //Total, instead of by PFT
-      else if(!curr_spec.pft){
+      if(!curr_spec.pft){
 
         //daily
         if(curr_spec.daily){
@@ -3858,7 +3861,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     #pragma omp critical(outputPET)
     {
       //by PFT
-      if(curr_spec.pft){
+//by PFT is disabled for now because it erroneously
+// includes soil and snow evaporation per PFT, which
+// throws off results if the PFT values are summed.
+/*      if(curr_spec.pft){
         std::array<double, NUM_PFT> pet_arr{};
 
         //daily
@@ -3900,9 +3906,9 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             outhold.pet_for_output.clear();
           }
         }
-      }
+      }*/
       //Total, instead of by PFT
-      else if(!curr_spec.pft){
+      if(!curr_spec.pft){
 
         //daily
         if(curr_spec.daily){
