@@ -52,11 +52,19 @@ void CohortLookup::init() {
 }
 
 void CohortLookup::loadVegetationParams() {
-  BOOST_LOG_SEV(glg, info) << "Cohort Lookup init function. Assigning all values from various config/* files...";
+  BOOST_LOG_SEV(glg, info) << "Load vegetation parameters from file...";
   assignBgcCalparVeg(dir);
   assignVegDimension(dir);
   assignEnv4Canopy(dir);
   assignBgc4Vegetation(dir);
+}
+
+void CohortLookup::loadSoilParams() {
+  BOOST_LOG_SEV(glg, info) << "Load soil parameters from file...";
+  assignBgcCalparSoil(dir);
+  assignGroundDimension(dir);
+  assignEnv4Ground(dir);
+  assignBgc4Ground(dir);
 }
 
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file,

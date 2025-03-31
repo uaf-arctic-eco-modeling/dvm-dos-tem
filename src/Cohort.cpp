@@ -1354,10 +1354,12 @@ void Cohort::getBd4allveg_monthly() {
 void Cohort::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT3";
+  std::string new_cmt = "CMT03";
 
   // Load relevant parameters from new CMT
   chtlu.cmtcode = new_cmt;
+  // reset cohort data cmt type
+  cd.cmttype = temutil::cmtcode2num(chtlu.cmtcode);
 
   // reinitializing vegetation parameters
   chtlu.loadVegetationParams();
@@ -1486,19 +1488,34 @@ void Cohort::cmtChange(const int & currmind){
     vegbgc[ip].initializeParameter();
     // cd.d_veg.frootfrac[ip] = cd.m_veg.frootfrac[ip];
   }
-
+  // DO WE WANT TO UPDATE FROOTFRAC OR ALLOW THIS TO REMAIN THE SAME?
   // veg.updateFrootfrac();
 
-  // NEED TO UPDATE FINE ROOT FRACTION SIMILARLY TO ABOVE CARBON AND 
-  // NITROGEN BUT USING FROOTFRAC values from parameter files and
-  // splitting the remaining FROOTFRAC
+  // SOILS
+  // load soil parameters
+  // chtlu.loadSoilParams();
 
-  // NOTES FROM LAST TIME:
-  // variables in ed not updated, to do this we will probably need to 
-  // write some new methods. 
-  // Start by identifying order of operations for some kind of replication.
-  // Look at ed.d_vegd variables to begin with.
-  
+  /*
+
+  How to change from initial soil parameters to new soil parameters?
+
+     This problem relates to the soil parameters defining environmental
+     and biogeochemical conditions of the CMT. Therefore, as an example
+     evergreen to deciduous succession would represent a change in litter
+     fall quality, microbial composition, and eventually structure over
+     time. 
+
+     We could do this in a simple way (i.e. linear interpolation over a 
+     given time) or tracking the ratio of the old and new carbon inputs 
+     to the soils.
+
+     Relatively simple first approach:
+        Assume that we can estimate (or calibrate) the rate of change
+        between one kdc and another.
+        E.g. kdcraw1->2 takes 5 years to update
+             kdcsoma1->2 takes 25 years to update
+             etc.
+  */
 };
 
 /** Synchronizes Cohort and CohortData's internal fields from the

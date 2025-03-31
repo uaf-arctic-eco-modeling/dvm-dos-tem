@@ -28,9 +28,11 @@ public:
   void assignBgcCalpar(string & dirname);
   void assignBgcCalparVeg(string & dirname);
   void assignBgcCalparSoil(std::string & dirname);
-  // For loading only vegetation related parameters
-  // following a cmt change
+  // For reloading parameters following cmt change
+  // Loading veg-specific parameters
   void loadVegetationParams();
+  // Loading soil-specific parameters
+  void loadSoilParams();
 
   //calibration related
   //vegetation
