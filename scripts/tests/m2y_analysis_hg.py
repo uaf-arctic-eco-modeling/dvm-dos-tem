@@ -29,7 +29,7 @@ sc_list = ('y', 'm', 'm_pft_layer', 'm_pft_part')
 ### Month to year test
 
 
-varlist = ('AVLN','DEEPC','EET','GPP','HKDEEP','LAI','LTRFALC','LTRFALN','MINEC','NETNMIN','NIMMOB','NPP','NRESORB','NUPTAKELAB','NUPTAKEST','ORGN','PET','QDRAINAGE','QINFILTRATION','QRUNOFF','RAINFALL','RG','RHSOM','RM','SHLWC','SNOWFALL','SNOWTHICK','SOMA','SOMCR','SOMPR','SOMRAWC','SWE','TCDEEP','TDEEP','TRANSPIRATION','TSHLW','VEGC','VEGN','VWCDEEP','WATERTAB')
+varlist = ('AVLN','DEEPC','EET','GPP','HKDEEP','LAI','LFVC','LFVN','MINEC','NETNMIN','NIMMOB','NPP','NRESORB','NUPTAKELAB','NUPTAKEST','ORGN','PET','QDRAINAGE','QINFILTRATION','QRUNOFF','RAINFALL','RG','RHSOM','RM','SHLWC','SNOWFALL','SNOWTHICK','SOMA','SOMCR','SOMPR','SOMRAWC','SWE','TCDEEP','TDEEP','TRANSPIRATION','TSHLW','VEGC','VEGNSTR','VWCDEEP','WATERTAB')
 statlist = ('stock','stock','flux','flux','mean','mean','flux','flux','stock','flux','flux','flux','flux','flux','flux','stock','flux','flux','flux','flux','flux','flux','flux','flux','stock','flux','stock','stock','stock','stock','stock','mean','mean','mean','flux','mean','stock','stock','mean','mean')
 
 sc = 'y'
@@ -42,6 +42,7 @@ for i, var in enumerate(varlist):
   dd.reset_index(inplace=True)
   dd['year'] = dd['time'].dt.year
   dd = dd.drop(columns=['time'])
+  dd = dd.drop(columns=['albers_conical_equal_area'])
   yearly = pd.merge(yearly, dd, on=['year'], how='outer')
 
 
@@ -56,6 +57,7 @@ for i, var in enumerate(varlist):
   dd['year'] = dd['time'].dt.year
   dd['month'] = dd['time'].dt.month
   dd = dd.drop(columns=['time'])
+  dd = dd.drop(columns=['albers_conical_equal_area'])
   monthly = pd.merge(monthly, dd, on=['year','month'], how='outer')
   if statlist[i] == 'flux':
     dy = pd.DataFrame(dd.groupby('year')[var].sum())
@@ -77,13 +79,14 @@ test = test.rename(columns={'index': 'varname', 0:'diffmean'})
 
 test[abs(test['diffmean']) > tolerance]
 
-
-
+print("Monthly to yearly")
+print(varlist)
+print(test)
 
 
 ###  pft to ecosystem test
 
-varlist = ('EET','GPP','LAI','LTRFALC','LTRFALN','NPP','NRESORB','NUPTAKELAB','NUPTAKEST','PET','RG','RM','VEGC','VEGN')
+varlist = ('EET','GPP','LAI','LFVC','LFVN','NPP','NRESORB','NUPTAKELAB','NUPTAKEST','PET','RG','RM','VEGC','VEGNSTR')
 
 sc = 'm_pft_layer'
 pft = pd.DataFrame(columns = ['year','month','pft'])
@@ -95,6 +98,7 @@ for i, var in enumerate(varlist):
   dd['year'] = dd['time'].dt.year
   dd['month'] = dd['time'].dt.month
   dd = dd.drop(columns=['time'])
+  dd = dd.drop(columns=['albers_conical_equal_area'])
   pft = pd.merge(pft, dd, on=['year','month','pft'], how='outer')
 
 pft2eco = pft.groupby(['year','month']).sum()
@@ -107,13 +111,18 @@ test = test.rename(columns={'index': 'varname', 0:'diffmean'})
 
 test[abs(test['diffmean']) > tolerance]
 
+#breakpoint()
+
+print("PFT to Ecosystem")
+print(varlist)
+print(test)
 
 
 
 
 ###  part to pft test
 
-varlist = ('GPP','LTRFALC','LTRFALN','NPP','NRESORB','NUPTAKEST','RG','RM','VEGC','VEGN')
+varlist = ('GPP','LFVC','LFVN','NPP','NRESORB','NUPTAKEST','RG','RM','VEGC','VEGNSTR')
 
 sc = 'm_pft_part'
 part = pd.DataFrame(columns = ['year','month','pft','pftpart'])
@@ -125,6 +134,7 @@ for i, var in enumerate(varlist):
   dd['year'] = dd['time'].dt.year
   dd['month'] = dd['time'].dt.month
   dd = dd.drop(columns=['time'])
+  dd = dd.drop(columns=['albers_conical_equal_area'])
   part = pd.merge(part, dd, on=['year','month','pft','pftpart'], how='outer')
 
 part2pft = part.groupby(['year','month','pft']).sum()
@@ -137,8 +147,10 @@ test = test.rename(columns={'index': 'varname', 0:'diffmean'})
 
 test[abs(test['diffmean']) > tolerance]
 
-
-
+#breakpoint()
+print("Compartment to PFT")
+print(varlist)
+print(test)
 
 
 
@@ -156,6 +168,7 @@ for i, var in enumerate(varlist):
   dd['year'] = dd['time'].dt.year
   dd['month'] = dd['time'].dt.month
   dd = dd.drop(columns=['time'])
+  dd = dd.drop(columns=['albers_conical_equal_area'])
   layer = pd.merge(layer, dd, on=['year','month','layer'], how='outer')
 
 layer2column = layer.groupby(['year','month']).sum()
@@ -168,3 +181,7 @@ test = test.rename(columns={'index': 'varname', 0:'diffmean'})
 
 test[abs(test['diffmean']) > tolerance]
 
+#breakpoint()
+print("Layer to Ecosystem")
+print(varlist)
+print(test)
