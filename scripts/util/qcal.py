@@ -95,7 +95,7 @@ def measure_calibration_quality_nc(output_directory_path, ref_param_dir, ref_tar
     ('NPPAll','NPP'),
     #('Nuptake','NUPTAKE'), # ??? There are snuptake, lnuptake and innuptake... and TotNitrogentUptake is the sum of sn and ln...
     ('VegCarbon','VEGC'),
-    ('VegStructuralNitrogen','VEGN'),
+    ('VegStructuralNitrogen','VEGNSTR'),
     ('MossDeathC','MOSSDEATHC'),
     ('CarbonShallow','SHLWC'),
     ('CarbonDeep','DEEPC'),

@@ -5784,12 +5784,12 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
 
   //VEGN
-  map_itr = netcdf_outputs.find("VEGN");
+  map_itr = netcdf_outputs.find("VEGNTOT");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VEGN";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: VEGNTOT";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputVEGN)
+    #pragma omp critical(outputVEGNTOT)
     {
       //Neither PFT nor compartment (total ecosystem)
       if(!curr_spec.pft && !curr_spec.compartment){
@@ -5802,7 +5802,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
           output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_vegs.nall, 1, year, 1);
         }
       }
-    }//end critical(outputVEGN)
+    }//end critical(outputVEGNTOT)
   }//end VEGN
   map_itr = netcdf_outputs.end();
 
