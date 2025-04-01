@@ -412,7 +412,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   // from m_sois. This is especially important after fire, because
   // otherwise the model enters the next month's integration with
   // old values.
-  this->bdall->soil_endOfMonth(currmind);
+  this->bdall->soil_updatePools(currmind);
 
   if(currmind == 11) {
     BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
@@ -1156,8 +1156,10 @@ void Cohort::getEd4allveg_daily() {
 // Note: this 'l2a' is monthly/yearly integrated in
 //         'ed->atm_endofDay/_endofMonth'
 void Cohort::getEd4land_daily() {
+
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.d_veg.vegcov[ip]>0.) {
+
       ed[ip].d_l2a.eet = ed[ip].d_v2a.evap + ed[ip].d_v2a.sublim
                          + ed[ip].d_v2a.tran +ed[ip].d_snw2a.sublim
                          + ed[ip].d_soi2a.evap;

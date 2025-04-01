@@ -72,6 +72,7 @@ public:
   void soil_beginOfMonth();
   void soil_endOfMonth(const int currmind);
 
+  void soil_updatePools(const int currmind);
 private:
 
 
