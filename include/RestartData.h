@@ -55,6 +55,9 @@ public :
   // atm
   int dsr;
   double firea2sorgn;
+  // leaving this copy here for possible reinitiation of thermokarst
+  // related variables following restart
+  double thermokarsta2sorgn;
 
   // vegetation
   int yrsdist;

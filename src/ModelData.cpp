@@ -96,6 +96,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   fri_fire_file     = controldata["IO"]["fri_fire_file"].asString();
   hist_exp_fire_file= controldata["IO"]["hist_exp_fire_file"].asString();
   proj_exp_fire_file= controldata["IO"]["proj_exp_fire_file"].asString();
+  hist_thermokarst_fire_file = controldata["IO"]["hist_exp_thermokarst_file"].asString();
+  proj_exp_thermokarst_file = controldata["IO"]["proj_exp_thermokarst_file"].asString();
   topo_file         = controldata["IO"]["topo_file"].asString();
   drainage_file     = controldata["IO"]["drainage_file"].asString();
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
@@ -118,11 +120,6 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
-
-  // Unused (11/23/2015)
-  //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
-  //changeco2     = controldata["model_settings"]["varied_co2"].asInt();
-  //useseverity   = controldata["model_settings"]["fire_severity_as_input"].asInt();
 
 }
 

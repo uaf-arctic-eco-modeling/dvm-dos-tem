@@ -117,6 +117,8 @@ public :
   void load_proj_co2(const std::string& proj_co2_file);
   // Overwrites/fills explicit fire data containers with data from the projected fire input file.
   void load_proj_explicit_fire(const std::string& proj_exp_fire_file);
+  // Overwrites/fills explicit fire data containers with data from the projected fire input file.
+  void load_proj_explicit_thermokarst(const std::string& proj_exp_thermokarst_file);
 private:
 
   Integrator vegintegrator[NUM_PFT];
@@ -130,8 +132,8 @@ private:
   void updateMonthly_Bgc(const int & currmind);
   void updateMonthly_Dsb(const int & yrcnt, const int & currmind, std::string stage);
 
-  // Fire is a type of disturbance
   void updateMonthly_Fir(const int & year, const int & midx, std::string stage);
+  void updateMonthly_Thermokarst(const int &year, const int &midx, std::string stage);
 
   // update root distribution
   void getSoilFineRootFrac_Monthly();
