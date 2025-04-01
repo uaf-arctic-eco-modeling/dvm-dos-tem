@@ -20,7 +20,7 @@ public:
 
   void clear();
 
-  bool useseverity;
+  bool useThermokarstSeverity;
 
   // soidiag_fir fire_soid;
   soidiag_thermokarst thermokarst_soid;
@@ -44,11 +44,11 @@ public:
   void beginOfYear();
   void endOfYear();
   void beginOfMonth();
-  void burn();
+  void clearing();
   
   std::string report_to_string(const std::string& msg);
 
 
 };
 
-#endif /*FIREDATA_H_*/
+#endif /*THERMOKARSTDATA_H_*/

@@ -110,6 +110,7 @@ public:
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
   bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
+  bool useThermokarstSeverity; // using thermokarst severity
 
   int cell_timelimit; //Time limit in seconds for cell computation time
   time_t cell_stime; //Start time per cell. Move to Runner?

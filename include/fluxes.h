@@ -312,7 +312,7 @@ struct soi2atm_fir {
 struct soi2atm_thermokarst {
   double orgc;
   double orgn;
-  soi2atm_fir(): orgc(UIN_D), orgn(UIN_D) {}
+  soi2atm_thermokarst(): orgc(UIN_D), orgn(UIN_D) {}
 };
 
 struct veg2atm_fir {

@@ -32,27 +32,25 @@ public:
 
   ~Thermokarst();
 
-  // void load_projected_explicit_data(const std::string& exp_fname, int y, int x);
-
-  // int getFRI();
+  void load_projected_explicit_data(const std::string& exp_fname, int y, int x);
  
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
   void setBgcData(BgcData* bdp, const int &ip);
-  void setFirData(FirData* fdp);
+  void setThermokarstData(ThermokarstData* tdp);
   void setCohortLookup(CohortLookup* chtlup);
 
   // void initializeParameter();
-  // void initializeState();
-  // void set_state_from_restartdata(const RestartData & rdata);
+  void initializeState();
+  void set_state_from_restartdata(const RestartData & rdata);
 
-  bool should_ignite(const int yr, const int midx, const std::string& stage);
+  // decide whether a thermokarst should initiate
+  bool should_initiate(const int yr, const int midx, const std::string &stage);
 
-  // not used or fully implemented yet...
-  //int lookup_severity(const int yr, const int midx, const std::string& stage);
-  void burn(int year);
+  // initiate thermokarst related processes
+  void initiate(int year);
 
-  // std::string report_fire_inputs();
+  std::string report_thermokarst_inputs();
 
 private:
 
@@ -105,44 +103,20 @@ private:
   double folr;           // Fraction Organic Layer Removed
   double r_live_cn;      // Ratio of living veg. after thermokarst
 
-  // double r_dead2ag_cn;   // ratio of dead veg. after burning
-  // double r_burn2ag_cn;   // burned above-ground veg. after burning
+  double r_dead2ag_cn;   // ratio of dead veg. after thermokarst
+  double r_thermokarst2ag_cn;   // removed above-ground veg. after thermokarst
 
   CohortLookup * chtlu;
   CohortData * cd;
 
-  // >>> setting thermokarst data as td (instead of FireData *fd)
-  ThermokarstData *td;
+  ThermokarstData * td;
   EnvData * edall;
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  double getThermokarstOrgSoilRemoval(const int year);
+  double getThermokarstOrgSoilthick(const int year);
   void getThermokarstAbgVegetation(const int ipft, const int year);
 
-  ////////
-  // MAYBE get rid of all these???
-  //  int firstfireyr;
-  //  int oneyear;
-  //  int onemonth;
-  //  int oneseason;
-  //  int onesize;
-  //////////////
-
-  //Yuan: the following if using years will result in huge
-  //        memory needs, if spin-up is long
-  // Hopefully get rid of these too...
-  //  int fyear[MAX_FIR_OCRNUM];
-  //  int fseason[MAX_FIR_OCRNUM];
-  //  int fmonth[MAX_FIR_OCRNUM];
-  //  int fsize[MAX_FIR_OCRNUM];
-  //  int fseverity[MAX_FIR_OCRNUM];
-  ///////////////////
-
-  // Unused...
-  //void prepareDrivingData();
-  //int getOccur(const int & yrind, const bool & fridrived); //Yuan: modified;
-  //void deriveFireSeverity();
 };
 
 #endif /* THERMOKARST_H_ */

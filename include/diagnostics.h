@@ -252,9 +252,9 @@ struct soidiag_fir {
 };
 
 struct soidiag_thermokarst {
-  double burnthick;
-  double rolb;
-  soidiag_thermokarst() : burnthick(UIN_D), rolb(UIN_D) {}
+  double thermokarstthick;
+  double rolr;
+  soidiag_thermokarst() : thermokarstthick(UIN_D), rolr(UIN_D) {}
 };
 
 #endif /*DIAGNOSTICS_H_*/

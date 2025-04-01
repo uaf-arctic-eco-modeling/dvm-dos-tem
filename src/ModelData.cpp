@@ -95,6 +95,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   fri_fire_file     = controldata["IO"]["fri_fire_file"].asString();
   hist_exp_fire_file= controldata["IO"]["hist_exp_fire_file"].asString();
   proj_exp_fire_file= controldata["IO"]["proj_exp_fire_file"].asString();
+  hist_thermokarst_fire_file = controldata["IO"]["hist_exp_thermokarst_file"].asString();
+  proj_exp_thermokarst_file = controldata["IO"]["proj_exp_thermokarst_file"].asString();
   topo_file         = controldata["IO"]["topo_file"].asString();
   drainage_file     = controldata["IO"]["drainage_file"].asString();
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
