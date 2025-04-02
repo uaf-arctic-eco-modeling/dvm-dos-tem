@@ -39,8 +39,8 @@ public:
   std::vector<double> deepc_for_output;
   std::vector<double> dwdc_for_output;
   std::vector<double> minec_for_output;
-  std::vector<double> mossdeathc_for_output;
-  std::vector<double> mossdeathn_for_output;
+  std::vector<double> lfnvc_for_output; //non-vascular litterfall C
+  std::vector<double> lfnvn_for_output; //non-vascular litterfall N
   std::vector<double> mossdz_for_output;
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;
@@ -105,10 +105,10 @@ public:
   std::vector<std::array<double, NUM_PFT>> gpp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> gpp_for_output; 
 
-  std::vector<double> ltrfalc_tot_for_output;
-  std::vector<std::array<double, NUM_PFT_PART>> ltrfalc_part_for_output;
-  std::vector<std::array<double, NUM_PFT>> ltrfalc_pft_for_output;
-  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> ltrfalc_for_output; 
+  std::vector<double> lfvc_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> lfvc_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> lfvc_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> lfvc_for_output; 
 
   std::vector<double> ingpp_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> ingpp_part_for_output;

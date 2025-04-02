@@ -144,7 +144,7 @@ public:
   void grnd_beginOfDay();
 
   // accumulating/averaging monthly variables at the end of day
-  void atm_endOfDay(const int & dinm);
+  void atm_endOfDay(const int & dinm, const int & dayidx);
   void veg_endOfDay(const int & dinm);
   void grnd_endOfDay(const int & dinm, const int & doy);
 
