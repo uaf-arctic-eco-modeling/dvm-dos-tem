@@ -368,7 +368,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // i.e. half ebullition is reassigned and half is emitted
 
         // This could also be calculated based on distance from soil surface:
-        double frac_ebul = exp(1 - (currl->z / calpar.ch4_ebul_rate));
+        // the below equation cannot result in a fraction greater than 1, and
+        // scales based on distance and porosity. If porosity is 0.9 (i.e. fibric)
+        // frac_ebul will be equal >0.05 at 1m depth. For 0.7 porosity (i.e humic-
+        // mineral) frac_ebul will be equal to <0.02 at 1m depth. This can be
+        // adjusted and may need to be a parameter.
+        double frac_ebul = exp(- 3 * (currl->z / currl->poro));
         ebul_efflux = frac_ebul * ebul;
         currl->ch4 -= ebul;
         wtlayer->ch4 += ebul - ebul_efflux;
