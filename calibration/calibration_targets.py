@@ -29,6 +29,7 @@ calibration_targets = {
     'OrganicNitrogenSum': {'units': '', 'desc': '', 'comment': 'soln', 'ref': '', 'ncname': 'ORGN'},
     'AvailableNitrogenSum': {'units': '', 'desc': '', 'comment': 'avln', 'ref': '', 'ncname': 'AVLN'},
     'EcosystemRespiration': {'units': '', 'desc': '', 'comment': 'reco', 'ref': '', 'ncname': 'RECO'},
+    'CH4All': {'units': '', 'desc': '', 'comment': 'ch4all', 'ref': '', 'ncname': 'CH4EFFLUXTOT'},
   },
 
   ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
@@ -56,6 +57,7 @@ calibration_targets = {
     'OrganicNitrogenSum':        0.00,    #  soln
     'AvailableNitrogenSum':      0.00,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT01 - Black Spruce Forest, calibration for Murphy Dome climate.
   "black spruce forest": {
@@ -83,6 +85,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     2145.87,    #  soln
     'AvailableNitrogenSum':      0.76,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT02 - White Spruce Forest, calibration for Murphy Dome climate.
   "white spruce forest": {
@@ -110,6 +113,7 @@ calibration_targets = {
     'OrganicNitrogenSum':      699.81,    #  soln
     'AvailableNitrogenSum':      1.69,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT03 - Deciduous Forest, calibration for Murphy Dome climate.
   "deciduous forest": {
@@ -137,6 +141,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     1513.10,    #  soln
     'AvailableNitrogenSum':       3.5,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT04 - Shrub Tundra, calibration for Toolik climate.
   "shrub tundra": {
@@ -164,6 +169,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT05 Tussock Tundra (updated 2/23/2016, JDC: GPPain, NPPain, NPPall, Nuptake, Veg from Shaver & Chapin 1991; 
   ## Assume Toolik C:N same as Council; then Veg N = Shaver & Chapin Veg C * (Council N / Council C); MossDeathC from CTucker data;
@@ -195,6 +201,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     2206.00,    #  soln
     'AvailableNitrogenSum':      8.958,   #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH toolik climate (also barrow climate)  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {
@@ -222,6 +229,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     2698.00,    #  soln
     'AvailableNitrogenSum':      0.48,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## CMT07 - HEATH TUNDRA - CALIBRATION TOOLIK CLIMATE   New Values from Helene, input by Joy 8 16 2019, except Nuptake and soilC numbers and forb
   "heath tundra": {
@@ -249,6 +257,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     1405.00,    #  soln
     'AvailableNitrogenSum':      0.17,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## Prepared from Vijay Patil work in the Yukon Flats with the mentoring of Eugenie Euskirchen- soil data comes from unknown
   "Shrubland": {
@@ -276,6 +285,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     2177.91,    #  soln
     'AvailableNitrogenSum':       0.8,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
  ## Prepared from EML??
   "Shrub tundra EML": {
@@ -303,6 +313,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     1904.10,    #  soln
     'AvailableNitrogenSum':      4.00,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
   },
   ## Prepared from EML??  Need Nuptake   created from excel file sent by Helene August 2022
   "Tussock tundra EML": {
@@ -330,6 +341,34 @@ calibration_targets = {
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.00,    #  ch4all
+  },
+  ## Updated by Heather Greaves 2017
+  "Boreal Bog": {
+    'cmtnumber': 31,
+                                 #    pft0      pft1      pft2       pft3      pft4     pft5      pft6    pft7     pft8    pft9   
+                                 #    Sphag     Sedge    Dshrub     Eshrub     Forb     Moss      Misc.   Misc.    Misc.   Misc.
+    'GPPAllIgnoringNitrogen':    [   504.11,   133.91,    12.82,    207.88,    65.46,   27.25,    0.0,    0.0,     0.0,    0.0 ], # ingpp     (gC/m2/year)   GPP without N limitation 
+    'NPPAllIgnoringNitrogen':    [   252.05,    66.95,     6.41,    103.94,    32.73,   13.62,    0.0,    0.0,     0.0,    0.0 ], # innpp     (gC/m2/year)   NPP without N limitation
+    'NPPAll':                    [   190.95,    35.81,     3.43,     40.84,    17.51,    8.51,    0.0,    0.0,     0.0,    0.0 ], # npp       (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [     3.23,     0.7,      0.02,     0.23,      0.04,    0.33,    0.0,    0.0,     0.0,    0.0 ], # nuptake   (gN/m2/year)
+    'VegCarbon': {                                                                                            
+      'Leaf':                    [   141.12,    22.74,     0.57,     16.10,     7.13,   24.04,    0.0,    0.0,     0.0,    0.0 ], # vegcl     (gC/m2) 
+      'Stem':                    [     0.00,    45.80,    13.24,     74.89,     0.0,     0.0,     0.0,    0.0,     0.0,    0.0 ], # vegcw     (gC/m2)
+      'Root':                    [     0.00,    59.83,     6.75,     70.59,    52.89,    0.0,     0.0,    0.0,     0.0,    0.0 ], # vegcr     (gC/m2)
+    },                                                                                                        
+    'VegStructuralNitrogen': {                                                                                
+      'Leaf':                    [     1.771,    0.948,    0.021,     0.543,    0.317,   0.285,   0.0,    0.0,     0.0,    0.0 ], # vegnl     (gN/m2)
+      'Stem':                    [     0.0,      0.728,    0.230,     1.274,    0.0,     0.0,     0.0,    0.0,     0.0,    0.0 ], # vegnw     (gN/m2)
+      'Root':                    [     0.0,      1.618,    0.160,     1.754,    1.485,   0.0,     0.0,    0.0,     0.0,    0.0 ], # vegnr     (gN/m2)
+    },
+    'MossDeathC':                0.00,    #  dmossc ## IGNORE
+    'CarbonShallow':          6028.95,    #  shlwc# From Mi et al, based on Manies
+    'CarbonDeep':            40300.79,    #  deepc# From Mi et al, based on Manies
+    'CarbonMineralSum':      60975.00,    #  minec# From Manies %C, %N, and BD
+    'OrganicNitrogenSum':     5548.86,    #  soln # From Manies %C, %N, and BD
+    'AvailableNitrogenSum':      9.41,    #  avln # Using Bayley et al 2005 extractable n
+    'CH4All':      8.60,    #  ch4all
   },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
   "shrub tundra kougarok": {
@@ -357,6 +396,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     1843.00,    #  soln
     'AvailableNitrogenSum':      3.93,    #  avln
     'EcosystemRespiration':      0.00,    #  reco
+    'CH4All':      0.0,    #  ch4all
   },
   ## CMT50 SHRUB TUNDRA AT TRAIL VALLEY CREEK
  "Shrub Tundra TVC" : {
@@ -383,6 +423,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 1880,
   'AvailableNitrogenSum': 0.443,
   'EcosystemRespiration': 266.55,
+  'CH4All':      0.0,    #  ch4all
 },
  ## CMT51 TUSSOCK TUNDRA TRAIL VALLEY CREEK
   "Tussock Tundra TVC" : {
@@ -409,6 +450,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 2716,
   'AvailableNitrogenSum': 0.392,
   'EcosystemRespiration': 236.32, 
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT52 HEATH LICHEN TUNDRA TRAIL VALLEY CREEK
   "Heath-lichen TVC" : {
@@ -435,6 +477,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 3209,
   'AvailableNitrogenSum': 0.362,
   'EcosystemRespiration': 52.55,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT55 ARCTIC FEN AT DARING LAKE
   "Arctic Fen" : {
@@ -461,6 +504,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 2341.5,
   'AvailableNitrogenSum': 0.706,
   'EcosystemRespiration': 250.8,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT56 MIXED TUNDRA AT DARING LAKE
   "Mixed Tundra" : {
@@ -487,6 +531,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 1340.9,
   'AvailableNitrogenSum': 1.632,
   'EcosystemRespiration': 203.82,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT57 HEATH TUNDRA AT DARING LAKE
   "Heath Tundra Daring Lake" : {
@@ -513,6 +558,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 700.346,
   'AvailableNitrogenSum': 2.457,
   'EcosystemRespiration': 206.12,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT60 - PEAT PLATEAU - Scotty Creek
   "peat plateau" : {
@@ -539,6 +585,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 2561.00,
   'AvailableNitrogenSum': 1.38,
   'EcosystemRespiration': 479.0,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT61 - BOG - Scotty Creek
   "scotty creek bog" : {
@@ -565,6 +612,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 3548.0,
   'AvailableNitrogenSum': 0.14,
   'EcosystemRespiration': 265.0,
+  'CH4All':      0.0,    #  ch4all
 },
  ## CMT65 - Mature Aspen - BOREAS
   "Mature Aspen" : {
@@ -591,6 +639,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 1405.54,
   'AvailableNitrogenSum': 0.80,
   'EcosystemRespiration': 993.06,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT66 - Mature Jack Pine - BOREAS
   "Mature Jack Pine" : {
@@ -617,6 +666,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 157,
   'AvailableNitrogenSum': 5.4,
   'EcosystemRespiration': 521.46,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT67 - Mixed Forest-Groundhog River
   "Mixed Forest-Groundhog River" : {
@@ -643,6 +693,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 624,
   'AvailableNitrogenSum': 7.857,
   'EcosystemRespiration': 899.12,
+  'CH4All':      0.0,    #  ch4all
 },
   ## CMT69 - Black Spruce - BOREAS
   "Black Spruce- BOREAS" : {
@@ -669,6 +720,7 @@ calibration_targets = {
   'OrganicNitrogenSum': 490.33,
   'AvailableNitrogenSum': 17.2,
   'EcosystemRespiration': 806.96,
+  'CH4All':      0.0,    #  ch4all
 },
 }
 

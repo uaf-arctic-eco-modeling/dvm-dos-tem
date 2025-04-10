@@ -504,10 +504,19 @@ void Climate::prep_avg_climate(){
     exit(EXIT_FAILURE);
   }
 
+  // averaging monthly climate time series over baseline years
+  // produces an array
   avgX_tair = avg_over(tair, baseline_start, baseline_end);
   avgX_prec = avg_over(prec, baseline_start, baseline_end);
   avgX_nirr = avg_over(nirr, baseline_start, baseline_end);
   avgX_vapo = avg_over(vapo, baseline_start, baseline_end);
+
+  // averaging yearly co2 and ch4 time series over baseline years
+  // produces a scalar value 
+  avgX_co2 = avg_over_yearly(co2, baseline_start, baseline_end);
+  if (!ch4.empty()){
+    avgX_ch4 = avg_over_yearly(ch4, baseline_start, baseline_end);
+  }
 }
 
 
@@ -517,9 +526,17 @@ void Climate::load_proj_climate(const std::string& fname, int y, int x){
 
   this->load_from_file(fname, y, x);
 }
+
+/** Loads projected carbon dioxide input file, overwriting any old data */
 void Climate::load_proj_co2(const std::string& fname){
   BOOST_LOG_SEV(glg, info) << "CO2, loading projected data!";
   this->co2 = temutil::get_timeseries(fname, "co2");
+}
+
+/** Load a methane input file, overwriting any old data */
+void Climate::load_ch4(const std::string& fname){
+  BOOST_LOG_SEV(glg, info) << "Loading ch4 from file";
+  this->ch4 = temutil::get_timeseries(fname, "ch4");
 }
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int start_yr, const int end_yr) {
@@ -555,6 +572,23 @@ std::vector<float> Climate::avg_over(const std::vector<float> & var, const int s
   }
 
   BOOST_LOG_SEV(glg, debug) << "result = [" << temutil::vec2csv(result) << "]";
+  return result;
+}
+
+/** This averages yearly time series to a single value. This was developed for use 
+ *  in equilibrium run stage for averaging atmospheric CO2 and CH4 concentrations.*/
+double Climate::avg_over_yearly(const std::vector<float> & var, const int start_yr, const int end_yr) {
+
+  int nyears = end_yr - start_yr;
+
+  int start_idx = start_yr - tseries_start_year;
+  int end_idx = end_yr - tseries_start_year;
+
+  // accumulate the data over the number of years specified
+  double sum = std::accumulate(var.begin() + start_idx, var.begin() + end_idx, 0.0);
+  double result = sum / nyears; 
+
+  BOOST_LOG_SEV(glg, debug) << "averaged atmospheric gas result = " << result;
   return result;
 }
 
@@ -664,9 +698,10 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   if( (stage.find("pre") != std::string::npos)
       || (stage.find("eq") != std::string::npos) ){
 
-    // Constant co2! Always use the first year in the input data, and use it
-    // for all days!
-    co2_d = co2.at(0);
+    // Constant atmospheric co2 and ch4
+    // Taking an average using baseline years specified in config file
+    co2_d = avgX_co2;
+    ch4_d = avgX_ch4;
 
     // Create daily data by interpolating
     tair_d = monthly2daily(eq_range(avgX_tair));
@@ -681,6 +716,8 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // Spin-up, Transient, Scenario
     // Uses the same value of CO2 every day of the year
     co2_d = co2.at(iy);
+
+    ch4_d = ch4.at(iy);
 
     // Create daily data by interpolating
     // straight up interpolated....

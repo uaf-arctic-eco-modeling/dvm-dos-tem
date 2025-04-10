@@ -2,7 +2,6 @@
 // soil microbial activity (BGC) parameters and default initial conditions
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -22,7 +21,6 @@
 0.76              // initavln:
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -42,7 +40,6 @@
 0.76              // initavln:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -62,7 +59,6 @@
 1.69              // initavln:
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // JSC 6/20/20 JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -82,7 +78,6 @@
 3.5               // initavln:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax: 
@@ -102,7 +97,6 @@
 3.93              // initavln:  was 0.68
 //===========================================================
 // CMT05 // Tussock Tundra
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -122,7 +116,6 @@
 8.9               // initavln:
 //===========================================================
 // CMT06 // Wet Sedge Tundra
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -142,7 +135,6 @@
 0.48              // initavln:
 //===========================================================
 // CMT07 // Heath Tundra
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -162,7 +154,6 @@
 0.17              // initavln:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -182,7 +173,6 @@
 0.8               // initavln:
 //===========================================================
 // CMT20 // EML Shrub Tundra
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -202,7 +192,6 @@
 4.0               // initavln:
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 joy)
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -222,7 +211,6 @@
 1.7               // initavln:
 //===========================================================
 // CMT31 // Boreal Bog
-2.0               // rhq10:
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:
@@ -235,14 +223,13 @@
 19.34             // nmincnsoil: Updated
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-6029              // initshlwc: Updated
-40300             // initdeepc: Updated
-37000             // initminec: Updated
-5548              // initsoln: Updated
-9.41              // initavln: Updated
+8731.942664       // initshlwc: Updated
+24091.95591       // initdeepc: Updated
+61545.45455       // initminec: Updated
+4138              // initsoln: Updated
+7.134             // initavln: Updated
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
-2.0               // rhq10:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax: 

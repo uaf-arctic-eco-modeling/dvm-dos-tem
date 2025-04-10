@@ -143,17 +143,37 @@ std::string CohortLookup::calparbgc2str() {
   }
 
   s << "    kra[2] (fraction of available NPP (GPP after rm))\n";
+  
+  for (int i = 0; i < NUM_PFT; ++i){
+    s << std::setw(12) << std::setfill(' ') << this->transport_capacity[i];
+  }
+
+  s << "    efficiency of each PFT to passively transport CH4";
+
   s << "// soil calibrated parameters\n";
   s << this->micbnup << " // micbnup: parameter for soil microbial immobialization of N\n";
   s << this->kdcrawc << " // kdcrawc: raw-material (litter) C decompositin rates at reference condition\n";
   s << this->kdcsoma << " // kdcsoma:\n";
   s << this->kdcsompr << " // kdcsompr:\n";
   s << this->kdcsomcr << "// kdcsomcr:\n";
-  s << this->s2dfraction << "// s2dfraction: \n:";
-  s << this->d2mfraction << "// d2mfraction: \n:";
   s << this->max_ponding_s << "// summermaxponding: \n:";
   s << this->max_ponding_w << "// wintermaxponding: \n:";
   s << this->max_ponding_w << "// inflowfactor: \n:";
+  s << this->rhq10 << "// rhq10:\n";
+  s << this->s2dfraction << "// s2dfraction \n:";
+  s << this->d2mfraction << "// d2mfraction \n:";
+  s << this->kdcrawc_ch4 << "// kdcrawc_ch4:\n";
+  s << this->kdcsoma_ch4 << "// kdcsoma_ch4:\n";
+  s << this->kdcsompr_ch4 << "// kdcsompr_ch4:\n";
+  s << this->kdcsomcr_ch4 << "// kdcsompr_ch4:\n";
+  s << this->ch4_ebul_rate << "// ch4_ebul_rate:\n";
+  s << this->ch4_transport_rate << "// ch4_transport_rate:\n";
+  s << this->prodq10_ch4 << "// prodq10_ch4:\n";
+  s << this->oxidq10_ch4 << "// oxidq10_ch4:\n";
+  s << this->prodTref_ch4 << "// prodTref_ch4:\n";
+  s << this->oxidTref_ch4 << "// oxidTref_ch4:\n";
+  s << this->oxidkm_ch4 << "// oxidkm_ch4:\n";
+  s << this->oxidVmax_ch4 << "// oxidVmax_ch4:\n";
   return s.str();
 }
 
@@ -163,7 +183,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 23
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 36
   );
 
   // pop each line off the front of the list
@@ -187,11 +207,29 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, kdcsoma);
   temutil::pfll2data(l, kdcsompr);
   temutil::pfll2data(l, kdcsomcr);
-  temutil::pfll2data(l, s2dfraction);
-  temutil::pfll2data(l, d2mfraction);
   temutil::pfll2data(l, max_ponding_s);
   temutil::pfll2data(l, max_ponding_w);
   temutil::pfll2data(l, inflow_factor);
+  temutil::pfll2data(l, rhq10);
+  temutil::pfll2data(l, s2dfraction);
+  temutil::pfll2data(l, d2mfraction);
+
+  temutil::pfll2data(l, kdcrawc_ch4);
+  temutil::pfll2data(l, kdcsoma_ch4);
+  temutil::pfll2data(l, kdcsompr_ch4);
+  temutil::pfll2data(l, kdcsomcr_ch4);
+
+  temutil::pfll2data(l, ch4_ebul_rate);
+  temutil::pfll2data(l, ch4_transport_rate);
+
+  temutil::pfll2data(l, prodq10_ch4);
+  temutil::pfll2data(l, oxidq10_ch4);
+
+  temutil::pfll2data(l, prodTref_ch4);
+  temutil::pfll2data(l, oxidTref_ch4);
+
+  temutil::pfll2data(l, oxidkm_ch4);
+  temutil::pfll2data(l, oxidVmax_ch4);
 }
 
 /** Assign "veg dimension?" from parameter file. */
@@ -230,6 +268,22 @@ void CohortLookup::assignVegDimension(string &dircmt) {
 
   for (int im = 0; im < MINY; im++) {
     temutil::pfll2data_pft( l, static_lai[im]);
+  }
+
+  //Storing the max and min static LAI
+  for (int ip = 0; ip<NUM_PFT; ip++){
+    double max_pft_lai = static_lai[0][ip];
+    double min_pft_lai = static_lai[0][ip];
+    for(int im = 0; im < MINY; im++){
+      if(static_lai[im][ip] > max_pft_lai){
+        max_pft_lai = static_lai[im][ip];
+      }
+      if(static_lai[im][ip] < min_pft_lai){
+        min_pft_lai = static_lai[im][ip];
+      }
+    }
+    static_lai_max[ip] = max_pft_lai;
+    static_lai_min[ip] = min_pft_lai;
   }
 
 }
@@ -309,7 +363,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
   
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_bgcvegetation.txt", temutil::cmtcode2num(this->cmtcode), 33
+      dircmt + "cmt_bgcvegetation.txt", temutil::cmtcode2num(this->cmtcode), 34
   );
 
   // pop each line off the front of the list
@@ -347,6 +401,7 @@ void CohortLookup::assignBgc4Vegetation(string & dircmt) {
   temutil::pfll2data_pft(l, initvegn[I_root]);
   temutil::pfll2data_pft(l, initdeadc);
   temutil::pfll2data_pft(l, initdeadn);
+  temutil::pfll2data_pft(l, transport_capacity);
 
 
   // Makes sure that the 'cpart' compartment variables match the proportions
@@ -467,12 +522,12 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
   
   // get a list of data for the cmt number
   std::list<std::string> datalist = temutil::parse_parameter_file(
-      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 18
+      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 17
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
-  temutil::pfll2data(datalist, rhq10);
+  // temutil::pfll2data(datalist, rhq10);
   temutil::pfll2data(datalist, moistmin);
   temutil::pfll2data(datalist, moistopt);
   temutil::pfll2data(datalist, moistmax);

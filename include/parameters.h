@@ -148,11 +148,34 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
+  double rhq10;
   double s2dfraction;
   double d2mfraction;
+  //Methane related values
+  double kdcrawc_ch4;
+  double kdcsoma_ch4;
+  double kdcsompr_ch4;
+  double kdcsomcr_ch4;
+
+  double ch4_ebul_rate;
+  double ch4_transport_rate;
+
+  double prodq10_ch4;
+  double oxidq10_ch4;
+
+  double prodTref_ch4;
+  double oxidTref_ch4;
+
+  double oxidkm_ch4;
+  double oxidVmax_ch4;
 
   soipar_cal() : micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
-                 kdcsompr(UIN_D), kdcsomcr(UIN_D), s2dfraction(UIN_D), d2mfraction(UIN_D) {}
+                 kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
+                 rhq10(UIN_D), s2dfraction(UIN_D), d2mfraction(UIN_D),
+                 kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
+                 ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D), prodq10_ch4(UIN_D),
+                 oxidq10_ch4(UIN_D), prodTref_ch4(UIN_D), oxidTref_ch4(UIN_D),
+                 oxidkm_ch4(UIN_D), oxidVmax_ch4(UIN_D) {}
 };
 
 struct soipar_dim {
@@ -204,7 +227,7 @@ struct soipar_bgc {
   double moistmin;
   double moistmax;
   double moistopt;
-  double rhq10;
+  // double rhq10;
 
   double propftos;
   double nmincnsoil;
@@ -232,20 +255,30 @@ struct soipar_bgc {
   double kdsompr[MAX_SOI_LAY];
   double kdsomcr[MAX_SOI_LAY];
 
-  soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
-                rhq10(UIN_D), propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
-                fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
-                eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
-                lcclnc(UIN_D) {
-                
+  //Methane related values
+  double kdrawc_ch4[MAX_SOI_LAY];
+  double kdsoma_ch4[MAX_SOI_LAY];
+  double kdsompr_ch4[MAX_SOI_LAY];
+  double kdsomcr_ch4[MAX_SOI_LAY];
+
+  soipar_bgc() : kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
+                //  rhq10(UIN_D), 
+                 propftos(UIN_D), nmincnsoil(UIN_D), fnloss(UIN_D),
+                 fsoma(UIN_D), fsompr(UIN_D), fsomcr(UIN_D), som2co2(UIN_D),
+                 eqrawc(UIN_D), eqsoma(UIN_D), eqsompr(UIN_D), eqsomcr(UIN_D),
+                 lcclnc(UIN_D) {
+
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
       kdrawc[i] = UIN_D;
       kdsoma[i] = UIN_D;
       kdsompr[i] = UIN_D;
       kdsomcr[i] = UIN_D;
+      kdrawc_ch4[i] = UIN_D;
+      kdsoma_ch4[i] = UIN_D;
+      kdsompr_ch4[i] = UIN_D;
+      kdsomcr_ch4[i] = UIN_D;
     }
   }
-
 };
 
 struct snwpar_dim {

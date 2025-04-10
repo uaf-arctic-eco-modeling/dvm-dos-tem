@@ -81,6 +81,8 @@ public:
   string drainage_file;
   string co2_file;
   string proj_co2_file;
+  string ch4_file;
+  string proj_ch4_file;
   string runmask_file;
   string output_dir;
   string output_spec_file;
@@ -127,6 +129,10 @@ public:
   void set_dynamic_lai_module(const std::string &s);
   void set_dynamic_lai_module(const bool v);
 
+  bool get_ch4_module();
+  void set_ch4_module(const std::string &s);
+  void set_ch4_module(const bool v);
+
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);
   void set_dslmodule(const bool v);
@@ -164,6 +170,7 @@ private:
   bool envmodule;             // (Bio?)physical module on/off
   bool bgcmodule;             // BGC module on/off
   bool dynamic_lai_module;    // dynamic lai module on/off
+  bool ch4_module; //This only matters if the bgc module is enabled
 
   bool dslmodule;  // dynamic soil layer module on/off
   bool dsbmodule;  // disturbance module on/off

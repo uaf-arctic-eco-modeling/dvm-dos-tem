@@ -1563,6 +1563,797 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end BURNVEG2SOILBLWN
   map_itr = netcdf_outputs.end();
 
+  //CH4DIFFUSION
+  map_itr = netcdf_outputs.find("CH4DIFFUSION");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4DIFFUSION";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4DIFFUSION)
+    {
+      if(curr_spec.layer){
+        std::array<double, MAX_SOI_LAY> ch4diff_arr{};
+
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4diff_arr[il] = cohort.bdall->daily_ch4_diff[id][il];
+            }
+            outhold.ch4diff_layer_for_output.push_back(ch4diff_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4diff_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4diff_layer_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4diff_arr[il] = cohort.bdall->m_soi2soi.ch4_diff[il];
+          }
+          outhold.ch4diff_layer_for_output.push_back(ch4diff_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4diff_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4diff_layer_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4diff_arr[il] = cohort.bdall->y_soi2soi.ch4_diff[il];
+          }
+          outhold.ch4diff_layer_for_output.push_back(ch4diff_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4diff_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4diff_layer_for_output.clear();
+          }
+        }
+      }
+
+    }//end critical(outputCH4DIFFUSION)
+  }//end CH4DIFFUSION
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4EBULLITION
+  map_itr = netcdf_outputs.find("CH4EBULLITION");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EBULLITION";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4EBULLITION)
+    {
+      //Ebullition is not offered as a sum
+
+      if(curr_spec.layer){
+        std::array<double, MAX_SOI_LAY> ch4ebul_arr{};
+
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4ebul_arr[il] = cohort.bdall->daily_ch4_ebullition[id][il];
+            }
+            outhold.ch4ebul_layer_for_output.push_back(ch4ebul_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4ebul_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4ebul_layer_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4ebul_arr[il] = cohort.bdall->m_soi2soi.ch4_ebul[il];
+          }
+          outhold.ch4ebul_layer_for_output.push_back(ch4ebul_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4ebul_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4ebul_layer_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4ebul_arr[il] = cohort.bdall->y_soi2soi.ch4_ebul[il];
+          }
+          outhold.ch4ebul_layer_for_output.push_back(ch4ebul_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4ebul_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4ebul_layer_for_output.clear();
+          }
+        }
+      }
+    }//end critical(outputCH4EBULLITION)
+  }//end CH4EBULLITION
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4EFFLUXDIFF
+  map_itr = netcdf_outputs.find("CH4EFFLUXDIFF");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUXDIFF";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4EFFLUXDIFF)
+    {
+
+      if(curr_spec.daily){
+        for(int id=0; id<DINM[month]; id++){
+          outhold.ch4effdiff_for_output.push_back(cohort.bdall->daily_ch4_effdiff[id]);
+        }
+
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4effdiff_for_output[0], 1, day_timestep, DINY);
+          outhold.ch4effdiff_for_output.clear();
+        }
+      }
+      else if(curr_spec.monthly){
+
+        outhold.ch4effdiff_for_output.push_back(cohort.bdall->m_soi2a.ch4effdiff);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4effdiff_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.ch4effdiff_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+
+        outhold.ch4effdiff_for_output.push_back(cohort.bdall->y_soi2a.ch4effdiff);
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4effdiff_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.ch4effdiff_for_output.clear();
+        }
+      }
+
+    }//end critical(outputCH4EFFLUXDIFF)
+  }//end CH4EFFLUXDIFF
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4EFFLUXEBUL
+  map_itr = netcdf_outputs.find("CH4EFFLUXEBUL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUXEBUL";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4EFFLUXEBUL)
+    {
+
+      //Because of how methane fluxes are calculated, we do not
+      // have efflux due to ebullition directly and it must be
+      // calculated as:
+      // (total efflux - efflux from diffusion - plant transport)
+
+      //Daily
+      if(curr_spec.daily){
+        for(int id=0; id<DINM[month]; id++){
+
+          outhold.ch4effebul_for_output.push_back(cohort.bdall->daily_ch4_efflux_ebul[id]);
+
+        }
+
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4effebul_for_output[0], 1, day_timestep, DINY);
+          outhold.ch4effebul_for_output.clear();
+        }
+      }
+      //Monthly
+      else if(curr_spec.monthly){
+
+        outhold.ch4effebul_for_output.push_back(cohort.bdall->m_soi2a.ch4efflux_ebul);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4effebul_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.ch4effebul_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        outhold.ch4effebul_for_output.push_back(cohort.bdall->y_soi2a.ch4efflux_ebul);
+        
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4effebul_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.ch4effebul_for_output.clear();
+        }
+      }
+
+    }//end critical(outputCH4EFFLUXEBUL)
+  }//end CH4EFFLUXEBUL
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4EFFLUXTOT
+  map_itr = netcdf_outputs.find("CH4EFFLUXTOT");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4EFFLUXTOT";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4EFFLUXTOT)
+    {
+
+      if(curr_spec.daily){
+
+        for(int id=0; id<DINM[month]; id++){
+          outhold.ch4efflux_for_output.push_back(cohort.bdall->daily_ch4_efflux[id]);
+        }
+
+        if(end_of_year){
+          output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, day_timestep, DINY);
+          outhold.ch4efflux_for_output.clear();
+        }
+      }
+      else if(curr_spec.monthly){
+
+        outhold.ch4efflux_for_output.push_back(cohort.bdall->m_soi2a.ch4efflux);
+
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.ch4efflux_for_output.clear();
+        }
+      }
+      else if(curr_spec.yearly){
+
+        outhold.ch4efflux_for_output.push_back(cohort.bdall->y_soi2a.ch4efflux);
+        if(output_this_timestep){
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4efflux_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.ch4efflux_for_output.clear();
+        }
+      }
+    }//end critical(outputCH4EFFLUXTOT)
+  }//end CH4EFFLUXTOT
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4OXIDATION
+  map_itr = netcdf_outputs.find("CH4OXIDATION");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4OXIDATION";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4OXIDATION)
+    {
+
+      if(curr_spec.layer){
+        std::array<double, MAX_SOI_LAY> ch4oxid_arr{};
+
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4oxid_arr[il] = cohort.bdall->daily_ch4_oxid[id][il];
+            }
+            outhold.ch4oxid_layer_for_output.push_back(ch4oxid_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4oxid_layer_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4oxid_arr[il] = cohort.bdall->m_soi2a.ch4_oxid[il];
+          }
+          outhold.ch4oxid_layer_for_output.push_back(ch4oxid_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4oxid_layer_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4oxid_arr[il] = cohort.bdall->y_soi2a.ch4_oxid[il];
+          }
+          outhold.ch4oxid_layer_for_output.push_back(ch4oxid_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4oxid_layer_for_output.clear();
+          }
+        }
+      }
+      //Total instead of by layer
+      else if(!curr_spec.layer){
+        //daily
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            double day_ch4_oxid = 0.0;
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              day_ch4_oxid += cohort.bdall->daily_ch4_oxid[id][il];
+            }
+            outhold.ch4oxid_sum_for_output.push_back(day_ch4_oxid);
+          }
+
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_sum_for_output[0], 1, day_timestep, DINY);
+            outhold.ch4oxid_sum_for_output.clear();
+          }
+        }
+        //monthly
+        if(curr_spec.monthly){
+          outhold.ch4oxid_sum_for_output.push_back(cohort.bdall->m_soi2a.ch4_oxid_sum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_sum_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4oxid_sum_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          outhold.ch4oxid_sum_for_output.push_back(cohort.bdall->y_soi2a.ch4_oxid_sum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4oxid_sum_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4oxid_sum_for_output.clear();
+          }
+        }
+      }
+
+    }//end critical(outputCH4OXIDATION)
+  }//end CH4OXIDATION
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4POOL
+  map_itr = netcdf_outputs.find("CH4POOL");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4POOL";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4POOL)
+    {
+
+      std::array<double, MAX_SOI_LAY> ch4_output{};
+      double ch4_sum = 0.0;
+      // moss ch4 pool is used as a boundary node
+      // hence is forced to atmospheric concentration
+      // moss is ignored here so it is not included
+      // in the pool
+      int il = 0 + this->cohort.ground.moss.num;
+      Layer* currL = this->cohort.ground.fstshlwl;
+
+      while(currL != NULL){
+        ch4_output[il] = currL->ch4;
+        ch4_sum += currL->ch4;
+        il++;
+        currL = currL->nextl;
+      }
+
+      //By layer
+      if(curr_spec.layer){
+
+        std::array<double, MAX_SOI_LAY> ch4pool_arr{};
+
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4pool_arr[il] = cohort.bdall->daily_ch4_pool[id][il];
+            }
+            outhold.ch4pool_layer_for_output.push_back(ch4pool_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4pool_layer_for_output.clear();
+          }
+        }
+
+        else if(curr_spec.monthly){
+          outhold.ch4pool_layer_for_output.push_back(ch4_output);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4pool_layer_for_output.clear();
+          }
+        }
+        else if(curr_spec.yearly){
+          if(end_of_year){
+            outhold.ch4pool_layer_for_output.push_back(ch4_output);
+          }
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4pool_layer_for_output.clear();
+          }
+        }
+      }
+      //Total, instead of by layer
+      else{
+        //Daily
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            double ch4pool_dailysum = 0;
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4pool_dailysum += cohort.bdall->daily_ch4_pool[id][il];
+            }
+            outhold.ch4pool_for_output.push_back(ch4pool_dailysum);
+          }
+
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_for_output[0], 1, day_timestep, DINY);
+            outhold.ch4pool_for_output.clear();
+          }
+        }
+        //Monthly
+        else if(curr_spec.monthly){
+          outhold.ch4pool_for_output.push_back(ch4_sum);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4pool_for_output.clear();
+          }
+        }
+        //Yearly
+        else if(curr_spec.yearly){
+          if(end_of_year){
+            outhold.ch4pool_for_output.push_back(ch4_sum);
+          }
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4pool_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4pool_for_output.clear();
+          }
+        }
+      }
+
+    }//end critical(outputCH4POOL)
+  }//end CH4POOL
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4PRODUCTION
+  map_itr = netcdf_outputs.find("CH4PRODUCTION");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4PRODUCTION";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4PRODUCTION)
+    {
+      //By layer
+      if(curr_spec.layer){
+        std::array<double, MAX_SOI_LAY> ch4prod_arr{};
+
+        //daily
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4prod_arr[il] = cohort.bdall->daily_ch4_rawc[id][il]
+                              + cohort.bdall->daily_ch4_soma[id][il]
+                              + cohort.bdall->daily_ch4_sompr[id][il]
+                              + cohort.bdall->daily_ch4_somcr[id][il];
+            }
+            outhold.ch4prod_layer_for_output.push_back(ch4prod_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4prod_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4prod_layer_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4prod_arr[il] = cohort.bdall->m_soi2soi.ch4_rawc[il]
+                            + cohort.bdall->m_soi2soi.ch4_soma[il]
+                            + cohort.bdall->m_soi2soi.ch4_sompr[il]
+                            + cohort.bdall->m_soi2soi.ch4_somcr[il];
+          }
+          outhold.ch4prod_layer_for_output.push_back(ch4prod_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4prod_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4prod_layer_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+           for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4prod_arr[il] = cohort.bdall->y_soi2soi.ch4_rawc[il]
+                            + cohort.bdall->y_soi2soi.ch4_soma[il]
+                            + cohort.bdall->y_soi2soi.ch4_sompr[il]
+                            + cohort.bdall->y_soi2soi.ch4_somcr[il];
+          }
+          outhold.ch4prod_layer_for_output.push_back(ch4prod_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4prod_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4prod_layer_for_output.clear();
+          }
+        }
+      }
+      //Total, instead of by layer
+      else if(!curr_spec.layer){
+        //daily
+        if(curr_spec.daily){
+          for(int id=0; id<DINM[month]; id++){
+            double ch4prod = 0.0;
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              ch4prod += cohort.bdall->daily_ch4_rawc[id][il]
+                      + cohort.bdall->daily_ch4_soma[id][il]
+                      + cohort.bdall->daily_ch4_sompr[id][il]
+                      + cohort.bdall->daily_ch4_somcr[id][il];
+            }
+            outhold.ch4prod_sum_for_output.push_back(ch4prod);
+          }
+
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4prod_sum_for_output[0], 1, day_timestep, DINY);
+            outhold.ch4prod_sum_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+          double ch4prod = 0.0;
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4prod += cohort.bdall->m_soi2soi.ch4_rawc[il]
+                    + cohort.bdall->m_soi2soi.ch4_soma[il]
+                    + cohort.bdall->m_soi2soi.ch4_sompr[il]
+                    + cohort.bdall->m_soi2soi.ch4_somcr[il];
+          }
+          outhold.ch4prod_sum_for_output.push_back(ch4prod);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4prod_sum_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4prod_sum_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+          double ch4prod = 0.0;
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            ch4prod += cohort.bdall->y_soi2soi.ch4_rawc[il]
+                    + cohort.bdall->y_soi2soi.ch4_soma[il]
+                    + cohort.bdall->y_soi2soi.ch4_sompr[il]
+                    + cohort.bdall->y_soi2soi.ch4_somcr[il];
+          }
+          outhold.ch4prod_sum_for_output.push_back(ch4prod);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4prod_sum_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4prod_sum_for_output.clear();
+          }
+        }
+      }
+
+    }//end critical(outputCH4PRODUCTION)
+  }//end CH4PRODUCTION
+  map_itr = netcdf_outputs.end();
+
+
+  //CH4TRANSPORT
+  map_itr = netcdf_outputs.find("CH4TRANSPORT");
+  if(map_itr != netcdf_outputs.end()){
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: CH4TRANSPORT";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputCH4TRANSPORT)
+    {
+
+      //Cases: by PFT, by layer, daily/monthly/yearly
+
+      //By layer and PFT
+      if(curr_spec.layer && curr_spec.pft){
+
+        std::array<std::array<double, NUM_PFT>, MAX_SOI_LAY> ch4trans_arr{};
+
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              for(int ip=0; ip<NUM_PFT; ip++){
+                ch4trans_arr[il][ip] = cohort.bdall->daily_ch4_transport[id][il][ip];
+              }
+            }
+            outhold.ch4transport_for_output.push_back(ch4trans_arr);
+          }
+ 
+          if(end_of_year){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_for_output[0], MAX_SOI_LAY, NUM_PFT, day_timestep, DINY);
+            outhold.ch4transport_for_output.clear();
+          }
+
+        }
+        //monthly
+        if(curr_spec.monthly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il][ip] = cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_for_output[0], MAX_SOI_LAY, NUM_PFT, month_start_idx, months_to_output);
+            outhold.ch4transport_for_output.clear();
+          }
+        }
+        //yearly
+        if(curr_spec.yearly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il][ip] = cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_for_output[0], MAX_SOI_LAY, NUM_PFT, year_start_idx, years_to_output);
+            outhold.ch4transport_for_output.clear();
+          }
+        }
+      }
+      //Per layer, total across all PFTs
+      else if(curr_spec.layer && !curr_spec.pft){
+
+        std::array<double, MAX_SOI_LAY> ch4trans_arr{};
+
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              for(int ip=0; ip<NUM_PFT; ip++){
+                ch4trans_arr[il] += cohort.bdall->daily_ch4_transport[id][il][ip];
+              }
+            }
+            outhold.ch4transport_layer_for_output.push_back(ch4trans_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_layer_for_output[0], MAX_SOI_LAY, day_timestep, DINY);
+            outhold.ch4transport_layer_for_output.clear();
+          }
+
+        }
+        //monthly
+        if(curr_spec.monthly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il] += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_layer_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_layer_for_output[0], MAX_SOI_LAY, month_start_idx, months_to_output);
+            outhold.ch4transport_layer_for_output.clear();
+          }
+        }
+        //yearly
+        if(curr_spec.yearly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[il] += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_layer_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_layer_for_output[0], MAX_SOI_LAY, year_start_idx, years_to_output);
+            outhold.ch4transport_layer_for_output.clear();
+          }
+        }
+      }
+      //Per PFT, total across all layers
+      else if(curr_spec.pft && !curr_spec.layer){
+
+        std::array<double, NUM_PFT> ch4trans_arr{};
+
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+            for(int il=0; il<MAX_SOI_LAY; il++){
+              for(int ip=0; ip<NUM_PFT; ip++){
+                ch4trans_arr[ip] += cohort.bdall->daily_ch4_transport[id][il][ip];
+              }
+            }
+            outhold.ch4transport_pft_for_output.push_back(ch4trans_arr);
+          }
+
+          if(end_of_year){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_pft_for_output[0], NUM_PFT, day_timestep, DINY);
+            outhold.ch4transport_pft_for_output.clear();
+          }
+
+        }
+        //monthly
+        if(curr_spec.monthly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[ip] += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_pft_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.ch4transport_pft_for_output.clear();
+          }
+        }
+        //yearly
+        if(curr_spec.yearly){
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_arr[ip] += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_pft_for_output.push_back(ch4trans_arr);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.ch4transport_pft_for_output.clear();
+          }
+        }
+      }
+      //This would usually not be an else if, but we needed to skip
+      // the cross-pft and cross-layer cases.
+      else if(!curr_spec.layer && !curr_spec.pft && !curr_spec.compartment){ //sum
+        //daily
+        if(curr_spec.daily){
+
+          for(int id=0; id<DINM[month]; id++){
+
+            outhold.ch4transport_sum_for_output.push_back(cohort.bdall->daily_total_plant_ch4[id]);
+          }
+
+          if(end_of_year){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, day_timestep, DINY);
+            outhold.ch4transport_sum_for_output.clear();
+          }
+        }
+        //monthly
+        else if(curr_spec.monthly){
+
+          double ch4trans_tot = 0.0;
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_tot += cohort.bdall->m_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_sum_for_output.push_back(ch4trans_tot);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.ch4transport_sum_for_output.clear();
+          }
+        }
+        //yearly
+        else if(curr_spec.yearly){
+
+          double ch4trans_tot = 0.0;
+
+          for(int il=0; il<MAX_SOI_LAY; il++){
+            for(int ip=0; ip<NUM_PFT; ip++){
+              ch4trans_tot += cohort.bdall->y_soi2a.ch4_transport[il][ip];
+            }
+          }
+          outhold.ch4transport_sum_for_output.push_back(ch4trans_tot);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.ch4transport_sum_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.ch4transport_sum_for_output.clear();
+          }
+        }
+      }
+
+    }//end critical(outputCH4TRANSPORT)
+  }//end CH4TRANSPORT
+  map_itr = netcdf_outputs.end();
 
   //Community Type Code (CMT NUMBER)
   map_itr = netcdf_outputs.find("CMTNUM");
@@ -4351,7 +5142,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             rh_arr[il] = cohort.bdall->m_soi2a.rhrawc[il]
                        + cohort.bdall->m_soi2a.rhsoma[il]
                        + cohort.bdall->m_soi2a.rhsompr[il]
-                       + cohort.bdall->m_soi2a.rhsomcr[il];
+                       + cohort.bdall->m_soi2a.rhsomcr[il]
+                       + cohort.bdall->m_soi2a.ch4_oxid[il];
           }
           outhold.rh_for_output.push_back(rh_arr);
 
@@ -4366,7 +5158,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
             rh_arr[il] = cohort.bdall->y_soi2a.rhrawc[il]
                        + cohort.bdall->y_soi2a.rhsoma[il]
                        + cohort.bdall->y_soi2a.rhsompr[il]
-                       + cohort.bdall->y_soi2a.rhsomcr[il];
+                       + cohort.bdall->y_soi2a.rhsomcr[il]
+                       + cohort.bdall->y_soi2a.ch4_oxid[il];
           }
           outhold.rh_for_output.push_back(rh_arr);
 
@@ -4380,6 +5173,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.layer){
         //monthly
         if(curr_spec.monthly){
+          //double soil_resp = cohort.bdall->m_soi2a.rhtot + cohort.bdall->m_soi2a.oxidtot;
           outhold.rh_tot_for_output.push_back(cohort.bdall->m_soi2a.rhsom);
 
           if(output_this_timestep){
