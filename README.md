@@ -29,6 +29,13 @@ command line.
 
 More details are available in the [User Guide - Basic Model Setup and Run](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/examples_and_tutorials/basic_model_run.html#basic-model-setup-and-run).
 
+> [!TIP]
+> These instructions should work for users with [Podman](https://podman.io)
+> rather than Docker, but several additional steps may be necessary to ensure
+> that Podman can run with non-root access. See this
+> [issue](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776)
+> for more information.
+
 The settings shown here will use the input data that is shipped with the code in the
 repository's ``demo-data/`` directory. The run will output a single variable (GPP), 
 and will run for 2 pixels.

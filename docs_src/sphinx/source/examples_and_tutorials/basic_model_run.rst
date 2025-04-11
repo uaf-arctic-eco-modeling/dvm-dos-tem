@@ -20,6 +20,15 @@ and visualization, see the :ref:`Plotting Example
   For users who have Docker and Git installed and some familiarity with the 
   command line.
 
+  .. note::
+
+    These instructions should work for users with `Podman <https://podman.io>`_
+    rather than Docker, but several additional steps may be necessary to ensure
+    that Podman can run with non-root access. See this
+    `issue <https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776>`_
+    for more information.
+
+
   The settings shown here will use the input data that is shipped with the code
   in the repository's ``demo-data/`` directory. The run will output a single
   variable (GPP), and will run for 2 pixels.
@@ -147,6 +156,14 @@ container should be portable and able to run on a wide variety of host systems.
 The dependencies for a piece of software are isolated inside the container. This
 isolation allows software with conflicting dependencies to run on the host
 system.
+
+.. hint::
+
+  These instructions should work for users with `Podman <https://podman.io>`_
+  rather than Docker, but several additional steps may be necessary to ensure
+  that Podman can run with non-root access. See this
+  `issue <https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776>`_
+  for more information.
 
 There are other ways you can get the environment necessary for running,
 compiling and developing ``dvmdostem``, such as a native installation, or using
