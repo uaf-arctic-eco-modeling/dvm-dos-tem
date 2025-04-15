@@ -11,6 +11,7 @@ import os
 import numpy as np
 from pathlib import Path
 import shutil
+from collections import Counter
 
 import util.input
 import util.param
@@ -160,7 +161,7 @@ def conform_mask_to_inputs(in_folder, verbose=False):
   where any of the data for that pixel in the inputs is bad or missing.
   '''
 
-  util.input.verify_input_files(in_folder)
+  util.input.check_input_set_existence(in_folder)
 
   ###########################################################
   # First set the run mask based on the veg map
@@ -298,6 +299,37 @@ def show_mask(file, note):
     print(mask.variables['run'][:])
     print("")
 
+
+def cell_count(runmask_file, verbose=False):
+  '''
+  Returns counts for each value appearing in the provided run-mask file.
+  Flags invalid values but does not act on them.
+
+  Parameters
+  ----------
+  runmask_file : str
+    Filename of the run mask to operate on.
+  '''
+
+  with nc.Dataset(runmask_file, 'r') as runmask_fh:
+    if 'run' not in runmask_fh.variables.keys():
+      raise RuntimeError(f'{runmask_file} has no run variable')
+
+    mask_data = runmask_fh.variables['run'][:,:]
+
+  hashable_mask_data = mask_data.flatten()
+
+  mask_counts = Counter(hashable_mask_data)
+  if verbose:
+    print(mask_counts)
+
+  invalid_data = [v for v in mask_counts.keys() if v not in [0,1]]
+  if len(invalid_data) > 0:
+    print("Invalid values in run mask:", invalid_data)
+
+  return mask_counts
+
+
 def cmdline_define():
   '''Define the command line interface and return the parser object.'''
 
@@ -327,6 +359,10 @@ def cmdline_define():
 
   parser.add_argument("--show", action='store_true',
       help=textwrap.dedent('''Print the mask after modification.'''))
+
+  parser.add_argument("--cell-count", action='store_true',
+      help=textwrap.dedent('''Print cell count for active, inactive, and
+                              invalid entries.'''))
 
   parser.add_argument("--conform-mask-to-inputs", metavar=('FOLDER'), #nargs=1,
       help=textwrap.dedent('''Operate on the run-mask and conform it to all the 
@@ -405,6 +441,10 @@ def cmdline_run(args):
     Non-zero if the program cannot complete successfully.
 
   '''
+
+  if args.cell_count:
+    cell_count(args.file, True)
+
   if args.select_only_cmt:
     input_folder_path = args.select_only_cmt[0]
     cmt = int(args.select_only_cmt[1])
