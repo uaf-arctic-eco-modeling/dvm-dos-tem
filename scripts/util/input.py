@@ -5,6 +5,7 @@ import errno
 import glob
 import netCDF4 as nc
 import numpy as np
+from collections import Counter
 
 import argparse
 import textwrap
@@ -73,6 +74,36 @@ def check_input_set_existence(in_folder):
     msg = "Missing files: {}".format(required_files.difference(files))
     raise MissingInputFilesValueError(msg)
 
+
+def get_vegtypes(veg_input, verbose=False):
+  '''
+  Returns a Counter containing the CMT values in a specified vegetation
+  input file, along with a count of the cells for each. Does not check
+  the validity of CMT values, but does include invalid entries for easy
+  error checking from the caller.
+
+  Parameters
+  ----------
+  veg_input : str
+    Filename of the vegetation file to operate on.
+  '''
+
+  with nc.Dataset(veg_input, 'r') as veg_file:
+    if 'veg_class' not in veg_file.variables.keys():
+      raise RuntimeError(f'{veg_input} has no veg_class variable')
+
+    veg_data = veg_file.variables["veg_class"][:,:]
+
+  if verbose:
+    print(veg_data)
+
+  hashable_veg_data = veg_data.flatten()
+
+  veg_counts = Counter(hashable_veg_data)
+  if verbose:
+    print(veg_counts)
+
+  return veg_counts
 
 
 def crop_attr_string(ys='', xs='', yo='', xo='', msg=''):
@@ -634,6 +665,10 @@ def cmdline_define():
     directory against a hardcoded list of expected files.'''),
     default=None)
 
+  query_parser.add_argument('--vegtypes', action='store_true',
+    help=textwrap.dedent('''Returns a Counter with the CMT values and the\
+    number of times they appear in a vegetation file'''))
+
   query_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
 #  query_parser.add_argument('--latlon-file', 
@@ -701,6 +736,9 @@ if __name__ == '__main__':
   if args.command == 'query':
     if args.check_existence:
       check_input_set_existence(args.input_folder)
+
+    if args.vegtypes:
+      get_vegtypes(args.veg_file)
 
     if args.iyix_from_latlon:
 
