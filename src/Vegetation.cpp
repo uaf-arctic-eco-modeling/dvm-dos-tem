@@ -116,7 +116,7 @@ void Vegetation::initializeParameter() {
       vegdimpar.m2[ip] = chtlu->m2[ip];
       vegdimpar.m3[ip] = chtlu->m3[ip];
       vegdimpar.m4[ip] = chtlu->m4[ip];
-    }
+    } 
   }
 }
 
@@ -152,6 +152,29 @@ void Vegetation::initializeState() {
 
       for (int il=0; il<MAX_ROT_LAY; il++) {
         cd->m_veg.frootfrac[il][i] = chtlu->frootfrac[il][i]/100.0; // chtlu - in %
+      }
+    } 
+    else {
+      cd->m_veg.vegcov[i] = 0.0;
+      cd->m_veg.ifwoody[i] = 0.0;
+      cd->m_veg.ifdeciwoody[i] = 0.0;
+      cd->m_veg.ifperenial[i] = 0.0;
+      cd->m_veg.nonvascular[i] = 0.0;
+
+      if (cd->m_veg.nonvascular[i]>0) {  //checking and resetting
+        cd->m_veg.ifwoody[i]     = 0;
+        cd->m_veg.ifdeciwoody[i] = 0;
+        cd->m_veg.ifperenial[i]  = 0;
+      }
+
+      if (cd->m_veg.nonvascular[i] > 0) {
+        cd->hasnonvascular = true;
+      }
+
+      cd->m_veg.lai[i] = 0.0;
+
+      for (int il=0; il<MAX_ROT_LAY; il++) {
+        cd->m_veg.frootfrac[il][i] = 0.0; // chtlu - in %
       }
     }
   }

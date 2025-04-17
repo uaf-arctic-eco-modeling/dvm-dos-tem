@@ -1361,9 +1361,14 @@ void Cohort::cmtChange(const int & currmind){
   // reset cohort data cmt type
   cd.cmttype = temutil::cmtcode2num(chtlu.cmtcode);
 
-  // reinitializing vegetation parameters
+  // reinitializing vegetation parameters - there are several
+  // duplicated function calls and some manual rewrites further
+  // down in this function which would be good to rework and
+  // tidy, but so far this is functioning for vegetation
+  // change.
   chtlu.loadVegetationParams();
   veg.initializeParameter();
+  veg.initializeState();
 
   // reassign pools to new PFTs
   double cpool = 0.0;
@@ -1378,11 +1383,12 @@ void Cohort::cmtChange(const int & currmind){
 
       labnpool += bd[ip].m_vegs.labn;
 
-      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+      // clearing LAI to account for removing PFTs
+      cd.m_veg.lai[ip] = UIN_D;
 
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
         cpool += bd[ip].m_vegs.c[ipp];
         npool += bd[ip].m_vegs.strn[ipp];
-
       }
     }
   }
