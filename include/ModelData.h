@@ -77,6 +77,8 @@ public:
   string fri_fire_file;
   string hist_exp_fire_file;
   string proj_exp_fire_file;
+  string hist_exp_thermokarst_file;
+  string proj_exp_thermokarst_file;
   string soil_texture_file;
   string drainage_file;
   string co2_file;

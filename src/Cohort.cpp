@@ -85,7 +85,8 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
     modeldatapointer->hist_exp_fire_file, this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the thermokarst information.";
-  this->fire = Thermokarst(modeldatapointer->hist_exp_fire_file, this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x);
+  this->thermokarst = Thermokarst(modeldatapointer->hist_exp_thermokarst_file, 
+    this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x);
 
   this->soilenv = Soil_Env();
   
