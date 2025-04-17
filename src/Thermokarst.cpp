@@ -120,12 +120,15 @@ void Thermokarst::set_state_from_restartdata(const RestartData & rdata) {
 
 /** Figure out whether or not there should be thermokarst, based on stage, yr, month.
  *
- *  The data for explicit fire dates are held in data
+ *  The data for explicit thermokarst dates are held in data
  *  members of this (Thermokarst) object. This function looks at those data
  *  and sets the "actual_severity" member accordingly. -- if we end up
  *  using "severity" for thermokarst processes.
  *
-*/
+ *  THIS WOULD BE A PRIME LOCATION TO COUPLE WITH A STATE AND TRANSITION MODEL.
+ *  Alternatively, it might be possible to link this with inputs (ground ice)
+ *  and organic layer thickness (as well as other variables perhaps).
+ */
 bool Thermokarst::should_initiate(const int yr, const int midx, const std::string& stage) { 
 
   BOOST_LOG_SEV(glg, info) << "determining thermokarst initiation for yr:" << yr

@@ -15,6 +15,7 @@
 #include "Soil_Bgc.h"
 
 #include "WildFire.h"
+#include "Thermokarst.h"
 
 #include "CohortData.h"
 
@@ -77,6 +78,7 @@ public :
   Soil_Bgc soilbgc;
 
   WildFire fire;
+  Thermokarst thermokarst;
 
   // data
   EnvData ed[NUM_PFT];
