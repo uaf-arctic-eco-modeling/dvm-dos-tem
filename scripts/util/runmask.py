@@ -9,6 +9,7 @@ import argparse
 import textwrap
 import os
 import numpy as np
+from pathlib import Path
 
 import util.input
 import util.param
@@ -462,11 +463,16 @@ def cmdline_run(args):
 
     sizey, sizex = new_mask.shape
 
-    # (Over) write the file back out
-    with nc.Dataset(mask_file + 'sample.nc', 'w') as nf:
+    # Write the mask back out to a new file.
+    #  This ensures that we retain the original mask for use
+    #  when more parameterizations are available. The user will need
+    #  to replace the mask filename in the config file.
+    mask_path = Path(mask_file)
+    new_maskfile_name = str(mask_path.parent) + '/' + mask_path.stem + '_cmtfilter.nc'
+    with nc.Dataset(new_maskfile_name, 'w') as nf:
       Y = nf.createDimension('Y', sizey)
       X = nf.createDimension('X', sizex)
-      run = nf.createVariable('run', np.int, ('Y', 'X',))
+      run = nf.createVariable('run', int, ('Y', 'X',))
       if args.verbose:
         print(f"Writing mask...{new_mask=}")
       run[:] = new_mask
