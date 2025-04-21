@@ -10,6 +10,7 @@ import textwrap
 import os
 import numpy as np
 from pathlib import Path
+import shutil
 
 import util.input
 import util.param
@@ -469,10 +470,15 @@ def cmdline_run(args):
     #  to replace the mask filename in the config file.
     mask_path = Path(mask_file)
     new_maskfile_name = str(mask_path.parent) + '/' + mask_path.stem + '_cmtfilter.nc'
-    with nc.Dataset(new_maskfile_name, 'w') as nf:
-      Y = nf.createDimension('Y', sizey)
-      X = nf.createDimension('X', sizex)
-      run = nf.createVariable('run', int, ('Y', 'X',))
+
+    # Copy the run mask file instead of creating a new one so that
+    #  it retains all other variables and global attributes.
+    # copyfile() by default overwrites the destination file, so it's
+    #  safe to then use 'append' to open it.
+    shutil.copyfile(mask_file, new_maskfile_name)
+
+    with nc.Dataset(new_maskfile_name, 'a') as nf:
+      run = nf.variables['run']
       if args.verbose:
         print(f"Writing mask...{new_mask=}")
       run[:] = new_mask
