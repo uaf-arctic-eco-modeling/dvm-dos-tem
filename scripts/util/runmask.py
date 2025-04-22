@@ -341,7 +341,7 @@ def cmdline_define():
                            the parameter folder. This will mask out any pixels 
                            whose CMT classification in the  VEG_FILE is not in 
                            the list of available CMTs from the PARAM_FOLDER.
-                           Modifies the run-mask file.'''))
+                           Creates a new run-mask file.'''))
 
   parser.add_argument("--select-only-cmt", metavar=('FOLDER','CMT'), nargs=2,
     help=textwrap.dedent('''Select only pixels with a certain CMT number. This
