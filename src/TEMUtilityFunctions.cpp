@@ -1204,4 +1204,18 @@ namespace temutil {
   template std::vector<float> get_timeseries<float>(const std::string &filename,
       const std::string &var, const int y, const int x);
 
+  void interpolate(value1, value2, interpolator, scale){
+    double interpolated_value;
+
+    if(scale=='linear'){
+      interpolated_value = interpolator * value1 + (1 - interpolator) * value2;
+    } else if (scale=='logarithm'){
+      interpolated_value = pow(value1, interpolator) * pow(value2, 1 - interpolator);
+    } else{
+     print('dont know');
+    }
+
+    return interpolated_value;
+  }
+  
 }
