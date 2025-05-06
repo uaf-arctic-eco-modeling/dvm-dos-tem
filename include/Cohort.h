@@ -22,6 +22,7 @@
 #include "EnvData.h"
 #include "BgcData.h"
 #include "FireData.h"
+#include "ThermokarstData.h"
 
 #include "RestartData.h"
 
@@ -87,7 +88,9 @@ public :
   BgcData * bdall;
 
   FirData year_fd[12]; //Monthly fire data, for all PFTs and soil
-  FirData * fd;   //Fire data for an individual month 
+  FirData * fd;   //Fire data for an individual month
+  // ThermokarstData year_td[12]; // Monthly fire data, for all PFTs and soil
+  // ThermokarstData *td;         // Fire data for an individual month
 
   ModelData * md;
 

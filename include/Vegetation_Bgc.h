@@ -6,6 +6,7 @@
 #include "CohortData.h"
 #include "EnvData.h"
 #include "FireData.h"
+#include "ThermokarstData.h"
 #include "BgcData.h"
 #include "RestartData.h"
 

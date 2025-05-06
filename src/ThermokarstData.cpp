@@ -16,20 +16,20 @@ std::string ThermokarstData::report_to_string(const std::string& msg) {
 
   report << "  " << msg << "  ==== ThermokarstData REPORT ====\n";
   report << "   useThermokarstSeverity: " << useThermokarstSeverity << "\n";
-  report << "   fire_soid.burnthick: " << fire_soid.burnthick << "\n";
+  report << "   thermokarst_soid.burnthick: " << thermokarst_soid.removal_thickness << "\n";
   report << "\n";
-  report << "   fire_v2a.orc: " << fire_v2a.orgc << "\n";
-  report << "   fire_v2a.orn: " << fire_v2a.orgn << "\n";
-  report << "\n";
-  report << "   fire_v2soi.abvc: " << fire_v2soi.abvc << "\n";
-  report << "   fire_v2soi.abvn: " << fire_v2soi.abvn << "\n";
-  report << "   fire_v2soi.blwc: " << fire_v2soi.blwc << "\n";
-  report << "   fire_v2soi.blwn: " << fire_v2soi.blwn << "\n";
-  report << "\n";
-  report << "   fire_soi2a.orgc: " << fire_soi2a.orgc << "\n";
-  report << "   fire_soi2a.orgn: " << fire_soi2a.orgn << "\n";
-  report << "\n";
-  report << "   fire_a2soi.orgn: " << fire_a2soi.orgn << "\n";
+  // report << "   fire_v2a.orc: " << fire_v2a.orgc << "\n";
+  // report << "   fire_v2a.orn: " << fire_v2a.orgn << "\n";
+  // report << "\n";
+  // report << "   fire_v2soi.abvc: " << fire_v2soi.abvc << "\n";
+  // report << "   fire_v2soi.abvn: " << fire_v2soi.abvn << "\n";
+  // report << "   fire_v2soi.blwc: " << fire_v2soi.blwc << "\n";
+  // report << "   fire_v2soi.blwn: " << fire_v2soi.blwn << "\n";
+  // report << "\n";
+  // report << "   fire_soi2a.orgc: " << fire_soi2a.orgc << "\n";
+  // report << "   fire_soi2a.orgn: " << fire_soi2a.orgn << "\n";
+  // report << "\n";
+  // report << "   fire_a2soi.orgn: " << fire_a2soi.orgn << "\n";
 
   return report.str();
 

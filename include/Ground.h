@@ -27,6 +27,7 @@ using namespace std;
 #include "BgcData.h"
 #include "CohortData.h"
 #include "FireData.h"
+#include "ThermokarstData.h"
 #include "RestartData.h"
 
 #include "parameters.h"

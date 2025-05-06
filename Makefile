@@ -78,7 +78,9 @@ SOURCES= 	src/TEM.o \
 		src/OrganicLayer.o \
 		src/ParentLayer.o \
 		src/SnowLayer.o \
-		src/SoilLayer.o
+		src/SoilLayer.o \
+		src/Thermokarst.o \
+		src/ThermokarstData.o 
 
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
@@ -123,7 +125,9 @@ OBJECTS =	ArgHandler.o \
 		ParentLayer.o \
 		SnowLayer.o \
 		SoilLayer.o \
-		TemperatureUpdator.o
+		TemperatureUpdator.o \
+		Thermokarst.o \
+		ThermokarstData.o
 
 
 GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)

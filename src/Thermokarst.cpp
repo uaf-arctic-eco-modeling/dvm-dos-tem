@@ -48,10 +48,10 @@ Thermokarst::Thermokarst(const std::string &exp_fname, const double cell_slope,
   #pragma omp critical(load_input)
   {
     BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
-    this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_mask", y, x);
-    this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_severity", y, x);
-    this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_thermokarst", y, x);
-    this->exp_area_of_burn = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_thermokarst", y, x);
+    this->exp_thermokarst_mask = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_mask", y, x);
+    this->exp_thermokarst_severity = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_severity", y, x);
+    this->exp_jday_of_thermokarst = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_thermokarst", y, x);
+    this->exp_area_of_thermokarst = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_thermokarst", y, x);
   } 
 
   this->slope = cell_slope;
@@ -169,7 +169,7 @@ void Thermokarst::initiate(int year) {
   // changing burn to thermokarst, referring to OL soil
   // lost through thermokarst disturbance (either slump or
   // detachment).
-  double thermokarstdepth = getThermokarstOrgSoilthick(year);
+  double thermokarstdepth = getThermokarstOrgSoilRemoval(year);
 
   BOOST_LOG_SEV(glg, debug) << td->report_to_string("After Thermokarst::getThermokarstOrgSoilthick(..)");
 
@@ -261,14 +261,14 @@ void Thermokarst::initiate(int year) {
       BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really burn non-organic layers.";
 
       if(totbotdepth <= thermokarstdepth) { //may not be needed, but just in case
-        BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= thermokarstdepth, so we are setting td->thermokarst_soid.thermokarstthick = totbotdepth??";
-        td->thermokarst_soid.thermokarstthick = totbotdepth;
+        BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= thermokarstdepth, so we are setting td->thermokarst_soid.removal_thickness = totbotdepth??";
+        td->thermokarst_soid.removal_thickness = totbotdepth;
       }
     }
   } // end soil layer loop
 
   //Setting relative organic layer removed (rolr) value
-  td->thermokarst_soid.rolr = td->thermokarst_soid.thermokarstthick / totbotdepth;
+  td->thermokarst_soid.rolr = td->thermokarst_soid.removal_thickness / totbotdepth;
 
   // needs to re-do the soil rootfrac for each pft which was modified above
   //   (in burn soil layer)
@@ -484,7 +484,7 @@ void Thermokarst::initiate(int year) {
 // degradation perhaps we can consider a drowning or flooding pool.
 
 // above ground burning ONLY, based on fire severity indirectly or directly
-void WildFire::getThermokarstAbgVegetation(const int ipft, const int year) {
+void Thermokarst::getThermokarstAbgVegetation(const int ipft, const int year) {
   
   // BOOST_LOG_SEV(glg, info) << "Lookup the above ground vegetation burned as a funciton of severity.";
   // BOOST_LOG_SEV(glg, info) << " - Set the ratios for 'burn to above ground C,N' and 'dead to above ground C,N' member variables.";
@@ -516,7 +516,7 @@ void WildFire::getThermokarstAbgVegetation(const int ipft, const int year) {
   //   this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
   // }
 
-  double fraction_veg_removed = 0.9
+  double fraction_veg_removed = 0.9;
 
   // this->r_thermokarst2ag_cn = firpar.fvcomb[exp_severity_idx][ipft];
   // this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
@@ -668,7 +668,7 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
   // writing out what we THINK these will be named
   BOOST_LOG_SEV(glg, debug) << "Setting the organic thickness removed in ThermokarstData...";
   // >>> need to name td, and thermokarst_soid.removal_thickness
-  fd->fire_soid.burnthick = removal_thickness;
+  td->thermokarst_soid.removal_thickness = removal_thickness;
 
   BOOST_LOG_SEV(glg, info) << "Final calculated organic thickness removed: " << removal_thickness;
   return removal_thickness;
