@@ -78,7 +78,9 @@ SOURCES= 	src/TEM.o \
 		src/OrganicLayer.o \
 		src/ParentLayer.o \
 		src/SnowLayer.o \
-		src/SoilLayer.o
+		src/SoilLayer.o \
+		src/Thermokarst.o \
+		src/ThermokarstData.o 
 
 OBJECTS =	ArgHandler.o \
 		TEMLogger.o \
@@ -123,7 +125,9 @@ OBJECTS =	ArgHandler.o \
 		ParentLayer.o \
 		SnowLayer.o \
 		SoilLayer.o \
-		TemperatureUpdator.o
+		TemperatureUpdator.o \
+		Thermokarst.o \
+		ThermokarstData.o
 
 
 # Set if not set from environment or command line...

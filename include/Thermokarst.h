@@ -91,14 +91,14 @@ private:
 
   bool fri_derived;
 
-  std::vector<int> exp_burn_mask;
-  std::vector<int> exp_jday_of_burn;
-  std::vector<int> exp_fire_severity;
-  std::vector<int64_t> exp_area_of_burn;
+  std::vector<int> exp_thermokarst_mask;
+  std::vector<int> exp_jday_of_thermokarst;
+  std::vector<int> exp_thermokarst_severity;
+  std::vector<int64_t> exp_area_of_thermokarst;
 
 
 
-  // firepar_bgc firpar; // >>> Need to address these somewhere else in data structures
+  firepar_bgc firpar; // >>> Need to address these somewhere else in data structures
 
   double folr;           // Fraction Organic Layer Removed
   double r_live_cn;      // Ratio of living veg. after thermokarst
@@ -114,7 +114,7 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  double getThermokarstOrgSoilthick(const int year);
+  double getThermokarstOrgSoilRemoval(const int year);
   void getThermokarstAbgVegetation(const int ipft, const int year);
 
 };

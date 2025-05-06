@@ -764,7 +764,7 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
   BOOST_LOG_NAMED_SCOPE("dsb");
 
   updateMonthly_Fir(yrind, currmind, stage);
-  updateMonthly_Thermokarst(yrind, currmind, stage);
+  // updateMonthly_Thermokarst(yrind, currmind, stage);
 
   //updateMonthly_Flood(...)
 }

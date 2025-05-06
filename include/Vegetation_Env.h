@@ -11,6 +11,7 @@
 #include "CohortData.h"
 #include "EnvData.h"
 #include "FireData.h"
+#include "ThermokarstData.h"
 #include "RestartData.h"
 
 class Vegetation_Env {
