@@ -71,6 +71,7 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> somrawc_for_output;
 
   std::vector<double> soc_tot_for_output;
+  std::vector<double> soc_0_30_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> soc_for_output;
 
   std::vector<double> avln_tot_for_output;

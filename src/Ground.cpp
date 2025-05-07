@@ -2398,6 +2398,49 @@ void Ground::cleanRockLayers() {
 }
 
 
+/*
+ *
+ */
+double Ground::getCarbonForDepthRange(double upperz, double lowerz){
+
+  if(lowerz < upperz){
+    BOOST_LOG_SEV(glg, fatal) << "Invalid order of depths";
+  }
+
+  double accumulatedC = 0.0;
+
+  //Ignore moss?
+  Layer *currl = fstshlwl;
+
+  while(!currl->isRock){
+    double currl_bottom = currl->z + currl->dz;
+    // If the layer contains the upper boundary
+//    if((upperz > currl->dz) && (upperz < currl_bottom)){
+//
+//    }
+    // If the layer is fully within the upper and lower boundary range
+
+    // If the layer contains both upper and lower boundaries
+
+    // If the layer is fully above the lower boundary
+    if(currl_bottom <= lowerz){
+      double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+      accumulatedC += layerC;
+    }
+    // If the layer contains the lower boundary
+    else if((lowerz > currl->z) && (lowerz < currl_bottom)){
+      // Calculate percentage of carbon in the layer above the lower bound
+      double layerpercent = (lowerz - currl->z) / currl->dz;
+      double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+      accumulatedC += layerpercent * layerC;
+    }
+
+    currl = currl->nextl;
+  }
+
+  return accumulatedC;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 void Ground::setBgcData(BgcData *bdp){

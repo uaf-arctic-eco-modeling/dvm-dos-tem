@@ -86,6 +86,7 @@ SNOWLAYERTEMP,Snow temperature by layer,degree_C,,,invalid,invalid,invalid,force
 SNOWSTART,DOY of first snow fall,DOY,,invalid,invalid,invalid,invalid,invalid,int,
 SNOWTHICK,Snow pack thickness,m,,,,invalid,invalid,invalid,double,
 SOC,Soil organic C total,g/m2,,,invalid,invalid,invalid,,double,
+SOC0_30,Soil organic C from 0cm to 30cm,g/m2,,,invalid,invalid,invalid,invalid,double,
 SOCFROZEN,Soil organic C frozen (if yearly Dec. only),g/m2,,,invalid,invalid,invalid,invalid,double,
 SOCUNFROZEN,Soil organic C unfrozen (if yearly Dec. only),g/m2,,,invalid,invalid,invalid,invalid,double,
 SOMA,Soil organic C active,g/m2,,,invalid,invalid,invalid,,double,
