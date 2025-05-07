@@ -140,6 +140,8 @@ public :
   //
   void checkWaterValidity();
 
+  double getCarbonForDepthRange(double topz, double bottomz);
+
 private :
 
   bool rocklayercreated;
