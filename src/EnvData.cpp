@@ -359,7 +359,7 @@ void EnvData::grnd_beginOfDay() {
 /////////////////////////////////////////////////////////////////////////
 // at end of day, accumulate/average daily to monthly
 // accumulate fluxes, average state and diagnostics
-void EnvData::atm_endOfDay(const int & dinm) {
+void EnvData::atm_endOfDay(const int & dinm, const int & dayidx) {
   //states/dignostics
   m_atms.ta   += d_atms.ta/dinm;
   m_atms.co2  += d_atms.co2/dinm;
@@ -387,8 +387,8 @@ void EnvData::atm_endOfDay(const int & dinm) {
   m_l2a.pet += d_l2a.pet;
 
   //Store daily values for netCDF output
-  daily_eet[dinm] = d_l2a.eet;
-  daily_pet[dinm] = d_l2a.pet;
+  daily_eet[dayidx] = d_l2a.eet;
+  daily_pet[dayidx] = d_l2a.pet;
 };
 
 void EnvData::veg_endOfDay(const int & dinm) {
