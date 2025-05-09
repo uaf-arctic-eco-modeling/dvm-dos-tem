@@ -175,11 +175,11 @@
 0.5          0.5          0.5          0             0.0          0.0          0.0          0.0          0.0          0.0         // er: light extinction coefficient
 0.041        0.041        0.041        0.041         0.0          0.0          0.0          0.0          0.0          0.0         // ircoef: rainfall interception
 0.041        0.041        0.041        0.041         0.0          0.0          0.0          0.0          0.0          0.0         // iscoef: snow interception
-0.006        0.006        0.006        0.006         0.0          0.0          0.0          0.0          0.0          0.0         // glmax: max. canopy conductance (m/s)
-0.04	     0.02	      0.04	       0.02          0.0          0.0          0.0          0.0          0.0          0.0         // gl_bl: boundary layer conductance
-0.00006      0.00006      0.00006      0.00006       0.0          0.0          0.0          0.0          0.0          0.0         // gl_c:  cuticular conductance
-970          970          1000         970           0.0          0.0          0.0          0.0          0.0          0.0         // vpd_open:  vpd (pa) for leaf stomata fully openness
-4100         4100         4100         4100          0.0          0.0          0.0          0.0          0.0          0.0         // vpd_close: vpd (pa) for leaf stomata fully closure
+0.005        0.005        0.005        0.005         0.0          0.0          0.0          0.0          0.0          0.0         // glmax: max. canopy conductance (m/s)
+0.04	     0.02	      0.04	       0.02          0.0          0.0          0.0          0.0          0.0          0.0         // glbl: boundary layer conductance
+0.00006      0.00006      0.00006      0.00006       0.0          0.0          0.0          0.0          0.0          0.0         // glc:  cuticular conductance
+970          970          1000         970           0.0          0.0          0.0          0.0          0.0          0.0         // vpdopen:  vpd (pa) for leaf stomata fully openness
+4100         4100         4100         4100          0.0          0.0          0.0          0.0          0.0          0.0         // vpdclose: vpd (pa) for leaf stomata fully closure
 75           75           75           75            0.0          0.0          0.0          0.0          0.0          0.0         // ppfd50:
 0.0          0.0          0.0          0.0           0.0          0.0          0.0          0.0          0.0          0.0         // initvegwater: initial intercepted rain water in canopy
 0.0          0.0          0.0          0.0           0.0          0.0          0.0          0.0          0.0          0.0         // initvegsnow: initial intercepted snow water in canopy

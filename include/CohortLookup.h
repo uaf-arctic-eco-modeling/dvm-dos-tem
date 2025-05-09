@@ -71,6 +71,8 @@ public:
   double oxidkm_ch4;
   double oxidVmax_ch4;
 
+  double rhmoist;
+
   double max_ponding_s;
   double max_ponding_w;
   double inflow_factor;

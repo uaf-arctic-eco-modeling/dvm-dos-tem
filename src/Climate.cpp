@@ -716,8 +716,10 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
     // Spin-up, Transient, Scenario
     // Uses the same value of CO2 every day of the year
     co2_d = co2.at(iy);
-
-    ch4_d = ch4.at(iy);
+    ch4_d = 0;
+    if (!ch4.empty()){
+      ch4_d = ch4.at(iy);
+    }
 
     // Create daily data by interpolating
     // straight up interpolated....

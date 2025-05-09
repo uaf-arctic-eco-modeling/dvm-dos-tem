@@ -446,7 +446,7 @@
 0.0	         0.9767043623  1.041604278  0.1257017205  0.00         0.0          0.00         0.00         0.00         0.00        // initvegnr: UPDATEDX
 0.0          0.00         0.00         0.00          0.00         0.00         0.00         0.00         0.00         0.00        // initdeadc: IGNOREX
 0.0          0.00         0.00         0.00          0.00         0.00         0.00         0.00         0.00         0.00        // initdeadn: IGNOREX
-0.200000     0.200000     0.800000     0.200000     0.500000     0.200000     0.00         0.00         0.00         0.00        // transport capacity: efficiency of each PFT to passively transport CH4
+0.200000     0.200000     0.800000     0.200000      0.00         0.00         0.00         0.00         0.00         0.00        // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:

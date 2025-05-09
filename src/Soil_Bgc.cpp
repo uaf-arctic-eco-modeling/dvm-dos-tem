@@ -373,7 +373,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // frac_ebul will be equal >0.05 at 1m depth. For 0.7 porosity (i.e humic-
         // mineral) frac_ebul will be equal to <0.02 at 1m depth. This can be
         // adjusted and may need to be a parameter.
-        double frac_ebul = exp(- 3 * (currl->z / currl->poro));
+        double frac_ebul = exp(-(currl->z/currl->poro));
         ebul_efflux = frac_ebul * ebul;
         currl->ch4 -= ebul;
         wtlayer->ch4 += ebul - ebul_efflux;
@@ -418,7 +418,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         plant += 0.5 * pft_transport[ip];
 
         //Storing plant transport values for output
-        bd->d_soi2a.ch4_transport[il][ip] = pft_transport[ip];
+        bd->d_soi2a.ch4_transport[il][ip] = 0.5 * pft_transport[ip] * convert_umolL_to_gm2;
       }
 
       // unit conversion
@@ -991,6 +991,7 @@ void Soil_Bgc::initializeParameter() {
   calpar.oxidTref_ch4 = chtlu->oxidTref_ch4;
   calpar.oxidkm_ch4 = chtlu->oxidkm_ch4;
   calpar.oxidVmax_ch4 = chtlu->oxidVmax_ch4;
+  calpar.rhmoist = chtlu->rhmoist;
   // bgcpar.rhq10      = chtlu->rhq10; moved to calparbgc for ch4 calibration and testing
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
@@ -1210,7 +1211,7 @@ void Soil_Bgc::deltac() {
     //HG: 01122023 - this condition allows for winter respiration
     //(Natali et al. 2019, Nature Climate Change)
     if (ed->m_sois.ts[il] <0.) {
-      bd->m_soid.rhmoist[il] = 1;
+      bd->m_soid.rhmoist[il] = calpar.rhmoist;
     } else {
       // Yuan: vwc normalized by total pore - this will allow
       // respiration (methane/oxidation) implicitly
