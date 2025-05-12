@@ -168,6 +168,8 @@ def cmdline_run(args):
   config['IO']['fri_fire_file']        = os.path.join(input_data_path, 'fri-fire.nc')
   config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, 'historic-explicit-fire.nc')
   config['IO']['proj_exp_fire_file']   = os.path.join(input_data_path, 'projected-explicit-fire.nc')
+  config['IO']['hist_exp_thermokarst_file']   = os.path.join(input_data_path, 'historic-explicit-thermokarst.nc')
+  config['IO']['proj_exp_thermokarst_file']   = os.path.join(input_data_path, 'projected-explicit-thermokarst.nc')
 
   # Make sure calibration data ends up in a directory that is named the same
   # as your new working directory.
@@ -192,6 +194,8 @@ def cmdline_run(args):
     "fri_fire_file",
     "hist_exp_fire_file",
     "proj_exp_fire_file",
+    "hist_exp_thermokarst_file",
+    "proj_exp_thermokarst_file",
     "topo_file",
     "runmask_file",
 
