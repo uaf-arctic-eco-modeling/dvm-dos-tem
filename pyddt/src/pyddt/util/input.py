@@ -58,8 +58,8 @@ def check_input_set_existence(in_folder):
   None
   '''
   required_files = set(['co2.nc', 'drainage.nc', 'fri-fire.nc', 
-      'historic-climate.nc', 'historic-explicit-fire.nc',
-      'projected-climate.nc', 'projected-explicit-fire.nc', 'run-mask.nc',
+      'historic-climate.nc', 'historic-explicit-fire.nc', 'historic-explicit-thermokarst.nc',
+      'projected-climate.nc', 'projected-explicit-fire.nc', 'projected-explicit-thermokarst.nc', 'run-mask.nc',
       'soil-texture.nc', 'topo.nc', 'vegetation.nc'])
 
   files = set([f for f in os.listdir(in_folder) if os.path.isfile(os.path.join(in_folder, f))])
