@@ -372,11 +372,19 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
     cd.beginOfYear();
 
-    if(>x_years_from_disturbance){ // come up with a way of working out if dsb has occurred... 
-      interpolateSoilParameters(); // variable DISTURBANCE_HAS_HAPPENED?
-                                   // LAST_DISTURBANCE_MNTH == -9999
-                                   // LAST_DISTURBANCE_YEAR == -9999
-    }
+    // if(>x_years_from_disturbance){ // come up with a way of working out if dsb has occurred... 
+    //   interpolateSoilParameters(); // variable DISTURBANCE_HAS_HAPPENED?
+    //                                // LAST_DISTURBANCE_MNTH == -9999
+    //                                // LAST_DISTURBANCE_YEAR == -9999
+    // }
+    // updateDSB record somewhere maybe runnner that a disturbance has happened
+    // if we record year and month of disturbance (will need to compare both)
+    // Do we need to track multiple disturbance (many years and months)
+    // OR most recent disturbance (just months)
+    // we want to know how long since disturbance for interpolation
+    // IF we store year and month of disturbance
+    // initialize to an invalid value or track both year and month of disturbance
+    // 
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
@@ -1361,7 +1369,7 @@ void Cohort::getBd4allveg_monthly() {
 void Cohort::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT03";
+  std::string new_cmt = "CMT3";
 
   // Load relevant parameters from new CMT
   chtlu.cmtcode = new_cmt;
@@ -1511,9 +1519,8 @@ void Cohort::cmtChange(const int & currmind){
   // load soil parameters
   // chtlu.loadSoilParams();
 
-
-
-
+  std::cout << temutil::interpolate(1, 2, 5, 10, 7, I_LINEAR);
+  std::cout << temutil::interpolate(1, 2, 5, 10000, 7000, I_LOG10);
 
   /*
 
@@ -1541,18 +1548,18 @@ void Cohort::cmtChange(const int & currmind){
 /*
  * Interpolating soil parameters following cmt change
  */
-void Cohort::interpolateSoilParameters(){
+// void Cohort::interpolateSoilParameters(){
 
-  int tsd = this->cd.yrsdist;
+//   int tsd = this->cd.yrsdist;
 
-  this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive.oldkdc, chtlu->newkdc, tsd/n_years, 'linear');
+//   this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive.oldkdc, chtlu->newkdc, tsd/n_years, I_LINEAR);
 
-  /*
+//   /*
 
-  kdc_int = (tsd / nyears) * kdc_new + (1 - tsd / nyears) * kdc_old;
+//   kdc_int = (tsd / nyears) * kdc_new + (1 - tsd / nyears) * kdc_old;
 
-  */
-}
+//   */
+// }
 
   /** Synchronizes Cohort and CohortData's internal fields from the
    * RestartData object.
