@@ -11,7 +11,7 @@
             "program": "/work/dvmdostem",
             "args": ["-l", "fatal", "-p", "2", "-e", "2", "-s", "2", "-t", "2", "-n", "2"],
             "stopAtEntry": false,
-            "cwd": "/work/",
+            "cwd": "/data/workflows/thermokarst/init",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
