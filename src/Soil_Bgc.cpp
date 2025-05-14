@@ -436,7 +436,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters.
       // Plant is added here to account for 50% rhizospheric oxidation in the same layer
-      oxid = (1 - saturated_fraction) * (calpar.oxidkm_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidVmax_ch4 + currl->ch4)) + plant;
+      oxid = (1 - saturated_fraction) * (calpar.oxidVmax_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidkm_ch4 + currl->ch4)) + plant;
 
       if (oxid < 0.000001){
         oxid = 0.0;
