@@ -233,8 +233,8 @@ atmospheric or oceanic models, focusing instead on land surface processes.
 LANDIS and iLand emphasize forest dynamics with some interaction between grid
 cells, while `DVMDOSTEM` does not model interaction between grid cells. While
 `DVMDOSTEM` contains detailed representations of vegetation - multiple Plant
-Functional Types and individual compartments within Plant Functional Types
-(PFTs) - it also has the concept of community types (collections of PFTs and
+Functional Types (PFTs) and individual compartments within PFTs - it also has 
+the concept of community types (collections of PFTs and
 soil properties) and is designed to run at the landscape scale by representing
 more than a single stand of trees or a single forest type. `DVMDOSTEM` is unique
 in its detailed representation of high latitude processes, particularly the
