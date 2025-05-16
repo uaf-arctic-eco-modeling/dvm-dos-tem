@@ -372,6 +372,10 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
     cd.beginOfYear();
 
+    if(cd.dsbinterpolation){
+      interpolateSoilParameters();
+    }
+
     // if(>x_years_from_disturbance){ // come up with a way of working out if dsb has occurred... 
     //   interpolateSoilParameters(); // variable DISTURBANCE_HAS_HAPPENED?
     //                                // LAST_DISTURBANCE_MNTH == -9999
@@ -385,6 +389,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
     // IF we store year and month of disturbance
     // initialize to an invalid value or track both year and month of disturbance
     // 
+    // months since disturbance!
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
@@ -779,6 +784,7 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
      && fire.getSeverity(yrind) >= 1 // we may this to be based on remaining OLT
      && cd.mthsdist == 0){
     cmtChange(currmind);
+    cd.dsbinterpolation = true;
   }
 }
 
@@ -1515,9 +1521,10 @@ void Cohort::cmtChange(const int & currmind){
   // SOILS
 
   // store / archive old soil params
+  chtlu.archiveSoilParams();
 
   // load soil parameters
-  // chtlu.loadSoilParams();
+  chtlu.loadSoilParams();
 
   std::cout << temutil::interpolate(1, 2, 5, 10, 7, I_LINEAR);
   std::cout << temutil::interpolate(1, 2, 5, 10000, 7000, I_LOG10);
@@ -1548,18 +1555,32 @@ void Cohort::cmtChange(const int & currmind){
 /*
  * Interpolating soil parameters following cmt change
  */
-// void Cohort::interpolateSoilParameters(){
+void Cohort::interpolateSoilParameters(){
 
-//   int tsd = this->cd.yrsdist;
+  int tsd = this->cd.yrsdist;
+  // maximum number of years to finish transitioning
+  // to new parameters (likely kdcsomcr will take longest)
+  int max_n_years = 1000;
+  if(tsd<max_n_years){
+    // interpolating between initial parameter, new parameter, 
+    // with years being 0 immediately following disturbance and
+    // for this parameter (e.g. kdc) transition to new parameter
+    // will take 5 years. tsd is used as the interpolation position
+    // during this time, with a linear method.
+    this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive_soical_params.kdcrawc, chtlu->kdcrawc, 0, 5, tsd, I_LINEAR);
+    // WE MAY WANT TO DO A CHECK FOR GIVEN PARAMETERS TO DETERMINE
+    // THE MAGNITITUDE DIFFERENCE AND WHETHER WE SHOULD USE A
+    // LOG METHOD
+  } else{
+    cd.dsbinterpolation = false;
+  }
+  
+  /*
 
-//   this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive.oldkdc, chtlu->newkdc, tsd/n_years, I_LINEAR);
+  kdc_int = (tsd / nyears) * kdc_new + (1 - tsd / nyears) * kdc_old;
 
-//   /*
-
-//   kdc_int = (tsd / nyears) * kdc_new + (1 - tsd / nyears) * kdc_old;
-
-//   */
-// }
+  */
+}
 
   /** Synchronizes Cohort and CohortData's internal fields from the
    * RestartData object.

@@ -67,10 +67,26 @@ void CohortLookup::loadSoilParams() {
   assignBgc4Ground(dir);
 }
 
+/*
+ * This archives current chtlu parameter values
+ * to structs for interpolation after cmt change 
+**/
+void CohortLookup::archiveSoilParams(){
+  archive_soical_params.micbnup = this->micbnup;
+  archive_soical_params.kdcrawc = this->kdcrawc;
+  archive_soical_params.kdcsoma = this->kdcsoma;
+  archive_soical_params.kdcsompr = this->kdcsompr;
+  archive_soical_params.kdcsomcr = this->kdcsomcr;
+
+  
+
+}
+
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file,
  * but only for one cmt type which ever one "this->cmtcode" refers to..
  */
-std::string CohortLookup::calparbgc2str() {
+std::string CohortLookup::calparbgc2str()
+{
   std::stringstream s("");
   s << "CMT code: " << this->cmtcode << "\n";
 
@@ -167,7 +183,6 @@ std::string CohortLookup::calparbgc2str() {
   s << this->kdcsomcr << "// kdcsomcr:\n";
   return s.str();
 }
-
 
 /** Set calibrated BCG parameters based on values in file. */
 void CohortLookup::assignBgcCalpar(std::string & dircmt) {
