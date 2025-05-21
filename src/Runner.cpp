@@ -5720,6 +5720,43 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //Soil temperature at 30cm
+  map_itr = netcdf_outputs.find("TSOIL_30cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: TSOIL_30cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputTSOIL_30cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_tsoil_30 = cohort.ground.getTempAtDepth(0.3);
+        outhold.tsoil_30_for_output.push_back(m_tsoil_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_30_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.tsoil_30_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_tsoil_30 = cohort.ground.getTempAtDepth(0.3);
+        outhold.tsoil_30_for_output.push_back(y_tsoil_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_30_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.tsoil_30_for_output.clear();
+        }
+
+      }
+    } //end critical(outputTSOIL_30cm)
+  } //end TSOIL_30cm
+  map_itr = netcdf_outputs.end();
+
+
   //VEGC
   map_itr = netcdf_outputs.find("VEGC");
   if(map_itr != netcdf_outputs.end()){
