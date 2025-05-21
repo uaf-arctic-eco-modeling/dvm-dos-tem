@@ -2405,7 +2405,7 @@ void Ground::cleanRockLayers() {
 double Ground::getCarbonForDepthRange(double upperz, double lowerz){
 
   if(lowerz < upperz){
-    BOOST_LOG_SEV(glg, fatal) << "Invalid order of depths";
+    BOOST_LOG_SEV(glg, fatal) << "getCarbon, invalid order of depths";
   }
 
   double accumulatedC = 0.0;
@@ -2454,6 +2454,61 @@ double Ground::getCarbonForDepthRange(double upperz, double lowerz){
 
   return accumulatedC;
 }
+
+
+/* Returns the total VWC between two depths in the soil stack.
+ *
+ * Provide parameters as meters (i.e. 0.1 for 10 cm)
+ */
+double Ground::getVWCForDepthRange(double upperz, double lowerz){
+
+  if(lowerz < upperz){
+    BOOST_LOG_SEV(glg, fatal) << "getVWC, invalid order of depths";
+  }
+
+  double accumulatedVWC = 0.0;
+
+  //Ignore moss and start with the first fibric layer
+  Layer *currl = fstshlwl;
+
+  while(!currl->isRock){
+    double currl_bottom = currl->z + currl->dz;
+
+    // If the layer contains the upper boundary
+    if((upperz > currl->dz) && (upperz < currl_bottom)){
+
+      // If the layer also contains the lower boundary
+      if(lowerz < currl_bottom){
+
+        // Calculate percentage of VWC between boundaries
+        double layerpercent = (lowerz - upperz) / currl->dz;
+        accumulatedVWC += layerpercent * currl->getVolWater();
+        break;
+      }
+      // Layer does not contain lower boundary
+      else{
+        // Calculate percentage of VWC below upper bound
+        double layerpercent = (currl_bottom - upperz) / currl->dz;
+        accumulatedVWC += layerpercent * currl->getVolWater();
+      }
+    }
+    // If the layer is fully within the upper and lower boundary range
+    else if((currl->z > upperz) && (currl_bottom <= lowerz)){
+      accumulatedVWC += currl->getVolWater();
+    }
+    // If the layer contains the lower boundary
+    else if((lowerz > currl->z) && (lowerz < currl_bottom)){
+      // Calculate percentage of VWC in the layer above the lower bound
+      double layerpercent = (lowerz - currl->z) / currl->dz;
+      accumulatedVWC += layerpercent * currl->getVolWater();
+    }
+
+    currl = currl->nextl;
+  }
+
+  return accumulatedVWC;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 

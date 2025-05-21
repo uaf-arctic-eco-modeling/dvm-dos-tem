@@ -141,6 +141,7 @@ public :
   void checkWaterValidity();
 
   double getCarbonForDepthRange(double topz, double bottomz);
+  double getVWCForDepthRange(double topz, double bottomz);
 
 private :
 

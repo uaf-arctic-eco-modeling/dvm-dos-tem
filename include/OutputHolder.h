@@ -82,6 +82,8 @@ public:
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> lwclayer_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
+
+  std::vector<double> vwc_0_30_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
   std::vector<std::array<double, MAX_SNW_LAY>> snowlayerdz_for_output;
