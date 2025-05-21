@@ -2510,6 +2510,47 @@ double Ground::getVWCForDepthRange(double upperz, double lowerz){
 }
 
 
+/* Returns the interpolated temperature at a specified depth in
+ *  the soil stack.
+ *
+ * Provide parameter as meters (i.e. 0.1 for 10 cm)
+ */
+double Ground::getTempAtDepth(double temperaturez){
+
+  double requested_temp = UIN_D;
+
+  //Ignore moss and start with the first fibric layer
+  Layer *currl = fstshlwl;
+
+  while(!currl->isRock){
+    double currl_bottom = currl->z + currl->dz;
+    // Assumes that the layer temperature is at the middle of the layer
+    double currl_mid = currl->z + (currl->dz / 2);
+
+    // If the temperature point is in the upper half of the layer
+    if((temperaturez > currl->z) && (temperaturez < currl_mid)){
+      // Find midpoint (temperature location) of previous layer
+      double prevl_mid = currl->z - (currl->prevl->dz / 2);
+      requested_temp = temutil::interpolate(currl->prevl->tem, currl->tem,
+                                            prevl_mid, currl_mid,
+                                            temperaturez, I_LINEAR);
+    }
+    // If the temperature point is in the bottom half of the layer
+    else if((temperaturez > currl_mid) && (temperaturez < currl_bottom)){
+      // Find midpoint (temperature location) of next layer
+      double nextl_mid = currl_bottom + (currl->nextl->dz / 2);
+      requested_temp = temutil::interpolate(currl->tem, currl->nextl->tem,
+                                            currl_mid, nextl_mid,
+                                            temperaturez, I_LINEAR);
+    }
+
+    currl = currl->nextl;
+  }
+
+  return requested_temp;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 void Ground::setBgcData(BgcData *bdp){
