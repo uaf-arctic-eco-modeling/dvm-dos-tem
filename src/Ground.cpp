@@ -2398,8 +2398,9 @@ void Ground::cleanRockLayers() {
 }
 
 
-/*
+/* Returns the total carbon pool between two depths in the soil stack.
  *
+ * Provide parameters as meters (i.e. 0.1 for 10 cm)
  */
 double Ground::getCarbonForDepthRange(double upperz, double lowerz){
 
@@ -2409,21 +2410,34 @@ double Ground::getCarbonForDepthRange(double upperz, double lowerz){
 
   double accumulatedC = 0.0;
 
-  //Ignore moss?
+  //Ignore moss and start with the first fibric layer
   Layer *currl = fstshlwl;
 
   while(!currl->isRock){
     double currl_bottom = currl->z + currl->dz;
+
     // If the layer contains the upper boundary
-//    if((upperz > currl->dz) && (upperz < currl_bottom)){
-//
-//    }
+    if((upperz > currl->dz) && (upperz < currl_bottom)){
+
+      // If the layer also contains the lower boundary
+      if(lowerz < currl_bottom){
+
+        // Calculate percentage of carbon pool between boundaries
+        double layerpercent = (lowerz - upperz) / currl->dz;
+        double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+        accumulatedC += layerpercent * layerC;
+        break;
+      }
+      // Layer does not contain lower boundary
+      else{
+        // Calculate percentage of carbon pool below upper bound
+        double layerpercent = (currl_bottom - upperz) / currl->dz;
+        double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+        accumulatedC += layerpercent * layerC;
+      }
+    }
     // If the layer is fully within the upper and lower boundary range
-
-    // If the layer contains both upper and lower boundaries
-
-    // If the layer is fully above the lower boundary
-    if(currl_bottom <= lowerz){
+    else if((currl->z > upperz) && (currl_bottom <= lowerz)){
       double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
       accumulatedC += layerC;
     }

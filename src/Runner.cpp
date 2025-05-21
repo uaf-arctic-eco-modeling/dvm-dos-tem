@@ -4886,26 +4886,39 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
 
   //SOC from 0cm to 30cm
-  map_itr = netcdf_outputs.find("SOC0_30");
+  map_itr = netcdf_outputs.find("SOC0_30cm");
   if (map_itr != netcdf_outputs.end()) {
-    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_30";
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_30cm";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputSOC0_30)
+    #pragma omp critical(outputSOC0_30cm)
     {
-      double m_soc_0_30 = cohort.ground.getCarbonForDepthRange(0.0, 0.3);
 
-      if(curr_spec.monthly)
+      //Monthly
+      if(curr_spec.monthly){
 
+        double m_soc_0_30 = cohort.ground.getCarbonForDepthRange(0.0, 0.3);
         outhold.soc_0_30_for_output.push_back(m_soc_0_30);
 
         if (output_this_timestep) {
           output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_30_for_output[0], 1, month_start_idx, months_to_output);
           outhold.soc_0_30_for_output.clear();
         }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
 
-    } //end critical(outputSOC0_30)
-  } //end SOC0_30
+        double y_soc_0_30 = cohort.ground.getCarbonForDepthRange(0.0, 0.3);
+        outhold.soc_0_30_for_output.push_back(y_soc_0_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_30_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_30_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_30cm)
+  } //end SOC0_30cm
   map_itr = netcdf_outputs.end();
 
 
