@@ -1526,8 +1526,8 @@ void Cohort::cmtChange(const int & currmind){
   // load soil parameters
   chtlu.loadSoilParams();
 
-  std::cout << temutil::interpolate(1, 2, 5, 10, 7, I_LINEAR);
-  std::cout << temutil::interpolate(1, 2, 5, 10000, 7000, I_LOG10);
+  // std::cout << temutil::interpolate(1, 2, 5, 10, 7, I_LINEAR);
+  // std::cout << temutil::interpolate(1, 2, 5, 10000, 7000, I_LOG10);
 
   /*
 
@@ -1561,18 +1561,31 @@ void Cohort::interpolateSoilParameters(){
   // maximum number of years to finish transitioning
   // to new parameters (likely kdcsomcr will take longest)
   int max_n_years = 1000;
-  if(tsd<max_n_years){
+  if(tsd<=max_n_years){
+
     // interpolating between initial parameter, new parameter, 
     // with years being 0 immediately following disturbance and
     // for this parameter (e.g. kdc) transition to new parameter
     // will take 5 years. tsd is used as the interpolation position
     // during this time, with a linear method.
-    this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive_soical_params.kdcrawc, chtlu->kdcrawc, 0, 5, tsd, I_LINEAR);
+
+    if(tsd<=5){ //NOTE: probably a better way of doing this... maybe a </> check in the method
+      this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive_soical_params.kdcrawc, chtlu->kdcrawc, 0, 5, tsd, I_LINEAR);
+    } else if(tsd<=50){
+      this->soilbgc.calpar.kdcsoma = interpolate(chtlu->archive_soical_params.kdcsoma, chtlu->kdcsoma, 0, 50, tsd, I_LINEAR);
+    } else if(tsd<=100){
+      this->soilbgc.calpar.kdcsompr = interpolate(chtlu->archive_soical_params.kdcsompr, chtlu->kdcsompr, 0, 100, tsd, I_LINEAR);
+    } else if(tsd<=max_n_years){
+      this->soilbgc.calpar.kdcsomcr = interpolate(chtlu->archive_soical_params.kdcsomcr, chtlu->kdcsomcr, 0, 500, tsd, I_LINEAR);
+    }
     // WE MAY WANT TO DO A CHECK FOR GIVEN PARAMETERS TO DETERMINE
     // THE MAGNITITUDE DIFFERENCE AND WHETHER WE SHOULD USE A
     // LOG METHOD
+
   } else{
+
     cd.dsbinterpolation = false;
+    
   }
   
   /*
