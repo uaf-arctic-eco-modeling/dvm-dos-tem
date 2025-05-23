@@ -301,6 +301,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
       }
 
+      // conditioning for very low values in solver
+      // which can cause instabilities
+      if (alpha<1e-12){
+        alpha = 1e-12;
+      }
+
       // Populating internal nodes of tridiagonal matrix
       lower_diagonal[il] = -alpha;
       upper_diagonal[il] = -alpha;
@@ -336,7 +342,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       if (ed->d_sois.ts[il]>=0.0){// if not frozen
         // only return positive ebullition values, negative could occur within the same layer
-        ebul = fmax(0.0, saturated_fraction * (currl->ch4 - ch4_umolL_thresh) * calpar.ch4_ebul_rate);
+        ebul = fmax(0.0, saturated_fraction * (currl->ch4 - ch4_umolL_thresh * 0.5) * calpar.ch4_ebul_rate);
       }
       else {
         ebul = 0.0;
@@ -373,7 +379,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // frac_ebul will be equal >0.05 at 1m depth. For 0.7 porosity (i.e humic-
         // mineral) frac_ebul will be equal to <0.02 at 1m depth. This can be
         // adjusted and may need to be a parameter.
-        double frac_ebul = exp(- 3 * (currl->z / currl->poro));
+        double frac_ebul = exp(-(currl->z/currl->poro));
         ebul_efflux = frac_ebul * ebul;
         currl->ch4 -= ebul;
         wtlayer->ch4 += ebul - ebul_efflux;
@@ -418,7 +424,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         plant += 0.5 * pft_transport[ip];
 
         //Storing plant transport values for output
-        bd->d_soi2a.ch4_transport[il][ip] = pft_transport[ip];
+        bd->d_soi2a.ch4_transport[il][ip] = 0.5 * pft_transport[ip] * convert_umolL_to_gm2;
       }
 
       // unit conversion
@@ -436,7 +442,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters.
       // Plant is added here to account for 50% rhizospheric oxidation in the same layer
-      oxid = (1 - saturated_fraction) * (calpar.oxidkm_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidVmax_ch4 + currl->ch4)) + plant;
+      oxid = (1 - saturated_fraction) * (calpar.oxidVmax_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidkm_ch4 + currl->ch4)) + plant;
 
       if (oxid < 0.000001){
         oxid = 0.0;
