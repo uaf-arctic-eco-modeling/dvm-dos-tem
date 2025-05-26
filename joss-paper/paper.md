@@ -25,103 +25,103 @@ authors:
   - name: Hélène Genet
     email: hgenet@alaska.edu
     affiliation: '1'
-    oricid: 0000-0003-4537-9563
+    orcid: 0000-0003-4537-9563
     equal-contrib: true
   
   - name: Ruth A Rutter
     email: rarutter@alaska.edu
     affiliation: '1'
-    oricid: 0009-0009-7043-6081
+    orcid: 0009-0009-7043-6081
   
   - name: Elchin Jafarov
     email: ejafarov@woodwellclimate.org
     affiliation: '2'
-    oricid: 0000-0002-8310-3261
+    orcid: 0000-0002-8310-3261
   
   - name: Eugénie Euskirchen
     email: seeuskirchen@alaska.edu
     affiliation: '1'
-    oricid: 0000-0002-0848-4295
+    orcid: 0000-0002-0848-4295
   
   - name: Ben Maglio
     email: bmaglio@alaska.edu
     affiliation: '1'
-    oricid: 0000-0002-1948-0177 
+    orcid: 0000-0002-1948-0177 
   
   - name: Joy Clein
     email: jsclein@alaska.edu
     affiliation: '1'
-    oricid: 0000-0002-2816-5312
+    orcid: 0000-0002-2816-5312
   
   - name: Valeria Briones
     email: vbriones@woodwellclimate.org
     affiliation: '2'
-    oricid: 0000-0002-5649-851X
+    orcid: 0000-0002-5649-851X
   
   - name: Andrew L Mullen
     email: amullen@woodwellclimate.org
     affiliation: '2'
-    oricid: 0000-0002-9127-9996
+    orcid: 0000-0002-9127-9996
   
   - name: Heather Greaves
     email: hegreaves@alaska.edu
     affiliation: '1'
-    oricid: 0000-0002-8800-019X
+    orcid: 0000-0002-8800-019X
   
   - name: A. D. McGuire
     email: admcguire@alaska.edu
     affiliation: '1'
-    oricid: 0000-0003-4646-0750
+    orcid: 0000-0003-4646-0750
   
   - name: Fengming Yuan
     email: yuanf@ornl.gov
     affiliation: '3'
-    oricid: 0000-0003-0910-5231
+    orcid: 0000-0003-0910-5231
   
   - name: Chu-Chun Chang
     email: cchang@woodwellclimate.org
     affiliation: '2'
-    oricid: 0000-0002-2971-2349
+    orcid: 0000-0002-2971-2349
   
   - name: Joshua M. Rady
     email: jrady@woodwellclimate.org
     affiliation: '2'
-    oricid: 0000-0002-7806-136X
+    orcid: 0000-0002-7806-136X
   
   - name: Doğukan Teber
     email: dteber@woodwellclimate.org
     affiliation: '2'
-    oricid: 
+    orcid: 
   
   - name: Brendan M Rogers
     email: brogers@woodwellclimate.org
     affiliation: '2'
-    oricid: 0000-0001-6711-8466
+    orcid: 0000-0001-6711-8466
   
   - name: Trevor Smith
     email: tsmith@woodwellclimate.org
     affiliation: '2'
-    oricid: 
+    orcid: 
   
   - name: Hannah Mevenkamp
     email: hkmevenkamp@alaska.edu
     affiliation: '1'
-    oricid: 0000-0002-7241-5374
+    orcid: 0000-0002-7241-5374
   
   - name: Mark J Lara
     email: mjlara@illinois.edu
     affiliation: '6'
-    oricid: 0000-0002-4670-7031
+    orcid: 0000-0002-4670-7031
   
   - name: Qianlai Zhuang
     email: qzhuang@purdue.edu
     affiliation: '4'
-    oricid: 0000-0002-4536-9851
+    orcid: 0000-0002-4536-9851
   
   - name: Shuhua Yi
     email: yis@lzb.ac.cn
     affiliation: '5'
-    oricid: 
+    orcid: 
 
 affiliations:
   - name: Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA
