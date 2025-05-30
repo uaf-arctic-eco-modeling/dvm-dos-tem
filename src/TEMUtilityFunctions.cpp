@@ -416,6 +416,11 @@ namespace temutil {
       std::string msg = "Exception from netcdf: ";
       msg = msg + nc_strerror(status);
 
+      if (status == NC_ENOTINDEFINE) {
+        BOOST_LOG_SEV(glg, info) << "NetCDF file is already in data mode! ";
+        throw NetCDFDefineModeException();
+      }
+
       throw std::runtime_error(msg);
 
       //exit(-1);

@@ -1284,8 +1284,12 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
   /* End Define Mode (not strictly necessary for netcdf 4) */
-  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-  temutil::nc( nc_enddef(ncid) );
+  BOOST_LOG_SEV(glg, debug) << "Trying to leaving 'define mode'...";
+  try {
+    temutil::nc( nc_enddef(ncid) );
+  } catch (const temutil::NetCDFDefineModeException& e) {
+    BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
+  }
 
   /* Close file. */
   BOOST_LOG_SEV(glg, debug) << "Closing new file...";
