@@ -410,6 +410,17 @@ namespace temutil {
   /** Handles NetCDF errors by printing message and exiting. */
   void handle_error(int status) {
     if (status != NC_NOERR) {
+
+      // Add more specific error handling here. It can be helpful for debugging
+      // to raise specific exceptions for specific errors, and raising specific
+      // exceptions can help clientls selectively deal with the errors.
+      if (status == NC_ENOTINDEFINE) {
+        BOOST_LOG_SEV(glg, info) << "NetCDF file is already in data mode! ";
+        throw NetCDFDefineModeException();
+      }
+
+      // No specific error to raise, so just print the error message and 
+      // throw a generic runtime error.
       fprintf(stderr, "%s\n", nc_strerror(status));
       BOOST_LOG_SEV(glg, warn) << nc_strerror(status);
 

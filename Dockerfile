@@ -46,7 +46,7 @@ ARG GID=1000
 
 # === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
 # General development tools, compilers, text editors, etc
-FROM ubuntu:focal AS cpp-dev
+FROM ubuntu:jammy AS cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y --fix-missing && apt-get install -y \
     build-essential \
@@ -110,7 +110,7 @@ RUN apt-get update --fix-missing -y && apt-get install -y \
     libreadline-dev \
     libsqlite3-dev \
     llvm \
-    python-openssl \
+    python3-openssl \
     tk-dev \
     wget \
     xz-utils \
@@ -237,7 +237,7 @@ USER $UNAME
 # A container run from this images will need to have data supplied (i.e. one or
 # more mounted volumes) in order to run dvmdostem.
 #
-FROM ubuntu:focal AS dvmdostem-run
+FROM ubuntu:jammy AS dvmdostem-run
 ARG UNAME
 ARG UID
 ARG GID

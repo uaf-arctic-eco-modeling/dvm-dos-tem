@@ -13,7 +13,7 @@ line interface for the most part provides a convenient way to supply arguments
 to the `QCal` object.
 
 In order to test the module, we first must run the model and have output
-variables to measure against the targets. So the inital work of these tests will
+variables to measure against the targets. So the initial work of these tests will
 simply be setting up a dummy model run, and running the model.
 
 Start by defining a working directory for the tests and making sure it is
@@ -48,7 +48,7 @@ Then turn on all the appropriate NetCDF outputs for matching with the targets:
     0
 
 Manually make an adjustment to the config file (there is no utility script for
-this) such that equlibrium outputs are enabled:
+this) such that equilibrium outputs are enabled:
 
     >>> import json
     >>> with open(os.path.join(TMP_DIR, 'config', 'config.js')) as f:
