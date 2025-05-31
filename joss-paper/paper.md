@@ -91,7 +91,7 @@ authors:
   - name: Doğukan Teber
     email: dteber@woodwellclimate.org
     affiliation: '2'
-    orcid: 
+    orcid: 0009-0000-1547-950X
   
   - name: Brendan M Rogers
     email: brogers@woodwellclimate.org
@@ -121,7 +121,7 @@ authors:
   - name: Shuhua Yi
     email: yis@lzb.ac.cn
     affiliation: '5'
-    orcid: 
+    orcid: 0000-0003-4932-8237
 
 affiliations:
   - name: Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA
@@ -132,7 +132,7 @@ affiliations:
     index: 3
   - name: Department of Earth, Atmospheric, and Planetary Science, Purdue University, West Lafayette IN 47907 USA
     index: 4
-  - name: School of Geographic Sciences, Nantong University, Nantong Jiangsu, 226019 P.R. China
+  - name: Laboratory of Herbage Improvement And Agro-ecosystem, Lanzhou University, Lanzhou 730000, Gansu Province, P.R. China
     index: 5
   - name: Department(s) of Plant Biology and Geography, University of Illinois Urbana-Champaign, Urbana, IL 61801
     index: 6

@@ -30,9 +30,9 @@ keywords:
   - Tundra
 license: MIT
 authors:
-  - family-names: "Carman"
-    given-names: "Tobey B"
-    orcid: "https://orcid.org/0000-0003-4617-4674"
+  - family-names: "Euskirchen"
+    given-names: "Eugénie"
+    orcid: "https://orcid.org/0000-0002-0848-4295"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
   - family-names: "Genet"
@@ -40,19 +40,19 @@ authors:
     orcid: "https://orcid.org/0000-0003-4537-9563"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
+  - family-names: "McGuire"
+    given-names: "A. D."
+    orcid: "https://orcid.org/0000-0003-4646-0750"
+    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
+
+  - family-names: "Carman"
+    given-names: "Tobey B"
+    orcid: "https://orcid.org/0000-0003-4617-4674"
+    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
+
   - family-names: "Rutter"
     given-names: "Ruth A"
     orcid: "https://orcid.org/0009-0009-7043-6081"
-    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
-
-  - family-names: "Jafarov"
-    given-names: "Elchin"
-    orcid: "https://orcid.org/0000-0002-8310-3261"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Euskirchen"
-    given-names: "Eugénie"
-    orcid: "https://orcid.org/0000-0002-0848-4295"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
   - family-names: "Maglio"
@@ -65,70 +65,20 @@ authors:
     orcid: "https://orcid.org/0000-0002-2816-5312"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
-  - family-names: "Briones"
-    given-names: "Valeria"
-    orcid: "https://orcid.org/0000-0002-5649-851X"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Mullen"
-    given-names: "Andrew L"
-    orcid: "https://orcid.org/0000-0002-9127-9996"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Greaves"
-    given-names: "Heather"
-    orcid: "https://orcid.org/0000-0002-8800-019X"
-    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
-
-  - family-names: "McGuire"
-    given-names: "A. D."
-    orcid: "https://orcid.org/0000-0003-4646-0750"
-    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
-
   - family-names: "Yuan"
     given-names: "Fengming"
     orcid: "https://orcid.org/0000-0003-0910-5231"
     affiliation: "Environmental Science Division and Climate Change Science Institute, Oak Ridge National Laboratory, Oak Ridge, TN 37831"
 
-  - family-names: "Chang"
-    given-names: "Chu-Chun"
-    orcid: "https://orcid.org/0000-0002-2971-2349"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Rady"
-    given-names: "Joshua M."
-    orcid: "https://orcid.org/0000-0002-7806-136X"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Teber"
-    given-names: "Doğukan"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Rogers"
-    given-names: "Brendan M"
-    orcid: "https://orcid.org/0000-0001-6711-8466"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Smith"
-    given-names: "Trevor"
-    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
-
-  - family-names: "Mevenkamp"
-    given-names: "Hannah"
-    orcid: "https://orcid.org/0000-0002-7241-5374"
-    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
-
-  - family-names: "Lara"
-    given-names: "Mark J"
-    orcid: "https://orcid.org/0000-0002-4670-7031"
-    affiliation: "Department(s) of Plant Biology and Geography, University of Illinois Urbana-Champaign, Urbana, IL 61801"
+  - family-names: "Yi"
+    given-names: "Shuhua"
+    orcid: "https://orcid.org/0000-0003-4932-8237"
+    affiliation: "Laboratory of Herbage Improvement And Agro-ecosystem, Lanzhou University, Lanzhou 730000, Gansu Province, P.R. China"
 
   - family-names: "Zhuang"
     given-names: "Qianlai"
     orcid: "https://orcid.org/0000-0002-4536-9851"
     affiliation: "Department of Earth, Atmospheric, and Planetary Science, Purdue University, West Lafayette IN 47907 USA"
 
-  - family-names: "Yi"
-    given-names: "Shuhua"
-    affiliation: "School of Geographic Sciences, Nantong University, Nantong Jiangsu, 226019 P.R. China"
+
 
