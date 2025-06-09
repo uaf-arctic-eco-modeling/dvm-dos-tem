@@ -934,7 +934,11 @@ void create_empty_run_status_file(const std::string& fname,
 
   /* End Define Mode (not strictly necessary for netcdf 4) */
   BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode' ["<<fname<<"]";
-  temutil::nc( nc_enddef(ncid) );
+  try {
+    temutil::nc( nc_enddef(ncid) );
+  } catch (const temutil::NetCDFDefineModeException& e) {
+    BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
+  }
 
   /* Close file. */
   BOOST_LOG_SEV(glg, debug) << "Closing new file ["<<fname<<"]";
