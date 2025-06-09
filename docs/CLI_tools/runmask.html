@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>runmask.py &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
+  <title>runmask.py &mdash; dvmdostem v0.8.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1-31-gde5483c2
+                v0.8.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -123,8 +123,8 @@
 <h1>runmask.py<a class="headerlink" href="#runmask-py" title="Permalink to this heading"></a></h1>
 <p><p>Helper script for modifying a dvm-dos-tem runmask netcdf file.</p>
 </p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">runmask</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reset</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">on</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span><span class="o">-</span><span class="n">off</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">show</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">inputs</span> <span class="n">FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
-                  <span class="p">[</span><span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">runmask</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reset</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">on</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span><span class="o">-</span><span class="n">off</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">show</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cell</span><span class="o">-</span><span class="n">count</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">inputs</span> <span class="n">FOLDER</span><span class="p">]</span>
+                  <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">available</span><span class="o">-</span><span class="n">params</span> <span class="n">PARAM_FOLDER</span> <span class="n">VEG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
                   <span class="p">[</span><span class="n">FILE</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -161,12 +161,28 @@
 <dd><p>Print the mask after modification.</p>
 <p>Default: False</p>
 </dd>
+<dt><kbd>--cell-count</kbd></dt>
+<dd><dl class="simple">
+<dt>Print cell count for active, inactive, and</dt><dd><p>invalid entries.</p>
+</dd>
+</dl>
+<p>Default: False</p>
+</dd>
 <dt><kbd>--conform-mask-to-inputs</kbd></dt>
 <dd><dl class="simple">
 <dt>Operate on the run-mask and conform it to all the</dt><dd><p>input files in FOLDER. Makes sure that the run-mask will disable
 any pixel (set to 0) where any of the input files contain bad or
 missing data. NOTE!!: modifies run-mask.nc found in FOLDER, and
 ignores the files specified ‘FILE’ argument!</p>
+</dd>
+</dl>
+</dd>
+<dt><kbd>--conform-mask-to-available-params</kbd></dt>
+<dd><dl class="simple">
+<dt>Adjust the run mask based on available CMTs in</dt><dd><p>the parameter folder. This will mask out any pixels
+whose CMT classification in the  VEG_FILE is not in
+the list of available CMTs from the PARAM_FOLDER.
+Creates a new run-mask file.</p>
 </dd>
 </dl>
 </dd>

@@ -3,12 +3,12 @@ Welcome to ``dvmdostem``'s documentation!
 
 .. note::
      This project is under active development.
-  
-DVM-DOS-TEM is a process-based biosphere model, designed to simulate biophysical
-and biogeochemical processes between the soil, the vegetation and the
-atmosphere. The model is spatially explicit and focuses on representing carbon
-and nitrogen cycles in high latitude ecosystems and how they are affected at
-seasonal (i.e. monthly) to centennial scales by climate, disturbances and
+
+DVM-DOS-TEM is a process-based terrestrial ecosystem model, designed to simulate
+biophysical and biogeochemical processes between the soil, the vegetation and
+the atmosphere. The model is spatially explicit and focuses on representing
+carbon and nitrogen cycles in high latitude ecosystems and how they are affected
+at seasonal (i.e. monthly) to centennial scales by climate, disturbances and
 biophysical processes such as permafrost, soil thermal and hydrological regimes,
 snow cover or canopy development.
 

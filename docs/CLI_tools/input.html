@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>input.py &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
+  <title>input.py &mdash; dvmdostem v0.8.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1-31-gde5483c2
+                v0.8.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -79,21 +79,22 @@
 <li class="toctree-l2"><a class="reference internal" href="#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Sub-commands">Sub-commands</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#query">query</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat1">Positional Arguments</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#crop">crop</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat1">Positional Arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat2">Positional Arguments</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#named-arguments_repeat1">Named Arguments</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#climate-ts-plot">climate-ts-plot</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat2">Positional Arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat3">Positional Arguments</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#named-arguments_repeat2">Named Arguments</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#climate-gap-plot">climate-gap-plot</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat3">Positional Arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#positional-arguments_repeat4">Positional Arguments</a></li>
 </ul>
 </li>
 </ul>
@@ -165,18 +166,29 @@ different sub-commands for different types of operations.</p>
 <section id="query">
 <h3>query<a class="headerlink" href="#query" title="Permalink to this heading"></a></h3>
 <p>Query one or more dvmdostem inputs for various information.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">query</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">iyix</span><span class="o">-</span><span class="n">from</span><span class="o">-</span><span class="n">latlon</span> <span class="n">IYIX_FROM_LATLON</span> <span class="n">IYIX_FROM_LATLON</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">latlon</span><span class="o">-</span><span class="n">file</span> <span class="n">LATLON_FILE</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">query</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">iyix</span><span class="o">-</span><span class="n">from</span><span class="o">-</span><span class="n">latlon</span> <span class="n">IYIX_FROM_LATLON</span> <span class="n">IYIX_FROM_LATLON</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">check</span><span class="o">-</span><span class="n">existence</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">vegtypes</span><span class="p">]</span> <span class="n">input_folder</span>
 </pre></div>
 </div>
+<section id="positional-arguments_repeat1">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat1" title="Permalink to this heading"></a></h4>
+<dl class="option-list">
+<dt><kbd>input_folder</kbd></dt>
+<dd><p>Path to a folder containing a set of dvmdostem inputs.</p>
+</dd>
+</dl>
+</section>
 <section id="named-arguments">
 <h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h4>
 <dl class="option-list">
 <dt><kbd>--iyix-from-latlon</kbd></dt>
 <dd><p>Find closest pixel to provided lat and lon arguments.</p>
 </dd>
-<dt><kbd>--latlon-file</kbd></dt>
-<dd><p>The file to read from for getting lat/lon pixel offsets.</p>
-<p>Default: “../snap-data/temporary-veg-from-LandCover_TEM_2005.tif”</p>
+<dt><kbd>--check-existence</kbd></dt>
+<dd><p>Check the files in the specified input    directory against a hardcoded list of expected files.</p>
+</dd>
+<dt><kbd>--vegtypes</kbd></dt>
+<dd><p>Returns a Counter with the CMT values and the    number of times they appear in a vegetation file</p>
+<p>Default: False</p>
 </dd>
 </dl>
 </section>
@@ -194,8 +206,8 @@ create_region_input.py script.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">crop</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">yx</span> <span class="n">YX</span> <span class="n">YX</span> <span class="p">[</span><span class="o">--</span><span class="n">ysize</span> <span class="n">YSIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">xsize</span> <span class="n">XSIZE</span><span class="p">]</span> <span class="n">input_folder</span>
 </pre></div>
 </div>
-<section id="positional-arguments_repeat1">
-<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat1" title="Permalink to this heading"></a></h4>
+<section id="positional-arguments_repeat2">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat2" title="Permalink to this heading"></a></h4>
 <dl class="option-list">
 <dt><kbd>input_folder</kbd></dt>
 <dd><p>Path to a folder containing a set of dvmdostem inputs.</p>
@@ -226,8 +238,8 @@ single pixel. Makes 2 figures, one for historic, one for projected.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">climate</span><span class="o">-</span><span class="n">ts</span><span class="o">-</span><span class="n">plot</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="nb">type</span> <span class="p">{</span><span class="n">spatial</span><span class="o">-</span><span class="n">temporal</span><span class="o">-</span><span class="n">summary</span><span class="p">,</span><span class="n">raw</span><span class="p">}</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span> <span class="n">YX</span> <span class="n">YX</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stitch</span><span class="p">]</span> <span class="n">input_folder</span>
 </pre></div>
 </div>
-<section id="positional-arguments_repeat2">
-<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat2" title="Permalink to this heading"></a></h4>
+<section id="positional-arguments_repeat3">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat3" title="Permalink to this heading"></a></h4>
 <dl class="option-list">
 <dt><kbd>input_folder</kbd></dt>
 <dd><p>Path to a folder containing a set of dvmdostem inputs.</p>
@@ -261,8 +273,8 @@ data.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="o">.</span><span class="n">py</span> <span class="n">climate</span><span class="o">-</span><span class="n">gap</span><span class="o">-</span><span class="n">plot</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="n">input_folder</span>
 </pre></div>
 </div>
-<section id="positional-arguments_repeat3">
-<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat3" title="Permalink to this heading"></a></h4>
+<section id="positional-arguments_repeat4">
+<h4>Positional Arguments<a class="headerlink" href="#positional-arguments_repeat4" title="Permalink to this heading"></a></h4>
 <dl class="option-list">
 <dt><kbd>input_folder</kbd></dt>
 <dd><p>Path to a folder containing a set of dvmdostem inputs.</p>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>drivers.BaseDriver &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
+  <title>drivers.BaseDriver &mdash; dvmdostem v0.8.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1-31-gde5483c2
+                v0.8.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -438,7 +438,7 @@ parameters and outut. The csv file will look something like this:</p>
 <p>with one column for each parameter and one column for each output.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">each</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">sensitivity</span> <span class="n">matrix</span> <span class="p">(</span><span class="ow">and</span> <span class="n">corresponding</span> <span class="n">run</span> <span class="n">folder</span><span class="p">),</span>
   <span class="n">For</span> <span class="n">each</span> <span class="n">variable</span> <span class="n">specified</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
-      <span class="o">-</span> <span class="n">opens</span> <span class="n">the</span> <span class="n">NetCDF</span> <span class="n">files</span> <span class="n">that</span> <span class="n">were</span> <span class="n">output</span> <span class="kn">from</span> <span class="nn">dvmdostem</span>
+      <span class="o">-</span> <span class="n">opens</span> <span class="n">the</span> <span class="n">NetCDF</span> <span class="n">files</span> <span class="n">that</span> <span class="n">were</span> <span class="n">output</span> <span class="kn">from</span><span class="w"> </span><span class="nn">dvmdostem</span>
       <span class="o">-</span> <span class="n">grabs</span> <span class="n">the</span> <span class="n">last</span> <span class="n">datapoint</span>
       <span class="o">-</span> <span class="n">writes</span> <span class="n">it</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sensitivity</span><span class="o">.</span><span class="n">csv</span> <span class="n">file</span>
 </pre></div>
@@ -1765,7 +1765,7 @@ re-build lookup data structures to find parameter names or files.</p>
 instantiation, and build the lookup data structure. Then future
 operations can use that cached structure.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">util.param</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">util.param</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">ParamUtilSpeedHelper</span><span class="p">(</span><span class="s2">&quot;/work/parameters&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">psh</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">pname</span><span class="o">=</span><span class="s1">&#39;cmax&#39;</span><span class="p">,</span> <span class="n">cmtnum</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">pftnum</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">with_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="go">13.45</span>
@@ -2761,9 +2761,9 @@ dimension in strides of 12.</p>
 with some fancy numpy indexing.</p>
 <dl>
 <dt>Examples:</dt><dd><p>Load a monthly file with soil layer data and convert it to yearly.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">util.output</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">util.output</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">soc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="s1">&#39;all-merged/SOC_monthly_tr.nc&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_values</span><span class="p">(</span><span class="n">soc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;SOC&#39;</span><span class="p">][:],</span> <span class="n">soc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;SOC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_FillValue</span><span class="p">)</span>
@@ -3207,6 +3207,23 @@ and plot.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="util.input.check_input_set_existence">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">check_input_set_existence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.check_input_set_existence" title="Permalink to this definition"></a></dt>
+<dd><p>Raises various exceptions if there are problems with the files in the in_folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>in_folder</strong> (<em>str</em>) – A path to a folder of dvmdostem inputs.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#util.input.BadInputFilesValueError" title="util.input.BadInputFilesValueError"><strong>BadInputFilesValueError</strong></a> – </p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="util.input.climate_gap_count_plot">
 <span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">climate_gap_count_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.climate_gap_count_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Creates plots showing how many missing datapoints exist for each pixel.</p>
@@ -3295,6 +3312,20 @@ Disadvantage: this may not create a valid 1x1 dataset</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="util.input.get_vegtypes">
+<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">get_vegtypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">veg_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.get_vegtypes" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a Counter containing the CMT values in a specified vegetation
+input file, along with a count of the cells for each. Does not check
+the validity of CMT values, but does include invalid entries for easy
+error checking from the caller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>veg_input</strong> (<em>str</em>) – Filename of the vegetation file to operate on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="util.input.mkdir_p">
 <span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">mkdir_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.mkdir_p" title="Permalink to this definition"></a></dt>
 <dd><p>Emulates the shell’s <cite>mkdir -p</cite>.</p>
@@ -3312,23 +3343,6 @@ between (latval[it,ix],lonval[iy,ix]) and (lat0,lon0)
 is minimum.
 Code from Unidata’s Python Workshop:
 <a class="reference external" href="https://github.com/Unidata/unidata-python-workshop">https://github.com/Unidata/unidata-python-workshop</a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="util.input.verify_input_files">
-<span class="sig-prename descclassname"><span class="pre">util.input.</span></span><span class="sig-name descname"><span class="pre">verify_input_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#util.input.verify_input_files" title="Permalink to this definition"></a></dt>
-<dd><p>Raises various exceptions if there are problems with the files in the in_folder.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>in_folder</strong> (<em>str</em>) – A path to a folder of dvmdostem inputs.</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="#util.input.BadInputFilesValueError" title="util.input.BadInputFilesValueError"><strong>BadInputFilesValueError</strong></a> – </p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>

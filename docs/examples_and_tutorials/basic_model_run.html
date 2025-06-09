@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
+  <title>2. Basic Model Setup and Run &mdash; dvmdostem v0.8.2 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1-31-gde5483c2
+                v0.8.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -146,6 +146,14 @@ and visualization, see the <a class="reference internal" href="plotting_discussi
 <p>Quick-start summary</p>
 <p>For users who have Docker and Git installed and some familiarity with the
 command line.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These instructions should work for users with <a class="reference external" href="https://podman.io">Podman</a>
+rather than Docker, but several additional steps may be necessary to ensure
+that Podman can run with non-root access. See this
+<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776">issue</a>
+for more information.</p>
+</div>
 <p>The settings shown here will use the input data that is shipped with the code
 in the repository’s <code class="docutils literal notranslate"><span class="pre">demo-data/</span></code> directory. The run will output a single
 variable (GPP), and will run for 2 pixels.</p>
@@ -247,6 +255,14 @@ container should be portable and able to run on a wide variety of host systems.
 The dependencies for a piece of software are isolated inside the container. This
 isolation allows software with conflicting dependencies to run on the host
 system.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>These instructions should work for users with <a class="reference external" href="https://podman.io">Podman</a>
+rather than Docker, but several additional steps may be necessary to ensure
+that Podman can run with non-root access. See this
+<a class="reference external" href="https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776">issue</a>
+for more information.</p>
+</div>
 <p>There are other ways you can get the environment necessary for running,
 compiling and developing <code class="docutils literal notranslate"><span class="pre">dvmdostem</span></code>, such as a native installation, or using
 a virtual machine (e.g. with Vagrant and Virtual Box or VMWare). Each path to a

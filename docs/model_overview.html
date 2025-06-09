@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. Model Overview &mdash; dvmdostem v0.8.1-31-gde5483c2 documentation</title>
+  <title>1. Model Overview &mdash; dvmdostem v0.8.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.1-31-gde5483c2
+                v0.8.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -592,7 +592,7 @@ HH:MM:SS</p></td>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Example code to generate the above table.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span><span class="p">;</span> <span class="kn">import</span> <span class="nn">netCDF4</span> <span class="k">as</span> <span class="nn">nc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="p">;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
 <span class="n">indir_path</span> <span class="o">=</span> <span class="s2">&quot;demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10&quot;</span>
 <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;.nc&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">indir_path</span><span class="p">)):</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indir_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
@@ -888,7 +888,7 @@ table is built from that csv file:</p>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
-<td></td>
+<td><p>float</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>DRIVINGRAINFALL</p></td>
@@ -969,7 +969,7 @@ table is built from that csv file:</p>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
+<td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td></td>
@@ -1203,8 +1203,32 @@ table is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>LTRFALC</p></td>
-<td><p>Litterfall C</p></td>
+<tr class="row-even"><td><p>LFNVC</p></td>
+<td><p>Litterfall C from non-vascular PFTs</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>LFNVN</p></td>
+<td><p>Litterfall N from non-vascular PFTs</p></td>
+<td><p>g/m2/time</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>LFVC</p></td>
+<td><p>Litterfall C from vascular PFTs</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
 <td></td>
@@ -1215,8 +1239,8 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>LTRFALN</p></td>
-<td><p>Litterfall N</p></td>
+<tr class="row-odd"><td><p>LFVN</p></td>
+<td><p>Litterfall N from vascular PFTs</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
 <td></td>
@@ -1252,30 +1276,18 @@ table is built from that csv file:</p>
 <td></td>
 </tr>
 <tr class="row-even"><td><p>MOSSDEATHC</p></td>
-<td><p>Moss death carbon</p></td>
+<td><p>Dead moss C</p></td>
 <td><p>g/m2</p></td>
 <td></td>
 <td></td>
-<td><p>invalid</p></td>
+<td></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>MOSSDEATHN</p></td>
-<td><p>Moss death nitrogen</p></td>
-<td><p>g/m2</p></td>
-<td></td>
-<td></td>
-<td><p>invalid</p></td>
-<td><p>invalid</p></td>
-<td><p>invalid</p></td>
-<td><p>invalid</p></td>
-<td><p>double</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>MOSSDZ</p></td>
+<tr class="row-odd"><td><p>MOSSDZ</p></td>
 <td><p>Moss thickness</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1287,7 +1299,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NDRAIN</p></td>
+<tr class="row-even"><td><p>NDRAIN</p></td>
 <td><p>N losses from drainage (AVLN)</p></td>
 <td><p>g/m2/time</p></td>
 <td><p>invalid</p></td>
@@ -1299,7 +1311,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NETNMIN</p></td>
+<tr class="row-odd"><td><p>NETNMIN</p></td>
 <td><p>Soil net N mineralization</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1311,7 +1323,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NIMMOB</p></td>
+<tr class="row-even"><td><p>NIMMOB</p></td>
 <td><p>Nitrogen immobilization</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1323,7 +1335,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NINPUT</p></td>
+<tr class="row-odd"><td><p>NINPUT</p></td>
 <td><p>N inputs into soil (AVLN)</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1335,7 +1347,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NLOST</p></td>
+<tr class="row-even"><td><p>NLOST</p></td>
 <td><p>N losses from soil (AVLN)</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1347,7 +1359,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NPP</p></td>
+<tr class="row-odd"><td><p>NPP</p></td>
 <td><p>NPP</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1359,7 +1371,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NRESORB</p></td>
+<tr class="row-even"><td><p>NRESORB</p></td>
 <td><p>NRESORB</p></td>
 <td><p>??</p></td>
 <td></td>
@@ -1371,7 +1383,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>NUPTAKELAB</p></td>
+<tr class="row-odd"><td><p>NUPTAKELAB</p></td>
 <td><p>Labile N uptake by plants</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1383,7 +1395,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>NUPTAKEST</p></td>
+<tr class="row-even"><td><p>NUPTAKEST</p></td>
 <td><p>Structural N uptake by plants</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1395,7 +1407,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ORGN</p></td>
+<tr class="row-odd"><td><p>ORGN</p></td>
 <td><p>Total soil organic N</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1407,7 +1419,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>PERCOLATION</p></td>
+<tr class="row-even"><td><p>PERCOLATION</p></td>
 <td><p>Percolation by layer</p></td>
 <td></td>
 <td><p>invalid</p></td>
@@ -1419,7 +1431,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>PERMAFROST</p></td>
+<tr class="row-odd"><td><p>PERMAFROST</p></td>
 <td><p>Permafrost (1 or 0)</p></td>
 <td></td>
 <td></td>
@@ -1431,19 +1443,19 @@ table is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>PET</p></td>
+<tr class="row-even"><td><p>PET</p></td>
 <td><p>Potential ET</p></td>
 <td><p>mm/m2/time</p></td>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
+<td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>QDRAINAGE</p></td>
+<tr class="row-odd"><td><p>QDRAINAGE</p></td>
 <td><p>Water drainage quotient (~ratio)</p></td>
 <td></td>
 <td></td>
@@ -1455,7 +1467,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>QDRAINLAYER</p></td>
+<tr class="row-even"><td><p>QDRAINLAYER</p></td>
 <td><p>Qdrain per layer</p></td>
 <td><p>mm</p></td>
 <td><p>invalid</p></td>
@@ -1467,7 +1479,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>QINFILTRATION</p></td>
+<tr class="row-odd"><td><p>QINFILTRATION</p></td>
 <td><p>Water infiltration quotient (~ratio)</p></td>
 <td></td>
 <td></td>
@@ -1479,7 +1491,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>QRUNOFF</p></td>
+<tr class="row-even"><td><p>QRUNOFF</p></td>
 <td><p>Water runoff quotient (~ratio)</p></td>
 <td></td>
 <td></td>
@@ -1491,7 +1503,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>RAINFALL</p></td>
+<tr class="row-odd"><td><p>RAINFALL</p></td>
 <td><p>Total rainfall</p></td>
 <td><p>mm</p></td>
 <td></td>
@@ -1503,7 +1515,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>RECO</p></td>
+<tr class="row-even"><td><p>RECO</p></td>
 <td><p>Summed ecosystem respiration</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1515,7 +1527,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>RG</p></td>
+<tr class="row-odd"><td><p>RG</p></td>
 <td><p>Growth respiration</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1527,7 +1539,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>RHDWD</p></td>
+<tr class="row-even"><td><p>RHDWD</p></td>
 <td><p>Dead woody debris HR</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1539,7 +1551,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>RHSOM</p></td>
+<tr class="row-odd"><td><p>RHSOM</p></td>
 <td><p>Heterotrophic respiration</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1551,7 +1563,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>RM</p></td>
+<tr class="row-even"><td><p>RM</p></td>
 <td><p>Maintenance respiration</p></td>
 <td><p>g/m2/time</p></td>
 <td></td>
@@ -1563,7 +1575,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>ROLB</p></td>
+<tr class="row-odd"><td><p>ROLB</p></td>
 <td><p>Relative organic horizon burned ratio C</p></td>
 <td><p>g/g</p></td>
 <td></td>
@@ -1575,7 +1587,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>ROOTWATERUPTAKE</p></td>
+<tr class="row-even"><td><p>ROOTWATERUPTAKE</p></td>
 <td><p>Water uptake by roots per layer</p></td>
 <td></td>
 <td><p>invalid</p></td>
@@ -1587,7 +1599,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SHLWC</p></td>
+<tr class="row-odd"><td><p>SHLWC</p></td>
 <td><p>Fibrous SOM C</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1599,7 +1611,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SHLWDZ</p></td>
+<tr class="row-even"><td><p>SHLWDZ</p></td>
 <td><p>Fibrous SOM horizon thickness</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1611,7 +1623,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SNOWEND</p></td>
+<tr class="row-odd"><td><p>SNOWEND</p></td>
 <td><p>DOY of last snow fall</p></td>
 <td><p>DOY</p></td>
 <td></td>
@@ -1623,7 +1635,7 @@ table is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SNOWFALL</p></td>
+<tr class="row-even"><td><p>SNOWFALL</p></td>
 <td><p>Total snowfall</p></td>
 <td><p>mm</p></td>
 <td></td>
@@ -1635,7 +1647,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SNOWLAYERDZ</p></td>
+<tr class="row-odd"><td><p>SNOWLAYERDZ</p></td>
 <td><p>Snow pack thickness by layer</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1647,7 +1659,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SNOWLAYERTEMP</p></td>
+<tr class="row-even"><td><p>SNOWLAYERTEMP</p></td>
 <td><p>Snow temperature by layer</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1659,7 +1671,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SNOWSTART</p></td>
+<tr class="row-odd"><td><p>SNOWSTART</p></td>
 <td><p>DOY of first snow fall</p></td>
 <td><p>DOY</p></td>
 <td></td>
@@ -1671,7 +1683,7 @@ table is built from that csv file:</p>
 <td><p>int</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SNOWTHICK</p></td>
+<tr class="row-even"><td><p>SNOWTHICK</p></td>
 <td><p>Snow pack thickness</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -1683,7 +1695,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SOC</p></td>
+<tr class="row-odd"><td><p>SOC</p></td>
 <td><p>Soil organic C total</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1695,7 +1707,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SOCFROZEN</p></td>
+<tr class="row-even"><td><p>SOCFROZEN</p></td>
 <td><p>Soil organic C frozen (if yearly Dec. only)</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1707,7 +1719,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SOCUNFROZEN</p></td>
+<tr class="row-odd"><td><p>SOCUNFROZEN</p></td>
 <td><p>Soil organic C unfrozen (if yearly Dec. only)</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1719,7 +1731,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SOMA</p></td>
+<tr class="row-even"><td><p>SOMA</p></td>
 <td><p>Soil organic C active</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1731,7 +1743,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SOMCR</p></td>
+<tr class="row-odd"><td><p>SOMCR</p></td>
 <td><p>Soil organic C chemically resistant</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1743,7 +1755,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SOMPR</p></td>
+<tr class="row-even"><td><p>SOMPR</p></td>
 <td><p>Soil organic C physically resistant</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1755,7 +1767,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>SOMRAWC</p></td>
+<tr class="row-odd"><td><p>SOMRAWC</p></td>
 <td><p>Soil organic C raw</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1767,7 +1779,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>SWE</p></td>
+<tr class="row-even"><td><p>SWE</p></td>
 <td><p>Snow water equivalent</p></td>
 <td><p>kg/m2</p></td>
 <td></td>
@@ -1779,7 +1791,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TCDEEP</p></td>
+<tr class="row-odd"><td><p>TCDEEP</p></td>
 <td><p>Thermal conductivity in amorphous horizon</p></td>
 <td><p>W/m/K</p></td>
 <td></td>
@@ -1791,7 +1803,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>TCLAYER</p></td>
+<tr class="row-even"><td><p>TCLAYER</p></td>
 <td><p>Thermal conductivity by layer</p></td>
 <td><p>W/m/K</p></td>
 <td></td>
@@ -1803,7 +1815,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TCMINEA</p></td>
+<tr class="row-odd"><td><p>TCMINEA</p></td>
 <td><p>Thermal conductivity top mineral</p></td>
 <td><p>W/m/K</p></td>
 <td></td>
@@ -1815,7 +1827,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>TCMINEB</p></td>
+<tr class="row-even"><td><p>TCMINEB</p></td>
 <td><p>Thermal conductivity middle mineral</p></td>
 <td><p>W/m/K</p></td>
 <td></td>
@@ -1827,7 +1839,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TCMINEC</p></td>
+<tr class="row-odd"><td><p>TCMINEC</p></td>
 <td><p>Thermal conductivity bottom mineral</p></td>
 <td><p>W/m/K</p></td>
 <td></td>
@@ -1839,7 +1851,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>TCSHLW</p></td>
+<tr class="row-even"><td><p>TCSHLW</p></td>
 <td><p>Thermal conductivity in fibrous horizon</p></td>
 <td><p>W/m/K</p></td>
 <td></td>
@@ -1851,7 +1863,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TDEEP</p></td>
+<tr class="row-odd"><td><p>TDEEP</p></td>
 <td><p>Temperature in amorphous horizon</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1863,7 +1875,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>TLAYER</p></td>
+<tr class="row-even"><td><p>TLAYER</p></td>
 <td><p>Temperature by layer</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1875,7 +1887,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TMINEA</p></td>
+<tr class="row-odd"><td><p>TMINEA</p></td>
 <td><p>Temperature top mineral</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1887,7 +1899,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>TMINEB</p></td>
+<tr class="row-even"><td><p>TMINEB</p></td>
 <td><p>Temperature middle mineral</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1899,7 +1911,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TMINEC</p></td>
+<tr class="row-odd"><td><p>TMINEC</p></td>
 <td><p>Temperature bottom mineral</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1911,7 +1923,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>TRANSPIRATION</p></td>
+<tr class="row-even"><td><p>TRANSPIRATION</p></td>
 <td><p>Transpiration</p></td>
 <td><p>mm/day</p></td>
 <td></td>
@@ -1923,7 +1935,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>TSHLW</p></td>
+<tr class="row-odd"><td><p>TSHLW</p></td>
 <td><p>Temperature in fibrous horizon</p></td>
 <td><p>degree_C</p></td>
 <td></td>
@@ -1935,7 +1947,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>VEGC</p></td>
+<tr class="row-even"><td><p>VEGC</p></td>
 <td><p>Total veg. biomass C</p></td>
 <td><p>g/m2</p></td>
 <td></td>
@@ -1947,8 +1959,32 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>VEGN</p></td>
-<td><p>Total veg. biomass N</p></td>
+<tr class="row-odd"><td><p>VEGNTOT</p></td>
+<td><p>Total veg. biomass N (structural and labile)</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VEGNLAB</p></td>
+<td><p>Veg. biomass labile N</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VEGNSTR</p></td>
+<td><p>Veg. biomass structural N</p></td>
 <td><p>g/m2</p></td>
 <td></td>
 <td></td>
@@ -1959,7 +1995,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>VWCDEEP</p></td>
+<tr class="row-even"><td><p>VWCDEEP</p></td>
 <td><p>VWC in amorphous horizon</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -1971,7 +2007,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>VWCLAYER</p></td>
+<tr class="row-odd"><td><p>VWCLAYER</p></td>
 <td><p>VWC by layer</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -1983,7 +2019,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>VWCMINEA</p></td>
+<tr class="row-even"><td><p>VWCMINEA</p></td>
 <td><p>VWC top mineral</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -1995,7 +2031,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>VWCMINEB</p></td>
+<tr class="row-odd"><td><p>VWCMINEB</p></td>
 <td><p>VWC middle mineral</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -2007,7 +2043,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>VWCMINEC</p></td>
+<tr class="row-even"><td><p>VWCMINEC</p></td>
 <td><p>VWC bottom mineral</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -2019,7 +2055,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>VWCSHLW</p></td>
+<tr class="row-odd"><td><p>VWCSHLW</p></td>
 <td><p>VWC in fibrous horizon</p></td>
 <td><p>m3/m3</p></td>
 <td></td>
@@ -2031,7 +2067,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>WATERTAB</p></td>
+<tr class="row-even"><td><p>WATERTAB</p></td>
 <td><p>Water table depth below surface</p></td>
 <td><p>m</p></td>
 <td></td>
@@ -2043,7 +2079,7 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>YSD</p></td>
+<tr class="row-odd"><td><p>YSD</p></td>
 <td><p>Years since last disturbance</p></td>
 <td><p>Years</p></td>
 <td></td>
