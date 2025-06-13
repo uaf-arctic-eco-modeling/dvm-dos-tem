@@ -192,7 +192,10 @@ bool DAController::check_for_pause(timestep_id current_step){
   std::vector<timestep_id>::iterator it = pause_dates.begin();
 
   while(it != pause_dates.end()){
-    if(it->stage == current_step.stage
+    //TODO replace with a proper operator method for comparing timestep_id
+    if(it->x == current_step.x
+       && it->y == current_step.y
+       && it->stage == current_step.stage
        && it->year == current_step.year
        && it->month == current_step.month){
 
@@ -466,8 +469,8 @@ void DAController::create_da_nc_file(){
 
 //  temutil::nc( nc_def_dim(ncid, "time", 1, &timeD) );
 
-  temutil::nc( nc_def_dim(ncid, "y", 1, &yD) );
-  temutil::nc( nc_def_dim(ncid, "x", 1, &xD) );
+  temutil::nc( nc_def_dim(ncid, "y", 10, &yD) );
+  temutil::nc( nc_def_dim(ncid, "x", 10, &xD) );
 
   temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
   temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
