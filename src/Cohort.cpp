@@ -372,6 +372,10 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
     cd.beginOfYear();
 
+    // cd.dsbinterpolationcounter/ dsbinterpolationyrs
+    // localized counter to not be confused with ysd used
+    // exclusively for cmt change related parameter interpolation
+
     if(cd.dsbinterpolation){
       interpolateSoilParameters();
     }
@@ -779,6 +783,8 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
   updateMonthly_Fir(yrind, currmind, stage);
 
   //updateMonthly_Flood(...)
+
+  // if fd.rolb > 0.75 * OLT
 
   if(md->cmt_change
      && fire.getSeverity(yrind) >= 1 // we may this to be based on remaining OLT
@@ -1558,9 +1564,25 @@ void Cohort::cmtChange(const int & currmind){
 void Cohort::interpolateSoilParameters(){
 
   int tsd = this->cd.yrsdist;
+  int start_year = 0;
+
+  // group number of years for each subgroup of parameters
+  // e.g. fibric-related parameters, humic-related
+  // and so fibric_n_years, etc
+  // bring constants out from below and make consisteng in
+  // interpolation function.
+  int moss_n_years = 5;
+  int fibric_n_years = 50;
+  int humic_n_years = 100;
+  int mineral_n_years = 500;
+
   // maximum number of years to finish transitioning
   // to new parameters (likely kdcsomcr will take longest)
-  int max_n_years = 1000;
+  // this is currently set to mineral_n_year for now though
+  // it might be different or simply be limited by the 
+  // mineral_n_years which will likely be the longest.
+  int max_n_years = mineral_n_years;
+
   if(tsd<=max_n_years){
 
     // interpolating between initial parameter, new parameter, 
@@ -1569,14 +1591,17 @@ void Cohort::interpolateSoilParameters(){
     // will take 5 years. tsd is used as the interpolation position
     // during this time, with a linear method.
 
-    if(tsd<=5){ //NOTE: probably a better way of doing this... maybe a </> check in the method
-      this->soilbgc.calpar.kdcrawc = interpolate(chtlu->archive_soical_params.kdcrawc, chtlu->kdcrawc, 0, 5, tsd, I_LINEAR);
-    } else if(tsd<=50){
-      this->soilbgc.calpar.kdcsoma = interpolate(chtlu->archive_soical_params.kdcsoma, chtlu->kdcsoma, 0, 50, tsd, I_LINEAR);
-    } else if(tsd<=100){
-      this->soilbgc.calpar.kdcsompr = interpolate(chtlu->archive_soical_params.kdcsompr, chtlu->kdcsompr, 0, 100, tsd, I_LINEAR);
-    } else if(tsd<=max_n_years){
-      this->soilbgc.calpar.kdcsomcr = interpolate(chtlu->archive_soical_params.kdcsomcr, chtlu->kdcsomcr, 0, 500, tsd, I_LINEAR);
+    if(tsd<=moss_n_years){ //NOTE: probably a better way of doing this... maybe a </> check in the method
+      this->soilbgc.calpar.kdcrawc = temutil::interpolate(chtlu.archive_soical_params.kdcrawc, chtlu.kdcrawc, start_year, moss_n_years, tsd, I_LINEAR);
+    } 
+    if(tsd<=fibric_n_years){
+      this->soilbgc.calpar.kdcsoma = temutil::interpolate(chtlu.archive_soical_params.kdcsoma, chtlu.kdcsoma, start_year, fibric_n_years, tsd, I_LINEAR);
+    } 
+    if(tsd<=humic_n_years){
+      this->soilbgc.calpar.kdcsompr = temutil::interpolate(chtlu.archive_soical_params.kdcsompr, chtlu.kdcsompr, start_year, humic_n_years, tsd, I_LINEAR);
+    } 
+    if(tsd<=mineral_n_years){
+      this->soilbgc.calpar.kdcsomcr = temutil::interpolate(chtlu.archive_soical_params.kdcsomcr, chtlu.kdcsomcr, start_year, mineral_n_years, tsd, I_LINEAR);
     }
     // WE MAY WANT TO DO A CHECK FOR GIVEN PARAMETERS TO DETERMINE
     // THE MAGNITITUDE DIFFERENCE AND WHETHER WE SHOULD USE A

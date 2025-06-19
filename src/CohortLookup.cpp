@@ -62,9 +62,9 @@ void CohortLookup::loadVegetationParams() {
 void CohortLookup::loadSoilParams() {
   BOOST_LOG_SEV(glg, info) << "Load soil parameters from file...";
   assignBgcCalparSoil(dir);
-  assignGroundDimension(dir);
-  assignEnv4Ground(dir);
-  assignBgc4Ground(dir);
+  // assignGroundDimension(dir);
+  // assignEnv4Ground(dir);
+  // assignBgc4Ground(dir);
 }
 
 /*
@@ -79,64 +79,64 @@ void CohortLookup::archiveSoilParams(){
   archive_soical_params.kdcsompr = this->kdcsompr;
   archive_soical_params.kdcsomcr = this->kdcsomcr;
 
-  archive_snwdim_params.snwdenmax = this->snwdenmax;
-  archive_snwdim_params.snwdennew = this->snwdennew;
-  archive_snwdim_params.initsnwthick = this->initsnwthick;
-  archive_snwdim_params.initsnwdense = this->initsnwdense;
+  // archive_snwdim_params.snwdenmax = this->snwdenmax;
+  // archive_snwdim_params.snwdennew = this->snwdennew;
+  // archive_snwdim_params.initsnwthick = this->initsnwthick;
+  // archive_snwdim_params.initsnwdense = this->initsnwdense;
   
-  archive_soidim_params.maxdmossthick = this->maxdmossthick;
-  archive_soidim_params.initdmossthick = this->initdmossthick;
-  archive_soidim_params.mosstype = this->mosstype;
-  archive_soidim_params.initfibthick = this->initfibthick;
-  archive_soidim_params.inithumthick = this->inithumthick;
-  archive_soidim_params.coefshlwa = this->coefshlwa;
-  archive_soidim_params.coefshlwb = this->coefshlwb;
-  archive_soidim_params.coefdeepa = this->coefdeepa;
-  archive_soidim_params.coefdeepb = this->coefdeepb;
-  archive_soidim_params.coefminea = this->coefminea;
-  archive_soidim_params.coefmineb = this->coefmineb;
+  // archive_soidim_params.maxdmossthick = this->maxdmossthick;
+  // archive_soidim_params.initdmossthick = this->initdmossthick;
+  // archive_soidim_params.mosstype = this->mosstype;
+  // archive_soidim_params.initfibthick = this->initfibthick;
+  // archive_soidim_params.inithumthick = this->inithumthick;
+  // archive_soidim_params.coefshlwa = this->coefshlwa;
+  // archive_soidim_params.coefshlwb = this->coefshlwb;
+  // archive_soidim_params.coefdeepa = this->coefdeepa;
+  // archive_soidim_params.coefdeepb = this->coefdeepb;
+  // archive_soidim_params.coefminea = this->coefminea;
+  // archive_soidim_params.coefmineb = this->coefmineb;
 
-  archive_snwenv_params.snwalbmax = this->snwalbmax;
-  archive_snwenv_params.snwalbmin = this->snwalbmin;
-  archive_snwenv_params.initsnwtem = this->initsnwtem;
+  // archive_snwenv_params.snwalbmax = this->snwalbmax;
+  // archive_snwenv_params.snwalbmin = this->snwalbmin;
+  // archive_snwenv_params.initsnwtem = this->initsnwtem;
 
-  archive_soienv_params.psimax = this->psimax;
-  archive_soienv_params.evapmin = this->evapmin;
-  archive_soienv_params.drainmax = this->drainmax;
-  archive_soienv_params.rtdp4gdd = this->rtdp4gdd;
-  archive_soienv_params.tcsolid_moss = this->tcsolid_moss;
-  archive_soienv_params.tcsolid_f = this->tcsolid_f;
-  archive_soienv_params.tcsolid_h = this->tcsolid_h;
-  archive_soienv_params.poro_moss = this->poro_moss;
-  archive_soienv_params.poro_f = this->poro_f;
-  archive_soienv_params.poro_h = this->poro_h;
-  archive_soienv_params.bulkden_moss = this->bulkden_moss;
-  archive_soienv_params.bulkden_f = this->bulkden_f;
-  archive_soienv_params.bulkden_h = this->bulkden_h;
-  archive_soienv_params.hksat_moss = this->hksat_moss;
-  archive_soienv_params.hksat_f = this->hksat_f;
-  archive_soienv_params.hksat_h = this->hksat_h;
-  archive_soienv_params.nfactor_s = this->nfactor_s;
-  archive_soienv_params.nfactor_w = this->nfactor_w;
+  // archive_soienv_params.psimax = this->psimax;
+  // archive_soienv_params.evapmin = this->evapmin;
+  // archive_soienv_params.drainmax = this->drainmax;
+  // archive_soienv_params.rtdp4gdd = this->rtdp4gdd;
+  // archive_soienv_params.tcsolid_moss = this->tcsolid_moss;
+  // archive_soienv_params.tcsolid_f = this->tcsolid_f;
+  // archive_soienv_params.tcsolid_h = this->tcsolid_h;
+  // archive_soienv_params.poro_moss = this->poro_moss;
+  // archive_soienv_params.poro_f = this->poro_f;
+  // archive_soienv_params.poro_h = this->poro_h;
+  // archive_soienv_params.bulkden_moss = this->bulkden_moss;
+  // archive_soienv_params.bulkden_f = this->bulkden_f;
+  // archive_soienv_params.bulkden_h = this->bulkden_h;
+  // archive_soienv_params.hksat_moss = this->hksat_moss;
+  // archive_soienv_params.hksat_f = this->hksat_f;
+  // archive_soienv_params.hksat_h = this->hksat_h;
+  // archive_soienv_params.nfactor_s = this->nfactor_s;
+  // archive_soienv_params.nfactor_w = this->nfactor_w;
 
-  archive_soibgc_params.rhq10 = this->rhq10;
-  archive_soibgc_params.moistmin = this->moistmin;
-  archive_soibgc_params.moistopt = this->moistopt;
-  archive_soibgc_params.moistmax = this->moistmax;
-  archive_soibgc_params.lcclnc = this->lcclnc;
-  archive_soibgc_params.fsoma = this->fsoma;
-  archive_soibgc_params.fsompr = this->fsompr;
-  archive_soibgc_params.fsomcr = this->fsomcr;
-  archive_soibgc_params.som2co2 = this->som2co2;
-  archive_soibgc_params.kn2 = this->kn2;
-  archive_soibgc_params.nmincnsoil = this->nmincnsoil;
-  archive_soibgc_params.propftos = this->propftos;
-  archive_soibgc_params.fnloss = this->fnloss;
-  archive_soibgc_params.initshlwc = this->initshlwc;
-  archive_soibgc_params.initdeepc = this->initdeepc;
-  archive_soibgc_params.initminec = this->initminec;
-  archive_soibgc_params.initsoln = this->initsoln;
-  archive_soibgc_params.initavln = this->initavln;
+  // archive_soibgc_params.rhq10 = this->rhq10;
+  // archive_soibgc_params.moistmin = this->moistmin;
+  // archive_soibgc_params.moistopt = this->moistopt;
+  // archive_soibgc_params.moistmax = this->moistmax;
+  // archive_soibgc_params.lcclnc = this->lcclnc;
+  // archive_soibgc_params.fsoma = this->fsoma;
+  // archive_soibgc_params.fsompr = this->fsompr;
+  // archive_soibgc_params.fsomcr = this->fsomcr;
+  // archive_soibgc_params.som2co2 = this->som2co2;
+  // archive_soibgc_params.kn2 = this->kn2;
+  // archive_soibgc_params.nmincnsoil = this->nmincnsoil;
+  // archive_soibgc_params.propftos = this->propftos;
+  // archive_soibgc_params.fnloss = this->fnloss;
+  // archive_soibgc_params.initshlwc = this->initshlwc;
+  // archive_soibgc_params.initdeepc = this->initdeepc;
+  // archive_soibgc_params.initminec = this->initminec;
+  // archive_soibgc_params.initsoln = this->initsoln;
+  // archive_soibgc_params.initavln = this->initavln;
 }
 
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file,
