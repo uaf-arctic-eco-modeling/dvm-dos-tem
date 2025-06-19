@@ -219,10 +219,11 @@ void Cohort::setModelData(ModelData* mdp) {
   md = mdp;
 };
 
-void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp) {
+void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp, ThermokarstData * tdp) {
   edall = alledp;
   bdall = allbdp;
   fd = fdp;
+  td = tdp;
   bdall->cd = &cd;
   edall->cd = &cd;
 
@@ -316,6 +317,11 @@ void Cohort::initialize_state_parameters() {
   fire.initializeState();
 
   fire.initializeParameter();
+
+  // thermokarst processes - these do not do anything but following convention
+  td->init();
+
+  thermokarst.initializeState();
   
   BOOST_LOG_SEV(glg, debug) << "Done with Cohort::initStatepar()!  " << ground.layer_report_string("depth thermal ptr desc");
 }
@@ -764,7 +770,7 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
   BOOST_LOG_NAMED_SCOPE("dsb");
 
   updateMonthly_Fir(yrind, currmind, stage);
-  // updateMonthly_Thermokarst(yrind, currmind, stage);
+  updateMonthly_Thermokarst(yrind, currmind, stage);
 
   //updateMonthly_Flood(...)
 }
@@ -842,73 +848,71 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 
 /** Thermokarst Disturbance module. */
 void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::string stage) {
-  // BOOST_LOG_NAMED_SCOPE("fire")
+  BOOST_LOG_NAMED_SCOPE("thermokarst")
 
-  // // FIX ?? not sure this may no longer be necessary??
-  // // FIX? should this get moved into the "if fire" block?, or do we always zero out the FirData values?
-  // if(cd.mthsdist >= fire.getFRI()*12){
-  //   fd->fire_a2soi.orgn = 0.0;
-  // }
-  // if (midx == 0) {
-  //   fd->beginOfYear();
-  // }
+  // This does not current 
+  if (midx == 0) {
+    td->beginOfYear();
+  }
 
-  // // see if it is an appropriate time to burn
-  // if ( fire.should_initiate(year, midx, stage) ) {
+  // see if it is an appropriate time to initiate
+  if ( thermokarst.should_initiate(year, midx, stage) ) {
 
-  //   BOOST_LOG_SEV(glg, debug) << "Right before fire.burn(..)  " << ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "Right before thermokarst.initiate(..)  " << ground.layer_report_string();
 
-  //   // Fire!
-  //   //  - Update C/N pools for each pft through 'bd', but not soil structure.
-  //   //  - Soil root fraction also updated through 'cd'.
-  //   fire.burn(year);
+    // Thermokarst!
+    //  - Update C/N pools for each pft through 'bd', but not soil structure.
+    //  - Soil root fraction also updated through 'cd'.
+    thermokarst.initiate(year);
     
-  //   BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
+    BOOST_LOG_SEV(glg, debug) << "Right after thermokarst.initiate(..)  " << ground.layer_report_string();
 
-  //   BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
-  //   for (int ip=0; ip<NUM_PFT; ip++) {
-  //     if (cd.m_veg.vegcov[ip]>0.) {
-  //       for (int i=0; i<NUM_PFT_PART; i++) {
-  //         bdall->m_vegs.c[i]    += bd[ip].m_vegs.c[i];
-  //         bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
-  //       }
-  //       bdall->m_vegs.labn    += bd[ip].m_vegs.labn;
-  //       bdall->m_vegs.call    += bd[ip].m_vegs.call;
-  //       bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
-  //       bdall->m_vegs.nall    += bd[ip].m_vegs.nall;
-  //       bdall->m_vegs.deadc   += bd[ip].m_vegs.deadc;
-  //       bdall->m_vegs.deadn   += bd[ip].m_vegs.deadn;
-  //     }
-  //   }
+    // BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
+    
+    for (int ip=0; ip<NUM_PFT; ip++) {
+      if (cd.m_veg.vegcov[ip]>0.) {
+        for (int i=0; i<NUM_PFT_PART; i++) {
+          bdall->m_vegs.c[i] += bd[ip].m_vegs.c[i];
+          bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
+        }
+        bdall->m_vegs.labn += bd[ip].m_vegs.labn;
+        bdall->m_vegs.call += bd[ip].m_vegs.call;
+        bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
+        bdall->m_vegs.nall += bd[ip].m_vegs.nall;
+        bdall->m_vegs.deadc += bd[ip].m_vegs.deadc;
+        bdall->m_vegs.deadn += bd[ip].m_vegs.deadn;
+      }
+    }
 
-  //   BOOST_LOG_SEV(glg, debug) << "Post-burn, assign the updated C/N pools to double linked layer matrix in ground...";
-  //   soilbgc.assignCarbonBd2LayerMonthly();
+    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, assign the updated C/N pools to double linked layer matrix in ground...";
+    soilbgc.assignCarbonBd2LayerMonthly();
 
-  //   BOOST_LOG_SEV(glg, debug) << "Post-burn, adjust soil structure...";
-  //   ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
+    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, adjust soil structure...";
+    // May need to rename the below function as it is generic to soil removal
+    ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
 
-  //   BOOST_LOG_SEV(glg, debug) << "Post-burn, save the data back to 'bdall'...";
-  //   soilbgc.assignCarbonLayer2BdMonthly();
+    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, save the data back to 'bdall'...";
+    soilbgc.assignCarbonLayer2BdMonthly();
 
-  //   BOOST_LOG_SEV(glg, debug) << "Post-burn, update all other pft's 'bd'...";
-  //   assignSoilBd2pfts_monthly();
+    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, update all other pft's 'bd'...";
+    assignSoilBd2pfts_monthly();
 
-  //   BOOST_LOG_SEV(glg, debug) << "Post-burn, update cd, ground, fine root fraction...";
-  //   cd.yrsdist = 0;
-  //   cd.mthsdist = 0;
-  //   ground.retrieveSnowDimension(&cd.d_snow);
-  //   ground.retrieveSoilDimension(&cd.m_soil);
-  //   cd.d_soil = cd.m_soil;
-  //   cd.y_soil = cd.m_soil;
-  //   getSoilFineRootFrac_Monthly();
+    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, update cd, ground, fine root fraction...";
+    cd.yrsdist = 0;
+    cd.mthsdist = 0;
+    ground.retrieveSnowDimension(&cd.d_snow);
+    ground.retrieveSoilDimension(&cd.m_soil);
+    cd.d_soil = cd.m_soil;
+    cd.y_soil = cd.m_soil;
+    getSoilFineRootFrac_Monthly();
 
-  // } else {
-  //   BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
-  // }
+  } else {
+    BOOST_LOG_SEV(glg, debug) << "Not time for thermokarst. Nothing to do.";
+  }
 
-  // //Transfer monthly fire data, regardless of burn
-  // year_fd[midx] = *fd;
-  // fd->clear();
+  //Transfer monthly thermokarst data, regardless
+  year_td[midx] = *td;
+  td->clear();
 }
 
 /** Dynamic Vegetation Module function. */

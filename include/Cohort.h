@@ -84,15 +84,15 @@ public :
   // data
   EnvData ed[NUM_PFT];
   BgcData bd[NUM_PFT];
-  EnvData * edall;
-  BgcData * bdall;
+  EnvData* edall;
+  BgcData* bdall;
 
   FirData year_fd[12]; //Monthly fire data, for all PFTs and soil
-  FirData * fd;   //Fire data for an individual month
-  // ThermokarstData year_td[12]; // Monthly fire data, for all PFTs and soil
-  // ThermokarstData *td;         // Fire data for an individual month
+  FirData* fd;   //Fire data for an individual month
+  ThermokarstData year_td[12]; // Monthly fire data, for all PFTs and soil
+  ThermokarstData *td;         // Fire data for an individual month
 
-  ModelData * md;
+  ModelData* md;
 
   CohortData cd;
   RestartData restartdata;
@@ -105,7 +105,7 @@ public :
   void initialize_internal_pointers();
 
   void setModelData(ModelData* md);
-  void setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp);
+  void setProcessData(EnvData* alledp, BgcData* allbdp, FirData* fdp, ThermokarstData* tdp);
 
   void initialize_state_parameters();
   //void prepareAllDrivingData();
