@@ -47,7 +47,7 @@ Thermokarst::Thermokarst(const std::string &exp_fname, const double cell_slope,
 
   #pragma omp critical(load_input)
   {
-    BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+    BOOST_LOG_SEV(glg, info) << "Setting up explicit thermokarst data...";
     this->exp_thermokarst_mask = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_mask", y, x);
     this->exp_thermokarst_severity = temutil::get_timeseries<int>(exp_fname, "exp_thermokarst_severity", y, x);
     this->exp_jday_of_thermokarst = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_thermokarst", y, x);
@@ -157,6 +157,7 @@ bool Thermokarst::should_initiate(const int yr, const int midx, const std::strin
 
 /** Disturbing vegetation and soil organic C to to thermokarst */
 void Thermokarst::initiate(int year) {
+  // initiate slump / subsidence, etc for different methods
   BOOST_LOG_NAMED_SCOPE("Thermokarsting");
   BOOST_LOG_SEV(glg, info) << "HELP!! - THERMOKARST!! RUN FOR YOUR LIFE!";
 
@@ -170,6 +171,9 @@ void Thermokarst::initiate(int year) {
   // lost through thermokarst disturbance (either slump or
   // detachment).
   double thermokarstdepth = getThermokarstOrgSoilRemoval(year);
+  // we might want to think about mineral soil removal as well
+  // but also how to handle different thermokarst types in the
+  // future
 
   BOOST_LOG_SEV(glg, debug) << td->report_to_string("After Thermokarst::getThermokarstOrgSoilthick(..)");
 
@@ -258,7 +262,7 @@ void Thermokarst::initiate(int year) {
     // Thermokarst could affect mineral soil layers. This will need to be an additional set of new processes 
     } else {   //Mineral soil layers
       BOOST_LOG_SEV(glg, info) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
-      BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really burn non-organic layers.";
+      BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really thermokarst non-organic layers. but maybe we will in the future";
 
       if(totbotdepth <= thermokarstdepth) { //may not be needed, but just in case
         BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= thermokarstdepth, so we are setting td->thermokarst_soid.removal_thickness = totbotdepth??";
@@ -451,7 +455,7 @@ void Thermokarst::initiate(int year) {
   //- this will let the system -N balanced in a long-term, if NO
   //  open-N cycle included
   //This should occur every month post-fire. FIX
-  td->thermokarst_a2soi.orgn = (td->thermokarst_soi2a.orgn + td->thermokarst_v2a.orgn);
+  // td->thermokarst_a2soi.orgn = (td->thermokarst_soi2a.orgn + td->thermokarst_v2a.orgn);
 
 
   //put the retained C/N into the first unburned soil layer's

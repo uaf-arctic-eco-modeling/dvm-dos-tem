@@ -37,9 +37,10 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
   this->chted = EnvData();
   this->chtbd = BgcData();
   this->chtfd = FirData();
-  
+  this->chttd = ThermokarstData();
+
   // Now give the cohort pointers to these containers.
-  this->cohort.setProcessData(&this->chted, &this->chtbd, &this->chtfd);
+  this->cohort.setProcessData(&this->chted, &this->chtbd, &this->chtfd, &this->chttd);
 
 }
 

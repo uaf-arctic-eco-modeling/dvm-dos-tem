@@ -89,10 +89,11 @@ private:
   //EnvData  grded;   // grid-aggregated 'ed' (not yet done)
   //BgcData  grdbd;   // grid-aggregared 'bd' (not yet done)
 
-  EnvData  chted;   // withing-grid cohort-level aggregated 'ed'
-                    //   (i.e. 'edall in 'cht')
-  BgcData  chtbd;
-  FirData  chtfd;
+  EnvData chted;   // withing-grid cohort-level aggregated 'ed'
+                   //   (i.e. 'edall in 'cht')
+  BgcData chtbd;
+  FirData chtfd;
+  ThermokarstData chttd;
 
   deque<RestartData> mlyres;
 
