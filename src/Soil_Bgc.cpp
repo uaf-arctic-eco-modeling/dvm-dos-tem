@@ -371,6 +371,7 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
   bgcpar.rhq10      = chtlu->rhq10;
+  bgcpar.rhmoistfrozen = chtlu->rhmoistfrozen;
   bgcpar.moistmin   = chtlu->moistmin;
   bgcpar.moistmax   = chtlu->moistmax;
   bgcpar.moistopt   = chtlu->moistopt;
@@ -589,7 +590,7 @@ void Soil_Bgc::deltac() {
     //HG: 01122023 - this condition allows for winter respiration
     //(Natali et al. 2019, Nature Climate Change)
     if (ed->m_sois.ts[il] <0.) {
-      bd->m_soid.rhmoist[il] = 1;
+      bd->m_soid.rhmoist[il] = bgcpar.rhmoistfrozen;
     } else {
       // Yuan: vwc normalized by total pore - this will allow
       // respiration (methane/oxidation) implicitly
