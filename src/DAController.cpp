@@ -218,7 +218,7 @@ void DAController::run_DA_LAI(timestep_id current_step){
 
   BOOST_LOG_SEV(glg, debug) << "Data assimilation, LAI";
 
-  cell_coords curr_coords(cohort->y, cohort->x);
+  cell_coords curr_coords(cohort->x, cohort->y);
 
   //Write parameters to file
   //sla
