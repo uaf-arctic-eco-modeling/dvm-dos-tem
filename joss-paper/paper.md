@@ -1,5 +1,5 @@
 ---
-title: 'DVMDOSTEM v0.8.2: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics'
+title: 'DVMDOSTEM v0.8.3: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics'
 tags:
   - C++
   - Python
