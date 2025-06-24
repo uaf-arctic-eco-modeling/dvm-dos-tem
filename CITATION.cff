@@ -1,12 +1,18 @@
-# cff-version: 1.2.0
-title: "DVMDOSTEM v0.8.3: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics"
+cff-version: 1.2.0
+title: "DVMDOSTEM"
 
 message: "If you use this software, please cite using the metadata in this file."
 type: software
+
 identifiers:
-  - type: doi
+  - description: "The Zenodo concept DOI of DVMDOSTEM. Use the Concept DOI representing all versions in citations when it is desirable to cite an evolving research artifact, without being specific about the version."
+    type: doi
     value: 10.5281/zenodo.4281497
-    description: "Latest release of DVMDOSTEM software"
+
+  - description: "The GitHub release URL."
+    type: url
+    value: "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases/tag/v0.8.3"
+
 repository-code: "https://uaf-arctic-eco-modeling/dvm-dos-tem"
 url: >-
   https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/index.html#
