@@ -34,7 +34,7 @@ keywords:
   - Tundra
 license: MIT
 authors:
-  - family-names: "Genet" # Wildfire, scientific direction, 
+  - family-names: "Genet" # Wildfire, calibration, scientific direction, 
     given-names: "Hélène"
     orcid: "https://orcid.org/0000-0003-4537-9563"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
@@ -50,16 +50,17 @@ authors:
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
   - family-names: "Carman" # Software development and maintenance
-    given-names: "Tobey B"
+    given-names: "Tobey B."
     orcid: "https://orcid.org/0000-0003-4617-4674"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
   - family-names: "Rutter" # Software development and maintenance
-    given-names: "Ruth A"
+    given-names: "Ruth A."
     orcid: "https://orcid.org/0009-0009-7043-6081"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
   - family-names: "Clein" # Calibration
+    given-names: "Joy"
     orcid: "https://orcid.org/0000-0002-2816-5312"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
@@ -78,7 +79,7 @@ authors:
     orcid: "https://orcid.org/0000-0003-4932-8237"
     affiliation: "Laboratory of Herbage Improvement And Agro-ecosystem, Lanzhou University, Lanzhou 730000, Gansu Province, P.R. China"
 
-  - family-names: "Zhuang" # DOS
+  - family-names: "Zhuang" # TEM
     given-names: "Qianlai"
     orcid: "https://orcid.org/0000-0002-4536-9851"
     affiliation: "Department of Earth, Atmospheric, and Planetary Science, Purdue University, West Lafayette IN 47907 USA"
