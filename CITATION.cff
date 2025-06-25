@@ -17,7 +17,7 @@ repository-code: "https://uaf-arctic-eco-modeling/dvm-dos-tem"
 url: >-
   https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/index.html#
 abstract: >-
-  `DVMDOSTEM` is an advanced process-based terrestrial
+  DVMDOSTEM is an advanced process-based terrestrial
   ecosystem model (TEM) designed to study ecosystem responses to climate changes
   and disturbances. It has a particular focus on permafrost regions (i.e. regions
   characterized by soils that stay partially frozen all year round for at
