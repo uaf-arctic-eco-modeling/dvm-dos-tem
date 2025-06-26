@@ -1,5 +1,5 @@
 ---
-title: 'DVMDOSTEM v0.8.2: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics'
+title: 'DVMDOSTEM v0.8.3: a terrestrial ecosystem model designed to represent arctic, boreal and permafrost ecosystem dynamics'
 tags:
   - C++
   - Python
@@ -152,7 +152,7 @@ designed to study ecosystem responses to climate changes and disturbances. It
 has a particular focus on permafrost regions (i.e. regions characterized by
 soils that stay partially frozen all year round for at least two consecutive
 years), encompassing boreal, arctic, and alpine landscapes. The model couples
-two previous versions of the Terrestrial Ecosystem Model (TEM), [@McGuire1992]:
+two previous versions of the Terrestrial Ecosystem Model (TEM) [@McGuire1992]:
 DVMTEM that includes a dynamic vegetation module (DVM) [@Euskirchen2009], and
 DOSTEM that includes a dynamic organic soil module (DOS) [@Yi2010; @Genet2013].
 `DVMDOSTEM` simulates processes at yearly and monthly scales, with some physical

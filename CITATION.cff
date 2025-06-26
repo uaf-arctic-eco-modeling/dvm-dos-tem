@@ -1,19 +1,23 @@
-# cff-version: 1.2.0
+cff-version: 1.2.0
 title: "DVMDOSTEM"
 
-message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+message: "If you use this software, please cite using the metadata in this file."
 type: software
+
 identifiers:
-  - type: doi
+  - description: "The Zenodo concept DOI of DVMDOSTEM. Use the Concept DOI representing all versions in citations when it is desirable to cite an evolving research artifact, without being specific about the version."
+    type: doi
     value: 10.5281/zenodo.4281497
-    description: "Latest release of DVMDOSTEM software"
+
+  - description: "The GitHub release URL."
+    type: url
+    value: "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases/tag/v0.8.3"
+
 repository-code: "https://uaf-arctic-eco-modeling/dvm-dos-tem"
 url: >-
   https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/index.html#
 abstract: >-
-  `DVMDOSTEM` is an advanced process-based terrestrial
+  DVMDOSTEM is an advanced process-based terrestrial
   ecosystem model (TEM) designed to study ecosystem responses to climate changes
   and disturbances. It has a particular focus on permafrost regions (i.e. regions
   characterized by soils that stay partially frozen all year round for at
@@ -30,55 +34,54 @@ keywords:
   - Tundra
 license: MIT
 authors:
-  - family-names: "Euskirchen"
-    given-names: "Eugénie"
-    orcid: "https://orcid.org/0000-0002-0848-4295"
-    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
-
-  - family-names: "Genet"
+  - family-names: "Genet" # Wildfire, calibration, scientific direction, 
     given-names: "Hélène"
     orcid: "https://orcid.org/0000-0003-4537-9563"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
-  - family-names: "McGuire"
+  - family-names: "Euskirchen" # DVM, scientific direction
+    given-names: "Eugénie"
+    orcid: "https://orcid.org/0000-0002-0848-4295"
+    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
+
+  - family-names: "McGuire" # TEM, scientific direction
     given-names: "A. D."
     orcid: "https://orcid.org/0000-0003-4646-0750"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
-  - family-names: "Carman"
-    given-names: "Tobey B"
+  - family-names: "Carman" # Software development and maintenance
+    given-names: "Tobey B."
     orcid: "https://orcid.org/0000-0003-4617-4674"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
-  - family-names: "Rutter"
-    given-names: "Ruth A"
+  - family-names: "Rutter" # Software development and maintenance
+    given-names: "Ruth A."
     orcid: "https://orcid.org/0009-0009-7043-6081"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
-  - family-names: "Maglio"
-    given-names: "Ben"
-    orcid: "https://orcid.org/0000-0002-1948-0177"
-    affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
-
-  - family-names: "Clein"
+  - family-names: "Clein" # Calibration
     given-names: "Joy"
     orcid: "https://orcid.org/0000-0002-2816-5312"
     affiliation: "Institute of Arctic Biology, University of Alaska Fairbanks, Fairbanks 99775, Alaska, USA"
 
-  - family-names: "Yuan"
+  - family-names: "Yuan" # Merging DVM, DOS, and TEM
     given-names: "Fengming"
     orcid: "https://orcid.org/0000-0003-0910-5231"
     affiliation: "Environmental Science Division and Climate Change Science Institute, Oak Ridge National Laboratory, Oak Ridge, TN 37831"
 
-  - family-names: "Yi"
+  - family-names: "Jafarov" # Calibration
+    given-names: "Elchin"
+    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
+    orcid: "https://orcid.org/0000-0002-8310-3261"
+
+  - family-names: "Yi" # DOS
     given-names: "Shuhua"
     orcid: "https://orcid.org/0000-0003-4932-8237"
     affiliation: "Laboratory of Herbage Improvement And Agro-ecosystem, Lanzhou University, Lanzhou 730000, Gansu Province, P.R. China"
 
-  - family-names: "Zhuang"
+  - family-names: "Zhuang" # TEM
     given-names: "Qianlai"
     orcid: "https://orcid.org/0000-0002-4536-9851"
     affiliation: "Department of Earth, Atmospheric, and Planetary Science, Purdue University, West Lafayette IN 47907 USA"
-
 
 
