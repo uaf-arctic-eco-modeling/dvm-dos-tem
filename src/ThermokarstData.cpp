@@ -3,7 +3,7 @@
 #include "../include/ThermokarstData.h"
 
 ThermokarstData::ThermokarstData() {
-  // fire_a2soi.orgn = 0.0;
+  thermokarst_a2soi.orgn = 0.0;
   useThermokarstSeverity = false;
 };
 

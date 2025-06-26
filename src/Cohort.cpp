@@ -203,6 +203,16 @@ void Cohort::initialize_internal_pointers() {
 
   fire.setFirData(fd);
 
+  // thermokarst module pointers
+  thermokarst.setCohortLookup(&chtlu);
+  thermokarst.setCohortData(&cd);
+  thermokarst.setAllEnvBgcData(edall, bdall);
+
+  for (int i=0; i<NUM_PFT; i++) {
+    thermokarst.setBgcData(&bd[i], i);
+  }
+  thermokarst.setThermokarstData(td);
+
   //BGC states change integration module pointers
   for (int i=0; i<NUM_PFT; i++) {
     vegintegrator[i].setBgcData(&bd[i]);
