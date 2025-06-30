@@ -109,7 +109,7 @@ private:
   CohortLookup * chtlu;
   CohortData * cd;
 
-  ThermokarstData * td;
+  ThermokarstData *tkdata;
   EnvData * edall;
   BgcData * bd[NUM_PFT];
   BgcData * bdall;

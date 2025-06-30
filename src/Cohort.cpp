@@ -211,7 +211,7 @@ void Cohort::initialize_internal_pointers() {
   for (int i=0; i<NUM_PFT; i++) {
     thermokarst.setBgcData(&bd[i], i);
   }
-  thermokarst.setThermokarstData(td);
+  thermokarst.setThermokarstData(tkdata);
 
   //BGC states change integration module pointers
   for (int i=0; i<NUM_PFT; i++) {
@@ -233,7 +233,7 @@ void Cohort::setProcessData(EnvData * alledp, BgcData * allbdp, FirData *fdp, Th
   edall = alledp;
   bdall = allbdp;
   fd = fdp;
-  td = tdp;
+  tkdata = tdp;
   bdall->cd = &cd;
   edall->cd = &cd;
 
@@ -329,7 +329,7 @@ void Cohort::initialize_state_parameters() {
   fire.initializeParameter();
 
   // thermokarst processes - these do not do anything but following convention
-  td->init();
+  tkdata->init();
 
   thermokarst.initializeState();
   
@@ -862,7 +862,7 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
 
   // This does not current 
   if (midx == 0) {
-    td->beginOfYear();
+    tkdata->beginOfYear();
   }
 
   // see if it is an appropriate time to initiate
@@ -921,8 +921,8 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
   }
 
   //Transfer monthly thermokarst data, regardless
-  year_td[midx] = *td;
-  td->clear();
+  year_tkdata[midx] = *tkdata;
+  tkdata->clear();
 }
 
 /** Dynamic Vegetation Module function. */

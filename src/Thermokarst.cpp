@@ -110,12 +110,12 @@ void Thermokarst::initializeState() {
   // this is set from wildfire changes, what state do we
   // need to initialize in the case of a thermokarst
   // disturbance occurrence?
-  td->thermokarst_a2soi.orgn = 0.0;
+  tkdata->thermokarst_a2soi.orgn = 0.0;
 };
 
 // Looks like this is just used when setting up a Cohort from a Restart file...
 void Thermokarst::set_state_from_restartdata(const RestartData & rdata) {
-  td->thermokarst_a2soi.orgn = rdata.thermokarsta2sorgn;
+  tkdata->thermokarst_a2soi.orgn = rdata.thermokarsta2sorgn;
 }
 
 /** Figure out whether or not there should be thermokarst, based on stage, yr, month.
@@ -161,11 +161,11 @@ void Thermokarst::initiate(int year) {
   BOOST_LOG_NAMED_SCOPE("Thermokarsting");
   BOOST_LOG_SEV(glg, info) << "HELP!! - THERMOKARST!! RUN FOR YOUR LIFE!";
 
-  BOOST_LOG_SEV(glg, debug) << td->report_to_string("Before Thermokarst::initiate(..)");
+  BOOST_LOG_SEV(glg, debug) << tkdata->report_to_string("Before Thermokarst::initiate(..)");
   BOOST_LOG_SEV(glg, info) << "Clearing the ThermokarstData object...";
-  td->clearing();
-  BOOST_LOG_SEV(glg, debug) << td->report_to_string("After ThermokarstData::clearing(..)");
-  
+  tkdata->clearing();
+  BOOST_LOG_SEV(glg, debug) << tkdata->report_to_string("After ThermokarstData::clearing(..)");
+
   // What do we want this to be called / do?
   // changing burn to thermokarst, referring to OL soil
   // lost through thermokarst disturbance (either slump or
@@ -175,7 +175,7 @@ void Thermokarst::initiate(int year) {
   // but also how to handle different thermokarst types in the
   // future
 
-  BOOST_LOG_SEV(glg, debug) << td->report_to_string("After Thermokarst::getThermokarstOrgSoilthick(..)");
+  BOOST_LOG_SEV(glg, debug) << tkdata->report_to_string("After Thermokarst::getThermokarstOrgSoilthick(..)");
 
   BOOST_LOG_SEV(glg, info) << "Setup some temporary pools for tracking various thermokarst related attributes (depths, C, N)";
   // Do we need other variables for tracking? ALSO RENAME appropriately
@@ -265,14 +265,14 @@ void Thermokarst::initiate(int year) {
       BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really thermokarst non-organic layers. but maybe we will in the future";
 
       if(totbotdepth <= thermokarstdepth) { //may not be needed, but just in case
-        BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= thermokarstdepth, so we are setting td->thermokarst_soid.removal_thickness = totbotdepth??";
-        td->thermokarst_soid.removal_thickness = totbotdepth;
+        BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= thermokarstdepth, so we are setting tkdata->thermokarst_soid.removal_thickness = totbotdepth??";
+        tkdata->thermokarst_soid.removal_thickness = totbotdepth;
       }
     }
   } // end soil layer loop
 
   //Setting relative organic layer removed (rolr) value
-  td->thermokarst_soid.rolr = td->thermokarst_soid.removal_thickness / totbotdepth;
+  tkdata->thermokarst_soid.rolr = tkdata->thermokarst_soid.removal_thickness / totbotdepth;
 
   // needs to re-do the soil rootfrac for each pft which was modified above
   //   (in burn soil layer)
@@ -436,27 +436,26 @@ void Thermokarst::initiate(int year) {
   BOOST_LOG_SEV(glg, info) << "Save the thermokarst emission and return data into 'td'...";
   //Summing the PFT specific fluxes to dead standing
   for(int ip=0; ip<NUM_PFT; ip++){
-    td->thermokarst_v2dead.vegC += bd[ip]->m_vegs.deadc;
-    td->thermokarst_v2dead.strN += bd[ip]->m_vegs.deadn;
+    tkdata->thermokarst_v2dead.vegC += bd[ip]->m_vegs.deadc;
+    tkdata->thermokarst_v2dead.strN += bd[ip]->m_vegs.deadn;
   }
   //fd->fire_v2dead.vegC = veg_2_dead_C; 
   //fd->fire_v2dead.strN = veg_2_dead_N;
-  td->thermokarst_v2a.orgc =  comb_vegc - reta_vegc;
-  td->thermokarst_v2a.orgn =  comb_vegn - reta_vegn;
-  td->thermokarst_v2soi.abvc = reta_vegc;
-  td->thermokarst_v2soi.abvn = reta_vegn;
-  td->thermokarst_v2soi.blwc = dead_bg_vegc;
-  td->thermokarst_v2soi.blwn = dead_bg_vegn;
-  td->thermokarst_soi2a.orgc = vola_solc;
-  td->thermokarst_soi2a.orgn = vola_soln;
+  tkdata->thermokarst_v2a.orgc =  comb_vegc - reta_vegc;
+  tkdata->thermokarst_v2a.orgn =  comb_vegn - reta_vegn;
+  tkdata->thermokarst_v2soi.abvc = reta_vegc;
+  tkdata->thermokarst_v2soi.abvn = reta_vegn;
+  tkdata->thermokarst_v2soi.blwc = dead_bg_vegc;
+  tkdata->thermokarst_v2soi.blwn = dead_bg_vegn;
+  tkdata->thermokarst_soi2a.orgc = vola_solc;
+  tkdata->thermokarst_soi2a.orgn = vola_soln;
 
   // the above 'v2a.orgn' and 'soi2a.orgn', will be as one of N source,
   // which is depositing into soil evenly in one FRI
   //- this will let the system -N balanced in a long-term, if NO
   //  open-N cycle included
-  //This should occur every month post-fire. FIX
-  // td->thermokarst_a2soi.orgn = (td->thermokarst_soi2a.orgn + td->thermokarst_v2a.orgn);
-
+  // This should occur every month post-fire. FIX
+  // tkdata->thermokarst_a2soi.orgn = (tkdata->thermokarst_soi2a.orgn + tkdata->thermokarst_v2a.orgn);
 
   //put the retained C/N into the first unburned soil layer's
   //  chemically-resistant SOMC pool
@@ -672,7 +671,7 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
   // writing out what we THINK these will be named
   BOOST_LOG_SEV(glg, debug) << "Setting the organic thickness removed in ThermokarstData...";
   // >>> need to name td, and thermokarst_soid.removal_thickness
-  td->thermokarst_soid.removal_thickness = removal_thickness;
+  tkdata->thermokarst_soid.removal_thickness = removal_thickness;
 
   BOOST_LOG_SEV(glg, info) << "Final calculated organic thickness removed: " << removal_thickness;
   return removal_thickness;
@@ -697,5 +696,5 @@ void Thermokarst::setBgcData(BgcData* bdp, const int &ip) {
 
 // >>> This needs to be changed to fit thermokarst data
 void Thermokarst::setThermokarstData(ThermokarstData* tdp) {
-  td = tdp;
+  tkdata = tdp;
 }
