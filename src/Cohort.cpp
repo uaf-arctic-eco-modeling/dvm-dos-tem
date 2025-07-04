@@ -791,6 +791,9 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
      && cd.mthsdist == 0){
     cmtChange(currmind);
     cd.dsbinterpolation = true;
+    // hardcoded switch to poorly-drained (provided input is not already set to 1).
+    // could add gradual change of baseflow (1-0) in dsb interpolation?
+    cd.drainage_type = 1;
   }
 }
 
@@ -1381,7 +1384,7 @@ void Cohort::getBd4allveg_monthly() {
 void Cohort::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT3";
+  std::string new_cmt = "CMT6";
 
   // Load relevant parameters from new CMT
   chtlu.cmtcode = new_cmt;
