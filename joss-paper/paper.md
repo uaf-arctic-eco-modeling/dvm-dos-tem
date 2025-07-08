@@ -189,7 +189,7 @@ therefore well suited to assessing and informing our understanding of the PCCF.
 biophysical and biogeochemical processes between the soil, the vegetation and
 the atmosphere. The evolution and refinement of `DVMDOSTEM` have been shaped by
 extensive research programs and applications both in permafrost and
-non-permafrost regions [@Genet2013; @Genet2018; @Jafarov2013; @Yi2010;
+non-permafrost regions [@Genet2013; @Genet2018; @Jafarov2013; @Jafarov2025; @Yi2010;
 @Yi2009; @Euskirchen2022; @Briones2024]. The model is spatially explicit and
 represents ecosystem response to climate and disturbances at seasonal (i.e.
 monthly) to centennial scales. 
