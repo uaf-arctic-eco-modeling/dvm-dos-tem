@@ -1,8 +1,6 @@
 /*
  * Thermokarst.cpp
  *
- * 3/12/2025
- *
  * Starting with a copy of Wildfire.cpp and adapting
  * script for thermokarst disturbance. Initially, 
  * this will focus on retrogressive thaw slump and 
@@ -610,6 +608,7 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
 
   // >>> for now remove 99% of organic layer
   folr = 0.99;
+  // >>> removing active layer depth from previous year OR deeper if thaw is already deeper
 
   // >>> not sure if we want to fix anything to 0 or 1 yet
   // if (folb > 1.0) folb=1.0;
