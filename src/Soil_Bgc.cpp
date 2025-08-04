@@ -229,8 +229,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   for(int ip=0; ip<NUM_PFT; ip++){
     if(cd->m_vegd.ffoliage[ip]<=0){
       fLAI[ip] = 0;
-    }
-    else{
+    } else{
       fLAI[ip] = cd->m_vegd.ffoliage[ip];
     }
   }
@@ -301,6 +300,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
       }
 
+      // conditioning for very low values in solver
+      // which can cause instabilities
+      if (alpha<1e-12){
+        alpha = 1e-12;
+      }
+
       // Populating internal nodes of tridiagonal matrix
       lower_diagonal[il] = -alpha;
       upper_diagonal[il] = -alpha;
@@ -334,11 +339,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // Converting mol / m3 to umol / L
       ch4_umolL_thresh = ch4_molm3_thresh * 1e6 * 1e-3 * currl->poro;
 
-      if (ed->d_sois.ts[il]>=0.0){// if not frozen
+      if (currl->tem>0.0){// if not frozen ebullition can occur from this layer
         // only return positive ebullition values, negative could occur within the same layer
-        ebul = fmax(0.0, saturated_fraction * (currl->ch4 - ch4_umolL_thresh) * calpar.ch4_ebul_rate);
-      }
-      else {
+        // threshold is scaled as per Wania et al. 2010 on overprediction of threshold for ebullition
+        ebul = fmax(0.0, saturated_fraction * (currl->ch4 - ch4_umolL_thresh * 0.125) * calpar.ch4_ebul_rate);
+      } else {
         ebul = 0.0;
       }
 
@@ -349,10 +354,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       }
 
       // if watertable at soil surface ch4 is emitted out of the system 
-      if (wtlayer == ground->fstsoill){// || ed->d_soi2l.magic_puddle > 0.0){
+      // and the soil surface layer is not frozen
+      if (wtlayer == ground->fstsoill && ground->fstmossl->tem > 0.0){
         ebul_efflux = ebul;
         ebul = 0.0;
-      } else {
+      } else if (wtlayer != ground->fstsoill && ground->fstmossl->tem > 0.0){
         // ch4 is transfered out of current layer to layer containing water table
         // redistribution is necessary so transfered ch4 can be oxidized or emitted
         // via plant-mediate transport
@@ -373,12 +379,12 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // frac_ebul will be equal >0.05 at 1m depth. For 0.7 porosity (i.e humic-
         // mineral) frac_ebul will be equal to <0.02 at 1m depth. This can be
         // adjusted and may need to be a parameter.
-        double frac_ebul = exp(-(currl->z/currl->poro));
+        double frac_ebul = exp(-(currl->z / currl->poro));
         ebul_efflux = frac_ebul * ebul;
         currl->ch4 -= ebul;
         wtlayer->ch4 += ebul - ebul_efflux;
-      }
- 
+      } // else ebul is only redistributing CH4 between unfrozen layers
+
       ebul_gm2hr = ebul * convert_umolL_to_gm2;
       ebul_efflux_gm2hr = ebul_efflux * convert_umolL_to_gm2;
 
@@ -403,8 +409,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // (hr^-1) = 1.0 in (Zhuang, 2004) for depth in cm, here depth in m
         // See [Shannon and White, 1994; Shannon et al., 1996; Dise, 1993, Walter 1998] 
         // for pft transport capacity
-        if (ed->d_sois.ts[il]>0.0){
-          pft_transport[ip] = calpar.ch4_transport_rate * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip];
+        if (currl->tem>0.0){
+          pft_transport[ip] = calpar.ch4_transport_rate * layer_pft_froot * currl->ch4 * chtlu->transport_capacity[ip] * fLAI[ip] * ed->m_soid.rtdpthawpct;
         } else{
           pft_transport[ip] = 0.0;
         }
@@ -425,84 +431,91 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       plant_gm2hr = plant * convert_umolL_to_gm2;
 
       //Oxidation:
-      if(currl->tem < 0.0){
+      // Accounting for subzero microbial activity but reduced q10
+      // Added prior to current development and shows improved seasonality
+      if (currl->tem >= -2.0 && currl->tem < 0.00001){
+        TResp_unsat = 0.25 * getQ10(calpar.oxidq10_ch4, calpar.oxidTref_ch4);
+        TResp_sat = 0.25 * getQ10(calpar.prodq10_ch4, calpar.prodTref_ch4);
+      } else if(currl->tem < -2.0){
         TResp_unsat = 0.0;
         TResp_sat = 0.0;
-      }
-      else{
+      } else{
         TResp_unsat = getQ10(calpar.oxidq10_ch4, currl->tem - calpar.oxidTref_ch4);
         TResp_sat = getQ10(calpar.prodq10_ch4, currl->tem - calpar.prodTref_ch4);
       }
 
-      // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters.
-      // Plant is added here to account for 50% rhizospheric oxidation in the same layer
-      oxid = (1 - saturated_fraction) * (calpar.oxidVmax_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidkm_ch4 + currl->ch4)) + plant;
+        // Fan 2013 Eq 18, Vmax and km are Michaelis-Menten kinetics parameters.
+        // Plant is added here to account for 50% rhizospheric oxidation in the same layer
+        oxid = (1 - saturated_fraction) * (calpar.oxidVmax_ch4 * currl->ch4 * TResp_unsat / (calpar.oxidkm_ch4 + currl->ch4)) + plant;
 
-      if (oxid < 0.000001){
-        oxid = 0.0;
-      }
+        if (oxid < 0.000001){
+          oxid = 0.0;
+        }
 
-      // unit conversion
-      oxid_gm2hr = oxid * convert_umolL_to_gm2;
+        // unit conversion
+        oxid_gm2hr = oxid * convert_umolL_to_gm2;
 
-      // accumulating to monthly to add to RH output
-      ch4_oxid_monthly[il] += oxid_gm2hr;
+        // accumulating to monthly to add to RH output
+        ch4_oxid_monthly[il] += oxid_gm2hr;
 
-      // Production:
-      // Fan Eq. 9: rate constant * carbon pool * Q10
-      // Saturated fraction required carbon pool extraction d_soi2soi.ch4
-      if(tmp_sois.rawc[il] > 0.0){
-        prod_rawc_ch4[il] = saturated_fraction * (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
-        bd->d_soi2soi.ch4_rawc[il] += prod_rawc_ch4[il];
-      }else{
-        prod_rawc_ch4[il] = 0.0;
-      }
-      if(tmp_sois.soma[il] > 0.0){
-        prod_soma_ch4[il] = saturated_fraction * (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
-        bd->d_soi2soi.ch4_soma[il] += prod_soma_ch4[il];
-      }else{
-        prod_soma_ch4[il] = 0.0;
-      }
-      if(tmp_sois.sompr[il] > 0.0){
-        prod_sompr_ch4[il] = saturated_fraction * (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
-        bd->d_soi2soi.ch4_sompr[il] += prod_sompr_ch4[il];
-      }else{
-        prod_sompr_ch4[il] = 0.0;
-      }
-      if(tmp_sois.somcr[il] > 0.0){
-        prod_somcr_ch4[il] = saturated_fraction * (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
-        bd->d_soi2soi.ch4_somcr[il] += prod_somcr_ch4[il];
-      }else{
-        prod_somcr_ch4[il] = 0.0;
-      }
+        // Production:
+        // Fan Eq. 9: rate constant * carbon pool * Q10
+        // Saturated fraction required carbon pool extraction d_soi2soi.ch4
+        if (tmp_sois.rawc[il] > 0.0){
+          prod_rawc_ch4[il] = saturated_fraction * (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
+          bd->d_soi2soi.ch4_rawc[il] += prod_rawc_ch4[il];
+        } else {
+          prod_rawc_ch4[il] = 0.0;
+        }
 
-      prod_gm2hr = (prod_rawc_ch4[il] + prod_soma_ch4[il] + prod_sompr_ch4[il] + prod_somcr_ch4[il]);
-          
-      // Fan 2013 Eq. 9, converted back to umolL^-1hr^-1 for solver
-      prod = (convert_gm2_to_umolL) * prod_gm2hr; 
+        if (tmp_sois.soma[il] > 0.0){
+          prod_soma_ch4[il] = saturated_fraction * (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
+          bd->d_soi2soi.ch4_soma[il] += prod_soma_ch4[il];
+        } else {
+          prod_soma_ch4[il] = 0.0;
+        }
 
-      // Accumulating to daily fluxes
-      plant_gm2day += plant_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI - in units of g m^-2 day^-1
+        if (tmp_sois.sompr[il] > 0.0){
+          prod_sompr_ch4[il] = saturated_fraction * (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
+          bd->d_soi2soi.ch4_sompr[il] += prod_sompr_ch4[il];
+        } else {
+          prod_sompr_ch4[il] = 0.0;
+        }
 
-      oxid_gm2day += oxid_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI
+        if (tmp_sois.somcr[il] > 0.0){
+          prod_somcr_ch4[il] = saturated_fraction * (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
+          bd->d_soi2soi.ch4_somcr[il] += prod_somcr_ch4[il];
+        } else {
+          prod_somcr_ch4[il] = 0.0;
+        }
 
-      ebul_gm2day += ebul_gm2hr; // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
-      ebul_efflux_gm2day += ebul_efflux_gm2hr; // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
+        prod_gm2hr = (prod_rawc_ch4[il] + prod_soma_ch4[il] + prod_sompr_ch4[il] + prod_somcr_ch4[il]);
 
-      //Accumulating ebullitions per layer across timesteps for output
-      ch4_ebul_layer[il] += ebul_gm2hr;
-      ch4_oxid_layer[il] += oxid_gm2hr;
+        // Fan 2013 Eq. 9, converted back to umolL^-1hr^-1 for solver
+        prod = (convert_gm2_to_umolL)*prod_gm2hr;
 
-      // modifying the reaction term to include inward and outward fluxes
-      // only consider ebullition if it removes ch4 from the soil pool
-      reaction_term = prod - oxid - ebul_efflux - plant;
+        // Accumulating to daily fluxes
+        plant_gm2day += plant_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI - in units of g m^-2 day^-1
 
-      prev_pool_R[il] = currl->ch4 + reaction_term * dt;
+        oxid_gm2day += oxid_gm2hr; // cumulated over 1 day, 24 time steps, Y.MI
 
-      if (currl->prevl->isMoss){
-        // impose atmospheric concentration for upper boundary
-        solver_rhs[il] = alpha * upper_bound + (1 - 2 * alpha) * currl->ch4 + alpha * currl->nextl->ch4 + dt * reaction_term;
-      } else if (currl->nextl->isRock){
+        ebul_gm2day += ebul_gm2hr;               // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
+        ebul_efflux_gm2day += ebul_efflux_gm2hr; // cumulated over 1 time step, 1 hour - in units of g m^-2 day^-1
+
+        // Accumulating ebullitions per layer across timesteps for output
+        ch4_ebul_layer[il] += ebul_gm2hr;
+        ch4_oxid_layer[il] += oxid_gm2hr;
+
+        // modifying the reaction term to include inward and outward fluxes
+        // only consider ebullition if it removes ch4 from the soil pool
+        reaction_term = prod - oxid - ebul_efflux - plant;
+
+        prev_pool_R[il] = currl->ch4 + reaction_term * dt;
+
+        if (currl->prevl->isMoss){
+          // impose atmospheric concentration for upper boundary
+          solver_rhs[il] = alpha * upper_bound + (1 - 2 * alpha) * currl->ch4 + alpha * currl->nextl->ch4 + dt * reaction_term;
+        } else if (currl->nextl->isRock){
         // impose closed boundary condition (i.e. zero flux) at lower boundary
         solver_rhs[il] = alpha * currl->prevl->ch4 + (1 - 2 * alpha) * currl->ch4 + alpha * currl->ch4 + dt * reaction_term;
       } else {
@@ -512,8 +525,7 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
       currl = currl->prevl;
       il--; // Incrementing manual layer index tracker
-
-    }
+      }
 
     // For the mass balance we include boundary conditions
     // atmospheric concentration for upper 
