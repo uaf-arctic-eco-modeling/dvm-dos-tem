@@ -42,6 +42,8 @@ namespace temutil {
       }
   };
 
+  class CellTimeExceeded : public TEMException {};
+
 
 
   /** A 'predicate' function that can be used with std::remove_if(..)
