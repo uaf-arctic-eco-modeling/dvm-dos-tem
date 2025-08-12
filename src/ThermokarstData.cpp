@@ -16,7 +16,7 @@ std::string ThermokarstData::report_to_string(const std::string& msg) {
 
   report << "  " << msg << "  ==== ThermokarstData REPORT ====\n";
   report << "   useThermokarstSeverity: " << useThermokarstSeverity << "\n";
-  report << "   thermokarst_soid.burnthick: " << thermokarst_soid.removal_thickness << "\n";
+  report << "   thermokarst_soid.removal_thickness: " << thermokarst_soid.removal_thickness << "\n";
   report << "\n";
   // report << "   fire_v2a.orc: " << fire_v2a.orgc << "\n";
   // report << "   fire_v2a.orn: " << fire_v2a.orgn << "\n";
