@@ -123,6 +123,8 @@ public :
   void updateWholeFrozenStatus(); //update if whole soil frozen(1)/
                                   //  unfrozen(-1)/partially-frozen(0)
 
+  double getThawDepth(); // get seasonal thaw depth  
+
   // update water drainage layer and depth
   void setDrainL();
 

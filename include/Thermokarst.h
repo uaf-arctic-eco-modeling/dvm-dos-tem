@@ -33,7 +33,9 @@ public:
   ~Thermokarst();
 
   void load_projected_explicit_data(const std::string& exp_fname, int y, int x);
- 
+  
+  void setThawDepth(double);
+
   void setCohortData(CohortData* cdp);
   void setAllEnvBgcData(EnvData* edp, BgcData* bdp);
   void setBgcData(BgcData* bdp, const int &ip);
@@ -96,7 +98,7 @@ private:
   std::vector<int> exp_thermokarst_severity;
   std::vector<int64_t> exp_area_of_thermokarst;
 
-
+  double thaw_depth;
 
   firepar_bgc firpar; // >>> Need to address these somewhere else in data structures
 
@@ -114,7 +116,7 @@ private:
   BgcData * bd[NUM_PFT];
   BgcData * bdall;
 
-  double getThermokarstOrgSoilRemoval(const int year);
+  double getThermokarstSoilRemoval(const int year);
   void getThermokarstAbgVegetation(const int ipft, const int year);
 
 };

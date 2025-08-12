@@ -870,6 +870,10 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
 
     BOOST_LOG_SEV(glg, debug) << "Right before thermokarst.initiate(..)  " << ground.layer_report_string();
 
+    double thaw = ground.getThawDepth();
+    thermokarst.setThawDepth(thaw);
+    // >>> MAYBE STOP THERMOKARST IF THERE IS NO THAWING FRONT <<<
+
     // Thermokarst!
     //  - Update C/N pools for each pft through 'bd', but not soil structure.
     //  - Soil root fraction also updated through 'cd'.

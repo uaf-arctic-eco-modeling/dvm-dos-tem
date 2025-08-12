@@ -1691,7 +1691,7 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
 //   on C content change after fire
 // So, it must be called after 'bd' layerd C content was assigned to the
 //   orginal double-linked layer matrix
-double Ground::adjustSoilAfterburn() {
+double Ground::adjustSoilAfterburn() { //adjustSoilAfterDisturbance()
   BOOST_LOG_SEV(glg, debug) << "Beginning of adjustSoilAfterburn(..)" << this->layer_report_string();
 
   double bdepthadj = 0.; // this is used to check if thickness change here
@@ -1894,6 +1894,20 @@ void Ground::getLayerFrozenstatusByFronts(Layer * soill) {
   } // end else fronts exist in column
 }
 
+/**
+  * Get current thaw depth for calculating soil removal
+  * in the case of hillslope thermokarst (RTS). 
+**/
+double Ground::getThawDepth(){
+  // loop through fronts
+  int fntnum = frontsz.size();
+  for(int fntind=0; fntind<fntnum; fntind++){
+    if(frontstype[fntind]<0){
+      return frntz[fntind];
+    }
+  }
+  return -1;
+}
 
 void Ground::setDrainL() {
 

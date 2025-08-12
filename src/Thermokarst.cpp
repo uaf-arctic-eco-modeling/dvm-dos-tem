@@ -168,12 +168,12 @@ void Thermokarst::initiate(int year) {
   // changing burn to thermokarst, referring to OL soil
   // lost through thermokarst disturbance (either slump or
   // detachment).
-  double thermokarstdepth = getThermokarstOrgSoilRemoval(year);
+  double thermokarstdepth = getThermokarstSoilRemoval(year);
   // we might want to think about mineral soil removal as well
   // but also how to handle different thermokarst types in the
   // future
 
-  BOOST_LOG_SEV(glg, debug) << tkdata->report_to_string("After Thermokarst::getThermokarstOrgSoilthick(..)");
+  BOOST_LOG_SEV(glg, debug) << tkdata->report_to_string("After Thermokarst::getThermokarstSoilthick(..)");
 
   BOOST_LOG_SEV(glg, info) << "Setup some temporary pools for tracking various thermokarst related attributes (depths, C, N)";
   // Do we need other variables for tracking? ALSO RENAME appropriately
@@ -546,7 +546,7 @@ void Thermokarst::getThermokarstAbgVegetation(const int ipft, const int year) {
 *   2. can't exceed a pixel specified 'max burn thickness'
 *   3. should not burn into "wet" organic soil layers
 */
-double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
+double Thermokarst::getThermokarstSoilRemoval(const int year) {
 
 
   BOOST_LOG_SEV(glg, info) << "Find the amount of organic soil that is removed due to thermokarst.";
@@ -555,18 +555,24 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
   // >>> thickness removed from thermokarst disturbance
   double removal_thickness = 0.0;
 
+  if (this->thaw_depth>0.0){
+    removal_thickness = this->thaw_depth;
+  } else {
+    BOOST_LOG_SEV(glg, warn) << "Thermokarst specified but no thawing front";
+  }
+
   // >>> There was a severity index based on ALFRESCO. For now there will
   // only be one severity, but this is subject to development of state
   // and transition model
 
-  double total_organic_thickness =  cd->m_soil.mossthick
-                                    + cd->m_soil.shlwthick
-                                    + cd->m_soil.deepthick;
+  // double total_organic_thickness =  cd->m_soil.mossthick
+  //                                   + cd->m_soil.shlwthick
+  //                                   + cd->m_soil.deepthick;
 
-  BOOST_LOG_SEV(glg, debug) << "Total organic thickness: " << total_organic_thickness;
+  // BOOST_LOG_SEV(glg, debug) << "Total organic thickness: " << total_organic_thickness;
 
   // >>> compute: Fraction Organic Layer Removed (FOLR)
-  double folr = 0.0;
+  // double folr = 0.0;
 
   // >>> All of the below is depending on severity and whether FRI
   // or explicit inputs are implemented. Ingoring for now.
@@ -607,8 +613,28 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
   // }
 
   // >>> for now remove 99% of organic layer
-  folr = 0.99;
+  // folr = 0.99;
   // >>> removing active layer depth from previous year OR deeper if thaw is already deeper
+
+
+  /*
+
+  calcuate thaw depth / active layer from previous year
+  determine whether to remove "all" fibric, "all" humic, and/or some mineral
+  all being capped at 0.99
+
+  removal thickness would become equal to thaw depth / active layer
+
+  THEN we go to ground for that removal
+
+
+
+  
+  removal_thickness = ground.getCurrentThawDepth();
+
+  ground.remove_soil(removal_thickness);
+
+  */
 
   // >>> not sure if we want to fix anything to 0 or 1 yet
   // if (folb > 1.0) folb=1.0;
@@ -620,9 +646,9 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
   //  (foslburn ==> "fraction organic soil layer burned")
   //burn_thickness = firpar.foslburn[severity] * total_organic_thickness;
 
-  removal_thickness = folr * total_organic_thickness;
+  // removal_thickness = folr * total_organic_thickness;
 
-  BOOST_LOG_SEV(glg, debug) << "Calculated organic thickness removed: " << removal_thickness;
+  // BOOST_LOG_SEV(glg, debug) << "Calculated organic thickness removed: " << removal_thickness;
   
   // >>> Below is calculating volumetric soil moisture constrained burning or layers
   // For a slump, this may work inversely, i.e. greater moisture more removal of 
@@ -668,12 +694,18 @@ double Thermokarst::getThermokarstOrgSoilRemoval(const int year) {
 
   // >>> Here we need to add OL removal thickness to ThermokarstData
   // writing out what we THINK these will be named
-  BOOST_LOG_SEV(glg, debug) << "Setting the organic thickness removed in ThermokarstData...";
+  // BOOST_LOG_SEV(glg, debug) << "Setting the organic thickness removed in ThermokarstData...";
   // >>> need to name td, and thermokarst_soid.removal_thickness
+
   tkdata->thermokarst_soid.removal_thickness = removal_thickness;
 
-  BOOST_LOG_SEV(glg, info) << "Final calculated organic thickness removed: " << removal_thickness;
+  BOOST_LOG_SEV(glg, info) << "Final calculated thickness removed: " << removal_thickness;
+  
   return removal_thickness;
+};
+
+void Thermokarst::setThawDepth(double depth){
+  thaw_depth = depth;
 };
 
 void Thermokarst::setCohortLookup(CohortLookup* chtlup) {
