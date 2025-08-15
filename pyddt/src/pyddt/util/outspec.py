@@ -22,7 +22,6 @@ import csv
 import sys
 import argparse
 import textwrap
-import os
 
 def print_line_dict(d, header=False):
   if header:
