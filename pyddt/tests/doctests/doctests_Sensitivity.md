@@ -269,9 +269,9 @@ matrix from the parameter specifications. An additional piece of setup remains:
 setting the targets values and turning on the appropriate model outputs so that
 a comparison with the targets is possible. Targets are stored in a special
 python file named `calibration_targets.py`. This is a python file with a
-dictionary datastructure holding the target values. For this experiment, we will
+dictionary data structure holding the target values. For this experiment, we will
 use the default target set that comes with the repository. THis function loads
-up all the targets for the driver's cmt number.
+up all the targets for the driver's CMT number.
 
     >>> sd.load_target_data('/work/calibration')
 
