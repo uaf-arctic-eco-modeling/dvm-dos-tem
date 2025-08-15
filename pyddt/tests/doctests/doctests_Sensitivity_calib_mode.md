@@ -1,7 +1,7 @@
 
 # Testing config with calib mode
 
-Here we are checking that the user can pass a varierly of forms of
+Here we are checking that the user can pass a variety of forms of
 "GPPAllIgnoringNitrogen" as the key word for ``calib_mode`` and get the desired
 result (``dsl`` and ``nfeed`` being turned off).
 
@@ -10,7 +10,7 @@ First load some libraries
     >>> import pathlib
     >>> import yaml
     >>> import json
-    >>> import drivers.Sensitivity
+    >>> import pyddt.drivers.sensitivity
 
 Next define our config file. Notice that the number of samples is small and the
 run years are small. We are just trying to make sure everything loads and runs
@@ -54,7 +54,7 @@ Make sure the appropriate mid-level directories exist for the `work_dir`.
 
 Now make the Sensitivity object, setup the run directories and do the runs.
 
-    >>> driver = drivers.Sensitivity.Sensitivity(config_dict)
+    >>> driver = pyddt.drivers.sensitivity.Sensitivity(config_dict)
 
     >>> driver.clean()
 

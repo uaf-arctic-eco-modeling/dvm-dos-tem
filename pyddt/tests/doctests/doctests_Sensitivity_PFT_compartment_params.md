@@ -5,7 +5,7 @@ First load some libraries
 
     >>> import pathlib
     >>> import yaml
-    >>> import drivers.Sensitivity
+    >>> import pyddt.drivers.sensitivity
 
 Next define our config file. Notice that the number of samples is small and the
 run years are small. We are just trying to make sure everything loads and runs
@@ -49,7 +49,7 @@ Make sure the appropriate mid-level directories exist for the `work_dir`.
 
 Now make the Sensitivity object, setup the run directories and do the runs.
 
-    >>> driver = drivers.Sensitivity.Sensitivity(config_dict)
+    >>> driver = pyddt.drivers.sensitivity.Sensitivity(config_dict)
 
     >>> driver.clean()
 

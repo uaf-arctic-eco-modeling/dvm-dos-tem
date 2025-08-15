@@ -8,15 +8,15 @@ import scipy.stats
 import numpy as np
 import matplotlib.pyplot as plt
 
-import util.output
-import util.param
+import pyddt.util.output
+import pyddt.util.param
 
 def eq_quality(var, fileprefix='', cmtkey='', PXx=None, PXy=None, pref=''):
   '''
   Draft ... experimenting with measuring eq state...
   '''
 
-  data, dims = util.output.get_last_n_eq(var, timeres='yearly', 
+  data, dims = pyddt.util.output.get_last_n_eq(var, timeres='yearly', 
                                          fileprefix=fileprefix, n=30)
 
   def measure(data):
@@ -48,7 +48,7 @@ def eq_quality(var, fileprefix='', cmtkey='', PXx=None, PXy=None, pref=''):
 
   elif dnames == ('time','y','x','pft'):
     for pft in range(0,10):
-      if util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=pref):
+      if pyddt.util.param.is_ecosys_contributor(cmtkey, pft, ref_params_dir=pref):
         values = data[:,pft,PXy,PXx]
         d = dict(**measure(values))
         d = {f"{var}_pft{pft}_eq_{key}":val for key, val in d.items() }
@@ -62,7 +62,7 @@ def eq_quality(var, fileprefix='', cmtkey='', PXx=None, PXy=None, pref=''):
     for pft in range(0,10):
       clu = {0:'Leaf', 1:'Stem', 2:'Root'}
       for cmprt in range(0,3):
-        if util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=pref):
+        if pyddt.util.param.is_ecosys_contributor(cmtkey, pft, clu[cmprt], ref_params_dir=pref):
           values = data[:,cmprt,pft,PXy,PXx]
           d = dict(**measure(values))
           d = {f"{var}_pft{pft}_{cmprt}_eq_{key}":val for key, val in d.items() }

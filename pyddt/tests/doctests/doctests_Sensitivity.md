@@ -223,7 +223,7 @@ be overwritten when we run the ``load_experiment`` function on the new driver.
     ... cmtnum=2,
     ... N_samples=1
     ... )
-    >>> sd2 = pyddt.drivers.Sensitivity.Sensitivity(config=junk_config)
+    >>> sd2 = pyddt.drivers.sensitivity.Sensitivity(config=junk_config)
 
 This new driver should not have its `work_dir` set:
 
@@ -285,14 +285,14 @@ compare the model outputs with the target values to check model performance.
 Finally, to actually run the mode (in parallel) each run needs to have a
 dedicated folder to run in. Each run folder should have in it
 parameter files with the modified parameter values. The `Sensitivity`
-object provides a funciton for creating and populating these directories:
+object provides a function for creating and populating these directories:
 
     >>> sd.setup_multi()
     Saving plot /tmp/tests-Sensitivity/sample_matrix_distributions.png
 
 After this runs, we should have, within the `work_dir`, a bunch of new folders.
 There should be one folder for each sample run (row in the sample matrix) and
-one folder for the intial value run as well as the files that are written when
+one folder for the initial value run as well as the files that are written when
 the experiment is saved:
 
     >>> sorted(os.listdir(sd.work_dir))
@@ -329,11 +329,11 @@ matrix.
 > sample folders are being setup correctly.
 
     >>> # Read the data in sample folder's parameter file
-    >>> import util.param
+    >>> import pyddt.util.param
     >>> idx = 0
     >>> pfile = os.path.join(sd._ssrf_name(idx), "parameters/cmt_calparbgc.txt")
-    >>> data = util.param.get_CMT_datablock(pfile, sd.cmtnum)
-    >>> dd = util.param.cmtdatablock2dict(data)
+    >>> data = pyddt.util.param.get_CMT_datablock(pfile, sd.cmtnum)
+    >>> dd = pyddt.util.param.cmtdatablock2dict(data)
 
     >>> # get the correct param spec out of the params list
     >>> PS = [pdict for pdict in sd.params if pdict['name'] == 'cmax'][0]
@@ -358,7 +358,7 @@ and sample folders but for now, we'll assume its working.
 
 Next we can check that the multi-PFT functionality works:
 
-    >>> sd = pyddt.drivers.Sensitivity.Sensitivity(config=config_dict)
+    >>> sd = pyddt.drivers.sensitivity.Sensitivity(config=config_dict)
     >>> sd.set_work_dir('/tmp/tests-Sensitivity')
     >>> sd.set_seed_path('/work/parameters')
 
