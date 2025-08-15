@@ -14,7 +14,6 @@ import subprocess
 import tempfile
 
 # For command line interface
-import sys
 import argparse
 import textwrap
 

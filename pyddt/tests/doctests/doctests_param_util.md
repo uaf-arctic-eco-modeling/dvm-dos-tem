@@ -24,12 +24,12 @@ enforced outside this testing file.
 
 Load the library
 
-    >>> import util.param
+    >>> import pyddt.util.param
 
 List all the CMTs found in a file. This returns a list of dictionaries, from
 which we can print the name and number of each CMT.
 
-    >>> cmts = util.param.get_CMTs_in_file("parameters/cmt_calparbgc.txt")
+    >>> cmts = pyddt.util.param.get_CMTs_in_file("parameters/cmt_calparbgc.txt")
     >>> for i in cmts:
     ...     print("{} {}".format(i["cmtnum"], i["cmtname"]))
     0 BARE GROUND OPEN WATER SNOW AND ICE
@@ -48,7 +48,7 @@ which we can print the name and number of each CMT.
 
 Build a lookup table, mapping file names to lists of available parameters
 
-    In [26]: lu = util.param.build_param_lookup("parameters/")
+    In [26]: lu = pyddt.util.param.build_param_lookup("parameters/")
 
     In [27]: lu.keys()
     Out[27]: dict_keys(['parameters/cmt_bgcvegetation.txt', 'parameters/cmt_dimvegetation.txt', 'parameters/cmt_firepar.txt', 'parameters/cmt_envground.txt', 'parameters/cmt_bgcsoil.txt', 'parameters/cmt_envcanopy.txt', 'parameters/cmt_dimground.txt', 'parameters/cmt_calparbgc.txt'])
@@ -56,7 +56,7 @@ Build a lookup table, mapping file names to lists of available parameters
 Note that this lookup functionality is wrapped in an class so that you can have
 a re-usable object that holds the lookup table:
 
-    In [14]: psh = util.param.ParamUtilSpeedHelper('parameters/')
+    In [14]: psh = pyddt.util.param.ParamUtilSpeedHelper('parameters/')
     In [15]: s = psh.list_params(cmtnum=5, pftnum=1)
 
 The `list_params(...)` function returns a new line separated string that prints
@@ -90,7 +90,7 @@ See that all the parameter files contain the same CMTs (by number):
 
     >>> import os
     >>> for f in os.listdir("parameters/"):
-    ...   print([i["cmtnum"] for i in util.param.get_CMTs_in_file("parameters/" + f)])
+    ...   print([i["cmtnum"] for i in pyddt.util.param.get_CMTs_in_file("parameters/" + f)])
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
@@ -105,7 +105,7 @@ Enforce that all the CMT verbose names are identical across files.
     >>> for cmt in [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]:
     ...   names = []
     ...   for f in os.listdir("parameters/"):
-    ...     dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock("parameters/" + f, cmt))
+    ...     dd = pyddt.util.param.cmtdatablock2dict(pyddt.util.param.get_CMT_datablock("parameters/" + f, cmt))
     ...     names.append(dd["cmtname"])
     ...   print("cmt {}: ".format(cmt), end='')
     ...   if len(set(names)) != 1:
@@ -129,7 +129,7 @@ Enforce that all the CMT verbose names are identical across files.
 
 Check on one of the command line reporting fuctions:
 
-    In [8]: util.param.cmdline_entry(["--report-cmt-names", "parameters", "5"])
+    In [8]: pyddt.util.param.cmdline_entry(["--report-cmt-names", "parameters", "5"])
                                         file name  cmt key   long name
                     parameters/cmt_bgcsoil.txt    CMT05   Tussock Tundra
               parameters/cmt_bgcvegetation.txt    CMT05   Tussock Tundra
@@ -143,7 +143,7 @@ Check on one of the command line reporting fuctions:
 
 Run the functionality that pulls out a single CMT from all files.
 
-    >>> util.param.cmdline_entry(["--extract-cmt", "parameters", "cmt04", "/tmp/doctest_param"])
+    >>> pyddt.util.param.cmdline_entry(["--extract-cmt", "parameters", "cmt04", "/tmp/doctest_param"])
     0
 
 When the above is complete, there should be a new folder in the parameters
@@ -154,7 +154,7 @@ directory, named with the CMT key with a bunch of files in it.
 
 Check that the CMT exists in each new file:
 
-    In [16]: util.param.cmdline_entry(['--report-cmt-names', '/tmp/doctest_param/CMT04', '4'])
+    In [16]: pyddt.util.param.cmdline_entry(['--report-cmt-names', '/tmp/doctest_param/CMT04', '4'])
                                         file name  cmt key   long name
               parameters/CMT04/cmt_bgcsoil.txt    CMT04   Shrub Tundra
         parameters/CMT04/cmt_bgcvegetation.txt    CMT04   Shrub Tundra
@@ -168,7 +168,7 @@ Check that the CMT exists in each new file:
 
 And that some of the other CMTs don't exist:
 
-    In [18]: util.param.cmdline_entry(['--report-cmt-names', '/tmp/doctest_param/CMT01', '1'])
+    In [18]: pyddt.util.param.cmdline_entry(['--report-cmt-names', '/tmp/doctest_param/CMT01', '1'])
                                         file name  cmt key   long name
               parameters/CMT04/cmt_bgcsoil.txt      n/a   n/a
         parameters/CMT04/cmt_bgcvegetation.txt      n/a   n/a
@@ -183,25 +183,25 @@ And that some of the other CMTs don't exist:
 Work with the smartformat() function. This function is used to try and control
 the way things are formatted when printing the fixed width text parameter files.
 
-    >>> util.param.smart_format('   34.56')
+    >>> pyddt.util.param.smart_format('   34.56')
     '     34.5600 '
-    >>> util.param.smart_format('  0.00000000056')
+    >>> pyddt.util.param.smart_format('  0.00000000056')
     '   5.600e-10 '
-    >>> util.param.smart_format(' 40.0000000')
+    >>> pyddt.util.param.smart_format(' 40.0000000')
     '     40.0000 '
-    >>> util.param.smart_format('  04000.00000')
+    >>> pyddt.util.param.smart_format('  04000.00000')
     '   4000.0000 '
-    >>> util.param.smart_format(00000050.23)
+    >>> pyddt.util.param.smart_format(00000050.23)
     '     50.2300 '
-    >>> util.param.smart_format('  0000050.340500', n=7)
+    >>> pyddt.util.param.smart_format('  0000050.340500', n=7)
     '     50.3405 '
-    >>> util.param.smart_format('0')
+    >>> pyddt.util.param.smart_format('0')
     '      0.0000 '
-    >>> util.param.smart_format('0.00not a number0')
+    >>> pyddt.util.param.smart_format('0.00not a number0')
     Traceback (most recent call last):
       ...
     ValueError: could not convert string to float: '0.00not a number0'
-    >>> util.param.smart_format('0.000')
+    >>> pyddt.util.param.smart_format('0.000')
     '      0.0000 '
 
 Test that cmt datablocks can be read with and without multiple comment lines.
@@ -212,7 +212,7 @@ CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
 
 > Note that the string 'CMT' is not allowed in the extra comment lines!
 
-    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_calparbgc.txt', 0))
+    >>> dd = pyddt.util.param.cmtdatablock2dict(pyddt.util.param.get_CMT_datablock('parameters/cmt_calparbgc.txt', 0))
     >>> dd['cmtname']
     'BARE GROUND OPEN WATER SNOW AND ICE'
     >>> dd['comment']
@@ -220,7 +220,7 @@ CMT00 in `cmt_calparbgc.txt` has an extra comment line added to it.
 
 While CMT01 does not:
 
-    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_calparbgc.txt', 1))
+    >>> dd = pyddt.util.param.cmtdatablock2dict(pyddt.util.param.get_CMT_datablock('parameters/cmt_calparbgc.txt', 1))
     >>> dd['cmtname']
     'Boreal Black Spruce'
     >>> dd['comment']
@@ -228,13 +228,13 @@ While CMT01 does not:
 
 Try the same thing, but on a non-PFT file:
 
-    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_dimground.txt', 0))
+    >>> dd = pyddt.util.param.cmtdatablock2dict(pyddt.util.param.get_CMT_datablock('parameters/cmt_dimground.txt', 0))
     >>> dd['cmtname']
     'BARE GROUND OPEN WATER SNOW AND ICE'
     >>> dd['comment']
     ''
 
-    >>> dd = util.param.cmtdatablock2dict(util.param.get_CMT_datablock('parameters/cmt_dimground.txt', 1))
+    >>> dd = pyddt.util.param.cmtdatablock2dict(pyddt.util.param.get_CMT_datablock('parameters/cmt_dimground.txt', 1))
     >>> dd['cmtname']
     'Boreal Black Spruce'
     >>> dd['comment']

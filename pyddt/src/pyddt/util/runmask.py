@@ -13,8 +13,13 @@ from pathlib import Path
 import shutil
 from collections import Counter
 
-import input
-import param
+# relative import.
+# from . import input
+# from . import param
+
+# absolute import, reccomended by PEP 8
+from pyddt.util import input, param
+
 
 '''
 This script is for creating, modifying, and viewing run masks for dvmdostem. 

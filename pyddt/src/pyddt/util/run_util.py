@@ -2,9 +2,9 @@
 
 import os
 import subprocess
-import util.runmask
-import util.setup_working_directory
-import util.outspec
+import pyddt.util.runmask
+import pyddt.util.setup_working_directory
+import pyddt.util.outspec
 
 
 def run_case(config, output_set):
@@ -38,14 +38,14 @@ def run_case(config, output_set):
 
 
   #Create working directory
-  util.setup_working_directory.cmdline_entry(["--input-data-path",
+  pyddt.util.setup_working_directory.cmdline_entry(["--input-data-path",
                                config["input_dir"], config["working_dir"]])
 
 
   #Enable only cell 0,0 in the run mask
   case_run_mask = "{}/run-mask.nc".format(config["working_dir"])
-  util.runmask.cmdline_entry(["--reset", case_run_mask])
-  util.runmask.cmdline_entry(["--yx", "0", "0", case_run_mask])
+  pyddt.util.runmask.cmdline_entry(["--reset", case_run_mask])
+  pyddt.util.runmask.cmdline_entry(["--yx", "0", "0", case_run_mask])
 
 
   #Turn on EQ output in the config file
@@ -58,11 +58,11 @@ def run_case(config, output_set):
   #Set up output choices
   #util.outspec.enable_output_set(short_test_set)
   outspecs = "{}/config/output_spec.csv".format(config["working_dir"])
-  util.outspec.cmdline_entry([outspecs, "--empty"])
+  pyddt.util.outspec.cmdline_entry([outspecs, "--empty"])
 
   for entry in output_set:
     entry = entry.split()
-    util.outspec.cmdline_entry([outspecs, "--on", *entry])
+    pyddt.util.outspec.cmdline_entry([outspecs, "--on", *entry])
 
 
   #Switch to the working directory so local paths work
