@@ -29,9 +29,9 @@ specified.
 
 >>> config_dict = yaml.load(my_yaml_string, Loader=yaml.FullLoader)
 
->>> import drivers.MadsTEMDriver
+>>> import pyddt.drivers.madstem
 
->>> d = drivers.MadsTEMDriver.MadsTEMDriver(config_dict)
+>>> d = pyddt.drivers.madstem.MadsTEMDriver(config_dict)
 
 >>> d.set_seed_path('/work/parameters')
 
@@ -41,10 +41,10 @@ specified.
 
 >>> d.setup_outputs(d.target_names)
 
-Grab the targets in two differnt formats (flat and labeled) and make sure the
+Grab the targets in two different formats (flat and labeled) and make sure the
 values line up as expected. 
 
-> Notice here that the `MadsTEMDriver.targets` datastructure includes **all**
+> Notice here that the `MadsTEMDriver.targets` data structure includes **all**
 the target data that is included for that CMT (loaded from the
 calibration_targets.py file). In most cases, we are only interested in working
 with a certain subset of the target data - namely those targets that are
