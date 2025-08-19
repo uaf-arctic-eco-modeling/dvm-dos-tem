@@ -115,6 +115,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
+  cell_timelimit = controldata["model_settings"]["cell_timelimit"].asInt();
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
@@ -671,9 +672,12 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
       }
 
       /* End Define Mode (not strictly necessary for netcdf 4) */
-      BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-      temutil::nc( nc_enddef(ncid) );
-
+      BOOST_LOG_SEV(glg, debug) << "Trying to leaving 'define mode'...";
+      try {
+        temutil::nc( nc_enddef(ncid) );
+      } catch (const temutil::NetCDFDefineModeException& e) {
+        BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
+      }
       /* Fill out the time coordinate variable */
       if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
         BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";

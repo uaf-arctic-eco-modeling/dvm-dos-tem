@@ -5,6 +5,7 @@ This file is intended to test that the driver can work with all three types of
 targets specified (soil, PFT, PFT-compartment).
 
 >>> import yaml
+>>> import pytest
 
 >>> my_yaml_string = """
 ... work_dir: /tmp/test_CA
@@ -50,7 +51,7 @@ targets specified (soil, PFT, PFT-compartment).
 
 >>> d.setup_outputs(d.target_names)
 
-Grab the targets in two differnt formats (flat and labeled) and make sure the
+Grab the targets in two different formats (flat and labeled) and make sure the
 values line up as expected. 
 
 >>> import pandas as pd
@@ -102,35 +103,20 @@ analysis.
 >>> final_data = d.gather_model_outputs()
 >>> import pandas as pd
 >>> df_finaldata = pd.DataFrame(final_data)
->>> df_finaldata.info()
-<class 'pandas.core.frame.DataFrame'>
-RangeIndex: 20 entries, 0 to 19
-Data columns (total 6 columns):
- #   Column  Non-Null Count  Dtype  
----  ------  --------------  -----  
- 0   cmt     20 non-null     object 
- 1   ctname  20 non-null     object 
- 2   value   20 non-null     float64
- 3   truth   20 non-null     float64
- 4   pft     19 non-null     float64
- 5   cmprt   12 non-null     object 
-dtypes: float64(3), object(3)
-memory usage: 1.1+ KB
 
-Print out the top and bottom of the frame.
+Here rather than printing the DataFrame, we use pytest.approx to check the
+values. Printing the frame looks nice, but it is not terribly useful for
+testing because it tends to fail on whitespace and other formatting issues.
 
->>> df_finaldata.head()
-     cmt                  ctname       value    truth  pft cmprt
-0  CMT06  GPPAllIgnoringNitrogen    9.008573   11.833  0.0   NaN
-1  CMT06  GPPAllIgnoringNitrogen  133.687429  197.867  1.0   NaN
-2  CMT06  GPPAllIgnoringNitrogen   25.611490   42.987  2.0   NaN
-3  CMT06  GPPAllIgnoringNitrogen    7.791676   10.667  3.0   NaN
-4  CMT06  GPPAllIgnoringNitrogen    3.388915    3.375  4.0   NaN
+Here are the first 5 rows:
 
->>> df_finaldata.tail()
-      cmt     ctname      value  truth  pft cmprt
-15  CMT06  VegCarbon   2.602119    2.0  3.0  Leaf
-16  CMT06  VegCarbon   2.664471    3.2  3.0  Root
-17  CMT06  VegCarbon   2.250932    2.0  4.0  Leaf
-18  CMT06  VegCarbon  22.572059   22.0  5.0  Leaf
-19  CMT06  VegCarbon  22.400614   23.0  6.0  Leaf
+>>> assert (9.008573, 133.687429, 25.611490, 7.791676, 3.388915) == pytest.approx(df_finaldata['value'][:5], abs=1e-6)
+>>> assert (11.833, 197.867, 42.987, 10.667, 3.375) == pytest.approx(df_finaldata['truth'][:5], abs=1e-6)
+>>> assert (0.0, 1.0, 2.0, 3.0, 4.0) == pytest.approx(df_finaldata['pft'][:5], abs=1e-6)
+
+And here are the last 5 rows:
+
+>>> assert (2.602119, 2.664471, 2.250932, 22.572059, 22.400614) == pytest.approx(df_finaldata['value'][-5:], abs=1e-6)
+>>> assert (2.0, 3.2, 2.0, 22.0, 23.0) == pytest.approx(df_finaldata['truth'][-5:], abs=1e-6)
+>>> assert (3.0, 3.0, 4.0, 5.0, 6.0) == pytest.approx(df_finaldata['pft'][-5:], abs=1e-6)
+

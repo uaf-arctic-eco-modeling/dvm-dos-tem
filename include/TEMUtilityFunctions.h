@@ -33,6 +33,19 @@ extern src::severity_logger< severity_level > glg;
 
 namespace temutil {
 
+  class TEMException : public std::exception {};
+
+  class NetCDFDefineModeException : public TEMException {
+  public:
+      const char* what() const noexcept override {
+          return "NetCDF define mode exception.";
+      }
+  };
+
+  class CellTimeExceeded : public TEMException {};
+
+
+
   /** A 'predicate' function that can be used with std::remove_if(..)
 
    Intended to be used with STL containers, so requirements on T are
