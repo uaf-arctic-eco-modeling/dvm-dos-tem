@@ -1676,7 +1676,7 @@ double Soil_Bgc::getRhmoist(const double &vsm, const double &moistmin,
 
 double Soil_Bgc::getRhq10(const double & tsoil) {
   double rhq10;
-  rhq10 =  pow( (double)calpar.rhq10, tsoil/10.0);
+  rhq10 =  pow( (double)bgcpar.rhq10, tsoil/10.0);
   return rhq10;
 };
 

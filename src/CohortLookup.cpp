@@ -159,7 +159,6 @@ std::string CohortLookup::calparbgc2str() {
   s << this->max_ponding_s << "// summermaxponding: \n:";
   s << this->max_ponding_w << "// wintermaxponding: \n:";
   s << this->inflow_factor << "// inflowfactor: \n:";
-  s << this->rhq10 << "// rhq10:\n";
   s << this->s2dfraction << "// s2dfraction \n:";
   s << this->d2mfraction << "// d2mfraction \n:";
   s << this->kdcrawc_ch4 << "// kdcrawc_ch4:\n";
@@ -174,7 +173,6 @@ std::string CohortLookup::calparbgc2str() {
   s << this->oxidTref_ch4 << "// oxidTref_ch4:\n";
   s << this->oxidkm_ch4 << "// oxidkm_ch4:\n";
   s << this->oxidVmax_ch4 << "// oxidVmax_ch4:\n";
-  s << this->rhmoist << "// rhmoist:\n";
   return s.str();
 }
 
@@ -184,7 +182,7 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 37
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 35
   );
 
   // pop each line off the front of the list
@@ -211,7 +209,6 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data(l, max_ponding_s);
   temutil::pfll2data(l, max_ponding_w);
   temutil::pfll2data(l, inflow_factor);
-  temutil::pfll2data(l, rhq10);
   temutil::pfll2data(l, s2dfraction);
   temutil::pfll2data(l, d2mfraction);
 
@@ -231,8 +228,6 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
 
   temutil::pfll2data(l, oxidkm_ch4);
   temutil::pfll2data(l, oxidVmax_ch4);
-
-  temutil::pfll2data(l, rhmoist);
 }
 
 /** Assign "veg dimension?" from parameter file. */

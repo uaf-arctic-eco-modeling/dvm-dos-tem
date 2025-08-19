@@ -50,7 +50,6 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
-  double rhq10;
   double s2dfraction;
   double d2mfraction;
   //Soil methane calibrated values
@@ -70,8 +69,6 @@ public:
 
   double oxidkm_ch4;
   double oxidVmax_ch4;
-
-  double rhmoist;
 
   double max_ponding_s;
   double max_ponding_w;
