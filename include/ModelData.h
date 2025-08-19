@@ -115,6 +115,9 @@ public:
   bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
 
+  int cell_timelimit; //Time limit in seconds for cell computation time
+  time_t cell_stime; //Start time per cell. Move to Runner?
+
   bool outSiteDay;
 
   bool get_envmodule();

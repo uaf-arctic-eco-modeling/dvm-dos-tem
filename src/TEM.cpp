@@ -190,6 +190,7 @@ int main(int argc, char* argv[]){
   
   time_t stime, etime, cell_stime, cell_etime;
   stime = time(0);
+  modeldata.cell_stime = stime;
 
   BOOST_LOG_SEV(glg, info) << "Start dvmdostem @ " << ctime(&stime);
 
@@ -434,10 +435,18 @@ int main(int argc, char* argv[]){
 
             BOOST_LOG_SEV(glg, info) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
             std::cout << "cell " << rowidx << ", " << colidx << " complete." << std::endl;
-            write_status_info(run_status_fname, "run_status", rowidx, colidx, 100);
+            write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_SUCCESS);
             write_status_info(run_status_fname, "total_runtime", rowidx, colidx, difftime(cell_etime, cell_stime));
-            
-          } catch (std::exception& e) {
+ 
+          }
+          catch (const temutil::CellTimeExceeded& e) {
+            BOOST_LOG_SEV(glg, warn) << "Time Exception (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
+
+            write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_TIMEOUT); // <- what if this throws??
+            BOOST_LOG_SEV(glg, warn) << "End of Time Exception handler";
+
+          }
+          catch (std::exception& e) {
 
             BOOST_LOG_SEV(glg, warn) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
 
@@ -449,13 +458,14 @@ int main(int argc, char* argv[]){
             outfile.close();
 
             // Write to fail_mask.nc file?? or json? might be good for visualization
-            write_status_info(run_status_fname, "run_status", rowidx, colidx, -100); // <- what if this throws??
+            write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_FAIL); // <- what if this throws??
             BOOST_LOG_SEV(glg, warn) << "End of exception handler.";
 
           }
-        } else {
+        }//End of active cell
+        else {
           BOOST_LOG_SEV(glg, monitor) << "Skipping cell (" << rowidx << ", " << colidx << ")";
-          write_status_info(run_status_fname, "run_status", rowidx, colidx, 0);
+          write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_MASKED);
         }
  
 #ifdef WITHMPI
@@ -925,6 +935,10 @@ void create_empty_run_status_file(const std::string& fname,
   // Status
   temutil::nc( nc_def_var(ncid, "run_status", NC_INT, 2, vartype2D_dimids, &run_statusV) );
   temutil::nc( nc_put_att_int(ncid, run_statusV, "_FillValue", NC_INT, 1, &MISSING_I) );
+  temutil::nc( nc_put_att_int(ncid, run_statusV, "success", NC_INT, 1, &STATUS_SUCCESS) );
+  temutil::nc( nc_put_att_int(ncid, run_statusV, "masked", NC_INT, 1, &STATUS_MASKED) );
+  temutil::nc( nc_put_att_int(ncid, run_statusV, "timeout", NC_INT, 1, &STATUS_TIMEOUT) );
+  temutil::nc( nc_put_att_int(ncid, run_statusV, "fail", NC_INT, 1, &STATUS_FAIL) );
 
   // Runtime
   temutil::nc( nc_def_var(ncid, "total_runtime", NC_INT, 2, vartype2D_dimids, &total_runtimeV) );
@@ -937,7 +951,11 @@ void create_empty_run_status_file(const std::string& fname,
 
   /* End Define Mode (not strictly necessary for netcdf 4) */
   BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode' ["<<fname<<"]";
-  temutil::nc( nc_enddef(ncid) );
+  try {
+    temutil::nc( nc_enddef(ncid) );
+  } catch (const temutil::NetCDFDefineModeException& e) {
+    BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
+  }
 
   /* Close file. */
   BOOST_LOG_SEV(glg, debug) << "Closing new file ["<<fname<<"]";
