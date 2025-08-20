@@ -293,6 +293,12 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   } 
 
+  // if(groundwater_enabled){
+    // if(fbaseflow==0.0){
+  
+    // }
+  // }
+
   // This whole else if statement should be prefaced by limits:
   // - poor drainage
   // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these

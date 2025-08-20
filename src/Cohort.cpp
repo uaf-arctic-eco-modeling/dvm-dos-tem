@@ -73,6 +73,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
     this->climate.load_ch4(modeldatapointer->ch4_file);
   }
 
+  cd.groundwater_status = modeldatapointer->get_groundwater_status();
+  cd.runon_status = modeldatapointer->get_runon_status();
+
   this->climate.baseline_start = modeldatapointer->baseline_start;
   this->climate.baseline_end = modeldatapointer->baseline_end;
   //Prepare averaged input set for EQ stage

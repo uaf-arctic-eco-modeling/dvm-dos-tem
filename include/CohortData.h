@@ -38,6 +38,9 @@ public:
   double cell_elevation;
 
   bool hasnonvascular; //if exists non-vascular PFT(s) within the vegetation community
+  
+  bool groundwater_status; //decide whether to include groundwater recharge estimations
+  bool runon_status; // decide whether to include runon estimations
 
   int vegyear[MAX_VEG_SET];
   int vegtype[MAX_VEG_SET];

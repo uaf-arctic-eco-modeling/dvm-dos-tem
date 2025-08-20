@@ -28,6 +28,8 @@ public :
 
   double max_ponding;
   double inflow_factor;
+  bool groundwater_status;
+  bool runon_status;
 
   //Array to hold lateral drainage values for output to file.
   double layer_drain[MAX_SOI_LAY];

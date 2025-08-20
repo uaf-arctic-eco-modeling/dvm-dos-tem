@@ -122,6 +122,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
   ch4_module = controldata["model_settings"]["ch4"].asBool();
+  runon_enabled = controldata["model_settings"]["run-on"].asBool();
+  groundwater_enabled = controldata["model_settings"]["groundwater"].asBool();
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
@@ -216,6 +218,13 @@ void ModelData::set_ch4_module(const std::string &s) {
 void ModelData::set_ch4_module(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << v;
   this->ch4_module = v;
+}
+
+bool ModelData::get_runon_status() {
+  return this->runon_enabled;
+}
+bool ModelData::get_groundwater_status() {
+  return this->groundwater_enabled;
 }
 
 bool ModelData::get_dslmodule() {
