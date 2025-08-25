@@ -102,6 +102,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   proj_co2_file     = controldata["IO"]["proj_co2_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
+  restart_from      = controldata["IO"]["restart_from"].asString();
   output_spec_file  = controldata["IO"]["output_spec_file"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
   nc_eq             = controldata["IO"]["output_nc_eq"].asBool();

@@ -179,6 +179,12 @@ void ArgHandler::verify() {
   }
   // Check that the value for --force-cmt is present in all input parameter files?
 
+  if ( (this->restart_run) && ( (this->eq_yrs > 0) || (this->pr_yrs > 0) ) ){
+    BOOST_LOG_SEV(glg, fatal) << "Invalid argument combination!: --restart-run not allowed for EQ or PR years.";
+    exit(-1);
+  }
+
+
 }
 
 

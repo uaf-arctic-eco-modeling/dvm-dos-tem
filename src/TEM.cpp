@@ -171,7 +171,21 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, info) << "Update model settings based on command line flags/options...";
   modeldata.update(args);
 
-  /*  
+  // Further verification that the cmd line args and the config file don't have
+  // conflicting settings
+  if ( (modeldata.pr_yrs > 0) || (modeldata.eq_yrs > 0) ) {
+    assert(!args->get_restart_run() && "Cannot restart run with PR or EQ years");
+  }
+
+  // Make sure that if user wants a restart run, they explicitly set the 
+  // path to the restart file in their config.js file.
+  if (args->get_restart_run()) {
+    assert(!modeldata.restart_from.empty() && 
+    "Restart run requires a valid restart_from file, please set in your config!");
+  }
+
+
+  /*
       Someday it may be worth the time/effort to make better use of
       boots::program_options here to manage the arguments from config file
       and the command line.
@@ -589,6 +603,7 @@ void advance_model(const int rowidx, const int colidx,
          - FIX: should ignore calibration directives?
     */
 
+    assert(modeldata.restart_from.empty() && "You can't restart a pre-run! Make sure restart_from config setting is blank (empty string)");
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
     }
@@ -631,6 +646,8 @@ void advance_model(const int rowidx, const int colidx,
   if (modeldata.eq_yrs > 0) {
     BOOST_LOG_NAMED_SCOPE("EQ");
     BOOST_LOG_SEV(glg, monitor) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
+
+    assert(!modeldata.restart_from.empty() && "You can't restart an equilibrium run!");
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -712,9 +729,16 @@ void advance_model(const int rowidx, const int colidx,
 
     runner.cohort.climate.monthlycontainers2log();
 
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
-
+    if (modeldata.restart_from.empty()) {
+      BOOST_LOG_SEV(glg, warn) << "No restart file specified for SP stage. "
+                               << "Using default EQ restart file from previous stage of this run: " << eq_restart_fname;
+      BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "User specified restart file for SP stage: " << modeldata.restart_from;
+      BOOST_LOG_SEV(glg, info) << "Restarting from: " << modeldata.restart_from;
+      runner.cohort.restartdata.update_from_ncfile(modeldata.restart_from, rowidx, colidx);
+    }
     // FIX: if restart file has -9999, then soil temps can end up
     // impossibly low should check for valid values prior to actual use
 

@@ -81,6 +81,7 @@ public:
   string proj_co2_file;
   string runmask_file;
   string output_dir;
+  string restart_from;      // Restart from a previous run
   string output_spec_file;
   bool output_monthly;
   bool nc_eq; // NetCDF output flags for each stage
