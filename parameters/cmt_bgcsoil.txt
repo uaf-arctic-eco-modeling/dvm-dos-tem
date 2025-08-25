@@ -3,6 +3,7 @@
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -23,6 +24,7 @@
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -43,6 +45,7 @@
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -63,6 +66,7 @@
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // JSC 6/20/20 JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -83,6 +87,7 @@
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax: 
@@ -103,6 +108,7 @@
 //===========================================================
 // CMT05 // Tussock Tundra
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -123,6 +129,7 @@
 //===========================================================
 // CMT06 // Wet Sedge Tundra
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -143,6 +150,7 @@
 //===========================================================
 // CMT07 // Heath Tundra
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -163,6 +171,7 @@
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -183,6 +192,7 @@
 //===========================================================
 // CMT20 // EML Shrub Tundra
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -203,6 +213,7 @@
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 joy)
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax:
@@ -223,6 +234,7 @@
 //===========================================================
 // CMT31 // Boreal Bog
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:
@@ -243,6 +255,7 @@
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 2.0               // rhq10:
+1.0               // rhmoistfrozen:
 0.0               // moistmin:
 0.5               // moistopt:
 1.0               // moistmax: 

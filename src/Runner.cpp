@@ -94,6 +94,16 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
         this->monthly_output(iy, im, stage, end_year);
 
+        // Prevent cells from running for an exceptionally long time,
+        //  mostly for use in large regional runs.
+        if(md.cell_timelimit > 0){//If a limit is specified at all
+          time_t cell_curr_time = time(0);
+          int run_seconds = difftime(cell_curr_time, md.cell_stime);
+          if(run_seconds > md.cell_timelimit){
+            throw temutil::CellTimeExceeded();
+          }
+        }
+
       } // end month loop
     } // end named scope
 
