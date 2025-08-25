@@ -68,9 +68,10 @@ void EnvData::clear() {
   y_snw2a = snw2atm_env();
   y_snw2soi = snw2soi_env();
   //
-  monthsfrozen  = 0.;
-  rtfrozendays  = 0;
-  rtunfrozendays= 0;
+  monthsfrozen = 0.;
+  rtfrozendays = 0;
+  rtunfrozendays = 0;
+  prev_year_ald = UIN_D;
   cd->clear();
 };
 
@@ -765,9 +766,9 @@ void EnvData::veg_endOfMonth(const int & currmind) {
   y_v2g.sthfl += m_v2g.sthfl;
 };
 
-void EnvData::grnd_endOfMonth() {
+void EnvData::grnd_endOfMonth(const int & currmind) {
   // snow
-  y_snws.swesum  += m_snws.swesum/12.; // it's not practical to calculate the
+  y_snws.swesum += m_snws.swesum/12.; // it's not practical to calculate the
                                        // yearly-averaged layered snow variables
   y_snws.tsnwave += m_snws.tsnwave/12.;
   y_snw2a.swrefl += m_snw2a.swrefl/12; // short-wave radiation reflection
@@ -781,13 +782,13 @@ void EnvData::grnd_endOfMonth() {
                                                //months not, its value shall be
                                                //between -1 and 1.
     y_sois.frozenfrac[il] += m_sois.frozenfrac[il]/12;
-    y_sois.ts[il]  += m_sois.ts[il]/12.;
+    y_sois.ts[il] += m_sois.ts[il]/12.;
     y_sois.liq[il] += m_sois.liq[il]/12.;
     y_sois.ice[il] += m_sois.ice[il]/12.;
   }
 
-  y_sois.watertab  += m_sois.watertab/12.;
-  y_sois.draindepth+= m_sois.draindepth/12.;
+  y_sois.watertab += m_sois.watertab/12.;
+  y_sois.draindepth += m_sois.draindepth/12.;
 
   for(int il=0; il<numsoi; il++) {
     y_soid.liqsum += m_sois.liq[il]/12.;
@@ -803,34 +804,34 @@ void EnvData::grnd_endOfMonth() {
     y_soid.hcond[il] += m_soid.hcond[il]/12.;
   }
 
-  y_soid.frasat    += m_soid.frasat/12.;
-  y_soid.tbotrock    += m_soid.tbotrock/12.;
+  y_soid.frasat += m_soid.frasat/12.;
+  y_soid.tbotrock += m_soid.tbotrock/12.;
   y_soid.unfrzcolumn += m_soid.unfrzcolumn/12.;
   y_soid.vwcshlw += m_soid.vwcshlw/12.;
   y_soid.vwcdeep += m_soid.vwcdeep/12.;
-  y_soid.vwcminea+= m_soid.vwcminea/12;
-  y_soid.vwcmineb+= m_soid.vwcmineb/12.;
-  y_soid.vwcminec+= m_soid.vwcminec/12.;
+  y_soid.vwcminea += m_soid.vwcminea/12;
+  y_soid.vwcmineb += m_soid.vwcmineb/12.;
+  y_soid.vwcminec += m_soid.vwcminec/12.;
   y_soid.tshlw += m_soid.tshlw/12.;
   y_soid.tdeep += m_soid.tdeep/12.;
-  y_soid.tminea+= m_soid.tminea/12.;
-  y_soid.tmineb+= m_soid.tmineb/12.;
-  y_soid.tminec+= m_soid.tminec/12.;
+  y_soid.tminea += m_soid.tminea/12.;
+  y_soid.tmineb += m_soid.tmineb/12.;
+  y_soid.tminec += m_soid.tminec/12.;
   y_soid.tcshlw += m_soid.tcshlw/12.;
   y_soid.tcdeep += m_soid.tcdeep/12.;
-  y_soid.tcminea+= m_soid.tcminea/12.;
-  y_soid.tcmineb+= m_soid.tcmineb/12.;
-  y_soid.tcminec+= m_soid.tcminec/12.;
+  y_soid.tcminea += m_soid.tcminea/12.;
+  y_soid.tcmineb += m_soid.tcmineb/12.;
+  y_soid.tcminec += m_soid.tcminec/12.;
   y_soid.hkshlw += m_soid.hkshlw/12.;
   y_soid.hkdeep += m_soid.hkdeep/12.;
-  y_soid.hkminea+= m_soid.hkminea/12.;
-  y_soid.hkmineb+= m_soid.hkmineb/12.;
-  y_soid.hkminec+= m_soid.hkminec/12.;
+  y_soid.hkminea += m_soid.hkminea/12.;
+  y_soid.hkmineb += m_soid.hkmineb/12.;
+  y_soid.hkminec += m_soid.hkminec/12.;
   // determine if a permafrost or not
   y_soid.permafrost = m_soid.permafrost;
 
   // determine the active layer depth for daily/monthly
-  if (y_soid.permafrost ==1) {
+  if (y_soid.permafrost == 1) {
     if (y_soid.ald < m_soid.ald) { // assuming the max. daily value
       y_soid.ald = m_soid.ald;
     }
@@ -841,6 +842,10 @@ void EnvData::grnd_endOfMonth() {
   } else {
     y_soid.ald = cd->m_soil.totthick;
     y_soid.alc = 0.;
+  }
+
+  if(currmind==11){
+    this->prev_year_ald = y_soid.ald;
   }
 
   //

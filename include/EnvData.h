@@ -129,6 +129,7 @@ public:
                             //   24 months is the criterion for permafrost
   int rtfrozendays;         // soil top rootzone continuously frozen days
   int rtunfrozendays;       // soil top rootzone continuously unfrozen days
+  double prev_year_ald;     // storing last years ALD for thermokarst calculations
 
   CohortData * cd;
 
@@ -151,7 +152,7 @@ public:
   // accumulating/averaging yearly variables at the end of month
   void atm_endOfMonth();
   void veg_endOfMonth(const int & currmind);
-  void grnd_endOfMonth();
+  void grnd_endOfMonth(const int &currmind);
 
   void update_from_climate(const Climate& clm, const int mid, const int dayid);
 
