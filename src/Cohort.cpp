@@ -696,7 +696,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         if(id==dinmcurr-1) {
           ed[ip].atm_endOfMonth();
           ed[ip].veg_endOfMonth(currmind);
-          ed[ip].grnd_endOfMonth();
+          ed[ip].grnd_endOfMonth(currmind);
         }
       }
     }
@@ -710,7 +710,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     if(id==dinmcurr-1) {
       edall->atm_endOfMonth();
       edall->veg_endOfMonth(currmind);
-      edall->grnd_endOfMonth();
+      edall->grnd_endOfMonth(currmind);
     }
 
   }} // end of day loop (and named scope)
@@ -866,67 +866,67 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
   }
 
   // see if it is an appropriate time to initiate
-  if ( thermokarst.should_initiate(year, midx, stage) ) {
+  if (thermokarst.should_initiate(year, midx, stage)) {
 
     BOOST_LOG_SEV(glg, debug) << "Right before thermokarst.initiate(..)  " << ground.layer_report_string();
 
-    double thaw = ground.getThawDepth();
-    thermokarst.setThawDepth(thaw);
-    // >>> MAYBE STOP THERMOKARST IF THERE IS NO THAWING FRONT <<<
+    double thaw = max(ground.getThawDepth(), edall->prev_year_ald);
 
-    // Thermokarst!
-    //  - Update C/N pools for each pft through 'bd', but not soil structure.
-    //  - Soil root fraction also updated through 'cd'.
-    thermokarst.initiate(year);
-    
-    BOOST_LOG_SEV(glg, debug) << "Right after thermokarst.initiate(..)  " << ground.layer_report_string();
+    if(thaw < 0.0){
+      BOOST_LOG_SEV(glg, debug) << "Negative thaw depth or active layer depth value. Error in thermokarst prediction.";
+    } else if(thaw == 0.0){
+      BOOST_LOG_SEV(glg, debug) << "Soil column is completely frozen. No thermokarst can occur.";
+    } else{
+      thermokarst.setThawDepth(thaw);
+      thermokarst.initiate(year);
+      BOOST_LOG_SEV(glg, debug) << "Right after thermokarst.initiate(..)  " << ground.layer_report_string();
 
-    // BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
+      // BOOST_LOG_SEV(glg, debug) << "Collect burned veg C/N from individual pfts into bdall...";
     
-    for (int ip=0; ip<NUM_PFT; ip++) {
-      if (cd.m_veg.vegcov[ip]>0.) {
-        for (int i=0; i<NUM_PFT_PART; i++) {
-          bdall->m_vegs.c[i] += bd[ip].m_vegs.c[i];
-          bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
+      for (int ip=0; ip<NUM_PFT; ip++) {
+        if (cd.m_veg.vegcov[ip]>0.) {
+          for (int i=0; i<NUM_PFT_PART; i++) {
+            bdall->m_vegs.c[i] += bd[ip].m_vegs.c[i];
+            bdall->m_vegs.strn[i] += bd[ip].m_vegs.strn[i];
+          }
+          bdall->m_vegs.labn += bd[ip].m_vegs.labn;
+          bdall->m_vegs.call += bd[ip].m_vegs.call;
+          bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
+          bdall->m_vegs.nall += bd[ip].m_vegs.nall;
+          bdall->m_vegs.deadc += bd[ip].m_vegs.deadc;
+          bdall->m_vegs.deadn += bd[ip].m_vegs.deadn;
         }
-        bdall->m_vegs.labn += bd[ip].m_vegs.labn;
-        bdall->m_vegs.call += bd[ip].m_vegs.call;
-        bdall->m_vegs.strnall += bd[ip].m_vegs.strnall;
-        bdall->m_vegs.nall += bd[ip].m_vegs.nall;
-        bdall->m_vegs.deadc += bd[ip].m_vegs.deadc;
-        bdall->m_vegs.deadn += bd[ip].m_vegs.deadn;
       }
-    }
 
-    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, assign the updated C/N pools to double linked layer matrix in ground...";
-    soilbgc.assignCarbonBd2LayerMonthly();
+      BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, assign the updated C/N pools to double linked layer matrix in ground...";
+      soilbgc.assignCarbonBd2LayerMonthly();
 
-    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, adjust soil structure...";
-    // May need to rename the below function as it is generic to soil removal
-    ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
+      BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, adjust soil structure...";
+      // May need to rename the below function as it is generic to soil removal
+      ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
 
-    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, save the data back to 'bdall'...";
-    soilbgc.assignCarbonLayer2BdMonthly();
+      BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, save the data back to 'bdall'...";
+      soilbgc.assignCarbonLayer2BdMonthly();
 
-    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, update all other pft's 'bd'...";
-    assignSoilBd2pfts_monthly();
+      BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, update all other pft's 'bd'...";
+      assignSoilBd2pfts_monthly();
 
-    BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, update cd, ground, fine root fraction...";
-    cd.yrsdist = 0;
-    cd.mthsdist = 0;
-    ground.retrieveSnowDimension(&cd.d_snow);
-    ground.retrieveSoilDimension(&cd.m_soil);
-    cd.d_soil = cd.m_soil;
-    cd.y_soil = cd.m_soil;
-    getSoilFineRootFrac_Monthly();
+      BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, update cd, ground, fine root fraction...";
+      cd.yrsdist = 0;
+      cd.mthsdist = 0;
+      ground.retrieveSnowDimension(&cd.d_snow);
+      ground.retrieveSoilDimension(&cd.m_soil);
+      cd.d_soil = cd.m_soil;
+      cd.y_soil = cd.m_soil;
+      getSoilFineRootFrac_Monthly();
 
-  } else {
+      // Transfer monthly thermokarst data, regardless
+      year_tkdata[midx] = *tkdata;
+      tkdata->clear();
+    }  
+  } else { // checking whether thermokarst is expected due to input forcing
     BOOST_LOG_SEV(glg, debug) << "Not time for thermokarst. Nothing to do.";
   }
-
-  //Transfer monthly thermokarst data, regardless
-  year_tkdata[midx] = *tkdata;
-  tkdata->clear();
 }
 
 /** Dynamic Vegetation Module function. */
