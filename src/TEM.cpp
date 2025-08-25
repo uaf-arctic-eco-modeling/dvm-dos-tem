@@ -558,8 +558,6 @@ void advance_model(const int rowidx, const int colidx,
 
   BOOST_LOG_SEV(glg, info) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-  //modeldata.initmode = 1; // OBSOLETE?
-
   BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
   Runner runner(modeldata, calmode, rowidx, colidx);
 

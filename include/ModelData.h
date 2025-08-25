@@ -38,8 +38,6 @@ public:
 
   int force_cmt; // used to override the veg map (calibration mode only)
 
-  int initmode;  // NOT USED?
-
   int eq_yrs;
   int pr_yrs;
   int sp_yrs;
