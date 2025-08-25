@@ -194,7 +194,11 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, info) << "Start dvmdostem @ " << ctime(&stime);
 
-  BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
+  BOOST_LOG_SEV(glg, debug) << "Running over a 2D spatial area covered by a "
+                            << "run mask. Use the run mask to exclude pixels "
+                            << "from computation. The outer loop is over the "
+                            << "spatial dimensions and the inner loops are "
+                            << "over the time axes.";
 
   // Open the run mask (spatial mask)
   std::vector< std::vector<int> > run_mask = temutil::read_run_mask(modeldata.runmask_file);
@@ -493,7 +497,7 @@ int main(int argc, char* argv[]){
 
   }
 
-  BOOST_LOG_SEV(glg, info) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
+  BOOST_LOG_SEV(glg, info) << "Done with run (loop order: " << args->get_loop_order() << ")";
 
   etime = time(0);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
@@ -558,7 +562,7 @@ void advance_model(const int rowidx, const int colidx,
 
   BOOST_LOG_SEV(glg, info) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-  BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
+  BOOST_LOG_SEV(glg, info) << "Setup the Runner object...";
   Runner runner(modeldata, calmode, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
