@@ -123,7 +123,7 @@
   },
 
   "model_settings": {
-    "cell_timelimit": 120, //Run time limit per cell in seconds. 0 for no limit.
+    "cell_timelimit": 0, //Run time limit per cell in seconds. 0 for no limit.
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
     "baseline_end": 1931     //end year for baseline EQ climate
