@@ -293,78 +293,77 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
     }
   } 
 
-  // if(groundwater_enabled){
+  if(groundwater_status){
     // if(fbaseflow==0.0){
-  
-    // }
-  // }
 
-  // This whole else if statement should be prefaced by limits:
-  // - poor drainage
-  // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
+      // This whole else if statement should be prefaced by limits:
+      // - poor drainage
+      // - TPI < threshold, TWI > threshold, OR fgroundwater scaled by one of these
 
-  // Reworking CLM5 Equations 7.103 and 7.102
-  double slope_rads = cell_slope * PI / 180; // Converting to radians
-  
-  // Potential amount of water that can enter the soil above the 
-  // watertable - representing groundwater recharge. Initialize
-  // as zero.
-  double qgroundwater_perch = 0.0;
+      // Reworking CLM5 Equations 7.103 and 7.102
+      double slope_rads = cell_slope * PI / 180; // Converting to radians
+      
+      // Potential amount of water that can enter the soil above the 
+      // watertable - representing groundwater recharge. Initialize
+      // as zero.
+      double qgroundwater_perch = 0.0;
 
-  if (unsat_soill){ // If there is any unsaturated soil layers
+      if (unsat_soill){ // If there is any unsaturated soil layers
 
-    // Calculate a potential amount of water to enter the unsaturated layer
-    qgroundwater_perch = inflow_factor * sin(slope_rads);
+        // Calculate a potential amount of water to enter the unsaturated layer
+        qgroundwater_perch = inflow_factor * sin(slope_rads);
 
-    // start at saturated layers, these should be skipped by the loop
-    // until unsaturated layers are found
-    currl = drainl;
+        // start at saturated layers, these should be skipped by the loop
+        // until unsaturated layers are found
+        currl = drainl;
 
-    while(currl != NULL && currl->indl<=drainind && currl->isSoil){
+        while(currl != NULL && currl->indl<=drainind && currl->isSoil){
 
-      // looping upwards to calculate groundwater input to simulate upwelling
-      // from deeper groundwater flow
-      int ind = currl->indl;
+          // looping upwards to calculate groundwater input to simulate upwelling
+          // from deeper groundwater flow
+          int ind = currl->indl;
 
-      // checking layer is unsaturated and layer below it is saturated
-      if(vol_liq[ind] / liq_poro[ind] < 0.9 && vol_liq[ind+1] / liq_poro[ind+1] >= 0.9){
+          // checking layer is unsaturated and layer below it is saturated
+          if(vol_liq[ind] / liq_poro[ind] < 0.9 && vol_liq[ind+1] / liq_poro[ind+1] >= 0.9){
 
-        // maximum available space for liquid water to enter 
-        double layer_max_input = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
-        // calculating liquid water entering based on scaler, slope, hydraulic conductivity, 
-        // and layer thickness.
-        double layer_calc_input = qgroundwater_perch * SEC_IN_DAY * hk[ind] * dzmm[ind] / 1.e3;
+            // maximum available space for liquid water to enter 
+            double layer_max_input = (currl->poro * DENLIQ * currl->dz) - currl->liq - effminliq[ind];
+            // calculating liquid water entering based on scaler, slope, hydraulic conductivity, 
+            // and layer thickness.
+            double layer_calc_input = qgroundwater_perch * SEC_IN_DAY * hk[ind] * dzmm[ind] / 1.e3;
 
-        // if calculated input is larger than the maximum space use the maximum (i.e. layer is filled)
-        layer_input[ind] = fmin(layer_calc_input, layer_max_input);
+            // if calculated input is larger than the maximum space use the maximum (i.e. layer is filled)
+            layer_input[ind] = fmin(layer_calc_input, layer_max_input);
 
-        // if calculated input is larger than the potential liquid available only remove that
-        // liquid and break loop
-        layer_input[ind] = fmin(layer_input[ind], qgroundwater_perch);
+            // if calculated input is larger than the potential liquid available only remove that
+            // liquid and break loop
+            layer_input[ind] = fmin(layer_input[ind], qgroundwater_perch);
 
-        // add to total groundwater input used in subsequent loop
-        // qgroundwater += layer_input[ind]; // mm/day
-        currl->liq += layer_input[ind];
+            // add to total groundwater input used in subsequent loop
+            // qgroundwater += layer_input[ind]; // mm/day
+            currl->liq += layer_input[ind];
 
-        // remove the liquid input from the potential and move to the next unsaturated layer
-        qgroundwater_perch -= layer_input[ind];
+            // remove the liquid input from the potential and move to the next unsaturated layer
+            qgroundwater_perch -= layer_input[ind];
 
-        // breakout of loop when groundwater input is depleted or timestep is ended
-        if (qgroundwater_perch > 0.0){
-          currl = currl->prevl;
-        } else{
-          break;
+            // breakout of loop when groundwater input is depleted or timestep is ended
+            if (qgroundwater_perch > 0.0){
+              currl = currl->prevl;
+            } else{
+              break;
+            }
+          // continue to loop upwards until unsaturated layers have been reached
+          } else {
+            currl = currl->prevl;
+          }
         }
-      // continue to loop upwards until unsaturated layers have been reached
-      } else {
-        currl = currl->prevl;
+        // for (int il = 0; il<MAX_SOI_LAY; il++){
+        //   std::cout << layer_input[il] << "," ;
+        // }
+        // std::cout << std::endl;
       }
-    }
-    // for (int il = 0; il<MAX_SOI_LAY; il++){
-    //   std::cout << layer_input[il] << "," ;
     // }
-    // std::cout << std::endl;
-  } 
+  }
 }
 
 void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
