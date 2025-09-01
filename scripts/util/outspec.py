@@ -26,9 +26,9 @@ import os
 
 def print_line_dict(d, header=False):
   if header:
-    print("{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}     {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Data Type', 'Description'))
+    print("{:>20s} {:>20s} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:}".format('Name','Units','Yearly','Monthly','Daily','PFT','Compartments','Layers','Data Type','Yearsynth', 'Pftsynth', 'Compsynth', 'Layersynth', 'Description'))
   else:
-    print("{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12} {Data Type:>12}     {Description}".format(**d))
+    print("{Name:>20s} {Units:>20s} {Yearly:>12} {Monthly:>12} {Daily:>12} {PFT:>12} {Compartments:>12} {Layers:>12} {Data Type:>12} {Yearsynth:>12} {Pftsynth:>12} {Compsynth:>12} {Layersynth:>12} {Description}".format(**d))
 
 def list_vars(data, verbose=False):
   var_names = [line['Name'] for line in data]
@@ -78,9 +78,9 @@ def show_layer_vars(list_of_lines):
 
 def csv_file_to_data_dict_list(fname):
   
-  expected_cols_sorted = ['Compartments', 'Daily', 'Data Type',
-      'Description', 'Layers', 'Monthly', 'Name', 'PFT', 'Placeholder',
-      'Units', 'Yearly']
+  expected_cols_sorted = ['Compartments', 'Compsynth', 'Daily', 'Data Type',
+      'Description', 'Layers', 'Layersynth', 'Monthly', 'Name', 'PFT', 'Pftsynth', 'Placeholder',
+      'Units', 'Yearly', 'Yearsynth']
 
   with open(fname, 'r') as f:
     s = f.readlines()
@@ -102,7 +102,7 @@ def csv_file_to_data_dict_list(fname):
 
 def write_data_to_csv(data, fname):
     with open(fname, 'w', newline='') as csvfile:
-      fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder".split(",")
+      fieldnames = "Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder,Yearsynth,Pftsynth,Compsynth,Layersynth".split(",")
       writer = csv.DictWriter(csvfile, fieldnames=fieldnames, lineterminator='\n')
       writer.writeheader()
       writer.writerows(data)
