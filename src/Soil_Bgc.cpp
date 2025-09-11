@@ -1016,6 +1016,7 @@ void Soil_Bgc::initializeParameter() {
   bgcpar.kn2 = chtlu->kn2;
   bgcpar.propftos = chtlu->propftos;
   bgcpar.fnloss = chtlu->fnloss;
+  bgcpar.nmincnsoil = chtlu->nmincnsoil;
 
   BOOST_LOG_SEV(glg, info) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
   // Alternatively these can be estimated from Ks calibrated.
