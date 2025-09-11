@@ -146,6 +146,7 @@ def cmdline_run(args):
   # Make sure parameters and output are relative to the current working directory
   config['IO']['parameter_dir'] = 'parameters/'  # <-- trailing slash is important!!
   config['IO']['output_dir']    = 'output/'      # <-- trailing slash is important!!
+  config['IO']['restart_from']  = ''             # defaults to blank; not a restart run,
   config['IO']['runmask_file']  = 'run-mask.nc'
 
   if args.copy_inputs:
@@ -196,6 +197,7 @@ def cmdline_run(args):
     "runmask_file",
 
     "output_dir",
+    "restart_from",
     "output_spec_file",
     "output_monthly",
     "output_nc_eq",

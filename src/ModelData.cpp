@@ -120,6 +120,12 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
 
+  // These must be directories. If user forgets to add the trailing slash, 
+  // do it here. Might be better to do something with boost::filesystem for 
+  // portability.
+  output_dir.append("/");
+  parameter_dir.append("/");
+
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
   //changeco2     = controldata["model_settings"]["varied_co2"].asInt();

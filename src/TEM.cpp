@@ -180,8 +180,11 @@ int main(int argc, char* argv[]){
   // Make sure that if user wants a restart run, they explicitly set the 
   // path to the restart file in their config.js file.
   if (args->get_restart_run()) {
-    assert(!modeldata.restart_from.empty() && 
-    "Restart run requires a valid restart_from file, please set in your config!");
+    assert( (modeldata.restart_from.length() > 0) && 
+      "Restart run requires a valid restart_from file, please set in your config!");
+
+    assert( boost::filesystem::exists(modeldata.restart_from) && 
+      "Restart file specified but not found!");
   }
 
 
@@ -250,7 +253,7 @@ int main(int argc, char* argv[]){
   if(id==0){
     BOOST_LOG_SEV(glg, info) << "Handling single-process setup";
 
-    BOOST_LOG_SEV(glg, info) << "Checking for output directory: "<<modeldata.output_dir;
+    BOOST_LOG_SEV(glg, info) << "Checking for output directory: " << modeldata.output_dir;
     boost::filesystem::path out_dir_path(modeldata.output_dir);
     if( boost::filesystem::exists(out_dir_path) ){
       if (args->get_no_output_cleanup() || args->get_restart_run()) {
@@ -603,7 +606,9 @@ void advance_model(const int rowidx, const int colidx,
          - FIX: should ignore calibration directives?
     */
 
-    assert(modeldata.restart_from.empty() && "You can't restart a pre-run! Make sure restart_from config setting is blank (empty string)");
+    assert(modeldata.restart_from.empty() && 
+      "You can't restart a pre-run! Make sure restart_from config setting is blank (empty string) or turn off pr years.");
+
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
     }
@@ -647,8 +652,10 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_NAMED_SCOPE("EQ");
     BOOST_LOG_SEV(glg, monitor) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
 
-    assert(!modeldata.restart_from.empty() && "You can't restart an equilibrium run!");
-
+    //assert( (modeldata.restart_from.length() < 1) && "You can't restart an equilibrium run!");
+    assert( modeldata.restart_from.empty()  && 
+      "You can't restart an eq run. Either turn off eq years, or set restart_from to an empty string!");
+    
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
     }
@@ -729,7 +736,7 @@ void advance_model(const int rowidx, const int colidx,
 
     runner.cohort.climate.monthlycontainers2log();
 
-    if (modeldata.restart_from.empty()) {
+    if ( modeldata.restart_from.empty() ) {
       BOOST_LOG_SEV(glg, warn) << "No restart file specified for SP stage. "
                                << "Using default EQ restart file from previous stage of this run: " << eq_restart_fname;
       BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
@@ -788,9 +795,17 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dslmodule(runner.cohort.md->tr_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->tr_dyn_lai);
 
-    // update the cohort's restart data object
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
+    if ( modeldata.restart_from.empty() ) {
+      BOOST_LOG_SEV(glg, warn) << "No restart file specified for TR stage. "
+                               << "Using default SP restart file from previous stage of this run: " << sp_restart_fname;
+      BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "User specified restart file for SP stage: " << modeldata.restart_from;
+      BOOST_LOG_SEV(glg, info) << "Restarting from: " << modeldata.restart_from;
+      runner.cohort.restartdata.update_from_ncfile(modeldata.restart_from, rowidx, colidx);
+    }
+
 
     runner.cohort.restartdata.verify_logical_values();
 
@@ -839,8 +854,18 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->sc_dyn_lai);
 
     // update the cohort's restart data object
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+
+    if ( modeldata.restart_from.empty() ) {
+      BOOST_LOG_SEV(glg, warn) << "No restart file specified for SC stage. "
+                               << "Using default TR restart file from previous stage of this run: " << tr_restart_fname;
+      BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "User specified restart file for SC stage: " << modeldata.restart_from;
+      BOOST_LOG_SEV(glg, info) << "Restarting from: " << modeldata.restart_from;
+      runner.cohort.restartdata.update_from_ncfile(modeldata.restart_from, rowidx, colidx);
+    }
+
 
     BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
     runner.cohort.restartdata.restartdata_to_log();
