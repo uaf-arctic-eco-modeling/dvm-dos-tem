@@ -1687,39 +1687,6 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
   usl->derivePhysicalProperty();
 };
 
-/**
-  * Preserve a minimum thickness in particular horizons
-  * (at the moment focusing on humic) to ensure that the
-  * horizon will redevelop. - built during thermokarst
-  * development.
-**/
-void Ground::preserveMinimalHorizon(){
-  // Depends on horizon structs being updated already from 
-  // updateSoilHorizon() call prior to this. 
-
-  BOOST_LOG_SEV(glg, debug) << "preserving horizon existence if needed";
-  
-  if(organic.deepnum == 0){ // I_HUM: is 3 but in organic is forced to 2. Which to use?
-    OrganicLayer *plnew = new OrganicLayer(minimum_thickness, I_HUM, chtlu);
-    }
-
-  //     for (int i=organic.shlwnum-1; i>0; i--) 
-  //       plnew = new OrganicLayer(organic.shlwdz[i], 1, chtlu);
-  //       SoilLayer* shlwsl = dynamic_cast<SoilLayer*>(fstshlwl);
-  //       //split 'plnew' from bottom of 'shlwsl'
-  //       splitOneSoilLayer(shlwsl, plnew, 0., organic.shlwdz[i]);
-  //       insertAfter(plnew, shlwsl);
-  
-  // // check horizon count
-  // if horizon count is zero make a baby layer
-  // minimum thickness values
-  // MINDEPTHICK (0.02); soildimpar.mindeepthick (0.005) - never used
-  // if a new layer is made recall updateSoilHorizon
-
-  // else do nothing
-
-}
-
 // The following module will re-construct double-linked layer matrix based
 //   on C content change after fire
 // So, it must be called after 'bd' layerd C content was assigned to the

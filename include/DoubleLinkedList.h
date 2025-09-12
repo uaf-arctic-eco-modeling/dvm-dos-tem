@@ -24,8 +24,8 @@ protected:
   void insertBack(Layer *l);
   void removeFront();
   void removeBack();
-  void insertBefore(Layer *l,Layer *ll);
-  void insertAfter(Layer *l,Layer *ll);
+  void insertBefore(Layer *newl, Layer *currl);
+  void insertAfter(Layer *newl, Layer *currl);
   void removeBefore(Layer *l);
   void removeAfter(Layer *l);
   void removeLayer(Layer *l);

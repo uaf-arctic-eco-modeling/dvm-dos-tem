@@ -38,34 +38,34 @@ void DoubleLinkedList::insertFront (Layer * l) {
 }
 
 /*! insert a layer before the specified layer */
-void DoubleLinkedList::insertBefore(Layer *l, Layer *curl) {
+void DoubleLinkedList::insertBefore(Layer *newl, Layer *currl) {
   BOOST_LOG_SEV(glg, debug) << "DLL::insertBefore() <== ? Insert Layer ABOVE in column?";
-  l->prevl = curl->prevl;
-  l->nextl = curl;
+  newl->prevl = currl->prevl;
+  newl->nextl = currl;
 
-  if(curl->prevl==NULL) {
-    this->toplayer=l;
+  if(currl->prevl==NULL) {
+    this->toplayer = newl;
   } else {
-    curl->prevl->nextl = l;
+    currl->prevl->nextl = newl;
   }
 
-  curl->prevl=l;
+  currl->prevl = newl;
 }
 
 /*! insert a layer after the specified layer */
-void DoubleLinkedList::insertAfter(Layer* l, Layer *curl) {
+void DoubleLinkedList::insertAfter(Layer *newl, Layer *currl) {
   BOOST_LOG_SEV(glg, debug) << "DLL::insertAfter()  <== ? Insert Layer BELOW in column?";
-  Layer* tempnext= curl->nextl;
-  l->nextl = curl->nextl;
-  l->prevl = curl;
+  Layer* tempnext = currl->nextl;
+  newl->nextl = currl->nextl;
+  newl->prevl = currl;
 
-  if(curl->nextl==NULL) {
-    this->botlayer =l;
+  if(currl->nextl==NULL) {
+    this->botlayer = newl;
   } else {
-    tempnext->prevl= l;
+    tempnext->prevl = newl;
   }
 
-  curl->nextl=l;
+  currl->nextl = newl;
 }
 
 /*! remove a layer from the front */
