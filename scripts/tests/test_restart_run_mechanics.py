@@ -145,7 +145,6 @@ def restart_sc_from_tr(restart_run_directory, restart_tr_from_sp):
 def test_restart_pr_eq_base_run(restart_run_directory, restart_pr_eq_base_run):
     assert pathlib.Path(restart_run_directory, 'output_pr_eq', 'restart-eq.nc').exists()
     assert nc.Dataset(f'{restart_run_directory}/output_pr_eq/run_status.nc').variables['run_status'][1,1] == 100
-    assert 0
 
 def test_restart_sp_from_eq(restart_run_directory, restart_sp_from_eq):
     assert pathlib.Path(restart_run_directory, 'output_sp_from_eq', 'restart-sp.nc').exists()
