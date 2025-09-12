@@ -192,6 +192,7 @@ void Thermokarst::initiate(int year) {
   }
 
   BOOST_LOG_SEV(glg, debug) << "Handle thermokarst in the soil (loop over all soil layers)...";
+
   for (int il = 0; il < cd->m_soil.numsl; il++) {
 
     BOOST_LOG_SEV(glg, debug) << "== Layer Info == "
@@ -202,9 +203,22 @@ void Thermokarst::initiate(int year) {
 
     // Only organic soils - for thermokarst do we want to affect mineral soil at all?
     // For now maybe we can ignore that part.
+
+    double minimum_remaining_scaler_thing = 0.0;
+
     if(cd->m_soil.type[il] <= 2) {
 
+      if(cd->m_soil.type[il] != cd->m_soil.type[il+1]){
+
+        minimum_remaining_scaler_thing = 0.01;
+
+      }
+
       totbotdepth += cd->m_soil.dz[il];
+
+      // remember to check that ilsolc/n are appropriately
+      // scaled with minimum_remaining_scaler_thing
+      // AND roots below
 
       double ilsolc =  bdall->m_sois.rawc[il] + bdall->m_sois.soma[il] +
                        bdall->m_sois.sompr[il] + bdall->m_sois.somcr[il];
@@ -212,20 +226,23 @@ void Thermokarst::initiate(int year) {
       double ilsoln =  bdall->m_sois.orgn[il] + bdall->m_sois.avln[il];
 
       if(totbotdepth <= thermokarstdepth) { //remove all the orgc/n in this layer
+
         BOOST_LOG_SEV(glg, debug) << "Haven't reached thermokarst depth (" << thermokarstdepth << ") yet. Remove all org C and N in this layer";
+
         lostsolc += ilsolc;
         lostsoln += ilsoln;
-        bdall->m_sois.rawc[il] = 0.0;
-        bdall->m_sois.soma[il] = 0.0;
-        bdall->m_sois.sompr[il]= 0.0;
-        bdall->m_sois.somcr[il]= 0.0;
-        bdall->m_sois.orgn[il] = 0.0;
-        bdall->m_sois.avln[il] = 0.0;
+
+        bdall->m_sois.rawc[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.soma[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.sompr[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.somcr[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.orgn[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.avln[il] *= minimum_remaining_scaler_thing;
 
         for (int ip=0; ip<NUM_PFT; ip++) {
           if (cd->m_veg.vegcov[ip]>0.) {
             r_thermokarst2bg_cn[ip] += cd->m_soil.frootfrac[il][ip];
-            cd->m_soil.frootfrac[il][ip] = 0.0;
+            cd->m_soil.frootfrac[il][ip] *= minimum_remaining_scaler_thing;
           }
         }
       } else {
