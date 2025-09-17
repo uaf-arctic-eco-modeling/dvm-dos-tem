@@ -2456,57 +2456,46 @@ double Ground::getCarbonForDepthRange(double upperz, double lowerz){
 }
 
 
-/* Returns the total VWC between two depths in the soil stack.
+/* Returns the interpolated VWC at a specified depth in the soil stack.
  *
  * Provide parameters as meters (i.e. 0.1 for 10 cm)
  */
-double Ground::getVWCForDepthRange(double upperz, double lowerz){
+double Ground::getVWCAtDepth(double vwcdepth){
 
-  if(lowerz < upperz){
-    BOOST_LOG_SEV(glg, fatal) << "getVWC, invalid order of depths";
-  }
-
-  double accumulatedVWC = 0.0;
+  double requested_vwc = UIN_D;
 
   //Ignore moss and start with the first fibric layer
-  Layer *currl = fstshlwl;
+  //Layer *currl = fstshlwl;
+  Layer *currl = fstmossl;
 
   while(!currl->isRock){
     double currl_bottom = currl->z + currl->dz;
+    // Assumes that the calculated VWC is at the middle of the layer
+    double currl_mid = currl->z + (currl->dz / 2);
 
-    // If the layer contains the upper boundary
-    if((upperz > currl->dz) && (upperz < currl_bottom)){
-
-      // If the layer also contains the lower boundary
-      if(lowerz < currl_bottom){
-
-        // Calculate percentage of VWC between boundaries
-        double layerpercent = (lowerz - upperz) / currl->dz;
-        accumulatedVWC += layerpercent * currl->getVolWater();
-        break;
-      }
-      // Layer does not contain lower boundary
-      else{
-        // Calculate percentage of VWC below upper bound
-        double layerpercent = (currl_bottom - upperz) / currl->dz;
-        accumulatedVWC += layerpercent * currl->getVolWater();
-      }
+    // If the point is in the upper half of the layer
+    if((vwcdepth > currl->z) && (vwcdepth < currl_mid)){
+      // Find midpoint of previous layer
+      double prevl_mid = currl->z - (currl->prevl->dz / 2);
+      requested_vwc = temutil::interpolate(currl->prevl->getVolWater(),
+                                           currl->getVolWater(),
+                                           prevl_mid, currl_mid,
+                                           vwcdepth, I_LINEAR);
     }
-    // If the layer is fully within the upper and lower boundary range
-    else if((currl->z > upperz) && (currl_bottom <= lowerz)){
-      accumulatedVWC += currl->getVolWater();
-    }
-    // If the layer contains the lower boundary
-    else if((lowerz > currl->z) && (lowerz < currl_bottom)){
-      // Calculate percentage of VWC in the layer above the lower bound
-      double layerpercent = (lowerz - currl->z) / currl->dz;
-      accumulatedVWC += layerpercent * currl->getVolWater();
+    // If the point is in the bottom half of the layer
+    else if((vwcdepth > currl_mid) && (vwcdepth < currl_bottom)){
+      // Find midpoint of next layer
+      double nextl_mid = currl_bottom + (currl->nextl->dz / 2);
+      requested_vwc = temutil::interpolate(currl->getVolWater(),
+                                           currl->nextl->getVolWater(),
+                                           currl_mid, nextl_mid,
+                                           vwcdepth, I_LINEAR);
     }
 
     currl = currl->nextl;
   }
 
-  return accumulatedVWC;
+  return requested_vwc;
 }
 
 

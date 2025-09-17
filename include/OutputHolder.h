@@ -85,7 +85,10 @@ public:
   std::vector<double> tsoil_30_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
 
-  std::vector<double> vwc_0_30_for_output;
+  std::vector<double> vwc_30_for_output;
+  std::vector<double> vwc_100_for_output;
+  std::vector<double> vwc_200_for_output;
+  std::vector<double> vwc_300_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
   std::vector<std::array<double, MAX_SNW_LAY>> snowlayerdz_for_output;
