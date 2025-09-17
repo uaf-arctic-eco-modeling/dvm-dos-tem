@@ -4932,6 +4932,117 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //SOC from 0cm to 100cm
+  map_itr = netcdf_outputs.find("SOC0_100cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_100cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_100cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_100 = cohort.ground.getCarbonForDepthRange(0.0, 1.0);
+        outhold.soc_0_100_for_output.push_back(m_soc_0_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_100_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_100_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_100 = cohort.ground.getCarbonForDepthRange(0.0, 1.0);
+        outhold.soc_0_100_for_output.push_back(y_soc_0_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_100_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_100_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_100cm)
+  } //end SOC0_100cm
+  map_itr = netcdf_outputs.end();
+
+
+  //SOC from 0cm to 200cm
+  map_itr = netcdf_outputs.find("SOC0_200cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_200cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_200cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_200 = cohort.ground.getCarbonForDepthRange(0.0, 2.0);
+        outhold.soc_0_200_for_output.push_back(m_soc_0_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_200_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_200_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_200 = cohort.ground.getCarbonForDepthRange(0.0, 2.0);
+        outhold.soc_0_200_for_output.push_back(y_soc_0_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_200_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_200_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_200cm)
+  } //end SOC0_200cm
+  map_itr = netcdf_outputs.end();
+
+
+  //SOC from 0cm to 300cm
+  map_itr = netcdf_outputs.find("SOC0_300cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_300cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_300cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_300 = cohort.ground.getCarbonForDepthRange(0.0, 3.0);
+        outhold.soc_0_300_for_output.push_back(m_soc_0_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_300_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_300_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_300 = cohort.ground.getCarbonForDepthRange(0.0, 3.0);
+        outhold.soc_0_300_for_output.push_back(y_soc_0_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_300_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_300_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_300cm)
+  } //end SOC0_300cm
+  map_itr = netcdf_outputs.end();
+
+
   //SOCFROZEN
   map_itr = netcdf_outputs.find("SOCFROZEN");
   if (map_itr != netcdf_outputs.end()) {
