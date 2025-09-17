@@ -83,6 +83,9 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> lwclayer_for_output;
 
   std::vector<double> tsoil_30_for_output;
+  std::vector<double> tsoil_100_for_output;
+  std::vector<double> tsoil_200_for_output;
+  std::vector<double> tsoil_300_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
 
   std::vector<double> vwc_30_for_output;
