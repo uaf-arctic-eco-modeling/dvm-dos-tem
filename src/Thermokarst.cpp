@@ -206,6 +206,7 @@ void Thermokarst::initiate(int year) {
 
     double minimum_remaining_scaler_thing = 0.0;
 
+    // if moss, fibric, humic:
     if(cd->m_soil.type[il] <= 2) {
 
       if(cd->m_soil.type[il] != cd->m_soil.type[il+1]){
@@ -227,7 +228,72 @@ void Thermokarst::initiate(int year) {
 
       if(totbotdepth <= thermokarstdepth) { //remove all the orgc/n in this layer
 
-        BOOST_LOG_SEV(glg, debug) << "Haven't reached thermokarst depth (" << thermokarstdepth << ") yet. Remove all org C and N in this layer";
+        BOOST_LOG_SEV(glg, debug) << "Haven't reached thermokarst depth (" << thermokarstdepth << ") yet. Remove all org C and N in layer index " << il;
+
+        lostsolc += ilsolc;
+        lostsoln += ilsoln;
+
+        bdall->m_sois.rawc[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.soma[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.sompr[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.somcr[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.orgn[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.avln[il] *= minimum_remaining_scaler_thing;
+
+        for (int ip=0; ip<NUM_PFT; ip++) {
+          if (cd->m_veg.vegcov[ip]>0.) {
+            r_thermokarst2bg_cn[ip] += cd->m_soil.frootfrac[il][ip];
+            cd->m_soil.frootfrac[il][ip] *= minimum_remaining_scaler_thing;
+          }
+        }
+      } else {
+        BOOST_LOG_SEV(glg, debug) << "The bottom of this layer (il: " << il << ") is past the 'thermokarstdepth'. Find the remaining C and N as a fraction of layer thickness";
+        double partleft = totbotdepth - thermokarstdepth;
+
+        // Calculate the remaining C, N
+        if (partleft < cd->m_soil.dz[il]) { // <-- Maybe this should be an assert instead of an if statement??
+          BOOST_LOG_SEV(glg, debug) << "Thermokarst removed all but "<<partleft<<"of layer "<<il;
+          lostsolc += (1.0-partleft/cd->m_soil.dz[il]) * ilsolc;
+          lostsoln += (1.0-partleft/cd->m_soil.dz[il]) * ilsoln;
+          bdall->m_sois.rawc[il] *= partleft/cd->m_soil.dz[il];
+          bdall->m_sois.soma[il] *= partleft/cd->m_soil.dz[il];
+          bdall->m_sois.sompr[il] *= partleft/cd->m_soil.dz[il];
+          bdall->m_sois.somcr[il] *= partleft/cd->m_soil.dz[il];
+          bdall->m_sois.orgn[il] *= partleft/cd->m_soil.dz[il];
+          bdall->m_sois.avln[il] *= partleft/cd->m_soil.dz[il];
+
+          for (int ip=0; ip<NUM_PFT; ip++) {
+            if (cd->m_veg.vegcov[ip] > 0.0) {
+              r_thermokarst2bg_cn[ip] += (1-partleft/cd->m_soil.dz[il])
+                                * cd->m_soil.frootfrac[il][ip];
+              cd->m_soil.frootfrac[il][ip] *= partleft/cd->m_soil.dz[il];
+            }
+          }
+        } else {
+          BOOST_LOG_SEV(glg, warn) << "The remaining soil after thermokarst is greater than the thickness of this layer. Something is wrong??";
+          BOOST_LOG_SEV(glg, warn) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
+          break;
+        }
+      } 
+    } else if(cd->m_soil.type[il] == 3) {   //Mineral soil layers
+
+      // maintain some mineral soil if bedrock is reached.
+      if(cd->m_soil.type[il] != cd->m_soil.type[il+1]){
+
+        minimum_remaining_scaler_thing = 0.01;
+
+      }
+
+      totbotdepth += cd->m_soil.dz[il];
+
+      double ilsolc = bdall->m_sois.rawc[il] + bdall->m_sois.soma[il] +
+                      bdall->m_sois.sompr[il] + bdall->m_sois.somcr[il];
+
+      double ilsoln = bdall->m_sois.orgn[il] + bdall->m_sois.avln[il];
+      
+      if(totbotdepth <= thermokarstdepth) { //remove all the orgc/n in this layer
+
+        BOOST_LOG_SEV(glg, debug) << "Haven't reached thermokarst depth (" << thermokarstdepth << ") yet. Remove all org C and N in layer index " << il;
 
         lostsolc += ilsolc;
         lostsoln += ilsoln;
@@ -274,15 +340,16 @@ void Thermokarst::initiate(int year) {
           break;
         }
       }
-    // Thermokarst could affect mineral soil layers. This will need to be an additional set of new processes 
-    } else {   //Mineral soil layers
-      BOOST_LOG_SEV(glg, info) << "Layer type:" << cd->m_soil.type[il] << ". Should be a non-organic soil layer? (greater than type 2)";
-      BOOST_LOG_SEV(glg, info) << "Not much to do here. Can't really thermokarst non-organic layers. but maybe we will in the future";
+    }
+    // Parent material catches
+    else{
+      BOOST_LOG_SEV(glg, info) << "Layer type:" << cd->m_soil.type[il] << ". We have reached bedrock can't thermokarst anymore!";
 
       if(totbotdepth <= thermokarstdepth) { //may not be needed, but just in case
-        BOOST_LOG_SEV(glg, info) << "For some reason totbotdepth <= thermokarstdepth, so we are setting tkdata->thermokarst_soid.removal_thickness = totbotdepth??";
+        BOOST_LOG_SEV(glg, fatal) << "For some reason totbotdepth <= thermokarstdepth, so we are setting tkdata->thermokarst_soid.removal_thickness = totbotdepth??";
         tkdata->thermokarst_soid.removal_thickness = totbotdepth;
       }
+
     }
   } // end soil layer loop
 
