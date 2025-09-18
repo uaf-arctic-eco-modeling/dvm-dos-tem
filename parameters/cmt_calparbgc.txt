@@ -25,6 +25,8 @@
 0.0108046       // kdcsoma:
 0.0020805       // kdcsompr:
 0.0000108       // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/29/20 boreal black spruce with Murphy Dome climate
 //EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
@@ -47,6 +49,8 @@
 0.54       // kdcsoma:     .58
 0.002       // kdcsompr:     .003
 0.00007   // kdcsomcr: 0.000025  0.00025 bad
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 boreal white spruce with Bonanza Creek climate
 //EverTree  DecidShrub   DecidTree     Moss         PFT4       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
@@ -69,6 +73,8 @@
 0.48       // kdcsoma:    .48
 0.0048       // kdcsompr:   .0028  
 0.000025   // kdcsomcr: 
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // 7/7/20 boreal deciduous forest with Murphy Dome climate
 //EverTree  DecidShrub   DecidTree      Moss        PFT4     PFT5    PFT6    PFT7     PFT8     PFT9    // pftnames:
@@ -91,6 +97,8 @@
 0.58       // kdcsoma:   0.58
 0.003     // kdcsompr:   
 0.000025   // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area. J.Clein updated, July 2019
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
@@ -113,6 +121,8 @@
 0.93     // kdcsoma:
 0.40     // kdcsompr:
 0.00007  // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT05 // Tussock Tundra // Updated by E.E. calibration, April, May 2017 //Reupdated July 2019 by Joy//Joy June 2022
 // Betula      Decid      EGreen      Sedges       Forbs      Lichens    Feather     Sphag       PFT8         PFT9    // pftnames:
@@ -135,6 +145,8 @@
 0.03      // kdcsoma:  was 0.07
 0.015      // kdcsompr:   was 0.05
 0.000005     // kdcsomcr:  was 0.00005 
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7     PFT8      PFT9      // pftnames
@@ -157,6 +169,8 @@
 0.011       // kdcsoma:  was 0.12
 0.0025       // kdcsompr: was .03
 0.00025       // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT07 // Heath Tundra //
 //Decid     EGreen        Forbs        Lichens      Grasses      Moss       PFT6        PFT7       PFT8         PFT9         // pftnames:
@@ -179,6 +193,8 @@
 0.36       // kdcsoma:  was 0.26      
 0.0332      // kdcsompr: was 0.0062   0.00962
 0.0000001   // kdcsomcr: was 0.0000005
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland //
 //DecShrub   EvrShrub     DecTree      EvrTree       Forbs        Gram      Feather     Lichen    Equisetum      PFT9         // pftnames:
@@ -201,6 +217,8 @@
 0.03       // kdcsoma:
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT20 // EML Shrub Tundra //
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
@@ -223,6 +241,8 @@
 0.67       // kdcsoma:
 0.91      // kdcsompr:
 0.00025    // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT21 // EML Tussock Tundra // joy 8/9/22
 //Decidsh   Egreensh     Sedge      Forbs      Lichen    OMoss     Sphag       PFT7      PFT8        PFT9      // names: comments
@@ -245,6 +265,8 @@
 0.258      // kdcsoma: .95 .9 .85
 0.008      // kdcsompr:
 0.00005    // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT31 // Boreal Bog
 //Sphagnum  Sedge        DecShrub    EvrShrub     Forbs         Moss       NotUsed  NotUsed  NotUsed  NotUsed  // names: comments
@@ -267,6 +289,8 @@
 0.250000     // kdcsoma:
 0.018000     // kdcsompr:
 0.000010     // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
@@ -289,3 +313,5 @@
 0.90     // kdcsoma:  was 0.93   then 0.68
 0.014     // kdcsompr:  was 0.40  then 0.01
 0.000007  // kdcsomcr:
+1.0000000       // s2dfraction:
+1.0000000       // d2mfraction:
