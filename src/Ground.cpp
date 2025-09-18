@@ -1717,7 +1717,7 @@ double Ground::adjustSoilAfterburn() { //adjustSoilAfterDisturbance()
   currl = fstsoill;
 
   while (currl!=NULL) {
-    if(currl->isMoss || currl->isOrganic) {
+    if(currl->isSoil) {
       double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
 
       if(tsomc <= 0.0) {
@@ -1729,10 +1729,11 @@ double Ground::adjustSoilAfterburn() { //adjustSoilAfterDisturbance()
         removeLayer(currl);
         currl = toplayer; //then the new toplayer is currl->nextl
                           //  (otherwise, bug here)
-      } else {
-        break;
+      } else{
+        currl = currl->nextl;
       }
-    } else {
+    }
+    else {
       break;
     }
   }
