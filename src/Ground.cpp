@@ -2464,8 +2464,6 @@ double Ground::getVWCAtDepth(double vwcdepth){
 
   double requested_vwc = UIN_D;
 
-  //Ignore moss and start with the first fibric layer
-  //Layer *currl = fstshlwl;
   Layer *currl = fstmossl;
 
   while(!currl->isRock){
@@ -2508,8 +2506,7 @@ double Ground::getTempAtDepth(double temperaturez){
 
   double requested_temp = UIN_D;
 
-  //Ignore moss and start with the first fibric layer
-  Layer *currl = fstshlwl;
+  Layer *currl = fstmossl;
 
   while(!currl->isRock){
     double currl_bottom = currl->z + currl->dz;
