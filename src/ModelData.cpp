@@ -672,7 +672,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 
       /* End Define Mode (not strictly necessary for netcdf 4) */
       BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-      temutil::nc( nc_enddef(ncid) );
+//      temutil::nc( nc_enddef(ncid) ); Commenting out in order to compile
 
       /* Fill out the time coordinate variable */
       if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
