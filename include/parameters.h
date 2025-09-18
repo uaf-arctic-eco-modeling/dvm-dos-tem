@@ -148,8 +148,12 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
+  double s2dfraction; // shallow to deep carbon burial fraction
+  double d2mfraction; // deep to mineral carbon burial fraction
+  
   soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
-      kdcsompr(UIN_D), kdcsomcr(UIN_D) {}
+      kdcsompr(UIN_D), kdcsomcr(UIN_D), 
+      s2dfraction(UIN_D), d2mfraction(UIN_D) {}
 };
 
 struct soipar_dim {

@@ -49,6 +49,9 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
+                   
+  double s2dfraction; // shallow to deep carbon burial fraction
+  double d2mfraction; // deep to mineral carbon burial fraction
 
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area

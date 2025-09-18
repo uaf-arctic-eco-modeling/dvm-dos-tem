@@ -39,6 +39,9 @@ public:
   std::vector<float> avgX_nirr;
   std::vector<float> avgX_vapo;
 
+  // co2 and ch4 averaged over baseline years
+  double avgX_co2;
+
   // repetitive climate, repeated over a specified number of years
   //std::vector<float> rptX_tair;
   //std::vector<float> rptX_prec;
@@ -72,6 +75,8 @@ public:
   
   std::vector<float> monthly2daily(const std::vector<float>& mly_vals);
 
+  double avg_over_yearly(const std::vector<float> & var, const int start_yr, const int end_yr);
+
   void prepare_eq_daily_driving_data(int iy, const std::string& stage);
   void prepare_daily_driving_data(int, const std::string&);
 
@@ -96,7 +101,6 @@ private:
 
   std::vector<float> eq_range(const std::vector<float>& data);
   std::vector<float> interpolation_range(const std::vector<float>& data, int year);
-
 };
 
 #endif /* _CLIMATE_H_ */
