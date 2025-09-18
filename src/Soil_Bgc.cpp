@@ -213,6 +213,23 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
 };
 
 void Soil_Bgc::afterIntegration() {
+
+  // Update layer values here instead of Integrator::y2cstate_soi()
+  //  due to variable access.
+  Layer* currl = ground->fstmossl;
+  while(currl->nextl != NULL){
+    currl->rawc = bd->m_sois.rawc[currl->solind-1];
+    currl->soma = bd->m_sois.soma[currl->solind-1];
+    currl->sompr = bd->m_sois.sompr[currl->solind-1];
+    currl->somcr = bd->m_sois.somcr[currl->solind-1];
+
+    currl->orgn = bd->m_sois.orgn[currl->solind-1];
+    currl->avln = bd->m_sois.avln[currl->solind-1];
+
+    currl = currl->nextl;
+  }
+
+  // Update total carbon pool array
   for(int i=0; i<cd->m_soil.numsl; i++) {
     bd->m_soid.tsomc[i] = bd->m_sois.rawc[i] + bd->m_sois.soma[i]
                           + bd->m_sois.sompr[i] + bd->m_sois.somcr[i];
