@@ -18,9 +18,9 @@ calibration_targets = {
       'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegcr', 'ref': '', 'ncname': 'VEGC'},
     },
     'VegStructuralNitrogen': {
-      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': '', 'ncname': 'VEGN'},
-      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': '', 'ncname': 'VEGN'},
-      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': '', 'ncname': 'VEGN'},
+      'Leaf': {'units': 'g/m2', 'desc': '', 'comment': 'vegnl', 'ref': '', 'ncname': 'VEGNSTR'},
+      'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': '', 'ncname': 'VEGNSTR'},
+      'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': '', 'ncname': 'VEGNSTR'},
     },
     'MossDeathC': {'units': 'g/m2', 'desc': '', 'comment': 'dmossc', 'ref': '', 'ncname': 'MOSSDEATHC'},
     'CarbonShallow': {'units': 'g/m2', 'desc': '', 'comment': 'shlwc', 'ref': '', 'ncname': 'SHLWC'},
@@ -194,7 +194,7 @@ calibration_targets = {
     'CarbonMineralSum':      43404.00,    #  minec
     'OrganicNitrogenSum':     2206.00,    #  soln
     'AvailableNitrogenSum':      8.958,   #  avln
-    'EcosystemRespiration':      0.00,    #  reco
+    'EcosystemRespiration':      132.611,    #  reco 2007-2021:abcv2
   },
   ## CMT06 - WETSEDGE TUNDRA - CALIBRATION WITH toolik climate (also barrow climate)  Lichen gpp was 0.375, npp 0.187, feather 8.4 sphg 2.9, 1.45
   "wet sedge tundra": {
@@ -221,7 +221,7 @@ calibration_targets = {
     'CarbonMineralSum':      44252.00,    #  minec
     'OrganicNitrogenSum':     2698.00,    #  soln
     'AvailableNitrogenSum':      0.48,    #  avln
-    'EcosystemRespiration':      0.00,    #  reco
+    'EcosystemRespiration':      266.4046,    #  reco 2007-2021:abcv2
   },
   ## CMT07 - HEATH TUNDRA - CALIBRATION TOOLIK CLIMATE   New Values from Helene, input by Joy 8 16 2019, except Nuptake and soilC numbers and forb
   "heath tundra": {
@@ -248,7 +248,7 @@ calibration_targets = {
     'CarbonMineralSum':      32640.00,    #  minec
     'OrganicNitrogenSum':     1405.00,    #  soln
     'AvailableNitrogenSum':      0.17,    #  avln
-    'EcosystemRespiration':      0.00,    #  reco
+    'EcosystemRespiration':      157.75,    #  reco 2007-2021:abcv2
   },
   ## Prepared from Vijay Patil work in the Yukon Flats with the mentoring of Eugenie Euskirchen- soil data comes from unknown
   "Shrubland": {
@@ -329,7 +329,7 @@ calibration_targets = {
     'CarbonMineralSum':      43416.95,    #  minec
     'OrganicNitrogenSum':     1998.37,    #  soln
     'AvailableNitrogenSum':      1.70,    #  avln
-    'EcosystemRespiration':      0.00,    #  reco
+    'EcosystemRespiration':      433.04,    #  reco 2008-2024:abcv2
   },
   ## CMT44 - SHRUB TUNDRA - CALIBRATION SEWARD PENINSULA CLIMATE (COUNCIL)   JOY Aug 17 2019 changed BETULA for Kougarok
   "shrub tundra kougarok": {
@@ -413,18 +413,19 @@ calibration_targets = {
   ## CMT52 HEATH LICHEN TUNDRA TRAIL VALLEY CREEK
   "Heath-lichen TVC" : {
     'cmtnumber': 52,
-  'PFTNames':  ['Lichen', 'PFT1', 'PFT2', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
-  'GPPAllIgnoringNitrogen':  [115.550, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAllIgnoringNitrogen':  [57.780, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAll':  [38.520, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'Nuptake':  [0.303, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    #there were 3 pfts, lichen, Egreenshrub, forb, but can't calibrate, so we summed them all to one pft
+  'PFTNames':  ['Lichen-plus', 'PFT1', 'PFT2', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT8', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [142.160, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [71.090, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [47.390, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.400, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   'VegCarbon': {
-    'Leaf' : [105.980, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-    'Stem' : [0.000, 0.000, 0.0000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [130.380, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
     'Root' : [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
   'VegStructuralNitrogen': {
-    'Leaf' : [1.710, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [1.718, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
     'Stem' : [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
     'Root' : [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
@@ -462,23 +463,23 @@ calibration_targets = {
   'AvailableNitrogenSum': 0.706,
   'EcosystemRespiration': 250.8,
 },
-  ## CMT56 MIXED TUNDRA AT DARING LAKE
+ ## CMT56 MIXED TUNDRA AT DARING LAKE
   "Mixed Tundra" : {
     'cmtnumber': 56,
   'PFTNames':  ['Lichen', 'Sphagnum', 'EgreenShrub', 'DecidShrub', 'Sedge', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
-  'GPPAllIgnoringNitrogen':  [145.510, 90.380, 40.990, 23.730, 11.660, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAllIgnoringNitrogen':  [72.760, 45.190, 20.500, 11.870, 5.830, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'NPPAll':  [48.500, 30.130, 13.670, 7.910, 3.890, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-  'Nuptake':  [0.060, 2.230, 0.180, 0.110, 0.060, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'GPPAllIgnoringNitrogen':  [114.340, 71.020, 31.330, 86.440, 9.170, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [57.170, 35.510, 15.660, 43.220, 4.580, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [38.110, 23.670, 10.440, 28.810, 3.050, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.046, 1.751, 0.139, 0.394, 0.044, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   'VegCarbon': {
-    'Leaf' : [113.500, 70.500, 23.380, 6.100, 9.100, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-    'Stem' : [0.000, 0.000, 47.600, 68.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-    'Root' : [0.000, 0.000, 38.350, 53.350, 15.423, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [113.50, 70.50, 5.870, 10.800, 9.100, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.000, 0.000, 25.225, 75.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [0.000, 0.000, 15.700, 53.350, 15.423, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   },
   'VegStructuralNitrogen': {
-    'Leaf' : [1.500, 1.200, 0.265, 0.140, 0.410, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-    'Stem' : [0.000, 0.000, 0.750, 0.650, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
-    'Root' : [0.000, 0.000, 0.400, 0.700, 0.810, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Leaf' : [1.500, 1.200, 0.099, 0.220, 0.410, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.000, 0.000, 0.425, 1.030, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [0.000, 0.000, 0.200, 0.700, 0.810, 0.000, 0.000, 0.000, 0.000, 0.000, ],
   }, 
   'MossDeathC': 0,
   'CarbonShallow': 2745,
@@ -669,6 +670,165 @@ calibration_targets = {
   'OrganicNitrogenSum': 490.33,
   'AvailableNitrogenSum': 17.2,
   'EcosystemRespiration': 806.96,
+},
+ ## CMT70 - Dwarf Shrub - Chokurdakh
+  "Dwarf Shrub-Chokurdakh" : {
+    'cmtnumber': 70,
+  'PFTNames':  ['DecidShrub', 'EgreenShrub', 'Graminoids', 'Omoss', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [40.160, 88.440, 17.240, 204.820, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [20.080, 44.220, 8.620, 102.410, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [13.390, 29.480, 5.750, 68.270, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.080, 0.138, 0.098, 0.070, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'VegCarbon': {
+    'Leaf' : [12.740, 45.025, 10.220, 237.500, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [33.830, 57.533, 9.775, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [84.180, 153.244, 152.830, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'VegStructuralNitrogen': {
+    'Leaf' : [0.740, 1.614, 0.366, 3.710, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.850, 0.851, 0.308, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [2.639, 4.672, 4.659, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'MossDeathC': 0,
+  'CarbonShallow': 1240, #1502.46, ##846.74,
+  'CarbonDeep': 6430, ##1690.53, ##1992.46,
+  'CarbonMineralSum': 27385.0, ##25821.18,
+  'OrganicNitrogenSum': 2124.70, ##1983.38,
+  'AvailableNitrogenSum': 3.003,
+  'EcosystemRespiration': 160.0,
+},
+  ## CMT71 - Larch Forest - Yakutsk Spasskaya Pad
+  "LarchForest- Yakutsk Spasskaya Pad" : {
+    'cmtnumber': 71,
+  'PFTNames':  ['Larch', 'DecidTree', 'Shrubs', 'Graminoids', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [639.33, 276.42, 12.505, 1.74, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [319.66, 138.21, 6.25, 0.87, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [159.83, 69.105, 3.126, 0.435, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.853, 0.240, 0.090, 0.017, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'VegCarbon': {
+    'Leaf' : [115.000, 72.402, 10.658, 9.759, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [3470.000, 1477.598, 59.462, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [2390.000, 288.104, 152.022, 19.123, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'VegStructuralNitrogen': {
+    'Leaf' : [3.500, 3.291, 0.368, 0.325, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [12.606, 5.934, 1.043, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [29.786, 3.694, 3.455, 0.583, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'MossDeathC': 0,
+  'CarbonShallow': 1013.33,
+  'CarbonDeep': 1520,
+  'CarbonMineralSum': 10012.38,
+  'OrganicNitrogenSum': 529.618,
+  'AvailableNitrogenSum': 1.073,
+  'EcosystemRespiration': 197.68,
+},
+  ## CMT73 - Tussock Tundra - Cherskii
+  "Tussock Tundra-Cherskii" : {
+    'cmtnumber': 73,
+  'PFTNames':  ['Sedge', 'Shrub', 'Moss', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [192.440, 226.400, 33.260, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [96.220, 113.200, 16.630, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [64.150, 75.470, 11.090, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.830, 0.140, 0.026, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'VegCarbon': {
+    'Leaf' : [75.225, 3.540, 13.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.000, 84.500, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [278.610, 6.955, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'VegStructuralNitrogen': {
+    'Leaf' : [2.696, 0.205, 0.349, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.000, 1.517, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [8.494, 0.218, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'MossDeathC': 0,
+  'CarbonShallow': 4740,
+  'CarbonDeep': 10866.67,
+  'CarbonMineralSum': 34749.33,
+  'OrganicNitrogenSum': 3450.03,
+  'AvailableNitrogenSum': 3.29,
+  'EcosystemRespiration': 243.96,
+},
+  ## CMT74 - Scots Pine - Zotino
+  "Scots Pine-Zotino" : {
+    'cmtnumber': 74,
+  'PFTNames':  ['EgreenTree', 'Lichen', 'DwarfShrub', 'Moss', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [559.140, 15.800, 0.670, 0.250, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [349.460, 9.870, 0.420, 0.160, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [279.570, 7.900, 0.330, 0.130, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [2.500, 0.086, 0.010, 0.002, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'VegCarbon': {
+    'Leaf' : [260.000, 167.270, 6.790, 2.660, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [5660.000, 0.000, 0.290, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [2368.000, 0.000, 0.410, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'VegStructuralNitrogen': {
+    'Leaf' : [4.640, 1.990, 0.230, 0.035, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [10.000, 0.000, 0.006, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [43.050, 0.000, 0.005, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'MossDeathC': 0,
+  'CarbonShallow': 274,
+  'CarbonDeep': 548,
+  'CarbonMineralSum': 3793.33,
+  'OrganicNitrogenSum': 189.549,
+  'AvailableNitrogenSum': 0.334,
+  'EcosystemRespiration': 359.36,
+
+},
+  ## CMT75 - Bog - Igarka
+  "Bog-Igarka" : {
+    'cmtnumber': 75,
+'PFTNames':  ['Shrubs', 'Sphagnum', 'Lichen', 'PFT3', 'PFT4', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [76.220, 162.480, 136.800, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [47.640, 101.550, 85.500, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [38.110, 81.240, 68.400, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.289, 0.616, 0.518, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'VegCarbon': {
+    'Leaf' : [31.500, 145.500, 122.500, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [36.760, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [471.920, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'VegStructuralNitrogen': {
+    'Leaf' : [0.846, 2.425, 0.811, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.603, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [9.530, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+
+  },
+  'MossDeathC': 0,
+  'CarbonShallow': 2351.77,
+  'CarbonDeep': 4758.23,
+  'CarbonMineralSum': 30410,
+  'OrganicNitrogenSum': 1851.86,
+  'AvailableNitrogenSum': 7.77,
+  'EcosystemRespiration': 583.15,
+},
+  ## CMT76 - Shrub Tundra-Seida
+  "Shrub Tundra-Seida" : {
+    'cmtnumber': 76,
+  'PFTNames':  ['DecidShrub', 'Betnan', 'Salix', 'Graminoids', 'Sphagnum', 'PFT5', 'PFT6', 'PFT7', 'PFT0', 'PFT9'],
+  'GPPAllIgnoringNitrogen':  [43.010, 59.000, 17.400, 19.950, 38.590, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAllIgnoringNitrogen':  [32.260, 44.250, 13.050, 14.970, 28.950, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'NPPAll':  [21.510, 29.500, 8.700, 9.980, 19.300, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'Nuptake':  [0.214, 0.290, 0.087, 0.099, 0.192, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  'VegCarbon': {
+    'Leaf' : [6.140, 5.950, 4.030, 26.600, 51.450, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [51.210, 72.700, 19.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [61.450, 253.610, 16.340, 58.080, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+  },
+  'VegStructuralNitrogen': {
+    'Leaf' : [0.203, 0.178, 0.175, 1.770, 0.911, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Stem' : [0.761, 1.218, 0.252, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+    'Root' : [1.143, 5.260, 0.282, 0.668, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, ],
+
+  },
+  'MossDeathC': 0,
+  'CarbonShallow': 4050,
+  'CarbonDeep': 4950,
+  'CarbonMineralSum': 19928.57,
+  'OrganicNitrogenSum': 1211.877,
+  'AvailableNitrogenSum': 2.808,
+  'EcosystemRespiration': 155.8,
 },
 }
 
