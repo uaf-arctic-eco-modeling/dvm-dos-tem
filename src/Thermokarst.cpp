@@ -274,6 +274,7 @@ void Thermokarst::initiate(int year) {
           BOOST_LOG_SEV(glg, warn) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
           break;
         }
+        break; // if we have reached total removal
       } 
     } else if(cd->m_soil.type[il] == 3) {   //Mineral soil layers
 
@@ -334,11 +335,14 @@ void Thermokarst::initiate(int year) {
               cd->m_soil.frootfrac[il][ip] *= partleft/cd->m_soil.dz[il];
             }
           }
+          cd->m_soil.dz[il] = partleft;
+          cd->d_soil.dz[il] = partleft;
         } else {
           BOOST_LOG_SEV(glg, warn) << "The remaining soil after thermokarst is greater than the thickness of this layer. Something is wrong??";
           BOOST_LOG_SEV(glg, warn) << "partleft: " << partleft << "cd->m_soil.dz["<<il<<"]: " << cd->m_soil.dz[il];
           break;
         }
+        break; // if we have reached total removal
       }
     }
     // Parent material catches

@@ -1716,8 +1716,8 @@ double Ground::adjustSoilAfterburn() { //adjustSoilAfterDisturbance()
   // remove all moss/organic layers, if C is zero, after fire
   currl = fstsoill;
 
-  while (currl!=NULL) {
-    if(currl->isSoil) {
+ while (currl!=NULL) {
+    if(currl->isMoss || currl->isOrganic) {
       double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
 
       if(tsomc <= 0.0) {
@@ -1729,10 +1729,30 @@ double Ground::adjustSoilAfterburn() { //adjustSoilAfterDisturbance()
         removeLayer(currl);
         currl = toplayer; //then the new toplayer is currl->nextl
                           //  (otherwise, bug here)
-      } else{
-        currl = currl->nextl;
+      } else {
+        // break;
+        currl = fstminel;
       }
-    }
+    } 
+    else if(currl->isMineral){
+
+      double tsomc = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+
+      if(tsomc <= 0.0) {
+        bdepthadj += currl->dz; //adding the removed layer thickness to
+                                //  that 'err' counting
+        //need to adjust 'freezing/thawing front depth' due to top
+        //  layer removal below
+        adjustFrontsAfterThickchange(0, -currl->dz);
+        Layer * topMinLayer = currl->nextl;
+        removeLayer(currl);
+        currl = topMinLayer; // then the new toplayer is currl->nextl
+                             //   (otherwise, bug here) UPDATE: some issue with pointers here
+      } else {
+        // probably need to remove part of a layer in some of the deeper mineral layers
+        break;
+      }
+    } 
     else {
       break;
     }
