@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/work/dvmdostem",
-            "args": ["-l", "fatal", "-p", "2", "-e", "2", "-s", "2", "-t", "2", "-n", "2"],
+            "args": ["-l", "fatal", "-p", "0", "-e", "0", "-s", "0", "-t", "2", "-n", "0", "--restart-run"],
             "stopAtEntry": false,
             "cwd": "/data/workflows/thermokarst/init",
             "environment": [],
