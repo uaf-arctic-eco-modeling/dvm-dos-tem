@@ -2,275 +2,590 @@
 // soil microbial activity (BGC) parameters and default initial conditions
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-84.44             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-29.73             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1783              // initshlwc:
-5021              // initdeepc:
-9000              // initminec:
-363               // initsoln:
-0.76              // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+84.44             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+29.73             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+1783              //initshlwc:
+5021              //initdeepc:
+9000              //initminec:
+363               //initsoln:
+0.76              //initavln:
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-35.               // lcclnc:
-0.3717            // fsoma:
-0.6112            // fsompr:
-0.0171            // fsomcr:
-0.2571            // som2co2:
-0.0042            // kn2:
-21.39             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-782.73            // initshlwc:
-3448.5            // initdeepc:
-41665.0           // initminec:
-2145.87           // initsoln:
-0.76              // initavln:
+2.0               //rhq10:
+0.012               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+35.               //lcclnc:
+0.3717            //fsoma:
+0.6112            //fsompr:
+0.0171            //fsomcr:
+0.2571            //som2co2:
+0.0042            //kn2:
+21.39             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+782.73            //initshlwc:
+3448.5            //initdeepc:
+41665.0           //initminec:
+2145.87           //initsoln:
+0.76              //initavln:
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21   JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-70.1              // lcclnc:
-0.3717            // fsoma:
-0.6112            // fsompr:
-0.0171            // fsomcr:
-0.2571            // som2co2:
-0.0042            // kn2:
-21.99             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1156              // initshlwc:
-4254              // initdeepc:
-11005             // initminec:
-699.8             // initsoln:
-1.69              // initavln:
+2.0               //rhq10:
+0.0//rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+70.1              //lcclnc:
+0.3717            //fsoma:
+0.6112            //fsompr:
+0.0171            //fsomcr:
+0.2571            //som2co2:
+0.0042            //kn2:
+21.99             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+1156              //initshlwc:
+4254              //initdeepc:
+11005             //initminec:
+699.8             //initsoln:
+1.69              //initavln:
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // JSC 6/20/20 JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-44.               // lcclnc:
-0.3717            // fsoma:
-0.6112            // fsompr:
-0.0171            // fsomcr:
-0.2571            // som2co2:
-0.0042            // kn2:
-18.557            // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-528.2             // initshlwc:
-16553.5           // initdeepc:
-25915.0           // initminec:
-1513.1            // initsoln:
-3.5               // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+44.               //lcclnc:
+0.3717            //fsoma:
+0.6112            //fsompr:
+0.0171            //fsomcr:
+0.2571            //som2co2:
+0.0042            //kn2:
+18.557            //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+528.2             //initshlwc:
+16553.5           //initdeepc:
+25915.0           //initminec:
+1513.1            //initsoln:
+3.5               //initavln:
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax: 
-47.60             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-29.73             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-2340              // initshlwc:
-5853              // initdeepc:
-37022             // initminec:
-1843              // initsoln:
-3.93              // initavln:  was 0.68
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+47.60             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+29.73             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+2340              //initshlwc:
+5853              //initdeepc:
+37022             //initminec:
+1843              //initsoln:
+3.93              //initavln:was0.68
 //===========================================================
 // CMT05 // Tussock Tundra
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-39.54             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.257             // som2co2:
-0.0042            // kn2:
-24.6              // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-3000              // initshlwc:
-7700              // initdeepc:
-43000             // initminec:
-2200              // initsoln:
-8.9               // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+39.54             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.257             //som2co2:
+0.0042            //kn2:
+24.6              //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+3000              //initshlwc:
+7700              //initdeepc:
+43000             //initminec:
+2200              //initsoln:
+8.9               //initavln:
 //===========================================================
 // CMT06 // Wet Sedge Tundra
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-41.30             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-29.73             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-3358              // initshlwc:
-8401              // initdeepc:
-44252             // initminec:
-2698              // initsoln:
-0.48              // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+41.30             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+29.73             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+3358              //initshlwc:
+8401              //initdeepc:
+44252             //initminec:
+2698              //initsoln:
+0.48              //initavln:
 //===========================================================
 // CMT07 // Heath Tundra
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-45.70             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-29.73             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-1065              // initshlwc:
-1071              // initdeepc:
-32640             // initminec:
-1405               // initsoln:
-0.17              // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+45.70             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+29.73             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+1065              //initshlwc:
+1071              //initdeepc:
+32640             //initminec:
+1405               //initsoln:
+0.17              //initavln:
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-75.67             // lcclnc:  this might be too hi?
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-16.37             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-3745.51           // initshlwc:
-7672.62           // initdeepc:
-24235.14          // initminec:
-2177.91           // initsoln:
-0.8               // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+75.67             //lcclnc:thismightbetoohi?
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+16.37             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+3745.51           //initshlwc:
+7672.62           //initdeepc:
+24235.14          //initminec:
+2177.91           //initsoln:
+0.8               //initavln:
 //===========================================================
 // CMT20 // EML Shrub Tundra
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-47.60             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-28.10             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-4365.66           // initshlwc:
-12814.11          // initdeepc:
-36329.49          // initminec: was 36329.49
-1904.10           // initsoln: was 1904.10
-4.0               // initavln:
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+47.60             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+28.10             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+4365.66           //initshlwc:
+12814.11          //initdeepc:
+36329.49          //initminec:was36329.49
+1904.10           //initsoln:was1904.10
+4.0               //initavln:
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 joy)
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax:
-49.50             // lcclnc:  corrected 8/4/17
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-30.32             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-4365.66           // initshlwc:
-12814.1           // initdeepc:
-43417             // initminec:
-1998.37           // initsoln:
-1.7               // initavln:
+2.484               //rhq10:
+0.0//rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+49.50             //lcclnc:corrected8/4/17
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+30.32             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+4365.66           //initshlwc:
+12814.1           //initdeepc:
+43417             //initminec:
+1998.37           //initsoln:
+1.7               //initavln:
 //===========================================================
 // CMT31 // Boreal Bog
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.8               // moistopt: changed from 0.5 to 0.8
-1.0               // moistmax:
-50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-19.34             // nmincnsoil: Updated
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-6029              // initshlwc: Updated
-40300             // initdeepc: Updated
-37000             // initminec: Updated
-5548              // initsoln: Updated
-9.41              // initavln: Updated
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.8               //moistopt:changedfrom0.5to0.8
+1.0               //moistmax:
+50.00             //lcclnc:Updated.Subsequentlyreducedfrom65.43to50.0
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+19.34             //nmincnsoil:Updated
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+6029              //initshlwc:Updated
+40300             //initdeepc:Updated
+37000             //initminec:Updated
+5548              //initsoln:Updated
+9.41              //initavln:Updated
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
-0.0               // moistmin:
-0.5               // moistopt:
-1.0               // moistmax: 
-47.60             // lcclnc:
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-29.73             // nmincnsoil:
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-2340              // initshlwc:
-5853              // initdeepc:
-37022             // initminec:
-1843              // initsoln:
-3.93              // initavln:  was 0.68
-
+2.0               //rhq10:
+1.0               //rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+47.60             //lcclnc:
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+29.73             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+2340              //initshlwc:
+5853              //initdeepc:
+37022             //initminec:
+1843              //initsoln:
+3.93              //initavln:was0.68
+//===========================================================
+// CMT50 // Shrub Tundra TVC // Calibrated for Trail Valley Creek Joy and Valeria
+2.0               //rhq10:mostvaluesfrom4
+0.0//rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+43.55             //lcclnc:Buckeridgeetal2010-mean
+0.372             //fsoma:
+0.611             //fsompr:
+0.017             //fsomcr:
+0.346             //som2co2:
+0.0042            //kn2:
+26.63             //nmincnsoil:calculated
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+4000              //initshlwc:
+7944              //initdeepc:
+38121             //initminec:
+1880              //initsoln:
+0.443             //initavln:4is3.993
+//===========================================================
+// CMT51 // Tussock Tundra TVC // ##Values from Trail Valley###
+      2.0000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     43.5500  //lcclnc:// litterfall C:N //  // Buckeridge etal 2010-mean
+      0.3720  //fsoma://  //  // 
+      0.6110  //fsompr://  //  // 
+      0.0170  //fsomcr://  //  // 
+      0.2570  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     20.0000  //nmincnsoil:// totalC/totalN //  // calculated
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+   8000.0000  //initshlwc://  //  // from calib targets
+   9629.0000  //initdeepc://  //  // from calib targets
+   3.812e+04  //initminec://  //  // from calib targets
+   2788.0000  //initsoln://  //  // from calib targets
+      0.3920  //initavln://  //  // from calib targets
+//===========================================================
+// CMT52 // Heath-lichen // ##Values from Trail Valley###
+      2.0000  //rhq10://  //  // from_7
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // from_7
+      0.5000  //moistopt://  //  // from_7
+      1.0000  //moistmax://  //  // from_7
+     43.5500  //lcclnc://  //  // Buckeridge etal 2010-mean
+      0.3720  //fsoma://  //  // from_7
+      0.6110  //fsompr://  //  // from_7
+      0.0170  //fsomcr://  //  // from_7
+      0.3460  //som2co2://  //  // from_7
+      0.0042  //kn2://  //  // from_7
+     13.0200  //nmincnsoil:// C:N totC/totalN //  // sum of soilCarbon divided by organicNitrogen
+      0.2000  //propftos://  //  // same for all
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // same for all
+   1400.0000  //initshlwc://  //  // from calib targets
+   2252.0000  //initdeepc://  //  // from calib targets
+   3.812e+04  //initminec://  //  // from calib targets
+   3209.0000  //initsoln://  //  // from calib targets
+      0.3620  //initavln://  //  // from calib targets
+//===========================================================
+// CMT55 // Arctic Fen // Daring Creek
+      2.0000  //rhq10://  ////None
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  ////None
+      0.5000  //moistopt://  ////None
+      1.0000  //moistmax://  ////None
+     36.4000  //lcclnc://  ////None
+      0.3720  //fsoma://  ////None
+      0.6110  //fsompr://  ////None
+      0.0170  //fsomcr://  ////None
+      0.3460  //som2co2://  ////None
+      0.0042  //kn2://  ////None
+     18.43    //nmincnsoil:// C:N totalC/orgN // calculated //
+      0.2000  //propftos://  ////None
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs // //None
+   2320       //initshlwc:// same as targets // //None
+   26838     //initdeepc:// same as targets // //None
+   14000     //initminec:// same as targets // //None
+   2341.5      //initsoln:// same as targets // //None
+      0.7060  //initavln:// same as targets // //None
+//===========================================================
+// CMT56 // Mixed Tundra // Darling Lake
+ 2.0000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+ 0.0000  //moistmin://  //  // 
+ 0.5000  //moistopt://  //  // 
+ 1.0000  //moistmax://  //  // 
+50.0200  //lcclnc:// updated //  // 
+ 0.3720  //fsoma://  //  // 
+ 0.6110  //fsompr://  //  // 
+ 0.0170  //fsomcr://  //  // 
+ 0.3460  //som2co2://  //  // 
+ 0.0042  //kn2://  //  // 
+20.61    //nmincnsoil:// C:N totalC/orgN // calculated-updated // 
+ 0.2000  //propftos://  //  // 
+ 0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+  2745  //initshlwc:// updated April 23 //  // 
+ 10892  //initdeepc:// updated April 23 //  // 
+ 14000  //initminec:// updated April 23 //  // 
+ 1340.9  //initsoln:// updated April 23 //  // 
+ 1.6320  //initavln://  //  // 
+//===========================================================
+// CMT57 // Heath Tundra Daring Lake
+      2.0000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     45.3000  //lcclnc://  //  // 
+      0.3720  //fsoma://  //  // 
+      0.6110  //fsompr://  //  // 
+      0.0170  //fsomcr://  //  // 
+      0.3460  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+      26.72  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+   1885.7000  //initshlwc://  //  // 
+   2828.57  //initdeepc://  //  // 
+   14000    //initminec://  //  // 
+   700.3    //initsoln://  //  // 
+      2.4570  //initavln://  //  // 
+//===========================================================
+// CMT60 // Peat Plateau 
+2.27               //rhq10:
+0.0//rhmoistfrozen:
+0.0               //moistmin:
+0.5               //moistopt:
+1.0               //moistmax:
+60.00             //lcclnc:
+0.3717             //fsoma:
+0.6112             //fsompr:
+0.0171             //fsomcr:
+0.2571             //som2co2:
+0.0042            //kn2:
+27.37             //nmincnsoil:
+0.2               //propftos:
+0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
+3329              //initshlwc:
+11106              //initdeepc:
+55667            //initminec:
+2561              //initsoln:
+1.38              //initavln:
+//===========================================================
+// CMT65 // Mature Aspen // BOREAS
+      1.3000  //rhq10://  //  // 
+      0.192     //rhmoistfrozen://None//None//None
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     16.7000  //lcclnc://  //  // 
+      0.3717  //fsoma://  //  // 
+      0.6112  //fsompr://  //  // 
+      0.0171  //fsomcr://  //  // 
+      0.2571  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     13.9000  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  //
+   2590.00  //initshlwc:// same as targets //  // 
+   5239.00  //initdeepc:// same as targets //  // 
+   11707.00  //initminec:// same as targets //  // 
+   1405.54  //initsoln:// same as targets //  // 
+      0.80  //initavln:// same as targets //  // 
+//===========================================================
+// CMT66 // Mature Jack Pine // BOREAS
+      1.6000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+    115.0000  //lcclnc://  //  // 
+      0.3717  //fsoma://  //  // 
+      0.6112  //fsompr://  //  // 
+      0.0171  //fsomcr://  //  // 
+      0.2571  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     27.0500  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+    516.0000  //initshlwc:// same as targets //  // 
+    758.0000  //initdeepc:// same as targets //  // 
+   2973.0000  //initminec:// same as targets //  // 
+    157.0000  //initsoln:// same as targets //  // 
+      5.4000  //initavln:// same as targets //  // 
+//===========================================================
+// CMT67 // Mixed Forest-Groundhog River
+      2.3000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     22.3000  //lcclnc://  //  // 
+      0.3717  //fsoma://  //  // 
+      0.6112  //fsompr://  //  // 
+      0.0171  //fsomcr://  //  // 
+      0.2571  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     28.9200  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+    736.6700  //initshlwc:// same as targets //  // 
+   1473.0000  //initdeepc:// same as targets //  // 
+   1.584e+04  //initminec:// same as targets //  // 
+    624.0000  //initsoln:// same as targets //  // 
+      7.8570  //initavln:// same as targets //  // 
+//===========================================================
+// CMT69 // Black Spruce BOREAS
+2.5000  //rhq10://None//None//None
+0.05813     //rhmoistfrozen://None//None//None
+0.0000  //moistmin://None//None//None
+0.5000  //moistopt://None//None//None
+1.0000  //moistmax://None//None//None
+35.897  //lcclnc://None//None//None
+0.3717  //fsoma://None//None//None
+0.6112  //fsompr://None//None//None
+0.0171  //fsomcr://None//None//None
+0.2571  //som2co2://None//None//None
+0.0042  //kn2://None//None//None
+29.1200  //nmincnsoil:// C:N totalC/orgN // calculated // 
+0.2000  //propftos://None//None//None
+0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //None//None
+1792.32   //initshlwc://None//None//None
+3257.12  //initdeepc://None//None//None
+9227.79 //initminec://None//None//None
+490.33  //initsoln://None//None//None
+17.20  //initavln://None//None//None
+//===========================================================
+// CMT70 // Dwarf Shrub-Chokurdakh // 
+      2.0000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     22.0000  //lcclnc://  //  // 
+      0.3720  //fsoma://  //  // 
+      0.6110  //fsompr://  //  // 
+      0.0170  //fsomcr://  //  // 
+      0.3460  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     16.5100  //nmincnsoil:// C:N totalC/orgN // calculated 14.45// 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+    1240.0  //initshlwc:// same as targets //  846.7400// 
+     6430.0  //initdeepc:// same as targets //  1992.46// 
+    27385.0  //initminec:// same as targets //  25821.18// 
+     2123.69  //initsoln:// same as targets // 1663.73 // 
+      3.0030  //initavln:// same as targets //  //
+//===========================================================
+// CMT71 // Larch Forest - Yakutsk Spasskaya Pad //  
+      2.0000  //rhq10://  //  // 
+0.0//rhmoistfrozen://nan//nan//nan
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     22.0000  //lcclnc://  //  // 
+      0.3717  //fsoma://  //  // 
+      0.6112  //fsompr://  //  // 
+      0.0171  //fsomcr://  //  // 
+      0.2571  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+       23.69  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+     1013.33  //initshlwc:// same as targets //  // 
+     1520.00  //initdeepc:// same as targets //  // 
+    10012.38  //initminec:// same as targets //  // 
+     529.618  //initsoln:// same as targets //  // 
+      1.0730  //initavln:// same as targets //  //
+//===========================================================
+// CMT73 // Tussock Tundra-Cherskii // 
+      2.0000  //rhq10://  //  // 
+      0.0394     //rhmoistfrozen://1.0//None//None
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     31.7000  //lcclnc://  //  // 
+      0.3720  //fsoma://  //  // 
+      0.6110  //fsompr://  //  // 
+      0.0170  //fsomcr://  //  // 
+      0.2570  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     14.60  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.0000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+   4740.0000  //initshlwc:// same as targets //  // 
+   1.087e+04  //initdeepc:// same as targets //  // 
+   3.475e+04  //initminec:// same as targets //  // 
+   3.450e+03  //initsoln:// same as targets //  // 
+      3.2900  //initavln:// same as targets //  //  
+//===========================================================
+// CMT74 // Scots Pine-Zotino // 
+      1.6000  //rhq10://  //  // 
+      0.6343     //rhmoistfrozen://1.0//None//None
+      0.0000  //moistmin://  //  // 
+      0.5000  //moistopt://  //  // 
+      1.0000  //moistmax://  //  // 
+     66.0000  //lcclnc://  //  // 
+      0.3717  //fsoma://  //  // 
+      0.6112  //fsompr://  //  // 
+      0.0171  //fsomcr://  //  // 
+      0.2571  //som2co2://  //  // 
+      0.0042  //kn2://  //  // 
+     24.3490  //nmincnsoil:// C:N totalC/orgN // calculated // 
+      0.2000  //propftos://  //  // 
+      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs //  // 
+    274.0000  //initshlwc:// same as targets //  // 
+    548.0000  //initdeepc:// same as targets //  // 
+   3.793e+03  //initminec:// same as targets //  // 
+   1.895e+02  //initsoln:// same as targets //  // 
+      0.3340  //initavln:// same as targets //  // 
+//===========================================================

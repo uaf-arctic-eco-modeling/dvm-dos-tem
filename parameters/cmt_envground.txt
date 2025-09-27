@@ -1,562 +1,1207 @@
-// dvmdostem parameter file
-// ground (snow and soil) biophysical properties and parameters
+// dmvdostem parameter file
+// soil microbial activity (BGC) parameters and default initial conditions
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.15               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.20               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.15               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.20               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.15               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.20               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.15               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.20               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.20               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.15               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.20               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.15               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.20               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.15               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.20               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.15               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.20               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.20               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.2                // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.2               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.2                //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.2               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.2                // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.2               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.2                //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.2               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // JSC 6/20/20  JSC based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.50e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.2                // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.2               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.2               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.50e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.2                //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.2               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-1.0               // initvwc(0): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(1): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(2): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(3): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(4): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(5): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(6): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(7): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(8): initial soil volume water content at every 10 cm interval
-1.0               // initvwc(9): initial soil volume water content at every 10 cm interval
-
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.85678               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.0456                //nfactor(s):Summernfactor
+1.121                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+1.0               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+1.0               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT07 // Heath Tundra
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT20 // EML Shrub Tundra
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated-checked 8/5/22 joy)
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.824               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+0.831                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT31 // Boreal Bog
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax: changed from 0.04
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--9.1               // initts(0): initial soil temperature at 10 cm interval (oC)
--7.9               // initts(1): initial soil temperature at 10 cm interval (oC)
--6.8               // initts(2): initial soil temperature at 10 cm interval (oC)
--5.9               // initts(3): initial soil temperature at 10 cm interval (oC)
--5.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--4.4               // initts(5): initial soil temperature at 10 cm interval (oC)
--3.8               // initts(6): initial soil temperature at 10 cm interval (oC)
--3.4               // initts(7): initial soil temperature at 10 cm interval (oC)
--3.2               // initts(8): initial soil temperature at 10 cm interval (oC)
--3.1               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.84               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.91               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.87               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.85               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.84               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.85               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.84               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.93               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.98               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.89               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:changedfrom0.04
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-9.1               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-7.9               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-6.8               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-5.9               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-5.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-4.4               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-3.8               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-3.4               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-3.2               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-3.1               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.84               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.91               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.87               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.85               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.84               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.85               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.84               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.93               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.98               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.89               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
-0.8                // snwalbmax:
-0.4                // snwalbmin:
--1.5e7             // psimax:
-0.08               // evapmin:
-0.04               // drainmax:
-0.20               // rtdp4gdd: root depth for estimating growing degree day
-0.25               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
-0.25               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
-0.25               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
-0.98               // porosity(m): porosity for moss layers
-0.95               // porosity(f): porosity for fibric layers
-0.8                // porosity(h): porosity for humic layers
-25000              // bulkden(m): bulk density for moss (g/m3)
-51000              // bulkden(f): bulk density for fibric (g/m3)
-176000             // bulkden(h): bulk density for humic (g/m3)
-0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
-0.28               // hksat(f): hydraulic conductivity at saturation for fibric
-0.002              // hksat(h): hydraulic conductivity at saturation for humic
-1.5                // nfactor(s): Summer nfactor
-1.0                // nfactor(w): Winter nfactor
--1.0               // initsnwtem: initial snow temperature (oC)
--1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
--1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
-0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(1): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(2): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(3): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(4): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(5): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(6): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(7): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
-0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
+0.8                //snwalbmax:
+0.4                //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.25               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.25               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.95               //porosity(f):porosityforfibriclayers
+0.8                //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+51000              //bulkden(f):bulkdensityforfibric(g/m3)
+176000             //bulkden(h):bulkdensityforhumic(g/m3)
+0.15               //hksat(m):hydraulicconductivityatsaturationformoss(mm/s?)
+0.28               //hksat(f):hydraulicconductivityatsaturationforfibric
+0.002              //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.10               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.10               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
+//===========================================================
+// CMT50 // Shrub Tundra TVC // ##Values from Trail Valley###
+      0.8000  //snwalbmax://None//None//None
+      0.4000  //snwalbmin://None//None//None
+  -1.500e+07  //psimax://None//None//None
+      0.0800  //evapmin://None//None//None
+      0.0400  //drainmax://None//None//None
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //None//None
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //None//None
+      0.3300  //tcsolid(f):W/mK// Soil thermal conductivity for fibric // averaged across first 0.20m of organic layer //None
+      0.4000  //tcsolid(h):W/mK// Soil thermal conductivity for humic //None//None
+      0.9800  //porosity(m):// porosity for moss layers //None//None
+      0.9200  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer //None
+      0.8000  //porosity(h):// porosity for humic layers //None//None
+   1.400e+05  //bulkden(m):g/m3// bulk density for moss //None//None
+   2.600e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer //None
+   7.700e+05  //bulkden(h):g/m3// bulk density for humic //None//None
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //None//None
+      0.0010  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer //None
+      0.0001  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //None//None
+      1.5000  //nfactor(s):// Summer nfactor //None//None
+      1.0000  //nfactor(w):// Winter nfactor //None//None
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // fromcmt4
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //None//None
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval//None//None
+      0.1000  //initvwc(0):// initial soil volume water content at every 10 cm interval//None//None
+      0.1000  //initvwc(1):// initial soil volume water content at every 10 cm interval //None//None
+      0.1000  //initvwc(2):// initial soil volume water content at every 10 cm interval//None//None
+      0.1000  //initvwc(3):// initial soil volume water content at every 10 cm interval //None//None
+      0.1000  //initvwc(4):// initial soil volume water content at every 10 cm interval//None//None
+      0.1000  //initvwc(5):// initial soil volume water content at every 10 cm interval //None//None
+      0.1000  //initvwc(6):// initial soil volume water content at every 10 cm interval//None//None
+      0.1000  //initvwc(7):// initial soil volume water content at every 10 cm interval//None//None
+      0.1000  //initvwc(8):// initial soil volume water content at every 10 cm interval //None//None
+      0.1000  //initvwc(9):// initial soil volume water content at every 10 cm interval//None//None
+//===========================================================
+// CMT51 // Tussock Tundra TVC// ##Values from Trail Valley###
+      0.8000  //snwalbmax://  //  // Marsh and Pomeroy 1996-average0.7-0.2 bare ground
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.3300  //tcsolid(f):W/mK// Soil thermal conductivity for fibric // averaged across first 0.20m of organic layer // Quinton 1997
+      0.4000  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // Quinton 1997-mineral soil 0.53
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.8500  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // Krogh etal 2017
+      0.8000  //porosity(h):// porosity for humic layers //  // Krogh etal 2017
+   1.400e+05  //bulkden(m):g/m3// bulk density for moss //  // Wrona 2016
+   2.600e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // Wrona 2016
+   7.700e+05  //bulkden(h):g/m3// bulk density for humic //  // Wrona 2016
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0010  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // Krogh etal 2017
+      0.0001  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // Krogh etal 2017
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      1.0000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
+// CMT52 // Heath-lichen // ##Values from Trail Valley###
+      0.8000  //snwalbmax://  //  // Marsh and Pomeroy 1996-average0.7-0.2 bare ground
+      0.4000  //snwalbmin://  //  // from_7
+  -1.500e+07  //psimax://  //  // same for all
+      0.0800  //evapmin://  //  // same for all
+      0.0400  //drainmax://  //  // same for all
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // same for all
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // same for all
+      0.3300  //tcsolid(f):W/mK// Soil thermal conductivity for fibric // averaged across first 0.20m of organic layer // Quinton 1997
+      0.4000  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // Quinton 1997- 0.53 in mineral soil
+      0.9800  //porosity(m):// porosity for moss layers //  // same for all
+      0.8500  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // Krogh etal 2017
+      0.8000  //porosity(h):// porosity for humic layers //  // Krogh etal 2017
+   1.400e+05  //bulkden(m):g/m3// bulk density for moss //  // Wrona 2016
+   2.600e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // Wrona 2016
+   7.700e+05  //bulkden(h):g/m3// bulk density for humic //  // Wrona 2016
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // from_7
+      0.0010  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // Krogh etal 2017
+      0.0001  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // Krogh etal 2017
+      1.5000  //nfactor(s):// Summer nfactor //  // same for all
+      1.0000  //nfactor(w):// Winter nfactor //  // same for all
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // from_7
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // from_7
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // from_7
+      0.1000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // from_7
+      0.1000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // from_7
+//===========================================================
+// CMT55 // Arctic Fen // Daring Creek
+      0.8500  //snwalbmax://  //  // 
+      0.5000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.0400  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.5400  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.9500  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.9000  //porosity(h):// porosity for humic layers //  // 
+    25000  //bulkden(m):g/m3// bulk density for moss //  // 
+   300000  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   500000  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0902  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.00694  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.1000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  //
+//===========================================================
+// CMT56 // Mixed Tundra // Darling Lake
+      0.8000  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.0400  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.5400  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.9500  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.9000  //porosity(h):// porosity for humic layers //  // 
+   25000  //bulkden(m):g/m3// bulk density for moss //  // 
+   90000  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+  240000  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0560  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0560  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.1000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
+// CMT57 // Heath Tundra Daring Lake // 
+      0.8500  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+   -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.0400  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.5400  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.9500  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.9000  //porosity(h):// porosity for humic layers //  // 
+   2.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   2.900e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   5.000e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0560  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0560  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.1000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  //
+//===========================================================
+// CMT60 // Peat Plateau
+0.82               //snwalbmax:
+0.50               //snwalbmin:
+-1.5e7             //psimax:
+0.08               //evapmin:
+0.04               //drainmax:
+0.20               //rtdp4gdd:rootdepthforestimatinggrowingdegreeday
+0.25               //tcsolid(m):Soilthermalconductivityformoss(W/mK)
+0.21               //tcsolid(f):Soilthermalconductivityforfibric(W/mK)
+0.21               //tcsolid(h):Soilthermalconductivityforhumic(W/mK)
+0.98               //porosity(m):porosityformosslayers
+0.93               //porosity(f):porosityforfibriclayers
+0.87               //porosity(h):porosityforhumiclayers
+25000              //bulkden(m):bulkdensityformoss(g/m3)
+41100              //bulkden(f):bulkdensityforfibric(g/m3)updatedJan192024
+91400              //bulkden(h):bulkdensityforhumic(g/m3)
+0.28               //hksat(m):hydraulicconductivityatsaturationformoss
+3.4954             //hksat(f):hydraulicconductivityatsaturationforfibric
+0.1505             //hksat(h):hydraulicconductivityatsaturationforhumic
+1.5                //nfactor(s):Summernfactor
+1.0                //nfactor(w):Winternfactor
+-1.0               //initsnwtem:initialsnowtemperature(oC)
+-1.0               //initts(0):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(1):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(2):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(3):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(4):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(5):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(6):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(7):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(8):initialsoiltemperatureat10cminterval(oC)
+-1.0               //initts(9):initialsoiltemperatureat10cminterval(oC)
+0.2               //initvwc(0):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(1):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(2):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(3):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(4):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(5):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(6):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(7):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(8):initialsoilvolumewatercontentatevery10cminterval
+0.2               //initvwc(9):initialsoilvolumewatercontentatevery10cminterval
+//===========================================================
+// CMT65 // Mature Aspen // BOREAS
+      0.7550  //snwalbmax://  //  // 
+      0.4590  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.4200  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.2500  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.8900  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.8500  //porosity(h):// porosity for humic layers //  // 
+   2.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   2.200e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   3.900e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.2800  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0020  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.2000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  //
+//===========================================================
+// CMT66 // Mature Jack Pine // BOREAS
+      0.8000  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.2500  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.2500  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.9000  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.8800  //porosity(h):// porosity for humic layers //  // 
+   2500.0000  //bulkden(m):g/m3// bulk density for moss //  // 
+   4.833e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   9.667e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0020  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0020  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.2000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  //
+//===========================================================
+// CMT67 // Mixed Forest-Groundhog River
+      0.1800  //snwalbmax://  //  // 
+      0.0600  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.2500  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.2500  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.9800  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.9000  //porosity(h):// porosity for humic layers //  // 
+   2.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   1.750e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   1.790e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+   1.310e-03  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0020  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.2000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
+// CMT69 // Black Spruce BOREAS //
+      0.3570  //snwalbmax://  //  // 
+      0.1100  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.5500  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.5500  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.982600  //porosity(m):// porosity for moss layers //  // 
+      0.961600  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.900500  //porosity(h):// porosity for humic layers //  // 
+   2.800e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   7.000e+04  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   1.790e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0100  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0100  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5  //nfactor(s):// Summer nfactor //  // 
+      1.0  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.2000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  //
+//===========================================================
+// CMT70 // Dwarf Shrub-Chokurdakh // 
+      0.8000  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.1000  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.0800  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.0800  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9500  //porosity(m):// porosity for moss layers //  // 
+      0.9400  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.808400  //porosity(h):// porosity for humic layers //  // 
+   7.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   8.800e+04  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   2.605e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.6000  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0500  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0020  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.1000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.1000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
+// CMT71 // Larch Forest - Yakutsk Spasskaya Pad //
+      0.8000  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.1200  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.2386  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.2500  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.7500  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.7000  //porosity(h):// porosity for humic layers //  // 
+   2.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   1.200e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   2.900e+05  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.2583  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.2100  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.2000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
+// CMT73 // Tussock Tundra-Cherskii // 
+      0.8000  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.9800  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.9800  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.6540  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.4900  //porosity(h):// porosity for humic layers //  // 
+   2.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   1.490e+06  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   1.540e+06  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.0250  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0020  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      0.6210  //nfactor(s):// Summer nfactor //  // 
+      0.6240  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      1.0000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      1.0000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
+// CMT74 // Scots Pine-Zotino // 
+      0.8000  //snwalbmax://  //  // 
+      0.4000  //snwalbmin://  //  // 
+  -1.500e+07  //psimax://  //  // 
+      0.0800  //evapmin://  //  // 
+      0.0400  //drainmax://  //  // 
+      0.2000  //rtdp4gdd:// root depth for estimating growing degree day //  // 
+      0.2500  //tcsolid(m):W/mK// Soil thermal conductivity for moss //  // 
+      0.2500  //tcsolid(f):W/mK// Soil thermal conductivity for fibric //  // 
+      0.2500  //tcsolid(h):W/mK// Soil thermal conductivity for humic //  // 
+      0.9800  //porosity(m):// porosity for moss layers //  // 
+      0.9000  //porosity(f):// porosity for fibric layers // averaged across first 0.20m of organic layer // 
+      0.8000  //porosity(h):// porosity for humic layers //  // 
+   2.500e+04  //bulkden(m):g/m3// bulk density for moss //  // 
+   2.099e+05  //bulkden(f):g/m3// bulk density for fibric // averaged across first 0.20m of organic layer // 
+   1.220e+06  //bulkden(h):g/m3// bulk density for humic //  // 
+      0.1500  //hksat(m):mm/s// hydraulic conductivity at saturation for moss //  // 
+      0.2800  //hksat(f):mm/s// hydraulic conductivity at saturation for fibric // averaged across first 0.20m of organic layer // 
+      0.0020  //hksat(h):mm/s// hydraulic conductivity at saturation for humic //  // 
+      1.5000  //nfactor(s):// Summer nfactor //  // 
+      1.0000  //nfactor(w):// Winter nfactor //  // 
+     -1.0000  //initsnwtem:deg_C// initial snow temperature //  // 
+     -1.0000  //initts(0):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(1):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(2):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(3):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(4):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(5):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(6):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(7):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(8):deg_C// initial soil temperature at 10 cm interval //  // 
+     -1.0000  //initts(9):deg_C// initial soil temperature at 10 cm interval //  // 
+      0.2000  //initvwc(0):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(1):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(2):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(3):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(4):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(5):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(6):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(7):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
+      0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
+//===========================================================
