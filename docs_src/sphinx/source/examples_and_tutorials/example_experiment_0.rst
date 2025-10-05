@@ -197,10 +197,7 @@ differently, please adjust your paths accordingly.**
       import pandas as pd
       import matplotlib.pyplot as plt
 
-      # This allows us to import tools from the dvm-dos-tem/scripts directory
-      sys.path.insert(0, '/work/scripts')
-
-      from util.output import load_trsc_dataframe
+      from pyddt.util.output import load_trsc_dataframe
 
       # This lets us work with shorter paths relative to the experiment 
       # directory
@@ -251,8 +248,9 @@ information is used to set the number of transient and scenario years to run.
 
    .. jupyter-execute::
 
-      import util.input
       import argparse
+
+      import pyddt.util.input
 
       args = {
         'command': 'climate-ts-plot',
@@ -261,7 +259,7 @@ information is used to set the number of transient and scenario years to run.
         'type': 'spatial-temporal-summary',
       }
 
-      util.input.climate_ts_plot(argparse.Namespace(**args))
+      pyddt.util.input.climate_ts_plot(argparse.Namespace(**args))
 
 *****************************************
 Computing Mean Vegetation C and Soil C
