@@ -145,11 +145,21 @@ RUN pip install -r requirements_general_dev.txt
 
 COPY --chown=$UNAME:$UNAME special_configurations/jupyter_notebook_config.py /home/$UNAME/.jupyter/jupyter_notebook_config.py
 
+# Copy the python source directory into the container so that we can pip install
+# this results in an editable install using the which looks like this in 
+# pip freeze output in the container.
+# -e git+ssh://git@github.com/<username>/dvm-dos-tem.git@<SHA>#egg=pyddt&subdirectory=pyddt
+# The pyddt directory may get fully replaced later if a volume is mounted to 
+# /work (as is typical done to make the host source code available inside the
+# container). But the editable install shoudl still work. If a user makes 
+# changes to the python source code, they may 
+COPY pyddt /work/pyddt
+RUN pip install -e pyddt
+
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
-ENV PATH="/work/scripts:$PATH"
-ENV PATH="/work/scripts/util:$PATH"
+
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
