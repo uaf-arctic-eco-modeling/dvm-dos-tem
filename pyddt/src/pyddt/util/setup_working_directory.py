@@ -223,6 +223,9 @@ def cmdline_entry(argv=None):
   args = cmdline_parse(argv)
   return cmdline_run(args)
 
+# adding this allows the script to be run standalone when installed with pip
+def main(argv=None):
+  return cmdline_entry(argv=argv)
 
 if __name__ == '__main__':
   sys.exit(cmdline_entry())

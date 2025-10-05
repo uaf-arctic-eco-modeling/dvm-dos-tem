@@ -420,13 +420,6 @@ def print_report(jdata, caltargets):
 # NOTE, TODO, need to figure out how to find CMT type!!
 
 
-
-
-
-
-
-
-
 def cal_folder_validator(arg_calfolder):
   '''Make sure that the directory exists and has files...'''
   try:
@@ -475,14 +468,13 @@ def cmdline_define():
 
   return parser
 
-if __name__ == '__main__':
-
+def cmdline_parse(argv=None):
   parser = cmdline_define()
+  args = parser.parse_args(argv)
+  return args
 
-  args = parser.parse_args()
-  
-
-  # Setup the parameters
+def cmdline_run(args):
+   # Setup the parameters
 
   if 'eq-data.tar.gz' not in os.listdir(args.calfolder):
     print("Can't find enough json data to measure calibration quality!")
@@ -500,5 +492,12 @@ if __name__ == '__main__':
 
   #qcal.nc_qcal()
 
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
 
+def main(argv=None):
+  cmdline_entry(argv=argv)
 
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())

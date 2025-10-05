@@ -3,6 +3,7 @@
 import os
 import errno
 import glob
+import sys
 import netCDF4 as nc
 import numpy as np
 from collections import Counter
@@ -649,7 +650,7 @@ def cmdline_define():
 
         The command line interface contains (or will in the future)
         different sub-commands for different types of operations.
-        '''.format("")),
+        '''),
 
       epilog=textwrap.dedent(''''''),
   )
@@ -713,12 +714,12 @@ def cmdline_define():
 
   return parser
 
-
-if __name__ == '__main__':
-
+def cmdline_parse(argv=None):
   parser = cmdline_define()
+  args = parser.parse_args(argv)
+  return args
 
-  args = parser.parse_args()
+def cmdline_run(args):
 
   print(args)
 
@@ -801,4 +802,14 @@ if __name__ == '__main__':
       os.remove(TMP_NC_FILE)
       exit()
 
+def cmdline_entry(argv=None):
+  args = cmdline_parse(argv)
+  return cmdline_run(args)
+
+# adding this allows the script to be run standalone when installed with pip...
+def main(argv=None):
+  return cmdline_entry(argv=argv)  
+
+if __name__ == '__main__':
+  sys.exit(cmdline_entry())
 
