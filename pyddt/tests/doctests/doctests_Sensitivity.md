@@ -273,7 +273,7 @@ dictionary data structure holding the target values. For this experiment, we wil
 use the default target set that comes with the repository. THis function loads
 up all the targets for the driver's CMT number.
 
-    >>> sd.load_target_data('/work/calibration')
+    >>> sd.load_target_data('/work/pyddt/src/pyddt/calibration/')
 
 The next step is to setup the output variables that the model runs should
 produce. The helper function used below takes a list of target names and assumes

@@ -47,7 +47,7 @@ targets specified (soil, PFT, PFT-compartment).
 
 >>> d.set_params_from_seed()
 
->>> d.load_target_data(ref_target_path='/work/calibration/')
+>>> d.load_target_data(ref_target_path='/work/pyddt/src/pyddt/calibration/')
 
 >>> d.setup_outputs(d.target_names)
 

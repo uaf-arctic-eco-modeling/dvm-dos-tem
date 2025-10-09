@@ -23,8 +23,8 @@ Git LFS so you may need to fetch the files locally before you begin ()
     ... N_samples=3
     ... )
 
-    >>> import drivers.Sensitivity
-    >>> d = drivers.Sensitivity.Sensitivity(config=sa_config, clean=True)
+    >>> import pyddt.drivers.sensitivity
+    >>> d = pyddt.drivers.sensitivity.Sensitivity(config=sa_config, clean=True)
     >>> d.load_target_data('/work/calibration')
     >>> d.setup_outputs(['GPPAllIgnoringNitrogen'])
     >>> print(d._seedpath)

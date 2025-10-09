@@ -118,7 +118,7 @@ def cmdline_run(args):
       shutil.copy(args.seed_targets,
                   os.path.join(args.new_directory, 'calibration'))
     else:
-      shutil.copy(os.path.join(ddt_dir, 'calibration', 'calibration_targets.py'),
+      shutil.copy(os.path.join(ddt_dir,'pyddt','src','pyddt', 'calibration', 'calibration_targets.py'),
                   os.path.join(args.new_directory, 'calibration'))
 
   if args.seed_parameters:

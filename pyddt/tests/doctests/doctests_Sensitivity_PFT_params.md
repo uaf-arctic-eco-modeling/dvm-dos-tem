@@ -14,7 +14,7 @@ to remember to clean it up at the end.
 
     >>> my_yaml_string = """
     ... seed_path: /work/parameters
-    ... observations: /work/calibration
+    ... observations: /work/pyddt/src/pyddt/calibration/
     ... N_samples: 5
     ... work_dir: /tmp/testing/output/cmax_gppallignoringnitrogen/sa-N5
     ... params: [cmax, cmax, cmax, cmax, cmax, cmax, cmax]
