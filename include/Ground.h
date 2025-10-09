@@ -128,6 +128,9 @@ public :
   // update water drainage layer and depth
   void setDrainL();
 
+  // update mineral soil layers after disturbance
+  void updateMineralProperties(soistate_dim * soildim);
+
   // soil burning caused soil structure change
   double adjustSoilAfterburn();
 
