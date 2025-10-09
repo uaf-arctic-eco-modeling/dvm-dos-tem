@@ -126,7 +126,12 @@ OBJECTS =	ArgHandler.o \
 		TemperatureUpdator.o
 
 
-GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)
+# Set if not set from environment or command line...
+# CAUTION! You could override this from command line in a totally
+# meaningless way. But this is useful in a container build environment where
+# we might not be in a git repo and therefore can't call git describe...
+GIT_SHA ?= $(shell git describe --abbrev=6 --dirty --always --tags)
+
 
 TEMOBJ = obj/TEM.o
 
