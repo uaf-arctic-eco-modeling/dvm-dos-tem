@@ -22,7 +22,16 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = []
+dependencies = [
+  # Would be good to pin these down a bit...
+  "commentjson",
+  "numpy",
+  "pandas",
+  "matplotlib",
+  "netCDF4",
+  "lhsmdu",
+  "xarray"
+]
 
 [project.urls]
 Homepage = "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem"
@@ -35,4 +44,5 @@ pyddt-param = "pyddt.util.param:main"
 pyddt-swd = "pyddt.util.setup_working_directory:main"
 pyddt-outspec = "pyddt.util.outspec:main"
 pyddt-qcal = "pyddt.util.qcal:main"
+
 
