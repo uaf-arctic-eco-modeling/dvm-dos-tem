@@ -208,8 +208,9 @@ void Thermokarst::initiate(int year) {
 
     // if moss, fibric, humic:
     if(cd->m_soil.type[il] <= 2) {
-
-      if(cd->m_soil.type[il] != cd->m_soil.type[il+1]){
+      // we are only maintaining a minimum humic horizon because moss and fibric
+      // are recovered elsewhere. This happens in adjustsoilafterburn in ground.
+      if(cd->m_soil.type[il]==2 && cd->m_soil.type[il] != cd->m_soil.type[il + 1]){
 
         minimum_remaining_scaler_thing = 0.01;
 

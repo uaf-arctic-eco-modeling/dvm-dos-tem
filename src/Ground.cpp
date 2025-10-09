@@ -1687,6 +1687,36 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
   usl->derivePhysicalProperty();
 };
 
+/**
+* Changing mineral layer thickness and % sand, silt, clay
+* following disturbance.
+**/
+void Ground::updateMineralProperties(soistate_dim * soildim){
+
+  Layer* currl = fstminel;
+  int mine_ind = 0;
+
+  while(currl->isMineral){
+    // solind is 1-based index
+    if(currl->dz!=soildim->dz[currl->solind-1]){
+      currl->dz = soildim->dz[currl->solind-1];
+      mineralinfo.dz[mine_ind] = currl->dz;
+      // if the thickness has been changed we want to change
+      // the soil texture of that layer as well
+      // Here we are taking 50% of the amount of clay
+      // then assigning the other 50% as sand to represent
+      // drainage of smaller soil particulate matter
+      mineralinfo.clay[mine_ind] *= 0.5;
+      mineralinfo.sand[mine_ind] += mineralinfo.clay[mine_ind];
+      dynamic_cast<MineralLayer*>(currl)->updateProperty5Lookup();
+    }
+
+    currl = currl->nextl;
+    mine_ind++;
+    
+  }
+};
+
 // The following module will re-construct double-linked layer matrix based
 //   on C content change after fire
 // So, it must be called after 'bd' layerd C content was assigned to the

@@ -72,7 +72,6 @@ void Soil_Bgc::assignCarbonBd2LayerMonthly() {
   ground->organic.shlwc = bd->m_soid.shlwc;
   ground->organic.deepc = bd->m_soid.deepc;
 
-  // What about mineral C ??
 }
 
 /** Writes Carbon values from each of the Ground object's Layers into the bd 

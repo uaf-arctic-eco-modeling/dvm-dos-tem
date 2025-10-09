@@ -20,8 +20,10 @@ public:
                          const double & bulkden,
                          const double & partden);
 
-private:
-  void  updateProperty5Lookup();
+  void updateProperty5Lookup();
+
+// private:
+//   void  updateProperty5Lookup();
 
 };
 #endif /*MINERALLAYER_H_*/

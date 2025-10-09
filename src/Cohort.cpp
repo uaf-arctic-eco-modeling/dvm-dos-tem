@@ -902,6 +902,9 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
       soilbgc.assignCarbonBd2LayerMonthly();
 
       BOOST_LOG_SEV(glg, debug) << "Post-thermokarst, adjust soil structure...";
+      // Update mineral soil properties
+      ground.updateMineralProperties(&cd.m_soil);
+
       // May need to rename the below function as it is generic to soil removal
       ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
 
