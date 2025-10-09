@@ -7,8 +7,8 @@
 
 import subprocess
 import glob
-import util.run_util
-import tests.test_util as tests
+import pyddt.util.run_util
+import pyddt.util.test_util
 
 #Configuration settings relevant for all cases
 test_config = {
@@ -124,7 +124,7 @@ def run_pr_test():
 
   #Run each case
   for case_id,config in test_cases.items():
-    util.run_util.run_case(config, test_output_set)
+    pyddt.util.run_util.run_case(config, test_output_set)
 
   #Binary output file comparison
   #Needs to handle more than two files, if there are more than two cases
@@ -143,7 +143,7 @@ def run_pr_test():
             + "output/" + varname + "_*_eq.nc"
     fileB = glob.glob(patternB)[0]
 
-    filesmatch = tests.compare_nc_with_nco(fileA, fileB, varname, True)
+    filesmatch = pyddt.util.test_util.compare_nc_with_nco(fileA, fileB, varname, True)
     if not filesmatch:
       print("{} files differ".format(varname))
 
