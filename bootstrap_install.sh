@@ -44,12 +44,14 @@ mkdir -p "${PREFIX}"
 mkdir -p "${PREFIX}/bin"
 mkdir -p "${PREFIX}/parameters"
 mkdir -p "${PREFIX}/config"
+mkdir -p "${PREFIX}/demo-data"
 mkdir -p "${PREFIX}/pyddt"
 
 # Copy binary
 if [ -f "./dvmdostem" ]; then
   cp ./dvmdostem "${PREFIX}/bin/"
   chmod +x "${PREFIX}/bin/dvmdostem"
+  echo "Copied dvmdostem binary to ${PREFIX}/bin/"
 else
   echo "Error: dvmdostem binary not found. Try compiling first!"
   exit 1
@@ -58,12 +60,14 @@ fi
 # Copy directories
 if [ -d "./parameters" ]; then
   cp -r ./parameters/* "${PREFIX}/parameters/"
+  echo "Copied parameters to ${PREFIX}/parameters/"
 else
   echo "Warning: parameters directory not found. Skipping."
 fi
 
 if [ -d "./demo-data" ]; then
   cp -r ./demo-data/* "${PREFIX}/demo-data/"
+  echo "Copied demo-data to ${PREFIX}/demo-data/"
 else
   echo "Warning: demo-data directory not found. Skipping."
 fi
@@ -71,12 +75,14 @@ fi
 
 if [ -d "./config" ]; then
   cp -r ./config/* "${PREFIX}/config/"
+  echo "Copied config to ${PREFIX}/config/"
 else
   echo "Warning: config directory not found. Skipping."
 fi
 
 if [ -d "./pyddt" ]; then
   cp -r ./pyddt/* "${PREFIX}/pyddt/"
+  echo "Copied pyddt to ${PREFIX}/pyddt/"
 else
   echo "Warning: pyddt directory not found. Skipping."
 fi
