@@ -778,10 +778,14 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
 
 void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::string stage) {
   BOOST_LOG_NAMED_SCOPE("dsb");
-
+  // This should also have a module control setting but this will likely 
+  // be assigned during wildfire development
   updateMonthly_Fir(yrind, currmind, stage);
-  updateMonthly_Thermokarst(yrind, currmind, stage);
-
+  
+  if(md->get_thermokarst_module()){
+    updateMonthly_Thermokarst(yrind, currmind, stage);
+  }
+  
   //updateMonthly_Flood(...)
 }
 

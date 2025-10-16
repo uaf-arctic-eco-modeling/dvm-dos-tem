@@ -128,7 +128,8 @@
     "cell_timelimit": 0, //Run time limit per cell in seconds. 0 for no limit.
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
-    "baseline_end": 1931     //end year for baseline EQ climate
+    "baseline_end": 1931,     //end year for baseline EQ climate
+    "thermokarst": false      //enabling thermokarst, controlled by disturbance (dsb) stage settings above
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??
