@@ -201,10 +201,8 @@ void Thermokarst::initiate(int year) {
                               << "   top:" << cd->m_soil.z[il]
                               << "   bottom:"<< cd->m_soil.z[il] + cd->m_soil.dz[il];
 
-    // Only organic soils - for thermokarst do we want to affect mineral soil at all?
-    // For now maybe we can ignore that part.
-
-    double minimum_remaining_scaler_thing = 0.0;
+    // scaler for retaining C, N, thickness, etc in certain layers
+    double min_retain_scaler = 0.0;
 
     // if moss, fibric, humic:
     if(cd->m_soil.type[il] <= 2) {
@@ -212,14 +210,14 @@ void Thermokarst::initiate(int year) {
       // are recovered elsewhere. This happens in adjustsoilafterburn in ground.
       if(cd->m_soil.type[il]==2 && cd->m_soil.type[il] != cd->m_soil.type[il + 1]){
 
-        minimum_remaining_scaler_thing = 0.01;
+        min_retain_scaler = 0.01;
 
       }
 
       totbotdepth += cd->m_soil.dz[il];
 
       // remember to check that ilsolc/n are appropriately
-      // scaled with minimum_remaining_scaler_thing
+      // scaled with min_retain_scaler
       // AND roots below
 
       double ilsolc =  bdall->m_sois.rawc[il] + bdall->m_sois.soma[il] +
@@ -234,17 +232,17 @@ void Thermokarst::initiate(int year) {
         lostsolc += ilsolc;
         lostsoln += ilsoln;
 
-        bdall->m_sois.rawc[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.soma[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.sompr[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.somcr[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.orgn[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.avln[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.rawc[il] *= min_retain_scaler;
+        bdall->m_sois.soma[il] *= min_retain_scaler;
+        bdall->m_sois.sompr[il] *= min_retain_scaler;
+        bdall->m_sois.somcr[il] *= min_retain_scaler;
+        bdall->m_sois.orgn[il] *= min_retain_scaler;
+        bdall->m_sois.avln[il] *= min_retain_scaler;
 
         for (int ip=0; ip<NUM_PFT; ip++) {
           if (cd->m_veg.vegcov[ip]>0.) {
             r_thermokarst2bg_cn[ip] += cd->m_soil.frootfrac[il][ip];
-            cd->m_soil.frootfrac[il][ip] *= minimum_remaining_scaler_thing;
+            cd->m_soil.frootfrac[il][ip] *= min_retain_scaler;
           }
         }
       } else {
@@ -282,7 +280,7 @@ void Thermokarst::initiate(int year) {
       // maintain some mineral soil if bedrock is reached.
       if(cd->m_soil.type[il] != cd->m_soil.type[il+1]){
 
-        minimum_remaining_scaler_thing = 0.01;
+        min_retain_scaler = 0.01;
 
       }
 
@@ -300,17 +298,17 @@ void Thermokarst::initiate(int year) {
         lostsolc += ilsolc;
         lostsoln += ilsoln;
 
-        bdall->m_sois.rawc[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.soma[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.sompr[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.somcr[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.orgn[il] *= minimum_remaining_scaler_thing;
-        bdall->m_sois.avln[il] *= minimum_remaining_scaler_thing;
+        bdall->m_sois.rawc[il] *= min_retain_scaler;
+        bdall->m_sois.soma[il] *= min_retain_scaler;
+        bdall->m_sois.sompr[il] *= min_retain_scaler;
+        bdall->m_sois.somcr[il] *= min_retain_scaler;
+        bdall->m_sois.orgn[il] *= min_retain_scaler;
+        bdall->m_sois.avln[il] *= min_retain_scaler;
 
         for (int ip=0; ip<NUM_PFT; ip++) {
           if (cd->m_veg.vegcov[ip]>0.) {
             r_thermokarst2bg_cn[ip] += cd->m_soil.frootfrac[il][ip];
-            cd->m_soil.frootfrac[il][ip] *= minimum_remaining_scaler_thing;
+            cd->m_soil.frootfrac[il][ip] *= min_retain_scaler;
           }
         }
       } else {
@@ -351,7 +349,7 @@ void Thermokarst::initiate(int year) {
       BOOST_LOG_SEV(glg, info) << "Layer type:" << cd->m_soil.type[il] << ". We have reached bedrock can't thermokarst anymore!";
 
       if(totbotdepth <= thermokarstdepth) { //may not be needed, but just in case
-        BOOST_LOG_SEV(glg, fatal) << "For some reason totbotdepth <= thermokarstdepth, so we are setting tkdata->thermokarst_soid.removal_thickness = totbotdepth??";
+        BOOST_LOG_SEV(glg, fatal) << "ERROR: totbotdepth <= thermokarstdepth, so we are setting tkdata->thermokarst_soid.removal_thickness = totbotdepth";
         tkdata->thermokarst_soid.removal_thickness = totbotdepth;
       }
 

@@ -130,6 +130,10 @@ public:
   void set_dynamic_lai_module(const std::string &s);
   void set_dynamic_lai_module(const bool v);
 
+  bool get_thermokarst_module();
+  void set_thermokarst_module(const std::string &s);
+  void set_thermokarst_module(const bool v);
+
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);
   void set_dslmodule(const bool v);
@@ -167,6 +171,7 @@ private:
   bool envmodule;             // (Bio?)physical module on/off
   bool bgcmodule;             // BGC module on/off
   bool dynamic_lai_module;    // dynamic lai module on/off
+  bool thermokarst_module;
 
   bool dslmodule;  // dynamic soil layer module on/off
   bool dsbmodule;  // disturbance module on/off

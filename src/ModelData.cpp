@@ -114,12 +114,13 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   output_interval   = controldata["IO"]["output_interval"].asInt();
 
   //Config Calibration IO Settings
-  pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
-  caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
+  pid_tag = controldata["calibration-IO"]["pid_tag"].asString();
+  caldata_tree_loc = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
-  dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
+  dynamic_LAI = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
-  baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
+  baseline_end = controldata["model_settings"]["baseline_end"].asInt();
+  thermokarst_module = controldata["model_settings"]["thermokarst"].asBool(); 
 
 }
 
@@ -198,6 +199,22 @@ void ModelData::set_dynamic_lai_module(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting dynamic_lai_module to " << v;
   this->dynamic_lai_module = v;
 }
+
+bool ModelData::get_thermokarst_module(){
+  BOOST_LOG_SEV(glg, info) << "getting thermokarst_module setting";
+  return this->thermokarst_module;
+}
+
+void ModelData::set_thermokarst_module(const std::string &s){
+  BOOST_LOG_SEV(glg, info) << "Setting thermokarst_module to " << s;
+  this->thermokarst_module = temutil::onoffstr2bool(s);
+}
+
+void ModelData::set_thermokarst_module(const bool v){
+  BOOST_LOG_SEV(glg, info) << "Setting thermokarst_module to " << v;
+  this->thermokarst_module = v;
+}
+
 
 bool ModelData::get_dslmodule() {
   return this->dslmodule;
