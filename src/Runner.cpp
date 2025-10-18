@@ -5833,7 +5833,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_tsoil_30 = cohort.ground.getTempAtDepth(0.3);
+        double m_tsoil_30 = cohort.edall->getTempAtDepthFromArray(0.3);
         outhold.tsoil_30_for_output.push_back(m_tsoil_30);
 
         if (output_this_timestep) {
@@ -5844,7 +5844,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_tsoil_30 = cohort.ground.getTempAtDepth(0.3);
+        double y_tsoil_30 = cohort.edall->getTempAtDepthFromArray(0.3);
         outhold.tsoil_30_for_output.push_back(y_tsoil_30);
 
         if (output_this_timestep) {
@@ -5870,7 +5870,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_tsoil_100 = cohort.ground.getTempAtDepth(1.0);
+        double m_tsoil_100 = cohort.edall->getTempAtDepthFromArray(1.0);
         outhold.tsoil_100_for_output.push_back(m_tsoil_100);
 
         if (output_this_timestep) {
@@ -5881,7 +5881,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_tsoil_100 = cohort.ground.getTempAtDepth(1.0);
+        double y_tsoil_100 = cohort.edall->getTempAtDepthFromArray(1.0);
         outhold.tsoil_100_for_output.push_back(y_tsoil_100);
 
         if (output_this_timestep) {
@@ -5906,7 +5906,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_tsoil_200 = cohort.ground.getTempAtDepth(2.0);
+        double m_tsoil_200 = cohort.edall->getTempAtDepthFromArray(2.0);
         outhold.tsoil_200_for_output.push_back(m_tsoil_200);
 
         if (output_this_timestep) {
@@ -5917,7 +5917,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_tsoil_200 = cohort.ground.getTempAtDepth(2.0);
+        double y_tsoil_200 = cohort.edall->getTempAtDepthFromArray(2.0);
         outhold.tsoil_200_for_output.push_back(y_tsoil_200);
 
         if (output_this_timestep) {
@@ -5942,7 +5942,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_tsoil_300 = cohort.ground.getTempAtDepth(3.0);
+        double m_tsoil_300 = cohort.edall->getTempAtDepthFromArray(3.0);
         outhold.tsoil_300_for_output.push_back(m_tsoil_300);
 
         if (output_this_timestep) {
@@ -5953,7 +5953,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_tsoil_300 = cohort.ground.getTempAtDepth(3.0);
+        double y_tsoil_300 = cohort.edall->getTempAtDepthFromArray(3.0);
         outhold.tsoil_300_for_output.push_back(y_tsoil_300);
 
         if (output_this_timestep) {
