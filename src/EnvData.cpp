@@ -879,7 +879,9 @@ void EnvData::update_from_climate(const Climate& clm, const int midx, const int 
 }
 
 /* Returns the interpolated temperature at a specified depth in
- *  the soil stack.
+ *  the soil stack based on the static arrays instead of the
+ *  linked list of layers. This ensures that the values used are
+ *  the ones that have been averaged for the month.
  *
  * Provide parameter as meters (i.e. 0.1 for 10 cm)
  */
@@ -920,3 +922,47 @@ double EnvData::getTempAtDepthFromArray(double temperaturez){
   return requested_temp;
 }
 
+
+/* Returns the interpolated vwc at a specified depth in
+ *  the soil stack based on the static arrays instead of the
+ *  linked list of layers. This ensures that the values used are
+ *  the ones that have been averaged for the month.
+ *
+ * Provide parameter as meters (i.e. 0.1 for 10 cm)
+ */
+double EnvData::getVWCAtDepthFromArray(double vwcdepth){
+
+  double requested_vwc = UIN_D;
+
+  for(int il=0; il<MAX_SOI_LAY; il++){
+
+    // Assumes that the layer temperature is at the middle of the layer
+    double currl_vwc = m_soid.vwc[il];
+    double currl_top = cd->m_soil.z[il];
+    double currl_mid = currl_top + cd->m_soil.dz[il] / 2;
+    double currl_bottom = cd->m_soil.z[il+1];
+
+    // If the vwc point is in the upper half of the layer
+    if((vwcdepth > currl_top) && (vwcdepth < currl_mid)){
+      // Find midpoint (temperature location) of previous layer
+      double prevl_vwc = m_soid.vwc[il-1];
+      double prevl_top = cd->m_soil.z[il-1];
+      double prevl_mid = prevl_top + (cd->m_soil.dz[il-1] / 2);
+      requested_vwc = temutil::interpolate(prevl_vwc, currl_vwc,
+                                           prevl_mid, currl_mid,
+                                           vwcdepth, I_LINEAR);
+    }
+    // If the vwc point is in the bottom half of the layer
+    else if((vwcdepth > currl_mid) && (vwcdepth < currl_bottom)){
+      // Find midpoint (temperature location) of next layer
+      double nextl_vwc = m_soid.vwc[il+1];
+      double nextl_top = cd->m_soil.z[il+1];
+      double nextl_mid = nextl_top + cd->m_soil.dz[il+1] / 2;
+
+      requested_vwc = temutil::interpolate(currl_vwc, nextl_vwc,
+                                           currl_mid, nextl_mid,
+                                           vwcdepth, I_LINEAR);
+    }
+  }
+  return requested_vwc;
+}

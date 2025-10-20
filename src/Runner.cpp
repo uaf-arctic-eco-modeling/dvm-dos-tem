@@ -6243,7 +6243,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_vwc_30 = cohort.ground.getVWCAtDepth(0.3);
+        double m_vwc_30 = cohort.edall->getVWCAtDepthFromArray(0.3);
         outhold.vwc_30_for_output.push_back(m_vwc_30);
 
         if (output_this_timestep) {
@@ -6254,7 +6254,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_vwc_30 = cohort.ground.getVWCAtDepth(0.3);
+        double y_vwc_30 = cohort.edall->getVWCAtDepthFromArray(0.3);
         outhold.vwc_30_for_output.push_back(y_vwc_30);
 
         if (output_this_timestep) {
@@ -6280,7 +6280,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_vwc_100 = cohort.ground.getVWCAtDepth(1.0);
+        double m_vwc_100 = cohort.edall->getVWCAtDepthFromArray(1.0);
         outhold.vwc_100_for_output.push_back(m_vwc_100);
 
         if (output_this_timestep) {
@@ -6291,7 +6291,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_vwc_100 = cohort.ground.getVWCAtDepth(1.0);
+        double y_vwc_100 = cohort.edall->getVWCAtDepthFromArray(1.0);
         outhold.vwc_100_for_output.push_back(y_vwc_100);
 
         if (output_this_timestep) {
@@ -6316,7 +6316,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_vwc_200 = cohort.ground.getVWCAtDepth(2.0);
+        double m_vwc_200 = cohort.edall->getVWCAtDepthFromArray(2.0);
         outhold.vwc_200_for_output.push_back(m_vwc_200);
 
         if (output_this_timestep) {
@@ -6327,7 +6327,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_vwc_200 = cohort.ground.getVWCAtDepth(2.0);
+        double y_vwc_200 = cohort.edall->getVWCAtDepthFromArray(2.0);
         outhold.vwc_200_for_output.push_back(y_vwc_200);
 
         if (output_this_timestep) {
@@ -6352,7 +6352,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Monthly
       if(curr_spec.monthly){
 
-        double m_vwc_300 = cohort.ground.getVWCAtDepth(3.0);
+        double m_vwc_300 = cohort.edall->getVWCAtDepthFromArray(3.0);
         outhold.vwc_300_for_output.push_back(m_vwc_300);
 
         if (output_this_timestep) {
@@ -6363,7 +6363,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       //Yearly
       else if(curr_spec.yearly){
 
-        double y_vwc_300 = cohort.ground.getVWCAtDepth(3.0);
+        double y_vwc_300 = cohort.edall->getVWCAtDepthFromArray(3.0);
         outhold.vwc_300_for_output.push_back(y_vwc_300);
 
         if (output_this_timestep) {

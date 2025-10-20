@@ -2456,9 +2456,12 @@ double Ground::getCarbonForDepthRange(double upperz, double lowerz){
 }
 
 
-/* Returns the interpolated VWC at a specified depth in the soil stack.
+/* Returns the interpolated temperature at a specified depth in
+ *  the soil stack. Because this is based on the linked list
+ *  and not the arrays, the values are not averaged for the
+ *  month.
  *
- * Provide parameters as meters (i.e. 0.1 for 10 cm)
+ * Provide parameter as meters (i.e. 0.1 for 10 cm)
  */
 double Ground::getVWCAtDepth(double vwcdepth){
 
@@ -2498,7 +2501,9 @@ double Ground::getVWCAtDepth(double vwcdepth){
 
 
 /* Returns the interpolated temperature at a specified depth in
- *  the soil stack.
+ *  the soil stack. Because this is based on the linked list
+ *  and not the arrays, the values are not averaged for the
+ *  month.
  *
  * Provide parameter as meters (i.e. 0.1 for 10 cm)
  */
