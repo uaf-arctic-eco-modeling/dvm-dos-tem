@@ -103,12 +103,16 @@ private:
   firepar_bgc firpar; // >>> Need to address these somewhere else in data structures
 
   double folr;           // Fraction Organic Layer Removed
-  double r_live_cn;      // Ratio of living veg. after thermokarst
 
-  double r_dead2ag_cn;   // ratio of dead veg. after thermokarst
-  double r_thermokarst2ag_cn;   // removed above-ground veg. after thermokarst
+  // double r_live_cn;      // Ratio of living veg. after thermokarst
 
-  CohortLookup * chtlu;
+  // double r_dead2ag_cn;   // ratio of dead veg. after thermokarst
+  // double r_thermokarst2ag_cn;   // removed above-ground veg. after thermokarst
+  double veg_remove_frac;
+  double veg_kill_frac;
+  double veg_retain_frac;
+
+  CohortLookup *chtlu;
   CohortData * cd;
 
   ThermokarstData *tkdata;
