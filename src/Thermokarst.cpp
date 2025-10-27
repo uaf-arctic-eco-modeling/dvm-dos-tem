@@ -414,7 +414,7 @@ void Thermokarst::initiate(int year) {
       // root death ratio: must be called after both above-ground and
       // below-ground loss. r_live_cn is same for both above-ground
       // and below-ground
-      double r_dead2bg_cn = 1.0-r_thermokarst2bg_cn[ip]-r_live_cn;
+      double r_dead2bg_cn = 1.0-r_thermokarst2bg_cn[ip]-veg_retain_frac;
 
       // Dead veg C, N. Assuming all previous deadc burned.
       comb_deadc += bd[ip]->m_vegs.deadc;
@@ -430,31 +430,31 @@ void Thermokarst::initiate(int year) {
       // through mudflow or active layer detachment opposed to vegetation killed but 
       // remaining within the cell. If so maybe change the names to be more descriptive
       // for this purpose
-      veg_2_dead_C = (bd[ip]->m_vegs.c[I_leaf] + bd[ip]->m_vegs.c[I_stem]) * r_dead2ag_cn;
-      veg_2_dead_N = (bd[ip]->m_vegs.strn[I_leaf] + bd[ip]->m_vegs.strn[I_stem]) * r_dead2ag_cn;
+      veg_2_dead_C = (bd[ip]->m_vegs.c[I_leaf] + bd[ip]->m_vegs.c[I_stem]) * veg_kill_frac;
+      veg_2_dead_N = (bd[ip]->m_vegs.strn[I_leaf] + bd[ip]->m_vegs.strn[I_stem]) * veg_kill_frac;
 
       // Above-ground veg. removal/death during thermokarst
       // when summing, needs adjusting by 'vegcov'
-      comb_vegc += bd[ip]->m_vegs.c[I_leaf] * r_thermokarst2ag_cn;
+      comb_vegc += bd[ip]->m_vegs.c[I_leaf] * veg_remove_frac;
 
       // We define dead c/n as the not-falling veg (or binding with living veg)
       // during fire,
-      bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf] * r_dead2ag_cn;
+      bd[ip]->m_vegs.deadc = bd[ip]->m_vegs.c[I_leaf] * veg_kill_frac;
       // Which then is the source of ground debris (this is for woody plants
       // only, others could be set deadc/n to zero)
-      bd[ip]->m_vegs.c[I_leaf] *= (1.0 - r_thermokarst2ag_cn - r_dead2ag_cn);
+      bd[ip]->m_vegs.c[I_leaf] *= veg_retain_frac;
 
-      comb_vegc += bd[ip]->m_vegs.c[I_stem] * r_thermokarst2ag_cn;
-      bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem] * r_dead2ag_cn;
-      bd[ip]->m_vegs.c[I_stem] *= (1.0 - r_thermokarst2ag_cn-r_dead2ag_cn);
+      comb_vegc += bd[ip]->m_vegs.c[I_stem] * veg_remove_frac;
+      bd[ip]->m_vegs.deadc += bd[ip]->m_vegs.c[I_stem] * veg_kill_frac;
+      bd[ip]->m_vegs.c[I_stem] *= veg_retain_frac;
 
-      comb_vegn += bd[ip]->m_vegs.strn[I_leaf] * r_thermokarst2ag_cn;
-      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf] * r_dead2ag_cn;
-      bd[ip]->m_vegs.strn[I_leaf] *= (1.0 - r_thermokarst2ag_cn-r_dead2ag_cn);
+      comb_vegn += bd[ip]->m_vegs.strn[I_leaf] * veg_remove_frac;
+      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_leaf] * veg_kill_frac;
+      bd[ip]->m_vegs.strn[I_leaf] *= veg_retain_frac;
 
-      comb_vegn += bd[ip]->m_vegs.strn[I_stem] * r_thermokarst2ag_cn;
-      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem] * r_dead2ag_cn;
-      bd[ip]->m_vegs.strn[I_stem] *= (1.0 - r_thermokarst2ag_cn - r_dead2ag_cn);
+      comb_vegn += bd[ip]->m_vegs.strn[I_stem] * veg_remove_frac;
+      bd[ip]->m_vegs.deadn += bd[ip]->m_vegs.strn[I_stem] * veg_kill_frac;
+      bd[ip]->m_vegs.strn[I_stem] *= veg_retain_frac;
 
       // Below-ground veg. (root) removal/death during thermokarst
       comb_vegc += bd[ip]->m_vegs.c[I_root] * r_thermokarst2bg_cn[ip];
@@ -483,8 +483,8 @@ void Thermokarst::initiate(int year) {
       bd[ip]->m_vegs.strn[I_root] *= (1.0 - r_thermokarst2bg_cn[ip] - r_dead2bg_cn);
 
       // one more veg N pool (labile N)
-      comb_vegn += bd[ip]->m_vegs.labn * (1.0 - r_live_cn);//assuming all labn emitted, leaving none into deadn
-      bd[ip]->m_vegs.labn *= r_live_cn;
+      comb_vegn += bd[ip]->m_vegs.labn * (1.0 - veg_retain_frac);//assuming all labn emitted, leaving none into deadn
+      bd[ip]->m_vegs.labn *= veg_retain_frac;
 
       // finally, we have:
       bd[ip]->m_vegs.call = bd[ip]->m_vegs.c[I_leaf]
@@ -604,14 +604,26 @@ void Thermokarst::getThermokarstAbgVegetation(const int ipft, const int year) {
   //   this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
   // }
 
-  double fraction_veg_removed = 0.9;
-
+  // r_thermokarst2ag_cn is fraction of PFT vegetation combusted
   // this->r_thermokarst2ag_cn = firpar.fvcomb[exp_severity_idx][ipft];
+  // changed to fraction of vegetation removed from cell through slump
+  this->veg_remove_frac = 0.99;
+
+  // r_dead2ag_cn is fraction of PFT vegetation killed
   // this->r_dead2ag_cn = firpar.fvdead[exp_severity_idx][ipft];
+  // changed to fraction of vegetation killed due to slump
+  this->veg_kill_frac = 0.0;
 
+  
   // this->r_live_cn = 1.0 - this->r_thermokarst2ag_cn - this->r_dead2ag_cn;
-
-  this->r_live_cn = 1.0 - fraction_veg_removed;
+  // this->r_live_cn = 1.0 - fraction_veg_removed;
+  // changed to fraction of vegetation retained following slump
+  this->veg_retain_frac = 1.0 - this->veg_kill_frac - this->veg_remove_frac;
+  if (this->veg_retain_frac<0.0){
+    this->veg_retain_frac = 0.01;
+  }else if (this->veg_retain_frac>1.0){
+    this->veg_retain_frac = 1.0;
+  }
 }
 
 
