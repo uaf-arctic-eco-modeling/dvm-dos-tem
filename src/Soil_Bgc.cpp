@@ -1533,12 +1533,12 @@ void Soil_Bgc::deltastate() {
                      + del_soi2a.rhsompr[il] + del_soi2a.rhsomcr[il];
 
       if (rhsum > 0.0) {
-        double totmobile = rhsum*mobiletoco2;
-        d2mcarbon += totmobile * d2mfraction;
-        del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2;
-        del_sois.soma[il]  -= del_soi2a.rhsoma[il]*mobiletoco2;
-        del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2;
-        del_sois.somcr[il] -= del_soi2a.rhsomcr[il]*mobiletoco2;
+        double totmobile = rhsum * mobiletoco2 * d2mfraction;
+        d2mcarbon += totmobile;
+        del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2* d2mfraction;
+        del_sois.soma[il]  -= del_soi2a.rhsoma[il]*mobiletoco2* d2mfraction;
+        del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2* d2mfraction;
+        del_sois.somcr[il] -= del_soi2a.rhsomcr[il]*mobiletoco2* d2mfraction;
 
         if (this->nfeed == 1) {
           double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
