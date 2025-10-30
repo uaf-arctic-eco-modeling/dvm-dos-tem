@@ -272,6 +272,20 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
     boost::filesystem::create_directories(out_dir_path);
 
+
+  // Creating file to store configuration information to be packaged
+  // with the output data.
+  boost::filesystem::path config_log_fpath = modeldata.output_dir + "config_log.js";
+  boost::filesystem::ofstream config_log_file(config_log_fpath);
+
+  Json::Value configrecord = {};
+
+  // Store original config file settings
+  configrecord["original_config"] = controldata;
+
+  config_log_file << configrecord;
+  config_log_file.close();
+
 #ifdef WITHMPI
 
     MPI_Barrier(MPI_COMM_WORLD);
