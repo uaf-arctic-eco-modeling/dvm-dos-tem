@@ -283,6 +283,16 @@ int main(int argc, char* argv[]){
   // Store original config file settings
   configrecord["original_config"] = controldata;
 
+  // This is a temporary approach for writing the command line overrides
+  // to the configuration output record.
+  std::string CLI_string = "";
+  for(int ii=0; ii<argc; ii++){
+    CLI_string += argv[ii];
+    CLI_string += " ";
+  }
+  BOOST_LOG_SEV(glg, info) << CLI_string;
+  configrecord["CLI command"] = CLI_string;
+
   config_log_file << configrecord;
   config_log_file.close();
 
