@@ -155,6 +155,9 @@ public:
 
   void update_from_climate(const Climate& clm, const int mid, const int dayid);
 
+  double getTempAtDepthFromArray(double temperaturez);
+  double getVWCAtDepthFromArray(double vwcdepth);
+
 private:
 };
 

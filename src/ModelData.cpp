@@ -678,6 +678,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
       } catch (const temutil::NetCDFDefineModeException& e) {
         BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
       }
+
       /* Fill out the time coordinate variable */
       if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
         BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";
