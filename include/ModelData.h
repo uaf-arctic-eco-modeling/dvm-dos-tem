@@ -46,6 +46,10 @@ public:
   int tr_yrs;
   int sc_yrs;
 
+  //General config settings
+  std::string run_name;
+  std::string run_description;
+
   //Config Stage Settings
   bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
   //PR modules
@@ -77,6 +81,8 @@ public:
   string drainage_file;
   string co2_file;
   string proj_co2_file;
+  string ch4_file;
+  string proj_ch4_file;
   string runmask_file;
   string output_dir;
   string output_spec_file;
@@ -111,6 +117,9 @@ public:
   bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
 
+  int cell_timelimit; //Time limit in seconds for cell computation time
+  time_t cell_stime; //Start time per cell. Move to Runner?
+
   bool outSiteDay;
 
   bool get_envmodule();
@@ -124,6 +133,13 @@ public:
   bool get_dynamic_lai_module();
   void set_dynamic_lai_module(const std::string &s);
   void set_dynamic_lai_module(const bool v);
+
+  bool get_ch4_module();
+  void set_ch4_module(const std::string &s);
+  void set_ch4_module(const bool v);
+
+  bool get_runon_status();
+  bool get_groundwater_status();
 
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);
@@ -162,6 +178,10 @@ private:
   bool envmodule;             // (Bio?)physical module on/off
   bool bgcmodule;             // BGC module on/off
   bool dynamic_lai_module;    // dynamic lai module on/off
+  bool ch4_module; //This only matters if the bgc module is enabled
+  
+  bool runon_enabled;
+  bool groundwater_enabled;
 
   bool dslmodule;  // dynamic soil layer module on/off
   bool dsbmodule;  // disturbance module on/off

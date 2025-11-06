@@ -35,12 +35,16 @@ public:
   std::vector<double> burnveg2deadc_for_output;
   std::vector<double> burnveg2soilabvc_for_output;
   std::vector<double> burnveg2soilblwc_for_output;
+  std::vector<double> ch4efflux_for_output;
+  std::vector<double> ch4effdiff_for_output;
+  std::vector<double> ch4effebul_for_output;
+  std::vector<double> ch4pool_for_output;
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;
   std::vector<double> dwdc_for_output;
   std::vector<double> minec_for_output;
-  std::vector<double> mossdeathc_for_output;
-  std::vector<double> mossdeathn_for_output;
+  std::vector<double> lfnvc_for_output; //non-vascular litterfall C
+  std::vector<double> lfnvn_for_output; //non-vascular litterfall N
   std::vector<double> mossdz_for_output;
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;
@@ -58,6 +62,24 @@ public:
   std::vector<double> rh_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> rh_for_output;
 
+  std::vector<double> ch4diff_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4diff_layer_for_output;
+
+  std::vector<double> ch4ebul_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4ebul_layer_for_output;
+
+  std::vector<double> ch4oxid_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4oxid_layer_for_output;
+
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4pool_layer_for_output;
+
+  std::vector<double> ch4prod_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4prod_layer_for_output;
+
+  std::vector<double> ch4transport_sum_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> ch4transport_layer_for_output;
+  std::vector<std::array<double, NUM_PFT>> ch4transport_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, MAX_SOI_LAY>> ch4transport_for_output; 
   std::vector<double> soma_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> soma_for_output;
 
@@ -96,7 +118,7 @@ public:
   std::vector<double> pet_tot_for_output;
   std::vector<std::array<double, NUM_PFT>> pet_for_output;
 
-  std::vector<double> trans_tot_for_output;
+  std::vector<double> trans_tot_for_output; //transpiration, not transport
   std::vector<std::array<double, NUM_PFT>> trans_for_output;
 
   //Variables by PFT and Compartment both
@@ -105,10 +127,10 @@ public:
   std::vector<std::array<double, NUM_PFT>> gpp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> gpp_for_output; 
 
-  std::vector<double> ltrfalc_tot_for_output;
-  std::vector<std::array<double, NUM_PFT_PART>> ltrfalc_part_for_output;
-  std::vector<std::array<double, NUM_PFT>> ltrfalc_pft_for_output;
-  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> ltrfalc_for_output; 
+  std::vector<double> lfvc_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> lfvc_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> lfvc_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> lfvc_for_output; 
 
   std::vector<double> ingpp_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> ingpp_part_for_output;

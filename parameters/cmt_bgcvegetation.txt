@@ -39,6 +39,7 @@
 3.52         0.06         0.06         0.01         0.19         0.17         0.07         0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT01 // Boreal Black Spruce // 6/18/20 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree   DecidShrub   DecidTree    Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // pftnames:
@@ -75,6 +76,7 @@
 0.16998      0.00484      0.02599      0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initvegnr:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadc:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadn:
+0.00         0.00         0.00         0.00         0.00   0.00   0.00   0.00   0.00   0.00  // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // 1/22/21 JSC   based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
 //EverTree   DecidShrub   DecidTree    Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // pftnames:
@@ -111,6 +113,7 @@
 9.20         0.20         3.57         0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initvegnr:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadc:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadn:
+0.00         0.00         0.00         0.00         0.00   0.00   0.00   0.00   0.00   0.00  // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // 7/7/20 JSC  based on Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
 //EverTree   DecidShrub   DecidTree    Moss         PFT4  PFT5   PFT6   PFT7   PFT8   PFT9   // pftnames:
@@ -147,6 +150,7 @@
 0.00037      0.11320      1.08868      0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initvegnr:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadc:
 0.0          0.0          0.0          0.0          0.0    0.0    0.0    0.0    0.0    0.0   // initdeadn:
+0.00         0.00         0.00         0.00         0.00   0.00   0.00   0.00   0.00   0.00  // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
@@ -183,6 +187,7 @@
 0.08         0.56         0.04         0.01         0.12         0.17         0.07         0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.20         0.20         0.80         0.50         0.80         0.00         0.20         0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //==========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC) // Joy and Helene June 2022
 //Betula     Decid        EGreen       Sedges       Forbs        Lichens      Feather      Sphag        PFT8         PFT9         // pftnames:
@@ -219,6 +224,7 @@
 3.065        0.0221       2.01         3.03         0.0921       0.00         0.0          0.0          0.0          0.0          // initvegnr: 6/20/22 TFS_Joy
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.20         0.80         0.50         0.0          0.20         0.20         0.0          0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
 //Decid      Sedges       Grasses      Forbs        Lichens      Feather      Sphag        PFT7         PFT8         PFT9         // pftnames
@@ -255,6 +261,7 @@
 0.069        2.776        0.603        0.130        0.000        0.000        0.000        0.00         0.00         0.00         // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.80         0.80         0.50         0.0          0.2          0.20         0.0          0.0          0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT07 // Heath Tundra // updated cparts and initcneven and initvegc and n JSC 8 14 2019
 //Decid      EGreen       Forbs        Lichens      Grasses      Moss       PFT6         PFT7         PFT8         PFT9           // pftnames:
@@ -291,6 +298,7 @@
 0.362        0.446        0.030        0.000        0.030        0.000      0.00         0.00         0.00         0.00           // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0        0.0          0.0          0.0          0.0            // initdeadn:
+0.20         0.20         0.50         0.00         0.80         0.20       0.0          0.0          0.0          0.0            // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland 
 //DecShrub   EvrShrub     DecTree      EvrTree      Forbs        Gram         Feather      Lichen       Equisetum    PFT9         // pftnames:
@@ -327,6 +335,7 @@
 0.84         0.25         4.19         1.69         0.85         8.61         0.00         0.00         0.17         0.00         // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.20         0.20         0.50         0.80         0.20         0.00         0.20         0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss     Rubcha       Misc1        Misc2        Misc3          // names: comments
@@ -363,6 +372,7 @@
 3.331        0.919        2.469        0.00         0.00         0.00        1.272       0.0          0.0          0.0            // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0         0.0         0.0          0.0          0.0            // initdeadn:
+0.20        0.80          0.20         0.20         0.00         0.20        0.50        0.0          0.0          0.0            // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT21 // EML Tussock Tundra // Joy and Helene August 2022  changed PFT types
 //Decidsh   Egreensh      Sedge       Forbs        Lichen        OMoss        Sphag       PFT7         PFT8         PFT9          // names: comments
@@ -394,47 +404,49 @@
 2.464       33.925      118.196        0.165       24.751      133.782        7.088        0.0          0.0          0.0          // initvegcl: 8/9/22 EML_Joy
 71.674     230.388        0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initvegcw: 8/9/22 EML_Joy
 105.495    169.930      205.570        2.599        0.0          0.0          0.0          0.0          0.0          0.0          // initvegcr: 8/9/22 EML_Joy
-0.044        0.660        2.189        0.006        0.193        2.065        0.139       0.0          0.0          0.0           // initvegnl: 8/9/22 EML_Joy
+0.044        0.660        2.189        0.006        0.193        2.065        0.139        0.0          0.0          0.0          // initvegnl: 8/9/22 EML_Joy
 0.892        1.861        0.0          0.00         0.0          0.0          0.0          0.0          0.0          0.0          // initvegnw: 8/9/22 EML_Joy
 1.271        1.609        3.180        0.092        0.0          0.0          0.0          0.0          0.0          0.0          // initvegnr: 8/9/22 EML_Joy
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.20         0.20         0.80         0.20         0.0          0.0          0.0          0.0          0.0          0.0          // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT31 // Boreal Bog
-//Sphagnum   Sedge        DecShrub     EvrShrub     Forbs        Moss         PFT6         PFT7         PFT8         PFT9        // pftnames:
-400.0        400.0        400.0        400.0        400.0        400.0        0.00         0.00         0.00         0.00        // kc:
-75           75           75           75           75           75           0.00         0.00         0.00         0.00        // ki:
--5.0        -5.0         -5.0         -5.0         -5.0         -5.0          0.00         0.00         0.00         0.00        // tmin:
-5.5          5.5          5.5          5.5          5.5          5.5          0.00         0.00         0.00         0.00        // toptmin:
-20.0         20.0         20.0         20.0         20.0         20.0         0.00         0.00         0.00         0.00        // toptmax:
-35.0         35.0         35.0         35.0         35.0         35.0         0.00         0.00         0.00         0.00        // tmax:
-2.3566500    2.3566500    2.3566500    2.3566500    2.3566500    2.3566500    0.00         0.00         0.00         0.00        // raq10a0:
--0.053077   -0.0530770   -0.0530770   -0.0530770   -0.0530770   -0.0530770    0.00         0.00         0.00         0.00        // raq10a1:
-0.0023842    0.0023842    0.0023842    0.0023842    0.0023842    0.0023842    0.00         0.00         0.00         0.00        // raq10a2:
--0.0000411  -0.0000411   -0.0000411   -0.0000411   -0.0000411   -0.0000411    0.00         0.00         0.00         0.00        // raq10a3:
-0.0042       0.0042       0.0042       0.0042       0.0042       0.0042       0.00         0.00         0.00         0.00        // knuptake:
-1.000        0.177        0.028        0.100        0.119        1.000        0.00         0.00         0.00         0.00        // cpartl:
-0.000        0.357        0.644        0.463        0.000        0.000        0.00         0.00         0.00         0.00        // cpartw:
-0.000        0.466        0.328        0.437        0.881        0.000        0.00         0.00         0.00         0.00        // cpartr:
-79.668       24.000       27.257       29.637       22.500       84.477       0.00         0.00         0.00         0.00        // initcnevenl: UPDATED
-0.00         62.937       57.625       58.778       0.00         0.00         0.00         0.00         0.00         0.00        // initcnevenw: UPDATED
-0.00         36.980       40.235       40.235       35.608       0.00         0.00         0.00         0.00         0.00        // initcnevenr: UPDATED
-79.668       24.000       27.257       29.637       22.500       84.477       0.00         0.00         0.00         0.00        // cnevenbl: UPDATED
-0.00         62.937       57.625       58.778       0.00         0.00         0.00         0.00         0.00         0.00        // cnevenbw: UPDATED
-0.00         36.980       40.235       40.235       35.608       0.00         0.00         0.00         0.00         0.00        // cnevenbr: UPDATED
-1            1            1            1            1             1           1            1            1            0.00        // cnevenminl: IGNORE
-1            1            1            1            1             1           1            1            1            0.00        // cnevenminw: IGNORE
-1            1            1            1            1             1           1            1            1            0.00        // cnevenminr: IGNORE
-0.0          0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00        // cnevena:  for eet/pet adjusting (0.0 for none)
-0.20         0.20         0.20         0.20         0.20         0.20         0.00         0.00         0.00         0.00        // labncon: Updated
-141.118      22.741       0.570        16.100       7.129        24.040       0.00         0.00         0.00         0.00        // initvegcl: UPDATED
-0.0          45.800       13.238       74.894       0.00         0.00         0.00         0.00         0.00         0.00        // initvegcw: UPDATED
-0.0          59.827       6.748        70.591       52.885       0.00         0.00         0.00         0.00         0.00        // initvegcr: UPDATED
-1.771        0.948        0.021        0.543        0.317        0.285        0.00         0.00         0.00         0.00        // initvegnl: UPDATED
-0.0          0.728        0.230        1.274        0.00         0.00         0.00         0.00         0.00         0.00        // initvegnw: UPDATED
-0.0          1.618        0.168        1.754        1.485        0.00         0.00         0.00         0.00         0.00        // initvegnr: UPDATED
-0.0          0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00        // initdeadc: IGNORE
-0.0          0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00        // initdeadn: IGNORE
+//Sphag      Eshrub       Sedge        Dshrub        PFT4         PFT5         PFT6         PFT7         PFT8         PFT9        // pftnames:
+400.	     400.	      400.	       400.          0.00         0.00         0.00         0.00         0.00         0.00        // kc:X
+75.	         75.          75.          75.           0.00         0.0          0.00         0.00         0.00         0.00        // ki:X
+-5.0       	-5.0         -5.0         -5.0           0.00         0.0          0.00         0.00         0.00         0.00        // tmin:X
+5.5          5.5          5.5          5.5           0.00         0.0          0.00         0.00         0.00         0.00        // toptmin:X
+20.0         20.0         20.0         20.0          0.00         0.0          0.00         0.00         0.00         0.00        // toptmax:X
+35.0         35.0         35.0         35.0          0.00         0.0          0.00         0.00         0.00         0.00        // tmax:X
+2.3566500    2.3566500    2.3566500    2.3566500     0.00         0.0          0.00         0.00         0.00         0.00        // raq10a0:X
+-0.053077   -0.0530770   -0.0530770   -0.0530770     0.00         0.0          0.00         0.00         0.00         0.00        // raq10a1:X
+0.0023842    0.0023842    0.0023842    0.0023842     0.00         0.0          0.00         0.00         0.00         0.00        // raq10a2:X
+-0.0000411  -0.0000411   -0.0000411   -0.0000411     0.00         0.0          0.00         0.00         0.00         0.00        // raq10a3:X
+0.0042       0.0042       0.0042       0.0042        0.00         0.0          0.00         0.00         0.00         0.00        // knuptake:X
+1.000        0.100        0.187        0.285         0.00         0.0          0.00         0.00         0.00         0.00        // cpartl:X
+0.000        0.463        0.000        0.490         0.00         0.0          0.00         0.00         0.00         0.00        // cpartw:X
+0.000        0.437        0.813        0.225         0.00         0.0          0.00         0.00         0.00         0.00        // cpartr:X
+52.3	     29.637	      25.0	       27.257        0.00         0.0          0.00         0.00         0.00         0.00        // initcnevenl: UPDATEDX
+0.	         58.778	      0.           57.625        0.00         0.00         0.00         0.00         0.00         0.00        // initcnevenw: UPDATEDX
+0.	         40.235	      36.98	       40.235        0.00         0.0          0.00         0.00         0.00         0.00        // initcnevenr: UPDATEDX
+52.3	     29.637	      25.	       27.257        0.00         0.0          0.00         0.00         0.00         0.00        // cnevenbl: UPDATED
+0.	         58.778	      0.           57.625        0.00         0.00         0.00         0.00         0.00         0.00        // cnevenbw: UPDATED
+0.	         40.235	      36.98	       40.235        0.00         0.0          0.00         0.00         0.00         0.00        // cnevenbr: UPDATED
+1.           1.           1.           1.            0.00         0.0          0.00         0.00         0.00         0.00        // cnevenminl: IGNOREX
+1.           1.           1.           1.            0.00         0.0          0.00         0.00         0.00         0.00        // cnevenminw: IGNOREX
+1.           1.           1.           1.            0.00         0.0          0.00         0.00         0.00         0.00        // cnevenminr: IGNOREX
+0.0          0.00         0.00         0.00          0.00         0.00         0.00         0.00         0.00         0.00        // cnevena:  for eet/pet adjusting (0.0 for none)X
+0.20         0.20         0.20         0.20          0.00         0.0          0.00         0.00         0.00         0.00        // labncon: UpdatedX
+293.995652   8.9926087    8.859734807  6.406        0.00         0.0          0.00         0.00         0.00         0.00        // initvegcl: UPDATEDX
+0.0          41.63577828  0.000        11.01        0.00         0.0          0.00         0.00         0.00         0.00        // initvegcw: UPDATEDX
+0.0          39.29770002  38.51852619  5.058        0.00         0.0          0.00         0.00         0.00         0.00        // initvegcr: UPDATEDX
+3.665087447	 0.3034250666  0.3543893923 0.2350333634 0.00         0.0          0.00         0.00         0.00         0.00        // initvegnl: UPDATEDX
+0.0	         0.7083564987  0.0          0.1911383582  0.00         0.00         0.00         0.00         0.00         0.00        // initvegnw: UPDATEDX
+0.0	         0.9767043623  1.041604278  0.1257017205  0.00         0.0          0.00         0.00         0.00         0.00        // initvegnr: UPDATEDX
+0.0          0.00         0.00         0.00          0.00         0.00         0.00         0.00         0.00         0.00        // initdeadc: IGNOREX
+0.0          0.00         0.00         0.00          0.00         0.00         0.00         0.00         0.00         0.00        // initdeadn: IGNOREX
+0.200000     0.200000     0.800000     0.200000      0.00         0.00         0.00         0.00         0.00         0.00        // transport capacity: efficiency of each PFT to passively transport CH4
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 //Salix      Betula       Decid        EGreen       Sedges       Forbs        Grasses      Lichens      Feather      PFT9         // pftnames:
@@ -471,3 +483,4 @@
 0.08         0.33         0.04         0.01         0.12         0.17         0.07         0.0          0.0          0.0          // initvegnr:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadc:
 0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          0.0          // initdeadn:
+0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // transport capacity: efficiency of each PFT to passively transport CH4

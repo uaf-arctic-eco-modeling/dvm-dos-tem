@@ -39,8 +39,12 @@
    go back to step 1. You will need to delete the tag created in step 3 so that
    you can re-create it.
 
-5. Bump the version number in `docs_src/sphinx/sources/conf.py, commit the
-   change and then build the docs:
+5. Bump version numbers:
+  -  in `docs_src/sphinx/sources/conf.py `, and
+  -  in the `CITATION.cff` file, specifically under the
+     `identifiers.description` for the Github release URL.
+
+  Then commit the changes and build the docs:
 
          ```
          $ docker compose exec --workdir /work/docs_src/sphinx \

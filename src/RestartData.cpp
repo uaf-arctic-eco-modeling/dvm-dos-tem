@@ -117,6 +117,8 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MAX_SOI_LAY, // double soma[MAX_SOI_LAY];
     MAX_SOI_LAY, // double sompr[MAX_SOI_LAY];
     MAX_SOI_LAY, // double somcr[MAX_SOI_LAY];
+
+    MAX_SOI_LAY, // double ch4[MAX_SOI_LAY]
     
     1, // double wdebrisn;
     MAX_SOI_LAY, // double orgn[MAX_SOI_LAY];
@@ -185,6 +187,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double soma[MAX_SOI_LAY];
     MPI_DOUBLE, // double sompr[MAX_SOI_LAY];
     MPI_DOUBLE, // double somcr[MAX_SOI_LAY];
+    MPI_DOUBLE, // double ch4[MAX_SOI_LAY];
     MPI_DOUBLE, // double wdebrisn;
     MPI_DOUBLE, // double orgn[MAX_SOI_LAY];
     MPI_DOUBLE, // double avln[MAX_SOI_LAY];
@@ -250,6 +253,7 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, soma),
     offsetof(RestartData, sompr),
     offsetof(RestartData, somcr),
+    offsetof(RestartData, ch4),
     offsetof(RestartData, wdebrisn),
     offsetof(RestartData, orgn),
     offsetof(RestartData, avln),
@@ -373,6 +377,7 @@ void RestartData::reinitValue() {
     soma[il]  = MISSING_D;
     sompr[il] = MISSING_D;
     somcr[il] = MISSING_D;
+    ch4[il] = MISSING_D;
     orgn[il] = MISSING_D;
     avln[il] = MISSING_D;
 
@@ -528,6 +533,7 @@ void RestartData::verify_logical_values(){
     check_bounds("soma", soma[ii]);
     check_bounds("sompr", sompr[ii]);
     check_bounds("somcr", somcr[ii]);
+    check_bounds("ch4", ch4[ii]);
     check_bounds("orgn", orgn[ii]);
     check_bounds("avln", avln[ii]);
     for(int jj=0; jj<12; jj++){
@@ -820,6 +826,8 @@ void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, 
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &sompr[0]) );
   temutil::nc( nc_inq_varid(ncid, "somcr", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &somcr[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ch4", &cv) );
+  temutil::nc( nc_get_vara_double(ncid, cv, start, count, &ch4[0]) );
   temutil::nc( nc_inq_varid(ncid, "orgn", &cv) );
   temutil::nc( nc_get_vara_double(ncid, cv, start, count, &orgn[0]) );
   temutil::nc( nc_inq_varid(ncid, "avln", &cv) );
@@ -972,15 +980,6 @@ void RestartData::create_empty_file(const std::string& fname,
   BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
   temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
   temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
-//  temutil::nc( nc_def_dim(ncid, "pft", 10, &pftD) );
-//  temutil::nc( nc_def_dim(ncid, "pftpart", 3, &pftpartD) );
-//  temutil::nc( nc_def_dim(ncid, "snowlayer", 6, &snowlayerD) );
-//  temutil::nc( nc_def_dim(ncid, "rootlayer", 10, &rootlayerD) );
-//  temutil::nc( nc_def_dim(ncid, "soillayer", 23, &soillayerD) );
-//  temutil::nc( nc_def_dim(ncid, "rocklayer", 5, &rocklayerD) );
-//  temutil::nc( nc_def_dim(ncid, "fronts", 10, &frontsD) );
-//  temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
-//  temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
 
   temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
   temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
@@ -1152,6 +1151,7 @@ void RestartData::create_empty_file(const std::string& fname,
   int somaV;
   int somprV;
   int somcrV;
+  int ch4V;
   int orgnV;
   int avlnV;
   temutil::nc( nc_def_var(ncid, "TSsoil", NC_DOUBLE, 3, vartype3D_dimids, &TSsoilV) );
@@ -1172,6 +1172,8 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_double(ncid, somprV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "somcr", NC_DOUBLE, 3, vartype3D_dimids, &somcrV) );
   temutil::nc( nc_put_att_double(ncid, somcrV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+  temutil::nc( nc_def_var(ncid, "ch4", NC_DOUBLE, 3, vartype3D_dimids, &ch4V) );
+  temutil::nc( nc_put_att_double(ncid, ch4V, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "orgn", NC_DOUBLE, 3, vartype3D_dimids, &orgnV) );
   temutil::nc( nc_put_att_double(ncid, orgnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "avln", NC_DOUBLE, 3, vartype3D_dimids, &avlnV) );
@@ -1284,8 +1286,12 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
   /* End Define Mode (not strictly necessary for netcdf 4) */
-  BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-  temutil::nc( nc_enddef(ncid) );
+  BOOST_LOG_SEV(glg, debug) << "Trying to leaving 'define mode'...";
+  try {
+    temutil::nc( nc_enddef(ncid) );
+  } catch (const temutil::NetCDFDefineModeException& e) {
+    BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
+  }
 
   /* Close file. */
   BOOST_LOG_SEV(glg, debug) << "Closing new file...";
@@ -1589,6 +1595,8 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &sompr[0]) );
   temutil::nc( nc_inq_varid(ncid, "somcr", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &somcr[0]) );
+  temutil::nc( nc_inq_varid(ncid, "ch4", &cv) );
+  temutil::nc( nc_put_vara_double(ncid, cv, start, count, &ch4[0]) );
   temutil::nc( nc_inq_varid(ncid, "orgn", &cv) );
   temutil::nc( nc_put_vara_double(ncid, cv, start, count, &orgn[0]) );
   temutil::nc( nc_inq_varid(ncid, "avln", &cv) );
@@ -1805,6 +1813,7 @@ void RestartData::restartdata_to_log(){
     BOOST_LOG_SEV(glg, debug) << "soma[" << ii << "]: " << soma[ii];
     BOOST_LOG_SEV(glg, debug) << "sompr[" << ii << "]: " << sompr[ii];
     BOOST_LOG_SEV(glg, debug) << "somcr[" << ii << "]: " << somcr[ii];
+    BOOST_LOG_SEV(glg, debug) << "ch4[" << ii << "]: " << ch4[ii];
     BOOST_LOG_SEV(glg, debug) << "orgn[" << ii << "]: " << orgn[ii];
     BOOST_LOG_SEV(glg, debug) << "avln[" << ii << "]: " << avln[ii];
 

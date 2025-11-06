@@ -30,13 +30,17 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
 
+  //General config settings
+  run_name = controldata["general"]["output_global_attributes"]["run_name"].asString();
+  run_description = controldata["general"]["output_global_attributes"]["description"].asString();
+
   //Config Stage Settings  
-  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
+//  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
   initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
-  tr_yrs        = controldata["stage_settings"]["tr_yrs"].asInt();
-  sc_yrs        = controldata["stage_settings"]["sc_yrs"].asInt();
+  tr_yrs = controldata["stage_settings"]["tr_yrs"].asInt();
+  sc_yrs = controldata["stage_settings"]["sc_yrs"].asInt();
 
   //PR stage module settings
   pr_env = controldata["stage_settings"]["pr"]["env"].asBool();
@@ -97,6 +101,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
   co2_file          = controldata["IO"]["co2_file"].asString();
   proj_co2_file     = controldata["IO"]["proj_co2_file"].asString();
+  ch4_file          = controldata["IO"]["ch4_file"].asString();
+  proj_ch4_file     = controldata["IO"]["proj_ch4_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
   output_spec_file  = controldata["IO"]["output_spec_file"].asString();
@@ -111,10 +117,14 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   pid_tag           = controldata["calibration-IO"]["pid_tag"].asString();
   caldata_tree_loc  = controldata["calibration-IO"]["caldata_tree_loc"].asString();
 
+  cell_timelimit = controldata["model_settings"]["cell_timelimit"].asInt();
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
   cmt_change = controldata["model_settings"]["cmt_change"].asBool();
+  ch4_module = controldata["model_settings"]["ch4"].asBool();
+  runon_enabled = controldata["model_settings"]["run-on"].asBool();
+  groundwater_enabled = controldata["model_settings"]["groundwater"].asBool();
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
@@ -197,6 +207,25 @@ void ModelData::set_dynamic_lai_module(const std::string &s) {
 void ModelData::set_dynamic_lai_module(const bool v) {
   BOOST_LOG_SEV(glg, info) << "Setting dynamic_lai_module to " << v;
   this->dynamic_lai_module = v;
+}
+
+bool ModelData::get_ch4_module() {
+  return this->ch4_module;
+}
+void ModelData::set_ch4_module(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << s;
+  this->ch4_module = temutil::onoffstr2bool(s);
+}
+void ModelData::set_ch4_module(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << v;
+  this->ch4_module = v;
+}
+
+bool ModelData::get_runon_status() {
+  return this->runon_enabled;
+}
+bool ModelData::get_groundwater_status() {
+  return this->groundwater_enabled;
 }
 
 bool ModelData::get_dslmodule() {
@@ -462,6 +491,9 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
       temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
 
+      temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "run_name", this->run_name.length(), this->run_name.c_str() ) );
+      temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "run_description", this->run_description.length(), this->run_description.c_str() ) );
+
       //Calculating total timesteps
       int stage_timestep_count = 0;
       if(timestep == "yearly"){
@@ -487,6 +519,24 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         vartype3D_dimids[2] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 3, vartype3D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
+      }
+
+      // PFT and layer
+      else if(new_spec.pft && new_spec.layer){
+        temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+        temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+
+        vartypeVeg5D_dimids[0] = timeD;
+        vartypeVeg5D_dimids[1] = layerD;
+        vartypeVeg5D_dimids[2] = pftD;
+        vartypeVeg5D_dimids[3] = yD;
+        vartypeVeg5D_dimids[4] = xD;
+
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 5, vartypeVeg5D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
@@ -665,9 +715,12 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
       }
 
       /* End Define Mode (not strictly necessary for netcdf 4) */
-      BOOST_LOG_SEV(glg, debug) << "Leaving 'define mode'...";
-      temutil::nc( nc_enddef(ncid) );
-
+      BOOST_LOG_SEV(glg, debug) << "Trying to leaving 'define mode'...";
+      try {
+        temutil::nc( nc_enddef(ncid) );
+      } catch (const temutil::NetCDFDefineModeException& e) {
+        BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
+      }
       /* Fill out the time coordinate variable */
       if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
         BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";

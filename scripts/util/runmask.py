@@ -9,8 +9,12 @@ import argparse
 import textwrap
 import os
 import numpy as np
+from pathlib import Path
+import shutil
+from collections import Counter
 
 import util.input
+import util.param
 
 '''
 This script is for creating, modifying, and viewing run masks for dvmdostem. 
@@ -89,6 +93,67 @@ def conform_mask_timeseries(rm_m, data):
 
   return rm_m
 
+def conform_mask_to_available_params(param_folder, veg_file, mask_file, verbose=False):
+  """
+  Adjusts the run mask based on available CMTs in the parameter folder.
+
+  This function identifies all available Community Model Types (CMTs) in the 
+  specified parameter folder. It then modifies the run mask in the provided 
+  mask file by turning off (masking) every pixel in the vegetation file 
+  (`veg_file`) whose value is not in the list of available CMTs.
+
+  Parameters
+  ----------
+  param_folder : str
+      Path to the folder containing parameter files with available CMTs.
+  veg_file : str
+      Path to the vegetation NetCDF file containing the `veg_class` variable.
+  mask_file : str
+      Path to the run mask NetCDF file containing the `run` variable.
+  verbose : bool, optional
+      If True, prints additional information during processing. Default is False.
+
+  Returns
+  -------
+  new_mask : numpy.ndarray
+      A 2D numpy array representing the updated run mask, where pixels not 
+      matching available CMTs are turned off.
+  """
+
+  veg = nc.Dataset(os.path.join(veg_file), 'r')
+  if 'veg_class' not in veg.variables.keys():
+    raise RuntimeError(f"Invalid vegegation.nc file...missing veg_class variable {veg_file}")
+
+  mask = nc.Dataset(os.path.join(mask_file), 'r')
+  if 'run' not in mask.variables.keys():
+    raise RuntimeError(f"Invalid mask.nc file...missing run variable {mask_file}")
+
+  available_CMTs = util.param.get_available_CMTs(param_folder)
+
+  if verbose:
+    print("Available CMTs:", available_CMTs)
+    print("Initial vegetation mask:")
+    print(veg['veg_class'][:])
+
+  valid_veg = np.isin(veg['veg_class'][:], available_CMTs)
+  
+  if verbose:
+    print("Valid vegetation mask after applying available CMTs:")
+    print(valid_veg)
+
+  new_mask = np.where(valid_veg, mask['run'][:], valid_veg)
+
+  if verbose:
+    print("New run mask after applying vegetation mask:")
+    print(new_mask)
+
+  valid_veg = np.isin(veg['veg_class'][:], available_CMTs)
+  
+  new_mask = np.where(valid_veg, mask['run'][:], valid_veg)
+
+  return new_mask
+
+
 
 def conform_mask_to_inputs(in_folder, verbose=False):
   '''
@@ -96,7 +161,7 @@ def conform_mask_to_inputs(in_folder, verbose=False):
   where any of the data for that pixel in the inputs is bad or missing.
   '''
 
-  util.input.verify_input_files(in_folder)
+  util.input.check_input_set_existence(in_folder)
 
   ###########################################################
   # First set the run mask based on the veg map
@@ -234,6 +299,37 @@ def show_mask(file, note):
     print(mask.variables['run'][:])
     print("")
 
+
+def cell_count(runmask_file, verbose=False):
+  '''
+  Returns counts for each value appearing in the provided run-mask file.
+  Flags invalid values but does not act on them.
+
+  Parameters
+  ----------
+  runmask_file : str
+    Filename of the run mask to operate on.
+  '''
+
+  with nc.Dataset(runmask_file, 'r') as runmask_fh:
+    if 'run' not in runmask_fh.variables.keys():
+      raise RuntimeError(f'{runmask_file} has no run variable')
+
+    mask_data = runmask_fh.variables['run'][:,:]
+
+  hashable_mask_data = mask_data.flatten()
+
+  mask_counts = Counter(hashable_mask_data)
+  if verbose:
+    print(mask_counts)
+
+  invalid_data = [v for v in mask_counts.keys() if v not in [0,1]]
+  if len(invalid_data) > 0:
+    print("Invalid values in run mask:", invalid_data)
+
+  return mask_counts
+
+
 def cmdline_define():
   '''Define the command line interface and return the parser object.'''
 
@@ -264,12 +360,24 @@ def cmdline_define():
   parser.add_argument("--show", action='store_true',
       help=textwrap.dedent('''Print the mask after modification.'''))
 
+  parser.add_argument("--cell-count", action='store_true',
+      help=textwrap.dedent('''Print cell count for active, inactive, and
+                              invalid entries.'''))
+
   parser.add_argument("--conform-mask-to-inputs", metavar=('FOLDER'), #nargs=1,
       help=textwrap.dedent('''Operate on the run-mask and conform it to all the 
           input files in %(metavar)s. Makes sure that the run-mask will disable
           any pixel (set to 0) where any of the input files contain bad or 
           missing data. NOTE!!: modifies run-mask.nc found in %(metavar)s, and
           ignores the files specified 'FILE' argument!'''))
+
+  parser.add_argument("--conform-mask-to-available-params", 
+      metavar=('PARAM_FOLDER', 'VEG_FILE'), nargs=2,
+      help=textwrap.dedent('''Adjust the run mask based on available CMTs in
+                           the parameter folder. This will mask out any pixels 
+                           whose CMT classification in the  VEG_FILE is not in 
+                           the list of available CMTs from the PARAM_FOLDER.
+                           Creates a new run-mask file.'''))
 
   parser.add_argument("--select-only-cmt", metavar=('FOLDER','CMT'), nargs=2,
     help=textwrap.dedent('''Select only pixels with a certain CMT number. This
@@ -333,6 +441,10 @@ def cmdline_run(args):
     Non-zero if the program cannot complete successfully.
 
   '''
+
+  if args.cell_count:
+    cell_count(args.file, True)
+
   if args.select_only_cmt:
     input_folder_path = args.select_only_cmt[0]
     cmt = int(args.select_only_cmt[1])
@@ -383,6 +495,38 @@ def cmdline_run(args):
       show_mask(os.path.join(input_folder_path, "run-mask.nc"), "New mask file showing only cmt {}".format(cmt))
     return 0
 
+  if args.conform_mask_to_available_params:
+    param_folder, veg_file = args.conform_mask_to_available_params
+
+    mask_file = args.file
+
+    new_mask = conform_mask_to_available_params(param_folder, veg_file, mask_file, verbose=args.verbose)
+
+    sizey, sizex = new_mask.shape
+
+    # Write the mask back out to a new file.
+    #  This ensures that we retain the original mask for use
+    #  when more parameterizations are available. The user will need
+    #  to replace the mask filename in the config file.
+    mask_path = Path(mask_file)
+    new_maskfile_name = str(mask_path.parent) + '/' + mask_path.stem + '_cmtfilter.nc'
+
+    # Copy the run mask file instead of creating a new one so that
+    #  it retains all other variables and global attributes.
+    # copyfile() by default overwrites the destination file, so it's
+    #  safe to then use 'append' to open it.
+    shutil.copyfile(mask_file, new_maskfile_name)
+
+    with nc.Dataset(new_maskfile_name, 'a') as nf:
+      run = nf.variables['run']
+      if args.verbose:
+        print(f"Writing mask...{new_mask=}")
+      run[:] = new_mask
+
+    if args.show:
+      show_mask(mask_file, "New mask file conforming to available params")
+
+    return 0
 
   if args.conform_mask_to_inputs:
 

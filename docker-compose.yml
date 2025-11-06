@@ -1,5 +1,3 @@
-version: '3.2'
-
 # Docker Compose file for coordinating several dvmdostem containers.
 #
 # First you should build your images. This can be done individually or you can 
@@ -33,9 +31,9 @@ services:
     ports:
       - "7001:7001"
     volumes:
-       - sourcecode:/work
-       - inputcatalog:/data/input-catalog
-       - workflows:/data/workflows
+       - /home/bmaglio/develop/dvm-dos-tem:/work
+       - /home/bmaglio/develop/ddt_inputs:/data/input-catalog
+       - /home/bmaglio/develop/ddt_outputs:/data/workflows
 
   dvmdostem-autocal:
     image: dvmdostem-autocal:${V_TAG}
@@ -68,8 +66,8 @@ services:
     ports:
       - "7002:7002"
     volumes:
-      - inputcatalog:/data/input-catalog
-      - workflows:/data/workflows
+      - /home/bmaglio/develop/ddt_inputs:/data/input-catalog
+      - /home/bmaglio/develop/ddt_outputs:/data/workflows
       
   # Auxillary stuff that can't run on other container/images due to difficult
   # build dependencies (GDAL mainly).
@@ -80,9 +78,9 @@ services:
     ports: 
       - "7003:7003"
     volumes:
-      - sourcecode:/work
-      - inputcatalog:/data/input-catalog
-      - workflows:/data/workflows
+      - /home/bmaglio/develop/dvm-dos-tem:/work
+      - /home/bmaglio/develop/ddt_inputs:/data/input-catalog
+      - /home/bmaglio/develop/ddt_outputs:/data/workflows
 
 
 volumes:
@@ -132,4 +130,3 @@ volumes:
 
 # Run the io-view tool:
 #   $ docker compose exec dvmdostem-mapping-support bokeh serve scripts/io_view.py
-

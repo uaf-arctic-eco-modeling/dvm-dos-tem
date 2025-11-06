@@ -5,6 +5,7 @@ import errno
 import glob
 import netCDF4 as nc
 import numpy as np
+from collections import Counter
 
 import argparse
 import textwrap
@@ -38,7 +39,7 @@ class MissingInputFilesValueError(ValueError):
 class MustSupplyPixelCoordsError(ValueError):
   '''Raise when user must supply pixel coordinates(i.e. command line flag --yx)'''
 
-def verify_input_files(in_folder):
+def check_input_set_existence(in_folder):
   '''
   Raises various exceptions if there are problems with the files in the in_folder.
 
@@ -73,8 +74,36 @@ def verify_input_files(in_folder):
     msg = "Missing files: {}".format(required_files.difference(files))
     raise MissingInputFilesValueError(msg)
 
-  if 'output' not in dirs:
-    raise MissingInputFilesValueError("'output/' directory not present!")
+
+def get_vegtypes(veg_input, verbose=False):
+  '''
+  Returns a Counter containing the CMT values in a specified vegetation
+  input file, along with a count of the cells for each. Does not check
+  the validity of CMT values, but does include invalid entries for easy
+  error checking from the caller.
+
+  Parameters
+  ----------
+  veg_input : str
+    Filename of the vegetation file to operate on.
+  '''
+
+  with nc.Dataset(veg_input, 'r') as veg_file:
+    if 'veg_class' not in veg_file.variables.keys():
+      raise RuntimeError(f'{veg_input} has no veg_class variable')
+
+    veg_data = veg_file.variables["veg_class"][:,:]
+
+  if verbose:
+    print(veg_data)
+
+  hashable_veg_data = veg_data.flatten()
+
+  veg_counts = Counter(hashable_veg_data)
+  if verbose:
+    print(veg_counts)
+
+  return veg_counts
 
 
 def crop_attr_string(ys='', xs='', yo='', xo='', msg=''):
@@ -630,9 +659,21 @@ def cmdline_define():
     Query one or more dvmdostem inputs for various information.'''))
   query_parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
       help="Find closest pixel to provided lat and lon arguments.")
-  query_parser.add_argument('--latlon-file', 
-      default='../snap-data/temporary-veg-from-LandCover_TEM_2005.tif', 
-      help="The file to read from for getting lat/lon pixel offsets.")
+
+  query_parser.add_argument('--check-existence', action='store_true',
+    help=textwrap.dedent('''Check the files in the specified input\
+    directory against a hardcoded list of expected files.'''),
+    default=None)
+
+  query_parser.add_argument('--vegtypes', action='store_true',
+    help=textwrap.dedent('''Returns a Counter with the CMT values and the\
+    number of times they appear in a vegetation file'''))
+
+  query_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
+
+#  query_parser.add_argument('--latlon-file', 
+#      default='../snap-data/temporary-veg-from-LandCover_TEM_2005.tif', 
+#      help="The file to read from for getting lat/lon pixel offsets.")
 
   crop_parser = subparsers.add_parser('crop',help=textwrap.dedent('''\
       Crop an input dataset, using offset and size. The reason we need this in
@@ -682,17 +723,23 @@ if __name__ == '__main__':
   print(args)
 
   if args.command == 'crop':
-    verify_input_files(args.input_folder)
+    check_input_set_existence(args.input_folder)
     crop_wrapper(args)
 
   if args.command == 'climate-ts-plot':
-    #verify_input_files(args.input_folder)
+    #check_input_set_existence(args.input_folder)
     climate_ts_plot(args)
 
   if args.command == 'climate-gap-plot':
     climate_gap_count_plot(args)
 
   if args.command == 'query':
+    if args.check_existence:
+      check_input_set_existence(args.input_folder)
+
+    if args.vegtypes:
+      get_vegtypes(args.veg_file)
+
     if args.iyix_from_latlon:
 
       TMP_NC_FILE = '/tmp/WINNING.nc'

@@ -88,6 +88,9 @@ public:
   snw2atm_env y_snw2a;
   snw2soi_env y_snw2soi;
 
+  //The atmospheric ch4 for the year
+  double atmospheric_ch4;
+
   //Arrays to hold a month's worth of variables for daily
   // netCDF output.
   double daily_eet[31];
@@ -144,14 +147,14 @@ public:
   void grnd_beginOfDay();
 
   // accumulating/averaging monthly variables at the end of day
-  void atm_endOfDay(const int & dinm);
+  void atm_endOfDay(const int & dinm, const int & dayidx);
   void veg_endOfDay(const int & dinm);
   void grnd_endOfDay(const int & dinm, const int & doy);
 
   // accumulating/averaging yearly variables at the end of month
   void atm_endOfMonth();
   void veg_endOfMonth(const int & currmind);
-  void grnd_endOfMonth();
+  void grnd_endOfMonth(const int & currmind);
 
   void update_from_climate(const Climate& clm, const int mid, const int dayid);
 

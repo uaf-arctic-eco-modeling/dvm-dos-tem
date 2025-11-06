@@ -1,6 +1,9 @@
 {
   "general": {
-    "run_name": "A sample dvmdostem run. Modify this text to suit your needs."
+    "output_global_attributes": {
+        "run_name": "Demo dvmdostem run",
+        "description": "A basic test run. Data is not scientifically sound."
+    }
   },
 
   "IO": {
@@ -12,6 +15,8 @@
     "soil_texture_file":  "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/soil-texture.nc",
     "co2_file":           "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/co2.nc",
     "proj_co2_file":      "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-co2.nc",
+    "ch4_file":           "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ch4.nc",
+    "proj_ch4_file":      "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-ch4.nc",
     "runmask_file":       "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/run-mask.nc",
     "topo_file":          "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/topo.nc",
     "fri_fire_file":      "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/fri-fire.nc",
@@ -120,10 +125,14 @@
   },
 
   "model_settings": {
+    "cell_timelimit": 0, //Run time limit per cell in seconds. 0 for no limit.
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
     "baseline_end": 1931,     //end year for baseline EQ climate
-    "cmt_change": true    //allow cmt change post disturbance 
+    "cmt_change": true,    //allow cmt change post disturbance 
+    "ch4": false, //controlled at the stage level by bgc settings above
+    "run-on": false, //enable run-on (use calculated runoff as input) only if poorly draining pixel
+    "groundwater": false //enable calibrated fixed groundwater recharge only if input if poorly draining pixel
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??

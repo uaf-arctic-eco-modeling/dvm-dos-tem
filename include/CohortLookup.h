@@ -58,6 +58,7 @@ public:
   double krb[NUM_PFT_PART][NUM_PFT]; // parameter for maintenance resp. (rm)
   double frg[NUM_PFT]; //fraction of available NPP (GPP after rm)
                        //  for growth respiration
+  double transport_capacity[NUM_PFT]; //efficiency of each PFT to passively transport CH4
 
   // soil
   double micbnup; //parameter related to N immoblization by soil microbial
@@ -68,7 +69,30 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
+  double s2dfraction;
+  double d2mfraction;
+  //Soil methane calibrated values
+  double kdcrawc_ch4;
+  double kdcsoma_ch4;
+  double kdcsompr_ch4;
+  double kdcsomcr_ch4;
 
+  double ch4_ebul_rate;
+  double ch4_transport_rate;
+
+  double prodq10_ch4;
+  double oxidq10_ch4;
+
+  double prodTref_ch4;
+  double oxidTref_ch4;
+
+  double oxidkm_ch4;
+  double oxidVmax_ch4;
+
+  double max_ponding_s;
+  double max_ponding_w;
+  double inflow_factor;
+  
   // canopy dimensions
   double sla[NUM_PFT]; //specific leaf area
   double klai[NUM_PFT]; //a coefficient to convert LAI to FPC
@@ -86,6 +110,8 @@ public:
                             //  feathermoss (2), lichen (3)
 
   double static_lai[12][NUM_PFT]; // A year's worth of LAI values for use when dynamic LAI is turned off.
+  double static_lai_max[NUM_PFT]; // Max static LAI per PFT
+  double static_lai_min[NUM_PFT]; // Min static LAI per PFT
 
   // root distribution
   double frootfrac[MAX_ROT_LAY][NUM_PFT]; //percentage
@@ -227,6 +253,7 @@ public:
 
   // Q10 and soil moisture factors for Rh
   double rhq10;
+  double rhmoistfrozen;
   double moistmin;
   double moistopt;
   double moistmax;

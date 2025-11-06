@@ -135,6 +135,8 @@ public :
   double sompr[MAX_SOI_LAY];
   double somcr[MAX_SOI_LAY];
 
+  double ch4[MAX_SOI_LAY];
+
   double wdebrisn;
   double orgn[MAX_SOI_LAY];
   double avln[MAX_SOI_LAY];

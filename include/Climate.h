@@ -33,11 +33,18 @@ public:
   std::vector<float> cld;
   std::vector<float> par;
 
+  // Supplemental variables, only loaded if module is specified
+  std::vector<float> ch4;
+
   // simplified climate, averaged over some number of years
   std::vector<float> avgX_tair;
   std::vector<float> avgX_prec;
   std::vector<float> avgX_nirr;
   std::vector<float> avgX_vapo;
+
+  // co2 and ch4 averaged over baseline years
+  double avgX_co2;
+  double avgX_ch4;
 
   // repetitive climate, repeated over a specified number of years
   //std::vector<float> rptX_tair;
@@ -50,6 +57,8 @@ public:
   // this is not really a daily value, but for scope/access
   // reasons it is easier to treat it as such. Every day of the year has the same co2 value...
   float co2_d;
+
+  float ch4_d;
 
   //  ->> should be interpolated from the monthly containers
   std::vector<float> tair_d;
@@ -81,6 +90,8 @@ public:
   void load_proj_climate(const std::string&, int, int);
   void load_proj_co2(const std::string&);
 
+  void load_ch4(const std::string&);
+
   void prep_avg_climate();
 
 private:
@@ -90,6 +101,9 @@ private:
   void split_precip();
 
   std::vector<float> avg_over(const std::vector<float> & var, const int start_yr, const int end_yr);
+
+  double avg_over_yearly(const std::vector<float> & var, const int start_yr, const int end_yr);
+
   std::vector<float> rpt_years(const std::vector<float> &, const int);
 
   std::vector<float> interpolate_daily(const std::vector<float> & var);

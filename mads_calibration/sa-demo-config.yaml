@@ -8,10 +8,10 @@ seed_path: /work/parameters
 observations: /work/calibration
 
 # The number of samples to draw over the parameter space
-N_samples: 5
+N_samples: 10
 
 # The location where all the individual sample folders will be setup.
-work_dir: /data/workflows/calibration/CMT06-IMNAVIAT/output/cmax_gppallignoringnitrogen/sa-N5
+work_dir: /data/workflows/ch4_test_new_params
 
 # The following keys (params, pftnums, and percent_diffs) should be lists of
 # identical length. I.e. for each parameter we need to specify the PFT and a
@@ -20,22 +20,42 @@ work_dir: /data/workflows/calibration/CMT06-IMNAVIAT/output/cmax_gppallignoringn
 # the parameter.
 
 # Which parameters are being tested/analyzed
-params: [cmax, cmax, cmax, cmax, cmax, cmax, cmax]
+params: [kdcrawc, kdcsoma, kdcsomcr, kdcsompr,
+         rhq10, s2dfraction,
+         kdcrawcch4, kdcsomach4, kdcsomcrch4, kdcsomprch4,
+         ch4ebulrate, ch4transportrate, 
+         prodq10ch4, oxidq10ch4,
+         oxidkmch4, oxidvmaxch4]
 
 # Which PFTs are being tested/analyzed
-pftnums: [0, 1, 2, 3, 4, 5, 6]
+pftnums: [None, None, None, None,
+          None, None,
+          None, None, None, None, 
+          None, None,
+          None, None,
+          None, None]
 
 # The "perturbations" around the initial parameter values
-percent_diffs: [.1, .1, .1, .1, .1, .1, .1]
+# percent_diffs: [.9, .9, .9, .9]
 
 # Manually set parameter bounds. This option should be mutually exclusive 
 # with percent_diffs. In other words only specify one of percent_diffs or 
 # p_bounds. For each parameter specify the min and max. Must use square 
 # brackets for yaml to parse it correctly.
-#p_bounds: [[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1]]
+p_bounds: [[0.003, 0.06],[0.05, 0.4],[0.000001, 0.09],[0.000000001, 0.000001],
+           [2.3, 10.3],[0.001, 1.0],
+           [0.0005,0.0015],[0.0001,0.01],[0.00000001, 0.0001],[0.000002, 0.000005],
+           [0.01,1.0], [0.18,0.21],
+           [10,16],[1.4,2.1],
+           [1,5],[5,50]]
+           #p_bounds: [[0.000035, 0.9],[0.000001, 0.4],[0.000001, 0.09],[0.00000001, 0.0001],
+           #           [0.0000001,0.001],[0.0000001,0.001],[0.00000001, 0.0001],[0.0000000001, 0.00001],
+           #           [0.01,1.0], [0.18,0.21],
+           #           [10,16],[1.4,2.1],
+           #           [1,5],[5,50]
 
 # The path to the driving input data that will be used.
-site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10
+site: /data/input-catalog/cru-ts40_ar5_rcp85_ncar-ccsm4_bonanzacreeklter_10x10
 
 # The pixel from the driving inputs that should be used.
 PXx: 0
@@ -46,7 +66,7 @@ PXy: 0
 #  - False/None/0: dvmdostem default which is dsl and nfeed on for eq, sp, tr, sc stages
 #  - GPPALLIgnoringNitrogen: turns dsl and nfeed OFF for eq stage
 #  - VEGC or NPPAll: turns dsl and nfeed ON for eq (and subsequent) stages
-calib_mode: GPPAllIgnoringNitrogen
+calib_mode: None
 
 # What mathematical scheme to use to choose samples based on bounds, 
 # and perturbations...
@@ -57,23 +77,33 @@ sampling_method: lhc
 # calibration_targets.py file. Internally the program looks up the correct 
 # NetCDF output to enable.
 target_names: 
-- GPPAllIgnoringNitrogen
+- CH4All
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
 
 # If you want additional outputs beyond the ones needed for the target
 # comparison then you can specify them here. In this case use the NetCDF names.
 # WARNING you should make sure that you don't explicity change the resolution
 # for a variable that is one of your target variables. This will make the
 # plotting in SA_post_hoc_analysis not work.
-# aux_outputs:
-# - VEGC p m
-# - AVLN y
-# - GPP y p c 
-# - TLAYER m l
+aux_outputs:
+- CH4EBULLITION y
+- CH4PRODUCTION y
+- CH4EFFLUXDIFF y
+- CH4OXIDATION y
+- CH4POOL y
+- CH4PRODUCTION y
+- CH4TRANSPORT y
+- ALD y
+- RH y
+- RM y
+- RG y
 
 # The community number that is being calibrated.
-cmtnum: 6
+cmtnum: 31
 
 # Additional options that are passed to dvmdostem
-opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
 
 

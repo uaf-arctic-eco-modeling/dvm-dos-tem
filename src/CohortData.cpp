@@ -43,6 +43,10 @@ void CohortData::clear() {
   cell_aspect = MISSING_D;
   cell_elevation = MISSING_D;
   hasnonvascular = false;
+
+  groundwater_status = false;
+  runon_status = false;
+
   fill_n(vegyear, MAX_VEG_SET, MISSING_I);
   fill_n(vegtype, MAX_VEG_SET, MISSING_I);
   fill_n(vegfrac, MAX_VEG_SET, MISSING_I);

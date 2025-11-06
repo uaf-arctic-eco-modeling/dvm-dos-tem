@@ -35,7 +35,7 @@
 extern src::severity_logger< severity_level > glg;
 
 Soil_Env::Soil_Env() {
-  ponding_max_mm = 4.0; //max ponding (surface water storage) (mm)
+  // ponding_max_mm = 4.0; //max ponding (surface water storage) (mm)
 };
 
 Soil_Env::~Soil_Env() {
@@ -48,6 +48,18 @@ void Soil_Env::initializeParameter() {
   envpar.nfactor_w = chtlu->nfactor_w;
   envpar.drainmax = chtlu->drainmax;
   envpar.rtdp4gdd = chtlu->rtdp4gdd;
+  
+  richards.groundwater_status = cd->groundwater_status;
+  richards.runon_status = cd->runon_status;
+  if(cd->runon_status){
+    richards.max_ponding = chtlu->max_ponding_w;
+    ponding_max_mm = chtlu->max_ponding_s;
+  } else {
+    richards.max_ponding = 100.0;
+    ponding_max_mm = 4.0;
+  }
+  richards.inflow_factor = chtlu->inflow_factor;
+
 };
 
 void Soil_Env::initializeState() {
@@ -527,13 +539,22 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
-    ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
+    if(cd->runon_status){
+      ed->d_soi2l.qover = 0.0;
+    }else{
+      ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt);
+    }
   } else {
     ed->d_soi2l.qover = 0.0;
   }
 
   //Calculate infiltration (mm/day)
-  double infil = rnth + melt - ed->d_soi2l.qover;
+  double infil = 0.0;
+  if(cd->runon_status){
+    infil = rnth + melt + getRunoff(fstsoill, drainl, rnth, melt);
+  }else{
+    infil = rnth + melt - ed->d_soi2l.qover;
+  }
 
   //Get unsaturated space potentially available for liq infiltration (mm)
   double space_for_liq = 0.0;
@@ -553,8 +574,9 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   space_for_liq -= infil;
   space_for_liq = fmax(space_for_liq, 0.0);
 
-  //Add runoff (up to 10 mm) to surface water storage (magic puddle)
+  // Add runoff (up to 10 mm) to surface water storage (magic puddle)
   double space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+  
   double add_to_puddle = fmax(fmin(ed->d_soi2l.qover, space_in_puddle), 0.0);
   ed->d_soi2l.magic_puddle += add_to_puddle;
   //Subtracting surface water storage from runoff
@@ -631,11 +653,13 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     if(infil > 0.0){
       infil *= SEC_IN_DAY;// -->mm/day
       //Add to ponding
-      space_in_puddle = ponding_max_mm - ed->d_soi2l.magic_puddle;
+      space_in_puddle = ponding_max_mm- ed->d_soi2l.magic_puddle;
       add_to_puddle = fmin(space_in_puddle, infil);
       ed->d_soi2l.magic_puddle += add_to_puddle;
       infil -= add_to_puddle;
-      ed->d_soi2l.qover += infil;
+      if(!cd->runon_status){
+        ed->d_soi2l.qover += infil;
+      }
       ed->d_soi2l.qinfl = 0;
     }
     if(weighted_veg_tran > 0){
@@ -1011,7 +1035,9 @@ void Soil_Env::checkSoilLiquidWaterValidity(Layer *topsoill, int topind){
       double to_puddle = fmin(sink_liq, space_in_puddle);
       ed->d_soi2l.magic_puddle += to_puddle;
       sink_liq -= to_puddle;
-      ed->d_soi2l.qover += sink_liq;
+      if(!cd->runon_status){
+        ed->d_soi2l.qover += sink_liq;
+      }
     }
     currl = currl->prevl;
   }

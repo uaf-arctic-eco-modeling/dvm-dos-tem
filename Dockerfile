@@ -46,7 +46,7 @@ ARG GID=1000
 
 # === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
 # General development tools, compilers, text editors, etc
-FROM ubuntu:focal as cpp-dev
+FROM ubuntu:jammy AS cpp-dev
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y --fix-missing && apt-get install -y \
     build-essential \
@@ -62,7 +62,7 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
 # === IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT =================================
 # More specific build stuff for compiling dvmdostem and running the project's
 # associated python scripts. 
-FROM cpp-dev:$GIT_VERSION as dvmdostem-dev
+FROM cpp-dev:$GIT_VERSION AS dvmdostem-dev
 ARG UNAME
 ARG UID
 ARG GID
@@ -110,7 +110,7 @@ RUN apt-get update --fix-missing -y && apt-get install -y \
     libreadline-dev \
     libsqlite3-dev \
     llvm \
-    python-openssl \
+    python3-openssl \
     tk-dev \
     wget \
     xz-utils \
@@ -158,7 +158,7 @@ WORKDIR /work
 # Basically the dev image with Julia and MADS installed. Julia and MADS add
 # significantly to the build time and size, so they are split out to a separate
 # image here.
-FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-autocal
+FROM dvmdostem-dev:${GIT_VERSION} AS dvmdostem-autocal
 ARG UNAME
 ARG UID
 ARG GID
@@ -190,7 +190,7 @@ ENV PYTHONPATH="/work/scripts:/work/mads_calibration"
 # required source files are copied directly to the image. This is in constrast
 # to the dev image, where there is no source code present in the image instead it
 # must be provided by mounting a volume at container run-time.
-FROM dvmdostem-dev:${GIT_VERSION} as dvmdostem-build
+FROM dvmdostem-dev:${GIT_VERSION} AS dvmdostem-build
 ARG UNAME
 ARG UID
 ARG GID
@@ -237,7 +237,7 @@ USER $UNAME
 # A container run from this images will need to have data supplied (i.e. one or
 # more mounted volumes) in order to run dvmdostem.
 #
-FROM ubuntu:focal as dvmdostem-run
+FROM ubuntu:jammy AS dvmdostem-run
 ARG UNAME
 ARG UID
 ARG GID
@@ -259,7 +259,7 @@ RUN echo ${UNAME}
 # There is some kind of bug or oddity with how the file gets copied.
 # Doing it like below with the "as" construct allows us to set the 
 # correct username in the copy step...
-FROM ${UNAME} as uname
+FROM ${UNAME} AS uname
 COPY --from=dvmdostem-build /home/uname/.pyenv /home/uname/.pyenv
 
 # Discovered by using ldd on compiled binary in testing environment

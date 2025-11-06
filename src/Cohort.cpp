@@ -69,6 +69,13 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // overwritten by projected climate later when necessary.
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
 
+  if(modeldatapointer->get_ch4_module()){
+    this->climate.load_ch4(modeldatapointer->ch4_file);
+  }
+
+  cd.groundwater_status = modeldatapointer->get_groundwater_status();
+  cd.runon_status = modeldatapointer->get_runon_status();
+
   this->climate.baseline_start = modeldatapointer->baseline_start;
   this->climate.baseline_end = modeldatapointer->baseline_end;
   //Prepare averaged input set for EQ stage
@@ -142,6 +149,11 @@ void Cohort::load_proj_climate(const std::string& proj_climate_file){
 void Cohort::load_proj_co2(const std::string& proj_co2_file){
   climate.load_proj_co2(proj_co2_file);
 }
+
+void Cohort::load_ch4(const std::string& ch4_file){
+  climate.load_ch4(ch4_file);
+}
+
 
 // initialization of pointers used in modules called here
 void Cohort::initialize_internal_pointers() {
@@ -419,7 +431,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   if(md->get_bgcmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
     BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
-    updateMonthly_Bgc(currmind);
+    updateMonthly_Bgc(currmind, dinmcurr);
     BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
 
   }
@@ -436,7 +448,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   // from m_sois. This is especially important after fire, because
   // otherwise the model enters the next month's integration with
   // old values.
-  this->bdall->soil_endOfMonth(currmind);
+  this->bdall->soil_updatePools(currmind);
 
   if(currmind == 11) {
     BOOST_LOG_SEV(glg, debug) << "Clean up at end of year.";
@@ -689,7 +701,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     //accumulate daily vars into monthly for 'ed' of each PFT
     for (int ip=0; ip<NUM_PFT; ip++) {
       if (cd.d_veg.vegcov[ip] > 0.0) {
-        ed[ip].atm_endOfDay(dinmcurr);
+        ed[ip].atm_endOfDay(dinmcurr, id);
         ed[ip].veg_endOfDay(dinmcurr);
         ed[ip].grnd_endOfDay(dinmcurr, doy);
 
@@ -697,13 +709,13 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
         if(id==dinmcurr-1) {
           ed[ip].atm_endOfMonth();
           ed[ip].veg_endOfMonth(currmind);
-          ed[ip].grnd_endOfMonth();
+          ed[ip].grnd_endOfMonth(currmind);
         }
       }
     }
 
     //accumulate daily vars into monthly for 'ed' of all pfts
-    edall->atm_endOfDay(dinmcurr);
+    edall->atm_endOfDay(dinmcurr, id);
     edall->veg_endOfDay(dinmcurr); //be sure 'getEd4allpfts_daily' called above
     edall->grnd_endOfDay(dinmcurr, doy);
 
@@ -711,7 +723,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
     if(id==dinmcurr-1) {
       edall->atm_endOfMonth();
       edall->veg_endOfMonth(currmind);
-      edall->grnd_endOfMonth();
+      edall->grnd_endOfMonth(currmind);
     }
 
   }} // end of day loop (and named scope)
@@ -720,7 +732,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Biogeochemical Module Calling at monthly timestep
 ///////////////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Bgc(const int & currmind) {
+void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
   BOOST_LOG_NAMED_SCOPE("bgc");
   //
   if(currmind==0) {
@@ -736,6 +748,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
     bdall->soil_beginOfYear();
     bdall->land_beginOfYear();
   }
+
+  bdall->soil_beginOfMonth();
 
   // vegetation BGC module calling
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -766,8 +780,24 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(),
                              md->get_baseline());
   soilbgc.clear_del_structs();
+
+  // daily soil bgc processes
+  // Running ch4 calculations prior to updateMonthlySbgc
+  // So accrued daily ch4 production and oxidation
+  // alter SOM pools and CO2 emission
+  for (int id = 0; id < dinmcurr; id++){
+    int doy = temutil::day_of_year(currmind, id);
+
+    if(md->get_ch4_module()){
+      soilbgc.CH4Flux(currmind, id);
+    }
+
+    bdall->soil_endOfDay(dinmcurr, doy);
+  }
+
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
   soilbgc.afterIntegration();
+
   bdall->soil_endOfMonth(currmind);   // yearly data accumulation
   bdall->land_endOfMonth();
 
@@ -1192,8 +1222,10 @@ void Cohort::getEd4allveg_daily() {
 // Note: this 'l2a' is monthly/yearly integrated in
 //         'ed->atm_endofDay/_endofMonth'
 void Cohort::getEd4land_daily() {
+
   for (int ip=0; ip<NUM_PFT; ip++) {
     if (cd.d_veg.vegcov[ip]>0.) {
+
       ed[ip].d_l2a.eet = ed[ip].d_v2a.evap + ed[ip].d_v2a.sublim
                          + ed[ip].d_v2a.tran +ed[ip].d_snw2a.sublim
                          + ed[ip].d_soi2a.evap;
