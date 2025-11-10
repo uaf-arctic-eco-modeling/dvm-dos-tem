@@ -142,6 +142,36 @@ def restart_sc_from_tr(restart_run_directory, restart_tr_from_sp):
 
   return sc_from_tr_output_dir
 
+@pytest.fixture(autouse=True)
+def bad_restart_from_path(restart_run_directory):
+
+  # arrange
+  CONFIG_FILE = f"{restart_run_directory}/config/config.js"
+  with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+      config = json.load(f)
+      config_backup = config
+
+  config["IO"]["restart_from"] = "/bad/path/to/restart.nc"
+  config["IO"]["output_dir"] = str(pathlib.Path(restart_run_directory, 'output_bad_restart'))
+
+  with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+      json.dump(config, f, indent=2)
+
+  os.chdir(restart_run_directory)
+  completed_process = subprocess.run(f"dvmdostem -f {CONFIG_FILE} -p0 -e0 -s5 -t0 -n0 -l debug".split(' '))
+
+  if completed_process.returncode == 0:
+     raise RuntimeError("Model run succeeded but it should have failed due to bad restart path")
+
+  yield 
+
+  # Put the config back the way it was so that other tests using this directory
+  # don't fail...
+  with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+      json.dump(config_backup, f, indent=2)
+
+
+
 def test_restart_pr_eq_base_run(restart_run_directory, restart_pr_eq_base_run):
     assert pathlib.Path(restart_run_directory, 'output_pr_eq', 'restart-eq.nc').exists()
     assert nc.Dataset(f'{restart_run_directory}/output_pr_eq/run_status.nc').variables['run_status'][1,1] == 100
@@ -154,9 +184,24 @@ def test_restart_tr_from_sp(restart_run_directory, restart_tr_from_sp):
     assert pathlib.Path(restart_run_directory, 'output_tr_from_sp', 'restart-tr.nc').exists()
     assert nc.Dataset(f'{restart_run_directory}/output_tr_from_sp/run_status.nc').variables['run_status'][1,1] == 100
 
-def test_restart_sc_from_tr(restart_run_directory, restart_sc_from_tr):
-    assert pathlib.Path(restart_run_directory, 'output_sc_from_tr', 'restart-sc.nc').exists()
-    assert nc.Dataset(f'{restart_run_directory}/output_sc_from_tr/run_status.nc').variables['run_status'][1,1] == 100
+def test_restart_sc_from_tr(restart_sc_from_tr):
+    assert pathlib.Path(restart_sc_from_tr, 'restart-sc.nc').exists()
+    assert nc.Dataset(f'{restart_sc_from_tr}/run_status.nc').variables['run_status'][1,1] == 100
+
+def test_bad_restart_from_path(restart_run_directory, bad_restart_from_path):
+  '''This is funky - most of the test is being done in the fixture...basically
+  with a bad restart path, the model should fail to run before nearly anything
+  happens. So thats what happens in the fixture and we just yield it to here.
+  There isn't much to check here...'''
+
+  CONFIG_FILE = f"{restart_run_directory}/config/config.js"
+  with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+      config = json.load(f)
+
+  bad_restart_from_path = config["IO"]["restart_from"]
+  assert pathlib.Path(bad_restart_from_path).exists() == False
+
+  
 
 # Further tests:
 #   --restart-run restart_from="" --> exception
