@@ -171,6 +171,34 @@ def bad_restart_from_path(restart_run_directory):
       json.dump(config_backup, f, indent=2)
 
 
+def test_try_restart_pr_eq(restart_run_directory, restart_pr_eq_base_run):
+  '''
+  Make sure that user can't specify restart run for pr or eq stage. This should
+  fail because there should be no way to do a valid restart for the pr or eq
+  stage. In order to test it, we use the restart_pr_eq_base_run fixture to get a
+  valid restart file from the pr/eq run, and then try to use that to restart a
+  pr run. This should fail. If you run the test with -s you will see a
+  successful run first, followed by the failed run.
+  '''
+
+  CONFIG_FILE = f"{restart_run_directory}/config/config.js"
+  with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+      config = json.load(f)
+
+  config["IO"]["restart_from"] = str(pathlib.Path(restart_pr_eq_base_run, 'restart-eq.nc'))
+  config["IO"]["output_dir"] = str(pathlib.Path(restart_run_directory, 'output_bad_pr_restart'))
+
+  with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+      json.dump(config, f, indent=2)
+  
+  os.chdir(restart_run_directory)
+  completed_process = subprocess.run(f"dvmdostem -f {CONFIG_FILE} -p5 -e5 -s0 -t0 -n0 -l debug".split(' '))
+  assert completed_process.returncode != 0
+
+  completed_process = subprocess.run(f"dvmdostem -f {CONFIG_FILE} -p0 -e5 -s0 -t0 -n0 -l debug".split(' '))
+  assert completed_process.returncode != 0
+
+
 
 def test_restart_pr_eq_base_run(restart_run_directory, restart_pr_eq_base_run):
     assert pathlib.Path(restart_run_directory, 'output_pr_eq', 'restart-eq.nc').exists()
