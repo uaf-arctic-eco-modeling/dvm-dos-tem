@@ -173,19 +173,23 @@ int main(int argc, char* argv[]){
 
   // Further verification that the cmd line args and the config file don't have
   // conflicting settings
-  if ( (modeldata.pr_yrs > 0) || (modeldata.eq_yrs > 0) ) {
-    assert(!args->get_restart_run() && "Cannot restart run with PR or EQ years");
-  }
+
 
   // Make sure that if user wants a restart run, they explicitly set the 
-  // path to the restart file in their config.js file.
-  if (args->get_restart_run()) {
-    assert( (modeldata.restart_from.length() > 0) && 
-      "Restart run requires a valid restart_from file, please set in your config!");
-
+  // path to the restart file in their config.js file. Also make sure that 
+  // they are not trying to run PR or EQ years when restarting from a previous run.
+  
+  if (modeldata.restart_from.length() > 0) {
     assert( boost::filesystem::exists(modeldata.restart_from) && 
       "Restart file specified but not found!");
+
+    assert( (args->get_pr_yrs() == 0) && 
+      "Cannot run PR years when restarting from a previous run!");
+
+    assert ( (args->get_eq_yrs() == 0) && 
+      "Cannot run EQ years when restarting from a previous run!");
   }
+
 
 
   /*
@@ -256,7 +260,7 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(glg, info) << "Checking for output directory: " << modeldata.output_dir;
     boost::filesystem::path out_dir_path(modeldata.output_dir);
     if( boost::filesystem::exists(out_dir_path) ){
-      if (args->get_no_output_cleanup() || args->get_restart_run()) {
+      if (args->get_no_output_cleanup() || (modeldata.restart_from.length() > 0)) {
         BOOST_LOG_SEV(glg, warn) << "WARNING!! Not cleaning up output directory! "
                                  << "Old and potentially confusing files may be "
                                  << "present from previous runs!!";
