@@ -4895,6 +4895,154 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //SOC from 0cm to 30cm
+  map_itr = netcdf_outputs.find("SOC0_30cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_30cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_30cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_30 = cohort.ground.getCarbonForDepthRange(0.0, 0.3);
+        outhold.soc_0_30_for_output.push_back(m_soc_0_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_30_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_30_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_30 = cohort.ground.getCarbonForDepthRange(0.0, 0.3);
+        outhold.soc_0_30_for_output.push_back(y_soc_0_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_30_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_30_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_30cm)
+  } //end SOC0_30cm
+  map_itr = netcdf_outputs.end();
+
+
+  //SOC from 0cm to 100cm
+  map_itr = netcdf_outputs.find("SOC0_100cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_100cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_100cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_100 = cohort.ground.getCarbonForDepthRange(0.0, 1.0);
+        outhold.soc_0_100_for_output.push_back(m_soc_0_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_100_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_100_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_100 = cohort.ground.getCarbonForDepthRange(0.0, 1.0);
+        outhold.soc_0_100_for_output.push_back(y_soc_0_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_100_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_100_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_100cm)
+  } //end SOC0_100cm
+  map_itr = netcdf_outputs.end();
+
+
+  //SOC from 0cm to 200cm
+  map_itr = netcdf_outputs.find("SOC0_200cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_200cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_200cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_200 = cohort.ground.getCarbonForDepthRange(0.0, 2.0);
+        outhold.soc_0_200_for_output.push_back(m_soc_0_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_200_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_200_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_200 = cohort.ground.getCarbonForDepthRange(0.0, 2.0);
+        outhold.soc_0_200_for_output.push_back(y_soc_0_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_200_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_200_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_200cm)
+  } //end SOC0_200cm
+  map_itr = netcdf_outputs.end();
+
+
+  //SOC from 0cm to 300cm
+  map_itr = netcdf_outputs.find("SOC0_300cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: SOC0_300cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputSOC0_300cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_soc_0_300 = cohort.ground.getCarbonForDepthRange(0.0, 3.0);
+        outhold.soc_0_300_for_output.push_back(m_soc_0_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_300_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.soc_0_300_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_soc_0_300 = cohort.ground.getCarbonForDepthRange(0.0, 3.0);
+        outhold.soc_0_300_for_output.push_back(y_soc_0_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.soc_0_300_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.soc_0_300_for_output.clear();
+        }
+
+      }
+    } //end critical(outputSOC0_300cm)
+  } //end SOC0_300cm
+  map_itr = netcdf_outputs.end();
+
+
   //SOCFROZEN
   map_itr = netcdf_outputs.find("SOCFROZEN");
   if (map_itr != netcdf_outputs.end()) {
@@ -5683,6 +5831,151 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
+  //Soil temperature at 30cm
+  map_itr = netcdf_outputs.find("TSOIL_30cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: TSOIL_30cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputTSOIL_30cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_tsoil_30 = cohort.edall->getTempAtDepthFromArray(0.3);
+        outhold.tsoil_30_for_output.push_back(m_tsoil_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_30_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.tsoil_30_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_tsoil_30 = cohort.edall->getTempAtDepthFromArray(0.3);
+        outhold.tsoil_30_for_output.push_back(y_tsoil_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_30_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.tsoil_30_for_output.clear();
+        }
+
+      }
+    } //end critical(outputTSOIL_30cm)
+  } //end TSOIL_30cm
+  map_itr = netcdf_outputs.end();
+
+
+  //Soil temperature at 100cm
+  map_itr = netcdf_outputs.find("TSOIL_100cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: TSOIL_100cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputTSOIL_100cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_tsoil_100 = cohort.edall->getTempAtDepthFromArray(1.0);
+        outhold.tsoil_100_for_output.push_back(m_tsoil_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_100_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.tsoil_100_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_tsoil_100 = cohort.edall->getTempAtDepthFromArray(1.0);
+        outhold.tsoil_100_for_output.push_back(y_tsoil_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_100_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.tsoil_100_for_output.clear();
+        }
+      }
+    } //end critical(outputTSOIL_100cm)
+  } //end TSOIL_100cm
+  map_itr = netcdf_outputs.end();
+
+
+  //Soil temperature at 200cm
+  map_itr = netcdf_outputs.find("TSOIL_200cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: TSOIL_200cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputTSOIL_200cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_tsoil_200 = cohort.edall->getTempAtDepthFromArray(2.0);
+        outhold.tsoil_200_for_output.push_back(m_tsoil_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_200_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.tsoil_200_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_tsoil_200 = cohort.edall->getTempAtDepthFromArray(2.0);
+        outhold.tsoil_200_for_output.push_back(y_tsoil_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_200_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.tsoil_200_for_output.clear();
+        }
+      }
+    } //end critical(outputTSOIL_200cm)
+  } //end TSOIL_200cm
+  map_itr = netcdf_outputs.end();
+
+
+  //Soil temperature at 300cm
+  map_itr = netcdf_outputs.find("TSOIL_300cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: TSOIL_300cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputTSOIL_300cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_tsoil_300 = cohort.edall->getTempAtDepthFromArray(3.0);
+        outhold.tsoil_300_for_output.push_back(m_tsoil_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_300_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.tsoil_300_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_tsoil_300 = cohort.edall->getTempAtDepthFromArray(3.0);
+        outhold.tsoil_300_for_output.push_back(y_tsoil_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.tsoil_300_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.tsoil_300_for_output.clear();
+        }
+      }
+    } //end critical(outputTSOIL_300cm)
+  } //end TSOIL_300cm
+  map_itr = netcdf_outputs.end();
+
+
   //VEGC
   map_itr = netcdf_outputs.find("VEGC");
   if(map_itr != netcdf_outputs.end()){
@@ -5945,6 +6238,151 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
     }//end critical(outputVEGNSTR)
   }//end VEGNSTR
+  map_itr = netcdf_outputs.end();
+
+
+  //VWC at 30cm
+  map_itr = netcdf_outputs.find("VWC_30cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: VWC_30cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputVWC_30cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_vwc_30 = cohort.edall->getVWCAtDepthFromArray(0.3);
+        outhold.vwc_30_for_output.push_back(m_vwc_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_30_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.vwc_30_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_vwc_30 = cohort.edall->getVWCAtDepthFromArray(0.3);
+        outhold.vwc_30_for_output.push_back(y_vwc_30);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_30_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.vwc_30_for_output.clear();
+        }
+
+      }
+    } //end critical(outputVWC30cm)
+  } //end VWC30cm
+  map_itr = netcdf_outputs.end();
+
+
+  //VWC at 100cm
+  map_itr = netcdf_outputs.find("VWC_100cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: VWC_100cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputVWC_100cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_vwc_100 = cohort.edall->getVWCAtDepthFromArray(1.0);
+        outhold.vwc_100_for_output.push_back(m_vwc_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_100_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.vwc_100_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_vwc_100 = cohort.edall->getVWCAtDepthFromArray(1.0);
+        outhold.vwc_100_for_output.push_back(y_vwc_100);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_100_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.vwc_100_for_output.clear();
+        }
+      }
+    } //end critical(outputVWC_100cm)
+  } //end VWC_100cm
+  map_itr = netcdf_outputs.end();
+
+
+  //VWC at 200cm
+  map_itr = netcdf_outputs.find("VWC_200cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: VWC_200cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputVWC_200cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_vwc_200 = cohort.edall->getVWCAtDepthFromArray(2.0);
+        outhold.vwc_200_for_output.push_back(m_vwc_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_200_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.vwc_200_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_vwc_200 = cohort.edall->getVWCAtDepthFromArray(2.0);
+        outhold.vwc_200_for_output.push_back(y_vwc_200);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_200_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.vwc_200_for_output.clear();
+        }
+      }
+    } //end critical(outputVWC_200cm)
+  } //end VWC_200cm
+  map_itr = netcdf_outputs.end();
+
+
+  //VWC at 300cm
+  map_itr = netcdf_outputs.find("VWC_300cm");
+  if (map_itr != netcdf_outputs.end()) {
+    BOOST_LOG_SEV(glg, debug) << "NetCDF output: VWC_300cm";
+    curr_spec = map_itr->second;
+
+    #pragma omp critical(outputVWC_300cm)
+    {
+
+      //Monthly
+      if(curr_spec.monthly){
+
+        double m_vwc_300 = cohort.edall->getVWCAtDepthFromArray(3.0);
+        outhold.vwc_300_for_output.push_back(m_vwc_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_300_for_output[0], 1, month_start_idx, months_to_output);
+          outhold.vwc_300_for_output.clear();
+        }
+      }
+      //Yearly
+      else if(curr_spec.yearly){
+
+        double y_vwc_300 = cohort.edall->getVWCAtDepthFromArray(3.0);
+        outhold.vwc_300_for_output.push_back(y_vwc_300);
+
+        if (output_this_timestep) {
+          output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.vwc_300_for_output[0], 1, year_start_idx, years_to_output);
+          outhold.vwc_300_for_output.clear();
+        }
+      }
+    } //end critical(outputVWC_300cm)
+  } //end VWC_300cm
   map_itr = netcdf_outputs.end();
 
 

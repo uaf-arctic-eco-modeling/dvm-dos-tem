@@ -31,6 +31,8 @@
 
 extern src::severity_logger< severity_level > glg;
 
+enum INTERPOLATIONMETHOD {I_LINEAR = 0, I_LOG10};
+
 namespace temutil {
 
   class TEMException : public std::exception {};
@@ -143,6 +145,8 @@ namespace temutil {
   
   void nc(int status);
   
+  double interpolate(double value_1, double value_2, double position_1, double position_2, double position_new, int method);
+
   /** rough draft for reading a scalar variable for a single location. */
   template <typename DTYPE>
   DTYPE get_scalar(const std::string &filename,

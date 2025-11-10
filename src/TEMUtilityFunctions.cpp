@@ -1215,4 +1215,41 @@ namespace temutil {
   template std::vector<float> get_timeseries<float>(const std::string &filename,
       const std::string &var, const int y, const int x);
 
+  /*
+   * Function for interpolating between value_1 and value_2
+   * given position_1 and position_2 (which can be positions in time or space)
+   * to evaluate value_new at position_new.
+   * E.g.
+   * value_1 = 10 degC
+   * value_2 = 5 degC
+   * position_1 = 1 m
+   * position_2 = 2 m
+   * position_new = 1.5 m
+   * returns value_new = 7.5 degC at 1.5 m
+   */
+  double interpolate(double value_1, double value_2, double position_1, double position_2, double position_new, int method){
+
+    double value_new;
+
+    if(position_1 >= position_2){
+      BOOST_LOG_SEV(glg, debug) << "Interpolation position equal or inverted";
+    }
+
+    if(position_new < position_1 || position_new > position_2){
+      BOOST_LOG_SEV(glg, debug) << "Interpolation position out of range";
+    }
+
+    if(method==I_LINEAR){
+      value_new = value_1 + (position_new - position_1) * ((value_2 - value_1) / (position_2 - position_1));
+    }
+    else if (method==I_LOG10){
+      value_new = pow(10, log10(value_1)+ (position_new - position_1) * (log10(value_2) - log10(value_1))/ (position_2 - position_1));
+    }
+    else{
+      BOOST_LOG_SEV(glg, debug) << "Invalid interpolation method";
+    }
+
+    return value_new;
+  }
+
 }
