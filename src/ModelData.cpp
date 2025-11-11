@@ -38,7 +38,6 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 //  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
-  initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
   tr_yrs = controldata["stage_settings"]["tr_yrs"].asInt();
   sc_yrs = controldata["stage_settings"]["sc_yrs"].asInt();
 
@@ -103,6 +102,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   proj_co2_file     = controldata["IO"]["proj_co2_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
+  restart_from      = controldata["IO"]["restart_from"].asString();
   output_spec_file  = controldata["IO"]["output_spec_file"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
   nc_eq             = controldata["IO"]["output_nc_eq"].asBool();
@@ -119,6 +119,12 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   dynamic_LAI       = controldata["model_settings"]["dynamic_lai"].asInt(); // checked in Cohort::updateMonthly_DIMVeg
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end   = controldata["model_settings"]["baseline_end"].asInt();
+
+  // These must be directories. If user forgets to add the trailing slash, 
+  // do it here. Might be better to do something with boost::filesystem for 
+  // portability.
+  output_dir.append("/");
+  parameter_dir.append("/");
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
