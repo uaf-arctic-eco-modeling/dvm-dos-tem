@@ -45,6 +45,21 @@ which we can print the name and number of each CMT.
     21 EML Tussock Tundra
     31 Boreal Bog
     44 Shrub Tundra Kougarok
+    50 Shrub Tundra TVC
+    51 Tussock Tundra TVC
+    52 Heath-lichen
+    55 Arctic Fen
+    56 Mixed Tundra
+    57 Heath Tundra Daring Lake
+    60 Peat Plateau
+    65 Mature Aspen
+    66 Mature Jack Pine
+    67 Mixed Forest
+    69 Black Spruce BOREAS
+    70 Dwarf Shrub
+    71 Larch Forest
+    73 Tussock Tundra
+    74 Scots Pine
 
 Build a lookup table, mapping file names to lists of available parameters
 
@@ -91,14 +106,14 @@ See that all the parameter files contain the same CMTs (by number):
     >>> import os
     >>> for f in os.listdir("parameters/"):
     ...   print([i["cmtnum"] for i in pyddt.util.param.get_CMTs_in_file("parameters/" + f)])
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
-    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
+    [0, 1, 2, 3, 4, 5, 6, 7, 12, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74]
 
 Enforce that all the CMT verbose names are identical across files.
 
