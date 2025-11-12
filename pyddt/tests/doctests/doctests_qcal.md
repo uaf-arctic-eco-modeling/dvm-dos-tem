@@ -2,7 +2,7 @@
 
 The `qcal.py` tool is an attempt at "Quantitative Calibration". The idea is to
 measure the discrepancy between target values and model outputs. The tool allows
-for the measurement to be done on either the calibraiton json files or the
+for the measurement to be done on either the calibration json files or the
 model's standard NetCDF output files.
 
 There is a command line interface to the `qcal.py` script or it may be used as a
@@ -20,15 +20,18 @@ Start by defining a working directory for the tests and making sure it is
 cleaned of any prior experiments.
 
     >>> import os
-    >>> TMP_DIR = "/tmp/dvmdostem-doctests-qcal"
     >>> import shutil
-    >>> shutil.rmtree(TMP_DIR)
+    >>> import pathlib
+    >>> TMP_DIR = "/tmp/dvmdostem-doctests-qcal"
+    >>> if pathlib.Path(TMP_DIR).exists():
+    ...   shutil.rmtree(TMP_DIR)
 
 Next use the utility script to setup the test folder with parameters, config
 file, etc.
 
-    >>> import util.setup_working_directory
-    >>> util.setup_working_directory.cmdline_entry([ '--input-data-path',
+    >>> import pyddt.util.setup_working_directory
+
+    >>> pyddt.util.setup_working_directory.cmdline_entry([ '--input-data-path',
     ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
     ...   TMP_DIR
     ... ])
@@ -36,14 +39,14 @@ file, etc.
 Use another utility script to fiddle with the run mask, turning on only one
 pixel.
 
-    >>> import util.runmask
-    >>> util.runmask.cmdline_entry(['--reset', '--yx', '0', '0', os.path.join(TMP_DIR, 'run-mask.nc')])
+    >>> import pyddt.util.runmask
+    >>> pyddt.util.runmask.cmdline_entry(['--reset', '--yx', '0', '0', os.path.join(TMP_DIR, 'run-mask.nc')])
     0
 
 Then turn on all the appropriate NetCDF outputs for matching with the targets:
 
-    >>> import util.outspec
-    >>> util.outspec.cmdline_entry(['--enable-cal-vars',os.path.join(TMP_DIR, 'config',  'output_spec.csv')])
+    >>> import pyddt.util.outspec
+    >>> pyddt.util.outspec.cmdline_entry(['--enable-cal-vars',os.path.join(TMP_DIR, 'config',  'output_spec.csv')])
     NOTE: Make sure to enable 'eq' outputs in the config file!!!
     0
 
@@ -73,8 +76,8 @@ the experiment directory by the `setup_working_directory.py` utility script).
 
 Now we can make the `QCal` object:
 
-    >>> import util.qcal
-    >>> q = util.qcal.QCal( # doctest: +ELLIPSIS
+    >>> import pyddt.util.qcal
+    >>> q = pyddt.util.qcal.QCal( # doctest: +ELLIPSIS
     ...   jsondata_path=os.path.join(TMP_DIR, 'dvmdostem'),
     ...   ncdata_path=os.path.join(TMP_DIR, 'output'), 
     ...   ref_params_dir=os.path.join(TMP_DIR, 'parameters'), 
