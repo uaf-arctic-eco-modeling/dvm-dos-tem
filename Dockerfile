@@ -151,10 +151,9 @@ COPY --chown=$UNAME:$UNAME special_configurations/jupyter_notebook_config.py /ho
 # -e git+ssh://git@github.com/<username>/dvm-dos-tem.git@<SHA>#egg=pyddt&subdirectory=pyddt
 # The pyddt directory may get fully replaced later if a volume is mounted to 
 # /work (as is typical done to make the host source code available inside the
-# container). But the editable install shoudl still work. If a user makes 
-# changes to the python source code, they may 
+# container). But the editable install should still work...?
 COPY pyddt /work/pyddt
-RUN pip install -e pyddt
+RUN pip install -e /work/pyddt/
 
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
