@@ -46,7 +46,8 @@ ARG GID=1000
 
 # === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
 # General development tools, compilers, text editors, etc
-FROM ubuntu:jammy AS cpp-dev
+FROM ubuntu:noble AS cpp-dev
+RUN userdel -r ubuntu
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y --fix-missing && apt-get install -y \
     build-essential \
@@ -150,6 +151,7 @@ ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
 ENV PATH="/work/scripts:$PATH"
 ENV PATH="/work/scripts/util:$PATH"
+ENV PYTHONPATH="/work/scripts:$PYTHONPATH"
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
