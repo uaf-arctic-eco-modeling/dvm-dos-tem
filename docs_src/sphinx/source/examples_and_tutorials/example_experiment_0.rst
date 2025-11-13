@@ -53,7 +53,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
        | ``/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/``
    * - What variables you want to output?
      - | GPP: monthly, by PFT
-       | RH, RG, RM: monthly
+       | RHSOM, RG, RM: monthly
        | TLAYER: monthly by layer
        | VEGC: yearly
        | ALD: yearly
@@ -115,7 +115,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
       # 
       # os.chdir('/work/testing-data/docs/example_experiment_0/')
       # 
-      # outspec.cmdline_entry('config/output_spec.csv --on RH m'.split(' '))
+      # outspec.cmdline_entry('config/output_spec.csv --on RHSOM m'.split(' '))
       # outspec.cmdline_entry('config/output_spec.csv --on RG m'.split(' '))
       # outspec.cmdline_entry('config/output_spec.csv --on RM m'.split(' '))
       # outspec.cmdline_entry('config/output_spec.csv --on TLAYER l m'.split(' '))
@@ -145,7 +145,7 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
       $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/
       $ cd /work/testing-data/docs/example_experiment_0/
-      $ outspec.py config/output_spec.csv --on RH m
+      $ outspec.py config/output_spec.csv --on RHSOM m
       $ outspec.py config/output_spec.csv --on RG m
       $ outspec.py config/output_spec.csv --on RM m
       $ outspec.py config/output_spec.csv --on TLAYER l m
@@ -337,23 +337,23 @@ simulations. Indicate how you formulated NEE.
 
   Autotrophic respiration (RA) is the sum of growth respiration (RG) and
   maintenance respiration (RM). RG and RM encompass all vegetation respiration
-  (both above and belowground).
+  (both above and below ground).
 
-  Heterotrphic respiration (RH) is the microbial respiration in the soil.
+  Heterotrophic respiration (RHSOM) is the microbial respiration in the soil.
 
-  Ecosystem respriation (ER) is the sum of RA and RH.
+  Ecosystem respiration (ER) is the sum of RA and RHSOM.
 
-  Net Ecosystem Exchange (NEE) is Gross Primary Productvity (GPP) less ER.
+  Net Ecosystem Exchange (NEE) is Gross Primary Productivity (GPP) less ER.
 
   ``dvmdostem`` does not have explicit outputs for RA, ER, or NEE, so we will
-  derive them from our existing outputs (GPP, RH, RM, RG).
+  derive them from our existing outputs (GPP, RHSOM, RM, RG).
 
   .. jupyter-execute::
 
     X = 0
     Y = 0
 
-    rh, _ = load_trsc_dataframe('RH', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
+    rh, _ = load_trsc_dataframe('RHSOM', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
     rm, _ = load_trsc_dataframe('RM', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
     rg, _ = load_trsc_dataframe('RG', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
     gpp, _ = load_trsc_dataframe('GPP', timeres='monthly', px_y=Y, px_x=X, fileprefix='output')
@@ -432,15 +432,15 @@ simulations. Indicate how you formulated NEE.
     cp synthesis/GPP_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncks -A -h output/RM_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncks -A -h output/RG_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
-    ncks -A -h output/RH_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncks -A -h output/RHSOM_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     cp synthesis/GPP_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     ncks -A -h output/RM_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     ncks -A -h output/RG_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
-    ncks -A -h output/RH_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    ncks -A -h output/RHSOM_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
 
     ### Compute monthly NEE
-    ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
-    ncap2 -O -h -s'NEE = RH + RG + RM - GPP' synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
+    ncap2 -O -h -s'NEE = RHSOM + RG + RM - GPP' synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
+    ncap2 -O -h -s'NEE = RHSOM + RG + RM - GPP' synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
 
     ### Compute yearly sums of fluxes (this is a sum by group, i.e. years,
     ### so we'll need to indicate the --mro option in ncra)
@@ -448,21 +448,20 @@ simulations. Indicate how you formulated NEE.
     ncks -O -h --mk_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_monthly_tr.nc
     ncks -O -h --mk_rec_dmn time synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_monthly_sc.nc
     # compute the annual sums
-    ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
-    ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
+    ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RHSOM,NEE synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
+    ncra --mro -O -d time,0,,12,12 -d x,0 -d y,0 -y ttl -v GPP,RG,RM,RHSOM,NEE synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
     # fix back the time dimension
     ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_tr.nc synthesis/Cfluxes_yearly_tr.nc
     ncks -O -h --fix_rec_dmn time synthesis/Cfluxes_monthly_sc.nc synthesis/Cfluxes_yearly_sc.nc
 
     ### Compute decadale averages of C fluxes
-    ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_tr.nc synthesis/Cfluxes_1990_1999.nc
-    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2049.nc
-    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RH,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc
-
+    ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RHSOM,NEE synthesis/Cfluxes_yearly_tr.nc synthesis/Cfluxes_1990_1999.nc
+    ncwa -O -d time,24,33 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RHSOM,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2040_2049.nc
+    ncwa -O -d time,74,83 -d x,0 -d y,0 -y avg -v GPP,RG,RM,RHSOM,NEE synthesis/Cfluxes_yearly_sc.nc synthesis/Cfluxes_2090_2099.nc
 
 
 **********************************
-Computing Mean GPP, RA, RH, NEE
+Computing Mean GPP, RA, RHSOM, NEE
 **********************************
 
 Compute the mean GPP, autotrophic and heterotrophic respirations and NEE for the
@@ -476,7 +475,7 @@ following time ranges: [1990-1999], [2040-2049], [2090-2099].
          .. jupyter-execute:: 
 
             print('{:>10} {:>12} {:>12}'.format('varible', 'tr', 'sc'))
-            for v in ['GPP', 'RH', 'RM','RG',]:
+            for v in ['GPP', 'RHSOM', 'RM','RG',]:
                 trds = nc.Dataset(f'output/{v}_monthly_tr.nc')
                 scds = nc.Dataset(f'output/{v}_monthly_sc.nc')
                 tunits = trds.variables[v].units
