@@ -110,12 +110,12 @@ Here we have designed a small experiment with answers to the unknowns posed in
       # from pyddt.util import outspec
       # from pyddt.util import runmask
       # 
-      # shutil.rmtree('/work/testing-data/docs/example_experiment_0/')
+      # shutil.rmtree('/data/workflows/docs/example_experiment_0/', ignore_errors=True)
       # 
-      # args = '--input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/'
+      # args = '--input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /data/workflows/docs/example_experiment_0/'
       # setup_working_directory.cmdline_entry(args.split(' '))
       # 
-      # os.chdir('/work/testing-data/docs/example_experiment_0/')
+      # os.chdir('/data/workflows/docs/example_experiment_0/')
       # 
       # outspec.cmdline_entry('config/output_spec.csv --on RHSOM m'.split(' '))
       # outspec.cmdline_entry('config/output_spec.csv --on RG m'.split(' '))
@@ -145,8 +145,8 @@ Here we have designed a small experiment with answers to the unknowns posed in
 
    .. code::
 
-      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /work/testing-data/docs/example_experiment_0/
-      $ cd /work/testing-data/docs/example_experiment_0/
+      $ ./scripts/setup_working_directory.py --input-data-path /work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ /data/workflows/docs/example_experiment_0/
+      $ cd /data/workflows/docs/example_experiment_0/
       $ outspec.py config/output_spec.csv --on RHSOM m
       $ outspec.py config/output_spec.csv --on RG m
       $ outspec.py config/output_spec.csv --on RM m
@@ -203,7 +203,7 @@ differently, please adjust your paths accordingly.**
 
       # This lets us work with shorter paths relative to the experiment 
       # directory
-      os.chdir('/work/testing-data/docs/example_experiment_0/')
+      os.chdir('/data/workflows/docs/example_experiment_0/')
 
 
 
@@ -298,10 +298,10 @@ ranges: [1990-1999], [2040-2049], [2090-2099].
   .. code::
 
     ### Change into the experiment directory
-    cd /work/testing-data/docs/example_experiment_0/
+    cd /data/workflows/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /work/testing-data/docs/example_experiment_0//synthesis
+    mkdir /data/workflows/docs/example_experiment_0/synthesis
 
     ### Compute the decadal means of vegetation carbon stocks
     ncwa -O -d time,89,98 -d x,0 -d y,0 -y avg -v VEGC output/VEGC_yearly_tr.nc  synthesis/VEGC_1990_1999.nc
@@ -421,10 +421,10 @@ simulations. Indicate how you formulated NEE.
   .. code::
 
     ### Change into the experiment directory
-    cd /work/testing-data/docs/example_experiment_0/
+    cd /data/workflows/docs/example_experiment_0/
 
     ### Create a synthesis directory to store all the summary stats
-    mkdir /work/testing-data/docs/example_experiment_0/
+    mkdir /data/workflows/docs/example_experiment_0/synthesis
 
     ### Sum up the GPP across PFTs
     ncwa -O -h -v GPP -a pft -y total output/GPP_monthly_tr.nc synthesis/GPP_monthly_tr.nc
