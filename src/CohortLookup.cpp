@@ -72,15 +72,15 @@ void CohortLookup::loadSoilParams() {
  * to structs for interpolation after cmt change 
 **/
 void CohortLookup::archiveSoilParams(){
-
+  BOOST_LOG_SEV(glg, info) << "Archive soil parameters...";
   archive_soical_params.micbnup = this->micbnup;
   archive_soical_params.kdcrawc = this->kdcrawc;
   archive_soical_params.kdcsoma = this->kdcsoma;
   archive_soical_params.kdcsompr = this->kdcsompr;
   archive_soical_params.kdcsomcr = this->kdcsomcr;
 
-  // archive_snwdim_params.snwdenmax = this->snwdenmax;
-  // archive_snwdim_params.snwdennew = this->snwdennew;
+  // archive_snwdim_params.denmax = this->snwdenmax;
+  // archive_snwdim_params.newden = this->snwdennew;
   // archive_snwdim_params.initsnwthick = this->initsnwthick;
   // archive_snwdim_params.initsnwdense = this->initsnwdense;
   

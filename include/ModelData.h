@@ -139,7 +139,12 @@ public:
   void set_ch4_module(const bool v);
 
   bool get_runon_status();
+  void set_runon_status(const std::string &s);
+  void set_runon_status(const bool v);
+
   bool get_groundwater_status();
+  void set_groundwater_status(const std::string &s);
+  void set_groundwater_status(const bool v);
 
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);

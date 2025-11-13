@@ -35,14 +35,6 @@ public:
   // Loading soil-specific parameters
   void loadSoilParams();
 
-  // archived parameters
-  soipar_cal archive_soical_params;
-  soipar_dim archive_soidim_params;
-  soipar_env archive_soienv_params;
-  soipar_bgc archive_soibgc_params;
-  snwpar_dim archive_snwdim_params;
-  snwpar_env archive_snwenv_params;
-
   // method for archiving soil params
   void archiveSoilParams();
 
@@ -302,6 +294,13 @@ public:
 
   double r_retain_c; // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)
   double r_retain_n; // 0.3 calculated from Harden et al., 2003 (ATHarden42003a)
+
+  soipar_cal archive_soical_params;
+  soipar_dim archive_soidim_params;
+  soipar_env archive_soienv_params;
+  soipar_bgc archive_soibgc_params;
+  snwpar_dim archive_snwdim_params;
+  snwpar_env archive_snwenv_params;
 
 private:
 

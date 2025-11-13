@@ -224,8 +224,25 @@ void ModelData::set_ch4_module(const bool v) {
 bool ModelData::get_runon_status() {
   return this->runon_enabled;
 }
+void ModelData::set_runon_status(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting runon to " << s;
+  this->runon_enabled = temutil::onoffstr2bool(s);
+}
+void ModelData::set_runon_status(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting runon to " << v;
+  this->runon_enabled = v;
+}
+
 bool ModelData::get_groundwater_status() {
   return this->groundwater_enabled;
+}
+void ModelData::set_groundwater_status(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting groundwater to " << s;
+  this->groundwater_enabled = temutil::onoffstr2bool(s);
+}
+void ModelData::set_groundwater_status(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting groundwater to " << v;
+  this->groundwater_enabled = v;
 }
 
 bool ModelData::get_dslmodule() {

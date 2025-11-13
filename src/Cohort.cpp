@@ -269,7 +269,6 @@ void Cohort::initialize_state_parameters() {
   snowenv.initializeParameter();
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
-
   ground.initDimension();   // read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
   // FIX THIS!
@@ -824,6 +823,10 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
     // hardcoded switch to poorly-drained (provided input is not already set to 1).
     // could add gradual change of baseflow (1-0) in dsb interpolation?
     cd.drainage_type = 1;
+    // turn-on ch4 after disturbance has occurred.
+    // md->set_ch4_module(true); Needs to be on otherwise inputs are not loaded!
+    md->set_runon_status(true);
+    md->set_groundwater_status(true);
   }
 }
 
@@ -1416,7 +1419,7 @@ void Cohort::getBd4allveg_monthly() {
 void Cohort::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
-  std::string new_cmt = "CMT6";
+  std::string new_cmt = "CMT31";
 
   // Load relevant parameters from new CMT
   chtlu.cmtcode = new_cmt;
@@ -1539,7 +1542,9 @@ void Cohort::cmtChange(const int & currmind){
 
   veg.updateVegcov();
   veg.updateFpc();
-  
+  // DO WE WANT TO UPDATE FROOTFRAC OR ALLOW THIS TO REMAIN THE SAME?
+  // veg.updateFrootfrac();
+
   for(int ip=0; ip<NUM_PFT; ip++){
     cd.d_veg.ifwoody[ip] = cd.m_veg.ifwoody[ip];
     cd.d_veg.ifdeciwoody[ip] = cd.m_veg.ifdeciwoody[ip];
@@ -1554,10 +1559,11 @@ void Cohort::cmtChange(const int & currmind){
     vegenv[ip].initializeState();
     vegenv[ip].initializeParameter();
     vegbgc[ip].initializeParameter();
-    // cd.d_veg.frootfrac[ip] = cd.m_veg.frootfrac[ip];
+    // for(int il=0; il<cd.m_soil.numsl; il++){
+    //   cd.d_veg.frootfrac[il][ip] = cd.m_veg.frootfrac[il][ip];
+    // }
   }
-  // DO WE WANT TO UPDATE FROOTFRAC OR ALLOW THIS TO REMAIN THE SAME?
-  // veg.updateFrootfrac();
+  
 
   // SOILS
 
@@ -1566,6 +1572,9 @@ void Cohort::cmtChange(const int & currmind){
 
   // load soil parameters
   chtlu.loadSoilParams();
+
+  // need to re-initialize parameters so we have ch4 parameters loaded
+  soilbgc.initializeParameter();
 
   // std::cout << temutil::interpolate(1, 2, 5, 10, 7, I_LINEAR);
   // std::cout << temutil::interpolate(1, 2, 5, 10000, 7000, I_LOG10);
