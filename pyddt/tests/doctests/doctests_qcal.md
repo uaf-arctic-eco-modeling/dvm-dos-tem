@@ -32,7 +32,7 @@ file, etc.
     >>> import pyddt.util.setup_working_directory
 
     >>> pyddt.util.setup_working_directory.cmdline_entry([ '--input-data-path',
-    ...   'demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
+    ...   'testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10',
     ...   TMP_DIR
     ... ])
 

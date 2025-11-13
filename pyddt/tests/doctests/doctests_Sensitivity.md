@@ -32,7 +32,7 @@ The driver object constructor requires a configuration dict which allows for
 providing data to answer the above questions.
  
     >>> config_dict = dict(
-    ... site='/work/demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10',
+    ... site='/work/testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10',
     ... PXx=0, PXy=0, 
     ... params=['cmax', 'cmax'], 
     ... pftnums=[0,1],
@@ -129,7 +129,7 @@ run. The function takes 5 arguments:
 >
 >     >>> pathlib.Path("/tmp/tests-Sensitivity/some/path/to/junkdirectory").mkdir(parents=True, exist_ok=True)
 > 
-> And then try running the convienience function. It should fail with an
+> And then try running the convenience function. It should fail with an
 > exception.
 > 
 >     >>> sd.design_experiment(5, 4, params=['cmax'], pftnums=[2], 
