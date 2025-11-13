@@ -389,6 +389,49 @@
 0.10               // initvwc(8): initial soil volume water content at every 10 cm interval
 0.10               // initvwc(9): initial soil volume water content at every 10 cm interval
 //===========================================================
+// CMT13 // Black Spruce Peatland
+0.91               // snwalbmax:
+0.4                // snwalbmin:
+-1.5e7             // psimax:
+0.08               // evapmin:
+0.04               // drainmax:
+0.20               // rtdp4gdd: root depth for estimating growing degree day
+0.013744               // tcsolid(m): Soil thermal conductivity for moss (W/mK)
+0.015459               // tcsolid(f): Soil thermal conductivity for fibric (W/mK)
+0.046741               // tcsolid(h): Soil thermal conductivity for humic (W/mK)
+0.98               // porosity(m): porosity for moss layers
+0.827656        // porosity(f): porosity for fibric layers
+0.708849	               // porosity(h): porosity for humic layers
+25000              // bulkden(m): bulk density for moss (g/m3)
+61700              // bulkden(f): bulk density for fibric (g/m3)
+200000             // bulkden(h): bulk density for humic (g/m3)
+0.15               // hksat(m): hydraulic conductivity at saturation for moss (mm/s?)
+0.000601               // hksat(f): hydraulic conductivity at saturation for fibric
+0.000105              // hksat(h): hydraulic conductivity at saturation for humic
+0.574180               // nfactor(s): Summer nfactor from 1.5
+0.450130            // nfactor(w): Winter nfactor
+-1.0               // initsnwtem: initial snow temperature (oC)
+-1.0               // initts(0): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(1): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(2): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(3): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(4): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(5): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(6): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(7): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(8): initial soil temperature at 10 cm interval (oC)
+-1.0               // initts(9): initial soil temperature at 10 cm interval (oC)
+0.10               // initvwc(0): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(1): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(2): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(3): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(4): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(5): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(6): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(7): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(8): initial soil volume water content at every 10 cm interval
+0.80               // initvwc(9): initial soil volume water content at every 10 cm interval
+//===========================================================
 // CMT20 // EML Shrub Tundra
 0.8                // snwalbmax:
 0.4                // snwalbmin:
@@ -482,20 +525,20 @@
 0.080000     // evapmin: 
 0.040000     // drainmax: 
 0.200000     // rtdp4gdd: 
-0.313857     // tcsolid(m): 
-0.022961     // tcsolid(f): 
-0.417497     // tcsolid(h): 
-0.978976     // porosity(m): 
-0.895938     // porosity(f): 
-0.864460     // porosity(h): 
+0.362467     // tcsolid(m): 
+0.178509     // tcsolid(f): 
+0.722128     // tcsolid(h): 
+0.874363     // porosity(m): 
+0.861715     // porosity(f): 
+0.726221     // porosity(h): 
 19987.353162 // bulkden(m): 
 45309.714571 // bulkden(f): 
 61332.184627 // bulkden(h): 
-2.117506     // hksat(m): 
-28.500683    // hksat(f): 
-1.423715     // hksat(h): 
-1.296007     // nfactor(s): 
-0.819236     // nfactor(w): 
+0.037092     // hksat(m): 
+0.107318     // hksat(f): 
+0.152126     // hksat(h): 
+1.0          // nfactor(s): 
+0.8          // nfactor(w): 
 -1.000000    // initsnwtem: 
 -9.100000    // initts(0): 
 -7.900000    // initts(1): 

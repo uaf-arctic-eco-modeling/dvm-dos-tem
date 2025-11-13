@@ -190,6 +190,28 @@
 2177.91           // initsoln:
 0.8               // initavln:
 //===========================================================
+// CMT13 // Black Spruce Peatland      
+1.860264                 // rhq10: Marty et al., 2019; Nagano et al., 2018
+1.0               // rhmoistfrozen: 1.5 rhq10_w
+0.0                // moistmin:
+0.5               // moistopt:
+1.0                 // moistmax:
+53.11571429       // lcclnc:
+0.371957143       // fsoma:
+0.611028571       // fsompr:
+0.017014286       // fsomcr:
+0.320585714       // som2co2:
+0.0042            // kn2:
+30.0      // nmincnsoil: was 24.26571429 
+0.2               // propftos:
+0.0                 // fnloss:
+4362.19          // initshlwc: 4362.19
+22396.02          // initdeepc: 22396.02
+45220.4          // initminec: 45220.4
+2748.367          // initsoln: 2748.367
+11.153826          // initavln: from 6.153826 then 11.153862
+
+//===========================================================
 // CMT20 // EML Shrub Tundra
 2.0               // rhq10:
 1.0               // rhmoistfrozen:
@@ -233,8 +255,8 @@
 1.7               // initavln:
 //===========================================================
 // CMT31 // Boreal Bog
-2.0               // rhq10:
-1.0               // rhmoistfrozen:
+2.036690          // rhq10: 
+0.400000          // rhmoistfrozen: 
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:

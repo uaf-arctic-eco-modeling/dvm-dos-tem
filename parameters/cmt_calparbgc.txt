@@ -24,7 +24,7 @@
 0.001877     // kdcrawc: 
 0.015940     // kdcsoma: 
 0.000006     // kdcsompr: 
-0.000001     // kdcsomcr: 
+0.000001     // kdcsomcr:
 3.330803     // summermaxponding: 
 110.943159   // wintermaxponding: 
 3.281148     // inflowfactor: 
@@ -64,6 +64,9 @@
 0.54       // kdcsoma:     .58
 0.002       // kdcsompr:     .003
 0.00007   // kdcsomcr: 0.000025  0.00025 bad
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -100,6 +103,9 @@
 0.48       // kdcsoma:    .48
 0.0048       // kdcsompr:   .0028  
 0.000025   // kdcsomcr: 
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -136,6 +142,9 @@
 0.58       // kdcsoma:   0.58
 0.003     // kdcsompr:   
 0.000025   // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -172,6 +181,9 @@
 0.93     // kdcsoma:
 0.40     // kdcsompr:
 0.00007  // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -208,6 +220,9 @@
 0.03      // kdcsoma:  was 0.07
 0.015      // kdcsompr:   was 0.05
 0.000005     // kdcsomcr:  was 0.00005 
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -244,6 +259,9 @@
 0.011       // kdcsoma:  was 0.12
 0.0025       // kdcsompr: was .03
 0.00025       // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -280,6 +298,9 @@
 0.36       // kdcsoma:  was 0.26      
 0.0332      // kdcsompr: was 0.0062   0.00962
 0.0000001   // kdcsomcr: was 0.0000005
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -316,6 +337,9 @@
 0.03       // kdcsoma:
 0.0085      // kdcsompr:
 0.000025    // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -330,6 +354,45 @@
 10.00000 // oxidTrefch4:
 5.00      // oxidkmch4:
 20.0      // oxidvmaxch4:
+//==============================================================
+// CMT13 // Black Spruce Bog //                                                           
+//BlackSpr     Moss           Shrub        Sedge       Lichen        PFT5       PFT6         PFT7     PFT8           PFT9        // pftnames:      
+420.4455630     311.182724     362.94552    158.43417   34.069582     0          0            0        0             0            // cmax:      
+3.7436597454   3.71137695791  0.535881447  7.97863772  12.2566596    0          0            0        0             0            // nmax:      
+0.00630818991  0.02419415683  0.193410824  0.00014523  0.024574468   0          0            0        0             0            // cfall(0): leaf
+0.00722943351  0              0.039793606  0           0             0          0            0        0             0            // cfall(1): stem
+0.00627844286  0              0.036951531  0.02802344  0             0          0            0        0             0            // cfall(2): root
+5.87661540e-6  1.53371455e-6  1.055992e-7  2.76093e-7  3.331979e-7   0          0            0        0             0            // nfall(0): leaf
+0.02366721180  0              1.195911e-5  0           0             0          0            0        0             0            // nfall(1): stem
+0.00695202292  0              0.152158839  0.00302804  0             0          0            0        0             0            // nfall(2): root
+-8.06E-05     -8.07333E-05   -0.0000808   -0.0000807  -8.06e-05      0          0            0        0             0            // kra: coeff(0)
+-5.65474327   -3.523618301   -1.08378835  -5.87300450 -3.605037832   0          0            0        0             0            // krb(0): coeff(1)
+-19.0348955    0             -9.0464651    0           0             0          0            0        0             0            // krb(1): coeff(1)
+-5.22159894    0             -4.16024081  -3.2790235   0             0          0            0        0             0            // krb(2): coeff(1)
+0.11           0.133333333    0.2          0.15        0             0          0            0        0             0            // frg:           
+// soil calibrated parameters                                                      
+0.28      // micbnup:0.375964 was 0.145964, parameter for soil microbial immobialization of N                  
+0.6666660      // kdcrawc:0.323548 was 0.823548, raw-material (litter) C decompositin rates at reference condition 0.554      
+0.12      // kdcsoma:0.171426 0.071426                                                            
+0.00078      // kdcsompr:0.007763 0.005763 0.007763                                                           
+1.6e-4  // kdcsomcr:1.658316e-4 
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
+1.0          // s2dfraction:
+1.0          // d2mfraction:
+0.00      // kdcrawcch4:
+0.00      // kdcsomach4:
+0.00      // kdcsomprch4:
+0.00      // kdcsomcrch4:
+0.0     // ch4ebulrate: ebullition rate, per hour
+0.0     // ch4transportrate: plant-mediated transport rate, per hour
+4.00      // prodq10ch4:
+2.20      // oxidq10ch4:
+10.00000 // prodTrefch4:
+10.00000 // oxidTrefch4:
+0.00      // oxidkmch4:
+00.0      // oxidvmaxch4:
 //===========================================================
 // CMT20 // EML Shrub Tundra
 //Betnan     Carex       Ericoid      Feather       Lichen      OthMoss   Rubcha     Misc1    Misc2   Misc3      // names: comments
@@ -352,6 +415,9 @@
 0.67       // kdcsoma:
 0.91      // kdcsompr:
 0.00025    // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -388,6 +454,9 @@
 0.258      // kdcsoma: .95 .9 .85
 0.008      // kdcsompr:
 0.00005    // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
@@ -405,41 +474,41 @@
 //===========================================================
 // CMT31 // Boreal Bog // 
 //     Sphag       Eshrub        Sedge       Dshrub         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9
-  225.000000    65.000000    92.000000    25.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cmax: 
-   65.653002     6.962398    52.817205    19.000542     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nmax: 
-    0.005782     0.034461     0.116038     0.016044     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cfall(0): 
-    0.000000     0.011862     0.000000     0.006797     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cfall(1): 
-    0.000000     0.018392     0.009011     0.001821     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cfall(2): 
-    0.051901     0.000597     0.000210     0.005120     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nfall(0): 
-    0.000000     0.000042     0.000000     0.000127     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nfall(1): 
-    0.000000     0.000034     0.031276     0.044810     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nfall(2): 
+  388.500000    97.500000   137.200000    35.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cmax: 
+   16.131953    39.759990    33.631544    11.163850     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nmax: 
+    0.035548     0.034384     0.996665     0.000747     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cfall(0): 
+    0.000000     0.021678     0.000000     0.004443     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cfall(1): 
+    0.000000     0.039915     0.002881     0.000231     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // cfall(2): 
+    0.000679     0.001160     0.039800     0.000027     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nfall(0): 
+    0.000000     0.000368     0.000000     0.000077     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nfall(1): 
+    0.000000     0.000992     0.000078     0.000006     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nfall(2): 
    -0.000081    -0.000081    -0.000081    -0.000081     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // kra: 
-   -2.430277    -3.579841    -5.968975    -9.832359     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // krb(0): 
-    0.000000    -1.758847     0.000000    -1.439249     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // krb(1): 
-    0.000000    -2.217482    -0.403295    -0.297898     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // krb(2): 
+   -3.035116    -1.124288    -5.228071    -7.606827     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // krb(0): 
+    0.000000    -3.625261     0.000000    -6.609238     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // krb(1): 
+    0.000000    -5.785548    -3.704786    -4.505752     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // krb(2): 
     0.200000     0.200000     0.200000     0.200000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frg: 
-8.456547     // micbnup: 
-0.001877     // kdcrawc: 
-0.015940     // kdcsoma: 
-0.000006     // kdcsompr: 
-0.000001     // kdcsomcr: 
-3.330803     // summermaxponding: 
-110.943159   // wintermaxponding: 
-3.281148     // inflowfactor: 
-0.431383     // s2dfraction: 
-0.884434     // d2mfraction: 
-0.000010     // kdcrawcch4: 
-0.000611     // kdcsomach4: 
-0.000019     // kdcsomprch4: 
-0.0000001    // kdcsomcrch4: 
-0.089952     // ch4ebulrate: 
-0.346696     // ch4transportrate: 
-4.500000     // prodq10ch4: 
-1.900000     // oxidq10ch4: 
-10.000000    // prodTrefch4: 
-10.000000    // oxidTrefch4: 
-5.000000     // oxidkmch4: 
-20.000000    // oxidvmaxch4: 
+0.294893     // micbnup: 
+0.200000     // kdcrawc: 
+0.0300882    // kdcsoma: 
+0.0000500    // kdcsompr: 
+0.0000001    // kdcsomcr: 
+13.926450    // summermaxponding: 
+88.657920    // wintermaxponding: 
+38.343960    // inflowfactor: 
+1.000000     // s2dfraction: 
+1.000000     // d2mfraction: 
+4.293603e-05 // kdcrawcch4: 
+6.606308e-06 // kdcsomach4: 
+0.560221e-07 // kdcsomprch4: 
+4.431601e-10 // kdcsomcrch4: 
+0.000900     // ch4ebulrate: 
+0.003000     // ch4transportrate: 
+2.400000     // prodq10ch4: 
+1.908630     // oxidq10ch4: 
+8.000000     // prodTrefch4: 
+4.000000     // oxidTrefch4: 
+4.500000     // oxidkmch4: 
+35.000000    // oxidvmaxch4: 
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok // Updated by Joy July 2019 // FOR KOUGARAK SHRUB
 //Salix      Betula       Decid       EGreen       Sedges       Forbs       Grasses     Lichens      Feather    PFT9     // pftnames:
@@ -462,6 +531,9 @@
 0.90     // kdcsoma:  was 0.93   then 0.68
 0.014     // kdcsompr:  was 0.40  then 0.01
 0.000007  // kdcsomcr:
+0.0         // max_ponding_s
+0.0         // max_ponding_w
+0.0         // inflow_factor
 1.0          // s2dfraction:
 1.0          // d2mfraction:
 0.00      // kdcrawcch4:
