@@ -80,8 +80,8 @@ Here we have designed a small experiment with answers to the unknowns posed in
 .. warning::
 
   The ``util/outspec.py`` script prints some confusing messages when working
-  with by-layer files. For outputs that are only availale by layer, (i.e.
-  LAYERDZ), the output is flagged as 'invlaid' in the ``output_spec.csv`` file.
+  with by-layer files. For outputs that are only available by layer, (i.e.
+  LAYERDZ), the output is flagged as 'invalid' in the ``output_spec.csv`` file.
   This means that if you provide the ``layer`` resolution specification when
   requesting one of these outputs, ``util/outspec.py`` will print a message to
   the extent of "Not enabling layer outputs for LAYERDZ". This is true
@@ -93,10 +93,12 @@ Here we have designed a small experiment with answers to the unknowns posed in
 .. collapse:: Developer commands for working on documentation
 
    Uncomment the following jupyter execute block if you need to actually run the
-   model for this experiment. This is useful if you are a developer working on 
-   the documentation. Otherwise you can assume that the outputs needed for the 
-   remainder of the exercise are in the ``testing-data/docs/example_experiment0``
-   directory.
+   model for this experiment. With this block uncommented, when you build the
+   sphinx documentation, it will run this block of code which should actually
+   run the model and create the files needed for the rest of this demonstration.
+   This is useful if you are a developer working on the documentation and you 
+   need to test run some of the commands or make more examples. The intention is
+   that generated data for the example need not be stored in the repository.
 
    .. jupyter-execute::
 
@@ -104,9 +106,9 @@ Here we have designed a small experiment with answers to the unknowns posed in
       # import subprocess
       # import shutil
       # 
-      # import setup_working_directory
-      # import outspec
-      # import runmask
+      # from pyddt.util import setup_working_directory
+      # from pyddt.util import outspec
+      # from pyddt.util import runmask
       # 
       # shutil.rmtree('/work/testing-data/docs/example_experiment_0/')
       # 
@@ -176,7 +178,7 @@ the common setup here and not need to repeat these lines in each example. The
 paths assume that these examples will be run on the TEM Docker stack. Subsequent
 Python example solutions assume that these setup commands have been run. In
 other words if you are following along, copy the following code into your Python
-interperter and run it before continuing. 
+interpreter and run it before continuing. 
 
 To read more about the data loading function that is imported from
 ``util/output.py`` please see the API documentation here
@@ -243,7 +245,7 @@ information is used to set the number of transient and scenario years to run.
    figure out the exact start and end years.
 
    Also notice that this technique allows us to interact with the command line
-   interface of the ``input.py`` script directly from a Python interperter.
+   interface of the ``input.py`` script directly from a Python interpreter.
    Neat!
 
    .. jupyter-execute::
