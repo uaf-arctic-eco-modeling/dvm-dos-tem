@@ -3,10 +3,12 @@ Load library
 
     >>> import pyddt.util.general
 
-Simple case, no path
+Simple case, no path. We ignore the "path prefix" here so that this test
+can work when run from any location:
 
-    >>> pyddt.util.general.breakdown_outfile_name("ALD_yearly_sc.nc")
-    ('/work', 'ALD', 'yearly', 'sc')
+    >>> _, var, timeres, stage = pyddt.util.general.breakdown_outfile_name("ALD_yearly_sc.nc")
+    >>> print(f"{var=}, {timeres=}, {stage=}")
+    var='ALD', timeres='yearly', stage='sc'
 
 Simple case, absolute path
 

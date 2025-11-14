@@ -32,7 +32,7 @@ The driver object constructor requires a configuration dict which allows for
 providing data to answer the above questions.
  
     >>> config_dict = dict(
-    ... site='/work/testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10',
+    ... site='/work/testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10',
     ... PXx=0, PXy=0, 
     ... params=['cmax', 'cmax'], 
     ... pftnums=[0,1],

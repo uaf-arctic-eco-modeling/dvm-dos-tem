@@ -16,20 +16,17 @@ Run the tool on some arguments. Lets try working ones first.
 
     >>> args = pyddt.util.setup_working_directory.cmdline_parse(
     ... [ '--input-data-path',
-    ...   'testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10',
+    ...   '/work/testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10',
     ...   '/tmp/test-setup_working_directory'
     ... ])
 
 See what we got:
 
     >>> print(args)
-    Namespace(copy_inputs=False, force=False, input_data_path='testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False, seed_parameters=None, seed_targets=None)
+    Namespace(copy_inputs=False, force=False, input_data_path='/work/testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', new_directory='/tmp/test-setup_working_directory', no_cal_targets=False, seed_parameters=None, seed_targets=None)
 
 Now that we've parsed them, lets run the primary functionality of the utility -
 setting up a new working directory for a `dvmdostem` run!
-
-    >>> print(os.getcwd())
-    /work
  
     >>> pyddt.util.setup_working_directory.cmdline_run(args)
 
@@ -38,7 +35,7 @@ to overwrite them:
 
     >>> pyddt.util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
-    ...   'testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', 
+    ...   'testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', 
     ...   '/tmp/test-setup_working_directory'
     ... ])
     Traceback (most recent call last):
@@ -55,7 +52,7 @@ If we would like to overwrite the files, then pass the `--force` flag:
 
     >>> pyddt.util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
-    ...   'testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', 
+    ...   '/work/testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', 
     ...   '--force',
     ...   '/tmp/test-setup_working_directory'
     ... ])
@@ -64,9 +61,9 @@ If you want a custom parameter seed path, you can pass an option for that:
 
     >>> pyddt.util.setup_working_directory.cmdline_entry([
     ...   '--input-data-path',
-    ...   'testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', 
+    ...   '/work/testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10', 
     ...   '--force',
-    ...   '--seed-parameters', 'testing-data/parameters/single_cmt',
+    ...   '--seed-parameters', '/work/testing-data/minimal/parameters/single_cmt',
     ...   '/tmp/test-setup_working_directory'
     ... ])
 
