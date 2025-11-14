@@ -1,10 +1,10 @@
 ###########################
-runmask.py
+pyddt-runmask
 ###########################
 
 .. argparse::
-   :module: util.runmask
+   :module: pyddt.util.runmask
    :func: cmdline_define
-   :prog: runmask.py
+   :prog: pyddt-runmask
 
 
