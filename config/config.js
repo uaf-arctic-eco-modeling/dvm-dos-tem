@@ -21,6 +21,7 @@
     "hist_exp_fire_file": "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-explicit-fire.nc",
     "proj_exp_fire_file": "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-explicit-fire.nc",
     "output_dir":         "output/",
+    "restart_from":       "", // default
     "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1, //JSON specific
     "output_nc_eq":       0,
@@ -59,7 +60,6 @@
     // running instances of dvmdostem from overwriting eachothers json files.
   },
   "stage_settings": {
-    "restart_mode": "restart",   // other options??
     "inter_stage_pause": false,
     //Per-stage module settings
     "pr": {

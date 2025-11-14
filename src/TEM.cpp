@@ -43,7 +43,7 @@
 #include <boost/asio/signal_set.hpp>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/asio.hpp>
 
 #include <json/value.h>
@@ -171,7 +171,28 @@ int main(int argc, char* argv[]){
   BOOST_LOG_SEV(glg, info) << "Update model settings based on command line flags/options...";
   modeldata.update(args);
 
-  /*  
+  // Further verification that the cmd line args and the config file don't have
+  // conflicting settings
+
+
+  // Make sure that if user wants a restart run, they explicitly set the 
+  // path to the restart file in their config.js file. Also make sure that 
+  // they are not trying to run PR or EQ years when restarting from a previous run.
+  
+  if (modeldata.restart_from.length() > 0) {
+    assert( boost::filesystem::exists(modeldata.restart_from) && 
+      "Restart file specified but not found!");
+
+    assert( (args->get_pr_yrs() == 0) && 
+      "Cannot run PR years when restarting from a previous run!");
+
+    assert ( (args->get_eq_yrs() == 0) && 
+      "Cannot run EQ years when restarting from a previous run!");
+  }
+
+
+
+  /*
       Someday it may be worth the time/effort to make better use of
       boots::program_options here to manage the arguments from config file
       and the command line.
@@ -194,7 +215,11 @@ int main(int argc, char* argv[]){
 
   BOOST_LOG_SEV(glg, info) << "Start dvmdostem @ " << ctime(&stime);
 
-  BOOST_LOG_SEV(glg, debug) << "NEW STYLE: Going to run space-major over a 2D area covered by run mask...";
+  BOOST_LOG_SEV(glg, debug) << "Running over a 2D spatial area covered by a "
+                            << "run mask. Use the run mask to exclude pixels "
+                            << "from computation. The outer loop is over the "
+                            << "spatial dimensions and the inner loops are "
+                            << "over the time axes.";
 
   // Open the run mask (spatial mask)
   std::vector< std::vector<int> > run_mask = temutil::read_run_mask(modeldata.runmask_file);
@@ -232,10 +257,10 @@ int main(int argc, char* argv[]){
   if(id==0){
     BOOST_LOG_SEV(glg, info) << "Handling single-process setup";
 
-    BOOST_LOG_SEV(glg, info) << "Checking for output directory: "<<modeldata.output_dir;
+    BOOST_LOG_SEV(glg, info) << "Checking for output directory: " << modeldata.output_dir;
     boost::filesystem::path out_dir_path(modeldata.output_dir);
     if( boost::filesystem::exists(out_dir_path) ){
-      if (args->get_no_output_cleanup() || args->get_restart_run()) {
+      if (args->get_no_output_cleanup() || (modeldata.restart_from.length() > 0)) {
         BOOST_LOG_SEV(glg, warn) << "WARNING!! Not cleaning up output directory! "
                                  << "Old and potentially confusing files may be "
                                  << "present from previous runs!!";
@@ -493,7 +518,7 @@ int main(int argc, char* argv[]){
 
   }
 
-  BOOST_LOG_SEV(glg, info) << "DONE WITH NEW STYLE run (" << args->get_loop_order() << ")";
+  BOOST_LOG_SEV(glg, info) << "Done with run (loop order: " << args->get_loop_order() << ")";
 
   etime = time(0);
   BOOST_LOG_SEV(glg, info) << "Total Seconds: " << difftime(etime, stime);
@@ -558,9 +583,7 @@ void advance_model(const int rowidx, const int colidx,
 
   BOOST_LOG_SEV(glg, info) << "Running cell (" << rowidx << ", " << colidx << ")";
 
-  //modeldata.initmode = 1; // OBSOLETE?
-
-  BOOST_LOG_SEV(glg, info) << "Setup the NEW STYLE RUNNER OBJECT ...";
+  BOOST_LOG_SEV(glg, info) << "Setup the Runner object...";
   Runner runner(modeldata, calmode, rowidx, colidx);
 
   BOOST_LOG_SEV(glg, debug) << runner.cohort.ground.layer_report_string("depth thermal");
@@ -586,6 +609,9 @@ void advance_model(const int rowidx, const int colidx,
          - FIX: need to set yrs since dsb ?
          - FIX: should ignore calibration directives?
     */
+
+    assert(modeldata.restart_from.empty() && 
+      "You can't restart a pre-run! Make sure restart_from config setting is blank (empty string) or turn off pr years.");
 
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
@@ -630,6 +656,10 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_NAMED_SCOPE("EQ");
     BOOST_LOG_SEV(glg, monitor) << "Equilibrium Initial Year Count: " << modeldata.eq_yrs;
 
+    //assert( (modeldata.restart_from.length() < 1) && "You can't restart an equilibrium run!");
+    assert( modeldata.restart_from.empty()  && 
+      "You can't restart an eq run. Either turn off eq years, or set restart_from to an empty string!");
+    
     if (runner.calcontroller_ptr) {
       runner.calcontroller_ptr->handle_stage_start();
     }
@@ -710,9 +740,16 @@ void advance_model(const int rowidx, const int colidx,
 
     runner.cohort.climate.monthlycontainers2log();
 
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
-
+    if ( modeldata.restart_from.empty() ) {
+      BOOST_LOG_SEV(glg, warn) << "No restart file specified for SP stage. "
+                               << "Using default EQ restart file from previous stage of this run: " << eq_restart_fname;
+      BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << eq_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(eq_restart_fname, rowidx, colidx);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "User specified restart file for SP stage: " << modeldata.restart_from;
+      BOOST_LOG_SEV(glg, info) << "Restarting from: " << modeldata.restart_from;
+      runner.cohort.restartdata.update_from_ncfile(modeldata.restart_from, rowidx, colidx);
+    }
     // FIX: if restart file has -9999, then soil temps can end up
     // impossibly low should check for valid values prior to actual use
 
@@ -762,9 +799,17 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dslmodule(runner.cohort.md->tr_dsl);
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->tr_dyn_lai);
 
-    // update the cohort's restart data object
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
+    if ( modeldata.restart_from.empty() ) {
+      BOOST_LOG_SEV(glg, warn) << "No restart file specified for TR stage. "
+                               << "Using default SP restart file from previous stage of this run: " << sp_restart_fname;
+      BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << sp_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(sp_restart_fname, rowidx, colidx);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "User specified restart file for SP stage: " << modeldata.restart_from;
+      BOOST_LOG_SEV(glg, info) << "Restarting from: " << modeldata.restart_from;
+      runner.cohort.restartdata.update_from_ncfile(modeldata.restart_from, rowidx, colidx);
+    }
+
 
     runner.cohort.restartdata.verify_logical_values();
 
@@ -813,8 +858,18 @@ void advance_model(const int rowidx, const int colidx,
     runner.cohort.md->set_dynamic_lai_module(runner.cohort.md->sc_dyn_lai);
 
     // update the cohort's restart data object
-    BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
-    runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+
+    if ( modeldata.restart_from.empty() ) {
+      BOOST_LOG_SEV(glg, warn) << "No restart file specified for SC stage. "
+                               << "Using default TR restart file from previous stage of this run: " << tr_restart_fname;
+      BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+    } else {
+      BOOST_LOG_SEV(glg, info) << "User specified restart file for SC stage: " << modeldata.restart_from;
+      BOOST_LOG_SEV(glg, info) << "Restarting from: " << modeldata.restart_from;
+      runner.cohort.restartdata.update_from_ncfile(modeldata.restart_from, rowidx, colidx);
+    }
+
 
     BOOST_LOG_SEV(glg, debug) << "RestartData pre SC";
     runner.cohort.restartdata.restartdata_to_log();
