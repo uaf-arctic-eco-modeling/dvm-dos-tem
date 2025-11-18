@@ -1,8 +1,3 @@
-2019-08-07T12:25:27.015174
-=====================
-Modified the vegetation file to set all CMT 08 pixels to CMT 07.
-Saved a copy of the original, just in case.
-2019-08-07T14:18:26.056985
-=====================
-Modified the vegetation file to set all CMT 08 pixels to CMT 07.
-Saved a copy of the original, just in case.
+version https://git-lfs.github.com/spec/v1
+oid sha256:b06be473fe092e5749c0b7e1fe46eb846144e1cea7ad4c4710aa2b163c5b59f9
+size 316
