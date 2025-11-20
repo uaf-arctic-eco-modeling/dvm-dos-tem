@@ -79,6 +79,50 @@ void CohortLookup::archiveSoilParams(){
   archive_soical_params.kdcsompr = this->kdcsompr;
   archive_soical_params.kdcsomcr = this->kdcsomcr;
 
+  archive_soidim_params.coefshlwa = this->coefshlwa;
+  archive_soidim_params.coefshlwb = this->coefshlwb;
+  archive_soidim_params.coefdeepa = this->coefdeepa;
+  archive_soidim_params.coefdeepb = this->coefdeepb;
+  archive_soidim_params.coefminea = this->coefminea;
+  archive_soidim_params.coefmineb = this->coefmineb;
+
+  initial_tcsolid_moss = this->tcsolid_moss;
+  initial_tcsolid_f = this->tcsolid_f;
+  initial_tcsolid_h = this->tcsolid_h;
+
+  initial_bulkden_moss = this->bulkden_moss;
+  initial_bulkden_f = this->bulkden_f;
+  initial_bulkden_h = this->bulkden_h;
+
+  initial_poro_moss = this->poro_moss;
+  initial_poro_f = this->poro_f;
+  initial_poro_h = this->poro_h;
+
+  initial_hksat_moss = this->hksat_moss;
+  initial_hksat_f = this->hksat_f;
+  initial_hksat_h = this->hksat_h;
+
+  initial_nfactor_s = this->nfactor_s;
+  initial_nfactor_w = this->nfactor_w;
+
+  archive_snwdim_params.denmax = this->snwdenmax;
+  archive_snwdim_params.newden = this->snwdennew;
+
+  // archive_soienv_params.tcsolid_moss = this->tcsolid_moss;
+  // archive_soienv_params.tcsolid_f = this->tcsolid_f;
+  // archive_soienv_params.tcsolid_h = this->tcsolid_h;
+  // archive_soienv_params.poro_moss = this->poro_moss;
+  // archive_soienv_params.poro_f = this->poro_f;
+  // archive_soienv_params.poro_h = this->poro_h;
+  // archive_soienv_params.bulkden_moss = this->bulkden_moss;
+  // archive_soienv_params.bulkden_f = this->bulkden_f;
+  // archive_soienv_params.bulkden_h = this->bulkden_h;
+  // archive_soienv_params.hksat_moss = this->hksat_moss;
+  // archive_soienv_params.hksat_f = this->hksat_f;
+  // archive_soienv_params.hksat_h = this->hksat_h;
+  // archive_soienv_params.nfactor_s = this->nfactor_s;
+  // archive_soienv_params.nfactor_w = this->nfactor_w;
+
   // archive_snwdim_params.denmax = this->snwdenmax;
   // archive_snwdim_params.newden = this->snwdennew;
   // archive_snwdim_params.initsnwthick = this->initsnwthick;

@@ -295,6 +295,7 @@ public:
   double r_retain_c; // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)
   double r_retain_n; // 0.3 calculated from Harden et al., 2003 (ATHarden42003a)
 
+  // structs used for archiving soil parameters prior to cmt change
   soipar_cal archive_soical_params;
   soipar_dim archive_soidim_params;
   soipar_env archive_soienv_params;
@@ -302,6 +303,30 @@ public:
   snwpar_dim archive_snwdim_params;
   snwpar_env archive_snwenv_params;
 
+  // additional parameters for interpolating between initial (post-disturbance)
+  // and target (new cmt)
+
+  // Solid thermal conductivity parameters
+  double initial_tcsolid_moss, initial_tcsolid_f, initial_tcsolid_h;
+  double target_tcsolid_moss, target_tcsolid_f, target_tcsolid_h;
+
+  // Summer and winter nfactor
+  double initial_nfactor_s, initial_nfactor_w;
+  double target_nfactor_s, target_nfactor_w;
+
+  // Layer porosity parameters
+  double initial_poro_moss, initial_poro_f, initial_poro_h;
+  double target_poro_moss, target_poro_f, target_poro_h;
+
+  // Soil bulk density parameters
+  double initial_bulkden_moss, initial_bulkden_f, initial_bulkden_h;
+  double target_bulkden_moss, target_bulkden_f, target_bulkden_h;
+
+  // Hydraulic conductivity at saturation parameters
+  double initial_hksat_moss, initial_hksat_f, initial_hksat_h;
+  double target_hksat_moss, target_hksat_f, target_hksat_h;
+
+  
 private:
 
   void assignVegDimension(string & dir);

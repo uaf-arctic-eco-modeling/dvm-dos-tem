@@ -1420,6 +1420,9 @@ void Cohort::cmtChange(const int & currmind){
   // Determine cmt to succeed to (for testing we are
   // using cmt1 -> cmt3)
   std::string new_cmt = "CMT31";
+  // define whether subsidence parameter changes should
+  // take place.
+  bool subsidence = true;
 
   // Load relevant parameters from new CMT
   chtlu.cmtcode = new_cmt;
@@ -1563,15 +1566,48 @@ void Cohort::cmtChange(const int & currmind){
     //   cd.d_veg.frootfrac[il][ip] = cd.m_veg.frootfrac[il][ip];
     // }
   }
+
+  if (subsidence){
+
+    chtlu.tcsolid_moss *= 1.5;
+    chtlu.tcsolid_f *= 1.5;
+    chtlu.tcsolid_h *= 1.5;
+    chtlu.bulkden_moss *= 1.5;
+    chtlu.bulkden_f *= 1.5;
+    chtlu.bulkden_h *= 1.5;
+    chtlu.hksat_moss *= 0.75;
+    chtlu.hksat_f *= 0.75;
+    chtlu.hksat_h *= 0.75;
+    chtlu.poro_moss *= 0.75;
+    chtlu.poro_f *= 0.75;
+    chtlu.poro_h *= 0.75;
+
+    chtlu.nfactor_s *= 1.25;
+    chtlu.nfactor_w *= 0.75;
+
+    ground.snowdimpar.denmax *= 0.75;
+  }
   
-
-  // SOILS
-
   // store / archive old soil params
   chtlu.archiveSoilParams();
 
   // load soil parameters
   chtlu.loadSoilParams();
+  chtlu.target_tcsolid_moss = chtlu.tcsolid_moss;
+  chtlu.target_tcsolid_f = chtlu.tcsolid_f;
+  chtlu.target_tcsolid_h = chtlu.tcsolid_h;
+  chtlu.target_bulkden_moss = chtlu.bulkden_moss;
+  chtlu.target_bulkden_f = chtlu.bulkden_f;
+  chtlu.target_bulkden_h = chtlu.bulkden_h;
+  chtlu.target_hksat_moss = chtlu.hksat_moss;
+  chtlu.target_hksat_f = chtlu.hksat_f;
+  chtlu.target_hksat_h = chtlu.hksat_h;
+  chtlu.target_poro_moss = chtlu.poro_moss;
+  chtlu.target_poro_f = chtlu.poro_f;
+  chtlu.target_poro_h = chtlu.poro_h;
+  chtlu.target_nfactor_s = chtlu.nfactor_s;
+  chtlu.target_nfactor_w = chtlu.nfactor_w;
+  interpolateSoilParameters();
 
   // need to re-initialize parameters so we have ch4 parameters loaded
   soilbgc.initializeParameter();
@@ -1628,40 +1664,48 @@ void Cohort::interpolateSoilParameters(){
   int max_n_years = mineral_n_years;
 
   if(tsd<=max_n_years){
-
     // interpolating between initial parameter, new parameter, 
     // with years being 0 immediately following disturbance and
     // for this parameter (e.g. kdc) transition to new parameter
     // will take 5 years. tsd is used as the interpolation position
     // during this time, with a linear method.
 
-    if(tsd<=moss_n_years){ //NOTE: probably a better way of doing this... maybe a </> check in the method
+    if(tsd<=moss_n_years){ 
       this->soilbgc.calpar.kdcrawc = temutil::interpolate(chtlu.archive_soical_params.kdcrawc, chtlu.kdcrawc, start_year, moss_n_years, tsd, I_LINEAR);
-    } 
+      ground.snowdimpar.denmax = temutil::interpolate(chtlu.archive_snwdim_params.denmax, chtlu.snwdenmax, start_year, moss_n_years, tsd, I_LINEAR);
+      // loading layer values from chtlu, and using initial (post-disturbance) and target (new cmt) parameters
+      // post-disturbance can be either pre-disturbance cmt values or subsided parameter.
+      chtlu.tcsolid_moss = temutil::interpolate(chtlu.initial_tcsolid_moss, chtlu.target_tcsolid_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.poro_moss = temutil::interpolate(chtlu.initial_poro_moss, chtlu.target_poro_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.bulkden_moss = temutil::interpolate(chtlu.initial_bulkden_moss, chtlu.target_bulkden_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.hksat_moss = temutil::interpolate(chtlu.initial_hksat_moss, chtlu.target_hksat_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.nfactor_s = temutil::interpolate(chtlu.initial_nfactor_s, chtlu.target_nfactor_s, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.nfactor_w = temutil::interpolate(chtlu.initial_nfactor_w, chtlu.target_nfactor_w, start_year, moss_n_years, tsd, I_LINEAR);
+    }
     if(tsd<=fibric_n_years){
       this->soilbgc.calpar.kdcsoma = temutil::interpolate(chtlu.archive_soical_params.kdcsoma, chtlu.kdcsoma, start_year, fibric_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefshlwa = temutil::interpolate(chtlu.archive_soidim_params.coefshlwa, chtlu.coefshlwa, start_year, moss_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefshlwb = temutil::interpolate(chtlu.archive_soidim_params.coefshlwb, chtlu.coefshlwb, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.tcsolid_f = temutil::interpolate(chtlu.initial_tcsolid_f, chtlu.target_tcsolid_f, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.poro_f = temutil::interpolate(chtlu.initial_poro_f, chtlu.target_poro_f, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.bulkden_f = temutil::interpolate(chtlu.initial_bulkden_f, chtlu.target_bulkden_f, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.hksat_f = temutil::interpolate(chtlu.initial_hksat_f, chtlu.target_hksat_f, start_year, moss_n_years, tsd, I_LINEAR);
     } 
     if(tsd<=humic_n_years){
       this->soilbgc.calpar.kdcsompr = temutil::interpolate(chtlu.archive_soical_params.kdcsompr, chtlu.kdcsompr, start_year, humic_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefdeepa = temutil::interpolate(chtlu.archive_soidim_params.coefdeepa, chtlu.coefdeepa, start_year, moss_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefdeepb = temutil::interpolate(chtlu.archive_soidim_params.coefdeepb, chtlu.coefdeepb, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.tcsolid_h = temutil::interpolate(chtlu.initial_tcsolid_h, chtlu.target_tcsolid_h, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.poro_h = temutil::interpolate(chtlu.initial_poro_h, chtlu.target_poro_h, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.bulkden_h = temutil::interpolate(chtlu.initial_bulkden_h, chtlu.target_bulkden_h, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.hksat_h = temutil::interpolate(chtlu.initial_hksat_h, chtlu.target_hksat_h, start_year, moss_n_years, tsd, I_LINEAR);
     } 
     if(tsd<=mineral_n_years){
       this->soilbgc.calpar.kdcsomcr = temutil::interpolate(chtlu.archive_soical_params.kdcsomcr, chtlu.kdcsomcr, start_year, mineral_n_years, tsd, I_LINEAR);
     }
-    // WE MAY WANT TO DO A CHECK FOR GIVEN PARAMETERS TO DETERMINE
-    // THE MAGNITITUDE DIFFERENCE AND WHETHER WE SHOULD USE A
-    // LOG METHOD
-
   } else{
-
     cd.dsbinterpolation = false;
-    
   }
-  
-  /*
-
-  kdc_int = (tsd / nyears) * kdc_new + (1 - tsd / nyears) * kdc_old;
-
-  */
 }
 
   /** Synchronizes Cohort and CohortData's internal fields from the
