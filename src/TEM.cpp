@@ -35,18 +35,17 @@
 #include <exception>
 #include <map>
 #include <set>
-#include <json/writer.h>
 
+#include <json/writer.h>
 #include <json/value.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/asio.hpp>
-
-#include <json/value.h>
 
 #include <omp.h>
 
@@ -273,28 +272,31 @@ int main(int argc, char* argv[]){
     boost::filesystem::create_directories(out_dir_path);
 
 
-  // Creating file to store configuration information to be packaged
-  // with the output data.
-  boost::filesystem::path config_log_fpath = modeldata.output_dir + "config_log.js";
-  boost::filesystem::ofstream config_log_file(config_log_fpath);
+    // Creating file to store configuration information to be packaged
+    // with the output data.
+    boost::filesystem::path config_log_fpath = modeldata.output_dir + "config_record.js";
+    boost::filesystem::ofstream config_log_file(config_log_fpath);
 
-  Json::Value configrecord = {};
-
-  // Store original config file settings
-  configrecord["original_config"] = controldata;
-
-  // This is a temporary approach for writing the command line overrides
-  // to the configuration output record.
-  std::string CLI_string = "";
-  for(int ii=0; ii<argc; ii++){
-    CLI_string += argv[ii];
-    CLI_string += " ";
-  }
-  BOOST_LOG_SEV(glg, info) << CLI_string;
-  configrecord["CLI command"] = CLI_string;
-
-  config_log_file << configrecord;
-  config_log_file.close();
+    Json::Value configrecord = {};
+  
+    // Store original config file settings
+    configrecord["original_config"] = controldata;
+  
+    // This is a temporary approach for writing the command line overrides
+    // to the configuration output record.
+    std::string CLI_string = "";
+    for(int ii=0; ii<argc; ii++){
+      CLI_string += argv[ii];
+      CLI_string += " ";
+    }
+    BOOST_LOG_SEV(glg, info) << CLI_string;
+    configrecord["CLI_command"] = CLI_string;
+ 
+    // Log the updated MD settings?
+    //modeldata->get_settings_as_json or something?
+  
+    config_log_file << configrecord;
+    config_log_file.close();
 
 #ifdef WITHMPI
 
