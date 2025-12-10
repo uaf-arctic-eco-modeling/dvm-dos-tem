@@ -1,8 +1,8 @@
 ###########################
-input.py
+pyddt-input
 ###########################
 
 .. argparse::
-   :module: util.input
+   :module: pyddt.util.input
    :func: cmdline_define
-   :prog: input.py
+   :prog: pyddt-input
