@@ -15,6 +15,7 @@ import os
 import sys
 import glob
 import argparse
+import textwrap
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -23,40 +24,12 @@ import matplotlib.colors as mplc
 import xarray as xr
 from pypdf import PdfWriter
 from PIL import Image
-
 from cftime import datetime
 
 
+from IPython import embed
+import pdb
 
-
-### Flags
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--POD', nargs='+')
-parser.add_argument('--PODlist', nargs='+')
-parser.add_argument('--scenariolist', nargs='+')
-parser.add_argument('--colorlist', nargs='+')
-parser.add_argument('--widthlist', nargs='+')
-args = parser.parse_args()
-
-
-# path to the directory with the various simulations to compare
-# example: POD='/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem_workflows/fire_fix/'
-POD = str(args.POD[0])
-
-# list of the subdirectories containing single simulations
-# example: PODlist = ['master_nofire','master_fire','fix1','fix2','fix3']
-PODlist = args.PODlist
-
-# title for each simulations
-# example: scenariolist = ['0. master_nofire','1. master_fire','2. black_carbon_fix','3. root_dist_fix','4. root_dist_removal']
-scenariolist = args.scenariolist
-
-# color and width of plot lines for each scenartio
-# example: colorlist = ['black', 'brown', 'cyan','green','blue']
-# example: widthlist = [4, 3.2, 2.4, 1.6, 0.8]
-colorlist = args.colorlist
-widthlist = args.widthlist
 
 # color of plot bars for each PFT
 pftcolorlist = ['darkgreen','limegreen','mediumaquamarine','teal','slateblue','orchid','crimson','lightcoral','peachpuff','sandybrown','darkorange']
@@ -729,87 +702,138 @@ def vegdynamic(simpath,simlist,vlist,sclist,oname,stage):
 
 
 
+def merge_pngs_to_pdf(POD):
+  ### Merge all plots to a pdf report
+
+  print("Generating final report...")
+
+  listpng = os.listdir(os.path.join(POD,'results'))
+  listpng2 = [ x for x in listpng if '.png' in x ]
+
+  for png in listpng2:
+    image_1 = Image.open(os.path.join(POD,'results',png))
+    im_1 = image_1.convert('RGB')
+    im_1.save(os.path.join(POD,'results',png.replace(".png", "") + '.pdf'))
+  #  os.remove(os.path.join(POD,'results',png))
+
+  if os.path.isfile(os.path.join(POD,'result.pdf')):   
+    os.remove(os.path.join(POD,'result.pdf'))
+
+  listpdf = os.listdir(os.path.join(POD,'results'))
+  listpdf2 = [ x for x in listpdf if '.pdf' in x ]
+
+  writer = PdfWriter()
+  for pdf in sorted(listpdf2):
+    writer.append(os.path.join(POD,'results',pdf))
+    os.remove(os.path.join(POD,'results',pdf))
+
+  writer.write(os.path.join(POD,'result.pdf'))
+
+  print("Done merging plots into a single report")
 
 
 
-### Create all plots
-print("Generating single plots...")
+if __name__ == '__main__':
 
-os.mkdir(os.path.join(POD,'results'))
+  ### Flags
 
-stage = 'eq'
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''
+      Plots a comparison of sets of outputs.
+    ''')
+  )
 
-print("Generating timeseries flux plots...")
-VARlist=['RHSOM','GPP','NPP','LFVC','RG','RM']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series',stage)
+  parser.add_argument('--POD', nargs='+',
+      help=textwrap.dedent('''Parent Output Directory. A path to the
+        directory with the various simulations to compare.'''))
 
-VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LFVN']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', stage)
+  parser.add_argument('--PODlist', nargs='+',
+      help=textwrap.dedent('''List of subdirectories containing the
+        individual simulations to compare'''))
 
-VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', stage)
+  parser.add_argument('--scenariolist', nargs='+',
+      help=textwrap.dedent('''Titles for each simulation'''))
 
-print("Generating ts stock plots...")
-VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series', stage)
+  parser.add_argument('--colorlist', nargs='+',
+      help=textwrap.dedent('''Color for plot lines for each scenario'''))
+  parser.add_argument('--widthlist', nargs='+',
+      help=textwrap.dedent('''Plot line width for each scenario'''))
 
-VARlist=['AVLN','ORGN','VEGNSTR','NETNMIN','LFVN']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series',stage)
-
-VARlist=['DEADC','DWDC','DEADN','DWDN']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', stage)
-
-print("Generating seasonality plots...")
-VARlist=['GPP','RHSOM','LAI']
-seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio',stage)
-
-#Commented out when EET by PFT was disabled. This will need to
-# be modified to work with ecosystem EET or wait until EET by
-# PFT is fixed.
-#VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
-#seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env', stage)
-
-print("Generating soil CN plots...")
-soilcnprofile(POD,PODlist,scenariolist,stage)
-
-print("Generating soil env plots...")
-VARlist=['TLAYER','VWCLAYER']
-soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile',stage)
-
-print("Generating vegetation dynamic plots...")
-VARlist=['VEGC','VEGNSTR']
-vegdynamic(POD,PODlist,VARlist,scenariolist,'Veg_Dyn',stage)
+  args = parser.parse_args()
 
 
+  # path to the directory with the various simulations to compare
+  # example: POD='/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem_workflows/fire_fix/'
+  POD = str(args.POD[0])
+  if(not os.path.isdir(POD)):
+    parser.error("POD '{}' does not exist".format(args.POD[0]))
+
+  # list of the subdirectories containing single simulations
+  # example: PODlist = ['master_nofire','master_fire','fix1','fix2','fix3']
+  PODlist = args.PODlist
+
+  # title for each simulations
+  # example: scenariolist = ['0. master_nofire','1. master_fire','2. black_carbon_fix','3. root_dist_fix','4. root_dist_removal']
+  scenariolist = args.scenariolist
+
+  # color and width of plot lines for each scenartio
+  # example: colorlist = ['black', 'brown', 'cyan','green','blue']
+  # example: widthlist = [4, 3.2, 2.4, 1.6, 0.8]
+  colorlist = args.colorlist
+  widthlist = args.widthlist
 
 
+  ### Create all plots
+  print("Generating single plots...")
 
-### Merge all plots to a pdf report
+  os.mkdir(os.path.join(POD,'results'))
 
-print("Generating final report...")
+  stage = 'eq'
 
-listpng = os.listdir(os.path.join(POD,'results'))
-listpng2 = [ x for x in listpng if '.png' in x ]
+  print("Generating timeseries flux plots...")
+  VARlist=['RHSOM','GPP','NPP','LFVC','RG','RM']
+  ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series',stage)
 
-for png in listpng2:
-  image_1 = Image.open(os.path.join(POD,'results',png))
-  im_1 = image_1.convert('RGB')
-  im_1.save(os.path.join(POD,'results',png.replace(".png", "") + '.pdf'))
-#  os.remove(os.path.join(POD,'results',png))
+  VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LFVN']
+  ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', stage)
 
-if os.path.isfile(os.path.join(POD,'result.pdf')):   
-  os.remove(os.path.join(POD,'result.pdf'))
+  VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
+  ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', stage)
 
-listpdf = os.listdir(os.path.join(POD,'results'))
-listpdf2 = [ x for x in listpdf if '.pdf' in x ]
+  print("Generating ts stock plots...")
+  VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
+  ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series', stage)
 
-writer = PdfWriter()
-for pdf in sorted(listpdf2):
-  writer.append(os.path.join(POD,'results',pdf))
-  os.remove(os.path.join(POD,'results',pdf))
+  VARlist=['AVLN','ORGN','VEGNSTR','NETNMIN','LFVN']
+  #ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series',stage)
 
-writer.write(os.path.join(POD,'result.pdf'))
+  VARlist=['DEADC','DWDC','DEADN','DWDN']
+  ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', stage)
 
-print("Done")
+  #print("Generating seasonality plots...")
+  #VARlist=['GPP','RHSOM','LAI']
+  #seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio',stage)
+
+  #Commented out when EET by PFT was disabled. This will need to
+  # be modified to work with ecosystem EET or wait until EET by
+  # PFT is fixed.
+  #VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
+  #seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env', stage)
+
+  #print("Generating soil CN plots...")
+  #soilcnprofile(POD,PODlist,scenariolist,stage)
+
+  print("Generating soil env plots...")
+  VARlist=['TLAYER','VWCLAYER']
+  soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile',stage)
+
+  #print("Generating vegetation dynamic plots...")
+  VARlist=['VEGC','VEGNSTR']
+  #vegdynamic(POD,PODlist,VARlist,scenariolist,'Veg_Dyn',stage)
+
+  merge_pngs_to_pdf(POD);
+
+
 
 
