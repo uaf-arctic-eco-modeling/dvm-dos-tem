@@ -1,8 +1,8 @@
 ###########################
-outspec.py
+pyddt-outspec
 ###########################
 
 .. argparse::
-   :module: util.outspec
+   :module: pyddt.util.outspec
    :func: cmdline_define
-   :prog: outspec.py
+   :prog: pyddt-outspec
