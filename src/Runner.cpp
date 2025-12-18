@@ -969,9 +969,9 @@ void Runner::output_nc_3dim(OutputSpec* out_spec, std::string stage_suffix,
   BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), output_filename );
 #else
-  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid), output_filename );
 #endif
 
   temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
@@ -1013,9 +1013,9 @@ void Runner::output_nc_4dim(OutputSpec* out_spec, std::string stage_suffix,
   BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), output_filename );
 #else
-  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid), output_filename );
 #endif
 
   temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
@@ -1057,9 +1057,9 @@ void Runner::output_nc_5dim(OutputSpec* out_spec, std::string stage_suffix,
   BOOST_LOG_SEV(glg, debug) << "Opening output file: " << output_filename;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(output_filename.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), output_filename );
 #else
-  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(output_filename.c_str(), NC_WRITE, &ncid), output_filename );
 #endif
 
   temutil::nc( nc_inq_varid(ncid, out_spec->var_name.c_str(), &cv) );
