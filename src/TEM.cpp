@@ -548,7 +548,7 @@ std::vector<float> read_new_co2_file(const std::string &filename) {
   int ncid;
   
   BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
-  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
   
   BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
   int yearD;
@@ -953,14 +953,14 @@ void create_empty_run_status_file(const std::string& fname,
   MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
                             // path            c mode               mpi comm obj     mpi info netcdfid
-  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid), fname );
 
   BOOST_LOG_SEV(glg, debug) << "(MPI " << id << "/" << ntasks << ") Creating PARALLEL run_status file! \n";
 
 #else
 
   BOOST_LOG_SEV(glg, debug) << "Opening new file with 'NC_CLOBBER'";
-  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid), fname );
 
 #endif
 
@@ -1037,7 +1037,7 @@ void write_status_info(const std::string fname, std::string varname, int row, in
   MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
   // Open dataset
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
   //temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
   temutil::nc( nc_inq_varid(ncid, varname.c_str(), &statusV) );
   temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
@@ -1052,7 +1052,7 @@ void write_status_info(const std::string fname, std::string varname, int row, in
 #else
 
   // Open dataset
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
   temutil::nc( nc_inq_varid(ncid, varname.c_str(), &statusV) );
   
   // Write data

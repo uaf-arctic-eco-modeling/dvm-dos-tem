@@ -141,9 +141,9 @@ namespace temutil {
 
   int get_nc_timedim_len(const int& ncid);
 
-  void handle_error(int status);
+  void handle_error(int status, const std::string& filepath = "");
   
-  void nc(int status);
+  void nc(int status, const std::string& filepath = "");
   
   double interpolate(double value_1, double value_2, double position_1, double position_2, double position_new, int method);
 
@@ -213,7 +213,7 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
 
     int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
     int timeseries_var;
     temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
