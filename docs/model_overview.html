@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. Model Overview &mdash; dvmdostem v0.8.2 documentation</title>
+  <title>1. Model Overview &mdash; dvmdostem v0.8.3-85-g465d6165 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -38,7 +38,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.2
+                v0.8.3-85-g465d6165
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -91,22 +91,23 @@
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">pyddt-param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">pyddt-runmask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">pyddt-input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">pyddt-qcal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">pyddt-outspec</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.basedriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.sensitivity">drivers.sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.madstem">drivers.madstem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.general">util.general</a></li>
 </ul>
 
         </div>
@@ -233,7 +234,7 @@ regime.</p></li>
 </ul>
 <p>Model simulation requires advancing the model consecutively through all of the
 run stages as needed (<code class="docutils literal notranslate"><span class="pre">pr</span> <span class="pre">-&gt;</span> <span class="pre">eq</span> <span class="pre">-&gt;</span> <span class="pre">sp</span> <span class="pre">-&gt;</span> <span class="pre">tr</span> <span class="pre">-&gt;</span></code>). It is possible to work with
-any subset of the stages using the command line <code class="docutils literal notranslate"><span class="pre">--restart</span></code> flag.</p>
+any subset of the stages using the <code class="docutils literal notranslate"><span class="pre">restart_from</span></code> setting in the config file.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Automatic equilibrium (QSS) detection.</p>
@@ -1707,6 +1708,54 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><p>SOC0_30cm</p></td>
+<td><p>Soil organic C from 0cm to 30cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SOC0_100cm</p></td>
+<td><p>Soil organic C from 0cm to 100cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>SOC0_200cm</p></td>
+<td><p>Soil organic C from 0cm to 200cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>SOC0_300cm</p></td>
+<td><p>Soil organic C from 0cm to 300cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><p>SOCFROZEN</p></td>
 <td><p>Soil organic C frozen (if yearly Dec. only)</p></td>
 <td><p>g/m2</p></td>
@@ -1947,6 +1996,54 @@ table is built from that csv file:</p>
 <td><p>double</p></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><p>TSOIL_30cm</p></td>
+<td><p>Soil temperature at 30cm</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TSOIL_100cm</p></td>
+<td><p>Soil temperature at 100cm</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>TSOIL_200cm</p></td>
+<td><p>Soil temperature at 200cm</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>TSOIL_300cm</p></td>
+<td><p>Soil temperature at 300cm</p></td>
+<td><p>degree_C</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><p>VEGC</p></td>
 <td><p>Total veg. biomass C</p></td>
 <td><p>g/m2</p></td>
@@ -1991,6 +2088,54 @@ table is built from that csv file:</p>
 <td><p>invalid</p></td>
 <td></td>
 <td></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VWC_30cm</p></td>
+<td><p>VWC at 30cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VWC_100cm</p></td>
+<td><p>VWC at 100cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>VWC_200cm</p></td>
+<td><p>VWC at 200cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>double</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>VWC_300cm</p></td>
+<td><p>VWC at 300cm</p></td>
+<td><p>g/m2</p></td>
+<td></td>
+<td></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
+<td><p>invalid</p></td>
 <td><p>invalid</p></td>
 <td><p>double</p></td>
 <td></td>

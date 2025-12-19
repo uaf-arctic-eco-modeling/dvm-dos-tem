@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.8.2 documentation</title>
+  <title>Welcome to dvmdostem’s documentation! &mdash; dvmdostem v0.8.3-85-g465d6165 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -36,7 +36,7 @@
             <a href="#" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.2
+                v0.8.3-85-g465d6165
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -72,22 +72,23 @@
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">pyddt-param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">pyddt-runmask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">pyddt-input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">pyddt-qcal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">pyddt-outspec</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.basedriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.sensitivity">drivers.sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.madstem">drivers.madstem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.general">util.general</a></li>
 </ul>
 
         </div>
@@ -193,7 +194,6 @@ executable does not have hyphens.</p>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#running-from-restart-files">2.1.4. Running from Restart Files</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#set-up">Set up</a></li>
-<li class="toctree-l4"><a class="reference internal" href="running_dvmdostem.html#restart">Restart</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="running_dvmdostem.html#running-a-sensitivity-analysis">2.1.5. Running a Sensitivity Analysis</a></li>
@@ -363,7 +363,7 @@ executable does not have hyphens.</p>
 <li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#explore-input-datasets">3.3. Explore Input Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#computing-mean-vegetation-c-and-soil-c">3.4. Computing Mean Vegetation C and Soil C</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#computing-monthly-nee">3.5. Computing Monthly NEE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#computing-mean-gpp-ra-rh-nee">3.6. Computing Mean GPP, RA, RH, NEE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#computing-mean-gpp-ra-rhsom-nee">3.6. Computing Mean GPP, RA, RHSOM, NEE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#plot-active-layer-depth">3.7. Plot Active Layer Depth</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#plot-seasonal-dynamic">3.8. Plot Seasonal Dynamic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples_and_tutorials/example_experiment_0.html#plot-soil-temperatures">3.9. Plot Soil Temperatures</a></li>
@@ -441,16 +441,16 @@ executable does not have hyphens.</p>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">pyddt-param</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/param.html#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">pyddt-runmask</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/runmask.html#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/runmask.html#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">pyddt-input</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/input.html#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/input.html#Sub-commands">Sub-commands</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="CLI_tools/input.html#query">query</a><ul>
@@ -476,12 +476,12 @@ executable does not have hyphens.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">pyddt-qcal</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/qcal.html#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/qcal.html#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">pyddt-outspec</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/outspec.html#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CLI_tools/outspec.html#named-arguments">Named Arguments</a></li>
 </ul>
@@ -491,14 +491,15 @@ executable does not have hyphens.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.basedriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.sensitivity">drivers.sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.madstem">drivers.madstem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.general">util.general</a></li>
 </ul>
 </div>
 </section>

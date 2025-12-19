@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. Dev Info &mdash; dvmdostem v0.8.2 documentation</title>
+  <title>3. Dev Info &mdash; dvmdostem v0.8.3-85-g465d6165 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.2
+                v0.8.3-85-g465d6165
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -108,22 +108,23 @@
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">pyddt-param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">pyddt-runmask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">pyddt-input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">pyddt-qcal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">pyddt-outspec</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.basedriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.sensitivity">drivers.sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.madstem">drivers.madstem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.general">util.general</a></li>
 </ul>
 
         </div>
@@ -740,7 +741,7 @@ implemented as part of our ongoing development efforts.</p>
 <section id="testing">
 <h3><span class="section-number">3.5.2. </span>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h3>
 <p>Testing is currently implemented for some of the Python scripts in the
-<code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory using the Python <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The style and
+<code class="docutils literal notranslate"><span class="pre">pyddt/</span></code> directory using the Python <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The style and
 structure of tests reflects the challenges we have had getting testing
 integrated into this project. The <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module has a nice feature that
 allows tests to be written in a literate fashion with much explanatory text.
@@ -769,33 +770,53 @@ function, independent from everything else, whereas tests in a standalone file
 can be much broader and more flexible in their design - i.e. module level tests.</p>
 <p>At present we have had much more luck writing the broader tests (that also serve
 as examples of usage) in stand alone files named with the following pattern:
-<code class="docutils literal notranslate"><span class="pre">scripts/tests/doctests/doctests_*[.md</span> <span class="pre">|</span> <span class="pre">.rst]</span></code>. The files are markdown or
+<code class="docutils literal notranslate"><span class="pre">pyddt/tests/doctests/doctests_*[.md</span> <span class="pre">|</span> <span class="pre">.rst]</span></code>. The files are markdown or
 reStructuredText formatted with embedded code that is executed by the
 <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module. The execution context and other <code class="docutils literal notranslate"><span class="pre">doctest</span></code> particulars are
 described here:
 <a class="reference external" href="https://docs.python.org/3/library/doctest.html#what-s-the-execution-context">https://docs.python.org/3/library/doctest.html#what-s-the-execution-context</a></p>
 <p>To run the tests that are in <code class="docutils literal notranslate"><span class="pre">__docstring__</span></code> s of a function or file:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work/scripts&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>scripts/util/param.py<span class="w">   </span><span class="c1"># &lt;-- script name!</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>pyddt/src/pyddt/util/param.py<span class="w">   </span><span class="c1"># &lt;-- script name!</span>
 </pre></div>
 </div>
-<p>To run the tests that are in an independent file:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work/scripts&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>scripts/tests/doctests/doctests_param_util.md<span class="w">  </span><span class="c1"># &lt;-- test file name!</span>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that for the most part the inline docstring tests are broken!! All the
+recent work has been on the stand alone test files. So for now please focus
+on running the stand alone test files.</p>
+</div>
+<p>To run the tests that are in an independent file, there are two options:</p>
+<ol class="arabic simple">
+<li><p>Run the tests using the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module directly on the file.</p></li>
+<li><p>Run the tests using <code class="docutils literal notranslate"><span class="pre">pytest</span></code> which has built in support for running
+<code class="docutils literal notranslate"><span class="pre">doctest</span></code> tests.</p></li>
+</ol>
+<p>One advantage to using <code class="docutils literal notranslate"><span class="pre">pytest</span></code> is that it can automatically find all the
+<code class="docutils literal notranslate"><span class="pre">doctest</span></code> files in a given directory and run them all in one command. This is
+very convenient for running all the tests at once. This can also be achieved
+for the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module directly using a loop, as shown below. <code class="docutils literal notranslate"><span class="pre">pytest</span></code>
+can also be controlled with command line flags to selectively run certain tests
+or control verbosity, etc. See the <code class="docutils literal notranslate"><span class="pre">pytest</span></code> documentation for more details:
+<a class="reference external" href="https://docs.pytest.org/en/7.1.x/">https://docs.pytest.org/en/7.1.x/</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The tests all assume that they will be run in the context of the project’s
+Docker container or a development environment where the necessary
+dependencies are installed and the paths to the demo and testing data match
+those in the Docker container.</p>
+</div>
+<p>To run the tests using <code class="docutils literal notranslate"><span class="pre">pytest</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pytest<span class="w"> </span>--doctest-glob<span class="w"> </span><span class="s2">&quot;doctests_*&quot;</span><span class="w"> </span>pyddt/tests/doctests/pytest
 </pre></div>
 </div>
-<p>In either case, if all the tests execute successfully, then the command exits
-silently. If there errors, the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> package tries to point you towards
-the tests that fail.</p>
-<p>Note that in both cases, the <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> variable is set so that the module
-imports work properly in the scripts and tests. Many of the test currently use
-the demo-data, config files and parameter files in the main repo. The paths for
-these in the tests are assumed to be relative to the repo root. So you will
-likely have the best luck running the tests from the repo-root. For this reason
-you need to specify <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> so that inside the test scripts, imports can
-be made of scripts and tools in the scripts folder.</p>
-<p>In order to run all the tests, this loop should work:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>ls<span class="w"> </span>scripts/tests/doctests/<span class="k">)</span><span class="p">;</span>
+<p>To run the tests using the <code class="docutils literal notranslate"><span class="pre">doctest</span></code> module directly on the file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>pyddt/src/pyddt/util/param.py
+</pre></div>
+</div>
+<p>Or to run all the tests in the <code class="docutils literal notranslate"><span class="pre">pyddt/tests/doctests/</span></code> directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>ls<span class="w"> </span>pyddt/tests/doctests/<span class="k">)</span><span class="p">;</span>
 <span class="k">do</span>
-<span class="w">    </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/work/scripts&quot;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>scripts/tests/doctests/<span class="nv">$i</span><span class="p">;</span>
+<span class="w">    </span>python<span class="w"> </span>-m<span class="w"> </span>doctest<span class="w"> </span>pyddt/tests/doctests/<span class="nv">$i</span><span class="p">;</span>
 <span class="k">done</span>
 </pre></div>
 </div>

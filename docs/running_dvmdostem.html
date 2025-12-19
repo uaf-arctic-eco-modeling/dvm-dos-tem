@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Running &mdash; dvmdostem v0.8.2 documentation</title>
+  <title>2. Running &mdash; dvmdostem v0.8.3-85-g465d6165 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.2
+                v0.8.3-85-g465d6165
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -74,7 +74,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#running-from-restart-files">2.1.4. Running from Restart Files</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#set-up">Set up</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#restart">Restart</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#running-a-sensitivity-analysis">2.1.5. Running a Sensitivity Analysis</a></li>
@@ -127,22 +126,23 @@
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="CLI_tools/SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">param.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">runmask.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">input.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">qcal.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">outspec.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/param.html">pyddt-param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/runmask.html">pyddt-runmask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/input.html">pyddt-input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/qcal.html">pyddt-qcal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CLI_tools/outspec.html">pyddt-outspec</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.BaseDriver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html">drivers.basedriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.sensitivity">drivers.sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.drivers.madstem">drivers.madstem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.param">util.param</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.output">util.output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.input">util.input</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts_API.html#module-pyddt.util.general">util.general</a></li>
 </ul>
 
         </div>
@@ -466,33 +466,42 @@ can be re-run for a single variable at a time.</p>
 </section>
 <section id="running-from-restart-files">
 <h3><span class="section-number">2.1.4. </span>Running from Restart Files<a class="headerlink" href="#running-from-restart-files" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">Dvmdostem</span></code> can be stopped at and restarted from any inter-stage pause. The
-most useful point to do so will be after either EQ or SP, so the bulk of the
-computing does not need to be repeated and experimental TR+SC runs can be
-completed quickly.</p>
-<p>The files needed to do this are automatically created and named after the stage
-that they hold data from: <code class="docutils literal notranslate"><span class="pre">restart-[stage].nc</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Dvmdostem</span></code> can be stopped at and restarted from any inter-stage pause after
+the eq stage. The most useful point to do so will be after either EQ or SP, so
+the bulk of the computing does not need to be repeated and experimental TR+SC
+runs can be completed quickly. It is not possible to do a restart run from the
+<code class="docutils literal notranslate"><span class="pre">pr</span></code> stage as there is not enough information saved to initialize the model.
+The <code class="docutils literal notranslate"><span class="pre">pr</span></code> stage runs only the environmental portion of the model and does not
+run the biogeochemical portion. The model should exit with an error message if
+you attempt a restart run for the <code class="docutils literal notranslate"><span class="pre">pr</span></code> or <code class="docutils literal notranslate"><span class="pre">eq</span></code> stages.</p>
+<p>The files needed for a restart run are automatically created and named after
+the stage that they hold data from: <code class="docutils literal notranslate"><span class="pre">restart-[stage].nc</span></code>.</p>
 <!-- This is an embed link to a Google Drawing created by Ruth Rutter and Tobey Carman -->
+<!-- drawing is titled "restart_process" and is in the Shared Drive, Documentation Embed Images folder -->
 <img src="https://docs.google.com/drawings/d/e/2PACX-1vSL4SJun4GptQWQqkKoTxc1RhiDZcdjz7E8Gkk1bL-pldPu8L0jYC1z2UlrwW-pvE-oH3TTKaQDKS-x/pub?w=963&amp;h=513"><section id="set-up">
 <h4>Set up<a class="headerlink" href="#set-up" title="Permalink to this heading"></a></h4>
-<p>Complete an initial run through to the point you wish to restart from. If you
-want the outputs from later stages for comparison purposes, running those as
-well will not disrupt the process.</p>
-<p>If you produced output files in your initial run that you want to retain, you
-will need to manually move them elsewhere. Leave the restart files in the output
-directory.</p>
-</section>
-<section id="restart">
-<h4>Restart<a class="headerlink" href="#restart" title="Permalink to this heading"></a></h4>
-<p>Two flags are necessary in order to restart: <code class="docutils literal notranslate"><span class="pre">--no-output-cleanup</span></code> and
-<code class="docutils literal notranslate"><span class="pre">--restart-run</span></code>. The first keeps dvmdostem from re-creating the output
-directory (and therefore deleting its contents) and the second prevents it from
-creating new <code class="docutils literal notranslate"><span class="pre">restart-[stage].nc</span></code> files that would overwrite the ones needed
-to restart.</p>
-<p>Where to restart from is controlled by how many years are specified per stage.
-If 0, a stage is skipped and dvmdostem attempts to continue from the next stage.
-For example, to restart after spinup and only run transient and scenario, the
-year counts would be something like this: <code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">0</span> <span class="pre">-e</span> <span class="pre">0</span> <span class="pre">-s</span> <span class="pre">0</span> <span class="pre">-t</span> <span class="pre">115</span> <span class="pre">-n</span> <span class="pre">85</span></code></p>
+<p>Complete an initial run through to the point you wish to restart from. It is
+helpful to name your output directory with the stages that are being run, for
+example, if you are running pr and eq, in your config file, set the
+<code class="docutils literal notranslate"><span class="pre">output_dir</span></code> entry to something like <code class="docutils literal notranslate"><span class="pre">output_pr_eq</span></code>. Then run the model,
+specifying the number of years to run for each stage. For example, you might do
+something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dvmdostem</span> <span class="o">-</span><span class="n">p</span> <span class="mi">100</span> <span class="o">-</span><span class="n">e</span> <span class="mi">1000</span> <span class="o">-</span><span class="n">s</span> <span class="mi">0</span> <span class="o">-</span><span class="n">t</span> <span class="mi">0</span> <span class="o">-</span><span class="n">n</span> <span class="mi">0</span> <span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span><span class="o">=</span><span class="n">config</span><span class="o">/</span><span class="n">config</span><span class="o">.</span><span class="n">js</span>
+</pre></div>
+</div>
+<p>Next you will set the <code class="docutils literal notranslate"><span class="pre">restart_from</span></code> entry in your config file to point to the
+<code class="docutils literal notranslate"><span class="pre">restart-[stage].nc</span></code> file that was created in your output directory from the
+previous step. You will also want to set the <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> to an appropriate
+value describing what you are doing, for example <code class="docutils literal notranslate"><span class="pre">output_sp</span></code> if you are only
+running the <code class="docutils literal notranslate"><span class="pre">sp</span></code> stage.</p>
+<p>The stages that are run are controlled by the command line options specifying
+how many years to run for each stage. So to continue with the previous example
+your next run might look like this, running only the spinup stage for 250 years:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dvmdostem</span> <span class="o">-</span><span class="n">p</span> <span class="mi">0</span> <span class="o">-</span><span class="n">e</span> <span class="mi">0</span> <span class="o">-</span><span class="n">s</span> <span class="mi">250</span> <span class="o">-</span><span class="n">t</span> <span class="mi">0</span> <span class="o">-</span><span class="n">n</span> <span class="mi">0</span> <span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span><span class="o">=</span><span class="n">config</span><span class="o">/</span><span class="n">config</span><span class="o">.</span><span class="n">js</span>
+</pre></div>
+</div>
+<p>An alternate way to handle the outputs could be using the <code class="docutils literal notranslate"><span class="pre">--no-output-cleanup</span></code>
+command line flag, but this could prove to be confusing if you are not careful.</p>
 </section>
 </section>
 <section id="running-a-sensitivity-analysis">

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qcal.py &mdash; dvmdostem v0.8.2 documentation</title>
+  <title>pyddt-qcal &mdash; dvmdostem v0.8.3-85-g465d6165 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="outspec.py" href="outspec.html" />
-    <link rel="prev" title="input.py" href="input.html" /> 
+    <link rel="next" title="pyddt-outspec" href="outspec.html" />
+    <link rel="prev" title="pyddt-input" href="input.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.2
+                v0.8.3-85-g465d6165
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -73,26 +73,27 @@
 <p class="caption" role="heading"><span class="caption-text">Command Line Interfaces</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="SA_setup_and_run.html">SA_setup_and_run.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="param.html">param.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runmask.html">runmask.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="input.html">input.py</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">qcal.py</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="param.html">pyddt-param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runmask.html">pyddt-runmask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">pyddt-input</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyddt-qcal</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#positional-arguments">Positional Arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="outspec.html">outspec.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outspec.html">pyddt-outspec</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Python Scripts API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.BaseDriver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.Sensitivity">drivers.Sensitivity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-drivers.MadsTEMDriver">drivers.MadsTEMDriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html">drivers.basedriver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.drivers.sensitivity">drivers.sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.drivers.madstem">drivers.madstem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-SA_post_hoc_analysis">mads_calibration.SA_post_hoc_analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.param">util.param</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.output">util.output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.input">util.input</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.util.param">util.param</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.util.output">util.output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.util.input">util.input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.util.metrics">util.metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts_API.html#module-pyddt.util.general">util.general</a></li>
 </ul>
 
         </div>
@@ -109,7 +110,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">qcal.py</li>
+      <li class="breadcrumb-item active">pyddt-qcal</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/CLI_tools/qcal.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -119,11 +120,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="qcal-py">
-<h1>qcal.py<a class="headerlink" href="#qcal-py" title="Permalink to this heading"></a></h1>
+  <section id="pyddt-qcal">
+<h1>pyddt-qcal<a class="headerlink" href="#pyddt-qcal" title="Permalink to this heading"></a></h1>
 <p><p>Still working on this…</p>
 </p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">qcal</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">targets</span> <span class="n">REF_TARGETS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">params</span> <span class="n">REF_PARAMS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">runmask</span> <span class="n">REF_RUNMASK</span><span class="p">]</span> <span class="n">calfolder</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">pyddt</span><span class="o">-</span><span class="n">qcal</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">targets</span> <span class="n">REF_TARGETS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">params</span> <span class="n">REF_PARAMS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">ref</span><span class="o">-</span><span class="n">runmask</span> <span class="n">REF_RUNMASK</span><span class="p">]</span> <span class="n">calfolder</span>
 </pre></div>
 </div>
 <section id="positional-arguments">
@@ -157,8 +158,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="input.html" class="btn btn-neutral float-left" title="input.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="outspec.html" class="btn btn-neutral float-right" title="outspec.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="input.html" class="btn btn-neutral float-left" title="pyddt-input" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="outspec.html" class="btn btn-neutral float-right" title="pyddt-outspec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
