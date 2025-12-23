@@ -41,6 +41,8 @@ function usage () {
   echo "                          and run-time. Intention is that you mount "
   echo "                          the host repo directory at /work"
   echo ""
+  echo "  --hpcdev                For hpc-oriented development"
+  echo ""
   echo "  --build, build          A compile time image for making binaries."
   echo ""
   echo "  --run, run              A run-time image with binaries copied in."
@@ -107,6 +109,13 @@ function build_dev() {
   docker build --build-arg GIT_VERSION=$GIT_VERSION \
                --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
                --target dvmdostem-dev --tag dvmdostem-dev:$GIT_VERSION .
+}
+
+function build_hpc_dev() {
+  echo "Building hpc-oriented dev image for $GIT_VERSION using hostuid=$HOSTUID and hostgid=$HOSTGID"
+  docker build --build-arg GIT_VERSION=$GIT_VERSION \
+               --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
+               --target dvmdostem-hpcdev --tag dvmdostem-hpcdev:$GIT_VERSION .
 }
 
 function build_autocal() {
@@ -192,6 +201,11 @@ while [ "$1" != "" ]; do
     dev | --dev )                 shift
                                   setup
                                   build_dev
+                                  ;;
+
+    hpcdev | --hpcdev )           shift
+                                  setup
+                                  build_hpc_dev
                                   ;;
 
     build | --build )             shift

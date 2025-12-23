@@ -164,6 +164,37 @@ WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
 
+
+# ==== IMAGE FOR RUNNING IN AN HPC ENVIRONMENT ==========
+FROM dvmdostem-dev:${GIT_VERSION} AS dvmdostem-hpcdev
+ARG UNAME
+ARG UID
+ARG GID
+
+USER root
+RUN apt-get update -y --fix-missing
+RUN apt-get install -y libhdf5-mpi-dev
+
+RUN apt-get remove --purge -y libnetcdf-dev
+#RUN apt-get remove --purge -y libnetcdf-bin
+
+WORKDIR /usr/src/
+RUN wget https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.3.tar.gz \
+  && tar -xzf v4.9.3.tar.gz \
+  && rm v4.9.3.tar.gz
+WORKDIR netcdf-c-4.9.3
+RUN CC=mpicc CPPFLAGS=-I/usr/include/hdf5/openmpi/ \
+             LDFLAGS=-L/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ \
+             ./configure --enable-parallel-tests
+RUN make install
+
+ENV LD_LIBRARY_PATH="/usr/local/lib/:$LD_LIBRARY_PATH"
+
+RUN rm -rf /var/lib/apt/lists/*
+USER $UNAME
+WORKDIR /work
+
+
 # ==== IMAGE FOR RUNNING JULIA/MADS AUTO CALIBRATION STUFF ====================
 # Basically the dev image with Julia and MADS installed. Julia and MADS add
 # significantly to the build time and size, so they are split out to a separate
