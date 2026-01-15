@@ -235,6 +235,10 @@ int main(int argc, char* argv[]){
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
+//Setting defaults which will be overwritten if MPI is used
+int id = 0;
+int ntasks = 1;
+
 #ifdef WITHMPI
   BOOST_LOG_SEV(glg, monitor) << "Built and running with MPI";
 
@@ -242,13 +246,8 @@ int main(int argc, char* argv[]){
   // are currently unnecessary.
   MPI_Init(NULL, NULL);
 
-  int id, ntasks;
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
-
-#else
-  //
-  int id = 0;
 #endif
 
   // Limit output directory and file setup to a single process.
@@ -294,6 +293,9 @@ int main(int argc, char* argv[]){
  
     // Log the updated MD settings?
     //modeldata->get_settings_as_json or something?
+
+    configrecord["other_config"]["process_count"] = ntasks;
+    configrecord["other_config"]["git_sha"] = GIT_SHA;
   
     config_log_file << configrecord;
     config_log_file.close();

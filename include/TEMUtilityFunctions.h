@@ -22,11 +22,10 @@
 #include "cohortconst.h" // needed for NUM_PFT
 #include "TEMLogger.h"
 
+#include <netcdf.h>
 #ifdef WITHMPI
 #include <mpi.h>
 #include <netcdf_par.h>
-#else
-#include <netcdf.h>
 #endif
 
 extern src::severity_logger< severity_level > glg;
