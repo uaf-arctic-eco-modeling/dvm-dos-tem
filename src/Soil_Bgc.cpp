@@ -798,9 +798,12 @@ void Soil_Bgc::deltastate() {
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
   double s2dfraction = 1.0;
-  double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
-  double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
-  double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
+//  double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
+  double mobiletoco2 = (double)bgcpar.som2co2;
+//  double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
+//  double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
+  double xtopdlthick  = cd->m_soil.deepthick;  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
+  double xtopmlthick  = 5.2;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
   double s2dcarbon1 = 0.0;  // read "soil to deep"?
   double s2dcarbon2 = 0.0;
   double s2dorgn    = 0.0;
@@ -918,15 +921,20 @@ void Soil_Bgc::deltastate() {
       mlleft -= thickadded;
       double tsom = tmp_sois.soma[il] + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
-      if (tsom > 0.0) {
-        del_sois.soma[il]+= dcaddfrac*d2mcarbon*(tmp_sois.soma[il]/tsom);
-        del_sois.sompr[il]+= dcaddfrac*d2mcarbon*(tmp_sois.sompr[il]/tsom);
-        del_sois.somcr[il]+= dcaddfrac*d2mcarbon*(tmp_sois.somcr[il]/tsom);
-      } else {
-        del_sois.soma[il]+= dcaddfrac*d2mcarbon*fsoma;
-        del_sois.sompr[il]+= dcaddfrac*d2mcarbon*fsompr;
-        del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
-      }
+//      if (tsom > 0.0) {
+//        del_sois.soma[il]+= dcaddfrac*d2mcarbon*(tmp_sois.soma[il]/tsom);
+//        del_sois.sompr[il]+= dcaddfrac*d2mcarbon*(tmp_sois.sompr[il]/tsom);
+//        del_sois.somcr[il]+= dcaddfrac*d2mcarbon*(tmp_sois.somcr[il]/tsom);
+//      } else {
+//        del_sois.soma[il]+= dcaddfrac*d2mcarbon*fsoma;
+//        del_sois.sompr[il]+= dcaddfrac*d2mcarbon*fsompr;
+//        del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
+//      }
+
+      del_sois.soma[il]+= dcaddfrac*d2mcarbon*fsoma;
+      del_sois.sompr[il]+= dcaddfrac*d2mcarbon*fsompr;
+      del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
+
 
       if (this->nfeed == 1) {
         del_orgn[il] = d2morgn * dcaddfrac;
