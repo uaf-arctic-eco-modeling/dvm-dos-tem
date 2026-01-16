@@ -535,7 +535,7 @@ void Soil_Bgc::initMslayerCarbon(double & minec) {
       dbm += currl->dz;
       cumcarbon = ca*(pow(dbm*100,cb))*10000;
 
-      if(cumcarbon-prevcumcarbon>0.01 && dbm<=2.0) {  // somc will not exist more than 2 m intially
+      if(cumcarbon-prevcumcarbon>0.01 && dbm<=5.0) {  // somc will not exist more than 2 m intially
         currl->rawc  = bgcpar.eqrawc * (cumcarbon -prevcumcarbon);
         currl->soma  = bgcpar.eqsoma * (cumcarbon -prevcumcarbon);
         currl->sompr = bgcpar.eqsompr * (cumcarbon -prevcumcarbon);
@@ -870,7 +870,7 @@ void Soil_Bgc::deltastate() {
       del_sois.somcr[il] += dcaddfrac * s2dcarbon2;
 
       if (this->nfeed == 1) {
-        del_orgn[il]+=s2dorgn;
+        del_orgn[il]+=s2dorgn * dcaddfrac;
       }
 
       // 3) meanwhile, the most mobilable portion of increment in
