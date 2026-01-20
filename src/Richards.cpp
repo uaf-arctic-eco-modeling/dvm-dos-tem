@@ -294,7 +294,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
   } 
 
   if(groundwater_status){
-    // if(fbaseflow==0.0){
+      // if(fbaseflow==0.0){
 
       // This whole else if statement should be prefaced by limits:
       // - poor drainage
@@ -362,8 +362,7 @@ void Richards::update(Layer *fstsoill, Layer* bdrainl,
         // }
         // std::cout << std::endl;
       }
-    // }
-  }
+    }
 }
 
 void Richards::prepareSoilColumn(Layer* fstsoill, int drainind) {
