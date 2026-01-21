@@ -35,18 +35,17 @@
 #include <exception>
 #include <map>
 #include <set>
-#include <json/writer.h>
 
+#include <json/writer.h>
 #include <json/value.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/asio.hpp>
-
-#include <json/value.h>
 
 #include <omp.h>
 
@@ -236,6 +235,10 @@ int main(int argc, char* argv[]){
   std::string tr_restart_fname = modeldata.output_dir + "restart-tr.nc";
   std::string sc_restart_fname = modeldata.output_dir + "restart-sc.nc";
 
+//Setting defaults which will be overwritten if MPI is used
+int id = 0;
+int ntasks = 1;
+
 #ifdef WITHMPI
   BOOST_LOG_SEV(glg, monitor) << "Built and running with MPI";
 
@@ -243,13 +246,8 @@ int main(int argc, char* argv[]){
   // are currently unnecessary.
   MPI_Init(NULL, NULL);
 
-  int id, ntasks;
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
-
-#else
-  //
-  int id = 0;
 #endif
 
   // Limit output directory and file setup to a single process.
@@ -271,6 +269,36 @@ int main(int argc, char* argv[]){
     }
     BOOST_LOG_SEV(glg, info) << "Creating output directory: "<<modeldata.output_dir;
     boost::filesystem::create_directories(out_dir_path);
+
+
+    // Creating file to store configuration information to be packaged
+    // with the output data.
+    boost::filesystem::path config_log_fpath = modeldata.output_dir + "config_record.js";
+    boost::filesystem::ofstream config_log_file(config_log_fpath);
+
+    Json::Value configrecord = {};
+  
+    // Store original config file settings
+    configrecord["original_config"] = controldata;
+  
+    // This is a temporary approach for writing the command line overrides
+    // to the configuration output record.
+    std::string CLI_string = "";
+    for(int ii=0; ii<argc; ii++){
+      CLI_string += argv[ii];
+      CLI_string += " ";
+    }
+    BOOST_LOG_SEV(glg, info) << CLI_string;
+    configrecord["CLI_command"] = CLI_string;
+ 
+    // Log the updated MD settings?
+    //modeldata->get_settings_as_json or something?
+
+    configrecord["other_config"]["process_count"] = ntasks;
+    configrecord["other_config"]["git_sha"] = GIT_SHA;
+  
+    config_log_file << configrecord;
+    config_log_file.close();
 
 #ifdef WITHMPI
 

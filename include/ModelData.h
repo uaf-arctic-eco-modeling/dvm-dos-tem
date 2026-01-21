@@ -12,11 +12,10 @@
 #include "layerconst.h"
 #include "errorcode.h"
 
+#include <netcdf.h>
 #ifdef WITHMPI
 #include <mpi.h>
 #include <netcdf_par.h>
-#else
-#include <netcdf.h>
 #endif
 
 using namespace std;
