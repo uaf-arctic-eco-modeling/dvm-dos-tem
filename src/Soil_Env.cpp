@@ -48,13 +48,13 @@ void Soil_Env::initializeParameter() {
   envpar.nfactor_w = chtlu->nfactor_w;
   envpar.drainmax = chtlu->drainmax;
   envpar.rtdp4gdd = chtlu->rtdp4gdd;
-  if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32){
+  if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32 || cd->cmttype == 55 || cd->cmttype == 61 || cd->cmttype == 75 || cd->cmttype == 92 || cd->cmttype == 93){
     richards.groundwater_status = cd->groundwater_status;
   }
   richards.runon_status = cd->runon_status;
   if(cd->runon_status){
     // check landcover class, otherwise do not run hydrology
-    if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32){
+    if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32 || cd->cmttype == 55 || cd->cmttype == 61 || cd->cmttype == 75 || cd->cmttype == 92 || cd->cmttype == 93){
       richards.max_ponding = chtlu->max_ponding_w;
       ponding_max_mm = chtlu->max_ponding_s;
     }
@@ -544,7 +544,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   ed->d_sois.watertab = getWaterTable(lstsoill);
   if( (rnth + melt) > 0 ) {
     if(cd->runon_status){
-      if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32){
+      if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32 || cd->cmttype == 55 || cd->cmttype == 61 || cd->cmttype == 75 || cd->cmttype == 92 || cd->cmttype == 93){
         ed->d_soi2l.qover = 0.0;
       }
     }else{
@@ -557,7 +557,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   //Calculate infiltration (mm/day)
   double infil = 0.0;
   if(cd->runon_status){
-    if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32){
+    if (cd->cmttype == 6 || cd->cmttype == 31 || cd->cmttype == 32 || cd->cmttype == 55 || cd->cmttype == 61 || cd->cmttype == 75 || cd->cmttype == 92 || cd->cmttype == 93){
       infil = rnth + melt + getRunoff(fstsoill, drainl, rnth, melt);
     }
   }else{

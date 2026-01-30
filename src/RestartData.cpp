@@ -40,7 +40,7 @@ RestartData::~RestartData() {
 MPI_Datatype RestartData::register_mpi_datatype() {
 
   // create types for all the dimensions in the RestartData object...
-  const int elems_in_restartdata = 63;
+  const int elems_in_restartdata = 64;
   int counts[elems_in_restartdata] = {
     1, // int dsr;
     1, // double firea2sorgn;
