@@ -14,7 +14,7 @@ decorator==4.4.2
 Fiona==1.10.0
 GDAL==3.2.2.1
 geojson==2.5.0
-geopandas==0.8.1
+geopandas==1.1.2
 ipython==8.10.0
 ipython-genutils==0.2.0
 jedi==0.17.2
