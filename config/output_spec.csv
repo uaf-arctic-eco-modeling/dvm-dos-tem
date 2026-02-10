@@ -1,3 +1,4 @@
+Name,Description,Units,Yearly,Monthly,Daily,PFT,Compartments,Layers,Data Type,Placeholder
 ALD,Soil active layer depth,m,y,invalid,invalid,invalid,invalid,invalid,double,
 AVLN,Total soil available N,g/m2,y,,invalid,invalid,invalid,,double,
 BURNAIR2SOILN,Nitrogen deposit from fire emission,g/m2/time,,,invalid,invalid,invalid,invalid,double,
