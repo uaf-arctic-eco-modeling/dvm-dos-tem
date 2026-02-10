@@ -243,6 +243,42 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   int il; // manual layer index tracker
 
   for (int j = 1; j <= HR_IN_DAY; j++) { // Time-stepping loop
+    // for (int j = 1; j <= HR_IN_DAY; j++) { // Time-stepping loop
+
+    // PRE-CALCULATE DIFFUSION AND DETERMINE STABLE TIME STEP
+    double dt_stable = dt; // Start with default dt = 1.0/24.0
+    
+    currl = ground->lstsoill;
+    il = numsoill - 1;
+    
+    while (!currl->isMoss){
+      // Calculate diffusion coefficient (same as later in code)
+      double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
+      saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
+      
+      double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater() / (currl->poro), 3.0);
+      double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
+      double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
+      
+      double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
+      diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
+      
+      // Check stability
+      double alpha_test = (diff[il] * dt_stable) / (2 * currl->dz * currl->dz);
+      if (alpha_test > 0.5){
+        double dt_layer = 0.5 * 2 * currl->dz * currl->dz / diff[il];
+        dt_stable = fmin(dt_stable, dt_layer);
+      }
+      
+      currl = currl->prevl;
+      il--;
+    }
+    
+    // Apply the globally stable time step
+    if (dt_stable < dt) {
+      BOOST_LOG_SEV(glg, warn) << "CH4 alpha unstable, using dt = " << dt_stable << " instead of " << dt;
+      dt = dt_stable;
+    }
 
     double total_ch4_before = 0.0;
 
@@ -291,20 +327,20 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // Fan et al. 2013 supplement eq. 11
       diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
 
-      alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
+      // alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
       // Testing alpha stability (a < 0.5) and implementing
       // a time correction factor if needed
-      if (alpha > 0.5){
-        BOOST_LOG_SEV(glg, warn) << " CH4 alpha unstable, implementing correction factor ";
-        dt = 0.5 * 2 * currl->dz * currl->dz / diff[il];
-        alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
-      }
+      // if (alpha > 0.5){
+      //   BOOST_LOG_SEV(glg, warn) << " CH4 alpha unstable, implementing correction factor ";
+      //   dt = 0.5 * 2 * currl->dz * currl->dz / diff[il];
+      //   alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
+      // }
 
       // conditioning for very low values in solver
       // which can cause instabilities
-      if (alpha<1e-12){
-        alpha = 1e-12;
-      }
+      // if (alpha<1e-12){
+      //   alpha = 1e-12;
+      // }
 
       // Populating internal nodes of tridiagonal matrix
       lower_diagonal[il] = -alpha;
@@ -463,28 +499,28 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
         // Saturated fraction required carbon pool extraction d_soi2soi.ch4
         if (tmp_sois.rawc[il] > 0.0){
           prod_rawc_ch4[il] = saturated_fraction * (krawc_ch4 * tmp_sois.rawc[il] * TResp_sat);
-          bd->d_soi2soi.ch4_rawc[il] += prod_rawc_ch4[il];
+          bd->d_soi2soi.ch4_rawc[il] += fmin(prod_rawc_ch4[il], tmp_sois.rawc[il]);
         } else {
           prod_rawc_ch4[il] = 0.0;
         }
 
         if (tmp_sois.soma[il] > 0.0){
           prod_soma_ch4[il] = saturated_fraction * (ksoma_ch4 * tmp_sois.soma[il] * TResp_sat);
-          bd->d_soi2soi.ch4_soma[il] += prod_soma_ch4[il];
+          bd->d_soi2soi.ch4_soma[il] += fmin(prod_soma_ch4[il], tmp_sois.soma[il]);
         } else {
           prod_soma_ch4[il] = 0.0;
         }
 
         if (tmp_sois.sompr[il] > 0.0){
           prod_sompr_ch4[il] = saturated_fraction * (ksompr_ch4 * tmp_sois.sompr[il] * TResp_sat);
-          bd->d_soi2soi.ch4_sompr[il] += prod_sompr_ch4[il];
+          bd->d_soi2soi.ch4_sompr[il] += fmin(prod_sompr_ch4[il], tmp_sois.sompr[il]);
         } else {
           prod_sompr_ch4[il] = 0.0;
         }
 
         if (tmp_sois.somcr[il] > 0.0){
           prod_somcr_ch4[il] = saturated_fraction * (ksomcr_ch4 * tmp_sois.somcr[il] * TResp_sat);
-          bd->d_soi2soi.ch4_somcr[il] += prod_somcr_ch4[il];
+          bd->d_soi2soi.ch4_somcr[il] += fmin(prod_somcr_ch4[il], tmp_sois.somcr[il]);
         } else {
           prod_somcr_ch4[il] = 0.0;
         }
@@ -541,8 +577,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     // Lower boundary condition (no flux)
     main_diagonal[numlay - 1] = 1.0;
     upper_diagonal[numlay - 1] = 0.0;
-    lower_diagonal[numlay - 1] = -1.0;
-    solver_rhs[numlay - 1] = 0.0;
+    lower_diagonal[numlay - 1] = -1.0;//0.0;
+    solver_rhs[numlay - 1] = 0.0;//ground->lstsoill->ch4; // Match last soil layer
 
     // Track flux out of the upper boundary considering the properties of the first
     // non-moss soil layer
@@ -1168,7 +1204,7 @@ void Soil_Bgc::initMslayerCarbon(double & minec) {
       dbm += currl->dz;
       cumcarbon = ca*(pow(dbm*100,cb))*10000;
 
-      if(cumcarbon-prevcumcarbon>0.01 && dbm<=2.0) {  // somc will not exist more than 2 m intially
+      if(cumcarbon-prevcumcarbon>0.01 && dbm<=1.0) {  // somc will not exist more than 2 m intially
         currl->rawc  = bgcpar.eqrawc * (cumcarbon -prevcumcarbon);
         currl->soma  = bgcpar.eqsoma * (cumcarbon -prevcumcarbon);
         currl->sompr = bgcpar.eqsompr * (cumcarbon -prevcumcarbon);
