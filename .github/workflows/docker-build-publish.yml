@@ -1,0 +1,171 @@
+# Build Docker images and publish to GitHub Container Registry (GHCR).
+#
+# The main Dockerfile uses FROM cpp-dev:$GIT_VERSION (etc.), so we build
+# and tag each stage in order on the same runner, then push.
+#
+# Images built (from Dockerfile): cpp-dev, dvmdostem-dev
+# Commented out: dvmdostem-hpcdev, dvmdostem-build, dvmdostem-run, dvmdostem-autocal,
+#   dvmdostem-mapping-support (Dockerfile-mapping-support)
+#
+# Requires: default branch name (master or main). Ensure repo has
+# permissions: packages: write (default for GITHUB_TOKEN).
+
+name: Docker build and publish to GHCR
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set version and image prefix
+        id: meta
+        run: |
+          GIT_VERSION=$(git describe --tags --always)
+          echo "version=${GIT_VERSION}" >> "$GITHUB_OUTPUT"
+          REPO_SLUG="${GITHUB_REPOSITORY,,}"
+          echo "image_prefix=${REGISTRY}/${REPO_SLUG}" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = "branch" ] && { [ "$GITHUB_REF" = "refs/heads/main" ] || [ "$GITHUB_REF" = "refs/heads/master" ]; }; then
+            echo "tag_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag_latest=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build in dependency order; tag locally so next stage's FROM resolves.
+      - name: Build cpp-dev
+        run: |
+          docker build --build-arg GIT_VERSION=${{ steps.meta.outputs.version }} \
+            --build-arg UID=1000 --build-arg GID=1000 \
+            --target cpp-dev \
+            -t cpp-dev:${{ steps.meta.outputs.version }} \
+            -t ${{ steps.meta.outputs.image_prefix }}/cpp-dev:${{ steps.meta.outputs.version }} \
+            .
+          if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+            docker tag cpp-dev:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/cpp-dev:latest
+          fi
+
+      - name: Build dvmdostem-dev
+        run: |
+          docker build --build-arg GIT_VERSION=${{ steps.meta.outputs.version }} \
+            --build-arg UID=1000 --build-arg GID=1000 \
+            --target dvmdostem-dev \
+            -t dvmdostem-dev:${{ steps.meta.outputs.version }} \
+            -t ${{ steps.meta.outputs.image_prefix }}/dvmdostem-dev:${{ steps.meta.outputs.version }} \
+            .
+          if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+            docker tag dvmdostem-dev:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/dvmdostem-dev:latest
+          fi
+
+      # - name: Build dvmdostem-hpcdev
+      #   run: |
+      #     docker build --build-arg GIT_VERSION=${{ steps.meta.outputs.version }} \
+      #       --build-arg UID=1000 --build-arg GID=1000 \
+      #       --target dvmdostem-hpcdev \
+      #       -t ${{ steps.meta.outputs.image_prefix }}/dvmdostem-hpcdev:${{ steps.meta.outputs.version }} \
+      #       .
+      #     if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+      #       docker tag ${{ steps.meta.outputs.image_prefix }}/dvmdostem-hpcdev:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/dvmdostem-hpcdev:latest
+      #     fi
+
+      # - name: Build dvmdostem-autocal
+      #   run: |
+      #     docker build --build-arg GIT_VERSION=${{ steps.meta.outputs.version }} \
+      #       --build-arg UID=1000 --build-arg GID=1000 \
+      #       --target dvmdostem-autocal \
+      #       -t ${{ steps.meta.outputs.image_prefix }}/dvmdostem-autocal:${{ steps.meta.outputs.version }} \
+      #       .
+      #     if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+      #       docker tag ${{ steps.meta.outputs.image_prefix }}/dvmdostem-autocal:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/dvmdostem-autocal:latest
+      #     fi
+
+      # - name: Build dvmdostem-build
+      #   run: |
+      #     docker build --build-arg GIT_VERSION=${{ steps.meta.outputs.version }} \
+      #       --build-arg UID=1000 --build-arg GID=1000 \
+      #       --target dvmdostem-build \
+      #       -t ${{ steps.meta.outputs.image_prefix }}/dvmdostem-build:${{ steps.meta.outputs.version }} \
+      #       .
+      #     if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+      #       docker tag ${{ steps.meta.outputs.image_prefix }}/dvmdostem-build:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/dvmdostem-build:latest
+      #     fi
+
+      # - name: Build dvmdostem-run
+      #   run: |
+      #     docker build --build-arg GIT_VERSION=${{ steps.meta.outputs.version }} \
+      #       --build-arg UID=1000 --build-arg GID=1000 \
+      #       --target dvmdostem-run \
+      #       -t ${{ steps.meta.outputs.image_prefix }}/dvmdostem-run:${{ steps.meta.outputs.version }} \
+      #       .
+      #     if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+      #       docker tag ${{ steps.meta.outputs.image_prefix }}/dvmdostem-run:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/dvmdostem-run:latest
+      #     fi
+      #   continue-on-error: true
+      #   # Dockerfile dvmdostem-run stage has known issues (invalid FROM, COPY paths)
+
+      # - name: Build dvmdostem-mapping-support
+      #   run: |
+      #     docker build -f Dockerfile-mapping-support \
+      #       --build-arg UID=1000 --build-arg GID=1000 \
+      #       -t ${{ steps.meta.outputs.image_prefix }}/dvmdostem-mapping-support:${{ steps.meta.outputs.version }} \
+      #       .
+      #     if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+      #       docker tag ${{ steps.meta.outputs.image_prefix }}/dvmdostem-mapping-support:${{ steps.meta.outputs.version }} ${{ steps.meta.outputs.image_prefix }}/dvmdostem-mapping-support:latest
+      #     fi
+
+      - name: Push images to GHCR
+        if: github.event_name != 'pull_request'
+        run: |
+          PREFIX="${{ steps.meta.outputs.image_prefix }}"
+          V="${{ steps.meta.outputs.version }}"
+          for img in cpp-dev dvmdostem-dev; do
+            docker push "${PREFIX}/${img}:${V}" || true
+            if [ "${{ steps.meta.outputs.tag_latest }}" = "true" ]; then
+              docker push "${PREFIX}/${img}:latest" || true
+            fi
+          done
+
+      - name: Summary
+        run: |
+          echo "## Docker images" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Version: \`${{ steps.meta.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Image | Tags |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|------|" >> "$GITHUB_STEP_SUMMARY"
+          PREFIX="${{ steps.meta.outputs.image_prefix }}"
+          V="${{ steps.meta.outputs.version }}"
+          for img in cpp-dev dvmdostem-dev; do
+            echo "| \`${PREFIX}/${img}\` | \`${V}\` |" >> "$GITHUB_STEP_SUMMARY"
+          done

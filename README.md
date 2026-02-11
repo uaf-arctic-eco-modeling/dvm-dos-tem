@@ -54,8 +54,9 @@ the ``env`` variable below prevents some warnings.
 
 On some systems you will need to make Docker usable by non-root users. [See here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
 
-Build Docker images. For this demo we only build 2 of the images. For your needs
-you might want to build the other images. See ``./docker-build-wrapper.sh --help`` for
+Build Docker images (or use pre-built images from GitHub Container Registry; see
+**Pre-built Docker images** below). For this demo we only build 2 of the images.
+For your needs you might want to build the other images. See ``./docker-build-wrapper.sh --help`` for
 more info.
 
     $ ./docker-build-wrapper.sh cpp-dev
@@ -103,17 +104,29 @@ Visualize run:
 
 ![GPP_plot_output_var](https://github.com/user-attachments/assets/678be9a7-2e48-479e-ae27-1a96c95da7be)
 
+## Pre-built Docker images
+
+Docker images are built and published to the [GitHub Container Registry (GHCR)](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) by the **Docker build and publish to GHCR** workflow (`.github/workflows/docker-build-publish.yml`). Images are built on push to `main`/`master`, on version tags (`v*`), and on pull requests (build-only, no push).
+
+Images are named `ghcr.io/OWNER/REPO/IMAGE:tag`, for example:
+- `ghcr.io/uaf-arctic-eco-modeling/dvm-dos-tem/dvmdostem-dev:latest`
+- `ghcr.io/uaf-arctic-eco-modeling/dvm-dos-tem/dvmdostem-run:v0.8.3`
+
+Available images: `cpp-dev`, `dvmdostem-dev`, `dvmdostem-hpcdev`, `dvmdostem-autocal`, `dvmdostem-build`, `dvmdostem-run`, `dvmdostem-mapping-support`. To use a pre-built image, set `V_TAG` to the tag you want (e.g. `latest` or a git-describe tag) and use that image in your `docker compose` or `docker run` commands instead of building locally.
+
 ## Testing and Continuous Integration (CI)
 
 This project has a very basic CI workflow implemented using Github Actions. When
 a pull request is made to the `master` branch, an action is run that checks out
 the code, builds one of the Docker images, compiles the `dvmdostem` binary and
-runs the model using the demo data for a short number of years. This test does
-not confirm any of the scientific aspects of the model and does not exercise any
-of the supporting pre- and post-processing tools. Extending and improving the
-CI coverage remains an open project. We would like for future development to 
-improve overall test coverage and setup more actions to run the tests. For more 
-information about the testing and CI, see the [Testing and Deployment](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/software_development_info.html#testing-and-deployment) of the User Guide.
+runs the model using the demo data for a short number of years. A separate
+workflow builds and publishes Docker images to GHCR on push to `main`/`master`
+or version tags. This test does not confirm any of the scientific aspects of
+the model and does not exercise any of the supporting pre- and post-processing
+tools. Extending and improving the CI coverage remains an open project. We would
+like for future development to improve overall test coverage and setup more
+actions to run the tests. For more information about the testing and CI, see the
+[Testing and Deployment](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/software_development_info.html#testing-and-deployment) of the User Guide.
 
 > [!WARNING]
 > Sept 2022 - We are in the process of updating the entire documentation
