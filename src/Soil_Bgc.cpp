@@ -798,6 +798,9 @@ void Soil_Bgc::deltastate() {
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
   double s2dfraction = 1.0;
+  double s2dfraction4 = 0.5;
+  double d2mfraction = 1.0;
+  double d2mfraction4 = 0.5;
 //  double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
   double mobiletoco2 = (double)bgcpar.som2co2;
 //  double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
@@ -806,7 +809,13 @@ void Soil_Bgc::deltastate() {
   double xtopmlthick  = 5.2;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
   double s2dcarbon1 = 0.0;  // read "soil to deep"?
   double s2dcarbon2 = 0.0;
+  double s2dcarbon3 = 0.0;
+  double s2dcarbon4 = 0.0;
   double s2dorgn    = 0.0;
+  double d2mcarbon1 = 0.0;  // read "soil to deep"?
+  double d2mcarbon2 = 0.0;
+  double d2mcarbon3 = 0.0;
+  double d2mcarbon4 = 0.0;
   double d2mcarbon = 0.0;   // read "deep to mineral"?
   double d2morgn   = 0.0;
   double dlleft    = xtopdlthick;
@@ -830,12 +839,26 @@ void Soil_Bgc::deltastate() {
         del_sois.somcr[il] *= (1.0-s2dfraction);
       }
 
+      if (del_sois.soma[il] > 0.) {
+        s2dcarbon3 += del_sois.soma[il]*s2dfraction;   //
+        del_sois.soma[il] *= (1.0-s2dfraction);
+      }
+
+      if (del_sois.rawc[il] > 0.) {
+        s2dcarbon4 += del_sois.rawc[il]*s2dfraction4;   //
+        del_sois.rawc[il] *= (1.0-s2dfraction4);
+      }
+
       if (this->nfeed == 1) {  // move orgn with SOMC as well
         double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
                          + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
-        if (totsomc > (s2dcarbon1 + s2dcarbon2)) {
-          del_orgn[il] = - (s2dcarbon1+s2dcarbon2) / totsomc
+//        if (totsomc > (s2dcarbon1 + s2dcarbon2)) {
+//          del_orgn[il] = - (s2dcarbon1+s2dcarbon2) / totsomc
+//                          * tmp_sois.orgn[il]; //assuming C/N same for all
+                                               //  SOM components
+        if (totsomc > (s2dcarbon1 + s2dcarbon2 + s2dcarbon3 + s2dcarbon4)) {
+          del_orgn[il] = - (s2dcarbon1+s2dcarbon2+s2dcarbon3+s2dcarbon4) / totsomc
                           * tmp_sois.orgn[il]; //assuming C/N same for all
                                                //  SOM components
         } else {
@@ -857,6 +880,12 @@ void Soil_Bgc::deltastate() {
         del_sois.somcr[il] += s2dcarbon2; // Which later on, if greater than a
                                           // min. value, will form a new
                                           // humic layer
+        del_sois.soma[il] += s2dcarbon3; // Which later on, if greater than a
+                                          // min. value, will form a new
+                                          // humic layer
+        del_sois.rawc[il] += s2dcarbon4; // Which later on, if greater than a
+                                          // min. value, will form a new
+                                          // humic layer
 
         if (this->nfeed == 1) {
           del_orgn[il] += s2dorgn;
@@ -871,6 +900,8 @@ void Soil_Bgc::deltastate() {
       dlleft -= thickadded;
       del_sois.sompr[il] += dcaddfrac * s2dcarbon1;
       del_sois.somcr[il] += dcaddfrac * s2dcarbon2;
+      del_sois.soma[il] += dcaddfrac * s2dcarbon3;
+      del_sois.rawc[il] += dcaddfrac * s2dcarbon4;
 
       if (this->nfeed == 1) {
         del_orgn[il]+=s2dorgn * dcaddfrac;
@@ -888,30 +919,74 @@ void Soil_Bgc::deltastate() {
       //        decomposition activity, rather than directly to the
       //        substrate itself, because theorectically this mobile SOM C
       //        should be related to microbial activity
-      double rhsum = del_soi2a.rhrawc[il] + del_soi2a.rhsoma[il]
-                     + del_soi2a.rhsompr[il] + del_soi2a.rhsomcr[il];
 
-      if (rhsum > 0.0) {
-        double totmobile = rhsum*mobiletoco2;
-        d2mcarbon += totmobile;
-        del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2;
-        del_sois.soma[il]  -= del_soi2a.rhsoma[il]*mobiletoco2;
-        del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2;
-        del_sois.somcr[il] -= del_soi2a.rhsomcr[il]*mobiletoco2;
+//      double rhsum = del_soi2a.rhrawc[il] + del_soi2a.rhsoma[il]
+//                     + del_soi2a.rhsompr[il] + del_soi2a.rhsomcr[il];
+//
+//      if (rhsum > 0.0) {
+//        double totmobile = rhsum*mobiletoco2;
+//        d2mcarbon += totmobile;
+//        del_sois.rawc[il]  -= del_soi2a.rhrawc[il]*mobiletoco2;
+//        del_sois.soma[il]  -= del_soi2a.rhsoma[il]*mobiletoco2;
+//        del_sois.sompr[il] -= del_soi2a.rhsompr[il]*mobiletoco2;
+//        del_sois.somcr[il] -= del_soi2a.rhsomcr[il]*mobiletoco2;
+//
+//        if (this->nfeed == 1) {
+//          double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
+//                           + tmp_sois.sompr[il] + tmp_sois.somcr[il];
+//
+//          if (totsomc > totmobile) {
+//            del_orgn [il] = - totmobile/totsomc*tmp_sois.orgn[il]; //assuming C/N same for all SOM components
+//          } else {
+//            del_orgn[il] = 0.0;
+//          }
+//
+//          d2morgn += (-del_orgn[il]); //note: del_orgn[il] above is not positive
+//        }
+//      }
 
-        if (this->nfeed == 1) {
-          double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
-                           + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
-          if (totsomc > totmobile) {
-            del_orgn [il] = - totmobile/totsomc*tmp_sois.orgn[il]; //assuming C/N same for all SOM components
-          } else {
-            del_orgn[il] = 0.0;
-          }
 
-          d2morgn += (-del_orgn[il]); //note: del_orgn[il] above is not positive
-        }
+      if (del_sois.sompr[il] > 0.) {
+        d2mcarbon1 += del_sois.sompr[il]*d2mfraction;   //
+        del_sois.sompr[il] *= (1.0-d2mfraction); // <<-- NOTE: may set delta sompr to zero?
       }
+
+      if (del_sois.somcr[il] > 0.) {
+        d2mcarbon2 += del_sois.somcr[il]*d2mfraction;   //
+        del_sois.somcr[il] *= (1.0-d2mfraction);
+      }
+
+      if (del_sois.soma[il] > 0.) {
+        d2mcarbon3 += del_sois.soma[il]*d2mfraction;   //
+        del_sois.soma[il] *= (1.0-d2mfraction);
+      }
+
+      if (del_sois.rawc[il] > 0.) {
+        d2mcarbon4 += del_sois.rawc[il]*d2mfraction4;   //
+        del_sois.rawc[il] *= (1.0-d2mfraction4);
+      }
+
+      if (this->nfeed == 1) {  // move orgn with SOMC as well
+        double totsomc = tmp_sois.rawc[il] + tmp_sois.soma[il]
+                         + tmp_sois.sompr[il] + tmp_sois.somcr[il];
+
+//        if (totsomc > (s2dcarbon1 + s2dcarbon2)) {
+//          del_orgn[il] = - (s2dcarbon1+s2dcarbon2) / totsomc
+//                          * tmp_sois.orgn[il]; //assuming C/N same for all
+                                               //  SOM components
+        if (totsomc > (d2mcarbon1 + d2mcarbon2 + d2mcarbon3 + d2mcarbon4)) {
+          del_orgn[il] = - (d2mcarbon1+d2mcarbon2+d2mcarbon3+d2mcarbon4) / totsomc
+                          * tmp_sois.orgn[il]; //assuming C/N same for all
+                                               //  SOM components
+        } else {
+          del_orgn[il] = 0.0;
+        }
+
+        d2morgn += (-del_orgn[il]); //note: del_orgn[il] above is not positive
+      }
+
+
 
     // end soil type 2 and 'dlleft>0'
     } else if (cd->m_soil.type[il]==3) { // mineral layers...
@@ -919,7 +994,7 @@ void Soil_Bgc::deltastate() {
       thickadded = fmin(cd->m_soil.dz[il], mlleft);
       dcaddfrac = thickadded/xtopmlthick;
       mlleft -= thickadded;
-      double tsom = tmp_sois.soma[il] + tmp_sois.sompr[il] + tmp_sois.somcr[il];
+      double tsom = tmp_sois.rawc[il] + tmp_sois.soma[il] + tmp_sois.sompr[il] + tmp_sois.somcr[il];
 
 //      if (tsom > 0.0) {
 //        del_sois.soma[il]+= dcaddfrac*d2mcarbon*(tmp_sois.soma[il]/tsom);
@@ -931,17 +1006,26 @@ void Soil_Bgc::deltastate() {
 //        del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
 //      }
 
-      del_sois.soma[il]+= dcaddfrac*d2mcarbon*fsoma;
-      del_sois.sompr[il]+= dcaddfrac*d2mcarbon*fsompr;
-      del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
+//      del_sois.soma[il]+= dcaddfrac*d2mcarbon*fsoma;
+//      del_sois.sompr[il]+= dcaddfrac*d2mcarbon*fsompr;
+//      del_sois.somcr[il]+= dcaddfrac*d2mcarbon*fsomcr;
+//
+//      if (this->nfeed == 1) {
+//        del_orgn[il] = d2morgn * dcaddfrac;
+//      }
 
-
-      if (this->nfeed == 1) {
-        del_orgn[il] = d2morgn * dcaddfrac;
-      }
 
       if (mlleft<=0.0) {
         break;
+      }
+
+      del_sois.sompr[il] += dcaddfrac * d2mcarbon1;
+      del_sois.somcr[il] += dcaddfrac * d2mcarbon2;
+      del_sois.soma[il] += dcaddfrac * d2mcarbon3;
+      del_sois.rawc[il] += dcaddfrac * d2mcarbon4;
+
+      if (this->nfeed == 1) {
+        del_orgn[il]+=d2morgn * dcaddfrac;
       }
     } // end soil type 3
   }
