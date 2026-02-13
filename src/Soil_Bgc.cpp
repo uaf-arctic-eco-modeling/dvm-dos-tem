@@ -797,16 +797,16 @@ void Soil_Bgc::deltastate() {
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
-  double s2dfraction = 1.0;
-  double s2dfraction4 = 0.5;
-  double d2mfraction = 1.0;
-  double d2mfraction4 = 0.5;
+  double s2dfraction = 1.0; //sensitivity analysis required
+  double s2dfraction4 = 0.5;//sensitivity analysis required
+  double d2mfraction = 1.0; //sensitivity analysis required
+  double d2mfraction4 = 0.5;//sensitivity analysis required
 //  double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
-  double mobiletoco2 = (double)bgcpar.som2co2;
+  double mobiletoco2 = (double)bgcpar.som2co2; //sensitivity analysis required
 //  double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
 //  double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
-  double xtopdlthick  = cd->m_soil.deepthick;  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
-  double xtopmlthick  = 5.2;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
+  double xtopdlthick  = cd->m_soil.deepthick;  //sensitivity analysis required
+  double xtopmlthick  = 5.2;                   //sensitivity analysis required           
   double s2dcarbon1 = 0.0;  // read "soil to deep"?
   double s2dcarbon2 = 0.0;
   double s2dcarbon3 = 0.0;
