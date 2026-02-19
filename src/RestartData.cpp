@@ -980,6 +980,15 @@ void RestartData::create_empty_file(const std::string& fname,
   BOOST_LOG_SEV(glg, debug) << "Creating dimensions...";
   temutil::nc( nc_def_dim(ncid, "Y", ysize, &yD) );
   temutil::nc( nc_def_dim(ncid, "X", xsize, &xD) );
+//  temutil::nc( nc_def_dim(ncid, "pft", 10, &pftD) );
+//  temutil::nc( nc_def_dim(ncid, "pftpart", 3, &pftpartD) );
+//  temutil::nc( nc_def_dim(ncid, "snowlayer", 6, &snowlayerD) );
+//  temutil::nc( nc_def_dim(ncid, "rootlayer", 10, &rootlayerD) );
+//  temutil::nc( nc_def_dim(ncid, "soillayer", 23, &soillayerD) );
+//  temutil::nc( nc_def_dim(ncid, "rocklayer", 5, &rocklayerD) );
+//  temutil::nc( nc_def_dim(ncid, "fronts", 10, &frontsD) );
+//  temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
+//  temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
 
   temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
   temutil::nc( nc_def_dim(ncid, "pftpart", NUM_PFT_PART, &pftpartD) );
@@ -1036,6 +1045,16 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "yrsdist", NC_INT, 2, vartype2D_dimids, &yrsdistV) );
   temutil::nc( nc_put_att_int(ncid, yrsdistV, "_FillValue", NC_INT, 1, &MISSING_I) );
 
+  #ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, dsrV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, numslV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, numsnwlV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, rtfrozendaysV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, rtunfrozendaysV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, yrsdistV, NC_INDEPENDENT));
+#endif
+
   // Setup 2D vars, double
   int firea2sorgnV;
   int snwextramasV;
@@ -1056,6 +1075,16 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "wdebrisn", NC_DOUBLE, 2, vartype2D_dimids, &wdebrisnV) );
   temutil::nc( nc_put_att_double(ncid, wdebrisnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, firea2sorgnV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, snwextramasV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, monthsfrozenV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, watertabV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, wdebriscV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, wdebrisnV, NC_INDEPENDENT));
+#endif
+
   // Setup 3D vars, integer
   int ifwoodyV;
   int ifdeciwoodyV;
@@ -1072,6 +1101,15 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_int(ncid, nonvascularV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "vegage", NC_INT, 3, vartype3D_dimids, &vegageV) );
   temutil::nc( nc_put_att_int(ncid, vegageV, "_FillValue", NC_INT, 1, &MISSING_I) );
+
+  #ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, ifwoodyV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, ifdeciwoodyV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, ifperenialV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, nonvascularV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, vegageV, NC_INDEPENDENT));
+#endif
 
   // Setup 3D vars, double
   int vegcovV;
@@ -1114,6 +1152,23 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "foliagemx", NC_DOUBLE, 3, vartype3D_dimids, &foliagemxV) );
   temutil::nc( nc_put_att_double(ncid, foliagemxV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, vegcovV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, laiV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, vegwaterV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, vegsnowV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, labnV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, deadcV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, deadnV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, toptV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, eetmxV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, unnormleafV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, unnormleafmxV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, growingttimeV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, foliagemxV, NC_INDEPENDENT));
+#endif
+
   // Setup 4D vars, double
   int vegcV;
   int strnV;
@@ -1124,6 +1179,13 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_double(ncid, strnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
   temutil::nc( nc_def_var(ncid, "vegC2N", NC_DOUBLE, 4, vartype4D_dimids, &vegC2NV) );
   temutil::nc( nc_put_att_double(ncid, vegC2NV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, vegcV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, strnV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, vegC2NV, NC_INDEPENDENT));
+#endif
 
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
@@ -1140,6 +1202,13 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_put_att_int(ncid, TYPEsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
   temutil::nc( nc_def_var(ncid, "AGEsoil", NC_INT, 3, vartype3D_dimids, &AGEsoilV) );
   temutil::nc( nc_put_att_int(ncid, AGEsoilV, "_FillValue", NC_INT, 1, &MISSING_I) );
+
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, FROZENsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, TYPEsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, AGEsoilV, NC_INDEPENDENT));
+#endif
 
   // Setup 3D vars, double
   int TSsoilV;
@@ -1179,6 +1248,22 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "avln", NC_DOUBLE, 3, vartype3D_dimids, &avlnV) );
   temutil::nc( nc_put_att_double(ncid, avlnV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, TSsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, DZsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, LIQsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, ICEsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, FROZENFRACsoilV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, rawcV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, somaV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, somprV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, somcrV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, ch4V, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, orgnV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, avlnV, NC_INDEPENDENT));
+#endif
+
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // NOTE: Seems odd, that these variables are defined in terms of soillayer
   // dimension and not the snowlayer dimension??? If this changes, will have
@@ -1217,6 +1302,16 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "AGEsnow", NC_DOUBLE, 3, vartype3D_dimids, &AGEsnowV) );
   temutil::nc( nc_put_att_double(ncid, AGEsnowV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, TSsnowV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, DZsnowV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, LIQsnowV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, RHOsnowV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, ICEsnowV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, AGEsnowV, NC_INDEPENDENT));
+#endif
+
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
   vartype3D_dimids[1] = xD;
@@ -1229,6 +1324,11 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "DZrock", NC_DOUBLE, 3, vartype3D_dimids, &DZrockV) );
   temutil::nc( nc_put_att_double(ncid, DZrockV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, TSrockV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, DZrockV, NC_INDEPENDENT));
+#endif
 
   // re-arrange dims in vartype
   vartype3D_dimids[0] = yD;
@@ -1242,6 +1342,12 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "frontZ", NC_DOUBLE, 3, vartype3D_dimids, &frontZV) );
   temutil::nc( nc_put_att_double(ncid, frontZV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, frontFTV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, frontZV, NC_INDEPENDENT));
+#endif
+
   // re-arrange dims in vartype
   vartype4D_dimids[0] = yD;
   vartype4D_dimids[1] = xD;
@@ -1252,6 +1358,10 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "rootfrac", NC_DOUBLE, 4, vartype4D_dimids, &rootfracV) );
   temutil::nc( nc_put_att_double(ncid, rootfracV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, rootfracV, NC_INDEPENDENT));
+#endif
 
   // re-arrange dims in vartype
   vartype4D_dimids[0] = yD;
@@ -1272,6 +1382,14 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_var(ncid, "growingttimeA", NC_DOUBLE, 4, vartype4D_dimids, &growingttimeAV) );
   temutil::nc( nc_put_att_double(ncid, growingttimeAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
 
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, toptAV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, eetmxAV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, unnormleafmxAV, NC_INDEPENDENT));
+  temutil::nc(nc_var_par_access(ncid, growingttimeAV, NC_INDEPENDENT));
+#endif
+
   // re-arrange dims in vartype
   vartype4D_dimids[0] = yD;
   vartype4D_dimids[1] = xD;
@@ -1281,6 +1399,11 @@ void RestartData::create_empty_file(const std::string& fname,
   int prvltrfcnAV;
   temutil::nc( nc_def_var(ncid, "prvltrfcnA", NC_DOUBLE, 4, vartype4D_dimids, &prvltrfcnAV) );
   temutil::nc( nc_put_att_double(ncid, prvltrfcnAV, "_FillValue", NC_DOUBLE, 1, &MISSING_D) );
+
+#ifdef WITHMPI
+  // Instruct HDF5 to use independent parallel access for this variable
+  temutil::nc(nc_var_par_access(ncid, prvltrfcnAV, NC_INDEPENDENT));
+#endif
 
   /* Global Attributes */
   temutil::nc( nc_put_att_text(ncid, NC_GLOBAL, "Git_SHA", strlen(GIT_SHA), GIT_SHA ) );
