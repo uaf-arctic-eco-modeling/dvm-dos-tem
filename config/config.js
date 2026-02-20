@@ -129,7 +129,7 @@
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
     "baseline_end": 1931,     //end year for baseline EQ climate
-    "ch4": false, //controlled at the stage level by bgc settings above
+    "ch4": true, //controlled at the stage level by bgc settings above
     "run-on": false, //enable run-on (use calculated runoff as input) only if poorly draining pixel
     "groundwater": false //enable calibrated fixed groundwater recharge only if input if poorly draining pixel
 //    //"dynamic_climate": 0,

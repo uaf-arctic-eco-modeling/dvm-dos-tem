@@ -1248,27 +1248,27 @@
       0.2000  //initvwc(8):// initial soil volume water content at every 10 cm interval //  // 
       0.2000  //initvwc(9):// initial soil volume water content at every 10 cm interval //  // 
 //===========================================================
-// CMT75 // Igarka Bog - bonanza calibration
-0.800000     // snwalbmax: 
-0.400000     // snwalbmin: 
+// CMT75 // Igarka Bog - bonanza fen calibration for testing
+0.774608     // snwalbmax: 
+0.448077     // snwalbmin: 
 -15000000.000000 // psimax: 
 0.080000     // evapmin: 
 0.040000     // drainmax: 
 0.200000     // rtdp4gdd: 
-0.362467     // tcsolid(m): 
-0.178509     // tcsolid(f): 
-0.722128     // tcsolid(h): 
-0.874363     // porosity(m): 
-0.861715     // porosity(f): 
-0.726221     // porosity(h): 
-19987.353162 // bulkden(m): 
-45309.714571 // bulkden(f): 
-61332.184627 // bulkden(h): 
-0.037092     // hksat(m): 
-0.107318     // hksat(f): 
-0.152126     // hksat(h): 
-1.0          // nfactor(s): 
-0.8          // nfactor(w): 
+0.016947     // tcsolid(m): 
+0.093244     // tcsolid(f): 
+0.644573     // tcsolid(h): 
+0.894919     // porosity(m): 
+0.869959     // porosity(f): 
+0.772225     // porosity(h): 
+79636.469350 // bulkden(m): 
+32414.753178 // bulkden(f): 
+415233.299638 // bulkden(h): 
+28.372922    // hksat(m): 
+13.527180    // hksat(f): 
+0.319185     // hksat(h): 
+0.948878     // nfactor(s): 
+0.495054     // nfactor(w): 
 -1.000000    // initsnwtem: 
 -9.100000    // initts(0): 
 -7.900000    // initts(1): 

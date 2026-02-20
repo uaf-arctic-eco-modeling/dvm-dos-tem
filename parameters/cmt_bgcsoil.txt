@@ -610,9 +610,9 @@
    1.895e+02  //initsoln:// same as targets //  // 
       0.3340  //initavln:// same as targets //  // 
 //===========================================================
-// CMT75 // Igarga Bog - bonanza calibration
+// CMT75 // Igarga Bog - bonanza fen calibration for testing
 2.036690          // rhq10: 
-0.400000          // rhmoistfrozen: 
+1.000000          // rhmoistfrozen: 
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:
@@ -625,11 +625,11 @@
 19.34             // nmincnsoil: Updated
 0.2               // propftos:
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-8731.942664       // initshlwc: Updated
-24091.95591       // initdeepc: Updated
-61545.45455       // initminec: Updated
-4138              // initsoln: Updated
-7.134             // initavln: Updated
+158               // initshlwc: Updated
+56300             // initdeepc: Updated
+71636             // initminec: Updated
+7135              // initsoln: Updated
+7.135             // initavln: Updated
 //===========================================================
 // CMT92 // Abisko Bog - bonanza calibration
 2.036690          // rhq10: 

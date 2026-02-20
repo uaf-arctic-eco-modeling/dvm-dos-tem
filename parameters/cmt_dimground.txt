@@ -494,22 +494,22 @@
       0.0230  //coefminea://  //  // 
       0.6078  //coefmineb://  //  // 
 //===========================================================
-// CMT75 // Igarka Bog - bonanza calibration
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+// CMT75 // Igarka Bog - bonanza fen calibration for testin
+231.944080   // snwdenmax: 
+62.730167    // snwdennew: 
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
 0.210000     // initdmossthick: 
 1.000000     // mosstype: 
-0.469375     // initfibthick: 
-0.420625     // inithumthick: 
-0.011090     // coefshlwa: 
-1.141000     // coefshlwb: 
-0.031270     // coefdeepa: 
-1.121200     // coefdeepb: 
-0.061540     // coefminea: 
-1.000000     // coefmineb:
+0.020000     // initfibthick: 
+0.900000     // inithumthick: 
+0.011000     // coefshlwa: 
+1.000000     // coefshlwb: 
+0.011000     // coefdeepa: 
+1.384000     // coefdeepb: 
+0.072000     // coefminea: 
+1.000000     // coefmineb: 
 //===========================================================
 // CMT92 // Abisko Bog - bonanza calibration
 250.000000   // snwdenmax: 
