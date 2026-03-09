@@ -211,6 +211,11 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   double alpha = 0.0;
   // Storing diffusion coefficient
   double diff[numlay] = {0};
+  // Per-layer saturation fraction cached for the current hourly step
+  double layer_saturated_fraction[MAX_SOI_LAY] = {0};
+  // Throttle warnings inside hourly loop to avoid log overhead
+  bool dt_stability_warned = false;
+  bool ch4_conservation_warned = false;
 
   // ch4 production responses: kdc_ch4 * Tresp(q10) * SOM pool, Fan Eq. 9
   double prod_rawc_ch4[MAX_SOI_LAY] = {0};
@@ -247,36 +252,46 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
 
     // PRE-CALCULATE DIFFUSION AND DETERMINE STABLE TIME STEP
     double dt_stable = dt; // Start with default dt = 1.0/24.0
-    
+    wtlayer = ground->fstshlwl;
+
     currl = ground->lstsoill;
     il = numsoill - 1;
-    
+
     while (!currl->isMoss){
-      // Calculate diffusion coefficient (same as later in code)
+      // Calculate and cache saturation and diffusion terms for this layer
       double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
       saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
-      
-      double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater() / (currl->poro), 3.0);
-      double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
+      layer_saturated_fraction[il] = saturated_fraction;
+      if (0.0 < saturated_fraction && saturated_fraction < 1.0) {
+        wtlayer = currl;
+      }
+
+      const double vol_water = currl->getVolWater();
+      const double vol_air = currl->getVolAir();
+      double tortuosity_sat = 0.66 * vol_water * pow(vol_water / (currl->poro), 3.0);
+      double tortuosity_unsat = 0.66 * vol_air * pow(vol_air / currl->poro, 3.0);
       double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
-      
+
       double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
       diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
-      
+
       // Check stability
       double alpha_test = (diff[il] * dt_stable) / (2 * currl->dz * currl->dz);
       if (alpha_test > 0.5){
         double dt_layer = 0.5 * 2 * currl->dz * currl->dz / diff[il];
         dt_stable = fmin(dt_stable, dt_layer);
       }
-      
+
       currl = currl->prevl;
       il--;
     }
-    
+
     // Apply the globally stable time step
     if (dt_stable < dt) {
-      BOOST_LOG_SEV(glg, warn) << "CH4 alpha unstable, using dt = " << dt_stable << " instead of " << dt;
+      if (!dt_stability_warned) {
+        BOOST_LOG_SEV(glg, warn) << "CH4 alpha unstable, using dt = " << dt_stable << " instead of " << dt;
+        dt_stability_warned = true;
+      }
       dt = dt_stable;
     }
 
@@ -306,26 +321,8 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // converting g m^-2 to umol L^-1
       double convert_gm2_to_umolL = 1 / convert_umolL_to_gm2;
 
-      // Diffusion coefficient calculation:
-      // Scaling factor for when layer contains the water table
-      double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
-      // If layer above water table 0.0, if below 1.0
-      saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
-      // Locate water table based on saturated fraction
-      if (0.0 < saturated_fraction && saturated_fraction < 1.0){
-        wtlayer = currl;
-      }
-      // Logarithmic interpolations between saturated and unsaturated tortuosity
-      double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater() / (currl->poro), 3.0);
-      double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
-      double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
-
-      // Logarithmic interpolations between diffusion coefficient in water and in air
-      double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
-
-      // ch4_diffusion_coefficient in the atmosphere (physical constant) scaled by temperature
-      // Fan et al. 2013 supplement eq. 11
-      diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
+      // Use saturation and diffusion terms cached above for this hourly step.
+      const double saturated_fraction = layer_saturated_fraction[il];
 
       // alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
       // Testing alpha stability (a < 0.5) and implementing
@@ -661,7 +658,10 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     total_ch4_after += upper_flux * dt;
 
     if (fabs(total_ch4_after - total_ch4_before) > 0.1 * total_ch4_before) {
-      BOOST_LOG_SEV(glg, warn) << "CH4 conseveration violated! Difference: " << total_ch4_after - total_ch4_before;
+      if (!ch4_conservation_warned) {
+        BOOST_LOG_SEV(glg, warn) << "CH4 conseveration violated! Difference: " << total_ch4_after - total_ch4_before;
+        ch4_conservation_warned = true;
+      }
     }
 
     diff_efflux_daily += upper_flux; // flux cumulated over 1 day, 24 time steps, Y.MI
