@@ -6,8 +6,26 @@
 
 CC=g++
 CFLAGS=-c -ansi -g -gdwarf-2 -std=c++11 -fPIC -DBOOST_ALL_DYN_LINK -Werror # -W -Wall -Werror -Wno-system-headers
-LIBS=-lnetcdf -lboost_system -lboost_filesystem \
+#LIBS=-lnetcdf -lhdf5_hl -lhdf5 -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline -llapacke
+
+# Prefer module-exported roots if present; otherwise fall back to SW.
+SW ?= /mnt/exacloud/lustre/software
+BOOST_PREFIX  ?= $(if $(BOOST_ROOT),$(BOOST_ROOT),$(SW)/boost/1.80.0)
+HDF5_PREFIX   ?= $(if $(HDF5_ROOT),$(HDF5_ROOT),$(SW)/hdf5/1.10.9)
+NETCDF_PREFIX ?= $(if $(NETCDF_ROOT),$(NETCDF_ROOT),$(SW)/netcdf-c/4.4.1.1)
+
+# Inject include/lib paths used by your existing Makefile variables
+SITE_SPECIFIC_INCLUDES += -I$(BOOST_PREFIX)/include -I$(HDF5_PREFIX)/include -I$(NETCDF_PREFIX)/include -I/usr/include/jsoncpp
+SITE_SPECIFIC_LIBS     += -L$(BOOST_PREFIX)/lib -L$(HDF5_PREFIX)/lib -L$(NETCDF_PREFIX)/lib
+
+# Embed runtime library search paths (helps on compute nodes)
+SITE_SPECIFIC_LINK_FLAGS += -Wl,-rpath,$(BOOST_PREFIX)/lib -Wl,-rpath,$(HDF5_PREFIX)/lib -Wl,-rpath,$(NETCDF_PREFIX)/lib
+
+# Libraries (adds HDF5 explicitly; netcdf often depends on it)
+LIBS = -lnetcdf -lhdf5_hl -lhdf5 -lboost_system -lboost_filesystem \
+       -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread \
+       -lreadline -llapacke -lz -ldl -lm
 
 USEMPI = false
 USEOMP = false
@@ -126,7 +144,12 @@ OBJECTS =	ArgHandler.o \
 		TemperatureUpdator.o
 
 
-GIT_SHA := $(shell git describe --abbrev=6 --dirty --always --tags)
+# Set if not set from environment or command line...
+# CAUTION! You could override this from command line in a totally
+# meaningless way. But this is useful in a container build environment where
+# we might not be in a git repo and therefore can't call git describe...
+GIT_SHA ?= $(shell git describe --abbrev=6 --dirty --always --tags)
+
 
 TEMOBJ = obj/TEM.o
 

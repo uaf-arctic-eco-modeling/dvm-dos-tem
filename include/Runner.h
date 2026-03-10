@@ -35,7 +35,7 @@ using namespace std;
 
 class Runner {
 public:
-  Runner(ModelData md, bool cal_mode, int y, int x);
+  Runner(const ModelData& md, bool cal_mode, int y, int x);
   Runner();
   ~Runner();
 

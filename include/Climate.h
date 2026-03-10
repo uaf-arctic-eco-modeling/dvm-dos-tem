@@ -95,6 +95,8 @@ public:
   void prep_avg_climate();
 
 private:
+  // EQ/PRE use a fixed baseline climate; cache daily containers after first build.
+  bool eq_pre_daily_cache_ready;
 
   void load_from_file(const std::string& fname, int y, int x);
 

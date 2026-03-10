@@ -369,12 +369,13 @@ std::vector<float> calculate_daily_prec(const int midx, const float mta, const f
 
 
 
-Climate::Climate() {
+Climate::Climate() : eq_pre_daily_cache_ready(false) {
   BOOST_LOG_SEV(glg, info) << "--> CLIMATE --> empty ctor";
 }
 
 
-Climate::Climate(const std::string& fname, const std::string& co2fname, int y, int x) {
+Climate::Climate(const std::string& fname, const std::string& co2fname, int y, int x)
+    : eq_pre_daily_cache_ready(false) {
   BOOST_LOG_SEV(glg, info) << "--> CLIMATE --> BETTER CTOR";
   this->load_from_file(fname, y, x);
 
@@ -517,6 +518,7 @@ void Climate::prep_avg_climate(){
   if (!ch4.empty()){
     avgX_ch4 = avg_over_yearly(ch4, baseline_start, baseline_end);
   }
+  eq_pre_daily_cache_ready = false;
 }
 
 
@@ -525,18 +527,21 @@ void Climate::load_proj_climate(const std::string& fname, int y, int x){
   BOOST_LOG_SEV(glg, info) << "Climate, loading projected data";
 
   this->load_from_file(fname, y, x);
+  eq_pre_daily_cache_ready = false;
 }
 
 /** Loads projected carbon dioxide input file, overwriting any old data */
 void Climate::load_proj_co2(const std::string& fname){
   BOOST_LOG_SEV(glg, info) << "CO2, loading projected data!";
   this->co2 = temutil::get_timeseries(fname, "co2");
+  eq_pre_daily_cache_ready = false;
 }
 
 /** Load a methane input file, overwriting any old data */
 void Climate::load_ch4(const std::string& fname){
   BOOST_LOG_SEV(glg, info) << "Loading ch4 from file";
   this->ch4 = temutil::get_timeseries(fname, "ch4");
+  eq_pre_daily_cache_ready = false;
 }
 
 std::vector<float> Climate::avg_over(const std::vector<float> & var, const int start_yr, const int end_yr) {
@@ -694,9 +699,17 @@ std::vector<float> Climate::interpolation_range(const std::vector<float>& data, 
 * stage is a 2 letter code for the run stage, one of: pr, eq, sp, tr, sc.
 */
 void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
+  const bool is_eq_or_pre =
+      (stage.find("pre") != std::string::npos) || (stage.find("eq") != std::string::npos);
 
-  if( (stage.find("pre") != std::string::npos)
-      || (stage.find("eq") != std::string::npos) ){
+  // EQ/PRE driving climate is stage-invariant; keep first computed daily values.
+  if (is_eq_or_pre && eq_pre_daily_cache_ready) {
+    co2_d = avgX_co2;
+    ch4_d = avgX_ch4;
+    return;
+  }
+
+  if (is_eq_or_pre) {
 
     // Constant atmospheric co2 and ch4
     // Taking an average using baseline years specified in config file
@@ -747,8 +760,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
   prec_d.clear();
   for (int i=0; i < 12; ++i) {
     std::vector<float> v;
-    if( (stage.find("pre") != std::string::npos)
-        || (stage.find("eq") != std::string::npos) ){
+    if (is_eq_or_pre) {
       v = calculate_daily_prec(i, avgX_tair.at(i), avgX_prec.at(i));
     }
     else{// Spin-Up, Transient, Scenario
@@ -785,6 +797,7 @@ void Climate::prepare_daily_driving_data(int iy, const std::string& stage) {
 
   // Dump data to log stream for debugging analysis 
   //this->dailycontainers2log();
+  eq_pre_daily_cache_ready = is_eq_or_pre;
 }
 
 /** Print the contents of the monthly containers to the log stream.

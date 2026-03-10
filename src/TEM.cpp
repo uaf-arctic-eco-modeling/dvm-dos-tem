@@ -81,6 +81,7 @@
 /** Write out a status code to a particular pixel in the run status file.
 */
 void write_status_info(const std::string fname, std::string varname, int row, int col, int statusCode);
+void write_status_and_runtime(const std::string& fname, int row, int col, int statusCode, int runtimeSeconds);
 
 
 /** Builds an empty netcdf file for recording the run status. 
@@ -188,7 +189,7 @@ int main(int argc, char* argv[]){
   setvbuf(stdout, NULL, _IONBF, 0);
   setvbuf(stderr, NULL, _IONBF, 0);
   
-  time_t stime, etime, cell_stime, cell_etime;
+  time_t stime, etime;
   stime = time(0);
   modeldata.cell_stime = stime;
 
@@ -397,7 +398,7 @@ int main(int argc, char* argv[]){
 
     BOOST_LOG_SEV(glg, debug) << "id: "<<id<<" of ntasks: "<<ntasks;
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(static)
     for(int curr_cell=id; curr_cell<total_cells; curr_cell+=ntasks){
 
       int rowidx = curr_cell / num_cols;
@@ -410,11 +411,11 @@ int main(int argc, char* argv[]){
 #else
     BOOST_LOG_SEV(glg, debug) << "Not built with MPI";
 
-   #pragma omp parallel for collapse(2) schedule(dynamic)
+   #pragma omp parallel for collapse(2) schedule(static)
     for(int rowidx=0; rowidx<num_rows; rowidx++){
       for(int colidx=0; colidx<num_cols; colidx++){
 
-        bool mask_value = run_mask[rowidx].at(colidx);
+        bool mask_value = run_mask[rowidx][colidx];
 
 #endif
 
@@ -427,16 +428,15 @@ int main(int argc, char* argv[]){
           // by this try/catch??
           try {
 
-            cell_stime = time(0);
+            const time_t cell_stime = time(0);
 
             advance_model(rowidx, colidx, modeldata, args->get_cal_mode(), pr_restart_fname, eq_restart_fname, sp_restart_fname, tr_restart_fname, sc_restart_fname);
 
-            cell_etime = time(0);
+            const time_t cell_etime = time(0);
 
             BOOST_LOG_SEV(glg, info) << "Finished cell " << rowidx << ", " << colidx << ". Writing status file...";
             std::cout << "cell " << rowidx << ", " << colidx << " complete." << std::endl;
-            write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_SUCCESS);
-            write_status_info(run_status_fname, "total_runtime", rowidx, colidx, difftime(cell_etime, cell_stime));
+            write_status_and_runtime(run_status_fname, rowidx, colidx, STATUS_SUCCESS, static_cast<int>(difftime(cell_etime, cell_stime)));
  
           }
           catch (const temutil::CellTimeExceeded& e) {
@@ -961,6 +961,33 @@ void create_empty_run_status_file(const std::string& fname,
   BOOST_LOG_SEV(glg, debug) << "Closing new file ["<<fname<<"]";
   temutil::nc( nc_close(ncid) );
 
+}
+
+void write_status_and_runtime(const std::string& fname, int row, int col, int statusCode, int runtimeSeconds) {
+  int ncid;
+  int statusV;
+  int runtimeV;
+
+  int NDIMS = 2;
+  size_t start[NDIMS];
+  start[0] = row;
+  start[1] = col;
+
+#ifdef WITHMPI
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_inq_varid(ncid, "total_runtime", &runtimeV) );
+  temutil::nc( nc_var_par_access(ncid, statusV, NC_INDEPENDENT) );
+  temutil::nc( nc_var_par_access(ncid, runtimeV, NC_INDEPENDENT) );
+#else
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_inq_varid(ncid, "run_status", &statusV) );
+  temutil::nc( nc_inq_varid(ncid, "total_runtime", &runtimeV) );
+#endif
+
+  temutil::nc( nc_put_var1_int(ncid, statusV, start, &statusCode) );
+  temutil::nc( nc_put_var1_int(ncid, runtimeV, start, &runtimeSeconds) );
+  temutil::nc( nc_close(ncid) );
 }
 
 void write_status_info(const std::string fname, std::string varname, int row, int col, int statusCode) {

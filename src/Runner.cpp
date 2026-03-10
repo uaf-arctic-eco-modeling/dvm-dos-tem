@@ -15,14 +15,16 @@
 
 extern src::severity_logger< severity_level > glg;
 
-Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
+Runner::Runner(const ModelData& mdldata, bool cal_mode, int y, int x):
     calibrationMode(false), y(y), x(x) {
 
   BOOST_LOG_SEV(glg, info) << "RUNNER Constructing a Runner, new style, with ctor-"
                            << "injected ModelData, and for explicit (y,x) "
                            << "position w/in the input data region.";
   this->md = mdldata;
-  this->cohort = Cohort(y, x, &mdldata); // explicitly constructed cohort...
+  // Each Runner owns a private ModelData copy for thread-safe per-cell updates.
+  this->cohort = Cohort(y, x, &this->md); // explicitly constructed cohort...
+  this->md.cell_stime = time(0);
 
   BOOST_LOG_SEV(glg, info) << "Calibration mode?: " << cal_mode;
   if ( cal_mode ) {
@@ -47,6 +49,9 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
 Runner::~Runner() {};
 
 void Runner::run_years(int start_year, int end_year, const std::string& stage) {
+  const bool is_eq_or_pre =
+      (stage.find("eq") != std::string::npos) || (stage.find("pre") != std::string::npos);
+  const bool is_sp = stage.find("sp") != std::string::npos;
 
   /** YEAR TIMESTEP LOOP */
   BOOST_LOG_NAMED_SCOPE("Y") {
@@ -55,18 +60,16 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
     BOOST_LOG_SEV(glg, warn) << "y: "<<this->y<<" x: "<<this->x<<" Year: "<<iy;
 
     /* Interpolate all the monthly values...? */
-    if( (stage.find("eq") != std::string::npos
-           || stage.find("pre") != std::string::npos) ){
+    if (is_eq_or_pre) {
       this->cohort.climate.prepare_daily_driving_data(iy, stage);
     }
 
-    else if(stage.find("sp") != std::string::npos){
+    else if (is_sp) {
       //FIX - 30 should not be hardcoded
       this->cohort.climate.prepare_daily_driving_data(iy%30, stage);
     }
 
-    else if(stage.find("tr") != std::string::npos
-              || stage.find("sc") != std::string::npos){
+    else {
       this->cohort.climate.prepare_daily_driving_data(iy, stage);
     }
 
