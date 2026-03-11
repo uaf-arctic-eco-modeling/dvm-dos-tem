@@ -1,11 +1,17 @@
 # Basic dvm-dos-tem Makefile 
 
+# Cluster module environment setup (used for shell-discovered MPI flags).
+SHELL := /bin/bash
+MODULE_SETUP_CMD := source /etc/profile.d/z00_lmod.sh && module purge && module use /mnt/exacloud/lustre/modulefiles && module load openmpi && module load dvmdostem-deps/2026-02
+
 # Add compiler flag for enabling floating point exceptions:
 # -DBSD_FPE for BSD (OSX)
 # -DGNU_FPE for various Linux
 
 CC=g++
 CFLAGS=-c -ansi -g -gdwarf-2 -std=c++11 -fPIC -DBOOST_ALL_DYN_LINK -Werror # -W -Wall -Werror -Wno-system-headers
+# Optional extra optimization/debug tuning flags (e.g., OPTFLAGS='-O3 -DNDEBUG').
+OPTFLAGS ?=
 #LIBS=-lnetcdf -lhdf5_hl -lhdf5 -lboost_system -lboost_filesystem \
 -lboost_program_options -lboost_thread -lboost_log -ljsoncpp -lpthread -lreadline -llapacke
 
@@ -31,9 +37,9 @@ USEMPI = false
 USEOMP = false
 
 ifeq ($(USEMPI),true)
-  MPIINCLUDES = $(shell mpic++ -showme:compile)
+  MPIINCLUDES = $(shell bash -lc '$(MODULE_SETUP_CMD) && mpic++ -showme:compile')
   MPICFLAGS = -DWITHMPI
-  MPILFLAGS = $(shell mpic++ -showme:link)
+  MPILFLAGS = $(shell bash -lc '$(MODULE_SETUP_CMD) && mpic++ -showme:link')
 else
   # do nothing..
 endif
@@ -163,7 +169,7 @@ lib: $(SOURCES)
 CFLAGS += -DGIT_SHA=\"$(GIT_SHA)\"
 
 .cpp.o:
-	$(CC) $(CFLAGS) $(MPICFLAGS) $(OMPCFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
+	$(CC) $(CFLAGS) $(OPTFLAGS) $(MPICFLAGS) $(OMPCFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
 
 clean:
 	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*

@@ -626,7 +626,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
   //Soil water dynamics at daily time step
 
-  for (int i=0; i<MAX_SOI_LAY+1; i++) {
+  for (int i=0; i<MAX_SOI_LAY; i++) {
     root_water_up[i] /= SEC_IN_DAY; // mm/day to mm/s
   }
 

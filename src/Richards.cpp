@@ -530,7 +530,7 @@ void Richards::computeRHS(Layer *fstsoill, int topind, int drainind){
 }
 
 void Richards::clearRichardsArrays(){
-  for(int ii=0; ii<=MAX_SOI_LAY; ii++){
+  for(int ii=0; ii<MAX_SOI_LAY; ii++){
 
     qtrans[ii] = 0.0;
     tridiag_error[ii] = 0.0;
