@@ -73,6 +73,13 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
     this->climate.load_ch4(modeldatapointer->ch4_file);
   }
 
+    // adding catch for regional simulations to circumvent config file and minimize additional ch4 related processes in non-wetlands
+  if(this->cd.cmttype == 6 || this->cd.cmttype == 31 || this->cd.cmttype == 32 || this->cd.cmttype == 55 || this->cd.cmttype == 61 || this->cd.cmttype == 75 || this->cd.cmttype == 92 || this->cd.cmttype == 93){
+    modeldatapointer->set_ch4_module(true);
+  } else {
+    modeldatapointer->set_ch4_module(false);
+  }
+
   cd.groundwater_status = modeldatapointer->get_groundwater_status();
   cd.runon_status = modeldatapointer->get_runon_status();
 
