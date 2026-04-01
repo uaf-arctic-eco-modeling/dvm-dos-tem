@@ -225,6 +225,9 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
   // Function of LAI to describe relative plant size for ch4 transport
   double fLAI[NUM_PFT];
 
+  // Define saturated fraction outside loops
+  double saturated_fraction = 0.0;
+
   //Looping through pfts and assigning fgrow (0-1) from Fan Eq. 20
   for(int ip=0; ip<NUM_PFT; ip++){
     if(cd->m_vegd.ffoliage[ip]<=0){
@@ -253,16 +256,20 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
     
     while (!currl->isMoss){
       // Calculate diffusion coefficient (same as later in code)
-      double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
+      saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
       saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
-      
-      double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater() / (currl->poro), 3.0);
-      double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
-      double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
-      
-      double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
-      diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
-      
+      // Locate water table based on saturated fraction
+      if (0.0 < saturated_fraction && saturated_fraction < 1.0){
+        wtlayer = currl;
+      }
+
+      double tortuosity_sat = 0.66 * currl->getVolWater() * (currl->getVolWater() / currl->poro) * (currl->getVolWater() / currl->poro) * (currl->getVolWater() / currl->poro); // pow(currl->getVolWater() / (currl->poro), 3.0);
+      double tortuosity_unsat = 0.66 * currl->getVolAir() * (currl->getVolAir() / currl->poro) * (currl->getVolAir() / currl->poro) * (currl->getVolAir() / currl->poro);             // pow(currl->getVolAir() / currl->poro, 3.0);
+      double tortuosity = tortuosity_unsat * std::exp(std::log(tortuosity_sat / tortuosity_unsat) * saturated_fraction);    // pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
+
+      double ch4_diffusion_coefficient = CH4DIFFA * std::exp(std::log(CH4DIFFW / CH4DIFFA) * saturated_fraction); //pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
+      diff[il] = ch4_diffusion_coefficient * tortuosity * (((currl->tem + 273.15) / 293.15) * std::sqrt((currl->tem + 273.15) / 293.15)); // ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
+
       // Check stability
       double alpha_test = (diff[il] * dt_stable) / (2 * currl->dz * currl->dz);
       if (alpha_test > 0.5){
@@ -306,26 +313,27 @@ void Soil_Bgc::CH4Flux(const int mind, const int id) {
       // converting g m^-2 to umol L^-1
       double convert_gm2_to_umolL = 1 / convert_umolL_to_gm2;
 
-      // Diffusion coefficient calculation:
-      // Scaling factor for when layer contains the water table
-      double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
-      // If layer above water table 0.0, if below 1.0
-      saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
-      // Locate water table based on saturated fraction
-      if (0.0 < saturated_fraction && saturated_fraction < 1.0){
-        wtlayer = currl;
-      }
-      // Logarithmic interpolations between saturated and unsaturated tortuosity
-      double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater() / (currl->poro), 3.0);
-      double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
-      double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
+// DUPLICATE CODE ABOVE.
+      // // Diffusion coefficient calculation:
+      // // Scaling factor for when layer contains the water table
+      // double saturated_fraction = ((currl->z + currl->dz) - ed->d_sois.watertab) / currl->dz;
+      // // If layer above water table 0.0, if below 1.0
+      // saturated_fraction = fmax(0.0, fmin(1.0, saturated_fraction));
+      // // Locate water table based on saturated fraction
+      // if (0.0 < saturated_fraction && saturated_fraction < 1.0){
+      //   wtlayer = currl;
+      // }
+      // // Logarithmic interpolations between saturated and unsaturated tortuosity
+      // double tortuosity_sat = 0.66 * currl->getVolWater() * pow(currl->getVolWater() / (currl->poro), 3.0);
+      // double tortuosity_unsat = 0.66 * currl->getVolAir() * pow(currl->getVolAir() / currl->poro, 3.0);
+      // double tortuosity = pow(tortuosity_sat, saturated_fraction) * pow(tortuosity_unsat, 1 - saturated_fraction);
 
-      // Logarithmic interpolations between diffusion coefficient in water and in air
-      double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
+      // // Logarithmic interpolations between diffusion coefficient in water and in air
+      // double ch4_diffusion_coefficient = pow(CH4DIFFW, saturated_fraction) * pow(CH4DIFFA, 1 - saturated_fraction);
 
-      // ch4_diffusion_coefficient in the atmosphere (physical constant) scaled by temperature
-      // Fan et al. 2013 supplement eq. 11
-      diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
+      // // ch4_diffusion_coefficient in the atmosphere (physical constant) scaled by temperature
+      // // Fan et al. 2013 supplement eq. 11
+      // diff[il] = ch4_diffusion_coefficient * tortuosity * pow((currl->tem + 273.15) / 293.15, 1.75);
 
       // alpha = (diff[il] * dt) / (2 * currl->dz * currl->dz);
       // Testing alpha stability (a < 0.5) and implementing
