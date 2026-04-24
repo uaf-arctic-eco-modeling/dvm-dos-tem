@@ -165,6 +165,9 @@ yearly_tem_comparison_years = tem_output_df_yearly[tem_output_df_yearly['year']>
 met_data = met_data[met_data['year']>=2011]
 
 
+tem_comparison_years
+
+
 fig, axes = plt.subplots(3,1, figsize=(8,5), sharex=True)
 axes[0].set(title='US-Prr', ylabel='GPP \n(gC $m^{-2}$ $month^{-1}$)')
 sns.lineplot(data=tem_comparison_years, x='m_y', y='GPP', ax=axes[0], color='grey')

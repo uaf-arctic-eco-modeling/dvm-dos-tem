@@ -225,46 +225,46 @@
 1.6e-4  // kdcsomcr:1.658316e-4 
 //===========================================================
 // CMT14 // Boreal Birch Forest //
-//EverTree  DecidShrub   DecidTree      Moss         EvrShrub PFT5    PFT6    PFT7     PFT8     PFT9    // pftnames:
-3.838931    396.620886  762.682383      54.287866    131.218623      0.0      0.0     0.0     0.0      0.0     // cmax:
-6.412363    9.56263     26.928877       4.103653     3.573161       0.0      0.0     0.0     0.0      0.0     // nmax:
-0.035881    0.008456    0.259100        0.007894     0.009595       0.0      0.0     0.0     0.0      0.0     // cfall(0): leaf 0.179100
-0.008136    0.03606     0.004022         0.000       0.006513       0.0      0.0     0.0     0.0      0.0     // cfall(1): stem 0.003022
-0.005129    0.028329    0.003985        0.0000       0.006775       0.0      0.0     0.0     0.0      0.0     // cfall(2): root
-0.001946    0.007055    0.000526	      0.000212     0.00073       0.0      0.0     0.0     0.0      0.0     // nfall(0): leaf
-0.007742    0.004359    0.001968        0.0000       0.002605       0.0      0.0     0.0     0.0      0.0     // nfall(1): stem
-0.004847    0.0037      0.000101        0.0000       0.00305       0.0      0.0     0.0     0.0      0.0     // nfall(2): root
--8.06e-05  -8.06e-05   -8.06e-05       -8.06e-05    -8.06e-05        0.0      0.0     0.0     0.0      0.0     // kra:    coeff(0) in maintenance resp.
--5.492302  -7.195165   -11.281241      -4.445258    -7.736212       0.0      0.0     0.0     0.0      0.0     // krb(0): coeff(1) in maintenance resp.(leaf)
--7.101337  -3.807379   -5.254134        0.00        -4.224767       0.0      0.0     0.0     0.0      0.0     // krb(1): coeff(1) in maintenance resp.(stem)
--5.853626  -0.667388   -5.859897	      0.00        -2.884183	     0.0      0.0     0.0     0.0      0.0     // krb(2): coeff(1) in maintenance resp.(root)
-0.11        0.11        0.11            0.11         0.11            0.0      0.0     0.0     0.0      0.0     // frg: fraction of available NPP (GPP after rm) for growth resp.
+//EverTree  DecidShrub   DecidTree      Moss         EvrShrub  PFT5    PFT6    PFT7     PFT8     PFT9    // pftnames:
+4.0         65.5         600.0          6.0          9.1       0.0      0.0     0.0     0.0      0.0     // cmax:
+0.566893    0.800        10.8            0.52         1.1       0.0      0.0     0.0     0.0      0.0     // nmax:
+0.333598    0.0826       0.08           0.015      0.04385       0.0      0.0     0.0     0.0      0.0     // cfall(0): leaf 0.179100
+0.000648    0.00061      0.003         0.000         0.000679       0.0      0.0     0.0     0.0      0.0     // cfall(1): stem 0.003022
+0.000764    0.00061      0.0015        0.0000        0.000536       0.0      0.0     0.0     0.0      0.0     // cfall(2): root
+0.002213    0.01       0.00835       0.000401      0.002450       0.0      0.0     0.0     0.0      0.0     // nfall(0): leaf
+0.000209   0.00040       0.001       0.0000      0.000113       0.0      0.0     0.0     0.0      0.0     // nfall(1): stem
+0.000275   0.00046       0.001       0.0000      0.000163       0.0      0.0     0.0     0.0      0.0     // nfall(2): root
+-8.06e-05  -8.06e-05    -8.06e-05      -8.06e-05    -8.06e-05        0.0      0.0     0.0     0.0      0.0     // kra:    coeff(0) in maintenance resp.
+-3.922     -3.009         -3.37        -3.9       -3.204       0.0      0.0     0.0     0.0      0.0     // krb(0): coeff(1) in maintenance resp.(leaf)
+-6.475     -5.684         -5.67         0.00       -6.070       0.0      0.0     0.0     0.0      0.0     // krb(1): coeff(1) in maintenance resp.(stem)
+-5.537     -5.740         -5.95	        0.00        -6.179	     0.0      0.0     0.0     0.0      0.0     // krb(2): coeff(1) in maintenance resp.(root)
+0.11        0.11        0.5             0.11         0.11            0.0      0.0     0.0     0.0      0.0     // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-0.830389       // micbnup: 0.830389 parameter for soil microbial immobialization of N  .64 
-0.859512      // kdcrawc: 0.859512 raw-material (litter) C decompositin rates at reference condition   
-0.493109      // kdcsoma:  0.493109
-0.131049     // kdcsompr: 0.091049  
-0.0001   // kdcsomcr: 0.000001
+0.1       // micbnup: 6.830389 parameter for soil microbial immobialization of N  .64 
+0.9      // kdcrawc: 0.859512 raw-material (litter) C decompositin rates at reference condition   
+0.7      // kdcsoma:  0.58
+0.05     // kdcsompr: 0.0549  
+0.00005   // kdcsomcr: 0.000025
 //===========================================================
 // CMT15 // Boreal Black Spruce // 11/11/23 boreal black spruce with caribou-poker creek research watershed climate
 //EverTree  DecidShrub   EvrShrub       Moss         Lichen       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
-650.0      390.0       230.0         300.08       90.0        0.0        0.0      0.0       0.0       0.0       // cmax: black spruce 408.69 moss 968.08
-16.010259   8.805177    4.294516       5.081049     0.939893       0.0        0.0      0.0       0.0       0.0       // nmax:
-0.055745    0.010765  0.010611       0.012029     0.012596    0.0        0.0      0.0       0.0       0.0       // cfall(0): bs 0.028745 moss 0.020029
-0.01    0.008302  0.011543       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(1): stem bs 0.002743
-0.01    0.008712  0.010789       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(2): root
-0.000972    0.000110  0.005477       0.00327     0.00778       0.0        0.0      0.0       0.0       0.0       // nfall(0): leaf moss 0.00627
-0.000775    0.000733  0.004037       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(1): stem
-0.000217    0.000973  0.004653       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(2): root
--8.06e-05   -8.06e-05   -8.06e-05      -8.06e-05    -8.06e-05  0.0        0.0      0.0       0.0       0.0       // kra:    coeff(0) in maintenance resp.
--5.544574   -7.510894   -6.527244      -7.014808    -4.513360      0.0        0.0      0.0       0.0       0.0       // krb(0): coeff(1) in maintenance resp.(leave) black spruce -4.544574 moss -3.714808
--6.962351   -4.641383  -4.899548       0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(1): coeff(1) in maintenance resp.(stem)
--6.137253   -4.531112  -6.817745       0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(2): coeff(1) in maintenance resp.(root)
-0.11        0.11        0.11           0.11         0.11       0.0        0.0      0.0       0.0       0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
+500.0       58.2         33.0           80.0        22.0        0.0        0.0      0.0       0.0       0.0       // cmax: black spruce 408.69 moss 968.08
+4.26        1.213350     0.42       3.081049     0.939893       0.0        0.0      0.0       0.0       0.0       // nmax:
+0.03      0.042143     0.0453       0.02        0.035    0.0        0.0      0.0       0.0       0.0       // cfall(0): bs 0.028745 moss 0.020029
+0.0033    0.000779     0.0000346       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(1): stem bs 0.002743
+0.00182    0.000813     0.000784       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // cfall(2): root
+0.000121    0.000318     0.002026       0.00327      0.00778       0.0        0.0      0.0       0.0       0.0       // nfall(0): leaf moss 0.00627
+0.000833    0.000342     0.000363       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(1): stem
+0.000354    0.000440     0.000363       0.0000       0.0       0.0        0.0      0.0       0.0       0.0       // nfall(2): root
+-8.06e-05  -8.06e-05    -8.06e-05      -8.06e-05    -8.06e-05  0.0        0.0      0.0       0.0       0.0       // kra:    coeff(0) in maintenance resp.
+-3.28      -3.152        -3.216            -3.8    -3.513360      0.0        0.0      0.0       0.0       0.0       // krb(0): coeff(1) in maintenance resp.(leave) black spruce -4.544574 moss -3.714808
+-6.78      -6.586        -5.906       0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(1): coeff(1) in maintenance resp.(stem)
+-6.46      -7.234        -5.632       0.00         0.0       0.0        0.0      0.0       0.0       0.0       // krb(2): coeff(1) in maintenance resp.(root)
+0.11       0.11        0.11           0.11         0.11       0.0        0.0      0.0       0.0       0.0       // frg: fraction of available NPP (GPP after rm) for growth resp.
 // soil calibrated parameters
-0.4       // micbnup: 2.195075 1.73 parameter for soil microbial immobialization of N 
-0.804759      // kdcrawc: 0.804759 raw-material (litter) C decompositin rates at reference condition   
-0.710771      // kdcsoma:  0.710771
-0.098     // kdcsompr: 0.029847     // kdcsompr: 0.06847  
+1.      // micbnup: 2.2 parameter for soil microbial immobialization of N 
+0.704759      // kdcrawc: 0.804759 0.70 raw-material (litter) C decompositin rates at reference condition   
+0.510771      // kdcsoma:  0.710771 0.51
+0.098     // kdcsompr: 0.098  
 0.00005   // kdcsomcr: 0.000005
 //===========================================================

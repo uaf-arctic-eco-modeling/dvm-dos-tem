@@ -6,24 +6,24 @@ cd /work || exit
 # Workflow directories for different model runs
 workflows=(
     '/data/workflows/BONA-black-spruce-fire-control'
-    #'/data/workflows/BONA-black-spruce-fire-1930'
-    #'/data/workflows/BONA-black-spruce-fire-1960'
-    #'/data/workflows/BONA-black-spruce-fire-1990'
+    '/data/workflows/BONA-black-spruce-fire-1930'
+    '/data/workflows/BONA-black-spruce-fire-1960'
+    '/data/workflows/BONA-black-spruce-fire-1990'
 )
 
 # Fire history files for different model runs
 fire_hist_files=(
     'historic-explicit-fire.nc'
-    #'historic-explicit-fire_1930.nc'
-    #'historic-explicit-fire_1960.nc'
-    #'historic-explicit-fire_1990.nc'
+    'historic-explicit-fire_1930.nc'
+    'historic-explicit-fire_1960.nc'
+    'historic-explicit-fire_1990.nc'
 )
 
 dsb_settings=(
 	False
-	#True
-	#True
-	#True
+	True
+	True
+	True
 	)
 
 setup_script='scripts/util/setup_working_directory.py'

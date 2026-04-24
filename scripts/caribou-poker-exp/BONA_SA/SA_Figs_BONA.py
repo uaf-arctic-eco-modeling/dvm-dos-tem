@@ -11,36 +11,44 @@ import os
 from sklearn.metrics import r2_score,mean_squared_error,mean_absolute_error
 
 
-#Set step, paths, pfts and run all
-STEP = 1
-#STEP = 'NPP_VegC_VegN_PFT'
-CMT='black-spruce'
-#CMT ='birch'
-#STEP = 4
+#######################  control panel ###############################
 
-#STEP1_results = '/data/workflows/BONA-Birch-STEP1-SA/results.csv'
-#STEP1_sample_matrix = '/data/workflows/BONA-Birch-STEP1-SA/sample_matrix.csv'
+#community type
+CMT = 'birch'
+#CMT = 'black-spruce'
 
-STEP1_results = '/data/workflows/BONA-BS-STEP1-SA/results.csv'
-STEP1_sample_matrix = '/data/workflows/BONA-BS-STEP1-SA/sample_matrix.csv'
+#Step: 1 for GPP, NPP_VegC_VegN_PFT for NPP, VegC, VegN by pft
+#STEP = 1
+STEP = 'NPP_VegC_VegN_PFT'
 
-#NPP_VegC_PFT_results = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/results.csv'
-#NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/sample_matrix.csv'
-
-NPP_VegC_PFT_results = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/results.csv'
-NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/sample_matrix.csv'
+pft = 1 #pft number with 1-based indexing
 
 
-#STEP4_results = '/data/workflows/BONA-Birch-STEP4-SA/results.csv'
-#STEP4_sample_matrix = '/data/workflows/BONA-Birch-STEP4-SA/sample_matrix.csv'
+if CMT == 'birch':
+    
+    STEP1_results = '/data/workflows/BONA-Birch-STEP1-SA/results.csv'
+    STEP1_sample_matrix = '/data/workflows/BONA-Birch-STEP1-SA/sample_matrix.csv'
+    
+    NPP_VegC_PFT_results = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/results.csv'
+    NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-Birch-NPP-VegC-PFT-SA/sample_matrix.csv'
+    
+    STEP4_results = '/data/workflows/BONA-Birch-STEP4-SA/results.csv'
+    STEP4_sample_matrix = '/data/workflows/BONA-Birch-STEP4-SA/sample_matrix.csv'
+    
+    pfts=['White Spruce', 'Deciduous Shrub',  'Birch', 'Moss', 'Evergreen Shrub']
 
-STEP4_results = '/data/workflows/BONA-BS-STEP4-SA/results.csv'
-STEP4_sample_matrix = '/data/workflows/BONA-BS-STEP4-SA/sample_matrix.csv'
-
-pfts=['White Spruce', 'Deciduous Shrub', 'Evergreen Shrub', 'Moss', 'Lichen']
-
-
-
+if CMT == 'black-spruce':
+    
+    STEP1_results = '/data/workflows/BONA-BS-STEP1-SA/results.csv'
+    STEP1_sample_matrix = '/data/workflows/BONA-BS-STEP1-SA/sample_matrix.csv'
+    
+    NPP_VegC_PFT_results = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/results.csv'
+    NPP_VegC_PFT_sample_matrix = '/data/workflows/BONA-BS-NPP-VegC-PFT-SA/sample_matrix.csv'
+    
+    STEP4_results = '/data/workflows/BONA-BS-STEP4-SA/results.csv'
+    STEP4_sample_matrix = '/data/workflows/BONA-BS-STEP4-SA/sample_matrix.csv'
+    
+    pfts=['Black Spruce', 'Deciduous Shrub', 'Evergreen Shrub', 'Moss', 'Lichen']
 
 
 #if number of pfts != 5 you will have to adjust these values
@@ -368,11 +376,48 @@ plt.ylim(0,1)
 #plt.xlim(0,1)
 
 
-results.columns
+palette = sns.color_palette("mako", as_cmap=True)
+
+if STEP == 1:
+    fig, axes = plt.subplots(2,3, figsize = (8,5))
+    fig.suptitle('STEP 1 cmax vs GPP for each PFT')
+
+    axes[0,0].axhline(targets['GPP1'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cmax', y='GPP1', ax=axes[0,0], legend=False, alpha=0.05)
+    sns.scatterplot(data = results.iloc[top], x='cmax', y='GPP1', ax=axes[0,0], color='red', legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cmax', y='GPP1', ax=axes[0,0], color='yellow', legend=False)
+    axes[0,0].title.set_text(pfts[0])
+
+    axes[0,1].axhline(targets['GPP2'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cmax.1', y='GPP2', ax=axes[0,1], legend=False, alpha=0.05)
+    sns.scatterplot(data = results.iloc[top], x='cmax.1', y='GPP2', ax=axes[0,1], color='red', legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cmax.1', y='GPP2', ax=axes[0,1], color='yellow', legend=False)
+    axes[0,1].title.set_text(pfts[1])
+
+    axes[0,2].axhline(targets['GPP3'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cmax.2', y='GPP3', ax=axes[0,2], legend=False, alpha=0.05)
+    sns.scatterplot(data = results.iloc[top], x='cmax.2', y='GPP3', ax=axes[0,2], color='red', legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cmax.2', y='GPP3', ax=axes[0,2], color='yellow', legend=False)
+    axes[0,2].title.set_text(pfts[2])
+
+    axes[1,0].axhline(targets['GPP4'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cmax.3', y='GPP4', ax=axes[1,0], alpha=0.05, palette=palette)
+    sns.scatterplot(data = results.iloc[top], x='cmax.3', y='GPP4', ax=axes[1,0], color='red', legend=False)
+    sns.scatterplot(data = results.iloc[first], x='cmax.3', y='GPP4', ax=axes[1,0], color='yellow', legend=False)
+    axes[1,0].title.set_text(pfts[3])
+
+    axes[1,1].axhline(targets['GPP5'], color='grey', alpha=0.5)
+    sns.scatterplot(data = results, x='cmax.4', y='GPP5', ax=axes[1,1], legend=False, alpha=0.05)
+    sns.scatterplot(data = results.iloc[top], x='cmax.4', y='GPP5', ax=axes[1,1], color='red', label='Top 15 runs')
+    sns.scatterplot(data = results.iloc[first], x='cmax.4', y='GPP5', ax=axes[1,1], color='yellow', label='Top run')
+    axes[1,1].title.set_text(pfts[4])
+
+    #axes[1,1].legend(loc='lower right', bbox_to_anchor=(1,0), title='Overall Accuracy')
+   
+    fig.tight_layout()
 
 
 if STEP == 'NPP_VegC_PFT' or STEP=='NPP_VegC_VegN_PFT':
-    pft=1
     fig, axes = plt.subplots(3,3, figsize = (10,6))
     fig.suptitle('STEP 2 VEGC for Deciduous Shrub')
 
@@ -381,51 +426,56 @@ if STEP == 'NPP_VegC_PFT' or STEP=='NPP_VegC_VegN_PFT':
     #sns.scatterplot(data = results.iloc[top], x='cfall(0)', y=f'VegCarbonLeaf{pft}', ax=axes[0,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='cfall(0)', y=f'VegCarbonLeaf{pft}', ax=axes[0,0], color='yellow',legend=True)
 
-    axes[0,1].axhline(targets[f'VegCarbonStem{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], color='yellow',legend=False)
-
-    axes[0,2].axhline(targets[f'VegCarbonRoot{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], color='yellow',legend=False)
-    
     axes[1,0].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='krb(0)', y=f'NPPAll{pft}', ax=axes[1,0], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}', palette='Spectral')
     #sns.scatterplot(data = results.iloc[top], x='krb(0)', y=f'NPPAll{pft}', ax=axes[1,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='krb(0)', y=f'NPPAll{pft}', ax=axes[1,0], color='yellow',legend=False)
-    
-    axes[1,1].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], alpha=0.3,legend=False, hue=f'VegCarbonStem{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], color='yellow',legend=False)
-    
-    axes[1,2].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], alpha=0.3,legend=False, hue=f'VegCarbonRoot{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], color='yellow',legend=False)
     
     axes[2,0].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='nfall(0)', y=f'NPPAll{pft}', ax=axes[2,0], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
     #sns.scatterplot(data = results.iloc[top], x='krb(0)', y=f'NPPAll{pft}', ax=axes[1,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nfall(0)', y=f'NPPAll{pft}', ax=axes[2,0], color='yellow',legend=False)
     
-    axes[2,1].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nfall(1)', y=f'NPPAll{pft}', ax=axes[2,1], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nfall(1)', y=f'NPPAll{pft}', ax=axes[2,1], color='yellow',legend=False)
-    
-    axes[2,2].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nmax', y=f'NPPAll{pft}', ax=axes[2,2], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nmax', y=f'NPPAll{pft}', ax=axes[2,2], color='yellow',legend=False)
+    try:
+        axes[0,1].axhline(targets[f'VegCarbonStem{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], alpha=0.3,legend=False, hue=f'krb(1)')
+        #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='cfall(1)', y=f'VegCarbonStem{pft}', ax=axes[0,1], color='yellow',legend=False)
+
+        axes[0,2].axhline(targets[f'VegCarbonRoot{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='cfall(2)', y=f'VegCarbonRoot{pft}', ax=axes[0,2], color='yellow',legend=False)
+
+
+        axes[1,1].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], alpha=0.3,legend=False, hue=f'VegCarbonStem{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], color='yellow',legend=False)
+
+        axes[1,2].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], alpha=0.3,legend=False, hue=f'VegCarbonRoot{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], color='yellow',legend=False)
+
+
+        axes[2,1].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='nfall(1)', y=f'NPPAll{pft}', ax=axes[2,1], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='krb(1)', y=f'NPPAll{pft}', ax=axes[1,1], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='nfall(1)', y=f'NPPAll{pft}', ax=axes[2,1], color='yellow',legend=False)
+
+        axes[2,2].axhline(targets[f'NPPAll{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='nmax', y=f'NPPAll{pft}', ax=axes[2,2], alpha=0.3,legend=False, hue=f'VegCarbonLeaf{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='krb(2)', y=f'NPPAll{pft}', ax=axes[1,2], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='nmax', y=f'NPPAll{pft}', ax=axes[2,2], color='yellow',legend=False)
+        
+    except:
+        pass
 
     fig.tight_layout()
 
 
 if 'NPP_VegC_VegN_PFT':
-    pft=1
     fig, axes = plt.subplots(3,3, figsize = (10,6))
     fig.suptitle('STEP 2 VEGC for Deciduous Shrub')
 
@@ -434,79 +484,48 @@ if 'NPP_VegC_VegN_PFT':
     #sns.scatterplot(data = results.iloc[top], x='cfall(0)', y=f'VegNitrogenLeaf{pft}', ax=axes[0,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='nfall(0)', y=f'VegNitrogenLeaf{pft}', ax=axes[0,0], color='yellow',legend=False)
 
-    axes[0,1].axhline(targets[f'VegNitrogenStem{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], color='yellow',legend=False)
-
-    axes[0,2].axhline(targets[f'VegNitrogenRoot{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='nfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='nfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], color='yellow',legend=False)
-    
     axes[1,0].axhline(targets[f'VegNitrogenLeaf{pft}'], color='grey', alpha=0.5)
     sns.scatterplot(data = results, x='cfall(0)', y=f'VegNitrogenLeaf{pft}', ax=axes[1,0], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
     #sns.scatterplot(data = results.iloc[top], x='cfall(0)', y=f'VegNitrogenLeaf{pft}', ax=axes[0,0], color='red',legend=False)
     sns.scatterplot(data = results.iloc[first], x='cfall(0)', y=f'VegNitrogenLeaf{pft}', ax=axes[1,0], color='yellow',legend=False)
+    
+    try:
+        axes[0,1].axhline(targets[f'VegNitrogenStem{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='nfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='nfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], color='yellow',legend=False)
 
-    axes[1,1].axhline(targets[f'VegNitrogenStem{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[1,1], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[1,1], color='yellow',legend=False)
+        axes[0,2].axhline(targets[f'VegNitrogenRoot{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='nfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='nfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], color='yellow',legend=False)
 
-    axes[1,2].axhline(targets[f'VegNitrogenRoot{pft}'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[1,2], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
-    #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], color='red',legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[1,2], color='yellow',legend=False)
+
+        axes[1,1].axhline(targets[f'VegNitrogenStem{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[1,1], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[0,1], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='cfall(1)', y=f'VegNitrogenStem{pft}', ax=axes[1,1], color='yellow',legend=False)
+
+        axes[1,2].axhline(targets[f'VegNitrogenRoot{pft}'], color='grey', alpha=0.5)
+        sns.scatterplot(data = results, x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[1,2], alpha=0.3,legend=False, hue=f'NPPAll{pft}')
+        #sns.scatterplot(data = results.iloc[top], x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[0,2], color='red',legend=False)
+        sns.scatterplot(data = results.iloc[first], x='cfall(2)', y=f'VegNitrogenRoot{pft}', ax=axes[1,2], color='yellow',legend=False)
+        
+    except:
+        pass
     
 
 
-targets[[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
-
-
-pft
-
-
-results.iloc[top][[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']].sort_values(by='VegCarbonStem1')
-#results.iloc[top][[f'VegCarbonLeaf{pft}', f'NPPAll{pft}']]
-
-
-targets[[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
-#targets[[f'VegCarbonLeaf{pft}', f'NPPAll{pft}']]
-
-
-473.758054+1581.133142+282.691980
-
-
-
-
-
-287+1694+383
-
-
-results.iloc[19][[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
-
-
-results.iloc[19][calib_params_flat]
-
-
 fig, ax=plt.subplots(figsize=(8,5))
-sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
-#sns.lineplot(results[target_vars].iloc[70].T, legend=False, alpha=0.6)
+#sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
+sns.lineplot(results[target_vars].iloc[first].T, legend=False, alpha=0.6)
 sns.scatterplot(targets.T, color='red')
 plt.xticks(rotation=83)
 plt.yscale('log')
 plt.ylabel('Value')
 
 fig.tight_layout()
-plt.savefig('BONA_Black_Spruce_SA_ex.jpg', dpi=300)
-
-
-#
-#print(results[['VegVarbonStem1']] + results[['VegVarbonStem3']])
-
-
-results[top]
+plt.savefig(f'BONA_{CMT}_SA_ex.jpg', dpi=300)
 
 
 sns.lineplot(results[target_vars].T, legend=False, alpha=0.6)
@@ -515,6 +534,33 @@ sns.scatterplot(targets.T, color='red')
 plt.xticks(rotation=90)
 plt.yscale('log')
 plt.ylabel('Value')
+
+
+#targets[[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
+
+
+results.iloc[top][[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']].sort_values(by=f'VegCarbonStem{pft}')
+#results.iloc[top][[f'VegCarbonLeaf{pft}', f'NPPAll{pft}']]
+
+
+targets[[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
+#targets[[f'VegCarbonLeaf{pft}', f'NPPAll{pft}']]
+
+
+results.iloc[31][[f'VegCarbonLeaf{pft}', f'VegCarbonStem{pft}', f'VegCarbonRoot{pft}', f'NPPAll{pft}']]
+
+
+results.iloc[31][calib_params_flat]
+
+
+results.iloc[47][calib_params_flat]
+
+
+#
+#print(results[['VegVarbonStem1']] + results[['VegVarbonStem3']])
+
+
+results.iloc[first][calib_params_flat]
 
 
 fig, axes = plt.subplots(3,3, figsize = (10,6))
@@ -583,45 +629,13 @@ if STEP == 'NPP_VegC_PFT':
     ax.title.set_text('EvrTree')
 
 
-palette = sns.color_palette("mako", as_cmap=True)
 
-if STEP == 1:
-    fig, axes = plt.subplots(2,3, figsize = (8,5))
-    fig.suptitle('STEP 1 cmax vs GPP for each PFT')
 
-    axes[0,0].axhline(targets['GPP1'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cmax', y='GPP1', ax=axes[0,0], legend=False, alpha=0.05)
-    sns.scatterplot(data = results.iloc[top], x='cmax', y='GPP1', ax=axes[0,0], color='red', legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cmax', y='GPP1', ax=axes[0,0], color='yellow', legend=False)
-    axes[0,0].title.set_text(pfts[0])
 
-    axes[0,1].axhline(targets['GPP2'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cmax.1', y='GPP2', ax=axes[0,1], legend=False, alpha=0.05)
-    sns.scatterplot(data = results.iloc[top], x='cmax.1', y='GPP2', ax=axes[0,1], color='red', legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cmax.1', y='GPP2', ax=axes[0,1], color='yellow', legend=False)
-    axes[0,1].title.set_text(pfts[1])
+results.iloc[first]
 
-    axes[0,2].axhline(targets['GPP3'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cmax.2', y='GPP3', ax=axes[0,2], legend=False, alpha=0.05)
-    sns.scatterplot(data = results.iloc[top], x='cmax.2', y='GPP3', ax=axes[0,2], color='red', legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cmax.2', y='GPP3', ax=axes[0,2], color='yellow', legend=False)
-    axes[0,2].title.set_text(pfts[2])
 
-    axes[1,0].axhline(targets['GPP4'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cmax.3', y='GPP4', ax=axes[1,0], alpha=0.05, palette=palette)
-    sns.scatterplot(data = results.iloc[top], x='cmax.3', y='GPP4', ax=axes[1,0], color='red', legend=False)
-    sns.scatterplot(data = results.iloc[first], x='cmax.3', y='GPP4', ax=axes[1,0], color='yellow', legend=False)
-    axes[1,0].title.set_text(pfts[3])
-
-    axes[1,1].axhline(targets['GPP5'], color='grey', alpha=0.5)
-    sns.scatterplot(data = results, x='cmax.4', y='GPP5', ax=axes[1,1], legend=False, alpha=0.05)
-    sns.scatterplot(data = results.iloc[top], x='cmax.4', y='GPP5', ax=axes[1,1], color='red', label='Top 15 runs')
-    sns.scatterplot(data = results.iloc[first], x='cmax.4', y='GPP5', ax=axes[1,1], color='yellow', label='Top run')
-    axes[1,1].title.set_text(pfts[4])
-
-    #axes[1,1].legend(loc='lower right', bbox_to_anchor=(1,0), title='Overall Accuracy')
-   
-    fig.tight_layout()
+targets
 
 
 results.iloc[first]

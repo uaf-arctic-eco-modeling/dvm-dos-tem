@@ -69,6 +69,14 @@ with open(CONFIG_FILE, 'r') as f:
     config = json.load(f)
     
     config['IO']['output_nc_eq'] = 1 # Modify value...
+    config['IO']['hist_climate_file'] = '/data/input-catalog/cpcrw_towers_downscaled/historic-climate_time_fixed.nc'
+    config['IO']['proj_climate_file'] = '/data/input-catalog/cpcrw_towers_downscaled/projected-climate_CC_CCSM4_85_Pa_time_fixed.nc'
+    
+    config['IO']["hist_exp_fire_file"] = "/data/input-catalog/cpcrw_towers_downscaled/historic-explicit-fire_time_fixed.nc"
+    config['IO']["proj_exp_fire_file"] = "/data/input-catalog/cpcrw_towers_downscaled/projected_explicit_fire_CC_CCSM4_85_time_fixed.nc"
+    
+    config['IO']["co2_file"] = "/data/input-catalog/cpcrw_towers_downscaled/co2_time_fixed.nc"
+    config['IO']["proj_co2_file"] = "/data/input-catalog/cpcrw_towers_downscaled/projected_co2_CC_CCSM4_85_time_fixed.nc"
 
 # Write it back..
 with open(CONFIG_FILE, 'w') as f:
@@ -91,19 +99,36 @@ print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct
 soil_dataset.close()
 
 
-#soil_dataset = nc.Dataset(path_to_soil_input, 'r+')
-#soil_dataset['pct_clay'][y_x[0], y_x[1]] = 10 # originally 8.81557846069336
-#soil_dataset['pct_sand'][y_x[0], y_x[1]] = 27 # originally 42.533843994140625
-#soil_dataset['pct_silt'][y_x[0], y_x[1]] = 63 # origially 48.650577545166016
-#print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct_clay'][y_x[0], y_x[1]], 
-#                                                               soil_dataset['pct_sand'][y_x[0], y_x[1]], 
-#                                                               soil_dataset['pct_silt'][y_x[0], y_x[1]]))
-#drainage.close()
+#Birch
+#A horizon 5.7 84 10.3 
+#Bw horizon 46.7 47.7 6.1
+#average: sand: 26.2 silt: 65.9 clay: 8.2
+
+soil_dataset = nc.Dataset(path_to_soil_input, 'r+')
+soil_dataset['pct_clay'][y_x[0], y_x[1]] = 8.2 # originally 8.81557846069336
+soil_dataset['pct_sand'][y_x[0], y_x[1]] = 26.2 # originally 42.533843994140625
+soil_dataset['pct_silt'][y_x[0], y_x[1]] = 65.9 # origially 48.650577545166016
+print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct_clay'][y_x[0], y_x[1]], 
+                                                               soil_dataset['pct_sand'][y_x[0], y_x[1]], 
+                                                               soil_dataset['pct_silt'][y_x[0], y_x[1]]))
+soil_dataset.close()
+
+
+#topography
+#path_to_topo_input='/data/input-catalog/cpcrw_towers_downscaled/topo.nc'
+#topo_dataset = nc.Dataset(path_to_topo_input)
+#print(soil_dataset)
+#print('target cell has {} deg. aspect, {} deg. slope, and {} m elevation'.format(
+#                                                                topo_dataset['aspect'][y_x[0], y_x[1]], 
+#                                                                topo_dataset['slope'][y_x[0], y_x[1]]),
+#                                                                topo_dataset['elevation'][y_x[0], y_x[1]] 
+#                                                               )
 
 
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --empty')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on CMTNUM yearly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on GPP monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on INGPP monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on RG monthly compartment')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on RH monthly layer')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on RM monthly compartment')
@@ -120,16 +145,18 @@ get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/confi
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on LAYERDEPTH monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on LAYERDZ monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on EET monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on PET monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on TRANSPIRATION monthly PFT')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on LAI monthly PFT')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on VEGC monthly PFT compartment')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on VEGN monthly PFT compartment')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-birch/config/output_spec.csv --on BURNVEG2AIRC monthly')
 
 
 get_ipython().run_line_magic('cd', '/data/workflows/BONA-birch')
 
 
-get_ipython().system("dvmdostem --force-cmt=14 --log-level='err' --pr-yrs=100 --eq-yrs=1500 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
+get_ipython().system("dvmdostem --force-cmt=14 --log-level='err' --pr-yrs=100 --eq-yrs=2000 --sp-yrs=300 --tr-yrs=124 --sc-yrs=2")
 
 
 get_ipython().system('ls /data/workflows/BONA-birch/output/')
@@ -160,6 +187,14 @@ with open(CONFIG_FILE, 'r') as f:
     config = json.load(f)
     
     config['IO']['output_nc_eq'] = 1 # Modify value...
+    config['IO']['hist_climate_file'] = '/data/input-catalog/cpcrw_towers_downscaled/historic-climate_time_fixed.nc'
+    config['IO']['proj_climate_file'] = '/data/input-catalog/cpcrw_towers_downscaled/projected-climate_CC_CCSM4_85_Pa_time_fixed.nc'
+    
+    config['IO']["hist_exp_fire_file"] = "/data/input-catalog/cpcrw_towers_downscaled/historic-explicit-fire_time_fixed.nc"
+    config['IO']["proj_exp_fire_file"] = "/data/input-catalog/cpcrw_towers_downscaled/projected_explicit_fire_CC_CCSM4_85_time_fixed.nc"
+    
+    config['IO']["co2_file"] = "/data/input-catalog/cpcrw_towers_downscaled/co2_time_fixed.nc"
+    config['IO']["proj_co2_file"] = "/data/input-catalog/cpcrw_towers_downscaled/projected_co2_CC_CCSM4_85_time_fixed.nc"
 
 # Write it back..
 with open(CONFIG_FILE, 'w') as f:
@@ -173,12 +208,37 @@ with open(CONFIG_FILE, 'w') as f:
 get_ipython().system('/work/scripts/util/runmask.py --reset  --yx 0 0  --show  /data/workflows/BONA-black-spruce/run-mask.nc')
 
 
-get_ipython().system('pwd')
+path_to_soil_input='/data/input-catalog/cpcrw_towers_downscaled/soil-texture.nc'
+soil_dataset = nc.Dataset(path_to_soil_input)
+print(soil_dataset)
+print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct_clay'][y_x[0], y_x[1]], 
+                                                               soil_dataset['pct_sand'][y_x[0], y_x[1]], 
+                                                               soil_dataset['pct_silt'][y_x[0], y_x[1]]))
+soil_dataset.close()
+
+
+#Black spruce
+#A horizon 16.6 71.7 11.75
+#AB horizon 41.5 (10.6) 49.8 (8.2) 8.7 (2.4)
+#Bw horizon 58.7 35.5 5.8
+
+#black spruce
+#avg sand:38.9 silt:52.3 clay: 8.8
+
+soil_dataset = nc.Dataset(path_to_soil_input, 'r+')
+soil_dataset['pct_clay'][y_x[0], y_x[1]] = 8.8 # originally 8.81557846069336
+soil_dataset['pct_sand'][y_x[0], y_x[1]] = 38.9 # originally 42.533843994140625
+soil_dataset['pct_silt'][y_x[0], y_x[1]] = 52.3 # origially 48.650577545166016
+print('target cell is {}% clay, {}% sand, and {}% silt'.format(soil_dataset['pct_clay'][y_x[0], y_x[1]], 
+                                                               soil_dataset['pct_sand'][y_x[0], y_x[1]], 
+                                                               soil_dataset['pct_silt'][y_x[0], y_x[1]]))
+soil_dataset.close()
 
 
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --empty')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on CMTNUM yearly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on GPP monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on INGPP monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on RG monthly compartment')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on RH monthly layer')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on RM monthly compartment')
@@ -195,9 +255,11 @@ get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruc
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on LAYERDEPTH monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on LAYERDZ monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on EET monthly')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on PET monthly')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on TRANSPIRATION monthly PFT')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on LAI monthly PFT')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on VEGC monthly PFT compartment')
+get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on VEGN monthly PFT compartment')
 get_ipython().system('scripts/util/outspec.py ../data/workflows/BONA-black-spruce/config/output_spec.csv --on BURNVEG2AIRC monthly')
 
 
@@ -205,7 +267,7 @@ get_ipython().run_line_magic('cd', '/data/workflows/BONA-black-spruce')
 
 
 #!dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=1000 --sp-yrs=300 --tr-yrs=115 --sc-yrs=10
-get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --pr-yrs=100 --eq-yrs=1500 --sp-yrs=300 --tr-yrs=122 --sc-yrs=0")
+get_ipython().system("dvmdostem --force-cmt=15 --log-level='err' --pr-yrs=100 --eq-yrs=2000 --sp-yrs=300 --tr-yrs=124 --sc-yrs=2")
 #!dvmdostem --force-cmt=15 --log-level='err' --eq-yrs=300 --sp-yrs=0 --tr-yrs=0 --sc-yrs=0
 
 
@@ -217,10 +279,37 @@ ald_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/ALD_yearly
 ald_bs_eq = ald_bs_eq.to_dataframe().reset_index()
 ald_bs_eq = ald_bs_eq.loc[(ald_bs_eq['y']==0) & (ald_bs_eq['x']==0)]
 
+ald_br_eq = xr.open_dataset('/data/workflows/BONA-birch/output/ALD_yearly_eq.nc')
+ald_br_eq = ald_br_eq.to_dataframe().reset_index()
+ald_br_eq = ald_br_eq.loc[(ald_br_eq['y']==0) & (ald_br_eq['x']==0)]
+
 #SHLWC
 shlwc_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/SHLWC_monthly_eq.nc')
 shlwc_bs_eq = shlwc_bs_eq.to_dataframe().reset_index()
 shlwc_bs_eq = shlwc_bs_eq.loc[(shlwc_bs_eq['y']==0) & (shlwc_bs_eq['x']==0)]
+
+shlwc_br_eq = xr.open_dataset('/data/workflows/BONA-birch/output/SHLWC_monthly_eq.nc')
+shlwc_br_eq = shlwc_br_eq.to_dataframe().reset_index()
+shlwc_br_eq = shlwc_br_eq.loc[(shlwc_br_eq['y']==0) & (shlwc_br_eq['x']==0)]
+
+deepc_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/DEEPC_yearly_eq.nc')
+deepc_bs_eq = deepc_bs_eq.to_dataframe().reset_index()
+deepc_bs_eq = deepc_bs_eq.loc[(deepc_bs_eq['y']==0) & (deepc_bs_eq['x']==0)]
+
+deepc_br_eq = xr.open_dataset('/data/workflows/BONA-birch/output/DEEPC_yearly_eq.nc')
+deepc_br_eq = deepc_br_eq.to_dataframe().reset_index()
+deepc_br_eq = deepc_br_eq.loc[(deepc_br_eq['y']==0) & (deepc_br_eq['x']==0)]
+
+
+#SHLWC
+minec_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/MINEC_yearly_eq.nc')
+minec_bs_eq = minec_bs_eq.to_dataframe().reset_index()
+minec_bs_eq = minec_bs_eq.loc[(minec_bs_eq['y']==0) & (minec_bs_eq['x']==0)]
+
+#SHLWC
+minec_br_eq = xr.open_dataset('/data/workflows/BONA-birch/output/MINEC_yearly_eq.nc')
+minec_br_eq = minec_br_eq.to_dataframe().reset_index()
+minec_br_eq = minec_br_eq.loc[(minec_br_eq['y']==0) & (minec_br_eq['x']==0)]
 
 #AVLN
 avln_bs_eq = xr.open_dataset('/data/workflows/BONA-black-spruce/output/AVLN_yearly_eq.nc')
@@ -233,30 +322,35 @@ avln_bs_tr = avln_bs_tr.to_dataframe().reset_index()
 avln_bs_tr = avln_bs_tr.loc[(avln_bs_tr['y']==0) & (avln_bs_tr['x']==0)]
 
 
-ald_bs_eq
+
+avln_br_tr = xr.open_dataset('/data/workflows/BONA-birch/output/AVLN_yearly_tr.nc')
+avln_br_tr = avln_br_tr.to_dataframe().reset_index()
+avln_br_tr = avln_br_tr.loc[(avln_br_tr['y']==0) & (avln_br_tr['x']==0)]
+
+
+fig, axes=plt.subplots(3,1)
+sns.lineplot(data=shlwc_br_eq, x='time', y='SHLWC', ax=axes[0]) #~850
+sns.lineplot(data=deepc_br_eq, x='time', y='DEEPC', ax=axes[1]) #6000
+sns.lineplot(data=minec_br_eq, x='time', y='MINEC', ax=axes[2]) #30000
+
+
+fig, axes=plt.subplots(3,1)
+sns.lineplot(data=shlwc_bs_eq, x='time', y='SHLWC', ax=axes[0]) #~850
+sns.lineplot(data=deepc_bs_eq, x='time', y='DEEPC', ax=axes[1]) #6000
+sns.lineplot(data=minec_bs_eq, x='time', y='MINEC', ax=axes[2]) #30000
 
 
 #CMT1 with shlwc, nfactor_s from CMT13
 sns.lineplot(data=ald_bs_eq, x='time', y='ALD')
 
 
-#CMT1 with shlwc, nfactor_s from CMT13
-sns.lineplot(data=shlwc_bs_eq, x='time', y='SHLWC')
-
-
 #CMT1
-sns.lineplot(data=ald_bs_eq, x='time', y='ALD')
-
-
-#CMT1
-sns.lineplot(data=shlwc_bs_eq, x='time', y='SHLWC')
+sns.lineplot(data=ald_br_eq, x='time', y='ALD')
 
 
 #CMT1
 sns.lineplot(data=avln_bs_eq, x='time', y='AVLN')
-
-
-avln_bs_tr.loc[100:]
+#plt.ylim(0,3)
 
 
 #0.708 nfactor(w)
@@ -264,7 +358,16 @@ sns.lineplot(data=avln_bs_tr, x=avln_bs_tr.index, y='AVLN')
 
 
 #0.707 nfactor(w)
-sns.lineplot(data=avln_bs_tr, x=avln_bs_tr.index, y='AVLN')
+sns.lineplot(data=avln_br_tr, x=avln_br_tr.index, y='AVLN')
+
+
+sns.lineplot(data=avln_br_tr, x=avln_bs_tr.index, y='AVLN')
+
+
+
+
+
+
 
 
 

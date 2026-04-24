@@ -10,38 +10,38 @@ workflows=(
     '/data/workflows/BONA-black-spruce-fire-1960'
     '/data/workflows/BONA-black-spruce-fire-1990'
     '/data/workflows/BONA-black-spruce-fire-2030'
-    '/data/workflows/BONA-birch-fire-control'
-    '/data/workflows/BONA-birch-fire-1930'
-    '/data/workflows/BONA-birch-fire-1960'
-    '/data/workflows/BONA-birch-fire-1990'
-    '/data/workflows/BONA-birch-fire-2030'
+    #'/data/workflows/BONA-birch-fire-control'
+    #'/data/workflows/BONA-birch-fire-1930'
+    #'/data/workflows/BONA-birch-fire-1960'
+    #'/data/workflows/BONA-birch-fire-1990'
+    #'/data/workflows/BONA-birch-fire-2030'
 
 )
 
 # Fire history files for different model runs
 fire_hist_files=(
-    'historic-explicit-nofire.nc'
-    'historic-explicit-fire_1930.nc'
-    'historic-explicit-fire_1960.nc'
-    'historic-explicit-fire_1990.nc'
-    'historic-explicit-nofire.nc'
-    'historic-explicit-nofire.nc'
-    'historic-explicit-fire_1930.nc'
-    'historic-explicit-fire_1960.nc'
-    'historic-explicit-fire_1990.nc'
-    'historic-explicit-nofire.nc'
+    'historic-explicit-nofire_time_fixed.nc'
+    'historic-explicit-fire_1930_time_fixed.nc'
+    'historic-explicit-fire_1960_time_fixed.nc'
+    'historic-explicit-fire_1990_time_fixed.nc'
+    'historic-explicit-nofire_time_fixed.nc'
+    #'historic-explicit-nofire_time_fixed.nc'
+    #'historic-explicit-fire_1930_time_fixed.nc'
+    #'historic-explicit-fire_1960_time_fixed.nc'
+    #'historic-explicit-fire_1990_time_fixed.nc'
+    #'historic-explicit-nofire_time_fixed.nc'
 )
 fire_future_files=(
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85_nofire.nc'
-    'projected_explicit_fire_CC_CCSM4_85.nc'
+    'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    'projected_explicit_fire_CC_CCSM4_85_time_fixed.nc'
+    #'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    #'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    #'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    #'projected_explicit_fire_CC_CCSM4_85_nofire_time_fixed.nc'
+    #'projected_explicit_fire_CC_CCSM4_85_time_fixed.nc'
 )
 dsb=(
     false
@@ -49,11 +49,11 @@ dsb=(
     true
     true
     true
-    false
-    true
-    true
-    true
-    true
+    #false
+    #true
+    #true
+    #true
+    #true
 )
 
 dsl=(
@@ -62,11 +62,11 @@ dsl=(
     true
     true
     true
-    true
-    true
-    true
-    true
-    true
+    #true
+    #true
+    #true
+    #true
+    #true
 )
 
 cmt=(
@@ -75,11 +75,11 @@ cmt=(
     15
     15
     15
-    14
-    14
-    14
-    14
-    14
+    #14
+    #14
+    #14
+    #14
+    #14
 )
 
 
@@ -129,6 +129,7 @@ run_model() {
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on AVLN yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on LTRFALC monthly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on LWCLAYER yearly
+    python "$outspec_script" "${workflow}/config/output_spec.csv" --on VWCLAYER yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on TLAYER yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on LAYERDEPTH yearly
     python "$outspec_script" "${workflow}/config/output_spec.csv" --on LAYERDZ yearly
@@ -152,8 +153,8 @@ run_model() {
 
     # Run model
     #dvmdostem --force-cmt=$cmt --log-level='debug' --eq-yrs=0 --sp-yrs=0 --pr=0 --tr-yrs=122 --sc-yrs=0 --restart-run --no-output-cleanup
-    dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=300 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
-    #dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=1500 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
+    #dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=300 --sp-yrs=300 --pr-yrs=100 --tr-yrs=122 --sc-yrs=78
+    dvmdostem --force-cmt=$cmt --log-level='fatal' --eq-yrs=2000 --sp-yrs=300 --pr-yrs=100 --tr-yrs=124 --sc-yrs=76
 
 }
 

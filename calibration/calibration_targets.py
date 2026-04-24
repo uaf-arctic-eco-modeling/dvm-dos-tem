@@ -325,19 +325,19 @@ calibration_targets = {
     'cmtnumber': 14,
                                  #    pft0       pft1           pft2          pft3    pft4        pft5    pft6    pft7    pft8    pft9
                   'PFTNames':    [  'EverTree',  'DecidShrub', 'DecidTree', 'Moss',  'EvrShrub', '',     '',     '',     ''],
-    'GPPAllIgnoringNitrogen':    [  0.98,         163.27,       587.83,    43.82,    25.31,      0.0,    0.0,  0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  0.49,         81.64,        293.91,    21.91,    12.66,     0.0,    0.0, 0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [  0.39,         65.31,        235.13,      17.53,  10.12,       0.0,    0.0,   0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
-    'Nuptake':                   [  0.67,         0.17,         0.17,        0.22,     0.42,       0.0,    0.0,   0.0,    0.0 ], # nuptake (gN/m2/year)
+    'GPPAllIgnoringNitrogen':    [  1.23,         20.47,        736.87,      5.49,    3.17,      0.0,    0.0,  0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  0.61,         10.23,        368.44,      2.75,    1.59,     0.0,    0.0, 0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
+    'NPPAll':                    [  0.49,         8.19,         294.75,      2.20,    1.27,       0.0,    0.0,   0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
+    'Nuptake':                   [  0.67,         0.17,         0.17,        0.22,    0.42,       0.0,    0.0,   0.0,    0.0 ], # nuptake (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [  1.06,         103.00,       62.14,      158.31,   27.0,       0.0,   0.0,   0.0,    0.0 ], # vegcl (gC/m2)
-      'Stem':                    [  5.09,         112.00,       2580.17,     0.0,      123.0,      0.0,    0.0,   0.0,    0.0 ], # vegcw (gC/m2)
-      'Root':                    [  0.43,         28.00,        345.38,     0.0,      20.0,       0.0,    0.0,    0.0,    0.0 ], # vegcr (gC/m2)
+      'Leaf':                    [  .106,         10.300,       62.14,       15.831,   2.70,       0.0,   0.0,   0.0,    0.0 ], # vegcl (gC/m2)
+      'Stem':                    [  .509,         11.200,       2580.17,     0.0,      12.30,      0.0,    0.0,   0.0,    0.0 ], # vegcw (gC/m2)
+      'Root':                    [  0.043,         2.800,        345.38,     0.0,      2.00,       0.0,    0.0,    0.0,    0.0 ], # vegcr (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [  0.022,        5.00,         3.32,       2.83,    0.89,     0.0,    0.0,    0.0,    0.0 ], # vegnl (gN/m2)
-      'Stem':                    [  0.069,        2.80,         50.94,       0.0,     1.90,      0.0,    0.0,    0.0,    0.0 ], # vegnw (gN/m2)
-      'Root':                    [  0.0043,       0.23,         6.76,        0.0,     0.40,      0.0,    0.0,    0.0,    0.0 ], # vegnr (gN/m2)
+      'Leaf':                    [  0.0022,        0.500,         3.32,       0.283,    0.089,     0.0,    0.0,    0.0,    0.0 ], # vegnl (gN/m2)
+      'Stem':                    [  0.0069,        0.280,         50.94,      0.0,     0.190,      0.0,    0.0,    0.0,    0.0 ], # vegnw (gN/m2)
+      'Root':                    [  0.00043,       0.023,         6.76,       0.0,     0.040,      0.0,    0.0,    0.0,    0.0 ], # vegnr (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
     'CarbonShallow':          728.6,    #  shlwc
@@ -351,19 +351,19 @@ calibration_targets = {
     'cmtnumber': 15,
                                  #    pft0       pft1           pft2          pft3    pft4        pft5    pft6    pft7    pft8    pft9
                   'PFTNames':    [  'EverTree',  'DecidShrub', 'EverShrub', 'Moss',  'Lichen', '',     '',     '',     ''],
-    'GPPAllIgnoringNitrogen':    [  360.61,       99.20,        52.36,    719.41,    74.83,      0.0,    0.0,  0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
-    'NPPAllIgnoringNitrogen':    [  180.31,       49.60,        26.18,    359.71,    56.05,     0.0,    0.0, 0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
-    'NPPAll':                    [  144.24,       39.68,        20.94,      287.77,    44.84,       0.0,    0.0,   0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
+    'GPPAllIgnoringNitrogen':    [  602.89,       16.59,        8.75,       120.28,    18.74,      0.0,    0.0,  0.0,    0.0], # ingpp (gC/m2/year)   GPP without N limitation
+    'NPPAllIgnoringNitrogen':    [  301.45,       8.29,         4.38,       60.14,     9.37,     0.0,    0.0, 0.0,    0.0], # innpp (gC/m2/year)   NPP without N limitation
+    'NPPAll':                    [  241.16,       6.63,         3.50,       48.11,     7.50,       0.0,    0.0,   0.0,    0.0 ], # npp (gC/m2/year)   NPP with N limitation
     'Nuptake':                   [  0.67,         0.17,         0.17,        0.22,     0.42,       0.0,    0.0,   0.0,    0.0 ], # nuptake (gN/m2/year)
     'VegCarbon': {
-      'Leaf':                    [  287.19,       173.92,       55.25,      1921.0,   299.33,       0.0,   0.0,   0.0,    0.0 ], # vegcl (gC/m2)
-      'Stem':                    [  1694.1,       217.67,       123.0,     0.0,      0.0,      0.0,    0.0,   0.0,    0.0 ], # vegcw (gC/m2)
-      'Root':                    [  383.38,       30.54402,     44.56,     0.0,      0.0,       0.0,    0.0,    0.0,    0.0 ], # vegcr (gC/m2)
+      'Leaf':                    [  287.19,       17.392,       5.525,      192.10,   29.933,       0.0,   0.0,   0.0,    0.0 ], # vegcl (gC/m2)
+      'Stem':                    [  1694.1,       21.767,       12.30,     0.0,      0.0,      0.0,    0.0,   0.0,    0.0 ], # vegcw (gC/m2)
+      'Root':                    [  383.38,       3.054402,     4.456,     0.0,      0.0,       0.0,    0.0,    0.0,    0.0 ], # vegcr (gC/m2)
     },
     'VegStructuralNitrogen': {
-      'Leaf':                    [  6.21,         8.30,         1.38,       17.11,   2.65,     0.0,    0.0,    0.0,    0.0 ], # vegnl (gN/m2)
-      'Stem':                    [  22.96,        5.39,         1.41,       0.0,     0.00,      0.0,    0.0,    0.0,    0.0 ], # vegnw (gN/m2)
-      'Root':                    [  8.78,         0.60,         0.62,        0.0,     0.00,      0.0,    0.0,    0.0,    0.0 ], # vegnr (gN/m2)
+      'Leaf':                    [  6.21,         0.830,         0.138,       1.711,   0.265,     0.0,    0.0,    0.0,    0.0 ], # vegnl (gN/m2)
+      'Stem':                    [  22.96,        0.539,         0.141,       0.0,     0.00,      0.0,    0.0,    0.0,    0.0 ], # vegnw (gN/m2)
+      'Root':                    [  8.78,         0.060,         0.062,        0.0,     0.00,      0.0,    0.0,    0.0,    0.0 ], # vegnr (gN/m2)
     },
     'MossDeathC':              178.00,    #  dmossc
     'CarbonShallow':          2768.09,    #  shlwc

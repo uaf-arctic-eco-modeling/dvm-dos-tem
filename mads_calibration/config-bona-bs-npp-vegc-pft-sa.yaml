@@ -33,16 +33,16 @@ params:
 - nfall(1)
 - nfall(2)  
 pftnums:
-- 0
-- 0 
-- 0
-- 0
-- 0 
-- 0
-- 0
-- 0
-- 0 
-- 0 
+- 2 
+- 2 
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2
+- 2 
+- 2 
 site: /data/input-catalog/cpcrw_towers_downscaled
 work_dir: /data/workflows/BONA-BS-NPP-VegC-PFT-SA
 mads_initial_guess:

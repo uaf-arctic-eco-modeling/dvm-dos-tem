@@ -76,8 +76,8 @@ comparison_data.dtypes
 comparison_data.head(50)
 
 
-ds = nc.Dataset('/data/input-catalog/caribou-poker/historic-climate.nc')
-ds.variables
+ds = nc.Dataset('/data/input-catalog/cpcrw_towers_downscaled/historic-climate.nc')
+ds
 
 
 tair = ds.variables['tair'][:,cell_y_coord,cell_x_coord]
