@@ -4,6 +4,7 @@ import sys
 import os
 import argparse
 import textwrap
+import json
 
 import commentjson
 
@@ -35,6 +36,55 @@ def get_input_paths(config_file="config/config.js", verbose=True):
   return paths
 
 
+def _parse_config_value(raw_value):
+  '''
+  Parse a value passed via CLI for writing into config data.
+  '''
+  try:
+    return commentjson.loads(raw_value)
+  except ValueError:
+    # If it is not valid JSON-like syntax, keep it as a string.
+    return raw_value
+
+
+def set_config_value(config_file, key_path, value, verbose=True):
+  '''
+  Set a nested configuration value using dot-separated key paths.
+
+  Example key paths:
+    IO.output_dir
+    stage_settings.eq.env
+  '''
+  with open(config_file) as config_fh:
+    config = commentjson.load(config_fh)
+
+  keys = key_path.split('.')
+  if not keys or any(not k for k in keys):
+    raise ValueError("Invalid key path: '{}'".format(key_path))
+
+  node = config
+  for key in keys[:-1]:
+    if key not in node:
+      raise KeyError("Missing key in path '{}': '{}'".format(key_path, key))
+    if not isinstance(node[key], dict):
+      raise TypeError(
+          "Cannot descend into non-object key '{}' for path '{}'".format(key, key_path)
+      )
+    node = node[key]
+
+  if keys[-1] not in node:
+    raise KeyError("Target key does not exist: '{}'".format(key_path))
+
+  node[keys[-1]] = value
+
+  with open(config_file, 'w') as config_fh:
+    json.dump(config, config_fh, indent=2)
+    config_fh.write('\n')
+
+  if verbose:
+    print("Updated '{}' in {}".format(key_path, config_file))
+
+
 def cmdline_define():
   '''Define the command line interface and return the parser object.'''
 
@@ -52,6 +102,11 @@ def cmdline_define():
 
   parser.add_argument('--get-input-paths', action='store_true',
       help=textwrap.dedent('''Returns all input file paths'''))
+
+  parser.add_argument('--set', nargs=2, action='append', metavar=('KEY_PATH', 'VALUE'),
+      help=textwrap.dedent('''Set a config key path to a value. Use dot notation
+      for nested keys (e.g. IO.output_dir output/new). VALUE is parsed as JSON if
+      possible, otherwise stored as a string.'''))
 
   return parser
 
@@ -107,6 +162,11 @@ def cmdline_run(args):
   '''
   if args.get_input_paths:
     get_input_paths(args.file, args.verbose)
+
+  if args.set:
+    for key_path, raw_value in args.set:
+      value = _parse_config_value(raw_value)
+      set_config_value(args.file, key_path, value, verbose=args.verbose)
 
   return 0
 
