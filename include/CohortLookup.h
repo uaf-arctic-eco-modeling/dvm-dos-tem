@@ -50,8 +50,8 @@ public:
                    //  SOM respiration rate (at 0oC)
   double kdcsomcr; //calibrated soil chemically-resistant
                    //  SOM respiration rate (at 0oC)
-  double s2dfraction;
-  double d2mfraction;
+  double s2df_rawc;
+  double d2mf_rawc;
   //Soil methane calibrated values
   double kdcrawc_ch4;
   double kdcsoma_ch4;
@@ -283,6 +283,14 @@ public:
 
   double r_retain_c; // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)
   double r_retain_n; // 0.3 calculated from Harden et al., 2003 (ATHarden42003a)
+
+  double s2df_soma;
+  double s2df_sompr;
+  double s2df_somcr;
+
+  double d2mf_soma;
+  double d2mf_sompr;
+  double d2mf_somcr;
 
 private:
 

@@ -1024,8 +1024,14 @@ void Soil_Bgc::initializeParameter() {
   calpar.kdcsoma    = chtlu->kdcsoma;
   calpar.kdcsompr   = chtlu->kdcsompr;
   calpar.kdcsomcr   = chtlu->kdcsomcr;
-  calpar.s2dfraction = chtlu->s2dfraction;
-  calpar.d2mfraction = chtlu->d2mfraction;
+  calpar.s2df_rawc = chtlu->s2df_rawc;
+  calpar.s2df_soma = chtlu->s2df_soma;
+  calpar.s2df_sompr = chtlu->s2df_sompr;
+  calpar.s2df_somcr = chtlu->s2df_somcr;
+  calpar.d2mf_rawc = chtlu->d2mf_rawc;
+  calpar.d2mf_soma = chtlu->d2mf_soma;
+  calpar.d2mf_sompr = chtlu->d2mf_sompr;
+  calpar.d2mf_somcr = chtlu->d2mf_somcr;
   calpar.kdcrawc_ch4 = chtlu->kdcrawc_ch4;
   calpar.kdcsoma_ch4 = chtlu->kdcsoma_ch4;
   calpar.kdcsompr_ch4 = chtlu->kdcsompr_ch4;
@@ -1475,15 +1481,15 @@ void Soil_Bgc::deltastate() {
   del_sois.wdebrisc = d2wdebrisc- del_soi2a.rhwdeb;
   //(II) moving/mixing portion of C among layers
   //fibric-C (rawc) will NOT to move between layers
-  double s2df_rawc = 0.5; //sensitivity analysis required
-  double s2df_soma = 1.0; //sensitivity analysis required
-  double s2df_sompr = 1.0; //sensitivity analysis required
-  double s2df_somcr = 1.0;//sensitivity analysis required
-  double d2mf_rawc = 0.5; //sensitivity analysis required
-  double d2mf_soma = 1.0;//sensitivity analysis required
-  double d2mf_sompr = 1.0; //sensitivity analysis required
-  double d2mf_somcr = 1.0;//sensitivity analysis required
-//  double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
+  double s2df_rawc = calpar.s2df_rawc; //sensitivity analysis required
+  double s2df_soma = calpar.s2df_soma;     // sensitivity analysis required
+  double s2df_sompr = calpar.s2df_sompr;        // sensitivity analysis required
+  double s2df_somcr = calpar.s2df_somcr;             // sensitivity analysis required
+  double d2mf_rawc = calpar.d2mf_rawc;                // sensitivity analysis required
+  double d2mf_soma = calpar.d2mf_soma;                    // sensitivity analysis required
+  double d2mf_sompr = calpar.d2mf_sompr;                       // sensitivity analysis required
+  double d2mf_somcr = calpar.d2mf_somcr;                            // sensitivity analysis required
+  //  double mobiletoco2 = (double)bgcpar.fsoma*(double)bgcpar.som2co2;
   double mobiletoco2 = (double)bgcpar.som2co2; //sensitivity analysis required
 //  double xtopdlthick  = fmin(0.10, cd->m_soil.deepthick);  //Yuan: the max. thickness of deep-C layers, which shallow-C can move into
 //  double xtopmlthick  = 0.20;                              //Yuan: the max. thickness of mineral-C layers, which deep-C can move into
