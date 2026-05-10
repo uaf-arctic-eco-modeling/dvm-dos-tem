@@ -207,6 +207,7 @@ def cmdline_run(args):
     "output_nc_tr",
     "output_nc_sc",
     "output_interval",
+    "restart_from",
   ] 
 
   # Sort the keys in the IO section.
