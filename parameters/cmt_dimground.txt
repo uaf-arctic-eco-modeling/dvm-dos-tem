@@ -104,21 +104,21 @@
 0.8239             //coefmineb://None
 //===========================================================
 // CMT06 // Wet Sedge Tundra // 
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+1.359950e+02 // snwdenmax: 
+1.007067e+02 // snwdennew: 
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
 0.210000     // initdmossthick: 
 1.000000     // mosstype: 
-0.10125      // initfibthick: meters
-0.16535      // inithumthick:
-0.0652       // coefshlwa:
-0.708        // coefshlwb:
-0.0545       // coefdeepa:
-0.975        // coefdeepb:
-0.0966       // coefminea:
-0.8239       // coefmineb:
+0.101250     // initfibthick: 
+0.165350     // inithumthick: 
+0.065200     // coefshlwa: 
+0.708000     // coefshlwb: 
+0.054500     // coefdeepa: 
+0.975000     // coefdeepb: 
+0.096600     // coefminea: 
+0.823900     // coefmineb: 
 //===========================================================
 // CMT07 // Heath Tundra
 250                //snwdenmax:max.snowdensity(kg/m3)//None
@@ -189,8 +189,8 @@
 0.8197             //coefmineb://None
 //===========================================================
 // CMT31 // Boreal Bog
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+1.430075e+02 // snwdenmax: 
+3.168183e+01 // snwdennew:  
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
@@ -274,21 +274,21 @@
       0.7810  //coefmineb://  //  // from_7
 //===========================================================
 // CMT55 // Arctic Fen // Daring Creek - imnavait calibration
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+1.359950e+02 // snwdenmax: 
+1.007067e+02 // snwdennew: 
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
 0.210000     // initdmossthick: 
 1.000000     // mosstype: 
-0.10125      // initfibthick: meters
-0.16535      // inithumthick:
-0.0652       // coefshlwa:
-0.708        // coefshlwb:
-0.0545       // coefdeepa:
-0.975        // coefdeepb:
-0.0966       // coefminea:
-0.8239       // coefmineb:
+0.101250     // initfibthick: 
+0.165350     // inithumthick: 
+0.065200     // coefshlwa: 
+0.708000     // coefshlwb: 
+0.054500     // coefdeepa: 
+0.975000     // coefdeepb: 
+0.096600     // coefminea: 
+0.823900     // coefmineb: 
 //===========================================================
 // CMT56 // Mixed Tundra // Darling Lake
     250.0000  //snwdenmax:kg/m3// max. snow density //  // 
@@ -342,8 +342,8 @@
 0.8109             //coefmineb://None
 //===========================================================
 // CMT61 // Scotty Creek Bog - bonanza calibration
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+1.430075e+02 // snwdenmax: 
+3.168183e+01 // snwdennew:  
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
@@ -494,26 +494,26 @@
       0.0230  //coefminea://  //  // 
       0.6078  //coefmineb://  //  // 
 //===========================================================
-// CMT75 // Igarka Bog - bonanza fen calibration for testin
-231.944080   // snwdenmax: 
-62.730167    // snwdennew: 
+// CMT75 // Igarka Bog - bonanza calibration
+1.430075e+02 // snwdenmax: 
+3.168183e+01 // snwdennew:  
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
 0.210000     // initdmossthick: 
 1.000000     // mosstype: 
-0.020000     // initfibthick: 
-0.900000     // inithumthick: 
-0.011000     // coefshlwa: 
-1.000000     // coefshlwb: 
-0.011000     // coefdeepa: 
-1.384000     // coefdeepb: 
-0.072000     // coefminea: 
+0.469375     // initfibthick: 
+0.420625     // inithumthick: 
+0.011090     // coefshlwa: 
+1.141000     // coefshlwb: 
+0.031270     // coefdeepa: 
+1.121200     // coefdeepb: 
+0.061540     // coefminea: 
 1.000000     // coefmineb: 
 //===========================================================
 // CMT92 // Abisko Bog - bonanza calibration
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+1.430075e+02 // snwdenmax: 
+3.168183e+01 // snwdennew:  
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
@@ -529,19 +529,19 @@
 1.000000     // coefmineb:
 //===========================================================
 // CMT93 // Adventalen // imnavait calibration 
-250.000000   // snwdenmax: 
-50.000000    // snwdennew: 
+1.359950e+02 // snwdenmax: 
+1.007067e+02 // snwdennew: 
 0.000000     // initsnwthick: 
 0.000000     // initsnwdense: 
 0.400000     // maxmossthick: 
 0.210000     // initdmossthick: 
 1.000000     // mosstype: 
-0.10125      // initfibthick: meters
-0.16535      // inithumthick:
-0.0652       // coefshlwa:
-0.708        // coefshlwb:
-0.0545       // coefdeepa:
-0.975        // coefdeepb:
-0.0966       // coefminea:
-0.8239       // coefmineb:
+0.101250     // initfibthick: 
+0.165350     // inithumthick: 
+0.065200     // coefshlwa: 
+0.708000     // coefshlwb: 
+0.054500     // coefdeepa: 
+0.975000     // coefdeepb: 
+0.096600     // coefminea: 
+0.823900     // coefmineb: 
 //===========================================================

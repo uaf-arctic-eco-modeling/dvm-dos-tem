@@ -144,7 +144,7 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 3079.0            // initshlwc: Updated
 7703.0            // initdeepc: Updated
-43404.0           // initminec: Updated
+175000.0           // initminec: Updated
 2206.0            // initsoln: Updated
 8.958             // initavln: Updated
 //===========================================================
@@ -234,7 +234,7 @@
 //===========================================================
 // CMT31 // Boreal Bog
 2.036690          // rhq10: 
-0.400000          // rhmoistfrozen: 
+0.150000          // rhmoistfrozen: 
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:
@@ -249,7 +249,7 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 8731.942664       // initshlwc: Updated
 24091.95591       // initdeepc: Updated
-61545.45455       // initminec: Updated
+200000.00       // initminec: Updated
 4138              // initsoln: Updated
 7.134             // initavln: Updated
 //===========================================================
@@ -354,7 +354,7 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 3079.0            // initshlwc: Updated
 7703.0            // initdeepc: Updated
-43404.0           // initminec: Updated
+175000.0           // initminec: Updated
 2206.0            // initsoln: Updated
 8.958             // initavln: Updated
 //===========================================================
@@ -423,7 +423,7 @@
 //===========================================================
 // CMT61 // Scotty creek Bog - bonanza calibration
 2.036690          // rhq10: 
-0.400000          // rhmoistfrozen: 
+0.150000          // rhmoistfrozen: 
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:
@@ -438,7 +438,7 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 8731.942664       // initshlwc: Updated
 24091.95591       // initdeepc: Updated
-61545.45455       // initminec: Updated
+200000.00       // initminec: Updated
 4138              // initsoln: Updated
 7.134             // initavln: Updated
 //===========================================================
@@ -610,30 +610,9 @@
    1.895e+02  //initsoln:// same as targets //  // 
       0.3340  //initavln:// same as targets //  // 
 //===========================================================
-// CMT75 // Igarga Bog - bonanza fen calibration for testing
+// CMT75 // Igarga Bog - bonanza calibration
 2.036690          // rhq10: 
-1.000000          // rhmoistfrozen: 
-0.0               // moistmin:
-0.8               // moistopt: changed from 0.5 to 0.8
-1.0               // moistmax:
-50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
-0.372             // fsoma:
-0.611             // fsompr:
-0.017             // fsomcr:
-0.346             // som2co2:
-0.0042            // kn2:
-19.34             // nmincnsoil: Updated
-0.2               // propftos:
-0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
-158               // initshlwc: Updated
-56300             // initdeepc: Updated
-71636             // initminec: Updated
-7135              // initsoln: Updated
-7.135             // initavln: Updated
-//===========================================================
-// CMT92 // Abisko Bog - bonanza calibration
-2.036690          // rhq10: 
-0.400000          // rhmoistfrozen: 
+0.150000          // rhmoistfrozen: 
 0.0               // moistmin:
 0.8               // moistopt: changed from 0.5 to 0.8
 1.0               // moistmax:
@@ -648,10 +627,32 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 8731.942664       // initshlwc: Updated
 24091.95591       // initdeepc: Updated
-61545.45455       // initminec: Updated
+200000.00       // initminec: Updated
 4138              // initsoln: Updated
 7.134             // initavln: Updated
-//===========================================================// CMT93 // Adventalen - Imnavait calibration
+//===========================================================
+// CMT92 // Abisko Bog - bonanza calibration
+2.036690          // rhq10: 
+0.150000          // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+19.34             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+8731.942664       // initshlwc: Updated
+24091.95591       // initdeepc: Updated
+200000.00       // initminec: Updated
+4138              // initsoln: Updated
+7.134             // initavln: Updated
+//===========================================================
+// CMT93 // Adventalen - Imnavait calibration
 2.0               // rhq10: 
 1.970639e-01 // rhmoistfrozen: 
 0.0               // moistmin:
@@ -668,7 +669,7 @@
 0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
 3079.0            // initshlwc: Updated
 7703.0            // initdeepc: Updated
-43404.0           // initminec: Updated
+175000.0           // initminec: Updated
 2206.0            // initsoln: Updated
 8.958             // initavln: Updated
 //===========================================================
