@@ -253,6 +253,27 @@
 4138              // initsoln: Updated
 7.134             // initavln: Updated
 //===========================================================
+// CMT32 // Boreal Fen //
+2.036690          // rhq10: 
+1.000000          // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+19.34             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+158               // initshlwc: Updated
+56300             // initdeepc: Updated
+215000.00          // initminec: Updated
+7135              // initsoln: Updated
+7.135             // initavln: Updated
+//===========================================================
 // CMT44 // Shrub Tundra Kougarok
 2.0               //rhq10:
 1.0               //rhmoistfrozen:

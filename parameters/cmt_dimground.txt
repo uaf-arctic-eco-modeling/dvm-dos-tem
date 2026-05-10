@@ -205,6 +205,23 @@
 0.061540     // coefminea: 
 1.000000     // coefmineb:
 //===========================================================
+// CMT32 // Boreal Fen // 
+1.786114e+02 // snwdenmax: 
+8.088415e+01 // snwdennew: 
+0.000000     // initsnwthick: 
+0.000000     // initsnwdense: 
+0.400000     // maxmossthick: 
+0.210000     // initdmossthick: 
+1.000000     // mosstype: 
+0.020000     // initfibthick: 
+0.900000     // inithumthick: 
+0.011000     // coefshlwa: 
+1.000000     // coefshlwb: 
+0.011000     // coefdeepa: 
+1.384000     // coefdeepb: 
+0.072000     // coefminea: 
+1.000000     // coefmineb: 
+//===========================================================
 // CMT44 // Shrub Tundra Kougarok
 350                //snwdenmax:max.snowdensity(kg/m3)//None
 120                //snwdennew:new(min.)snowdensity(kg/m3)//None
