@@ -6,6 +6,8 @@ import os
 import sys
 import errno
 import shutil
+import pathlib
+
 #import json
 import commentjson # need because we keep comments in our config file
 import collections
@@ -21,6 +23,39 @@ def mkdir_p(path):
       pass
     else:
       raise
+
+def pick_input_file(search_dir, criteria_groups, default_filename, description):
+  '''
+  Scan search_dir for .nc files whose lowercased names contain all tokens in
+  at least one criteria group (list of tuples). Returns the first match. If
+  multiple matches are found, a warning is printed. If no match is found, a
+  warning is printed and the default filename is used.
+  '''
+  matches = []
+  for candidate in sorted(pathlib.Path(search_dir).iterdir()):
+    if not candidate.is_file() or candidate.suffix.lower() != '.nc':
+      continue
+    name_lower = candidate.name.lower()
+    for tokens in criteria_groups:
+      if all(t in name_lower for t in tokens):
+        matches.append(candidate.name)
+        break
+
+  if len(matches) > 1:
+    print(
+      f"WARNING: Multiple {description} files found in {search_dir}: "
+      f"{matches}. Using first match: {matches[0]}",
+      file=sys.stderr,
+    )
+  if len(matches) == 0:
+    print(
+      f"WARNING: No {description} file found in {search_dir}. "
+      f"Defaulting to: {default_filename}",
+      file=sys.stderr,
+    )
+    return os.path.join(search_dir, default_filename)
+
+  return os.path.join(search_dir, matches[0])
 
 
 def cmdline_parse(argv=None):
@@ -160,42 +195,96 @@ def cmdline_run(args):
 
   else:
     input_data_path = os.path.join(os.path.abspath(args.input_data_path))
- 
-  # Set up the paths to the input data...
-  import pathlib
-  if not pathlib.Path(input_data_path).is_dir():
-    raise ValueError(f"Input data path {input_data_path} is not a valid directory.")
+    if not pathlib.Path(input_data_path).is_dir():
+      raise ValueError(f"Input data path {input_data_path} is not a valid directory.")
 
-  if pathlib.Path(input_data_path, 'historic-climate.nc').is_file():
-    config['IO']['hist_climate_file'] = os.path.join(input_data_path, 'historic-climate.nc')
-  else:
-    config['IO']['hist_climate_file'] = os.path.join(input_data_path, 'crujra-downscaled-historic-climate.nc')
-
-  if pathlib.Path(input_data_path, 'projected-climate.nc').is_file():
-    config['IO']['proj_climate_file'] = os.path.join(input_data_path, 'projected-climate.nc')
-  else:
-    config['IO']['proj_climate_file'] = os.path.join(input_data_path, 'cmip6-ssp245-downscaled-projected-climate.nc')
+  # Check the input data path and look for the appropriate files. Allow for some
+  # variation, i.e. veg, vegetation, veg_class, VegClass, etc. Same for soil
+  # texture, climate, climate, topo, fire and co2 files. This is to allow for
+  # some flexibility in the input data naming conventions, and to avoid having
+  # to rename files just to get them to work with the default config file. If
+  # there are multiple files that match the criteria, then the first one found
+  # will be used, and a warning will be printed to the user. If no files are
+  # found that match the criteria, then the path in the config file will be set
+  # to the default filename, which will likely cause the run to fail, but at
+  # least the user will get a clear error message about what file is missing.
   
-  if pathlib.Path(input_data_path, 'vegetation.nc').is_file():
-    config['IO']['veg_class_file'] = os.path.join(input_data_path, 'vegetation.nc')
-  else:
-    config['IO']['veg_class_file'] = os.path.join(input_data_path, 'veg.nc')
+  config['IO']['hist_climate_file'] = pick_input_file(
+    input_data_path,
+    [('historic', 'climate'), ('hist', 'climate')],
+    'historic-climate.nc',
+    'historic climate',
+  )
 
-  if pathlib.Path(input_data_path, 'soil-texture.nc').is_file():
-    config['IO']['soil_texture_file'] = os.path.join(input_data_path, 'soil-texture.nc')
-  else:
-    config['IO']['soil_texture_file'] = os.path.join(input_data_path, 'soiltex.nc')
+  config['IO']['proj_climate_file'] = pick_input_file(
+    input_data_path,
+    [('projected', 'climate'), ('proj', 'climate')],
+    'projected-climate.nc',
+    'projected climate',
+  )
 
-  #config['IO']['proj_climate_file']    = os.path.join(input_data_path, 'projected-climate.nc')
-  #config['IO']['veg_class_file']       = os.path.join(input_data_path, 'vegetation.nc')
-  config['IO']['drainage_file']        = os.path.join(input_data_path, 'drainage.nc')
-  #config['IO']['soil_texture_file']    = os.path.join(input_data_path, 'soil-texture.nc')
-  config['IO']['co2_file']             = os.path.join(input_data_path, 'co2.nc')
-  config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected-co2.nc')
-  config['IO']['topo_file']            = os.path.join(input_data_path, 'topo.nc')
-  config['IO']['fri_fire_file']        = os.path.join(input_data_path, 'fri-fire.nc')
-  config['IO']['hist_exp_fire_file']   = os.path.join(input_data_path, 'historic-explicit-fire.nc')
-  config['IO']['proj_exp_fire_file']   = os.path.join(input_data_path, 'projected-explicit-fire.nc')
+  config['IO']['veg_class_file'] = pick_input_file(
+    input_data_path,
+    [('vegetation',), ('veg_class',), ('vegclass',), ('veg',)],
+    'vegetation.nc',
+    'vegetation',
+  )
+
+  config['IO']['drainage_file'] = pick_input_file(
+    input_data_path,
+    [('drainage',), ('drain',)],
+    'drainage.nc',
+    'drainage',
+  )
+
+  config['IO']['soil_texture_file'] = pick_input_file(
+    input_data_path,
+    [('soil', 'texture'), ('soil_texture',), ('soiltex',)],
+    'soil-texture.nc',
+    'soil texture',
+  )
+
+  config['IO']['co2_file'] = pick_input_file(
+    input_data_path,
+    [('historic', 'co2'), ('hist', 'co2'), ('co2',)],
+    'co2.nc',
+    'historic CO2',
+  )
+
+  config['IO']['proj_co2_file'] = pick_input_file(
+    input_data_path,
+    [('projected', 'co2'), ('proj', 'co2')],
+    'projected-co2.nc',
+    'projected CO2',
+  )
+
+  config['IO']['topo_file'] = pick_input_file(
+    input_data_path,
+    [('topo',), ('topography',)],
+    'topo.nc',
+    'topography',
+  )
+
+  config['IO']['fri_fire_file'] = pick_input_file(
+    input_data_path,
+    [('fri', 'fire'), ('fri-fire',), ('frifire',)],
+    'fri-fire.nc',
+    'FRI fire',
+  )
+
+  config['IO']['hist_exp_fire_file'] = pick_input_file(
+    input_data_path,
+    [('historic', 'explicit', 'fire'), ('hist', 'exp', 'fire')],
+    'historic-explicit-fire.nc',
+    'historic explicit fire',
+  )
+
+  config['IO']['proj_exp_fire_file'] = pick_input_file(
+    input_data_path,
+    [('projected', 'explicit', 'fire'), ('proj', 'exp', 'fire')],
+    'projected-explicit-fire.nc',
+    'projected explicit fire',
+  )
 
   # Make sure calibration data ends up in a directory that is named the same
   # as your new working directory.
