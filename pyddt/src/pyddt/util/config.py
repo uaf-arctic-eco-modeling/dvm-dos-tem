@@ -106,7 +106,9 @@ def cmdline_run(args):
 
   '''
   if args.get_input_paths:
-    get_input_paths(args.file, args.verbose)
+    paths = get_input_paths(args.file, args.verbose)
+    for i in paths:
+      print(i)
 
   return 0
 
@@ -118,6 +120,9 @@ def cmdline_entry(argv=None):
   args = cmdline_parse(argv)
   return cmdline_run(args)
 
+# adding this allows the script to be run standalone when installed with pip
+def main(argv=None):
+  return cmdline_entry(argv=argv)
 
 if __name__ == '__main__':
   sys.exit(cmdline_entry()) # this makes sure appropriate exit code is passed on.
