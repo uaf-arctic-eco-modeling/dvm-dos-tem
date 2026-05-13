@@ -162,11 +162,34 @@ def cmdline_run(args):
     input_data_path = os.path.join(os.path.abspath(args.input_data_path))
  
   # Set up the paths to the input data...
-  config['IO']['hist_climate_file']    = os.path.join(input_data_path, 'historic-climate.nc')
-  config['IO']['proj_climate_file']    = os.path.join(input_data_path, 'projected-climate.nc')
-  config['IO']['veg_class_file']       = os.path.join(input_data_path, 'vegetation.nc')
+  import pathlib
+  if not pathlib.Path(input_data_path).is_dir():
+    raise ValueError(f"Input data path {input_data_path} is not a valid directory.")
+
+  if pathlib.Path(input_data_path, 'historic-climate.nc').is_file():
+    config['IO']['hist_climate_file'] = os.path.join(input_data_path, 'historic-climate.nc')
+  else:
+    config['IO']['hist_climate_file'] = os.path.join(input_data_path, 'crujra-downscaled-historic-climate.nc')
+
+  if pathlib.Path(input_data_path, 'projected-climate.nc').is_file():
+    config['IO']['proj_climate_file'] = os.path.join(input_data_path, 'projected-climate.nc')
+  else:
+    config['IO']['proj_climate_file'] = os.path.join(input_data_path, 'cmip6-ssp245-downscaled-projected-climate.nc')
+  
+  if pathlib.Path(input_data_path, 'vegetation.nc').is_file():
+    config['IO']['veg_class_file'] = os.path.join(input_data_path, 'vegetation.nc')
+  else:
+    config['IO']['veg_class_file'] = os.path.join(input_data_path, 'veg.nc')
+
+  if pathlib.Path(input_data_path, 'soil-texture.nc').is_file():
+    config['IO']['soil_texture_file'] = os.path.join(input_data_path, 'soil-texture.nc')
+  else:
+    config['IO']['soil_texture_file'] = os.path.join(input_data_path, 'soiltex.nc')
+
+  #config['IO']['proj_climate_file']    = os.path.join(input_data_path, 'projected-climate.nc')
+  #config['IO']['veg_class_file']       = os.path.join(input_data_path, 'vegetation.nc')
   config['IO']['drainage_file']        = os.path.join(input_data_path, 'drainage.nc')
-  config['IO']['soil_texture_file']    = os.path.join(input_data_path, 'soil-texture.nc')
+  #config['IO']['soil_texture_file']    = os.path.join(input_data_path, 'soil-texture.nc')
   config['IO']['co2_file']             = os.path.join(input_data_path, 'co2.nc')
   config['IO']['proj_co2_file']        = os.path.join(input_data_path, 'projected-co2.nc')
   config['IO']['topo_file']            = os.path.join(input_data_path, 'topo.nc')
