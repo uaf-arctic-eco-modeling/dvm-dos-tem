@@ -3,6 +3,7 @@
 import os
 import errno
 import glob
+import pathlib
 import sys
 import netCDF4 as nc
 import numpy as np
@@ -40,6 +41,42 @@ class MissingInputFilesValueError(ValueError):
 class MustSupplyPixelCoordsError(ValueError):
   '''Raise when user must supply pixel coordinates(i.e. command line flag --yx)'''
 
+def summarize_metadata(in_folder: pathlib.Path) -> None:
+  '''
+  Prints out a summary of the metadata for the input files in the provided folder.
+
+  Parameters
+  ----------
+  in_folder : Path
+    A path to a folder of dvmdostem inputs.
+
+  Returns
+  -------
+  None
+  '''
+  filelist = glob.glob(os.path.join(in_folder, "*.nc"))
+  for f in filelist:
+    with nc.Dataset(f) as ds:
+      print(f"File: {f}")
+      print("Global attributes:")
+      for attr_name in ds.ncattrs():
+        value = getattr(ds, attr_name)
+        if len(value) > 40:
+          value = value[0:40] + "..."
+        print(f"  {attr_name}: {value}")
+      print(f"Variables: {ds.variables.keys()}")
+      for var_name in ds.variables.keys():
+        var = ds.variables[var_name]
+        print(f"  Variable: {var_name}  dims: {var.dimensions}  shape: {var.shape}  type: {var.datatype}")
+        print(f"    Attributes:")
+        for attr_name in var.ncattrs():
+          value = getattr(var, attr_name)
+          if len(str(value)) > 40:
+            value = str(value)[0:40] + "..."
+          print(f"      {attr_name}: {value}")
+
+    print("\n")
+  
 def check_input_set_existence(in_folder):
   '''
   Raises various exceptions if there are problems with the files in the in_folder.
@@ -658,6 +695,10 @@ def cmdline_define():
 
   query_parser = subparsers.add_parser('query', help=textwrap.dedent('''\
     Query one or more dvmdostem inputs for various information.'''))
+  
+  query_parser.add_argument('--summarize-metadata', action='store_true',
+    help=textwrap.dedent('''Print out a summary of the metadata for the input files.'''))
+  
   query_parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
       help="Find closest pixel to provided lat and lon arguments.")
 
@@ -735,6 +776,9 @@ def cmdline_run(args):
     climate_gap_count_plot(args)
 
   if args.command == 'query':
+    if args.summarize_metadata:
+      summarize_metadata(args.input_folder)
+
     if args.check_existence:
       check_input_set_existence(args.input_folder)
 
