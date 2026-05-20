@@ -637,6 +637,159 @@ def climate_ts_plot(args):
     print("Cmd line arg should be checked such that you can't arrive here.")
     exit(-1)
 
+def climate_inspect(args):
+  '''
+  Interactive image maps of the 4 climate variables with a timestep slider.
+  Clicking any pixel plots its full time series below the maps.
+
+  Uses xarray for data loading (handles cftime automatically) and
+  matplotlib widgets for interactivity.
+  '''
+
+  import copy
+  import datetime as dt
+  import matplotlib.pyplot as plt
+  import matplotlib.widgets as widgets
+  from matplotlib.gridspec import GridSpec
+  import xarray as xr
+
+  VARS = ['nirr', 'precip', 'tair', 'vapor_press']
+  COLORMAPS = {
+    'nirr':        'YlOrRd',
+    'tair':        'plasma',
+    'precip':      'Blues',
+    'vapor_press': 'YlGn',
+  }
+
+  filepath = os.path.join(args.input_folder, args.file)
+  if not os.path.isfile(filepath):
+    raise FileNotFoundError(f'Climate file not found: {filepath}')
+
+  ds = xr.open_dataset(filepath)
+  present_vars = [v for v in VARS if v in ds]
+  n_timesteps = len(ds.time)
+
+  # Convert cftime/numpy datetimes to plain datetime objects for the x-axis.
+  time_dts = [dt.datetime(int(t.dt.year), int(t.dt.month), int(t.dt.day))
+              for t in ds.time]
+
+  # Pre-compute global min/max per variable across all timesteps.
+  global_ranges = {
+    var: (float(ds[var].min()), float(ds[var].max()))
+    for var in present_vars
+  }
+
+  fig = plt.figure(figsize=(5 * len(present_vars), 10))
+  gs = GridSpec(2, len(present_vars), figure=fig,
+                bottom=0.18, top=0.93, wspace=0.4, hspace=0.55)
+  axes_images = [fig.add_subplot(gs[0, i]) for i in range(len(present_vars))]
+  ax_ts = fig.add_subplot(gs[1, :])
+
+  images = []
+  pixel_markers = []
+
+  for ax, var in zip(axes_images, present_vars):
+    data = ds[var].isel(time=0)
+    im = ax.imshow(data, animated=True, cmap=COLORMAPS[var])
+    im.set_clim(vmin=float(data.min()), vmax=float(data.max()))
+    cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    gmin, gmax = global_ranges[var]
+    cb.set_label(f'global min: {gmin:.4g}  |  max: {gmax:.4g}', fontsize=8)
+    ax.set_title(var)
+    images.append(im)
+    marker, = ax.plot([], [], 'w+', markersize=14, markeredgewidth=2, zorder=5)
+    pixel_markers.append(marker)
+
+  ts_line, = ax_ts.plot([], [], lw=1)
+  ts_vline = ax_ts.axvline(x=time_dts[0], color='k', linestyle='--', lw=1, zorder=5)
+  ax_ts.set_title('Click a pixel in any image to show its time series')
+  ax_ts.set_xlabel('time')
+  time_title = fig.suptitle(f'time={ds.time.values[0]}', y=0.98)
+
+  clicked = {'var': None, 'px': None, 'py': None}
+
+  def update_timeseries():
+    if clicked['var'] is None:
+      return
+    var = clicked['var']
+    px, py = clicked['px'], clicked['py']
+    ny, nx = ds[var].shape[1], ds[var].shape[2]
+    px = max(0, min(px, nx - 1))
+    py = max(0, min(py, ny - 1))
+    ts_data = ds[var].isel(y=py, x=px).values
+    ts_line.set_xdata(time_dts)
+    ts_line.set_ydata(ts_data)
+    ax_ts.relim()
+    ax_ts.autoscale_view()
+    u = ds[var].attrs.get('units', '')
+    ax_ts.set_ylabel(f'{var} ({u})' if u else var)
+    ax_ts.set_title(f'{var} at pixel (x={px}, y={py})')
+
+  def on_click(event):
+    if event.inaxes not in axes_images or event.xdata is None:
+      return
+    idx = axes_images.index(event.inaxes)
+    clicked['var'] = present_vars[idx]
+    clicked['px'] = int(round(event.xdata))
+    clicked['py'] = int(round(event.ydata))
+    for marker in pixel_markers:
+      marker.set_xdata([clicked['px']])
+      marker.set_ydata([clicked['py']])
+    update_timeseries()
+    fig.canvas.draw_idle()
+
+  fig.canvas.mpl_connect('button_press_event', on_click)
+
+  ax_slider = plt.axes([0.2, 0.10, 0.6, 0.03])
+  slider = widgets.Slider(ax_slider, 'Time', 0, n_timesteps - 1,
+                          valinit=0, valstep=1)
+
+  ax_textbox = plt.axes([0.2, 0.04, 0.1, 0.04])
+  textbox = widgets.TextBox(ax_textbox, 'Go to:', initial='0')
+
+  ax_prev = plt.axes([0.38, 0.04, 0.08, 0.04])
+  btn_prev = widgets.Button(ax_prev, '< Prev')
+
+  ax_next = plt.axes([0.48, 0.04, 0.08, 0.04])
+  btn_next = widgets.Button(ax_next, 'Next >')
+
+  def update(val):
+    t = int(slider.val)
+    for im, var in zip(images, present_vars):
+      data = ds[var].isel(time=t)
+      im.set_data(data)
+      im.set_clim(vmin=float(data.min()), vmax=float(data.max()))
+    time_title.set_text(f'time={ds.time.values[t]}')
+    textbox.set_val(str(t))
+    ts_vline.set_xdata([time_dts[t]])
+    fig.canvas.draw_idle()
+
+  def on_textbox_submit(text):
+    try:
+      t = max(0, min(int(text), n_timesteps - 1))
+      slider.set_val(t)
+    except ValueError:
+      pass
+
+  def on_prev(event):
+    slider.set_val(max(0, int(slider.val) - 1))
+
+  def on_next(event):
+    slider.set_val(min(n_timesteps - 1, int(slider.val) + 1))
+
+  slider.on_changed(update)
+  textbox.on_submit(on_textbox_submit)
+  btn_prev.on_clicked(on_prev)
+  btn_next.on_clicked(on_next)
+
+  if args.save:
+    fig.savefig(args.save, bbox_inches='tight')
+    print(f'Saved to {args.save}')
+
+  plt.show()
+  ds.close()
+
+
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
   '''
@@ -753,6 +906,21 @@ def cmdline_define():
     '''))
   climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
+  climate_inspect_parser = subparsers.add_parser('inspect',
+    help=textwrap.dedent('''Interactive image maps of all 4 climate variables
+      with a timestep slider. Click any pixel to plot its full time series.
+    '''))
+  climate_inspect_parser.add_argument('input_folder',
+    help='Path to a folder containing a set of dvmdostem inputs.')
+  climate_inspect_parser.add_argument('--file',
+    default='crujra-downscaled-historic-climate.nc',
+    help='Climate file within input_folder to inspect '
+         '(default: crujra-downscaled-historic-climate.nc).')
+  climate_inspect_parser.add_argument('--save', nargs='?',
+    const='/tmp/input_inspect.png', metavar='FILE',
+    help='Save figure to FILE before showing '
+         '(default when flag given: /tmp/input_inspect.png).')
+
   return parser
 
 def cmdline_parse(argv=None):
@@ -774,6 +942,9 @@ def cmdline_run(args):
 
   if args.command == 'climate-gap-plot':
     climate_gap_count_plot(args)
+
+  if args.command == 'inspect':
+    climate_inspect(args)
 
   if args.command == 'query':
     if args.summarize_metadata:
