@@ -5,6 +5,7 @@ import os
 import argparse
 import textwrap
 import json
+import re
 
 import commentjson
 
@@ -49,14 +50,24 @@ def _parse_config_value(raw_value):
 
 def set_config_value(config_file, key_path, value, verbose=True):
   '''
-  Set a nested configuration value using dot-separated key paths.
+  Set a nested configuration value using dot-separated key paths,
+  preserving comments, formatting, and key order in the original file.
+
+  Works by validating the key path via commentjson, then performing a
+  targeted regex replacement in the raw file text so that comments and
+  formatting are never disturbed. Supports scalar values (strings,
+  numbers, booleans, null) only — not inline objects or arrays.
 
   Example key paths:
     IO.output_dir
     stage_settings.eq.env
   '''
-  with open(config_file) as config_fh:
-    config = commentjson.load(config_fh)
+  
+  with open(config_file, encoding='utf-8') as config_fh:
+    raw_text = config_fh.read()
+
+  # Validate key path and confirm the key exists.
+  config = commentjson.loads(raw_text)
 
   keys = key_path.split('.')
   if not keys or any(not k for k in keys):
@@ -75,11 +86,32 @@ def set_config_value(config_file, key_path, value, verbose=True):
   if keys[-1] not in node:
     raise KeyError("Target key does not exist: '{}'".format(key_path))
 
-  node[keys[-1]] = value
+  # Serialize the new value as compact JSON (handles str/int/float/bool/None).
+  new_value_json = json.dumps(value)
 
-  with open(config_file, 'w') as config_fh:
-    json.dump(config, config_fh, indent=2)
-    config_fh.write('\n')
+  # Build a pattern that matches:  "last_key"  :  <scalar_value>
+  # Scalar value covers JSON strings, numbers, booleans, and null.
+  last_key = keys[-1]
+  _json_string  = r'"(?:[^"\\]|\\.)*"'
+  _json_number  = r'-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?'
+  _json_keyword = r'true|false|null'
+  _scalar       = r'(?:{0}|{1}|{2})'.format(_json_string, _json_number, _json_keyword)
+  pattern = r'("' + re.escape(last_key) + r'"\s*:\s*)(' + _scalar + r')'
+
+  new_text, count = re.subn(pattern, r'\g<1>' + new_value_json, raw_text)
+
+  if count == 0:
+    raise ValueError(
+        "Could not locate key '{}' in raw text of '{}'".format(last_key, config_file)
+    )
+  if count > 1:
+    raise ValueError(
+        "Ambiguous replacement: key '{}' matched {} times in '{}'. "
+        "Use a more specific key path.".format(last_key, count, config_file)
+    )
+
+  with open(config_file, 'w', encoding='utf-8') as config_fh:
+    config_fh.write(new_text)
 
   if verbose:
     print("Updated '{}' in {}".format(key_path, config_file))
@@ -149,9 +181,11 @@ def cmdline_define():
 
   parser.add_argument('--list-keys', nargs='?', const='',
       metavar='KEY_PATH',
-      help=textwrap.dedent('''List available config keys using dot notation.
-      Optionally provide a key path to list only that key and its subkeys
-      (e.g. --list-keys IO).'''))
+      help=textwrap.dedent('''List available config keys using dot notation. Use
+                           an empty string to list all keys (e.g. --list-keys ""
+                           <PATH_TO_CONFIG_FILE>). For nested keys, use dot
+                           notation, e.g. --list-keys IO to list all keys under
+                           the IO section.'''))
 
   return parser
 
