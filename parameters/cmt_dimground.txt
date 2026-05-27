@@ -1,263 +1,479 @@
-// dvmdostem parameter file
-// ground structure and dimensions
+// dmvdostem parameter file
+// soil microbial activity (BGC) parameters and default initial conditions
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE
-// Extra comment lines are allowed between the community type key and the data.
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. dead moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.1                // initfibthick: meters
-0.1                // inithumthick:
-0.01               // coefshlwa:
-1.3574             // coefshlwb:
-0.03               // coefdeepa:
-1.2389371          // coefdeepb:
-0.04025            // coefminea:
-0.0532             // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.deadmossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.1                //initfibthick:meters//None
+0.1                //inithumthick://None
+0.01               //coefshlwa://None
+1.3574             //coefshlwb://None
+0.03               //coefdeepa://None
+1.2389371          //coefdeepb://None
+0.04025            //coefminea://None
+0.0532             //coefmineb://None
 //===========================================================
 // CMT01 // Boreal Black Spruce // JSC 6/18/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-120                // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. dead moss thickness (m)
-0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.049              // initfibthick: meters
-0.115              // inithumthick:
-0.012              // coefshlwa:
-1.18               // coefshlwb:
-0.008              // coefdeepa:
-1.541              // coefdeepb:
-0.0995             // coefminea:
-0.8109             // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+120                //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.deadmossthickness(m)//None
+0.02               //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.049              //initfibthick:meters//None
+0.115              //inithumthick://None
+0.012              //coefshlwa://None
+1.18               //coefshlwb://None
+0.008              //coefdeepa://None
+1.541              //coefdeepb://None
+0.0995             //coefminea://None
+0.8109             //coefmineb://None
 //===========================================================
 // CMT02 // Boreal White Spruce Forest // JSC 1/22/21  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated with Bonanza Creek climate.
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-120                // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. dead moss thickness (m)
-0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.0498               // initfibthick: meters
-0.08352              // inithumthick:
-0.019              // coefshlwa:
-1.125              // coefshlwb:
-0.0292             // coefdeepa:
-1.2622             // coefdeepb:
-0.1317             // coefminea:
-0.461              // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+120                //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.deadmossthickness(m)//None
+0.02               //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.0498               //initfibthick:meters//None
+0.08352              //inithumthick://None
+0.019              //coefshlwa://None
+1.125              //coefshlwb://None
+0.0292             //coefdeepa://None
+1.2622             //coefdeepb://None
+0.1317             //coefminea://None
+0.461              //coefmineb://None
 //===========================================================
 // CMT03 // Boreal Deciduous Forest // JSC 6/20/20  JSC based Melvin et al. 2015 and Ruess et al. 1996. Calibrated for Murphy Dome.
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-120                // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. dead moss thickness (m)
-0.02               // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.020              // initfibthick: meters
-0.056              // inithumthick:
-0.019              // coefshlwa:
-1.475              // coefshlwb:
-0.023              // coefdeepa:
-1.145              // coefdeepb:
-0.0995             // coefminea:
-0.7078             // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+120                //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.deadmossthickness(m)//None
+0.02               //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.020              //initfibthick:meters//None
+0.056              //inithumthick://None
+0.019              //coefshlwa://None
+1.475              //coefshlwb://None
+0.023              //coefdeepa://None
+1.145              //coefdeepb://None
+0.0995             //coefminea://None
+0.7078             //coefmineb://None
 //===========================================================
 // CMT04 // Shrub Tundra // Calibrated for Toolik area.
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.05878             // initfibthick: meters
-0.11212             // inithumthick:
-0.0652              // coefshlwa:
-0.708               // coefshlwb:
-0.0545              // coefdeepa:
-0.975               // coefdeepb:
-0.0966              // coefminea:
-0.7851              // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.05878             //initfibthick:meters//None
+0.11212             //inithumthick://None
+0.0652              //coefshlwa://None
+0.708               //coefshlwb://None
+0.0545              //coefdeepa://None
+0.975               //coefdeepb://None
+0.0966              //coefminea://None
+0.7851              //coefmineb://None
 //===========================================================
 // CMT05 // Tussock Tundra // (updated 1/15/2016 JDC)
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.30               // maxmossthick: max. moss thickness (m)
-0.10               // initdmossthick: initial dead moss thickness (m) MUST MATCH initdmossc in cmt_bgcsoil.txt!!!
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.0667             // initfibthick: meters
-0.145              // inithumthick:
-0.0652             // coefshlwa:
-0.708              // coefshlwb:
-0.0545             // coefdeepa:
-0.975              // coefdeepb:
-0.0966             // coefminea:
-0.8239             // coefmineb:
+214.0155                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.30               //maxmossthick:max.mossthickness(m)//None
+0.10               //initdmossthick:initialdeadmossthickness(m)MUSTMATCHinitdmosscincmt_bgcsoil.txt!!!//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.0667             //initfibthick:meters//None
+0.145              //inithumthick://None
+0.0652             //coefshlwa://None
+0.708              //coefshlwb://None
+0.0545             //coefdeepa://None
+0.975              //coefdeepb://None
+0.0966             //coefminea://None
+0.8239             //coefmineb://None
 //===========================================================
 // CMT06 // Wet Sedge Tundra // Calibrated for Toolik area.
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.10125             // initfibthick: meters
-0.16535             // inithumthick:
-0.0652              // coefshlwa:
-0.708               // coefshlwb:
-0.0545              // coefdeepa:
-0.975               // coefdeepb:
-0.0966              // coefminea:
-0.8239              // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.10125             //initfibthick:meters//None
+0.16535             //inithumthick://None
+0.0652              //coefshlwa://None
+0.708               //coefshlwb://None
+0.0545              //coefdeepa://None
+0.975               //coefdeepb://None
+0.0966              //coefminea://None
+0.8239              //coefmineb://None
 //===========================================================
 // CMT07 // Heath Tundra
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.02                // initfibthick: meters
-0.02                // inithumthick:
-0.0652              // coefshlwa:
-0.708               // coefshlwb:
-0.0545              // coefdeepa:
-0.975               // coefdeepb:
-0.0966              // coefminea:
-0.781               // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.02                //initfibthick:meters//None
+0.02                //inithumthick://None
+0.0652              //coefshlwa://None
+0.708               //coefshlwb://None
+0.0545              //coefdeepa://None
+0.975               //coefdeepb://None
+0.0966              //coefminea://None
+0.781               //coefmineb://None
 //===========================================================
 // CMT12 // Lowland Boreal Wet Shrubland 
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-2                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.118              // initfibthick: meters
-0.151              // inithumthick:
-0.0652             // coefshlwa:
-0.7080             // coefshlwb:
-0.0545             // coefdeepa:
-0.9750             // coefdeepb:
-0.0996             // coefminea:
-0.6931             // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+2                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.118              //initfibthick:meters//None
+0.151              //inithumthick://None
+0.0652             //coefshlwa://None
+0.7080             //coefshlwb://None
+0.0545             //coefdeepa://None
+0.9750             //coefdeepb://None
+0.0996             //coefminea://None
+0.6931             //coefmineb://None
 //===========================================================
 // CMT20 // EML Shrub Tundra
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-2                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.147              // initfibthick: meters
-0.255              // inithumthick:
-0.0652             // coefshlwa:
-0.7080             // coefshlwb:
-0.0545             // coefdeepa:
-0.9750             // coefdeepb:
-0.0996             // coefminea:
-0.7810             // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+2                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.147              //initfibthick:meters//None
+0.255              //inithumthick://None
+0.0652             //coefshlwa://None
+0.7080             //coefshlwb://None
+0.0545             //coefdeepa://None
+0.9750             //coefdeepb://None
+0.0996             //coefminea://None
+0.7810             //coefmineb://None
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 Joy)
-// Snow characteristics
-250                // snwdenmax:  max. snow density (kg/m3)
-50                 // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-2                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.147              // initfibthick: meters
-0.255              // inithumthick:
-0.0652             // coefshlwa:
-0.7080             // coefshlwb:
-0.0545             // coefdeepa:
-0.9750             // coefdeepb:
-0.0996             // coefminea:
-0.8197             // coefmineb:
+250                //snwdenmax:max.snowdensity(kg/m3)//None
+50                 //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+2                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.147              //initfibthick:meters//None
+0.255              //inithumthick://None
+0.0652             //coefshlwa://None
+0.7080             //coefshlwb://None
+0.0545             //coefdeepa://None
+0.9750             //coefdeepb://None
+0.0996             //coefminea://None
+0.8197             //coefmineb://None
 //===========================================================
 // CMT31 // Boreal Bog
-// Snow characteristics
-350                // snwdenmax:  max. snow density (kg/m3)
-120                // snwdennew:  new (min.) snow density (kg/m3)
-0.0                // initsnwthick: initial snow thickness (m)
-0.0                // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.40               // maxmossthick: max. dead moss thickness (m) UPDATED
-0.21               // initdmossthick: initial dead moss thickness (m) UPDATED
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.33               // initfibthick: meters UPDATED
-0.90               // inithumthick: UPDATED
-0.05070            // coefshlwa: 0.0507
-1.00000            // coefshlwb: 0.708 MODIFIED to improve calibration stability of mineral c 0.925
-0.05011            // coefdeepa: 0.05011
-1.00000            // coefdeepb: 0.975
-0.18610            // coefminea: 0.1861
-1.00000            // coefmineb: 0.7577
+350                //snwdenmax:max.snowdensity(kg/m3)//None
+120                //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.0                //initsnwthick:initialsnowthickness(m)//None
+0.0                //initsnwdense:initialsnowdensity(kg/m3)//None
+0.40               //maxmossthick:max.deadmossthickness(m)UPDATED//None
+0.21               //initdmossthick:initialdeadmossthickness(m)UPDATED//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.33               //initfibthick:metersUPDATED//None
+0.90               //inithumthick:UPDATED//None
+0.05070            //coefshlwa:0.0507//None
+1.00000            //coefshlwb:0.708MODIFIEDtoimprovecalibrationstabilityofmineralc0.925//None
+0.05011            //coefdeepa:0.05011//None
+1.00000            //coefdeepb:0.975//None
+0.18610            //coefminea:0.1861//None
+1.00000            //coefmineb:0.7577//None
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
-// Snow characteristics
-350                // snwdenmax:  max. snow density (kg/m3)
-120                // snwdennew:  new (min.) snow density (kg/m3)
-0.                 // initsnwthick: initial snow thickness (m)
-0.                 // initsnwdense: initial snow density (kg/m3)
-// moss characteristics
-0.035              // maxmossthick: max. moss thickness (m)
-0.005              // initdmossthick: initial dead moss thickness (m)
-1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
-// soil characteristics
-0.05878             // initfibthick: meters
-0.11212             // inithumthick:
-0.0652              // coefshlwa:
-0.708               // coefshlwb:
-0.0545              // coefdeepa:
-0.975               // coefdeepb:
-0.0966              // coefminea:
-0.7851              // coefmineb:
+350                //snwdenmax:max.snowdensity(kg/m3)//None
+120                //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.035              //maxmossthick:max.mossthickness(m)//None
+0.005              //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.05878             //initfibthick:meters//None
+0.11212             //inithumthick://None
+0.0652              //coefshlwa://None
+0.708               //coefshlwb://None
+0.0545              //coefdeepa://None
+0.975               //coefdeepb://None
+0.0966              //coefminea://None
+0.7851              //coefmineb://None
+//===========================================================
+// CMT50 // Shrub Tundra TVC // ##Values from Trail Valley###
+    300      //snwdenmax:kg/m3// max. snow density // Wang 2022
+    230     //snwdennew:kg/m3// new (min.) snow density // Marsh and Pomeroy 1996
+      0.0000  //initsnwthick:m// initial snow thickness //None
+      0.0000  //initsnwdense:kg/m3// initial snow density //None
+      0.0350  //maxmossthick:m// max. dead moss thickness //None
+      0.0050  //initdmossthick:m// initial dead moss thickness(not using anymore) //None
+      3       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //None
+      0.1000  //initfibthick:m//Krogh etal 2017//None
+      0.1650  //inithumthick:m// Voigt etal 2023//None
+      0.0652  //coefshlwa://None//None
+      0.7080  //coefshlwb://None//None
+      0.0545  //coefdeepa://None//None
+      0.9750  //coefdeepb://None//None
+      0.0966  //coefminea://None//None
+      0.7851  //coefmineb://None//None
+//===========================================================
+// CMT51 // Tussock Tundra TVC // ##Values from Trail Valley###
+    300.0000  //snwdenmax:kg/m3// max. snow density //  // Wang 2022
+    230.0000  //snwdennew:kg/m3// new (min.) snow density //  // Marsh and Pomeroy 1996
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.3000  //maxmossthick:m// max. dead moss thickness //  // 
+      0.1000  //initdmossthick:m// initial dead moss thickness(not using anymore) //  //
+      1       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.2000  //initfibthick:m//  //  // Voigt etal 2023
+      0.2000  //inithumthick:m//  //  // Voigt etal 2023
+      0.0130  //coefshlwa://  //  // 
+      1.3750  //coefshlwb://  //  // 
+      0.0230  //coefdeepa://  //  // 
+      1.2450  //coefdeepb://  //  // 
+      0.0995  //coefminea://  //  // 
+      0.7878  //coefmineb://  //  //  
+//===========================================================
+// CMT52 // Heath-lichen // ##Values from Trail Valley###
+    300.0000  //snwdenmax:kg/m3// max. snow density //  // Wang 2022
+    230.0000  //snwdennew:kg/m3// new (min.) snow density //  // Marsh and Pomeroy 1996
+      0.0000  //initsnwthick:m// initial snow thickness //  // same for all
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // same for all
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // from_7
+      0.0050  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // from_7
+      0       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0350  //initfibthick:m//  //  // Quinton etal 2000
+      0.0563  //inithumthick:m//  //  // Voigt etal 2023
+      0.0652  //coefshlwa://  //  // from_7
+      0.7080  //coefshlwb://  //  // from_7
+      0.0545  //coefdeepa://  //  // from_7
+      0.9750  //coefdeepb://  //  // from_7
+      0.0966  //coefminea://  //  // from_7
+      0.7810  //coefmineb://  //  // from_7
+//===========================================================
+// CMT55 // Arctic Fen // Daring Creek
+    225.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    106.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0050  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      1  //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0500  //initfibthick:m//  //  // 
+      0.4500  //inithumthick:m//  //  // 
+      0.0652  //coefshlwa://  //  // 
+      0.9080  //coefshlwb://  //  // 
+      0.0545  //coefdeepa://  //  // 
+      0.9750  //coefdeepb://  //  // 
+      0.0966  //coefminea://  //  // 
+      0.58178  //coefmineb://  //  //
+//===========================================================
+// CMT56 // Mixed Tundra // Darling Lake
+    250.0000  //snwdenmax:kg/m3// max. snow density //  // 
+     50.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0050  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      1  //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0610  //initfibthick:m//  //  // 
+      0.3890  //inithumthick:m//  //  // 
+      0.0652  //coefshlwa:// updated April 23 //  // 
+      0.7080  //coefshlwb:// updated April 23 //  // 
+      0.0445  //coefdeepa:// updated April 23 //  // 
+      0.8730  //coefdeepb:// updated April 23 //  // 
+      0.0966  //coefminea:// updated April 23 //  // 
+      0.5811  //coefmineb:// updated April 23 //  //
+//===========================================================
+// CMT57 // Heath Tundra Daring Lake //
+    250.0000  //snwdenmax:kg/m3// max. snow density //  // 
+     50.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0050  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      3       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0200  //initfibthick:m//  //  // 
+      0.0300  //inithumthick:m//  //  // 
+      0.1152  //coefshlwa://  //  // 
+      0.7080  //coefshlwb://  //  // 
+      0.0945  //coefdeepa://  //  // 
+      0.9750  //coefdeepb://  //  // 
+      0.0966  //coefminea://  //  // 
+      0.5811  //coefmineb://  //  //
+//===========================================================
+// CMT60 // Peat Plateau
+232                 //snwdenmax:max.snowdensity(kg/m3)//None
+120.5                //snwdennew:new(min.)snowdensity(kg/m3)//None
+0.                 //initsnwthick:initialsnowthickness(m)//None
+0.                 //initsnwdense:initialsnowdensity(kg/m3)//None
+0.3                 //maxmossthick:max.deadmossthickness(m)//None
+0.02               //initdmossthick:initialdeadmossthickness(m)//None
+1                  //mosstype:// moss type (1: sphagnum; 2: feathermoss; 3: other)
+0.15                //initfibthick:meters//None
+0.20                //inithumthick://None
+0.012              //coefshlwa://None
+1.18               //coefshlwb://None
+0.008              //coefdeepa://None
+1.54               //coefdeepb://None
+0.0995             //coefminea://None
+0.8109             //coefmineb://None
+//===========================================================
+// CMT65 // Mature Aspen // BOREAS
+    350.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    177.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0200  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      0       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0300  //initfibthick:m//  //  // 
+      0.0400  //inithumthick:m//  //  // 
+      0.0500  //coefshlwa://  //  // 
+      1.4750  //coefshlwb://  //  // 
+      0.0923  //coefdeepa://  //  // 
+      1.1450  //coefdeepb://  //  // 
+      0.0995  //coefminea://  //  // 
+      0.5358  //coefmineb://  //  //
+//===========================================================
+// CMT66 // Mature Jack Pine // BOREAS
+    150.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    110.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0200  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      2.0000  //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0300  //initfibthick:m//  //  // 
+      0.0900  //inithumthick:m//  //  // 
+      0.0120  //coefshlwa://  //  // 
+      1.1800  //coefshlwb://  //  // 
+      0.0080  //coefdeepa://  //  // 
+      1.0210  //coefdeepb://  //  // 
+      0.0995  //coefminea://  //  // 
+      0.2190  //coefmineb://  //  //
+//===========================================================
+// CMT67 // Mixed Forest-Groundhog River
+    250.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    120.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0200  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      1       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) // ALso has feathermoss // 
+      0.0500  //initfibthick:m//  //  // 
+      0.1000  //inithumthick:m//  //  // 
+      0.0120  //coefshlwa://  //  // 
+      1.1200  //coefshlwb://  //  // 
+      0.0080  //coefdeepa://  //  // 
+      1.2410  //coefdeepb://  //  // 
+      0.0995  //coefminea://  //  // 
+      0.6010  //coefmineb://  //  // 
+//===========================================================
+// CMT69 // Black Spruce BOREAS // Values from BOREAS
+    300.0000  //snwdenmax:kg/m3// max. snow density
+    100.0000  //snwdennew:kg/m3// new (min.) snow density 
+      0.0000  //initsnwthick:m// initial snow thickness 
+      0.0000  //initsnwdense:kg/m3// initial snow density 
+      0.0350  //maxmossthick:m// max. dead moss thickness 
+      0.0200  //initdmossthick:m// initial dead moss thickness(not using anymore)
+      1       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) 
+      0.1000  //initfibthick:m//None
+      0.2000  //inithumthick:m//None
+      0.0140  //coefshlwa://None
+      1.0880  //coefshlwb://None
+      0.0360  //coefdeepa://None
+      1.0800  //coefdeepb://None
+      0.1020  //coefminea://None
+      1.5440  //coefmineb://None
+//===========================================================
+// CMT70 // Dwarf Shrub-Chokurdakh // 
+    225.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    175.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0050  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      3  //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.06  //initfibthick:m//  //  // 0.03
+      0.3100  //inithumthick:m//  //  // 0.07
+      0.0389  //coefshlwa://  //  // 
+      0.7080  //coefshlwb://  //  // 
+      0.0451  //coefdeepa://  //  // 
+      0.7750  //coefdeepb://  //  // 
+      0.0581  //coefminea://  //  // 
+      0.8239  //coefmineb://  //  // 
+//===========================================================
+// CMT71 // Larch Forest - Yakutsk Spasskaya Pad // 
+    161.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    108.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0200  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      0  //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0400  //initfibthick:m//  //  // 
+      0.0600  //inithumthick:m//  //  // 
+      0.0131  //coefshlwa://  //  // 
+      1.4750  //coefshlwb://  //  // 
+      0.0190  //coefdeepa://  //  // 
+      1.1450  //coefdeepb://  //  // 
+      0.0382  //coefminea://  //  // 
+      0.7078  //coefmineb://  //  //
+//===========================================================
+// CMT73 // Tussock Tundra-Cherskii // 
+    296.0000  //snwdenmax:kg/m3// max. snow density //  // 
+    128.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.3000  //maxmossthick:m// max. dead moss thickness //  // 
+      0.1000  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      2       //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.1000  //initfibthick:m//  //  // 
+      0.2000  //inithumthick:m//  //  // 
+      0.0922  //coefshlwa://  //  // 
+      0.7080  //coefshlwb://  //  // 
+      0.0585  //coefdeepa://  //  // 
+      0.9750  //coefdeepb://  //  // 
+      0.0966  //coefminea://  //  // 
+      0.8239  //coefmineb://  //  // 
+//===========================================================
+// CMT74 // Scots Pine-Zotino // 
+    191.9000  //snwdenmax:kg/m3// max. snow density //  // 
+     50.0000  //snwdennew:kg/m3// new (min.) snow density //  // 
+      0.0000  //initsnwthick:m// initial snow thickness //  // 
+      0.0000  //initsnwdense:kg/m3// initial snow density //  // 
+      0.0350  //maxmossthick:m// max. dead moss thickness //  // 
+      0.0200  //initdmossthick:m// initial dead moss thickness(not using anymore) //  // 
+      2  //mosstype:// moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0100  //initfibthick:m//  //  // 
+      0.0200  //inithumthick:m//  //  // 
+      0.0271  //coefshlwa://  //  // 
+      1.4750  //coefshlwb://  //  // 
+      0.0245  //coefdeepa://  //  // 
+      1.1450  //coefdeepb://  //  // 
+      0.0230  //coefminea://  //  // 
+      0.6078  //coefmineb://  //  // 
+//===========================================================

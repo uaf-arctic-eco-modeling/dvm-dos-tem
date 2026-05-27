@@ -30,6 +30,7 @@ using namespace std;
 #include "RestartData.h"
 
 #include "parameters.h"
+#include "TEMUtilityFunctions.h"
 
 class Ground: public DoubleLinkedList {
 
@@ -139,6 +140,11 @@ public :
 
   //
   void checkWaterValidity();
+
+  double getCarbonForDepthRange(double topz, double bottomz);
+
+  double getVWCAtDepth(double vwcdepth);
+  double getTempAtDepth(double temperaturez);
 
 private :
 

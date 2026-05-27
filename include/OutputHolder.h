@@ -71,6 +71,10 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> somrawc_for_output;
 
   std::vector<double> soc_tot_for_output;
+  std::vector<double> soc_0_30_for_output;
+  std::vector<double> soc_0_100_for_output;
+  std::vector<double> soc_0_200_for_output;
+  std::vector<double> soc_0_300_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> soc_for_output;
 
   std::vector<double> avln_tot_for_output;
@@ -80,7 +84,17 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> lwclayer_for_output;
+
+  std::vector<double> tsoil_30_for_output;
+  std::vector<double> tsoil_100_for_output;
+  std::vector<double> tsoil_200_for_output;
+  std::vector<double> tsoil_300_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> tlayer_for_output;
+
+  std::vector<double> vwc_30_for_output;
+  std::vector<double> vwc_100_for_output;
+  std::vector<double> vwc_200_for_output;
+  std::vector<double> vwc_300_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> vwclayer_for_output;
 
   std::vector<std::array<double, MAX_SNW_LAY>> snowlayerdz_for_output;

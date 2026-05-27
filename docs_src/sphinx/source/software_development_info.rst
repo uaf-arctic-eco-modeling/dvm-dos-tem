@@ -668,7 +668,7 @@ Testing
 =======
 
 Testing is currently implemented for some of the Python scripts in the
-``scripts/`` directory using the Python ``doctest`` module. The style and
+``pyddt/`` directory using the Python ``doctest`` module. The style and
 structure of tests reflects the challenges we have had getting testing
 integrated into this project. The ``doctest`` module has a nice feature that
 allows tests to be written in a literate fashion with much explanatory text.
@@ -694,7 +694,7 @@ can be much broader and more flexible in their design - i.e. module level tests.
 
 At present we have had much more luck writing the broader tests (that also serve
 as examples of usage) in stand alone files named with the following pattern:
-``scripts/tests/doctests/doctests_*[.md | .rst]``. The files are markdown or
+``pyddt/tests/doctests/doctests_*[.md | .rst]``. The files are markdown or
 reStructuredText formatted with embedded code that is executed by the
 ``doctest`` module. The execution context and other ``doctest`` particulars are
 described here:
@@ -704,33 +704,55 @@ To run the tests that are in ``__docstring__`` s of a function or file:
 
 .. code:: shell
 
-    $ PYTHONPATH="/work/scripts" python -m doctest scripts/util/param.py   # <-- script name!
+    $ python -m doctest pyddt/src/pyddt/util/param.py   # <-- script name!
 
-To run the tests that are in an independent file:
+.. warning::
+  
+    Note that for the most part the inline docstring tests are broken!! All the
+    recent work has been on the stand alone test files. So for now please focus
+    on running the stand alone test files.
+
+To run the tests that are in an independent file, there are two options:
+
+#. Run the tests using the ``doctest`` module directly on the file.
+#. Run the tests using ``pytest`` which has built in support for running
+   ``doctest`` tests.
+
+One advantage to using ``pytest`` is that it can automatically find all the
+``doctest`` files in a given directory and run them all in one command. This is
+very convenient for running all the tests at once. This can also be achieved 
+for the ``doctest`` module directly using a loop, as shown below. ``pytest``
+can also be controlled with command line flags to selectively run certain tests
+or control verbosity, etc. See the ``pytest`` documentation for more details:
+https://docs.pytest.org/en/7.1.x/.
+
+.. note::
+
+    The tests all assume that they will be run in the context of the project's 
+    Docker container or a development environment where the necessary
+    dependencies are installed and the paths to the demo and testing data match 
+    those in the Docker container.
+
+
+To run the tests using ``pytest``:
 
 .. code:: shell
 
-    $ PYTHONPATH="/work/scripts" python -m doctest scripts/tests/doctests/doctests_param_util.md  # <-- test file name!
+    $ pytest --doctest-glob "doctests_*" pyddt/tests/doctests/pytest 
 
-In either case, if all the tests execute successfully, then the command exits
-silently. If there errors, the ``doctest`` package tries to point you towards
-the tests that fail.
-
-Note that in both cases, the ``PYTHONPATH`` variable is set so that the module
-imports work properly in the scripts and tests. Many of the test currently use
-the demo-data, config files and parameter files in the main repo. The paths for
-these in the tests are assumed to be relative to the repo root. So you will
-likely have the best luck running the tests from the repo-root. For this reason
-you need to specify ``PYTHONPATH`` so that inside the test scripts, imports can
-be made of scripts and tools in the scripts folder.
-
-In order to run all the tests, this loop should work:
+To run the tests using the ``doctest`` module directly on the file:
 
 .. code:: shell
 
-    for i in $(ls scripts/tests/doctests/);
+    $ python -m doctest pyddt/src/pyddt/util/param.py
+
+Or to run all the tests in the ``pyddt/tests/doctests/`` directory:
+
+.. code:: shell
+
+    for i in $(ls pyddt/tests/doctests/);
     do
-        PYTHONPATH="/work/scripts" python -m doctest scripts/tests/doctests/$i;
+        python -m doctest pyddt/tests/doctests/$i;
     done
 
 

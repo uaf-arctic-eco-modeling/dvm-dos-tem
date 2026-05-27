@@ -12,11 +12,10 @@
 #include "layerconst.h"
 #include "errorcode.h"
 
+#include <netcdf.h>
 #ifdef WITHMPI
 #include <mpi.h>
 #include <netcdf_par.h>
-#else
-#include <netcdf.h>
 #endif
 
 using namespace std;
@@ -37,8 +36,6 @@ public:
   string loop_order; // time-major or space-major
 
   int force_cmt; // used to override the veg map (calibration mode only)
-
-  int initmode;  // NOT USED?
 
   int eq_yrs;
   int pr_yrs;
@@ -83,6 +80,7 @@ public:
   string proj_co2_file;
   string runmask_file;
   string output_dir;
+  string restart_from;      // Restart from a previous run
   string output_spec_file;
   bool output_monthly;
   bool nc_eq; // NetCDF output flags for each stage
