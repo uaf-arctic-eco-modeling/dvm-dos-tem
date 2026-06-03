@@ -37,6 +37,7 @@ public:
   std::vector<double> burnveg2soilblwc_for_output;
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;
+  std::vector<double> deepdz_for_output;
   std::vector<double> dwdc_for_output;
   std::vector<double> minec_for_output;
   std::vector<double> lfnvc_for_output; //non-vascular litterfall C
@@ -50,8 +51,10 @@ public:
   std::vector<double> socfrozen_for_output;
   std::vector<double> socunfrozen_for_output;
   std::vector<double> shlwc_for_output;
+  std::vector<double> shlwdz_for_output;
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;
+  std::vector<double> vegntot_for_output;
   std::vector<double> watertab_for_output;
 
   //Variables by layer
@@ -84,6 +87,9 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> lwclayer_for_output;
+
+  std::vector<double> orgn_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> orgn_for_output;
 
   std::vector<double> tsoil_30_for_output;
   std::vector<double> tsoil_100_for_output;
