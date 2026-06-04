@@ -906,17 +906,24 @@ def cmdline_define():
     '''))
   climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
-  climate_inspect_parser = subparsers.add_parser('inspect',
+  inspect_parser = subparsers.add_parser('inspect',
+    help=textwrap.dedent('''Inspect dvmdostem input files interactively.
+      Use a sub-command to specify the type of input to inspect.
+    '''))
+  inspect_subparsers = inspect_parser.add_subparsers(
+    help='type of input to inspect', dest='inspect_command')
+
+  inspect_climate_parser = inspect_subparsers.add_parser('climate',
     help=textwrap.dedent('''Interactive image maps of all 4 climate variables
       with a timestep slider. Click any pixel to plot its full time series.
     '''))
-  climate_inspect_parser.add_argument('input_folder',
+  inspect_climate_parser.add_argument('input_folder',
     help='Path to a folder containing a set of dvmdostem inputs.')
-  climate_inspect_parser.add_argument('--file',
+  inspect_climate_parser.add_argument('--file',
     default='crujra-downscaled-historic-climate.nc',
     help='Climate file within input_folder to inspect '
          '(default: crujra-downscaled-historic-climate.nc).')
-  climate_inspect_parser.add_argument('--save', nargs='?',
+  inspect_climate_parser.add_argument('--save', nargs='?',
     const='/tmp/input_inspect.png', metavar='FILE',
     help='Save figure to FILE before showing '
          '(default when flag given: /tmp/input_inspect.png).')
@@ -944,7 +951,10 @@ def cmdline_run(args):
     climate_gap_count_plot(args)
 
   if args.command == 'inspect':
-    climate_inspect(args)
+    if args.inspect_command == 'climate':
+      climate_inspect(args)
+    elif args.inspect_command is None:
+      cmdline_define().parse_args(['inspect', '--help'])
 
   if args.command == 'query':
     if args.summarize_metadata:
