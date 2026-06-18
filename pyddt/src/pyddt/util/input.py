@@ -637,6 +637,45 @@ def climate_ts_plot(args):
     print("Cmd line arg should be checked such that you can't arrive here.")
     exit(-1)
 
+def inspect_soil_texture_percents(args):
+  '''
+  Verify that pct_sand, pct_silt, and pct_clay sum to exactly 100 for every
+  cell in a soil-texture netCDF file.
+
+  Parameters
+  ----------
+  args : argparse.Namespace
+    Must contain file, the path to the netCDF file to inspect.
+  '''
+  filepath = args.file
+  if not os.path.isfile(filepath):
+    raise FileNotFoundError(f'Soil texture file not found: {filepath}')
+
+  required_vars = ['pct_sand', 'pct_silt', 'pct_clay']
+
+  with nc.Dataset(filepath, 'r') as ds:
+    missing = [v for v in required_vars if v not in ds.variables]
+    if missing:
+      print(f'Missing data field(s): {", ".join(missing)}')
+      return
+
+    sand = np.array(ds.variables['pct_sand'][:])
+    silt = np.array(ds.variables['pct_silt'][:])
+    clay = np.array(ds.variables['pct_clay'][:])
+
+  if sand.shape != silt.shape or sand.shape != clay.shape:
+    print('pct_sand, pct_silt, and pct_clay must have the same shape.')
+    return
+
+  total = sand + silt + clay
+  n_cells = total.size
+  n_fail = int(np.sum(total != 100))
+
+  if n_fail == 0:
+    print(f'All {n_cells} cells pass: pct_sand + pct_silt + pct_clay == 100.')
+  else:
+    print(f'{n_fail} of {n_cells} cells fail: pct_sand + pct_silt + pct_clay != 100.')
+
 def climate_inspect(args):
   '''
   Interactive image maps of the 4 climate variables with a timestep slider.
@@ -928,6 +967,19 @@ def cmdline_define():
     help='Save figure to FILE before showing '
          '(default when flag given: /tmp/input_inspect.png).')
 
+  inspect_soil_texture_parser = inspect_subparsers.add_parser('soil-texture',
+    help=textwrap.dedent('''Inspect soil-texture input files.'''))
+  inspect_soil_texture_subparsers = inspect_soil_texture_parser.add_subparsers(
+    help='soil-texture inspection command', dest='soil_texture_command')
+
+  inspect_soil_texture_percents_parser = inspect_soil_texture_subparsers.add_parser(
+    'percents',
+    usage='%(prog)s --file FILE',
+    help=textwrap.dedent('''Verify pct_sand, pct_silt, and pct_clay sum to 100
+      for every cell in a soil-texture netCDF file (--file FILE).'''))
+  inspect_soil_texture_percents_parser.add_argument('--file', required=True,
+    help='Path to a soil-texture netCDF file.')
+
   return parser
 
 def cmdline_parse(argv=None):
@@ -953,6 +1005,11 @@ def cmdline_run(args):
   if args.command == 'inspect':
     if args.inspect_command == 'climate':
       climate_inspect(args)
+    elif args.inspect_command == 'soil-texture':
+      if args.soil_texture_command == 'percents':
+        inspect_soil_texture_percents(args)
+      elif args.soil_texture_command is None:
+        cmdline_define().parse_args(['inspect', 'soil-texture', '--help'])
     elif args.inspect_command is None:
       cmdline_define().parse_args(['inspect', '--help'])
 
