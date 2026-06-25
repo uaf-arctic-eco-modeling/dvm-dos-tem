@@ -1,0 +1,138 @@
+# Step 2 SA example: CMT04 (shrub tundra) at Imnavait Creek, smoke N=5.
+# Joint above/belowground calibration; cmax fixed in parameters-step2.
+# Used by notebooks/calibration_process.ipynb. For agent runs, copy
+# sa-step2-template.yaml into logs/ instead (see agent-instructions-step2.md).
+
+seed_path: /data/workflows/CMT04-IMN/parameters-step2
+observations: /work/calibration
+
+N_samples: 5
+
+work_dir: /data/workflows/CMT04-IMN-sa-step2
+
+params:
+  - micbnup
+  - kdcrawc
+  - kdcsoma
+  - kdcsompr
+  - kdcsomcr
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+  - cfall(0)
+  - cfall(1)
+  - cfall(2)
+
+pftnums:
+  - null
+  - null
+  - null
+  - null
+  - null
+  - 0
+  - 0
+  - 0
+  - 1
+  - 1
+  - 1
+  - 2
+  - 2
+  - 2
+  - 3
+  - 3
+  - 3
+  - 4
+  - 4
+  - 4
+  - 5
+  - 5
+  - 5
+  - 6
+  - 6
+  - 6
+  - 7
+  - 7
+  - 7
+  - 8
+  - 8
+  - 8
+
+percent_diffs:
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+  - 0.95
+
+site: /data/input-catalog/Imnavait
+PXx: 0
+PXy: 0
+
+calib_mode: VEGC
+sampling_method: lhc
+
+target_names:
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+- AvailableNitrogenSum
+- OrganicNitrogenSum
+- VegCarbon
+- NPPAll
+- EcosystemRespiration
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: 4
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

@@ -1,0 +1,29 @@
+# Step 1 SA example: CMT04 (shrub tundra) at Imnavait Creek.
+# Calibrates cmax for PFTs 0–8 against GPPAllIgnoringNitrogen (modeled INGPP).
+# Used by notebooks/calibration_process.ipynb. For agent runs, copy
+# sa-step1-template.yaml into logs/ instead (see step1-cmax-agent.md).
+
+seed_path: /work/parameters
+observations: /work/calibration
+
+N_samples: 100
+
+work_dir: /data/workflows/CMT04-IMNAVIAT-sa-N100
+
+params: [cmax, cmax, cmax, cmax, cmax, cmax, cmax, cmax, cmax]
+pftnums: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+percent_diffs: [.25, .25, .25, .25, .25, .25, .25, .25, .25]
+
+site: /data/input-catalog/Imnavait
+PXx: 0
+PXy: 0
+
+calib_mode: GPPAllIgnoringNitrogen
+sampling_method: lhc
+
+target_names:
+- GPPAllIgnoringNitrogen
+
+cmtnum: 4
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

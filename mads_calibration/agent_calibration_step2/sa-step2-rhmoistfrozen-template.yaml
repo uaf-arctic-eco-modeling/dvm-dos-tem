@@ -1,0 +1,33 @@
+# Step 2 rhmoistfrozen SA template — copy into logs/ and replace {{PLACEHOLDERS}}.
+# See agent-instructions-step2.md Phase 6.
+
+seed_path: {{SEED_PATH}}              # e.g. /data/workflows/CMT04-IMN/parameters-step2
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}              # e.g. 50
+
+work_dir: {{WORK_DIR}}                # e.g. /data/workflows/CMT04-IMN/logs/sa-step2-rhmoistfrozen
+
+params: [rhmoistfrozen]
+pftnums: [null]
+p_bounds: [[0.01, 0.99]]
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+target_names:
+- CarbonMineralSum
+- CarbonShallow
+- CarbonDeep
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

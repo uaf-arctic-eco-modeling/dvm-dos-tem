@@ -1,0 +1,47 @@
+# Phase 7 soil retune template — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Optional after rhmoistfrozen; IMN Phase 7 was reverted (DEEPC regression).
+# See agent-instructions-step2.md Phase 7.
+
+seed_path: {{SEED_PATH}}
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}
+
+work_dir: {{WORK_DIR}}
+
+params:
+  - micbnup
+  - kdcrawc
+  - kdcsoma
+  - kdcsompr
+  - kdcsomcr
+
+pftnums:
+  - null
+  - null
+  - null
+  - null
+  - null
+
+# Tight bounds ±20% around current best soil params, or from propose_bounds.py --soil-span 0.20
+p_bounds: {{P_BOUNDS}}
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+target_names:
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

@@ -54,3 +54,6 @@ Debug/*
 bundle*
 
 .dvc/*
+
+# Agent calibration runtime artifacts
+mads_calibration/logs/

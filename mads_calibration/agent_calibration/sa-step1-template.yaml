@@ -1,0 +1,30 @@
+# Step 1 SA config template — copy and replace {{PLACEHOLDERS}}.
+# See step1-cmax-agent.md in this folder for agent workflow.
+
+seed_path: {{SEED_PATH}}           # e.g. /work/parameters
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}            # e.g. 100 (demo: 5)
+
+work_dir: {{WORK_DIR}}              # e.g. /data/workflows/CMT04-IMN-sa-N100
+
+# Equal-length lists: one cmax per active PFT (check cmt_bgcvegetation.txt).
+params: {{PARAMS_LIST}}            # e.g. [cmax, cmax, cmax, ...]
+pftnums: {{PFTNUMS_LIST}}           # e.g. [0, 1, 2, 3, 4, 5, 6, 7, 8]
+percent_diffs: {{PERCENT_DIFFS}}   # e.g. [.25, .25, ...]
+# p_bounds alternative (mutually exclusive with percent_diffs):
+# p_bounds: [[0.1, LIM0], [0.1, LIM1], ...]
+
+site: {{SITE}}                      # e.g. /data/input-catalog/Imnavait
+PXx: {{PXX}}                        # e.g. 0
+PXy: {{PXY}}                        # e.g. 0
+
+calib_mode: GPPAllIgnoringNitrogen  # required for Step 1
+sampling_method: lhc
+
+target_names:
+- GPPAllIgnoringNitrogen            # required for Step 1
+
+cmtnum: {{CMTNUM}}                  # e.g. 4
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 200 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

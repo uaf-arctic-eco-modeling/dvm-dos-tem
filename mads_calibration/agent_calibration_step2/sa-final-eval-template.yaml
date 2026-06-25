@@ -1,0 +1,24 @@
+# Final model evaluation template — copy into logs/sa-{site_label}-final-eval.yaml.
+# See final-model-evaluation.md and step2-closure-summary-template.yaml.
+
+param_dir: {{PARAM_DIR}}
+work_dir: {{WORK_DIR}}
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+cmtnum: {{CMTNUM}}
+
+# tr-yrs must not exceed historic climate length at site (Imnavait 1901-2022 = 122 years)
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {{TR_YRS}} --sc-yrs 0
+
+# Setup (once, inside dvmdostem-autocal):
+#   python scripts/util/setup_working_directory.py {{WORK_DIR}} \
+#     --force --input-data-path {{SITE}} \
+#     --seed-parameters {{PARAM_DIR}} --no-cal-targets
+#   Enable outputs on {{WORK_DIR}}/config/output_spec.csv (see final-model-evaluation.md)
+
+# Run (inside dvmdostem-autocal):
+#   cd {{WORK_DIR}}
+#   /work/dvmdostem {{OPT_RUN_SETUP}} -l info --force-cmt {{CMTNUM}} \
+#     --ctrl-file config/config.js 2>&1 | tee /path/to/final-eval-run.log

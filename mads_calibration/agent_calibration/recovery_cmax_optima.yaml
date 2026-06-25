@@ -1,0 +1,58 @@
+# Recovery perturbation manifest template for Step 1 agent calibration.
+#
+# reference_optima below are CMT04 Imnavait examples only. At runtime, override
+# with --reference-cmax-yaml pointing to step1_analyze.py output (recommended_cmax).
+#
+# bias_tiers and runs define the A–D perturbation pattern used when RMSE >= threshold.
+
+reference_optima:
+  cmax_pft0: 243.201247
+  cmax_pft1: 423.383825
+  cmax_pft2: 52.927921
+  cmax_pft3: 15.802402
+  cmax_pft4: 29.259365
+  cmax_pft5: 67.282057
+  cmax_pft6: 129.528377
+  cmax_pft7: 29.506825
+  cmax_pft8: 61.572136
+
+# Per-PFT bias magnitudes applied to reference optima (same sign for all PFTs per run).
+bias_tiers:
+  mild:
+    pft0: 50
+    pft1: 50
+    pft2: 25
+    pft3: 10
+    pft4: 10
+    pft5: 25
+    pft6: 50
+    pft7: 10
+    pft8: 25
+  strong:
+    pft0: 100
+    pft1: 100
+    pft2: 25
+    pft3: 10
+    pft4: 10
+    pft5: 25
+    pft6: 50
+    pft7: 10
+    pft8: 25
+
+runs:
+  A:
+    label: recovery-plus-mild
+    direction: 1
+    tier: mild
+  B:
+    label: recovery-minus-mild
+    direction: -1
+    tier: mild
+  C:
+    label: recovery-plus-strong
+    direction: 1
+    tier: strong
+  D:
+    label: recovery-minus-strong
+    direction: -1
+    tier: strong

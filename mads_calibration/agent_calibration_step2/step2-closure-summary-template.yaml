@@ -1,0 +1,68 @@
+# Step 2 calibration closure summary — copy to logs/{site_label}-step2-closure-summary.yaml
+
+status: pending   # pending | complete
+
+model_anchor:
+  main_iter_sample: null
+  best_rmse: null
+  best_r2: null
+  step2_status: null   # pass | target_fit_review
+
+parameters_active: {{PARAM_DIR}}
+parameters_archive: {{PARAM_ARCHIVE}}
+
+composition:
+  step2: null          # e.g. iter3 sample N recommended_params
+  phase6: null         # e.g. rhmoistfrozen=value (cmt_bgcsoil.txt) or skipped
+  phase7: null         # e.g. applied | reverted | skipped
+
+phase5_apply:
+  date: null
+  script: param_update.py
+
+final_eval:
+  work_dir: {{WORK_DIR}}
+  config: mads_calibration/logs/sa-{{SITE_LABEL}}-final-eval.yaml
+  run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {{TR_YRS}} --sc-yrs 0
+  wall_seconds: null
+  log: null
+  crash: null          # none | describe error
+  tr_years_completed: null
+
+transient_fluxes_tr_mean:
+  GPP: null
+  INGPP: null
+  NPP: null
+  RECO: null
+  ingpp_gpp_last10: null
+
+transient_vs_eq_targets:
+  note: Eq targets are integrated stocks/fluxes at equilibrium; transient means are indicative
+  GPP_mod_mean_pct_of_target: null
+  NPP_mod_mean_pct_of_target: null
+
+transient_stocks_final_tr_year:
+  SHLWC: {mod: null, obs: null, rel_err_pct: null}
+  DEEPC: {mod: null, obs: null, rel_err_pct: null}
+  MINEC: {mod: null, obs: null, rel_err_pct: null}
+
+targeted_retune:
+  action: null         # skipped | applied
+  reason: null
+
+nitrogen_diagnostic:
+  eq_selected_ratio: null
+  transient_tr_last10_ratio: null
+  note: diagnostic only; not a selection gate unless policy requires pass
+
+accepted_limitations:
+  extinct_pool: []
+  chronic_eq: []
+  unreachable: []
+
+closure_criteria:
+  final_eval_completes: false
+  transient_fluxes_plausible: false
+  eq_target_fit_acceptable: false
+  limitations_archived: false
+  parameters_archived: false

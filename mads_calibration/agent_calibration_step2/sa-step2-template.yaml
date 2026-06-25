@@ -1,0 +1,41 @@
+# Step 2 SA config template — copy and replace {{PLACEHOLDERS}}.
+# See agent-instructions-step2.md. Filled CMT04 example: sa-step2-example-imn.yaml.
+
+seed_path: {{SEED_PATH}}              # e.g. /data/workflows/CMT04-IMN/parameters-step2
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}              # smoke: 5; production: 100
+
+work_dir: {{WORK_DIR}}                # e.g. /data/workflows/CMT04-IMN-sa-step2
+
+# 5 soil (null pftnums) + 9 PFTs x 3 cfall compartments = 32 entries
+params: {{PARAMS_LIST}}
+pftnums: {{PFTNUMS_LIST}}
+percent_diffs: {{PERCENT_DIFFS}}      # e.g. 32 x 0.95; use p_bounds in later iterations
+# p_bounds alternative (mutually exclusive with percent_diffs):
+# p_bounds: [[0.01, 1.0], ...]
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC                      # N limitation ON during equilibrium
+sampling_method: lhc
+
+target_names:
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+- AvailableNitrogenSum
+- OrganicNitrogenSum
+- VegCarbon
+- NPPAll
+- EcosystemRespiration
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
