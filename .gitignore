@@ -57,3 +57,4 @@ bundle*
 
 # Agent calibration runtime artifacts
 mads_calibration/logs/
+mads_calibration/manual_calibration/
