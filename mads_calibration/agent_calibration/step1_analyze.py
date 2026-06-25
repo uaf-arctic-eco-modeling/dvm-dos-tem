@@ -30,6 +30,7 @@ if MADS_CALIB_DIR not in sys.path:
     sys.path.insert(0, MADS_CALIB_DIR)
 
 import SA_post_hoc_analysis as sa  # noqa: E402
+from eq_workdir import equilibrium_check_from_workdir  # noqa: E402
 
 
 def normalize_work_dir(path):
@@ -62,8 +63,8 @@ def analyze(work_dir, rmse_threshold=10.0, n_top=10,
 
     n_total = len(results)
 
-    _, _, _, _, eq_data, _, _ = sa.equilibrium_check(
-        path=work_dir, slope_lim=slope_lim, eps_lim=eps_lim, cv_lim=cv_lim)
+    _, _, _, _, eq_data, _, _ = equilibrium_check_from_workdir(
+        work_dir, targets, cv_lim=cv_lim, p_lim=eps_lim, slope_lim=slope_lim)
 
     eq_mask = eq_data.all(axis=1)
     true_samples = eq_data[eq_mask].index.tolist()
@@ -94,7 +95,7 @@ def analyze(work_dir, rmse_threshold=10.0, n_top=10,
     best_params = best_params.iloc[-n_take:]
     best_model = best_model.iloc[-n_take:]
 
-    r2, rmse, mape, re = sa.calc_metrics(best_model, targets)
+    r2, rmse, mape = sa.calc_metrics(best_model, targets)
 
     best_sample_index = int(best_params.index[-1])
     best_rmse = float(rmse[-1])

@@ -30,6 +30,10 @@ if MADS_CALIB_DIR not in sys.path:
     sys.path.insert(0, MADS_CALIB_DIR)
 
 import SA_post_hoc_analysis as sa  # noqa: E402
+from eq_workdir import (  # noqa: E402
+    build_step2_lim_dict,
+    equilibrium_check_from_workdir,
+)
 
 RANKING_EXCLUDE_PREFIXES = ('RECO',)
 DIAGNOSTIC_VARS = ('DEEPC', 'VEGC_pft4_Root', 'MINEC', 'AVLN')
@@ -51,22 +55,6 @@ def nitrogen_check_ratio_bounds(biome):
             'biome must be one of {}; got {!r}'.format(
                 list(NITROGEN_CHECK_BANDS), biome))
     return NITROGEN_CHECK_BANDS[biome]
-
-
-def build_step2_lim_dict(targets, cv_lim, eps_lim, slope_lim,
-                         pft4_root_cv_lim=None, deepc_slope_lim=None):
-    """Per-variable eq thresholds; relax sparse-pool and slow-soil gates when requested."""
-    lim = sa.generate_eq_lim_dict(
-        targets,
-        cv_lim=[cv_lim] * len(targets.columns),
-        eps_lim=[eps_lim] * len(targets.columns),
-        slope_lim=[slope_lim] * len(targets.columns),
-    )
-    if pft4_root_cv_lim is not None and 'VEGC_pft4_Root_cv_lim' in lim:
-        lim['VEGC_pft4_Root_cv_lim'] = pft4_root_cv_lim
-    if deepc_slope_lim is not None and 'DEEPC_slope_lim' in lim:
-        lim['DEEPC_slope_lim'] = deepc_slope_lim
-    return lim
 
 
 def normalize_work_dir(path):
@@ -195,7 +183,7 @@ def select_best_sample(results, targets, sample_matrix, n_check):
         col: float(recommended[col]) for col in best_params.columns
     }
 
-    r2, rmse, mape, _ = sa.calc_metrics(best_model, targets_rank)
+    r2, rmse, mape = sa.calc_metrics(best_model, targets_rank)
     top_n_summary = []
     for i, idx in enumerate(best_params.index):
         top_n_summary.append({
@@ -296,9 +284,9 @@ def analyze(work_dir, biome='tundra', n_top=10,
             deepc_slope_lim=deepc_slope_lim,
         )
 
-    _, _, _, eq_var_check, eq_data, _, lim_used = sa.equilibrium_check(
-        path=work_dir, slope_lim=slope_lim, eps_lim=eps_lim, cv_lim=cv_lim,
-        lim_dict=eq_lim_dict if eq_lim_dict else False)
+    _, _, _, eq_var_check, eq_data, _, lim_used = equilibrium_check_from_workdir(
+        work_dir, targets, cv_lim=cv_lim, p_lim=eps_lim, slope_lim=slope_lim,
+        lim_dict=eq_lim_dict if eq_lim_dict else None)
 
     fails_per_sample = (~eq_data).sum(axis=1)
     n_eq_passing = int(eq_data.all(axis=1).sum())
