@@ -70,6 +70,9 @@ Check for equilibrium runs
 ===========================================
 After sensitivity is finished, it is important to check for equilibrium. The `equilibrium_check.py` is under development to check for it. This script filters model outputs that do not satisfy the equilibrium criteria defined in the script.  
 
+Post-hoc SA analysis (notebook)
+===========================================
+For interactive exploration of SA results (spaghetti plots, equilibrium checks, parameter–target relationships, nitrogen checks), use the Jupyter notebook [`notebooks/calibration_process.ipynb`](notebooks/calibration_process.ipynb). Run it inside the `dvmdostem-dev` or `dvmdostem-autocal` Docker container; set `WORK_DIR` in the notebook to the `work_dir` from your SA yaml (see [`agent_calibration_step1/sa-step1-example-imn.yaml`](agent_calibration_step1/sa-step1-example-imn.yaml) and [`agent_calibration_step2/sa-step2-example-imn.yaml`](agent_calibration_step2/sa-step2-example-imn.yaml) for CMT04 Imnavait examples). For automated calibration, see [`agent_calibration_setup/`](agent_calibration_setup/) (Phase 0), [`agent_calibration_step1/`](agent_calibration_step1/) (Step 1), [`agent_calibration_step2/`](agent_calibration_step2/) (Step 2), and [`agent_final_evaluation/`](agent_final_evaluation/) (final eval) — each README describes attach file and handoff. Agent-created SA configs go in `logs/` (gitignored); results are written under `/data/workflows/` via `--json-out`.
 
 Running the Calibration
 ===========================================

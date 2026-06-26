@@ -7,8 +7,8 @@ and reference optima from a prior step1_analyze.py result or hand-written yaml.
 
 Typical usage inside dvmdostem-autocal:
 
-  python mads_calibration/agent_calibration/step1_recovery_setup.py \\
-    --manifest /work/mads_calibration/agent_calibration/recovery_cmax_optima.yaml \\
+  python mads_calibration/agent_calibration_step1/step1_recovery_setup.py \\
+    --manifest /work/mads_calibration/agent_calibration_step1/recovery_cmax_optima.yaml \\
     --reference-cmax-yaml /data/workflows/CMT04-IMN-sa-N100/step1-result.yaml \\
     --write-manifest /data/workflows/CMT04-IMN/recovery-manifest.yaml \\
     --cmtnum 4 \\

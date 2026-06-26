@@ -1,6 +1,6 @@
 # Final model evaluation
 
-Post-calibration validation after Step 2 completion criteria are satisfied ([`agent-instructions-step2.md`](agent-instructions-step2.md)). Attach this file in Cursor (`@final-model-evaluation.md`) for the evaluation stage.
+Post-calibration validation after Step 2 completion criteria are satisfied ([`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md)). Attach this file in Cursor (`@final-model-evaluation.md`) for the evaluation stage.
 
 Calibration SA runs use equilibrium-only spinup (`--sp-yrs 0 --tr-yrs 0`). A **full site simulation** exercises spinup and transient years so fluxes, soil thermal state, and active layer depth can be compared against observations.
 
@@ -160,6 +160,6 @@ After re-calibration, repeat SA checks, apply updated parameters, and **re-run t
 
 | Doc | Purpose |
 |-----|---------|
-| [`../agent_calibration/README.md`](../agent_calibration/README.md) | Step 1 `cmax` calibration |
-| [`README.md`](README.md) | Step 2 integrated calibration |
-| [`agent-instructions-step2.md`](agent-instructions-step2.md) | Step 2 agent workflow |
+| [`../agent_calibration_step1/README.md`](../agent_calibration_step1/README.md) | Step 1 `cmax` calibration |
+| [`../agent_calibration_step2/README.md`](../agent_calibration_step2/README.md) | Step 2 integrated calibration |
+| [`../agent_calibration_step2/agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md) | Step 2 agent workflow |

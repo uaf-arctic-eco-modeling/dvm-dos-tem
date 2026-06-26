@@ -1,10 +1,10 @@
 # Step 1 → Step 2 transition
 
-Handoff from Step 1 agent calibration (`../agent_calibration/`) to begin Step 2 integrated calibration. Full Step 2 workflow: [`agent-instructions-step2.md`](agent-instructions-step2.md).
+Handoff from Step 1 agent calibration ([`../agent_calibration_step1/`](../agent_calibration_step1/)) to begin Step 2 integrated calibration. Full Step 2 workflow: [`agent-instructions-step2.md`](agent-instructions-step2.md).
 
 ## Prerequisites
 
-Step 1 must be complete with `step1-result.yaml` from [`step1_analyze.py`](../agent_calibration/step1_analyze.py) (`--json-out` under `/data/workflows/`).
+Step 1 must be complete with `step1-result.yaml` from [`step1_analyze.py`](../agent_calibration_step1/step1_analyze.py) (`--json-out` under `/data/workflows/`).
 
 | Field | Use when starting Step 2 |
 |-------|--------------------------|

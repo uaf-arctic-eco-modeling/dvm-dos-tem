@@ -5,9 +5,9 @@ verify site/input/parameter mapping, and write a setup manifest for Step 1.
 
 Typical usage inside dvmdostem-autocal:
 
-  python mads_calibration/agent_calibration/calibration_setup.py --discover
+  python mads_calibration/agent_calibration_setup/calibration_setup.py --discover
 
-  python mads_calibration/agent_calibration/calibration_setup.py \\
+  python mads_calibration/agent_calibration_setup/calibration_setup.py \\
     --site-name Imnavait --cmtnum 4 --site-label IMN \\
     --json-out mads_calibration/logs/IMN-setup-manifest.yaml
 """

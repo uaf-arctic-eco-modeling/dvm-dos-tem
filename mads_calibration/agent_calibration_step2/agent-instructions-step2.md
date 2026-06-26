@@ -44,7 +44,7 @@ nitrogen_biome: tundra   # maps to analyze.py --biome (boreal | tundra)
 - [ ] `rhmoistfrozen` SA if MINEC off-target (Phase 6)
 - [ ] Post-`rhmoistfrozen` soil retune only if justified (Phase 7 — optional)
 - [ ] Final completion criteria met
-- [ ] Attach [`final-model-evaluation.md`](final-model-evaluation.md) for full site validation and closure summary
+- [ ] Attach [`final-model-evaluation.md`](../agent_final_evaluation/final-model-evaluation.md) for full site validation and closure summary
 
 ---
 
@@ -288,7 +288,7 @@ If SHLWC/DEEPC drift after Phase 6, copy [`sa-step2-soil-retune-template.yaml`](
 | **Equilibrium** | Soft | Review via `equilibrium_check`; whitelist chronic failures |
 | **Nitrogen limitation** | **Hard** for `pass` | Selected sample must pass `nitrogen_check` band before unattended apply |
 
-When calibration is complete, attach [`final-model-evaluation.md`](final-model-evaluation.md) and write closure summary from [`step2-closure-summary-template.yaml`](step2-closure-summary-template.yaml) to `logs/{site_label}-step2-closure-summary.yaml`.
+When calibration is complete, attach [`final-model-evaluation.md`](../agent_final_evaluation/final-model-evaluation.md) and write closure summary from [`step2-closure-summary-template.yaml`](../agent_final_evaluation/step2-closure-summary-template.yaml) to `logs/{site_label}-step2-closure-summary.yaml`.
 
 ---
 
