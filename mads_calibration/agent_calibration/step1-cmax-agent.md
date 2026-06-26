@@ -2,6 +2,8 @@
 
 Attach this file in Cursor (`@step1-cmax-agent.md`) when running the calibration agent.
 
+**Prerequisite:** Complete Phase 0 setup via [`calibration_setup.md`](calibration_setup.md) and obtain `logs/{site_label}-setup-manifest.yaml`.
+
 Automate **Step 1** of the MADS calibration workflow: calibrate **`cmax` per active PFT** against **`GPPAllIgnoringNitrogen`** field targets (modeled as NetCDF **`INGPP`**). Run entirely inside the `dvmdostem-autocal` Docker container. Do **not** proceed to Step 2 from this instruction set.
 
 **Step 2** continues in [`agent_calibration_step2/`](../agent_calibration_step2/) — see [`step1-transition.md`](../agent_calibration_step2/step1-transition.md). Folder overview: [`README.md`](README.md).
@@ -20,7 +22,7 @@ Copy [`sa-step1-template.yaml`](sa-step1-template.yaml) into `logs/` for each ru
 
 ## Minimum user action
 
-Provide these five inputs, then run the agent against this instruction set:
+Provide these inputs (typically from the Phase 0 setup manifest), then run the agent against this instruction set:
 
 ```yaml
 cmtnum: 4
@@ -28,14 +30,17 @@ site: /data/input-catalog/Imnavait
 PXx: 0
 PXy: 0
 site_label: IMN
+seed_path: /work/parameters              # from setup manifest
+setup_manifest: mads_calibration/logs/IMN-setup-manifest.yaml
 ```
 
 ## Quick checklist
 
+- [ ] Phase 0 complete: `logs/{site_label}-setup-manifest.yaml` exists with `status: pass` or `warn`
 - [ ] `dvmdostem-autocal` running; `/data/input-catalog` and `/data/workflows` mounted
-- [ ] Driving inputs exist at `site`
+- [ ] Driving inputs exist at `site` (synced by Phase 0)
 - [ ] CMT has `GPPAllIgnoringNitrogen` in `calibration/calibration_targets.py`
-- [ ] Plausible `cmax` seeds for that CMT in `parameters/cmt_calparbgc.txt`
+- [ ] Plausible `cmax` seeds at `seed_path` (from setup manifest)
 
 ---
 
@@ -56,6 +61,7 @@ You are a calibration agent. Given a CMT number, site path, and grid cell, you w
 
 Before starting, confirm:
 
+- **Phase 0 setup complete** — see [`calibration_setup.md`](calibration_setup.md); `seed_path` and `site` come from `logs/{site_label}-setup-manifest.yaml`.
 - Docker Compose is running and `dvmdostem-autocal` container is up.
 - Image built: `dvmdostem-autocal:${V_TAG}` (see root [`docker-compose.yml`](../../docker-compose.yml)).
 - `/work` is mounted to the repo; `/data/workflows` is mounted for SA outputs.
@@ -146,7 +152,7 @@ Copy [`sa-step1-template.yaml`](sa-step1-template.yaml) to `mads_calibration/log
 |-----|-------|
 | `cmtnum` | input cmtnum |
 | `site`, `PXx`, `PXy` | input paths/coords |
-| `seed_path` | `/work/parameters` |
+| `seed_path` | from setup manifest (`parameters-seed/` or `/work/parameters`) |
 | `observations` | `/work/calibration` |
 | `work_dir` | `/data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N{N_samples}` |
 | `N_samples` | input |

@@ -1,0 +1,24 @@
+# Setup manifest template — written by calibration_setup.py (Phase 0).
+# Copy fields into Step 1 SA yaml and user inputs for step1-cmax-agent.md.
+
+site_name: {{SITE_NAME}}              # GCS input folder name, e.g. Imnavait
+site_label: {{SITE_LABEL}}            # short token, e.g. IMN
+cmtnum: {{CMTNUM}}                    # user-specified calibration CMT
+
+site: {{SITE_PATH}}                   # e.g. /data/input-catalog/Imnavait
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+seed_path: {{SEED_PATH}}              # parameters-seed/ or /work/parameters fallback
+setup_dir: {{SETUP_DIR}}              # e.g. /data/workflows/CMT04-IMN/setup
+config_js: {{CONFIG_JS}}              # setup_dir/config/config.js
+
+input_bucket: {{INPUT_BUCKET}}        # gs://dvmdostem_calibration_input/{site_name}
+param_bucket: {{PARAM_BUCKET}}        # gs://vb-tem/.../Folder or null
+param_folder: {{PARAM_FOLDER}}        # calibrated bucket subfolder name or null
+param_cmt_in_file: {{PARAM_CMT}}      # CMT parsed from bucket cmt_calparbgc.txt
+
+workflow_dir: {{WORKFLOW_DIR}}        # /data/workflows/CMT{NN}-{site_label}
+
+status: pass                          # pass | warn | failed
+warnings: []

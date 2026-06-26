@@ -1,0 +1,51 @@
+# Known input-catalog folder name -> calibrated parameter folder candidates
+# in gs://vb-tem/Calibration/calibration_files/calibrated/
+#
+# Order matters: first entry is preferred when multiple match the same CMT.
+# Extend this file when new site/input <-> parameter mappings are validated.
+
+Imnavait:
+  - IMN_CMT05
+
+trail_valley:
+  - TVC_CMT50
+  - TVC_CMT51
+
+Chersky:
+  - Cherskii_CMT73
+
+Chokurdakh:
+  - Chok_CMT70
+
+Yakutsk:
+  - Yak_CMT71
+
+Zotino:
+  - Zotino_CMT74
+
+Hyytiala:
+  - CMT82_Hyytiala
+
+Degero:
+  - DL_CMT55
+  - DL_CMT56
+  - DLH_CMT57
+  - DLHeath_CMT52
+
+CA_Old_Aspen:
+  - OAS_CMT65
+
+CA_Old_Jack_Pine:
+  - OJP_CMT66
+
+CA_Old_Black_Spruce:
+  - CA_Gro_CMT67
+
+eml:
+  - EML_CMT21
+
+scotty_creek:
+  - SCC_CMT60
+
+bnz-bog:
+  - BOREAS_OBS_CMT69

@@ -1,7 +1,8 @@
 # Step 1 SA config template — copy and replace {{PLACEHOLDERS}}.
 # See step1-cmax-agent.md in this folder for agent workflow.
+# seed_path and site typically come from Phase 0 setup manifest (calibration_setup.md).
 
-seed_path: {{SEED_PATH}}           # e.g. /work/parameters
+seed_path: {{SEED_PATH}}           # from logs/{site_label}-setup-manifest.yaml
 observations: /work/calibration
 
 N_samples: {{N_SAMPLES}}            # e.g. 100 (demo: 5)
@@ -15,7 +16,7 @@ percent_diffs: {{PERCENT_DIFFS}}   # e.g. [.25, .25, ...]
 # p_bounds alternative (mutually exclusive with percent_diffs):
 # p_bounds: [[0.1, LIM0], [0.1, LIM1], ...]
 
-site: {{SITE}}                      # e.g. /data/input-catalog/Imnavait
+site: {{SITE}}                      # from setup manifest, e.g. /data/input-catalog/Imnavait
 PXx: {{PXX}}                        # e.g. 0
 PXy: {{PXY}}                        # e.g. 0
 
