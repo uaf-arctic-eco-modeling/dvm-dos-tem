@@ -7,7 +7,7 @@ Use --step2-result to read best_sample_index from target-first analysis.
 
 Usage (inside dvmdostem-autocal):
 
-  python mads_calibration/agent_calibration_step2/propose_bounds.py \\
+  python mads_calibration/agent/agent_calibration_step2/propose_bounds.py \\
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter2/ \\
     --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-iter2/step2-result.yaml \\
     --soil-samples 6,16 --veg-span 0.30 \\

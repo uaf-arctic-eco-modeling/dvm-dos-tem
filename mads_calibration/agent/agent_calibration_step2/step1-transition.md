@@ -33,7 +33,7 @@ Step 1 must be complete with `step1-result.yaml` from [`step1_analyze.py`](../ag
 ## Setup — seed parameters
 
 ```bash
-python mads_calibration/agent_calibration_step2/seed_setup.py \
+python mads_calibration/agent/agent_calibration_step2/seed_setup.py \
   --step1-result <path-to-step1-result.yaml> \
   --cmtnum 4 \
   --dest /data/workflows/CMT04-IMN/parameters-step2

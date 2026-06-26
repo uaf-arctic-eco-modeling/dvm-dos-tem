@@ -7,7 +7,7 @@ Mirrors the analysis cells in notebooks/calibration_process.ipynb:
 
 Typical usage inside dvmdostem-autocal:
 
-  python mads_calibration/agent_calibration_step1/step1_analyze.py \\
+  python mads_calibration/agent/agent_calibration_step1/step1_analyze.py \\
     --work-dir /data/workflows/CMT04-IMN-sa-N100/ \\
     --rmse-threshold 10 \\
     --config-yaml mads_calibration/logs/sa-IMN-step1.yaml \\

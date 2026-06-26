@@ -12,7 +12,7 @@ Reference notebook (interactive): [`notebooks/calibration_process.ipynb`](../not
 
 | Location | Tracked | Agent use |
 |----------|---------|-----------|
-| `agent_calibration_step2/` (this folder) | Yes | Templates, example yaml, scripts |
+| `agent/agent_calibration_step2/` (this folder) | Yes | Templates, example yaml, scripts |
 | `logs/` | **No** (gitignored) | SA yamls, closure notes, optional archives |
 | `/data/workflows/` | Runtime volume | SA outputs; `step2-result.yaml` from `--json-out` |
 
@@ -76,10 +76,10 @@ docker compose exec -T dvmdostem-autocal bash -c 'cd /work && ...'
 | Step 2 seed directory | `/data/workflows/CMT{NN}-{site_label}/parameters-step2` | SA `seed_path`; repo params not modified |
 | SA entry point | `/work/mads_calibration/SA_setup_and_run.py` | Setup and run sensitivity analysis |
 | Post-hoc analysis module | `/work/mads_calibration/SA_post_hoc_analysis.py` | Equilibrium, nitrogen, plots, ranking |
-| Seed setup | `/work/mads_calibration/agent_calibration_step2/seed_setup.py` | Copy params + fix Step 1 `cmax` |
-| Headless analysis CLI | `/work/mads_calibration/agent_calibration_step2/analyze.py` | Target-first analysis; writes `step2-result.yaml` |
-| Bound proposal | `/work/mads_calibration/agent_calibration_step2/propose_bounds.py` | Hybrid `p_bounds` for next iteration |
-| Parameter apply | `/work/mads_calibration/agent_calibration_step2/param_update.py` | Apply `recommended_params` after review |
+| Seed setup | `/work/mads_calibration/agent/agent_calibration_step2/seed_setup.py` | Copy params + fix Step 1 `cmax` |
+| Headless analysis CLI | `/work/mads_calibration/agent/agent_calibration_step2/analyze.py` | Target-first analysis; writes `step2-result.yaml` |
+| Bound proposal | `/work/mads_calibration/agent/agent_calibration_step2/propose_bounds.py` | Hybrid `p_bounds` for next iteration |
+| Parameter apply | `/work/mads_calibration/agent/agent_calibration_step2/param_update.py` | Apply `recommended_params` after review |
 | Main SA template | [`sa-step2-template.yaml`](sa-step2-template.yaml) | Copy into `logs/sa-{site_label}-step2.yaml` |
 | Filled example | [`sa-step2-example-imn.yaml`](sa-step2-example-imn.yaml) | CMT04 Imnavait 32-param layout reference |
 | rhmoistfrozen template | [`sa-step2-rhmoistfrozen-template.yaml`](sa-step2-rhmoistfrozen-template.yaml) | Phase 6 |
@@ -126,7 +126,7 @@ Per iteration artifacts:
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_step2/seed_setup.py \
+  'python /work/mads_calibration/agent/agent_calibration_step2/seed_setup.py \
     --step1-result /data/workflows/CMT04-IMN-sa-recovery-C/step1-result.yaml \
     --cmtnum 4 \
     --dest /data/workflows/CMT04-IMN/parameters-step2'
@@ -176,7 +176,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_step2/analyze.py \
+  'python /work/mads_calibration/agent/agent_calibration_step2/analyze.py \
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter3/ \
     --biome tundra \
     --save-plots \
@@ -217,7 +217,7 @@ All diagnostic functions live in [`SA_post_hoc_analysis.py`](../SA_post_hoc_anal
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_step2/propose_bounds.py \
+  'python /work/mads_calibration/agent/agent_calibration_step2/propose_bounds.py \
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter2/ \
     --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-iter2/step2-result.yaml \
     --step1-result /data/workflows/CMT04-IMN-sa-recovery-C/step1-result.yaml \
@@ -242,7 +242,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_step2/param_update.py \
+  'python /work/mads_calibration/agent/agent_calibration_step2/param_update.py \
     --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-iter3/step2-result.yaml \
     --param-dir /data/workflows/CMT04-IMN/parameters-step2 \
     --cmtnum 4'
@@ -264,7 +264,7 @@ After the run, analyze before apply:
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_step2/analyze.py \
+  'python /work/mads_calibration/agent/agent_calibration_step2/analyze.py \
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-rhmoistfrozen/ \
     --biome tundra \
     --json-out /data/workflows/CMT04-IMN/logs/sa-step2-rhmoistfrozen/step2-result.yaml'

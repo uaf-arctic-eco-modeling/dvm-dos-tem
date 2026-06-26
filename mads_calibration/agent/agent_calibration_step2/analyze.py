@@ -7,7 +7,7 @@ Single path: equilibrium diagnostics (soft gate) -> rank by target R²/RMSE
 
 Typical usage inside dvmdostem-autocal:
 
-  python mads_calibration/agent_calibration_step2/analyze.py \\
+  python mads_calibration/agent/agent_calibration_step2/analyze.py \\
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter3/ \\
     --biome tundra \\
     --save-plots \\

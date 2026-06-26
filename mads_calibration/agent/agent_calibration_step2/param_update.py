@@ -4,7 +4,7 @@ Apply recommended_params from step2-result.yaml to workflow parameter files.
 
 Uses util.param.update_inplace (routes to cmt_calparbgc.txt or cmt_bgcsoil.txt).
 
-  python mads_calibration/agent_calibration_step2/param_update.py \\
+  python mads_calibration/agent/agent_calibration_step2/param_update.py \\
     --step2-result /data/workflows/CMT04-IMN-sa-step2/step2-result.yaml \\
     --param-dir /data/workflows/CMT04-IMN/parameters-step2 \\
     --cmtnum 4

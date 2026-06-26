@@ -10,7 +10,7 @@ Automate **Phase 0** of the MADS agent calibration workflow: provision driving i
 
 | Location | Tracked | Agent use |
 |----------|---------|-----------|
-| `agent_calibration_setup/` (this folder) | Yes | Setup script, aliases, templates |
+| `agent/agent_calibration_setup/` (this folder) | Yes | Setup script, aliases, templates |
 | `logs/` | **No** (gitignored) | `{site_label}-setup-manifest.yaml` |
 | `/data/input-catalog/` | Runtime volume | Synced driving inputs from GCS |
 | `/data/workflows/CMT{NN}-{label}/` | Runtime volume | `parameters-seed/`, `setup/config/config.js` |
@@ -109,7 +109,7 @@ List available sites and parameter-folder crosswalk:
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_setup/calibration_setup.py --discover'
+  'python /work/mads_calibration/agent/agent_calibration_setup/calibration_setup.py --discover'
 ```
 
 Review the table. For the user's `site_name`:
@@ -128,7 +128,7 @@ Preferred: use the headless CLI (implements Phases 2–5 below):
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent_calibration_setup/calibration_setup.py \
+  'python /work/mads_calibration/agent/agent_calibration_setup/calibration_setup.py \
     --site-name Imnavait \
     --cmtnum 4 \
     --site-label IMN \
@@ -257,4 +257,4 @@ When filling [`sa-step1-template.yaml`](../agent_calibration_step1/sa-step1-temp
 | `setup.md` | `calibration_setup.md` |
 | `phase0-setup.md` | `calibration_setup.md` |
 | Setup manifest | `mads_calibration/logs/{site_label}-setup-manifest.yaml` |
-| Step 1 after setup | `../agent_calibration_step1/step1-cmax-agent.md` |
+| Step 1 after setup | `agent/agent_calibration_step1/step1-cmax-agent.md` |

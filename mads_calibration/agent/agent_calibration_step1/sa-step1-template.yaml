@@ -1,6 +1,6 @@
 # Step 1 SA config template — copy and replace {{PLACEHOLDERS}}.
 # See step1-cmax-agent.md in this folder for agent workflow.
-# seed_path and site typically come from Phase 0 setup manifest (agent_calibration_setup/calibration_setup.md).
+# seed_path and site typically come from Phase 0 setup manifest (agent/agent_calibration_setup/calibration_setup.md).
 
 seed_path: {{SEED_PATH}}           # from logs/{site_label}-setup-manifest.yaml
 observations: /work/calibration
