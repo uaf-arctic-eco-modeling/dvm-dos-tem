@@ -93,7 +93,6 @@ Useful tooling:
 - [`calibration/calibration_targets.py`](../../calibration/calibration_targets.py) — equilibrium stock/flux targets used in SA
 - [`calibration/calibration-viewer.py`](../../calibration/calibration-viewer.py) — interactive comparison with target lines
 - [`scripts/simulation_comparison_report.py`](../../scripts/simulation_comparison_report.py) — batch comparison reports including ALD
-- [`measurement_eval_report.py`](../../measurement_eval_report.py) — headless eq-gate + stock/flux verdict for closure summary (`--output-dir`, `--params-dir`, `--json-out`)
 
 Interactive exploration: [`notebooks/calibration_process.ipynb`](../notebooks/calibration_process.ipynb).
 

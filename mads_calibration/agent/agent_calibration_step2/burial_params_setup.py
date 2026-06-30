@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Append s2dfraction/d2mfraction rows to a workflow CMT block (20-row calpar schema)."""
+"""Append s2dfraction/d2mfraction rows to a workflow CMT block (20-row calpar schema).
+
+Called from ``seed_setup.py`` when building ``parameters-step2``. Standalone:
+
+  python mads_calibration/agent/agent_calibration_step2/burial_params_setup.py \\
+    --param-dir /data/workflows/CMT21-EML/parameters-step2 --cmtnum 21
+"""
 
 from __future__ import print_function
 
@@ -7,7 +13,8 @@ import argparse
 import os
 import sys
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR)))
 SCRIPTS = os.path.join(REPO_ROOT, 'scripts')
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)

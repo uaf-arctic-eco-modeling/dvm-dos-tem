@@ -13,7 +13,7 @@ Attach **one phase instruction file at a time** in Cursor, in order:
 |-------|--------|--------------|
 | 0 | `calibration_setup.py` | exit `0` or `2`; exit `1` blocks Step 1 (no cross-CMT param fallback) |
 | 1 | `step1_analyze.py` | `status: pass` (RMSE < 10); `best_effort` = keep iterating |
-| 1→2 | `seed_setup.py` | Step 1 `status: pass` (or `--force`); upgrades calpar to 20-row burial schema |
+| 1→2 | `seed_setup.py` (+ `burial_params_setup.py`) | Step 1 `status: pass` (or `--force`); upgrades calpar to 20-row burial schema |
 | 2 | `analyze.py` | exit `0` = pass; `2` = iterate bounds; `3` = stop / reopen Step 1 |
 | 2 apply | `param_update.py` | matching `--phase` + pass status only (`--force` = documented approval) |
 

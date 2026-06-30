@@ -123,7 +123,7 @@ Per iteration: `logs/sa-{SITE}-step2-iter{N}.yaml`, unique `work_dir`, `step2-re
 | Targets | `/work/calibration/calibration_targets.py` |
 | Seed dir | `/data/workflows/CMT{NN}-{site_label}/parameters-step2` |
 | SA | `/work/mads_calibration/SA_setup_and_run.py` |
-| Scripts | `seed_setup.py`, `analyze.py`, `propose_bounds.py`, `param_update.py` (this folder) |
+| Scripts | `seed_setup.py`, `burial_params_setup.py`, `analyze.py`, `propose_bounds.py`, `param_update.py` (this folder) |
 | Plots / checks | `/work/mads_calibration/SA_post_hoc_analysis.py` |
 | Templates | `sa-step2-template.yaml`, `sa-step2-rhmoistfrozen-template.yaml`, `sa-step2-soil-retune-template.yaml` |
 | Agent yamls | `mads_calibration/logs/sa-{site_label}-*.yaml` (gitignored) |
@@ -265,6 +265,6 @@ After each SA, from [`SA_post_hoc_analysis.py`](../SA_post_hoc_analysis.py): `ni
 |-----------|---------|
 | `step2-integrated-agent.md` | `agent-instructions-step2.md` |
 | `step1-to-step2-transition.md` | `step1-transition.md` |
-| `step2_seed_setup.py` | `seed_setup.py`, `analyze.py`, `propose_bounds.py`, `param_update.py` |
+| `step2_seed_setup.py` | `seed_setup.py`, `burial_params_setup.py`, `analyze.py`, `propose_bounds.py`, `param_update.py` |
 
 Closure summary: [`step2-closure-summary-template.yaml`](../agent_final_evaluation/step2-closure-summary-template.yaml) → `logs/{site_label}-step2-closure-summary.yaml`.

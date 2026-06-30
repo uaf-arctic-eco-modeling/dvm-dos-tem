@@ -29,8 +29,6 @@ if os.path.isdir(SCRIPTS_DIR) and SCRIPTS_DIR not in sys.path:
 
 import util.param as param  # noqa: E402
 
-if MADS_CALIB_DIR not in sys.path:
-    sys.path.insert(0, MADS_CALIB_DIR)
 from burial_params_setup import add_burial_rows  # noqa: E402
 
 DEFAULT_SOURCE = '/work/parameters'
