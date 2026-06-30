@@ -3807,7 +3807,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       }
       //PFT only (4 dimensions)
       else if(curr_spec.pft && !curr_spec.compartment){
-        double m_labnuptake[NUM_PFT], y_labnuptake[NUM_PFT];
+        std::array<double, NUM_PFT> m_labnuptake{};
+        std::array<double, NUM_PFT> y_labnuptake{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           m_labnuptake[ip] = cohort.bd[ip].m_soi2v.lnuptake;
@@ -3815,10 +3816,20 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
 
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_labnuptake[0], NUM_PFT, month_timestep, 1);
-        } 
+          outhold.nuptakelab_pft_for_output.push_back(m_labnuptake);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.nuptakelab_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.nuptakelab_pft_for_output.clear();
+          }
+        }
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_labnuptake[0], NUM_PFT, year, 1);
+          outhold.nuptakelab_pft_for_output.push_back(y_labnuptake);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.nuptakelab_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.nuptakelab_pft_for_output.clear();
+          }
         }
       }
       //Compartment only
@@ -3829,11 +3840,21 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       else if(!curr_spec.pft && !curr_spec.compartment){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soi2v.lnuptake, 1, month_timestep, 1);
+          outhold.nuptakelab_tot_for_output.push_back(cohort.bdall->m_soi2v.lnuptake);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.nuptakelab_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.nuptakelab_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soi2v.lnuptake, 1, year, 1);
+          outhold.nuptakelab_tot_for_output.push_back(cohort.bdall->y_soi2v.lnuptake);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.nuptakelab_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.nuptakelab_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputNUPTAKELAB)
@@ -3851,8 +3872,8 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
     {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
-        double m_snuptake[NUM_PFT_PART][NUM_PFT];
-        double y_snuptake[NUM_PFT_PART][NUM_PFT];
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> m_snuptake{};
+        std::array<std::array<double, NUM_PFT>, NUM_PFT_PART> y_snuptake{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
@@ -3862,61 +3883,100 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &m_snuptake[0][0], NUM_PFT_PART, NUM_PFT, month_timestep, 1);
+          outhold.nuptakest_for_output.push_back(m_snuptake);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_for_output[0][0], NUM_PFT_PART, NUM_PFT, month_start_idx, months_to_output);
+            outhold.nuptakest_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_5dim(&curr_spec, file_stage_suffix, &y_snuptake[0][0], NUM_PFT_PART, NUM_PFT, year, 1);
+          outhold.nuptakest_for_output.push_back(y_snuptake);
+
+          if(output_this_timestep){
+            output_nc_5dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_for_output[0][0], NUM_PFT_PART, NUM_PFT, year_start_idx, years_to_output);
+            outhold.nuptakest_for_output.clear();
+          }
         }
       }
       //PFT only (4 dimensions)
       else if(curr_spec.pft && !curr_spec.compartment){
-        double m_snuptake[NUM_PFT] = {0};
-        double y_snuptake[NUM_PFT] = {0};
+        std::array<double, NUM_PFT> m_snuptake{};
+        std::array<double, NUM_PFT> y_snuptake{};
 
         for(int ip=0; ip<NUM_PFT; ip++){
           m_snuptake[ip] = cohort.bd[ip].m_soi2v.snuptakeall;
           y_snuptake[ip] = cohort.bd[ip].y_soi2v.snuptakeall;
         }
-        //monthly 
+        //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_snuptake[0], NUM_PFT, month_timestep, 1);
+          outhold.nuptakest_pft_for_output.push_back(m_snuptake);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_pft_for_output[0], NUM_PFT, month_start_idx, months_to_output);
+            outhold.nuptakest_pft_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_snuptake[0], NUM_PFT, year, 1);
+          outhold.nuptakest_pft_for_output.push_back(y_snuptake);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_pft_for_output[0], NUM_PFT, year_start_idx, years_to_output);
+            outhold.nuptakest_pft_for_output.clear();
+          }
         }
       }
       //Compartment only (4 dimensions)
       else if(!curr_spec.pft && curr_spec.compartment){
-        double m_snuptake[NUM_PFT_PART] = {0};
-        double y_snuptake[NUM_PFT_PART] = {0};
+        std::array<double, NUM_PFT_PART> m_snuptake{};
+        std::array<double, NUM_PFT_PART> y_snuptake{};
 
         for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
           for(int ip=0; ip<NUM_PFT; ip++){
-            m_snuptake[ipp] += cohort.bd[ip].m_soi2v.snuptake[ipp]; 
-            y_snuptake[ipp] += cohort.bd[ip].y_soi2v.snuptake[ipp]; 
+            m_snuptake[ipp] += cohort.bd[ip].m_soi2v.snuptake[ipp];
+            y_snuptake[ipp] += cohort.bd[ip].y_soi2v.snuptake[ipp];
           }
         }
         //monthly
         if(curr_spec.monthly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &m_snuptake[0], NUM_PFT_PART, month_timestep, 1);
+          outhold.nuptakest_part_for_output.push_back(m_snuptake);
+
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_part_for_output[0], NUM_PFT_PART, month_start_idx, months_to_output);
+            outhold.nuptakest_part_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_4dim(&curr_spec, file_stage_suffix, &y_snuptake[0], NUM_PFT_PART, year, 1);
-        }
+          outhold.nuptakest_part_for_output.push_back(y_snuptake);
 
+          if(output_this_timestep){
+            output_nc_4dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_part_for_output[0], NUM_PFT_PART, year_start_idx, years_to_output);
+            outhold.nuptakest_part_for_output.clear();
+          }
+        }
       }
       //Neither PFT nor compartment
       else if(!curr_spec.pft && !curr_spec.compartment){
         //monthly
         if(curr_spec.monthly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->m_soi2v.snuptakeall, 1, month_timestep, 1);
+          outhold.nuptakest_tot_for_output.push_back(cohort.bdall->m_soi2v.snuptakeall);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_tot_for_output[0], 1, month_start_idx, months_to_output);
+            outhold.nuptakest_tot_for_output.clear();
+          }
         }
         //yearly
         else if(curr_spec.yearly){
-          output_nc_3dim(&curr_spec, file_stage_suffix, &cohort.bdall->y_soi2v.snuptakeall, 1, year, 1);
+          outhold.nuptakest_tot_for_output.push_back(cohort.bdall->y_soi2v.snuptakeall);
+
+          if(output_this_timestep){
+            output_nc_3dim(&curr_spec, file_stage_suffix, &outhold.nuptakest_tot_for_output[0], 1, year_start_idx, years_to_output);
+            outhold.nuptakest_tot_for_output.clear();
+          }
         }
       }
     }//end critical(outputNUPTAKEST)
