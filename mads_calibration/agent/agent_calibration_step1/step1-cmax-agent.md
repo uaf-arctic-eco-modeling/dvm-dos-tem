@@ -50,10 +50,10 @@ You are a calibration agent. Given a CMT number, site path, and grid cell, you w
 
 1. Build and run a Step 1 sensitivity analysis (SA).
 2. Perform post-hoc analysis (equilibrium filter, rank by R², compute RMSE).
-3. If RMSE ≥ threshold, launch recovery-style perturbation runs (A–D).
-4. Report the best `recommended_cmax` values and metrics in the output contract format below.
+3. If RMSE ≥ threshold, launch recovery-style perturbation runs (A–D); repeat until RMSE < threshold.
+4. When Step 1 is complete (`status: pass`), report `recommended_cmax` and metrics in the output contract format below.
 
-**Success criterion:** equilibrium-filtered best sample has **RMSE < 10** (aggregate across all INGPP PFT columns). If no run meets the threshold, report `status: best_effort` with the global best found.
+**Success criterion:** equilibrium-filtered best sample has **RMSE < 10** (aggregate across all INGPP PFT columns) **and** selection prefers **fewest per-PFT tier failures** (±10% per column via `step1_analyze.py`). Step 1 is **done only when** `status: pass`. If `best_effort`, continue iterating (recovery A–D, then re-seed from global best and retry) until pass.
 
 ---
 
@@ -83,7 +83,7 @@ PXy: 0
 site_label: IMN              # short token for work_dir / config naming
 N_samples: 100               # use 5 with sa-demo-config for smoke tests
 rmse_threshold: 10
-max_perturbation_rounds: 1   # rounds of A-D recovery runs after baseline
+max_perturbation_rounds: null  # optional safety cap only; default is iterate until pass
 percent_diffs: 0.25          # baseline SA perturbation fraction
 recovery_percent_diffs: 0.40 # wider search for perturbation runs
 ```
@@ -200,17 +200,19 @@ The CLI sets both `status` in the output artifact **and** a process exit code. T
 | Exit code | `status` in artifact | Meaning | Agent action |
 |-----------|----------------------|---------|--------------|
 | `0` | `pass` | Best eq-filtered sample has RMSE < threshold | Step 1 complete — report `recommended_cmax`; **do not** run perturbation |
-| `2` | `best_effort` | Eq-filtered samples exist but RMSE ≥ threshold | **Not a failure** — proceed to Phase 4 perturbation loop |
+| `2` | `best_effort` | Eq-filtered samples exist but RMSE ≥ threshold | **Continue iterating** — run Phase 4 recovery; if still ≥ threshold, re-seed from global best and repeat until pass |
 | `1` | `failed` | No samples passed equilibrium check | Stop or relax eq limits; do **not** proceed to perturbation |
 
-Do **not** treat exit code `2` as a hard error. It is the normal signal to launch recovery runs A–D.
+Exit `2` is expected during iteration; keep going until exit `0`.
+
+**Step 2 handoff:** `seed_setup.py` refuses `best_effort` unless `--force` (see [`step1-transition.md`](../agent_calibration_step2/step1-transition.md)).
 
 ---
 
 ## Phase 3 — Acceptance Check
 
 - **Pass (`status: pass`, exit `0`):** best equilibrium-filtered sample has `RMSE < rmse_threshold`.
-- **Best effort (`status: best_effort`, exit `2`):** report global best even if threshold not met; proceed to Phase 4.
+- **Best effort (`status: best_effort`, exit `2`):** not complete — proceed to Phase 4 or next iteration round.
 - **Failed (`status: failed`, exit `1`):** no equilibrium-passing samples; stop and report.
 
 Extract `recommended_cmax` from the best sample's `cmax_*` columns in `sample_matrix.csv` (or from the artifact written by `--json-out`).
@@ -251,7 +253,7 @@ For each run A–D:
 3. Run SA and analyze with `step1_analyze.py`.
 4. Track global best RMSE across baseline + all perturbation runs.
 
-After all runs, select the global best. Report even if none meet RMSE < 10.
+After all runs, select the global best. If global best still has RMSE ≥ threshold, apply its `recommended_cmax` as new seed and repeat (recovery + new SA) until pass.
 
 ---
 
@@ -261,7 +263,7 @@ Write a YAML/JSON artifact via `step1_analyze.py --json-out` to `{work_dir}/step
 
 ```yaml
 run_id: CMT04-IMN-step1
-status: pass          # pass | best_effort
+status: pass          # final artifact must be pass (RMSE < threshold)
 best_rmse: 7.42
 best_r2: 0.91
 best_sample_index: 42
@@ -285,7 +287,7 @@ notes: ""
 1. **Always** apply equilibrium filter before ranking samples.
 2. Rank by R² descending (take last rows from `n_top_runs`).
 3. RMSE is aggregate across all INGPP PFT target columns (`calc_metrics`).
-4. Trigger perturbation loop when `step1_analyze.py` returns exit `2` (`best_effort`, RMSE ≥ `rmse_threshold`).
+4. When `step1_analyze.py` returns exit `2` (`best_effort`), run Phase 4 recovery; if still ≥ threshold, re-seed and repeat until exit `0`.
 5. Enforce `(0, LIM]` on all written cmax values.
 6. Do not modify `calibration_targets.py` or `parameters/cmt_calparbgc.txt` in the repo — write copies under `/data/workflows/`.
 
@@ -305,7 +307,7 @@ notes: ""
 
 ## Do Not
 
-- Run Step 2 (vegetation/soil targets).
+- Run Step 2 (vegetation/soil targets) or declare Step 1 complete while RMSE ≥ threshold (`best_effort`).
 - Run `pip install` inside the container.
 - Modify `calibration/calibration_targets.py`.
 - Commit secrets or `.env` credentials.

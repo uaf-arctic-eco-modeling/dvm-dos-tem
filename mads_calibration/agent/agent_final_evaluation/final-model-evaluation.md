@@ -8,10 +8,9 @@ Run inside `dvmdostem-autocal` (or `dvmdostem-dev`) with calibrated parameters i
 
 ## Prerequisites
 
-- Step 1 `cmax` and Step 2 soil/veg params applied to workflow parameter files
-- Optional Phase 6 `rhmoistfrozen` complete if used; Phase 7 only if kept (often skipped)
-- Site driver data available for the evaluation period
-- `--tr-yrs` set to **historic climate length at site** (must not exceed driver NetCDF span)
+- Step 2 complete per [`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md) **Control flow** (last `analyze.py --phase main` exit `0`, or documented soft closure below)
+- Step 1 `cmax` and Step 2 params in `parameters-step2`; Phase 6/7 documented in closure summary if run
+- Site driver data; `--tr-yrs` ≤ historic climate length at site
 
 ## Procedure
 
@@ -94,6 +93,7 @@ Useful tooling:
 - [`calibration/calibration_targets.py`](../../calibration/calibration_targets.py) — equilibrium stock/flux targets used in SA
 - [`calibration/calibration-viewer.py`](../../calibration/calibration-viewer.py) — interactive comparison with target lines
 - [`scripts/simulation_comparison_report.py`](../../scripts/simulation_comparison_report.py) — batch comparison reports including ALD
+- [`measurement_eval_report.py`](../../measurement_eval_report.py) — headless eq-gate + stock/flux verdict for closure summary (`--output-dir`, `--params-dir`, `--json-out`)
 
 Interactive exploration: [`notebooks/calibration_process.ipynb`](../notebooks/calibration_process.ipynb).
 
@@ -108,16 +108,16 @@ cp -a /data/workflows/CMT04-IMN/parameters-step2 \
       /data/workflows/CMT04-IMN/parameters-step2-final
 ```
 
-## IMN-validated acceptance (reference)
+## IMN-validated acceptance (reference — soft closure)
 
-Acceptable to skip further calibration retune when:
+Use only when strict `analyze.py --phase main` exit `0` was documented unreachable and `accepted_limitations` are recorded in the closure summary:
 
 - Final eval completes all TR years without crash
 - Transient NPP/GPP within ~10% of equilibrium target sums (indicative)
-- Soil stock gaps (SHLWC/DEEPC/MINEC) documented as tradeoffs
-- Phase 7 reverted if it regresses DEEPC
+- Eq-stage soil pools (SHLWC, DEEPC, MINEC) within 20% tier on final parameters
+- Phase 6 and Phase 7 completed when MINEC was sensitive to `rhmoistfrozen`
 
-Set `status: complete` in closure summary when all `closure_criteria` are true.
+Set `status: complete` in closure summary when all `closure_criteria` are true. Loop back to Phase 7 (not skip) if soil pools regress after transient run.
 
 ## Interpreting mismatches
 
@@ -125,7 +125,7 @@ Set `status: complete` in closure summary when all `closure_criteria` are true.
 |---------|------------------------|------|-------|
 | GPP greatly underestimated | `cmax` | `cmt_calparbgc.txt` | Revisit **Step 1**; re-seed Step 2 if needed |
 | RECO off, especially **winter RECO** | `rhmoistfrozen` | `cmt_bgcsoil.txt` | See Phase 6 |
-| Mineral soil C (MINEC) tradeoff | `rhmoistfrozen`, soil `kdc*`, `micbnup` | `cmt_bgcsoil.txt`, `cmt_calparbgc.txt` | Document tradeoff |
+| Mineral soil C (MINEC) off tier | `rhmoistfrozen`, soil `kdc*`, `micbnup` | `cmt_bgcsoil.txt`, `cmt_calparbgc.txt` | Phase 6 then Phase 7 |
 | Soil temperature bias | `nfactor(s)`, `nfactor(w)` | `cmt_envground.txt` | Separate thermal SA |
 | ALD too shallow/deep | `nfactor(s)`, `nfactor(w)`, snow/ground params | `cmt_envground.txt` | Thermal SA before BGC retune |
 
@@ -139,7 +139,8 @@ If soil temperature or ALD are off-target, run dedicated SA on `nfactor(s)` and 
 |----------|--------|
 | Minor seasonal bias | Document; may be acceptable |
 | Moderate flux offset | Targeted SA on parameter row above |
-| Large GPP/RECO mismatch | Re-open Step 1 (`cmax`) or Step 2 (`rhmoistfrozen`, soil `kdc*`) |
+| Large GPP/RECO mismatch | Re-open Step 1 (`cmax`) or Step 2 Phases 6–7 |
+| SHLWC/DEEPC drift after Phase 6 | Phase 7 soil retune (required, not optional) |
 | Thermal / ALD failure | `nfactor` SA first |
 
 After re-calibration, repeat SA checks, apply updated parameters, and **re-run this evaluation**.

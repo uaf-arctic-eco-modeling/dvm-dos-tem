@@ -66,7 +66,7 @@ Two buckets serve **different** purposes. Do not conflate them.
 
 **Naming is not 1:1.** Input folders use site names (`Imnavait`, `trail_valley`). Parameter folders encode site token + CMT (`IMN_CMT05`, `TVC_CMT50`, `Cherskii_CMT73`, legacy `parameters75`). Known pairs are listed in [`site_aliases.yaml`](site_aliases.yaml).
 
-**Important:** Imnavait has calibrated params as `IMN_CMT05` (CMT05) while Step 1 often calibrates **CMT04** at that site. Always use **user-specified `cmtnum`**; when bucket CMT differs, `calibration_setup.py` falls back to `/work/parameters` and records a warning.
+**Important:** Imnavait has calibrated params as `IMN_CMT05` (CMT05) while Step 1 often calibrates **CMT04** at that site. Always use **user-specified `cmtnum`**. When bucket CMT differs from `cmtnum`, setup **fails** (exit `1`) — **no cross-CMT fallback** to `/work/parameters`.
 
 ---
 
@@ -166,15 +166,16 @@ Read `logs/{site_label}-setup-manifest.yaml` and confirm:
 | `config_js` | IO paths point under `site` |
 | `PXx`, `PXy` | Active pixel; `vegetation.nc` CMT matches `cmtnum` (warn if not) |
 | `status` | `pass` or `warn` — not `failed` |
-| `warnings` | Review CMT mismatch, missing projected climate, param fallback |
+| `warnings` | Review missing projected climate; **CMT mismatch is now `failed`, not warn** |
+| `seed_path` | Must contain `cmt_calparbgc.txt` block for requested `cmtnum` |
 
 ### Exit codes (`calibration_setup.py`)
 
 | Exit | `status` | Meaning | Agent action |
 |------|----------|---------|--------------|
 | `0` | `pass` | Setup complete | Proceed to Step 1 |
-| `2` | `warn` | Usable with documented warnings (e.g. param fallback, eq-only inputs) | Proceed to Step 1; carry warnings forward |
-| `1` | `failed` | Missing inputs, bad config, or CMT not in targets | Fix and re-run setup |
+| `2` | `warn` | Usable with documented warnings (e.g. eq-only inputs, repo seed when no GCS folder) | Proceed to Step 1; carry warnings forward |
+| `1` | `failed` | Missing inputs, bad config, CMT not in targets, **cross-CMT param mismatch**, or seed missing requested CMT block | Fix mapping or `cmtnum`; re-run setup |
 
 ---
 
@@ -195,11 +196,11 @@ config_js: /data/workflows/CMT04-IMN/setup/config/config.js
 input_bucket: gs://dvmdostem_calibration_input/Imnavait
 param_bucket: null
 param_folder: null
-param_cmt_in_file: 5
+param_cmt_in_file: null
 workflow_dir: /data/workflows/CMT04-IMN
-status: warn
+status: failed
 warnings:
-  - Param folder IMN_CMT05 is CMT5 but user requested CMT4; using /work/parameters as seed_path instead.
+  - Param folder IMN_CMT05 is CMT5 but user requested CMT4; cross-CMT parameter fallback is not allowed.
 ```
 
 See [`setup-manifest-template.yaml`](setup-manifest-template.yaml) for field descriptions.
@@ -230,12 +231,30 @@ When filling [`sa-step1-template.yaml`](../agent_calibration_step1/sa-step1-temp
 |---------|--------|
 | `gsutil` / `gcloud` auth error | Run `gcloud auth application-default login`; ensure SDK on PATH in the execution environment |
 | Site not in input bucket | Re-run `--discover`; confirm `site_name` spelling |
-| No param folder for site | Expected for new sites; uses `/work/parameters` — note in manifest |
-| Bucket param CMT ≠ user `cmtnum` | Expected (e.g. Imnavait CMT04 vs IMN_CMT05); repo fallback — note in manifest |
+| No param folder for site | Uses `/work/parameters` only if it contains the requested CMT block; else **failed** |
+| Bucket param CMT ≠ user `cmtnum` | **Setup fails** — add alias for correct folder or use matching `cmtnum` |
 | CMT not in `calibration_targets.py` | Stop; add targets or choose valid `cmtnum` |
 | Missing projected climate | Warn only for eq-only Step 1 SA |
 | `vegetation.nc` CMT mismatch at pixel | Warn; confirm `PXx`/`PXy` or forcing CMT intent |
 | `config.js` paths wrong | Re-run setup with `--force` |
+
+---
+
+## Script enforcement
+
+| Rule | Enforcement |
+|------|-------------|
+| No cross-CMT parameter fallback | If GCS param folder or `cmt_calparbgc.txt` CMT ≠ user `cmtnum` → manifest `status: failed`, exit `1` |
+| Seed must match site CMT | `verify_param_dir_has_cmt(seed_path, cmtnum)` before handoff |
+| Step 1 blocked on setup failure | Do not start Step 1 when setup exit `1` |
+
+### `calibration_setup.py` exit codes
+
+| Exit | `status` | Meaning |
+|------|----------|---------|
+| `0` | `pass` | Ready for Step 1 |
+| `2` | `warn` | Proceed with documented warnings |
+| `1` | `failed` | CMT mismatch, missing inputs, or invalid seed — **stop** |
 
 ---
 

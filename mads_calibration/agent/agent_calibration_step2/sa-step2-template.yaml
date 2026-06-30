@@ -30,11 +30,12 @@ target_names:
 - OrganicNitrogenSum
 - VegCarbon
 - NPPAll
-- EcosystemRespiration
+# EcosystemRespiration omitted — not in most CMT blocks; add only if key exists in calibration_targets.py
 
 aux_outputs:
 - INGPP y
 - GPP y
+# Optional diagnostic: RECO y
 
 cmtnum: {{CMTNUM}}
 

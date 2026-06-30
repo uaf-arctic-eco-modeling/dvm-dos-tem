@@ -1,5 +1,6 @@
 # Phase 7 soil retune template — copy into logs/ and replace {{PLACEHOLDERS}}.
-# Optional after rhmoistfrozen; IMN Phase 7 was reverted (DEEPC regression).
+# Required after Phase 6 rhmoistfrozen apply — retune SHLWC/DEEPC while holding MINEC.
+# Analyze: analyze.py --phase phase7  |  Apply: param_update.py --phase phase7
 # See agent-instructions-step2.md Phase 7.
 
 seed_path: {{SEED_PATH}}

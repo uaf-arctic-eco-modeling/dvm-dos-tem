@@ -47,8 +47,46 @@ def required_csv(path, name):
     return full
 
 
+OBS_NEAR_ZERO = 1e-12
+STEP1_FLUX_REL_ERR_PCT = 10.0
+
+
+def tier_failure_score_step1(results, targets, sample_idx, rel_err_pct):
+    """Per-target tier failures for Step 1 (all columns at flux tier)."""
+    n_fail = 0
+    worst_excess = 0.0
+    for col in targets.columns:
+        obs = float(targets[col].iloc[0])
+        if abs(obs) <= OBS_NEAR_ZERO:
+            continue
+        mod = float(results.loc[sample_idx, col])
+        rel_err = 100.0 * (mod - obs) / obs
+        if abs(rel_err) > rel_err_pct:
+            n_fail += 1
+            worst_excess = max(worst_excess, abs(rel_err) - rel_err_pct)
+    return n_fail, worst_excess
+
+
+def select_best_sample_step1(results, targets, sample_matrix, rel_err_pct):
+    """Rank eq-filtered samples by fewest per-PFT tier failures, then RMSE."""
+    scored = []
+    for idx in results.index:
+        n_fail, excess = tier_failure_score_step1(
+            results, targets, idx, rel_err_pct)
+        scored.append((n_fail, excess, int(idx)))
+    scored.sort()
+
+    best_idx = scored[0][2]
+    r2_all, rmse_all, mape_all = sa.calc_metrics(results, targets)
+    rmse_by_idx = dict(zip(results.index, rmse_all))
+    r2_by_idx = dict(zip(results.index, r2_all))
+
+    return best_idx, float(rmse_by_idx[best_idx]), float(r2_by_idx[best_idx]), scored
+
+
 def analyze(work_dir, rmse_threshold=10.0, n_top=10,
             slope_lim=1e-3, eps_lim=1e-5, cv_lim=1,
+            flux_rel_err_pct=STEP1_FLUX_REL_ERR_PCT,
             run_id=None, config_yaml=None):
     work_dir = normalize_work_dir(work_dir)
 
@@ -88,27 +126,31 @@ def analyze(work_dir, rmse_threshold=10.0, n_top=10,
     results2 = results.loc[true_samples]
     sample_matrix2 = sample_matrix.loc[true_samples]
 
-    best_params, best_model = sa.n_top_runs(
-        results2, targets, sample_matrix2, r2lim=None, N=len(results2))
+    best_sample_index, best_rmse, best_r2, scored = select_best_sample_step1(
+        results2, targets, sample_matrix2, flux_rel_err_pct)
 
-    n_take = min(n_top, len(best_params))
-    best_params = best_params.iloc[-n_take:]
-    best_model = best_model.iloc[-n_take:]
-
-    r2, rmse, mape = sa.calc_metrics(best_model, targets)
-
-    best_sample_index = int(best_params.index[-1])
-    best_rmse = float(rmse[-1])
-    best_r2 = float(r2[-1])
-    recommended = best_params.iloc[-1]
-
+    recommended = sample_matrix2.loc[best_sample_index]
     recommended_cmax = {
         col: float(recommended[col])
-        for col in best_params.columns
+        for col in sample_matrix2.columns
         if col.startswith('cmax')
     }
 
+    n_tier_fail, worst_excess = scored[0][0], scored[0][1]
+
     status = 'pass' if best_rmse < rmse_threshold else 'best_effort'
+
+    top_n_summary = []
+    for n_fail, excess, idx in scored[:min(n_top, len(scored))]:
+        r2, rmse, _ = sa.calc_metrics(
+            results2.loc[[idx]], targets)
+        top_n_summary.append({
+            'sample_index': idx,
+            'tier_failures': n_fail,
+            'worst_tier_excess_pct': float(excess),
+            'RMSE': float(rmse[0]),
+            'R2': float(r2[0]),
+        })
 
     return {
         'run_id': run_id or os.path.basename(work_dir.rstrip(os.sep)),
@@ -116,11 +158,14 @@ def analyze(work_dir, rmse_threshold=10.0, n_top=10,
         'best_rmse': best_rmse,
         'best_r2': best_r2,
         'best_sample_index': best_sample_index,
+        'selected_tier_failures': n_tier_fail,
+        'selected_worst_tier_excess_pct': float(worst_excess),
         'work_dir': work_dir,
         'config_yaml': config_yaml,
         'n_eq_passing': n_eq_passing,
         'n_total_samples': n_total,
         'recommended_cmax': recommended_cmax,
+        'top_n_summary': top_n_summary,
         'perturbation_runs': [],
         'notes': '',
     }
@@ -166,6 +211,10 @@ def get_parser():
     parser.add_argument('--slope-lim', type=float, default=1e-3)
     parser.add_argument('--eps-lim', type=float, default=1e-5)
     parser.add_argument('--cv-lim', type=float, default=1.0)
+    parser.add_argument(
+        '--flux-rel-err-pct', type=float, default=STEP1_FLUX_REL_ERR_PCT,
+        help='Per-PFT INGPP tier (%%) used for sample selection (default: 10)',
+    )
     return parser
 
 
@@ -178,6 +227,7 @@ def main():
         slope_lim=args.slope_lim,
         eps_lim=args.eps_lim,
         cv_lim=args.cv_lim,
+        flux_rel_err_pct=args.flux_rel_err_pct,
         run_id=args.run_id,
         config_yaml=args.config_yaml,
     )
@@ -187,6 +237,7 @@ def main():
     print('best_rmse:       {}'.format(result['best_rmse']))
     print('best_r2:         {}'.format(result['best_r2']))
     print('best_sample:     {}'.format(result['best_sample_index']))
+    print('tier_failures:   {}'.format(result.get('selected_tier_failures')))
     print('eq_passing:      {}/{}'.format(
         result['n_eq_passing'], result['n_total_samples']))
     print('recommended_cmax:')

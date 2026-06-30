@@ -1,4 +1,5 @@
 # Step 2 rhmoistfrozen SA template — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Analyze: analyze.py --phase phase6  |  Apply: param_update.py --phase phase6
 # See agent-instructions-step2.md Phase 6.
 
 seed_path: {{SEED_PATH}}              # e.g. /data/workflows/CMT04-IMN/parameters-step2

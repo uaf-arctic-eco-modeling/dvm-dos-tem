@@ -2,16 +2,23 @@
 """
 Headless Step 2 post-hoc analysis (target-first workflow).
 
-Single path: equilibrium diagnostics (soft gate) -> rank by target R²/RMSE
-(prefer nitrogen-passing samples) -> recommended_params + residuals.
+Rank by target R²/RMSE (prefer nitrogen-passing samples), then gate the
+selected sample on N-pass, tiered per-target fit, and equilibrium (hard
+except chronic whitelist) before status pass.
 
 Typical usage inside dvmdostem-autocal:
 
+  # Main Step 2 iteration:
   python mads_calibration/agent/agent_calibration_step2/analyze.py \\
+    --phase main \\
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter3/ \\
     --biome tundra \\
     --save-plots \\
     --json-out /data/workflows/CMT04-IMN/logs/sa-step2-iter3/step2-result.yaml
+
+  # Phase 6 (MINEC gate) / Phase 7 (SHLWC+DEEPC+MINEC gate):
+  python .../analyze.py --phase phase6 --work-dir .../sa-step2-rhmoistfrozen/ ...
+  python .../analyze.py --phase phase7 --work-dir .../sa-step2-soil-retune/ ...
 """
 
 from __future__ import print_function
@@ -37,9 +44,29 @@ from eq_workdir import (  # noqa: E402
 
 RANKING_EXCLUDE_PREFIXES = ('RECO',)
 DIAGNOSTIC_VARS = ('DEEPC', 'VEGC_pft4_Root', 'MINEC', 'AVLN')
+CHRONIC_EQ_WHITELIST = frozenset(DIAGNOSTIC_VARS)
 CHRONIC_EQ_PASS_RATE = 0.20
 EXTINCT_MOD_THRESHOLD = 1e-6
 EXTINCT_OBS_THRESHOLD = 1e-3
+OBS_NEAR_ZERO = 1e-12
+UNREACHABLE_REVIEW_MIN = 3
+
+POOL_NCNAMES = frozenset(('SHLWC', 'DEEPC', 'MINEC', 'ORGN', 'AVLN'))
+
+PHASE_PASS_STATUS = {
+    'main': 'pass',
+    'phase6': 'phase6_pass',
+    'phase7': 'phase7_pass',
+}
+
+PASSING_STATUSES = frozenset(PHASE_PASS_STATUS.values())
+
+# Pool column prefixes gated per analyze --phase (results.csv column names).
+PHASE_GATE_POOLS = {
+    'main': None,
+    'phase6': ('MINEC',),
+    'phase7': ('SHLWC', 'DEEPC', 'MINEC'),
+}
 
 # Bands match nitrogen_check() in SA_post_hoc_analysis.py.
 NITROGEN_CHECK_BANDS = {
@@ -104,6 +131,10 @@ def failed_result(work_dir, notes, run_id=None, config_yaml=None, step1_result=N
         'recommended_params': {},
         'selected_n_pass': False,
         'selected_n_ratio': None,
+        'target_fit_pass': False,
+        'failing_targets': [],
+        'selected_eq_pass': False,
+        'failing_eq_vars': [],
         'notes': notes,
     }
 
@@ -115,6 +146,27 @@ def filter_ranking_columns(targets, results):
         if not any(c.startswith(p) for p in RANKING_EXCLUDE_PREFIXES)
     ]
     return targets[keep], results[keep]
+
+
+def column_matches_pool(column, pool_name):
+    """True if results.csv column belongs to a soil pool gate (e.g. MINEC)."""
+    if column == pool_name:
+        return True
+    return column.split('_')[0] == pool_name
+
+
+def filter_phase_gate_columns(targets_rank, results_rank, phase):
+    """Restrict ranking/gates to phase-specific pool columns (phase6/phase7)."""
+    pools = PHASE_GATE_POOLS.get(phase)
+    if pools is None:
+        return targets_rank, results_rank
+    keep = [
+        c for c in targets_rank.columns
+        if any(column_matches_pool(c, p) for p in pools)
+    ]
+    if not keep:
+        return targets_rank.iloc[:, 0:0], results_rank.iloc[:, 0:0]
+    return targets_rank[keep], results_rank[keep]
 
 
 def load_nitrogen_check(work_dir, biome):
@@ -151,50 +203,142 @@ def compute_eq_diagnostics(eq_data, eq_var_check, fails_per_sample):
     }
 
 
-def select_best_sample(results, targets, sample_matrix, n_check):
+def tier_failure_score(results_rank, targets_rank, sample_idx,
+                       flux_rel_err_pct, pool_rel_err_pct):
     """
-    Rank by target R²/RMSE; prefer samples passing nitrogen_check.
-    Returns (best_index, ranked_from_n_passing, top_n_summary, recommended_params).
+    Count tier failures and worst excess |rel_err| for one sample.
+
+    Lower (n_fail, excess) is better. Selection uses this instead of bulk RMSE.
+    """
+    n_fail = 0
+    worst_excess = 0.0
+    for col in targets_rank.columns:
+        obs = float(targets_rank[col].iloc[0])
+        if abs(obs) <= OBS_NEAR_ZERO:
+            continue
+        mod = float(results_rank.loc[sample_idx, col])
+        rel_err = 100.0 * (mod - obs) / obs
+        limit = target_tolerance_pct(col, flux_rel_err_pct, pool_rel_err_pct)
+        if abs(rel_err) > limit:
+            n_fail += 1
+            worst_excess = max(worst_excess, abs(rel_err) - limit)
+    return n_fail, worst_excess
+
+
+def select_best_sample(results, targets, sample_matrix, n_check,
+                       flux_rel_err_pct=10.0, pool_rel_err_pct=20.0,
+                       gate_targets=None, gate_results=None):
+    """
+    Prefer nitrogen-passing samples; rank by fewest per-target tier failures,
+    then lowest worst excess beyond tier (not bulk RMSE alone).
+
+    When gate_targets/gate_results are set (phase6/phase7), ranking uses only
+    those columns; recommended_params still come from the full sample_matrix.
+
+    Returns (best_index, ranked_from_n_passing, rmse, r2, recommended_params, top_n).
     """
     targets_rank, results_rank = filter_ranking_columns(targets, results)
+    rank_targets = gate_targets if gate_targets is not None else targets_rank
+    rank_results = gate_results if gate_results is not None else results_rank
 
     if n_check is not None and n_check['result'].any():
         n_pass_ids = n_check.index[n_check['result'].astype(bool)].tolist()
         n_pass_ids = [i for i in n_pass_ids if i in results_rank.index]
         if n_pass_ids:
-            pool_r = results_rank.loc[n_pass_ids]
-            pool_sm = sample_matrix.loc[n_pass_ids]
+            candidate_ids = n_pass_ids
             ranked_from_n = True
         else:
-            pool_r = results_rank
-            pool_sm = sample_matrix
+            candidate_ids = list(results_rank.index)
             ranked_from_n = False
     else:
-        pool_r = results_rank
-        pool_sm = sample_matrix
+        candidate_ids = list(results_rank.index)
         ranked_from_n = False
 
-    best_params, best_model = sa.n_top_runs(
-        pool_r, targets_rank, pool_sm, r2lim=None, N=len(pool_r))
+    scored = []
+    for idx in candidate_ids:
+        n_fail, excess = tier_failure_score(
+            rank_results, rank_targets, idx,
+            flux_rel_err_pct, pool_rel_err_pct)
+        scored.append((n_fail, excess, int(idx)))
+    scored.sort()
 
-    best_idx = int(best_params.index[-1])
-    recommended = best_params.iloc[-1]
+    best_idx = scored[0][2]
+    recommended = sample_matrix.loc[best_idx]
     recommended_params = {
-        col: float(recommended[col]) for col in best_params.columns
+        col: float(recommended[col]) for col in sample_matrix.columns
     }
 
-    r2, rmse, mape = sa.calc_metrics(best_model, targets_rank)
+    r2_all, rmse_all, mape_all = sa.calc_metrics(rank_results, rank_targets)
+    rmse_by_idx = dict(zip(results_rank.index, rmse_all))
+    r2_by_idx = dict(zip(results_rank.index, r2_all))
+    mape_by_idx = dict(zip(results_rank.index, mape_all))
+
     top_n_summary = []
-    for i, idx in enumerate(best_params.index):
+    for n_fail, excess, idx in scored[:10]:
         top_n_summary.append({
-            'sample_index': int(idx),
-            'R2': float(r2[i]),
-            'RMSE': float(rmse[i]),
-            'MAPE': float(mape[i]),
+            'sample_index': idx,
+            'tier_failures': n_fail,
+            'worst_tier_excess_pct': float(excess),
+            'R2': float(r2_by_idx[idx]),
+            'RMSE': float(rmse_by_idx[idx]),
+            'MAPE': float(mape_by_idx[idx]),
         })
 
-    return best_idx, ranked_from_n, float(rmse[-1]), float(r2[-1]), \
+    return best_idx, ranked_from_n, float(rmse_by_idx[best_idx]), float(r2_by_idx[best_idx]), \
         recommended_params, top_n_summary
+
+
+def target_tolerance_pct(column, flux_rel_err_pct, pool_rel_err_pct):
+    """Return max |rel_err_pct| for a results.csv column name."""
+    if column.startswith('NPP') or column.startswith('VEGC'):
+        return flux_rel_err_pct
+    base = column.split('_')[0]
+    if base in POOL_NCNAMES or column in POOL_NCNAMES:
+        return pool_rel_err_pct
+    return pool_rel_err_pct
+
+
+def evaluate_target_fit(target_residuals, flux_rel_err_pct, pool_rel_err_pct):
+    """
+    Check tiered per-target tolerance on every ranked column.
+
+    Returns (pass, failing_targets) where failing_targets is a list of dicts.
+    """
+    failing = []
+    for col, row in target_residuals.items():
+        obs = row['obs']
+        rel_err = row['rel_err_pct']
+        if abs(obs) <= OBS_NEAR_ZERO or rel_err is None:
+            continue
+        limit = target_tolerance_pct(col, flux_rel_err_pct, pool_rel_err_pct)
+        if abs(rel_err) > limit:
+            failing.append({
+                'column': col,
+                'obs': obs,
+                'mod': row['mod'],
+                'rel_err_pct': rel_err,
+                'limit_pct': limit,
+            })
+    return len(failing) == 0, failing
+
+
+def evaluate_selected_eq(eq_var_check, sample_idx, require_eq_pass):
+    """
+    Eq pass on selected sample for non-chronic variables.
+
+    Returns (pass, failing_eq_vars).
+    """
+    if not require_eq_pass:
+        return True, []
+    if sample_idx not in eq_var_check.index:
+        return False, ['sample_index_not_in_eq_check']
+    failing = []
+    for var in eq_var_check.columns:
+        if var in CHRONIC_EQ_WHITELIST:
+            continue
+        if not bool(eq_var_check.loc[sample_idx, var]):
+            failing.append(var)
+    return len(failing) == 0, failing
 
 
 def compute_target_residuals(targets_rank, results_rank, sample_idx):
@@ -246,9 +390,23 @@ def save_diagnostic_plots(work_dir, results, targets):
 def analyze(work_dir, biome='tundra', n_top=10,
             slope_lim=1e-3, eps_lim=1e-5, cv_lim=1,
             pft4_root_cv_lim=None, deepc_slope_lim=None,
+            flux_rel_err_pct=10.0, pool_rel_err_pct=20.0,
+            require_eq_pass=True,
+            phase='main',
             run_id=None, config_yaml=None, step1_result=None,
             save_plots=False):
     work_dir = normalize_work_dir(work_dir)
+    if phase not in PHASE_PASS_STATUS:
+        return failed_result(
+            work_dir,
+            'Invalid phase {!r}; use one of {}'.format(
+                phase, list(PHASE_PASS_STATUS)),
+            run_id=run_id,
+            config_yaml=config_yaml,
+            step1_result=step1_result,
+        )
+    if phase != 'main':
+        require_eq_pass = False
 
     missing = missing_required_csvs(work_dir)
     if missing:
@@ -293,14 +451,33 @@ def analyze(work_dir, biome='tundra', n_top=10,
 
     eq_diag = compute_eq_diagnostics(eq_data, eq_var_check, fails_per_sample)
 
-    best_idx, ranked_from_n, best_rmse, best_r2, recommended_params, top_n = \
-        select_best_sample(results, targets, sample_matrix, n_check)
-
     targets_rank, results_rank = filter_ranking_columns(targets, results)
+    gate_targets, gate_results = filter_phase_gate_columns(
+        targets_rank, results_rank, phase)
+    if phase != 'main' and len(gate_targets.columns) == 0:
+        return failed_result(
+            work_dir,
+            'Phase {!r}: no gate columns found in targets/results '
+            '(expected pools: {}).'.format(phase, PHASE_GATE_POOLS[phase]),
+            run_id=run_id,
+            config_yaml=config_yaml,
+            step1_result=step1_result,
+        )
+
+    best_idx, ranked_from_n, best_rmse, best_r2, recommended_params, top_n = \
+        select_best_sample(
+            results, targets, sample_matrix, n_check,
+            flux_rel_err_pct=flux_rel_err_pct,
+            pool_rel_err_pct=pool_rel_err_pct,
+            gate_targets=gate_targets if phase != 'main' else None,
+            gate_results=gate_results if phase != 'main' else None)
+
+    eval_targets = gate_targets if phase != 'main' else targets_rank
+    eval_results = gate_results if phase != 'main' else results_rank
     target_residuals = compute_target_residuals(
-        targets_rank, results_rank, best_idx)
+        eval_targets, eval_results, best_idx)
     misfit_classification = classify_misfits(
-        targets_rank, results_rank, best_idx)
+        eval_targets, eval_results, best_idx)
 
     selected_n_pass = False
     selected_n_ratio = None
@@ -313,7 +490,7 @@ def analyze(work_dir, biome='tundra', n_top=10,
     notes_parts = []
     if not ranked_from_n:
         notes_parts.append(
-            'No nitrogen-passing samples; selected best RMSE from full pool.')
+            'No nitrogen-passing samples; selected fewest tier failures from full pool.')
     if misfit_classification['extinct_pool']:
         notes_parts.append(
             'Extinct pools: {}'.format(
@@ -323,15 +500,41 @@ def analyze(work_dir, biome='tundra', n_top=10,
             'Unreachable in SA envelope: {}'.format(
                 ', '.join(misfit_classification['unreachable'][:5])))
 
-    if selected_n_pass and not misfit_classification['extinct_pool']:
-        status = 'pass'
+    target_fit_pass, failing_targets = evaluate_target_fit(
+        target_residuals, flux_rel_err_pct, pool_rel_err_pct)
+    selected_eq_pass, failing_eq_vars = evaluate_selected_eq(
+        eq_var_check, best_idx, require_eq_pass)
+
+    if not target_fit_pass:
+        cols = [f['column'] for f in failing_targets[:8]]
+        notes_parts.append(
+            'Per-target fit fail (>{:.0f}%/{:.0f}% tier): {}'.format(
+                flux_rel_err_pct, pool_rel_err_pct, ', '.join(cols)))
+    if require_eq_pass and not selected_eq_pass:
+        notes_parts.append(
+            'Eq fail on selected sample: {}'.format(
+                ', '.join(failing_eq_vars[:8])))
+
+    if (selected_n_pass and target_fit_pass and selected_eq_pass
+            and not misfit_classification['extinct_pool']):
+        status = PHASE_PASS_STATUS[phase]
+    elif (phase == 'main'
+          and not target_fit_pass
+          and len(misfit_classification.get('unreachable') or [])
+          >= UNREACHABLE_REVIEW_MIN):
+        status = 'unreachable_review'
+        notes_parts.append(
+            'Many targets unreachable in SA envelope ({}); consider Step 1 reopen '
+            'or additional parameters — do not iterate bounds alone.'.format(
+                len(misfit_classification['unreachable'])))
     else:
         status = 'target_fit_review'
-        if not selected_n_pass:
-            n_lo, n_hi = nitrogen_check_ratio_bounds(biome)
-            notes_parts.append(
-                'Selected sample INGPP:GPP={:.3f} outside {} band [{:.3f}, {:.3f}].'.format(
-                    selected_n_ratio or float('nan'), biome, n_lo, n_hi))
+
+    if status not in PASSING_STATUSES and not selected_n_pass:
+        n_lo, n_hi = nitrogen_check_ratio_bounds(biome)
+        notes_parts.append(
+            'Selected sample INGPP:GPP={:.3f} outside {} band [{:.3f}, {:.3f}].'.format(
+                selected_n_ratio or float('nan'), biome, n_lo, n_hi))
 
     if save_plots:
         save_diagnostic_plots(work_dir, results, targets)
@@ -353,6 +556,7 @@ def analyze(work_dir, biome='tundra', n_top=10,
         'ranked_from_n_passing': ranked_from_n,
         'eq_lim_dict': lim_used if isinstance(lim_used, dict) else None,
         'perturbation_runs': [],
+        'phase': phase,
         'status': status,
         'best_rmse': best_rmse,
         'best_r2': best_r2,
@@ -360,6 +564,15 @@ def analyze(work_dir, biome='tundra', n_top=10,
         'recommended_params': recommended_params,
         'top_n_summary': top_n[-n_take:],
         'target_residuals': target_residuals,
+        'target_fit_pass': target_fit_pass,
+        'failing_targets': failing_targets,
+        'target_tolerance': {
+            'flux_rel_err_pct': flux_rel_err_pct,
+            'pool_rel_err_pct': pool_rel_err_pct,
+        },
+        'selected_eq_pass': selected_eq_pass,
+        'failing_eq_vars': failing_eq_vars,
+        'require_eq_pass': require_eq_pass,
         'misfit_classification': misfit_classification,
         'notes': ' '.join(notes_parts),
         **eq_diag,
@@ -377,9 +590,18 @@ def write_output(result, path):
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description='Step 2 SA post-hoc analysis (target-first, N on selected sample).'
+        description='Step 2 SA post-hoc analysis (strict per-target + N + eq gates).',
+        epilog=(
+            'Exit 0: pass / phase6_pass / phase7_pass. '
+            'Exit 2: target_fit_review — iterate bounds/phases. '
+            'Exit 3: unreachable_review (main phase only). Exit 1: failed.'
+        ),
     )
     parser.add_argument('--work-dir', required=True)
+    parser.add_argument(
+        '--phase', default='main', choices=['main', 'phase6', 'phase7'],
+        help='Gate scope: main (all targets+N+eq), phase6 (MINEC), phase7 (SHLWC+DEEPC+MINEC)',
+    )
     parser.add_argument(
         '--biome', default='tundra',
         choices=['boreal', 'tundra'],
@@ -405,6 +627,22 @@ def get_parser():
         '--save-plots', action='store_true',
         help='Write spaghetti_plot.png and results_boxplot.png to work_dir',
     )
+    parser.add_argument(
+        '--flux-rel-err-pct', type=float, default=10.0,
+        help='Max |rel_err_pct| for NPP* and VEGC* columns (default: 10)',
+    )
+    parser.add_argument(
+        '--pool-rel-err-pct', type=float, default=20.0,
+        help='Max |rel_err_pct| for SHLWC/DEEPC/MINEC/ORGN/AVLN (default: 20)',
+    )
+    parser.add_argument(
+        '--require-eq-pass', action='store_true', default=True,
+        help='Require eq pass on selected sample for non-chronic vars (default: on)',
+    )
+    parser.add_argument(
+        '--no-require-eq-pass', action='store_false', dest='require_eq_pass',
+        help='Disable equilibrium gate on selected sample',
+    )
     return parser
 
 
@@ -419,6 +657,10 @@ def main():
         cv_lim=args.cv_lim,
         pft4_root_cv_lim=args.pft4_root_cv_lim,
         deepc_slope_lim=args.deepc_slope_lim,
+        flux_rel_err_pct=args.flux_rel_err_pct,
+        pool_rel_err_pct=args.pool_rel_err_pct,
+        require_eq_pass=args.require_eq_pass,
+        phase=args.phase,
         run_id=args.run_id,
         config_yaml=args.config_yaml,
         step1_result=args.step1_result,
@@ -426,6 +668,7 @@ def main():
     )
 
     print('run_id:              {}'.format(result['run_id']))
+    print('phase:               {}'.format(result.get('phase', 'main')))
     print('status:              {}'.format(result['status']))
     if result['status'] == 'failed':
         print('notes:               {}'.format(result.get('notes', '')))
@@ -434,7 +677,18 @@ def main():
         print('best_r2:             {}'.format(result['best_r2']))
         print('best_sample:         {}'.format(result['best_sample_index']))
         print('selected N-pass:     {}'.format(result['selected_n_pass']))
+        print('target_fit_pass:     {}'.format(result.get('target_fit_pass')))
+        print('selected_eq_pass:    {}'.format(result.get('selected_eq_pass')))
         print('selected INGPP:GPP:  {}'.format(result['selected_n_ratio']))
+        failing = result.get('failing_targets') or []
+        if failing:
+            print('failing_targets:     {} column(s)'.format(len(failing)))
+            for ft in failing[:5]:
+                print('  {} rel_err={:.1f}% limit={:.0f}%'.format(
+                    ft['column'], ft['rel_err_pct'], ft['limit_pct']))
+        eq_fail = result.get('failing_eq_vars') or []
+        if eq_fail:
+            print('failing_eq_vars:     {}'.format(', '.join(eq_fail[:8])))
         print('eq_passing:          {}/{}'.format(
             result['n_eq_passing'], result['n_total_samples']))
         print('nitrogen_passing:    {}/{} ({:.1%})'.format(
@@ -453,6 +707,8 @@ def main():
 
     if result['status'] == 'failed':
         sys.exit(1)
+    if result['status'] == 'unreachable_review':
+        sys.exit(3)
     if result['status'] == 'target_fit_review':
         sys.exit(2)
     sys.exit(0)

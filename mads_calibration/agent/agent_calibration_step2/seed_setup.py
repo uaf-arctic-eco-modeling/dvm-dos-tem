@@ -29,6 +29,10 @@ if os.path.isdir(SCRIPTS_DIR) and SCRIPTS_DIR not in sys.path:
 
 import util.param as param  # noqa: E402
 
+if MADS_CALIB_DIR not in sys.path:
+    sys.path.insert(0, MADS_CALIB_DIR)
+from burial_params_setup import add_burial_rows  # noqa: E402
+
 DEFAULT_SOURCE = '/work/parameters'
 FALLBACK_SOURCE = os.path.join(REPO_ROOT, 'parameters')
 
@@ -127,12 +131,22 @@ def get_parser():
         help='Manifest yaml path (default: <parent-of-dest>/step2-seed-manifest.yaml)',
     )
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument(
+        '--force', action='store_true',
+        help='Allow seed setup when Step 1 status is best_effort (documented approval)',
+    )
     return parser
 
 
 def main():
     args = get_parser().parse_args()
     recommended, step1_data = recommended_cmax_from_step1(args.step1_result)
+    if step1_data.get('status') == 'best_effort' and not args.force:
+        raise RuntimeError(
+            'Step 1 status is best_effort (RMSE threshold not met). '
+            'Refusing seed_setup — complete Step 1 recovery or use --force with '
+            'documented approval before Step 2.'
+        )
     cmax_values = cmax_by_pft(recommended)
     source = resolve_source(args.source)
 
@@ -156,6 +170,9 @@ def main():
 
     copy_parameters(source, args.dest)
     apply_cmax_values(args.dest, cmax_values, args.cmtnum)
+    calpar_path = os.path.join(args.dest, 'cmt_calparbgc.txt')
+    if add_burial_rows(calpar_path, args.cmtnum, 0.5, 0.5):
+        print('Upgraded cmt_calparbgc.txt to 20-row schema (s2dfraction, d2mfraction)')
     mpath = write_manifest(
         manifest_path, args.step1_result, step1_data,
         args.dest, cmax_values, args.cmtnum, source,

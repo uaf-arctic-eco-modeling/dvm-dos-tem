@@ -127,7 +127,6 @@ target_names:
 - OrganicNitrogenSum
 - VegCarbon
 - NPPAll
-- EcosystemRespiration
 
 aux_outputs:
 - INGPP y

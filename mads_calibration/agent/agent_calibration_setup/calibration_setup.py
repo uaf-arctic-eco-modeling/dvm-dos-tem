@@ -152,6 +152,19 @@ def parse_cmt_from_calpar(path):
     return None
 
 
+def verify_param_dir_has_cmt(param_dir, cmtnum):
+    """Confirm seed directory contains a CMT datablock for the requested cmtnum."""
+    import util.param as param
+    calpar = os.path.join(param_dir, 'cmt_calparbgc.txt')
+    if not os.path.isfile(calpar):
+        return False, 'missing cmt_calparbgc.txt under {}'.format(param_dir)
+    try:
+        param.get_CMT_datablock(calpar, cmtnum)
+        return True, None
+    except RuntimeError as exc:
+        return False, str(exc)
+
+
 def load_aliases():
     if not os.path.isfile(ALIASES_FILE):
         return {}
@@ -327,6 +340,7 @@ def setup_site(args):
     param_bucket_uri = None
     param_cmt_in_file = None
     use_repo_seed = False
+    param_seed_error = None
 
     if param_folder:
         param_bucket_uri = '{}/{}'.format(
@@ -334,16 +348,24 @@ def setup_site(args):
         folder_cmt = parse_cmt_from_folder_name(param_folder)
         param_cmt_in_file = folder_cmt
         if folder_cmt is not None and folder_cmt != args.cmtnum:
-            warnings.append(
+            param_seed_error = (
                 'Param folder {} is CMT{} but user requested CMT{}; '
-                'using /work/parameters as seed_path instead.'.format(
+                'no cross-CMT fallback'.format(
                     param_folder, folder_cmt, args.cmtnum))
-            use_repo_seed = True
+            warnings.append(param_seed_error)
     else:
-        warnings.append(
-            'No calibrated parameter folder found for site {}; '
-            'using /work/parameters as seed_path.'.format(args.site_name))
-        use_repo_seed = True
+        ok, msg = verify_param_dir_has_cmt(REPO_PARAMETERS, args.cmtnum)
+        if ok:
+            use_repo_seed = True
+            warnings.append(
+                'No calibrated parameter folder found for site {}; '
+                'using repo parameters at {}.'.format(
+                    args.site_name, REPO_PARAMETERS))
+        else:
+            param_seed_error = (
+                'No calibrated parameter folder found for site {}; '
+                'repo seed unusable: {}'.format(args.site_name, msg))
+            warnings.append(param_seed_error)
 
     if all_candidates and not param_folder:
         warnings.append(
@@ -363,19 +385,26 @@ def setup_site(args):
         print('[dry-run] would rsync {} -> {}'.format(input_bucket_uri, dest_input))
 
     # Phase 3 — sync parameters
-    if use_repo_seed:
+    if param_seed_error:
         seed_path = REPO_PARAMETERS
-        if not args.skip_sync:
-            warnings.append('Using repo parameters at {}'.format(seed_path))
+    elif use_repo_seed:
+        seed_path = REPO_PARAMETERS
     else:
         seed_path = seed_dir
         if args.skip_sync:
             if not os.path.isdir(seed_dir):
-                warnings.append(
-                    'parameters-seed missing under {}; falling back to {}'.format(
-                        seed_dir, REPO_PARAMETERS))
-                seed_path = REPO_PARAMETERS
-                use_repo_seed = True
+                ok, msg = verify_param_dir_has_cmt(REPO_PARAMETERS, args.cmtnum)
+                if ok:
+                    warnings.append(
+                        'parameters-seed missing under {}; using repo '
+                        'parameters at {}'.format(seed_dir, REPO_PARAMETERS))
+                    seed_path = REPO_PARAMETERS
+                    use_repo_seed = True
+                else:
+                    param_seed_error = (
+                        'parameters-seed missing under {}; repo seed unusable: '
+                        '{}'.format(seed_dir, msg))
+                    warnings.append(param_seed_error)
             else:
                 warnings.append('GCS parameter sync skipped (--skip-sync)')
         elif not args.dry_run:
@@ -387,9 +416,10 @@ def setup_site(args):
             param_cmt_in_file = parse_cmt_from_calpar(
                 os.path.join(seed_dir, 'cmt_calparbgc.txt'))
             if param_cmt_in_file is not None and param_cmt_in_file != args.cmtnum:
-                warnings.append(
-                    'cmt_calparbgc.txt in bucket is CMT{} but user cmtnum is CMT{}'.format(
-                        param_cmt_in_file, args.cmtnum))
+                param_seed_error = (
+                    'cmt_calparbgc.txt in bucket is CMT{} but user cmtnum is '
+                    'CMT{}'.format(param_cmt_in_file, args.cmtnum))
+                warnings.append(param_seed_error)
         else:
             print('[dry-run] would rsync {} -> {}'.format(param_bucket_uri, seed_dir))
 
@@ -428,7 +458,15 @@ def setup_site(args):
 
     # Phase 5 — verify
     status = 'pass'
+    if param_seed_error:
+        status = 'failed'
     if not args.dry_run:
+        if not param_seed_error:
+            ok, msg = verify_param_dir_has_cmt(seed_path, args.cmtnum)
+            if not ok:
+                status = 'failed'
+                warnings.append(msg)
+
         input_check = check_input_files(dest_input)
         if not input_check['ok']:
             status = 'failed'

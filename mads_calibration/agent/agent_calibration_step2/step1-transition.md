@@ -10,7 +10,7 @@ Step 1 must be complete with `step1-result.yaml` from [`step1_analyze.py`](../ag
 |-------|--------------------------|
 | `recommended_cmax` (`cmax_pft0` … `cmax_pftN`) | Fixed in Step 2 `seed_path`; **not** re-sampled |
 | `work_dir` / `run_id` | Provenance in `step2-seed-manifest.yaml` |
-| `status` | Should be `pass` or documented `best_effort` |
+| `status` | Must be `pass` for `seed_setup.py` (default); `best_effort` requires `--force` with documented approval |
 
 ## What changes
 
@@ -19,10 +19,18 @@ Step 1 must be complete with `step1-result.yaml` from [`step1_analyze.py`](../ag
 | `params` | `cmax` per PFT | `micbnup`, `kdc*`, `cfall(0/1/2)` per PFT |
 | `percent_diffs` | 0.25 (0.40 recovery) | **0.95** initially, then `p_bounds` |
 | `calib_mode` | `GPPAllIgnoringNitrogen` | **`VEGC`** |
-| `target_names` | `GPPAllIgnoringNitrogen` | Soil + veg targets (see yaml template) |
+| `target_names` | `GPPAllIgnoringNitrogen` | Soil + veg targets (see yaml template; must exist in `calibration_targets.py`) |
 | `opt_run_setup` | `--eq-yrs 200` | **`--eq-yrs 2000`** |
 | `work_dir` | Step 1 path | New unique path (e.g. `/data/workflows/CMT04-IMN/logs/sa-step2`) |
 | `seed_path` | `/work/parameters` or recovery dir | **`parameters-step2`** |
+| **Acceptance** | RMSE &lt; 10 on INGPP | `analyze.py` exit `0`: N-pass + per-target tier (10%/20%) + eq non-chronic |
+
+See [`agent-instructions-step2.md`](agent-instructions-step2.md) **Control flow** for rhmoist/soil branches during iteration.
+
+## Immutable `parameters-step2`
+
+- Created once by `seed_setup.py` (below); see step2 **Control flow** for apply/snapshot rules
+- `seed_setup.py` refuses `best_effort` unless `--force` with documented approval
 
 ## What stays fixed
 

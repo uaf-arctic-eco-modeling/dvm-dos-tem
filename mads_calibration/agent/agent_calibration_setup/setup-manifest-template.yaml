@@ -9,7 +9,7 @@ site: {{SITE_PATH}}                   # e.g. /data/input-catalog/Imnavait
 PXx: {{PXX}}
 PXy: {{PXY}}
 
-seed_path: {{SEED_PATH}}              # parameters-seed/ or /work/parameters fallback
+seed_path: {{SEED_PATH}}              # parameters-seed/ or /work/parameters (must contain CMT block for cmtnum)
 setup_dir: {{SETUP_DIR}}              # e.g. /data/workflows/CMT04-IMN/setup
 config_js: {{CONFIG_JS}}              # setup_dir/config/config.js
 

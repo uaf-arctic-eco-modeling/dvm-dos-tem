@@ -142,6 +142,12 @@ def main():
         result = load_step2_result(args.step2_result)
         veg_sample = int(result['best_sample_index'])
         print('# veg-sample from step2-result: {}'.format(veg_sample))
+        failing = result.get('failing_targets') or []
+        if failing:
+            print('# failing_targets — use plot_relationships / plot_pft_matrix on:')
+            for ft in failing:
+                col = ft['column'] if isinstance(ft, dict) else ft
+                print('#   {}'.format(col))
 
     if veg_sample is None:
         parser.error('Provide --veg-sample or --step2-result with best_sample_index')

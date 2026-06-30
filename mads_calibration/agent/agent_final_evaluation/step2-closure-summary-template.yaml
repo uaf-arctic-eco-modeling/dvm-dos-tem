@@ -7,14 +7,26 @@ model_anchor:
   best_rmse: null
   best_r2: null
   step2_status: null   # pass | target_fit_review
+  per_target_fit_pass: null
+  selected_eq_pass: null
 
 parameters_active: {{PARAM_DIR}}
 parameters_archive: {{PARAM_ARCHIVE}}
 
 composition:
   step2: null          # e.g. iter3 sample N recommended_params
-  phase6: null         # e.g. rhmoistfrozen=value (cmt_bgcsoil.txt) or skipped
-  phase7: null         # e.g. applied | reverted | skipped
+  phase6: null         # e.g. rhmoistfrozen=value (cmt_bgcsoil.txt) or documented_insensitive
+  phase7: null         # e.g. applied | reverted | required_complete
+
+eq_calibration_gates:
+  note: From last analyze.py on final parameter set
+  target_fit_pass: null
+  failing_targets: []  # [{column, rel_err_pct, limit_pct}, ...]
+  selected_n_pass: null
+  selected_eq_pass: null
+  failing_eq_vars: []
+  tier_flux_pct: 10
+  tier_pool_pct: 20
 
 phase5_apply:
   date: null
@@ -61,8 +73,11 @@ accepted_limitations:
   unreachable: []
 
 closure_criteria:
+  analyze_exit_zero_on_final_params: false  # per-target tier + N + eq non-chronic
+  phase6_complete: false                  # applied or documented_insensitive
+  phase7_complete: false                  # required after phase6 apply
   final_eval_completes: false
   transient_fluxes_plausible: false
-  eq_target_fit_acceptable: false
+  eq_target_fit_acceptable: false         # all ranked targets within tier on final params
   limitations_archived: false
   parameters_archived: false
