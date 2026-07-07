@@ -38,7 +38,6 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 //  std::string stgstr(controldata["stage_settings"]["run_stage"].asString());
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
-  initmode = controldata["stage_settings"]["restart"].asInt();  // may become obsolete
   tr_yrs = controldata["stage_settings"]["tr_yrs"].asInt();
   sc_yrs = controldata["stage_settings"]["sc_yrs"].asInt();
 
@@ -105,6 +104,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   proj_ch4_file     = controldata["IO"]["proj_ch4_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
+  restart_from      = controldata["IO"]["restart_from"].asString();
   output_spec_file  = controldata["IO"]["output_spec_file"].asString();
   output_monthly    = controldata["IO"]["output_monthly"].asInt();
   nc_eq             = controldata["IO"]["output_nc_eq"].asBool();
@@ -124,6 +124,12 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   ch4_module = controldata["model_settings"]["ch4"].asBool();
   runon_enabled = controldata["model_settings"]["run-on"].asBool();
   groundwater_enabled = controldata["model_settings"]["groundwater"].asBool();
+
+  // These must be directories. If user forgets to add the trailing slash, 
+  // do it here. Might be better to do something with boost::filesystem for 
+  // portability.
+  output_dir.append("/");
+  parameter_dir.append("/");
 
   // Unused (11/23/2015)
   //changeclimate = controldata["model_settings"]["dynamic_climate"].asInt();
@@ -480,11 +486,11 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 #ifdef WITHMPI
       // Creating PARALLEL NetCDF file
       BOOST_LOG_SEV(glg, debug)<<"Creating a parallel output NetCDF file " << creation_filestr;
-      temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+      temutil::nc( nc_create_par(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid), creation_filestr );
 #else
       // Creating NetCDF file
       BOOST_LOG_SEV(glg, debug) << "Creating an output NetCDF file " << creation_filestr;
-      temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid) );
+      temutil::nc( nc_create(creation_filestr.c_str(), NC_CLOBBER|NC_NETCDF4, &ncid), creation_filestr );
 #endif
 
       BOOST_LOG_SEV(glg, debug) << "Adding file-level attributes";
@@ -623,7 +629,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 
         BOOST_LOG_SEV(glg, debug) << "Opening historic climate file: "
                                   << this->hist_climate_file;
-        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid) );
+        temutil::nc( nc_open(this->hist_climate_file.c_str(), NC_NOWRITE, &hist_climate_ncid), this->hist_climate_file );
         temutil::nc( nc_inq_varid(hist_climate_ncid, "time", &hist_climate_tcV));
 
         // Copy attributes for time variable
@@ -645,7 +651,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
 
         BOOST_LOG_SEV(glg, debug) << "Opening projected climate file: "
                                   << this->proj_climate_file;
-        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid) );
+        temutil::nc( nc_open(this->proj_climate_file.c_str(), NC_NOWRITE, &proj_climate_ncid), this->proj_climate_file );
         temutil::nc( nc_inq_varid(proj_climate_ncid, "time", &proj_climate_tcV));
 
         temutil::nc( nc_copy_att(proj_climate_ncid, proj_climate_tcV, "units", ncid, tcVar));
@@ -693,7 +699,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         int gmsrcid;
         BOOST_LOG_SEV(glg, debug) << "Opening vegetation file: "
                                   << this->veg_class_file;
-        temutil::nc( nc_open(this->veg_class_file.c_str(), NC_NOWRITE, &gmsrcid) );
+        temutil::nc( nc_open(this->veg_class_file.c_str(), NC_NOWRITE, &gmsrcid), this->veg_class_file );
 
         // Figure out which id is for grid mapping variable
         int srcgmvid = -1;
@@ -720,6 +726,7 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
       } catch (const temutil::NetCDFDefineModeException& e) {
         BOOST_LOG_SEV(glg, info) << "Error ending define mode: " << e.what();
       }
+
       /* Fill out the time coordinate variable */
       if ((stage == "tr" || stage == "sc") && timestep == "yearly") {
         BOOST_LOG_SEV(glg, debug) << "Time coordinate variable, tr or sc, yearly.";

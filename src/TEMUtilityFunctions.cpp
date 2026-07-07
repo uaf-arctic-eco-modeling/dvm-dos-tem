@@ -264,7 +264,7 @@ namespace temutil {
     int ncid;
     
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
     
     BOOST_LOG_SEV(glg, debug) << "Find out how much data there is...";
     int yD, xD;
@@ -329,9 +329,9 @@ namespace temutil {
     int ncid;
 
 #ifdef WITHMPI
-    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid), fname );
 #else
-    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 #endif
 
     // lookup variable by name
@@ -372,9 +372,9 @@ namespace temutil {
     int ncid;
 
 #ifdef WITHMPI
-    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+    temutil::nc( nc_open_par(fname.c_str(), NC_NOWRITE|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid), fname );
 #else
-    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 #endif
 
     int xD, yD;
@@ -407,25 +407,31 @@ namespace temutil {
   }
 
  
-  /** Handles NetCDF errors by printing message and exiting. */
-  void handle_error(int status) {
+  /** Handles NetCDF errors by printing message and exiting.
+   * Optionally accepts a file path for better error messages on file-related errors. */
+  void handle_error(int status, const std::string& filepath) {
     if (status != NC_NOERR) {
 
       // Add more specific error handling here. It can be helpful for debugging
       // to raise specific exceptions for specific errors, and raising specific
-      // exceptions can help clientls selectively deal with the errors.
+      // exceptions can help clients selectively deal with the errors.
       if (status == NC_ENOTINDEFINE) {
         BOOST_LOG_SEV(glg, info) << "NetCDF file is already in data mode! ";
         throw NetCDFDefineModeException();
       }
 
+      // Build error message, including filepath if provided
+      std::string error_msg = nc_strerror(status);
+      if (!filepath.empty()) {
+        error_msg += " (file: " + filepath + ")";
+      }
+
       // No specific error to raise, so just print the error message and 
       // throw a generic runtime error.
-      fprintf(stderr, "%s\n", nc_strerror(status));
-      BOOST_LOG_SEV(glg, warn) << nc_strerror(status);
+      fprintf(stderr, "%s\n", error_msg.c_str());
+      BOOST_LOG_SEV(glg, warn) << error_msg;
 
-      std::string msg = "Exception from netcdf: ";
-      msg = msg + nc_strerror(status);
+      std::string msg = "Exception from netcdf: " + error_msg;
 
       throw std::runtime_error(msg);
 
@@ -434,8 +440,8 @@ namespace temutil {
   }
   
   /** Two letter alias for handle_error() */
-  void nc(int status) {
-    handle_error(status);
+  void nc(int status, const std::string& filepath) {
+    handle_error(status, filepath);
   }
 
   template <typename DTYPE>
@@ -447,7 +453,7 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
 
     int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
 
     int scalar_var;
@@ -534,7 +540,7 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
 
     int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
     int timeD;
     size_t timeD_len;
@@ -610,7 +616,7 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Getting variable: " << var;
 
     int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
     int timeseries_var;
     temutil::nc( nc_inq_varid(ncid, var.c_str(), &timeseries_var) );
@@ -646,7 +652,7 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname;
 
     int ncid;
-    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
     int timeV;
     temutil::nc( nc_inq_varid(ncid, "time", &timeV) );
@@ -687,7 +693,7 @@ namespace temutil {
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << fname;
 
     int ncid;
-    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+    temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
     //Information about the time *dimension*
     int timeD;
@@ -735,7 +741,7 @@ namespace temutil {
     {
       BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
       int ncid;
-      temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+      temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
       int yD, xD;
       temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
@@ -763,7 +769,7 @@ namespace temutil {
   int get_fri(const std::string &filename, int y, int x) {
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
     int yD, xD;
     temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
@@ -790,7 +796,7 @@ namespace temutil {
 /*
     BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename;
     int ncid;
-    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+    temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ), filename );
 
     int yD, xD;
     temutil::nc( nc_inq_dimid(ncid, "Y", &yD) );
@@ -857,7 +863,7 @@ namespace temutil {
     {
       BOOST_LOG_SEV(glg, debug) << "Opening dataset: " << filename2;
       int ncid2;
-      temutil::nc( nc_open(filename2.c_str(), NC_NOWRITE, &ncid2 ) );
+      temutil::nc( nc_open(filename2.c_str(), NC_NOWRITE, &ncid2), filename2 );
 
       int xD2, yD2;
 
@@ -895,7 +901,7 @@ namespace temutil {
     #pragma omp critical(load_input)
     {
       int ncid;
-      temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid ) );
+      temutil::nc( nc_open(filename.c_str(), NC_NOWRITE, &ncid), filename );
 
       int xD, yD;
 
@@ -1214,5 +1220,42 @@ namespace temutil {
       const std::string &var, const int y, const int x);
   template std::vector<float> get_timeseries<float>(const std::string &filename,
       const std::string &var, const int y, const int x);
+
+  /*
+   * Function for interpolating between value_1 and value_2
+   * given position_1 and position_2 (which can be positions in time or space)
+   * to evaluate value_new at position_new.
+   * E.g.
+   * value_1 = 10 degC
+   * value_2 = 5 degC
+   * position_1 = 1 m
+   * position_2 = 2 m
+   * position_new = 1.5 m
+   * returns value_new = 7.5 degC at 1.5 m
+   */
+  double interpolate(double value_1, double value_2, double position_1, double position_2, double position_new, int method){
+
+    double value_new;
+
+    if(position_1 >= position_2){
+      BOOST_LOG_SEV(glg, debug) << "Interpolation position equal or inverted";
+    }
+
+    if(position_new < position_1 || position_new > position_2){
+      BOOST_LOG_SEV(glg, debug) << "Interpolation position out of range";
+    }
+
+    if(method==I_LINEAR){
+      value_new = value_1 + (position_new - position_1) * ((value_2 - value_1) / (position_2 - position_1));
+    }
+    else if (method==I_LOG10){
+      value_new = pow(10, log10(value_1)+ (position_new - position_1) * (log10(value_2) - log10(value_1))/ (position_2 - position_1));
+    }
+    else{
+      BOOST_LOG_SEV(glg, debug) << "Invalid interpolation method";
+    }
+
+    return value_new;
+  }
 
 }

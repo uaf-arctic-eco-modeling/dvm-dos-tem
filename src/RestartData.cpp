@@ -561,7 +561,7 @@ void RestartData::read_px_vars(const std::string& fname, const int rowidx, const
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
  
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   // Check dimension presence? length? size?
 
@@ -620,7 +620,7 @@ void RestartData::read_px_pft_vars(const std::string& fname, const int rowidx, c
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   // Check dimension presence? length? size?
 
@@ -684,7 +684,7 @@ void RestartData::read_px_pftpart_pft_vars(const std::string& fname, const int r
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   int cv; // a reusable variable handle
   
@@ -719,7 +719,7 @@ void RestartData::read_px_snow_vars(const std::string& fname, const int rowidx, 
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   // Check dimension presence? length? size?
 
@@ -758,7 +758,7 @@ void RestartData::read_px_root_pft_vars(const std::string& fname, const int rowi
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   int cv; // a reusable variable handle
 
@@ -787,7 +787,7 @@ void RestartData::read_px_soil_vars(const std::string& fname, const int rowidx, 
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   int cv; // a reusable variable handle
 
@@ -842,7 +842,7 @@ void RestartData::read_px_rock_vars(const std::string& fname, const int rowidx, 
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   // Check dimension presence? length? size?
 
@@ -873,7 +873,7 @@ void RestartData::read_px_front_vars(const std::string& fname, const int rowidx,
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   int cv; // a reusable variable handle
 
@@ -908,7 +908,7 @@ void RestartData::read_px_prev_pft_vars(const std::string& fname, const int rowi
   BOOST_LOG_SEV(glg, debug) << "Opening restart: " << fname;
 
   int ncid;
-  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_NOWRITE, &ncid), fname );
 
   int cv; // a reusable variable handle
 
@@ -955,9 +955,9 @@ void RestartData::create_empty_file(const std::string& fname,
 
 #ifdef WITHMPI
   BOOST_LOG_SEV(glg, debug) << "Creating new parallel restart file: "<<fname;
-  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_create_par(fname.c_str(), NC_CLOBBER|NC_NETCDF4|NC_MPIIO, MPI_COMM_WORLD, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid) );
+  temutil::nc( nc_create(fname.c_str(), NC_CLOBBER, &ncid), fname );
 #endif
 
   //int old_fill_mode;
@@ -1430,9 +1430,9 @@ void RestartData::write_px_vars(const std::string& fname, const int rowidx, cons
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   // Check dimension presence? length? size?
@@ -1493,9 +1493,9 @@ void RestartData::write_px_pft_vars(const std::string& fname, const int rowidx, 
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   // Check dimension presence? length? size?
@@ -1561,9 +1561,9 @@ void RestartData::write_px_pftpart_pft_vars(const std::string& fname, const int 
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   int cv; // a reusable variable handle
@@ -1600,9 +1600,9 @@ void RestartData::write_px_snow_vars(const std::string& fname, const int rowidx,
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   // Check dimension presence? length? size?
@@ -1643,9 +1643,9 @@ void RestartData::write_px_root_pft_vars(const std::string& fname, const int row
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   int cv; // a reusable variable handle
@@ -1676,9 +1676,9 @@ void RestartData::write_px_soil_vars(const std::string& fname, const int rowidx,
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   int cv; // a reusable variable handle
@@ -1735,9 +1735,9 @@ void RestartData::write_px_rock_vars(const std::string& fname, const int rowidx,
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   // Check dimension presence? length? size?
@@ -1770,9 +1770,9 @@ void RestartData::write_px_front_vars(const std::string& fname, const int rowidx
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   int cv; // a reusable variable handle
@@ -1809,9 +1809,9 @@ void RestartData::write_px_prev_pft_vars(const std::string& fname, const int row
   int ncid;
 
 #ifdef WITHMPI
-  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid) );
+  temutil::nc( nc_open_par(fname.c_str(), NC_WRITE|NC_MPIIO, MPI_COMM_SELF, MPI_INFO_NULL, &ncid), fname );
 #else
-  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid) );
+  temutil::nc( nc_open(fname.c_str(), NC_WRITE, &ncid), fname );
 #endif
 
   int cv; // a reusable variable handle

@@ -1,8 +1,8 @@
 ###########################
-param.py
+pyddt-param
 ###########################
 
 .. argparse::
-   :module: util.param
+   :module: pyddt.util.param
    :func: cmdline_define
-   :prog: param.py
+   :prog: pyddt-param

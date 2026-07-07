@@ -19,7 +19,7 @@ services:
     build: .
     image: cpp-dev:${V_TAG}
 
-  # The general dvmdostem dev enviorment. Intented to be used for 
+  # The general dvmdostem dev environment. Intended to be used for 
   # most development work by mounting volumes of source code into 
   # the resulting container - essentially sharing the source code
   # folders from the host to the container so they can be edited 
