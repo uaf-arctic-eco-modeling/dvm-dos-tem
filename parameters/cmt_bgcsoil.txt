@@ -213,7 +213,7 @@
 //===========================================================
 // CMT21 // EML Tussock Tundra // (updated- checked 8/5/22 joy)
 2.484               //rhq10:
-0.0//rhmoistfrozen:
+0.0               //rhmoistfrozen:
 0.0               //moistmin:
 0.5               //moistopt:
 1.0               //moistmax:
@@ -588,4 +588,131 @@
    3.793e+03  //initminec:// same as targets //  // 
    1.895e+02  //initsoln:// same as targets //  // 
       0.3340  //initavln:// same as targets //  // 
+//===========================================================
+// CMT75 // Bog-Igarka // 
+      2.0370  // rhq10:  //  //  // 
+      0.289     // rhmoistfrozen:
+      0.0000  // moistmin:  //  //  // 
+      0.8000  // moistopt:  //  //  // 
+      1.0000  // moistmax:  //  //  // 
+     31.7000  // lcclnc:  //  //  // 
+      0.3720  // fsoma:  //  //  // 
+      0.6110  // fsompr:  //  //  // 
+      0.0170  // fsomcr:  //  //  // 
+      0.3460  // som2co2:  //  //  // 
+      0.0042  // kn2:  //  //  // 
+     20.2600  // nmincnsoil:  // C:N totalC/orgN // calculated // 
+      0.2000  // propftos:  //  //  // 
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs //  // 
+   2.352e+03  // initshlwc:  // same as targets //  // 
+   4.758e+03  // initdeepc:  // same as targets //  // 
+   3.041e+04  // initminec:  // same as targets //  // 
+   1.852e+03  // initsoln:  // same as targets //  // 
+      7.7700  // initavln:  // same as targets //  //  
+//===========================================================
+// CMT76 // Shrub Tundra-Seida // 
+      2.0000  // rhq10:  //  //  // 
+      1.0     //rhmoistfrozen:
+      0.0000  // moistmin:  //  //  // 
+      0.5000  // moistopt:  //  //  // 
+      1.0000  // moistmax:  //  //  // 
+     26.0000  // lcclnc:  //  //  // 
+      0.3720  // fsoma:  //  //  // 
+      0.6110  // fsompr:  //  //  // 
+      0.0170  // fsomcr:  //  //  // 
+      0.3460  // som2co2:  //  //  // 
+      0.0042  // kn2:  //  //  // 
+      23.87  // nmincnsoil:  // C:N totalC/orgN // calculated // 
+      0.2000  // propftos:  //  //  // 
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs //  // 
+   4050.0000  // initshlwc:  // same as targets //  // 
+   4950.0000  // initdeepc:  // same as targets //  // 
+   19928.57  // initminec:  // same as targets //  // 
+    1211.88  // initsoln:  // same as targets //  // 
+      2.8080  // initavln:  // same as targets //  //
+//===========================================================
+// CMT82 // ScotsPine-Fennosc // 
+      1.6000  // rhq10:  //  //  // 
+      0.363    //rhmoistfrozen:
+      0.0000  // moistmin:  //  //  // 
+      0.5000  // moistopt:  //  //  // 
+      1.0000  // moistmax:  //  //  // 
+    109.0000  // lcclnc:  //  //  // 
+      0.3717  // fsoma:  //  //  // 
+      0.6112  // fsompr:  //  //  // 
+      0.0171  // fsomcr:  //  //  // 
+      0.2571  // som2co2:  //  //  // 
+      0.0042  // kn2:  //  //  // 
+     20.2500  // nmincnsoil:  // C:N totalC/orgN // calculated // 
+      0.2000  // propftos:  //  //  // 
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs //  // 
+    475.8100  // initshlwc:  // same as targets //  // 
+   1203.7000  // initdeepc:  // same as targets //  // 
+   7061.5000  // initminec:  // same as targets //  // 
+    431.6400  // initsoln:  // same as targets //  // 
+      2.6800  // initavln:  // same as targets //  // 
+//===========================================================
+// CMT90 // Heath-Zachenberg // 
+      1.4400  // rhq10:  //  //  // 
+      0.048095    //rhmoistfrozen:
+      0.0000  // moistmin:  //  //  // 
+      0.5000  // moistopt:  //  //  // 
+      1.0000  // moistmax:  //  //  // 
+     46.2000  // lcclnc:  //  //  // 
+      0.3720  // fsoma:  //  //  // 
+      0.6110  // fsompr:  //  //  // 
+      0.0170  // fsomcr:  //  //  // 
+      0.3460  // som2co2:  //  //  // 
+      0.0042  // kn2:  //  //  // 
+     14.7200  // nmincnsoil:  // C:N totalC/orgN // calculated // 
+      0.2000  // propftos:  //  //  // 
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs //  // 
+    266.6700  // initshlwc:  // same as targets //  // 
+    533.3300  // initdeepc:  // same as targets //  // 
+   1.650e+04  // initminec:  // same as targets //  // 
+   1175.2000  // initsoln:  // same as targets //  // 
+      2.5000  // initavln:  // same as targets //  // 
+//===========================================================
+// CMT92 // Bog- Abisko // 
+      2.0000  // rhq10:  //  //  // 
+      0.021903  //rhmoistfrozen: //0.021903
+      0.0000  // moistmin:  //  //  // 
+      0.8000  // moistopt:  //  //  // 
+      1.0000  // moistmax:  //  //  // 
+     98.0000  // lcclnc:  //  //  // 
+      0.3720  // fsoma:  //  //  // 
+      0.6110  // fsompr:  //  //  // 
+      0.0170  // fsomcr:  //  //  // 
+      0.3460  // som2co2:  //  //  // 
+      0.0042  // kn2:  //  //  // 
+     21.8100  // nmincnsoil:  // C:N totalC/orgN // calculated // 
+      0.2000  // propftos:  //  //  // 
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs //  // 
+   9433.3000  // initshlwc:  // same as targets //  // 
+   1.887e+04  // initdeepc:  // same as targets //  // 
+   2.312e+04  // initminec:  // same as targets //  // 
+   2357.5000  // initsoln:  // same as targets //  // 
+      7.2000  // initavln:  // same as targets //  //
+//===========================================================
+// CMT93 // WetSedgeTundra-Aventdalen // 
+// THIS WAS created 12/13/25, MIGHT NEED TO UPDATE some values"
+      2.0000  // rhq10:  //  //  // 
+      0.261938     //rhmoistfrozen:
+      0.0000  // moistmin:  //  //  // 
+      0.5000  // moistopt:  //  //  // 
+      1.0000  // moistmax:  //  //  // 
+     44.0000  // lcclnc:  //  //  // 
+      0.3720  // fsoma:  //  //  // 
+      0.6110  // fsompr:  //  //  // 
+      0.0170  // fsomcr:  //  //  // 
+      0.3460  // som2co2:  //  //  // 
+      0.0042  // kn2:  //  //  // 
+   1.126e+01  // nmincnsoil:  // C:N totalC/orgN // calculated // 
+      0.2000  // propftos:  //  //  // 
+      0.0000  // fnloss:  // fraction N leaching (0 - 1) when drainage occurs //  // 
+    299.0519  // initshlwc:  // same as targets //  // 
+   1233.1384  // initdeepc:  // same as targets //  // 
+   2084.7458  // initminec:  // same as targets //  // 
+    124.0000  // initsoln:  // same as targets //  // 
+      0.018  // initavln:  // same as targets //  // 
 //===========================================================
