@@ -286,13 +286,18 @@ void WildFire::burn(int year) {
   BOOST_LOG_SEV(glg, info) << "Re-do the soil root fraction for each PFT modified by burning?";
   for (int ip = 0; ip < NUM_PFT; ip++) {
     double rootfracsum = 0.0;
-
+    
     for (int il = 0; il < cd->m_soil.numsl; il++) {
       rootfracsum += cd->m_soil.frootfrac[il][ip];
     }
 
     for (int il =0; il <cd->m_soil.numsl; il++) {
-      cd->m_soil.frootfrac[il][ip] /= rootfracsum;
+      if (rootfracsum > 0.) {
+        cd->m_soil.frootfrac[il][ip] /= rootfracsum;
+      }
+      else {
+        cd->m_soil.frootfrac[il][ip] = 0.0;
+      }
     }
   }
 
