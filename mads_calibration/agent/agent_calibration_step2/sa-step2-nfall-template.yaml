@@ -1,0 +1,48 @@
+# Step 2 Nfall SA template — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Calibrates Nfall targeting VEGN (vegetation structural nitrogen), per
+# docs_src/sphinx/source/calibration.rst step 5: "Vegetation nitrogen pool
+# is a result of vegetation nitrogen uptake (input) and litterfall (output)."
+#
+# Run AFTER the main-loop Cfall/VEGC phase has a passing (or best-effort)
+# sample applied — Nfall is the N-side counterpart of Cfall and should not
+# be swept before VEGC/Cfall has settled.
+# Analyze: analyze.py --phase nfall  |  Apply: param_update.py --phase nfall
+# See agent-instructions-step2.md Stage: Nfall.
+
+seed_path: {{SEED_PATH}}
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}
+
+work_dir: {{WORK_DIR}}                # e.g. /data/workflows/CMT04-IMN/logs/sa-step2-nfall
+
+# nfall(0)/nfall(1)/nfall(2) (leaf/stem/root N litterfall fractions) per
+# active PFT. Use propose_bounds.py --family nfall to (re)generate
+# params/pftnums/p_bounds for the site's active PFT list.
+params: {{PARAMS_LIST}}
+pftnums: {{PFTNUMS_LIST}}
+percent_diffs: {{PERCENT_DIFFS}}      # first pass only; use p_bounds afterward
+# p_bounds alternative (mutually exclusive with percent_diffs):
+# p_bounds: [[0.0, 0.2], ...]
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+# Gate is VEGNSTR_pft*_{Leaf,Stem,Root} (analyze.py --phase nfall filters to
+# columns matching VEGNSTR). VegCarbon is included read-only/diagnostic to
+# confirm Cfall/VEGC is not regressing while Nfall is swept.
+target_names:
+- VegStructuralNitrogen
+- VegCarbon
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

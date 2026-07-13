@@ -1,0 +1,48 @@
+# Step 2 Krb SA template — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Sets the GPP:NPP ratio via Krb (maintenance respiration), per
+# docs_src/sphinx/source/calibration.rst step 3: "Increasing Krb will
+# increase respiration and decrease NPP. Krb should therefore be calibrated
+# targeting NPP."
+#
+# Run AFTER the N-level phase passes (Nmax/micbnup fixed in seed_path) and
+# BEFORE / alongside the first main-loop Cfall SA — per the doc, Krb should
+# be set before Cfall, with minimal re-adjustment of Krb afterward.
+# Analyze: analyze.py --phase krb  |  Apply: param_update.py --phase krb
+# See agent-instructions-step2.md Stage: Krb.
+
+seed_path: {{SEED_PATH}}
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}
+
+work_dir: {{WORK_DIR}}                # e.g. /data/workflows/CMT04-IMN/logs/sa-step2-krb
+
+# krb(0)/krb(1)/krb(2) (leaf/stem/root maintenance-resp. coefficients) per
+# active PFT. Use propose_bounds.py --family krb to (re)generate
+# params/pftnums/p_bounds for the site's active PFT list. Krb values in
+# cmt_calparbgc.txt are negative — keep bounds negative (or symmetric around
+# 0 only if a compartment is genuinely inactive, i.e. 0.0 in the seed).
+params: {{PARAMS_LIST}}
+pftnums: {{PFTNUMS_LIST}}
+percent_diffs: {{PERCENT_DIFFS}}      # first pass only; use p_bounds afterward
+# p_bounds alternative (mutually exclusive with percent_diffs):
+# p_bounds: [[-15.0, -0.5], ...]
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+# Gate is NPP_pft* (analyze.py --phase krb filters to columns matching NPP).
+target_names:
+- NPPAll
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

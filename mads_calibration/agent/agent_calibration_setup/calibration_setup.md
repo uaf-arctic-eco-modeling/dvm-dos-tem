@@ -63,8 +63,28 @@ Two buckets serve **different** purposes. Do not conflate them.
 |--------|---------|----------|
 | **Driving inputs** | [dvmdostem_calibration_input](https://console.cloud.google.com/storage/browser/dvmdostem_calibration_input) | NetCDF driver files per site folder (`historic-climate.nc`, `vegetation.nc`, etc.) — used for `config.js` IO paths |
 | **Calibrated parameters** | [vb-tem/.../calibrated](https://console.cloud.google.com/storage/browser/vb-tem/Calibration/calibration_files/calibrated) | Per-site parameter trees (`cmt_calparbgc.txt`, `cmt_bgcsoil.txt`, …) — used for `seed_path` when CMT matches |
+| **Observation targets** | [vb-tem/Calibration/calibration_targets.py](https://console.cloud.google.com/storage/browser/vb-tem/Calibration) | Field/ecosystem targets consumed by SA via `observations: /work/calibration` (see below) |
 
 **Naming is not 1:1.** Input folders use site names (`Imnavait`, `trail_valley`). Parameter folders encode site token + CMT (`IMN_CMT05`, `TVC_CMT50`, `Cherskii_CMT73`, legacy `parameters75`). Known pairs are listed in [`site_aliases.yaml`](site_aliases.yaml).
+
+### Observation targets (`calibration_targets.py`)
+
+SA and setup read **`/work/calibration/calibration_targets.py`** (repo copy). Each CMT block must include at least `GPPAllIgnoringNitrogen` for Step 1.
+
+| Source | Path | Scope |
+|--------|------|-------|
+| **Master (preferred sync)** | `gs://vb-tem/Calibration/calibration_targets.py` | 34 CMTs — includes Chersky (73), TVC (50–52), SCC (60–61), Chokurdakh (70), Yakutsk (71), Zotino (74), etc. |
+| **AGU snapshots** | `gs://vb-tem/AGU/{EML,IMN,MD1,SCC,TVC}/calibration/calibration_targets.py` | 24 CMTs — superset of repo legacy entries; **does not** include CMT73 |
+| **Repo** | `calibration/calibration_targets.py` | Must be kept in sync with master when calibrating CMTs absent from an older checkout |
+
+Sync master targets into the repo (host or container with `gsutil`):
+
+```bash
+gsutil cp gs://vb-tem/Calibration/calibration_targets.py \
+  /work/calibration/calibration_targets.py
+```
+
+Alternatively, point SA yaml `observations:` at any directory containing a site-specific copy (agent runs normally use `/work/calibration`).
 
 **Important:** Imnavait has calibrated params as `IMN_CMT05` (CMT05) while Step 1 often calibrates **CMT04** at that site. Always use **user-specified `cmtnum`**. When bucket CMT differs from `cmtnum`, setup **fails** (exit `1`) — **no cross-CMT fallback** to `/work/parameters`.
 
@@ -233,7 +253,7 @@ When filling [`sa-step1-template.yaml`](../agent_calibration_step1/sa-step1-temp
 | Site not in input bucket | Re-run `--discover`; confirm `site_name` spelling |
 | No param folder for site | Uses `/work/parameters` only if it contains the requested CMT block; else **failed** |
 | Bucket param CMT ≠ user `cmtnum` | **Setup fails** — add alias for correct folder or use matching `cmtnum` |
-| CMT not in `calibration_targets.py` | Stop; add targets or choose valid `cmtnum` |
+| CMT not in `calibration_targets.py` | Sync `gs://vb-tem/Calibration/calibration_targets.py` → `/work/calibration/` (see **Observation targets** above); re-run setup |
 | Missing projected climate | Warn only for eq-only Step 1 SA |
 | `vegetation.nc` CMT mismatch at pixel | Warn; confirm `PXx`/`PXy` or forcing CMT intent |
 | `config.js` paths wrong | Re-run setup with `--force` |

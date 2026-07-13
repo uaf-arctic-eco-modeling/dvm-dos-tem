@@ -6,7 +6,7 @@ model_anchor:
   main_iter_sample: null
   best_rmse: null
   best_r2: null
-  step2_status: null   # pass | target_fit_review
+  step2_status: null   # pass | target_fit_review | unreachable_review
   per_target_fit_pass: null
   selected_eq_pass: null
 
@@ -14,9 +14,12 @@ parameters_active: {{PARAM_DIR}}
 parameters_archive: {{PARAM_ARCHIVE}}
 
 composition:
-  step2: null          # e.g. iter3 sample N recommended_params
+  nlevel: null         # e.g. nmax/micbnup=values or nlevel_pass|unreachable_review (AVLN/N-ratio)
+  krb: null            # e.g. krb(0/1/2)=values or krb_pass|unreachable_review (NPP)
+  step2: null          # e.g. iter3 sample N recommended_params (main: Cfall + soil Kdc*/micbnup)
   phase6: null         # e.g. rhmoistfrozen=value (cmt_bgcsoil.txt) or documented_insensitive
   phase7: null         # e.g. applied | reverted | required_complete
+  nfall: null          # e.g. nfall(0/1/2)=values or nfall_pass|unreachable_review (VEGN)
 
 eq_calibration_gates:
   note: From last analyze.py on final parameter set
@@ -73,9 +76,12 @@ accepted_limitations:
   unreachable: []
 
 closure_criteria:
-  analyze_exit_zero_on_final_params: false  # per-target tier + N + eq non-chronic
+  nlevel_complete: false                  # nlevel_pass applied, or unreachable_review documented (AVLN/N-ratio)
+  krb_complete: false                     # krb_pass applied, or unreachable_review documented (NPP)
+  analyze_exit_zero_on_final_params: false  # per-target tier + N + eq non-chronic (main phase)
   phase6_complete: false                  # applied or documented_insensitive
   phase7_complete: false                  # required after phase6 apply
+  nfall_complete: false                   # nfall_pass applied, or unreachable_review documented (VEGN)
   final_eval_completes: false
   transient_fluxes_plausible: false
   eq_target_fit_acceptable: false         # all ranked targets within tier on final params

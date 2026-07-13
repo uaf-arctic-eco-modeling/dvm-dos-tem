@@ -7,11 +7,20 @@ Use --step2-result to read best_sample_index from target-first analysis.
 
 Usage (inside dvmdostem-autocal):
 
+  # Main phase (soil + cfall):
   python mads_calibration/agent/agent_calibration_step2/propose_bounds.py \\
     --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter2/ \\
     --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-iter2/step2-result.yaml \\
     --soil-samples 6,16 --veg-span 0.30 \\
     --yaml-out mads_calibration/logs/sa-IMN-step2-iter3-bounds.yaml
+
+  # N-level phase (micbnup + nmax -> AVLN/N-ratio), Krb phase (-> NPP), or
+  # Nfall phase (-> VEGN); see agent-instructions-step2.md:
+  python mads_calibration/agent/agent_calibration_step2/propose_bounds.py \\
+    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/ \\
+    --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/step2-result.yaml \\
+    --family nlevel --veg-span 0.30 \\
+    --yaml-out mads_calibration/logs/sa-IMN-step2-nlevel-iter2-bounds.yaml
 """
 
 from __future__ import print_function
@@ -30,6 +39,37 @@ if SCRIPT_DIR not in sys.path:
 SOIL_PARAMS = {'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'}
 MIN_POSITIVE = 1e-6
 
+# Parameter families for the staged Step 2 sequence (agent-instructions-step2.md
+# Control flow). Each family maps to the parameter set for one SA phase:
+#   main   -- soil decomposition (Kdc*, micbnup) + Cfall per PFT  -> VEGC/soil C
+#   nlevel -- micbnup + Nmax per PFT                              -> AVLN + N-ratio
+#   krb    -- Krb(0/1/2) per PFT                                  -> NPP
+#   nfall  -- Nfall(0/1/2) per PFT                                -> VEGN
+# See docs_src/sphinx/source/calibration.rst "Calibrate vegetation parameters
+# with N limitation" for the canonical Nmax -> Krb -> Cfall -> Nfall ordering.
+PARAM_FAMILIES = {
+    'main': {
+        'soil': ['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
+        'single': [],
+        'compartments': ['cfall(0)', 'cfall(1)', 'cfall(2)'],
+    },
+    'nlevel': {
+        'soil': ['micbnup'],
+        'single': ['nmax'],
+        'compartments': [],
+    },
+    'krb': {
+        'soil': [],
+        'single': [],
+        'compartments': ['krb(0)', 'krb(1)', 'krb(2)'],
+    },
+    'nfall': {
+        'soil': [],
+        'single': [],
+        'compartments': ['nfall(0)', 'nfall(1)', 'nfall(2)'],
+    },
+}
+
 
 def pft_indices_from_step1(path):
     """Active PFT indices from Step 1 recommended_cmax keys."""
@@ -45,15 +85,28 @@ def pft_indices_from_step1(path):
     return sorted(indices)
 
 
-def step2_param_lists(pft_indices=None, pft_max=8):
-    """Soil params + cfall(0/1/2) for each active PFT (Step 2 yaml layout)."""
+def step2_param_lists(pft_indices=None, pft_max=8, family='main'):
+    """Params for one Step 2 SA phase (family), Step 2 yaml `params`/`pftnums` layout.
+
+    family='main' (default) preserves the original soil + cfall(0/1/2) layout.
+    Other families (nlevel/krb/nfall) return the params for their dedicated
+    phase — see PARAM_FAMILIES.
+    """
+    if family not in PARAM_FAMILIES:
+        raise ValueError('family must be one of {}; got {!r}'.format(
+            sorted(PARAM_FAMILIES), family))
     if pft_indices is None:
         pft_indices = list(range(pft_max + 1))
-    soil = ['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr']
-    params = list(soil)
-    pftnums = [None] * len(soil)
+    spec = PARAM_FAMILIES[family]
+
+    params = list(spec['soil'])
+    pftnums = [None] * len(spec['soil'])
+
     for pft in pft_indices:
-        for compartment in ('cfall(0)', 'cfall(1)', 'cfall(2)'):
+        for pname in spec['single']:
+            params.append(pname)
+            pftnums.append(pft)
+        for compartment in spec['compartments']:
             params.append(compartment)
             pftnums.append(pft)
     return params, pftnums
@@ -89,16 +142,27 @@ def load_step2_result(path):
 
 
 def propose_bounds(work_dir, soil_samples, veg_sample, soil_span, veg_span,
-                   pft_indices=None):
+                   pft_indices=None, family='main'):
+    """Propose p_bounds for one param family from a prior SA sample_matrix.csv.
+
+    Params in PARAM_FAMILIES[family]['soil'] are centered by averaging
+    `soil_samples` (mirrors the original main-phase behavior for
+    micbnup/kdc*). Every other param (single per-PFT scalars like nmax, or
+    compartment params like cfall/krb/nfall) is centered on `veg_sample`
+    — there is no dedicated "average a few good samples" precedent for
+    those yet, so this keeps behavior consistent with the original cfall
+    handling.
+    """
     work_dir = os.path.abspath(work_dir)
     sm = pd.read_csv(os.path.join(work_dir, 'sample_matrix.csv'))
-    params, pftnums = step2_param_lists(pft_indices=pft_indices)
+    params, pftnums = step2_param_lists(pft_indices=pft_indices, family=family)
+    soil_family = set(PARAM_FAMILIES[family]['soil'])
     bounds = []
 
     for param, pftnum in zip(params, pftnums):
         col = column_for_param(param, pftnum)
 
-        if param in SOIL_PARAMS:
+        if param in soil_family:
             vals = [float(sm.loc[i, col]) for i in soil_samples]
             center = sum(vals) / float(len(vals))
             bounds.append(span_bounds(center, soil_span))
@@ -133,6 +197,12 @@ def main():
     )
     parser.add_argument('--soil-span', type=float, default=0.25)
     parser.add_argument('--veg-span', type=float, default=0.30)
+    parser.add_argument(
+        '--family', default='main', choices=sorted(PARAM_FAMILIES),
+        help='Param family for the target phase: main (soil+cfall), '
+             'nlevel (micbnup+nmax -> AVLN/N-ratio), krb (-> NPP), '
+             'nfall (-> VEGN)',
+    )
     parser.add_argument('--yaml-out', default=None,
                         help='Write [[lo,hi],...] list as yaml fragment')
     args = parser.parse_args()
@@ -174,10 +244,11 @@ def main():
         soil_span=args.soil_span,
         veg_span=args.veg_span,
         pft_indices=pft_indices,
+        family=args.family,
     )
 
-    print('# p_bounds for {} params (soil from {}, cfall from {})'.format(
-        len(bounds), soil_samples, veg_sample))
+    print('# p_bounds for {} params (family={}, soil from {}, veg from {})'.format(
+        len(bounds), args.family, soil_samples, veg_sample))
     for (param, pftnum), b in zip(zip(params, pftnums), bounds):
         pft = '' if pftnum is None else '_pft{}'.format(pftnum)
         print('  # {}{}: [{:.6g}, {:.6g}]'.format(param, pft, b[0], b[1]))

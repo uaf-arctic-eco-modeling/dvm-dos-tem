@@ -16,6 +16,13 @@ Typical usage inside dvmdostem-autocal:
     --save-plots \\
     --json-out /data/workflows/CMT04-IMN/logs/sa-step2-iter3/step2-result.yaml
 
+  # N-level (AVLN/N-ratio) / Krb (NPP) / Nfall (VEGN) pre-conditioning phases —
+  # see agent-instructions-step2.md Control flow for when these run relative
+  # to the main loop:
+  python .../analyze.py --phase nlevel --work-dir .../sa-step2-nlevel/ ...
+  python .../analyze.py --phase krb --work-dir .../sa-step2-krb/ ...
+  python .../analyze.py --phase nfall --work-dir .../sa-step2-nfall/ ...
+
   # Phase 6 (MINEC gate) / Phase 7 (SHLWC+DEEPC+MINEC gate):
   python .../analyze.py --phase phase6 --work-dir .../sa-step2-rhmoistfrozen/ ...
   python .../analyze.py --phase phase7 --work-dir .../sa-step2-soil-retune/ ...
@@ -51,19 +58,44 @@ EXTINCT_OBS_THRESHOLD = 1e-3
 OBS_NEAR_ZERO = 1e-12
 UNREACHABLE_REVIEW_MIN = 3
 
+# nlevel/krb/nfall are single-purpose phases with far fewer gated columns
+# than main (nlevel gates on 1 column: AVLN); requiring 3 unreachable
+# columns before flagging a structural ceiling would almost never trigger.
+# Any unreachable column on these dedicated phases, after the parameter
+# built specifically to move it has already been swept, is itself the
+# structural signal.
+UNREACHABLE_REVIEW_MIN_BY_PHASE = {
+    'main': UNREACHABLE_REVIEW_MIN,
+    'nlevel': 1,
+    'krb': 1,
+    'nfall': 1,
+}
+
 POOL_NCNAMES = frozenset(('SHLWC', 'DEEPC', 'MINEC', 'ORGN', 'AVLN'))
 
 PHASE_PASS_STATUS = {
     'main': 'pass',
+    'nlevel': 'nlevel_pass',
+    'krb': 'krb_pass',
+    'nfall': 'nfall_pass',
     'phase6': 'phase6_pass',
     'phase7': 'phase7_pass',
 }
 
 PASSING_STATUSES = frozenset(PHASE_PASS_STATUS.values())
 
-# Pool column prefixes gated per analyze --phase (results.csv column names).
+# Pool/column prefixes gated per analyze --phase (results.csv column names).
+# nlevel/krb/nfall are the pre-conditioning phases from
+# docs_src/sphinx/source/calibration.rst's Nmax -> Krb -> Cfall -> Nfall
+# ordering (see agent-instructions-step2.md Control flow):
+#   nlevel gates on AVLN (the target Nmax + micbnup jointly control)
+#   krb    gates on NPP  (the target Krb controls via GPP:NPP ratio)
+#   nfall  gates on VEGNSTR (the target Nfall controls via VEGN)
 PHASE_GATE_POOLS = {
     'main': None,
+    'nlevel': ('AVLN',),
+    'krb': ('NPP',),
+    'nfall': ('VEGNSTR',),
     'phase6': ('MINEC',),
     'phase7': ('SHLWC', 'DEEPC', 'MINEC'),
 }
@@ -290,7 +322,8 @@ def select_best_sample(results, targets, sample_matrix, n_check,
 
 def target_tolerance_pct(column, flux_rel_err_pct, pool_rel_err_pct):
     """Return max |rel_err_pct| for a results.csv column name."""
-    if column.startswith('NPP') or column.startswith('VEGC'):
+    if (column.startswith('NPP') or column.startswith('VEGC')
+            or column.startswith('VEGNSTR')):
         return flux_rel_err_pct
     base = column.split('_')[0]
     if base in POOL_NCNAMES or column in POOL_NCNAMES:
@@ -515,18 +548,28 @@ def analyze(work_dir, biome='tundra', n_top=10,
             'Eq fail on selected sample: {}'.format(
                 ', '.join(failing_eq_vars[:8])))
 
+    unreachable_min = UNREACHABLE_REVIEW_MIN_BY_PHASE.get(
+        phase, UNREACHABLE_REVIEW_MIN)
     if (selected_n_pass and target_fit_pass and selected_eq_pass
             and not misfit_classification['extinct_pool']):
         status = PHASE_PASS_STATUS[phase]
-    elif (phase == 'main'
-          and not target_fit_pass
+    elif (not target_fit_pass
           and len(misfit_classification.get('unreachable') or [])
-          >= UNREACHABLE_REVIEW_MIN):
+          >= unreachable_min):
         status = 'unreachable_review'
-        notes_parts.append(
-            'Many targets unreachable in SA envelope ({}); consider Step 1 reopen '
-            'or additional parameters — do not iterate bounds alone.'.format(
-                len(misfit_classification['unreachable'])))
+        if phase == 'main':
+            notes_parts.append(
+                'Many targets unreachable in SA envelope ({}); consider Step 1 '
+                'reopen or additional parameters — do not iterate bounds '
+                'alone.'.format(len(misfit_classification['unreachable'])))
+        else:
+            notes_parts.append(
+                '{} target(s) gated by --phase {} unreachable in SA envelope '
+                'even with the dedicated parameter set ({}); this is a '
+                'structural ceiling — escalate to Step 1 cmax reopen rather '
+                'than continuing to widen bounds on this phase.'.format(
+                    len(misfit_classification['unreachable']), phase,
+                    ', '.join(misfit_classification['unreachable'][:8])))
     else:
         status = 'target_fit_review'
 
@@ -592,15 +635,20 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='Step 2 SA post-hoc analysis (strict per-target + N + eq gates).',
         epilog=(
-            'Exit 0: pass / phase6_pass / phase7_pass. '
+            'Exit 0: pass / nlevel_pass / krb_pass / nfall_pass / '
+            'phase6_pass / phase7_pass. '
             'Exit 2: target_fit_review — iterate bounds/phases. '
             'Exit 3: unreachable_review (main phase only). Exit 1: failed.'
         ),
     )
     parser.add_argument('--work-dir', required=True)
     parser.add_argument(
-        '--phase', default='main', choices=['main', 'phase6', 'phase7'],
-        help='Gate scope: main (all targets+N+eq), phase6 (MINEC), phase7 (SHLWC+DEEPC+MINEC)',
+        '--phase', default='main',
+        choices=['main', 'nlevel', 'krb', 'nfall', 'phase6', 'phase7'],
+        help=('Gate scope: main (all targets+N+eq), '
+              'nlevel (AVLN, via micbnup+nmax), krb (NPP, via Krb), '
+              'nfall (VEGNSTR, via Nfall), '
+              'phase6 (MINEC), phase7 (SHLWC+DEEPC+MINEC)'),
     )
     parser.add_argument(
         '--biome', default='tundra',

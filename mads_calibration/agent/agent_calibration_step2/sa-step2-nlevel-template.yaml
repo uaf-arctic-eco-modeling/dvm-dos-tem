@@ -1,0 +1,50 @@
+# Step 2 N-level SA template — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Sets the level of N limitation (Nmax + Nup_mic/micbnup) so that actual GPP
+# and AVLN match targets, per docs_src/sphinx/source/calibration.rst
+# "Calibrate vegetation parameters with N limitation" step 2:
+#   "Increasing Nmax should increase GPP, and increasing Nup_mic should
+#    decrease both GPP and AVLN."
+#
+# Run BEFORE the first main-loop SA (or whenever main/krb/nfall analyze
+# reports AVLN or the N-ratio in `misfit_classification.unreachable`).
+# Analyze: analyze.py --phase nlevel  |  Apply: param_update.py --phase nlevel
+# See agent-instructions-step2.md Stage: N-level.
+
+seed_path: {{SEED_PATH}}              # e.g. /data/workflows/CMT04-IMN/parameters-step2
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}              # smoke: 5; production: 100
+
+work_dir: {{WORK_DIR}}                # e.g. /data/workflows/CMT04-IMN/logs/sa-step2-nlevel
+
+# micbnup (soil, null pftnum) + nmax per active PFT.
+# Use propose_bounds.py --family nlevel to (re)generate params/pftnums/p_bounds
+# for the site's active PFT list.
+params: {{PARAMS_LIST}}
+pftnums: {{PFTNUMS_LIST}}
+percent_diffs: {{PERCENT_DIFFS}}      # first pass only; use p_bounds afterward
+# p_bounds alternative (mutually exclusive with percent_diffs):
+# p_bounds: [[0.01, 1.0], ...]
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC                      # N limitation ON during equilibrium
+sampling_method: lhc
+
+# Gate is AVLN (analyze.py --phase nlevel filters to the AVLN column and the
+# nitrogen_check INGPP:GPP ratio, which is always computed from aux_outputs).
+# OrganicNitrogenSum is included for diagnostics only — not gated by phase
+# nlevel, but useful to inspect if AVLN and ORGN trade off against each other.
+target_names:
+- AvailableNitrogenSum
+- OrganicNitrogenSum
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

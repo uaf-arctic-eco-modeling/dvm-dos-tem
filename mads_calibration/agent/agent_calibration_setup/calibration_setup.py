@@ -27,7 +27,8 @@ import numpy as np
 import yaml
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MADS_CALIB_DIR = os.path.dirname(SCRIPT_DIR)
+AGENT_DIR = os.path.dirname(SCRIPT_DIR)
+MADS_CALIB_DIR = os.path.dirname(AGENT_DIR)
 REPO_ROOT = os.path.dirname(MADS_CALIB_DIR)
 SCRIPTS_DIR = os.path.join(REPO_ROOT, 'scripts')
 if SCRIPTS_DIR not in sys.path:

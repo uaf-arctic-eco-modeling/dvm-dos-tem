@@ -10,6 +10,15 @@ Uses util.param.update_inplace (routes to cmt_calparbgc.txt or cmt_bgcsoil.txt).
     --param-dir /data/workflows/CMT04-IMN/parameters-step2 \\
     --cmtnum 4
 
+  # N-level (micbnup+nmax only, requires status: nlevel_pass):
+  python .../param_update.py --phase nlevel --step2-result .../sa-step2-nlevel/step2-result.yaml ...
+
+  # Krb (krb(0/1/2) only, requires status: krb_pass):
+  python .../param_update.py --phase krb --step2-result .../sa-step2-krb/step2-result.yaml ...
+
+  # Nfall (nfall(0/1/2) only, requires status: nfall_pass):
+  python .../param_update.py --phase nfall --step2-result .../sa-step2-nfall/step2-result.yaml ...
+
   # Phase 6 (rhmoistfrozen only, requires status: phase6_pass):
   python .../param_update.py --phase phase6 --step2-result .../sa-step2-rhmoistfrozen/step2-result.yaml ...
 
@@ -39,17 +48,33 @@ import util.param as param  # noqa: E402
 
 PFT_COL_RE = re.compile(r'^(.+)_pft(\d+)$')
 
-PASSING_STATUSES = frozenset(('pass', 'phase6_pass', 'phase7_pass'))
+PASSING_STATUSES = frozenset((
+    'pass', 'nlevel_pass', 'krb_pass', 'nfall_pass',
+    'phase6_pass', 'phase7_pass',
+))
 
 PHASE_REQUIRED_STATUS = {
     'main': 'pass',
+    'nlevel': 'nlevel_pass',
+    'krb': 'krb_pass',
+    'nfall': 'nfall_pass',
     'phase6': 'phase6_pass',
     'phase7': 'phase7_pass',
 }
 
+# Base param names (pre-`_pftN` split) allowed for each non-main apply phase.
+# nlevel/krb/nfall mirror propose_bounds.py's PARAM_FAMILIES; phase7 mirrors
+# the original soil-only apply scope.
 PHASE7_PARAM_NAMES = frozenset((
     'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr',
 ))
+
+PHASE_PARAM_NAMES = {
+    'nlevel': frozenset(('micbnup', 'nmax')),
+    'krb': frozenset(('krb(0)', 'krb(1)', 'krb(2)')),
+    'nfall': frozenset(('nfall(0)', 'nfall(1)', 'nfall(2)')),
+    'phase7': PHASE7_PARAM_NAMES,
+}
 
 
 def load_yaml(path):
@@ -78,11 +103,12 @@ def filter_params_for_phase(recommended_params, phase):
     if phase == 'main':
         return recommended_params
     filtered = {}
+    allowed = PHASE_PARAM_NAMES.get(phase)
     for key, value in recommended_params.items():
         pname, _ = parse_param_key(key)
         if phase == 'phase6' and 'rhmoistfrozen' in pname:
             filtered[key] = value
-        elif phase == 'phase7' and pname in PHASE7_PARAM_NAMES:
+        elif allowed is not None and pname in allowed:
             filtered[key] = value
     return filtered
 
@@ -115,9 +141,11 @@ def get_parser():
     parser.add_argument('--cmtnum', type=int, required=True)
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument(
-        '--phase', default='main', choices=['main', 'phase6', 'phase7'],
-        help='Apply scope: main (all params, status pass), phase6 (rhmoistfrozen), '
-             'phase7 (soil kdc*/micbnup)',
+        '--phase', default='main',
+        choices=['main', 'nlevel', 'krb', 'nfall', 'phase6', 'phase7'],
+        help='Apply scope: main (all params, status pass), '
+             'nlevel (micbnup+nmax), krb (Krb), nfall (Nfall), '
+             'phase6 (rhmoistfrozen), phase7 (soil kdc*/micbnup)',
     )
     parser.add_argument(
         '--force', action='store_true',
