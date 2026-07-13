@@ -1,21 +1,38 @@
-# Agent calibration pipeline
+# Agent calibration harness
 
-## Runtime
+Instruction-driven workflow for MADS calibration (Phase 0 → Step 1 `cmax` → Step 2 integrated → final evaluation). Works with any **coding agent** that can read markdown instructions and run shell commands on the calibration host (Cursor, Claude Code, Antigravity, etc.).
 
-Cloud Agent sessions must use **My Machines** on the GCP calibration VM (not Cursor-managed). Remote SSH into the VM does not route Cloud Agent tool calls; select the connected worker in the Cloud Agents dashboard.
+## Execution environment
+
+Run the agent on a host that can execute commands inside the `dvmdostem-autocal` Docker container with `/work`, `/data/input-catalog`, and `/data/workflows` mounted. Typical setup: GCP calibration VM with the repo checked out and Docker Compose running.
+
+The agent needs **shell access on that host**. If the agent UI runs elsewhere (IDE cloud session, separate agent runtime), connect it to the calibration VM as its execution worker — do not rely on a local SSH session that the agent cannot reach. Examples: Cursor **My Machines** on the VM; Claude Code or Antigravity opened in / attached to the VM workspace.
+
+## Using this harness
+
+Load **one phase instruction file at a time**, in order (paths relative to `mads_calibration/agent/`):
+
+1. [agent_calibration_setup](agent_calibration_setup/) — `calibration_setup.md` (Phase 0)
+2. [agent_calibration_step1](agent_calibration_step1/) — `step1-cmax-agent.md` (Step 1 `cmax`)
+3. [agent_calibration_step2](agent_calibration_step2/) — `agent-instructions-step2.md` (Step 2 integrated)
+4. [agent_final_evaluation](agent_final_evaluation/) — `final-model-evaluation.md` (transient validation)
+
+How to load the instruction file depends on your agent:
+
+| Agent | Typical pattern |
+|-------|-----------------|
+| **Cursor** | `@mads_calibration/agent/.../instruction.md` in chat |
+| **Claude Code** | Ask the agent to read the file path, or reference it in `CLAUDE.md` / project instructions |
+| **Antigravity** | Include the file path in the workspace prompt or agent configuration |
+| **Other** | Paste the repo-relative path and ask the agent to read it before proceeding |
+
+Each phase doc lists **minimum user inputs** (YAML). Provide those in your first message when starting that phase.
 
 ### SA concurrency (per VM)
 
 Run **one** `SA_setup_and_run.py` job at a time on a calibration VM. Do not launch Step 2 phases (N-level, Krb, main, Nfall, phase6/7) or Step 1 runs in parallel — even from the same `parameters-step2` seed. Each SA spawns a multiprocessing pool of `dvmdostem` workers (N=100 × 2000 eq-yrs is typical). Overlapping jobs oversubscribe CPU, leave workers hung on slow samples, and block `results.csv` aggregation. Wait for exit `0` (or a clean failure), run `analyze.py`, then start the next phase.
 
 Before a new SA: confirm no stray `dvmdostem` or `SA_setup_and_run.py` processes (`docker compose exec dvmdostem-autocal bash -c 'pgrep -a dvmdostem | head'`). If a run was canceled mid-pool, kill stuck workers and rebuild with `driver.post_hoc_build_all()` only when every `sample_*` has complete `output/` (see Step 2 Failure modes).
-
-Attach **one phase instruction file at a time** in Cursor, in order:
-
-1. [agent_calibration_setup](agent_calibration_setup/) — `@calibration_setup.md` (Phase 0)
-2. [agent_calibration_step1](agent_calibration_step1/) — `@step1-cmax-agent.md` (Step 1 `cmax`)
-3. [agent_calibration_step2](agent_calibration_step2/) — `@agent-instructions-step2.md` (Step 2 integrated)
-4. [agent_final_evaluation](agent_final_evaluation/) — `@final-model-evaluation.md` (transient validation)
 
 ## Hard gates (scripts enforce; do not override in prose)
 

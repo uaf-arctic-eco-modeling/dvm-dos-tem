@@ -1,6 +1,6 @@
-# Step 2 Integrated Calibration — Cursor Agent Instruction Set
+# Step 2 Integrated Calibration — Coding Agent Instruction Set
 
-Attach this file in Cursor (`@agent-instructions-step2.md`) when running Step 2 calibration.
+Load this file into your coding agent session when running Step 2 (see [agent README](../README.md#using-this-harness)). Path: `mads_calibration/agent/agent_calibration_step2/agent-instructions-step2.md`.
 
 Automate **Step 2** after Step 1: jointly calibrate soil and vegetation parameters with **N limitation ON** (`calib_mode: VEGC`) inside `dvmdostem-autocal`.
 

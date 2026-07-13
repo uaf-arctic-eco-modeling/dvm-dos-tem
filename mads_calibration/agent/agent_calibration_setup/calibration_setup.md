@@ -1,6 +1,6 @@
 # Phase 0 — Calibration Setup (GCS → local)
 
-Attach this file in Cursor (`@calibration_setup.md`) **before** `@step1-cmax-agent.md`.
+**Coding agent instruction set.** Load this file into your session before Step 1 (see [agent README](../README.md#using-this-harness)). Path: `mads_calibration/agent/agent_calibration_setup/calibration_setup.md`.
 
 Automate **Phase 0** of the MADS agent calibration workflow: provision driving inputs and parameter seeds from GCS, build a per-site `config/config.js`, verify site/input/parameter mapping, and write a setup manifest for Step 1. Run entirely inside the `dvmdostem-autocal` Docker container (or host with `gsutil` auth and mounted volumes). **Do not** run sensitivity analysis from this instruction set.
 
@@ -229,7 +229,7 @@ See [`setup-manifest-template.yaml`](setup-manifest-template.yaml) for field des
 
 ## Handoff to Step 1
 
-After setup completes, attach [`step1-cmax-agent.md`](../agent_calibration_step1/step1-cmax-agent.md) and pass manifest fields:
+After setup completes, load [`step1-cmax-agent.md`](../agent_calibration_step1/step1-cmax-agent.md) and pass manifest fields:
 
 ```yaml
 cmtnum: 4                    # from manifest

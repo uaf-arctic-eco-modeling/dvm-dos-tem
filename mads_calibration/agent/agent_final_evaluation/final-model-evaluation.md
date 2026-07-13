@@ -1,6 +1,6 @@
 # Final model evaluation
 
-Post-calibration validation after Step 2 completion criteria are satisfied ([`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md)). Attach this file in Cursor (`@final-model-evaluation.md`) for the evaluation stage.
+Post-calibration validation after Step 2 completion criteria are satisfied ([`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md)). Load this file into your coding agent session for the evaluation stage (see [agent README](../README.md#using-this-harness)). Path: `mads_calibration/agent/agent_final_evaluation/final-model-evaluation.md`.
 
 Calibration SA runs use equilibrium-only spinup (`--sp-yrs 0 --tr-yrs 0`). A **full site simulation** exercises spinup and transient years so fluxes, soil thermal state, and active layer depth can be compared against observations.
 

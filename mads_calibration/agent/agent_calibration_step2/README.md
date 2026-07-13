@@ -2,7 +2,7 @@
 
 Prerequisite: Step 1 complete — handoff via [step1-transition.md](step1-transition.md).
 
-Attach `@agent-instructions-step2.md` with site inputs from Step 1 result.
+Load [`agent-instructions-step2.md`](agent-instructions-step2.md) with site inputs from Step 1 result (see [agent README](../README.md#using-this-harness)).
 
 Next: [agent_final_evaluation](../agent_final_evaluation/) when Nfall is applied and the final `analyze.py --phase main` exit `0`.
 

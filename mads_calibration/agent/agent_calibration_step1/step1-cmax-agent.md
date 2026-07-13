@@ -1,6 +1,6 @@
-# Step 1 Cmax Calibration — Cursor Agent Instruction Set
+# Step 1 Cmax Calibration — Coding Agent Instruction Set
 
-Attach this file in Cursor (`@step1-cmax-agent.md`) when running the calibration agent.
+Load this file into your coding agent session when running Step 1 (see [agent README](../README.md#using-this-harness)). Path: `mads_calibration/agent/agent_calibration_step1/step1-cmax-agent.md`.
 
 **Prerequisite:** Complete Phase 0 setup via [`calibration_setup.md`](../agent_calibration_setup/calibration_setup.md) and obtain `logs/{site_label}-setup-manifest.yaml`.
 
