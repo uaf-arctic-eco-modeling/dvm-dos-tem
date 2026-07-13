@@ -170,6 +170,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
 
 - `-f` / `--force` clears existing `work_dir` before re-run.
 - Long runs (N=100) may take hours; monitor for `work_dir/results.csv`.
+- **One SA per VM:** do not start Step 1 while a Step 2 SA (or another Step 1) is still running in the same `dvmdostem-autocal` container — see [agent README](../README.md#sa-concurrency-per-vm).
 - Demo smoke test: use [`sa-demo-config.yaml`](../sa-demo-config.yaml) (CMT06, N=5).
 
 ---

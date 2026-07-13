@@ -30,15 +30,19 @@ nitrogen_biome: tundra   # analyze.py --biome (boreal | tundra)
 ## Checklist
 
 - [ ] `parameters-step2` via `seed_setup.py` (adds burial rows if missing); smoke SA (N=5) on new sites
-- [ ] **N-level SA** (`--family nlevel`) + `analyze.py --phase nlevel` until exit `0` (`nlevel_pass`) — locks Nmax/micbnup before Cfall is swept (see Stage: N-level)
-- [ ] **Krb SA** (`--family krb`) + `analyze.py --phase krb` until exit `0` (`krb_pass`) — locks Krb before Cfall (see Stage: Krb)
+- [ ] **N-level SA** (nlevel family) + `analyze.py --phase nlevel` until exit `0` (`nlevel_pass`) — fixes Nmax and pre-conditions micbnup before Cfall is swept (main re-tunes micbnup; see Stage: N-level)
+- [ ] **Krb SA** (krb family) + `analyze.py --phase krb` until exit `0` (`krb_pass`) — locks Krb before Cfall (see Stage: Krb)
 - [ ] Main iteration SA + `analyze.py --phase main` until exit `0` or branch (see Control flow)
 - [ ] Rhmoist / soil branches when MINEC off-tier; snapshot before phase applies
-- [ ] **Nfall SA** (`--family nfall`) + `analyze.py --phase nfall` until exit `0` (`nfall_pass`) — after main VEGC is applied (see Stage: Nfall)
-- [ ] `param_update.py --phase main` **only** when main analyze exits `0` (`status: pass`)
+- [ ] `param_update.py --phase main` **only** when main analyze exits `0` (`status: pass`) — apply before Nfall
+- [ ] **Nfall SA** (nfall family) + `analyze.py --phase nfall` until exit `0` (`nfall_pass`) — **after** main `pass` is applied (see Stage: Nfall)
 - [ ] Final `analyze.py --phase main` exit `0` → [`final-model-evaluation.md`](../agent_final_evaluation/final-model-evaluation.md)
 
 All commands: `docker compose exec -T dvmdostem-autocal bash -c 'cd /work && ...'`
+
+### VM concurrency
+
+**One SA at a time per calibration VM.** Run stages sequentially (N-level → Krb → main → branches → Nfall): finish each `SA_setup_and_run.py`, run the matching `analyze.py`, then start the next yaml. Do **not** launch two SAs in parallel (e.g. Krb + main) to save wall time — observed on CH2 CMT73: ~11 workers hung 55–82 min, CPU stuck ~35% (11/32 cores), parent blocked before `results.csv`.
 
 ---
 
@@ -48,7 +52,7 @@ All commands: `docker compose exec -T dvmdostem-autocal bash -c 'cd /work && ...
 |------|---------|
 | **Stage** | Section in this doc (Seed, N-level, Krb, Main SA, Rhmoist branch, Nfall, …) |
 | **`analyze.py --phase`** | CLI gate scope: `main` (all targets+N+eq), `nlevel` (AVLN), `krb` (NPP), `nfall` (VEGNSTR), `phase6` (MINEC), `phase7` (SHLWC+DEEPC+MINEC) |
-| **`propose_bounds.py --family`** | Param set for the target phase: `main` (soil+Cfall), `nlevel` (micbnup+Nmax), `krb` (Krb), `nfall` (Nfall) |
+| **`propose_bounds.py --family`** | Param set for the target phase: `main` (soil+Cfall), `nlevel` (micbnup+Nmax), `krb` (Krb), `nfall` (Nfall). Every call also requires `--work-dir <prior SA dir>` (reads its `sample_matrix.csv`) and `--step2-result` (or `--veg-sample`) |
 | **`param_update.py --phase`** | Must match analyze phase and `status` in `step2-result.yaml` |
 
 ---
@@ -66,18 +70,20 @@ drift once later phases start.
 ```
 STAGE 0 — N-level (once per site, or whenever AVLN/N-ratio show up in
           main/krb/nfall misfit_classification.unreachable):
-  LOOP: SA (--family nlevel: micbnup + Nmax per PFT) → analyze --phase nlevel --biome {nitrogen_biome}
+  LOOP: SA (nlevel family: micbnup + Nmax per PFT) → analyze --phase nlevel --biome {nitrogen_biome}
     on exit 0 (nlevel_pass): param_update --phase nlevel; break
     on exit 2: propose_bounds.py --family nlevel → repeat
-    on exit 3: stop — AVLN unreachable even with Nmax/micbnup dedicated;
-               reopen Step 1 (cmax) or revisit target expectations
+    on exit 3: HALT for human review — AVLN outside envelope even with
+               Nmax/micbnup swept wide; record unreachable target(s), document
+               as structural/model limitation or revisit target value; do NOT
+               reopen Step 1 automatically (see exit-3 note)
 
 STAGE 1 — Krb (once per site, after nlevel_pass; re-run only if main-loop
           Cfall later regresses NPP):
-  LOOP: SA (--family krb: Krb(0/1/2) per PFT) → analyze --phase krb --biome {nitrogen_biome}
+  LOOP: SA (krb family: Krb(0/1/2) per PFT) → analyze --phase krb --biome {nitrogen_biome}
     on exit 0 (krb_pass): param_update --phase krb; break
     on exit 2: propose_bounds.py --family krb → repeat
-    on exit 3: stop — NPP unreachable even with Krb dedicated; reopen Step 1
+    on exit 3: HALT for human review — NPP outside envelope even with Krb swept wide; document as structural/model limitation, do NOT reopen Step 1 automatically (see exit-3 note)
 
 STAGE 2 — main iteration (Nmax/micbnup/Krb already fixed in parameters-step2):
 LOOP main iteration:
@@ -96,13 +102,13 @@ LOOP main iteration:
     if AVLN/N-ratio in misfit_classification.unreachable: go to STAGE 0 (Nmax/micbnup already
       set is not holding — re-widen there, not here); else if NPP in unreachable: go to STAGE 1
     else: propose_bounds.py --family main → repeat main SA
-  elif main exit 3: stop — reopen Step 1 or add parameters
+  elif main exit 3: HALT for human review — document unreachable target(s) as structural/model limitation; do NOT reopen Step 1 automatically (see exit-3 note)
 
 STAGE 3 — Nfall (once per site, after main `pass` is applied):
-  LOOP: SA (--family nfall: Nfall(0/1/2) per PFT) → analyze --phase nfall --biome {nitrogen_biome}
+  LOOP: SA (nfall family: Nfall(0/1/2) per PFT) → analyze --phase nfall --biome {nitrogen_biome}
     on exit 0 (nfall_pass): param_update --phase nfall; break
     on exit 2: propose_bounds.py --family nfall → repeat
-    on exit 3: stop — VEGN unreachable even with Nfall dedicated; reopen Step 1
+    on exit 3: HALT for human review — VEGN outside envelope even with Nfall swept wide; document as structural/model limitation, do NOT reopen Step 1 automatically (see exit-3 note)
 
 DONE when STAGE 3 nfall_pass is applied and a final analyze.py --phase main
 (re-run after the Nfall apply, to confirm Nfall didn't regress anything main
@@ -123,10 +129,19 @@ gates on) exits 0
 Exit `1` = `failed` (missing CSVs). Phase modes skip eq gate; eq checked on final `--phase main`. `--force` on param_update overrides status (documented approval only).
 
 On `nlevel`/`krb`/`nfall` exit `3`, the same rule as main exit `3` applies:
-the dedicated parameter for that target is already being swept, so widening
-bounds further is unlikely to help — treat it as a structural ceiling
-(Step 1 `cmax` too low/high for that PFT, or the target itself needs review)
-rather than continuing to iterate that phase alone.
+the dedicated parameter for that target has already been swept wide, so
+widening bounds further is unlikely to help. **Exit 3 is a terminal HALT for
+human review — not an agent branch, and not a trigger to reopen Step 1.**
+Record the unreachable target(s) in the result and stop the phase: do not
+loop, and do not reach back into Step 1 automatically. Step 2 is
+self-contained — "unreachable" here means the observation fell outside the
+model-output envelope this SA produced even after the controlling parameter
+was swept wide, which points to either (a) a target value that needs
+revisiting, or (b) a structural/model ceiling for that column at this site.
+Reopening Step 1 (`cmax`) is a *human* decision reserved for one narrow
+signature — VegCarbon or NPP unreachable **high** even after Krb is swept
+wide, where `cmax` may be capping GPP — and is never performed by the agent
+as part of this workflow (see **Do not**: "Re-sample `cmax`").
 
 **Do not** `param_update --phase main` on `target_fit_review`. Phase applies require matching `phase` + status in the result yaml.
 
@@ -216,7 +231,7 @@ Params: `micbnup` (soil, `pftnum: null`) + `nmax` per active PFT from Step 1
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
   'cd /work && python mads_calibration/SA_setup_and_run.py --force \
-    -f mads_calibration/logs/sa-IMN-step2-nlevel-iter1.yaml'
+    mads_calibration/logs/sa-IMN-step2-nlevel-iter1.yaml'
 
 docker compose exec -T dvmdostem-autocal bash -c \
   'python /work/mads_calibration/agent/agent_calibration_step2/analyze.py \
@@ -232,7 +247,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
     --param-dir /data/workflows/CMT04-IMN/parameters-step2 --cmtnum 4'
 ```
 
-On exit `2`: `propose_bounds.py --family nlevel --step2-result ... --yaml-out ...`, new `work_dir`, repeat. On exit `3`: stop, do not keep widening — see Control flow.
+On exit `2`: `propose_bounds.py --work-dir <this SA's work_dir> --family nlevel --step2-result <that work_dir>/step2-result.yaml --yaml-out mads_calibration/logs/sa-IMN-step2-nlevel-iter{N+1}-bounds.yaml`, then paste `p_bounds` into a fresh iter yaml with a new `work_dir` and repeat. (`--work-dir` is **required** — it reads the prior SA's `sample_matrix.csv` to center the new bounds; `--step2-result` supplies `best_sample_index`.) On exit `3`: stop, do not keep widening — see Control flow.
 
 ## Stage: Krb (`--phase krb`)
 
@@ -246,7 +261,7 @@ Krb values in `cmt_calparbgc.txt` are negative; keep bounds negative.
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
   'cd /work && python mads_calibration/SA_setup_and_run.py --force \
-    -f mads_calibration/logs/sa-IMN-step2-krb-iter1.yaml'
+    mads_calibration/logs/sa-IMN-step2-krb-iter1.yaml'
 
 docker compose exec -T dvmdostem-autocal bash -c \
   'python /work/mads_calibration/agent/agent_calibration_step2/analyze.py \
@@ -262,18 +277,18 @@ docker compose exec -T dvmdostem-autocal bash -c \
     --param-dir /data/workflows/CMT04-IMN/parameters-step2 --cmtnum 4'
 ```
 
-On exit `2`: `propose_bounds.py --family krb --step2-result ... --yaml-out ...`, new `work_dir`, repeat. On exit `3`: stop — see Control flow.
+On exit `2`: `propose_bounds.py --work-dir <this SA's work_dir> --family krb --step2-result <that work_dir>/step2-result.yaml --yaml-out mads_calibration/logs/sa-IMN-step2-krb-iter{N+1}-bounds.yaml`, then paste `p_bounds` into a fresh iter yaml with a new `work_dir` and repeat. (`--work-dir` is **required**.) On exit `3`: stop — see Control flow.
 
 ## Stage: Main SA
 
-Validate CMT in `calibration_targets.py`. Params: 5 soil (`micbnup`, `kdc*`) + 3 `cfall` per active PFT from Step 1 `cmax_pft*`. Run **after** `nlevel_pass`/`krb_pass` are applied — Nmax/micbnup/Krb should already be fixed in `parameters-step2` by this point.
+Validate CMT in `calibration_targets.py`. `target_names` covers the calibratable Step 2 set — `CarbonShallow`, `CarbonDeep`, `CarbonMineralSum`, `AvailableNitrogenSum`, `OrganicNitrogenSum`, `VegCarbon`, `NPPAll`. RECO (`EcosystemRespiration`) is **not** a defined target in `calibration_targets.py`, so keep it as a diagnostic aux_output (`RECO y`, as in the base template) — do **not** add it to `target_names` unless you first define an `EcosystemRespiration` target on the CMT block (else the SA fails; see Failure modes). Params: 5 soil (`micbnup`, `kdc*`) + 3 `cfall` per active PFT from Step 1 `cmax_pft*`. Run **after** `nlevel_pass`/`krb_pass` are applied — Nmax and Krb are fixed in `parameters-step2` by this point; micbnup starts from its nlevel value and is re-tuned by this phase.
 
 Copy [`sa-step2-template.yaml`](sa-step2-template.yaml) → `logs/sa-{site_label}-step2.yaml`. Required: `seed_path`, `calib_mode: VEGC`, `aux_outputs: [INGPP y, GPP y]`, `--eq-yrs 2000`, soil + `cfall`. First pass: `percent_diffs: 0.95`; later: `p_bounds` only.
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
   'cd /work && python mads_calibration/SA_setup_and_run.py --force \
-    -f mads_calibration/logs/sa-IMN-step2-iter3.yaml'
+    mads_calibration/logs/sa-IMN-step2-iter3.yaml'
 ```
 
 ## Stage: Analyze (main)
@@ -289,7 +304,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
 ## Stage: Next iteration
 
 1. Copy prior yaml → `iter{N}`; new `work_dir`
-2. `propose_bounds.py --step1-result ...` → bounds fragment
+2. `propose_bounds.py --work-dir <prior main SA work_dir> --family main --step2-result <that work_dir>/step2-result.yaml --step1-result <step1-result.yaml> --yaml-out mads_calibration/logs/sa-IMN-step2-iter{N}-bounds.yaml` → `p_bounds` fragment. `--work-dir` and `--step2-result` are **required** (`--step1-result` only supplies the active-PFT count for `cfall`/PFT params)
 3. Remove `percent_diffs`; add `p_bounds`; `--dry-run` then `--force` SA
 
 ## Stage: Main apply
@@ -325,7 +340,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
 
 ## Stage: Soil retune (`--phase phase7`)
 
-Required after Phase 6 apply. Template: [`sa-step2-soil-retune-template.yaml`](sa-step2-soil-retune-template.yaml). Bounds: `propose_bounds.py --soil-span 0.20` from **last main-loop** `step2-result.yaml`. Snapshot before apply (Control flow).
+Required after Phase 6 apply. Template: [`sa-step2-soil-retune-template.yaml`](sa-step2-soil-retune-template.yaml) (5 soil params only: `micbnup` + `kdc*`). Bounds: `propose_bounds.py --work-dir <last main-loop SA work_dir> --family main --step2-result <that work_dir>/step2-result.yaml --soil-span 0.20 --yaml-out ...`. `--family main` emits soil **then** `cfall` bounds in `PARAM_FAMILIES` order (`micbnup, kdcrawc, kdcsoma, kdcsompr, kdcsomcr, cfall...`) — copy only the **first 5** (soil) `p_bounds` entries into the soil-retune yaml so `p_bounds` length matches its 5 params. Snapshot before apply (Control flow).
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
@@ -353,7 +368,7 @@ sweeping against a moving target. Template:
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
   'cd /work && python mads_calibration/SA_setup_and_run.py --force \
-    -f mads_calibration/logs/sa-IMN-step2-nfall-iter1.yaml'
+    mads_calibration/logs/sa-IMN-step2-nfall-iter1.yaml'
 
 docker compose exec -T dvmdostem-autocal bash -c \
   'python /work/mads_calibration/agent/agent_calibration_step2/analyze.py \
@@ -369,7 +384,7 @@ docker compose exec -T dvmdostem-autocal bash -c \
     --param-dir /data/workflows/CMT04-IMN/parameters-step2 --cmtnum 4'
 ```
 
-On exit `2`: `propose_bounds.py --family nfall --step2-result ... --yaml-out ...`, new `work_dir`, repeat. On exit `3`: stop — see Control flow.
+On exit `2`: `propose_bounds.py --work-dir <this SA's work_dir> --family nfall --step2-result <that work_dir>/step2-result.yaml --yaml-out mads_calibration/logs/sa-IMN-step2-nfall-iter{N+1}-bounds.yaml`, then paste `p_bounds` into a fresh iter yaml with a new `work_dir` and repeat. (`--work-dir` is **required**.) On exit `3`: stop — see Control flow.
 
 After applying `nfall_pass`, re-run `analyze.py --phase main` once more
 (no new SA needed — reuse the last main `work_dir`/results if Nfall cannot
@@ -393,8 +408,8 @@ After each SA, from [`SA_post_hoc_analysis.py`](../SA_post_hoc_analysis.py): `ni
 | `NPP*` in `misfit_classification.unreachable` on `main` | Go to Stage: Krb, not more main-loop bounds iteration |
 | `VEGNSTR*` in `misfit_classification.unreachable` | Go to Stage: Nfall (only reachable after main `pass`) |
 | `misfit_classification.unreachable` on `nlevel`/`krb`/`nfall` phase | The dedicated param for that target is already being swept — widening bounds rarely helps; treat as exit `3` (see below) |
-| ≥3 unreachable on main analyze | exit `3` — reopen Step 1; do not iterate bounds alone |
-| ≥1 unreachable on `nlevel`/`krb`/`nfall` analyze | exit `3` — reopen Step 1 (that PFT's `cmax`) or revisit target; do not iterate that phase's bounds alone |
+| ≥3 unreachable on main analyze | exit `3` — HALT for human review; document as structural/model limitation; do not iterate bounds alone and do not reopen Step 1 automatically (see exit-3 note) |
+| ≥1 unreachable on `nlevel`/`krb`/`nfall` analyze | exit `3` — HALT for human review; document / revisit target; do not iterate that phase's bounds alone (`cmax` reopen is a narrow human decision — see exit-3 note) |
 | `misfit_classification.extinct_pool` | Mod ≈ 0, obs large — document limitation; rarely fixable |
 | Chronic eq fail on whitelist vars | Allowed on main pass (see Acceptance table) |
 
@@ -404,10 +419,12 @@ After each SA, from [`SA_post_hoc_analysis.py`](../SA_post_hoc_analysis.py): `ni
 
 | Symptom | Action |
 |---------|--------|
+| CPU ~30–40% flat, SA hours with no `results.csv` | Hung `dvmdostem` workers — only one SA should run per VM; kill stuck PIDs, verify all `sample_*/output/` complete, then `post_hoc_build_all()` or re-run SA with `--force` |
+| Parallel SAs launched (Krb + main, etc.) | Stop extras; run one phase to completion before the next |
 | `analyze.py` exit `1` | Fix SA / missing CSVs |
 | No N-passing samples | Rank full pool; note in result; iterate bounds |
 | Phase 7 regresses MINEC | Restore snapshot; re-apply phase6; repeat phase7 |
-| `p_bounds` length mismatch | `propose_bounds.py --step1-result` matching PFT count; pass matching `--family` |
+| `p_bounds` length mismatch | Regenerate with `propose_bounds.py --work-dir ... --step2-result ...` + matching `--family` (`--step1-result` sets PFT count); for phase7 slice only the 5 soil entries |
 | Main-loop AVLN/N-ratio/NPP unreachable, N-level/Krb never run | Structural gap — run Stage: N-level / Stage: Krb before iterating main bounds further |
 | VEGN never assessed at all | Structural gap — run Stage: Nfall after main `pass`; `VegStructuralNitrogen` must be a `target_names` entry somewhere in the sequence |
 | TR crash in final eval | `--tr-yrs` ≤ historic climate length |
@@ -417,6 +434,7 @@ After each SA, from [`SA_post_hoc_analysis.py`](../SA_post_hoc_analysis.py): `ni
 
 ## Do not
 
+- Run more than one `SA_setup_and_run.py` concurrently on the same VM
 - Re-sample `cmax` or edit `/work/parameters` in the repo
 - `param_update --phase main` unless main analyze exit `0` (`pass`)
 - `param_update --phase phase6|phase7` without snapshot + matching phase pass

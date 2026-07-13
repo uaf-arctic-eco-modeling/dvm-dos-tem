@@ -559,15 +559,17 @@ def analyze(work_dir, biome='tundra', n_top=10,
         status = 'unreachable_review'
         if phase == 'main':
             notes_parts.append(
-                'Many targets unreachable in SA envelope ({}); consider Step 1 '
-                'reopen or additional parameters — do not iterate bounds '
-                'alone.'.format(len(misfit_classification['unreachable'])))
+                'HALT for human review: {} target(s) outside the SA envelope; '
+                'document as structural/model limitation or revisit target '
+                'value. Do not iterate bounds alone; do not reopen Step 1 '
+                'automatically.'.format(len(misfit_classification['unreachable'])))
         else:
             notes_parts.append(
-                '{} target(s) gated by --phase {} unreachable in SA envelope '
-                'even with the dedicated parameter set ({}); this is a '
-                'structural ceiling — escalate to Step 1 cmax reopen rather '
-                'than continuing to widen bounds on this phase.'.format(
+                'HALT for human review: {} target(s) gated by --phase {} '
+                'outside the SA envelope even with the dedicated parameter set '
+                '({}); document as structural/model limitation or revisit the '
+                'target value. Do not widen bounds further on this phase; do '
+                'not reopen Step 1 automatically.'.format(
                     len(misfit_classification['unreachable']), phase,
                     ', '.join(misfit_classification['unreachable'][:8])))
     else:

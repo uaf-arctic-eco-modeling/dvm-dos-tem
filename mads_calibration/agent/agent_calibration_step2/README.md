@@ -34,3 +34,5 @@ not just soil decomposition + Cfall. See **Parameter coverage** in
 | [`sa-step2-nfall-template.yaml`](sa-step2-nfall-template.yaml) | `nfall` | `nfall(0/1/2)` → VEGN |
 
 Workflow and templates: [`agent-instructions-step2.md`](agent-instructions-step2.md).
+
+**Concurrency:** run one `SA_setup_and_run.py` at a time per VM; stages are sequential (N-level → Krb → main → …). See [agent README](../README.md#sa-concurrency-per-vm).

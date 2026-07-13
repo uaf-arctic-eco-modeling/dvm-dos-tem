@@ -4,6 +4,12 @@
 
 Cloud Agent sessions must use **My Machines** on the GCP calibration VM (not Cursor-managed). Remote SSH into the VM does not route Cloud Agent tool calls; select the connected worker in the Cloud Agents dashboard.
 
+### SA concurrency (per VM)
+
+Run **one** `SA_setup_and_run.py` job at a time on a calibration VM. Do not launch Step 2 phases (N-level, Krb, main, Nfall, phase6/7) or Step 1 runs in parallel — even from the same `parameters-step2` seed. Each SA spawns a multiprocessing pool of `dvmdostem` workers (N=100 × 2000 eq-yrs is typical). Overlapping jobs oversubscribe CPU, leave workers hung on slow samples, and block `results.csv` aggregation. Wait for exit `0` (or a clean failure), run `analyze.py`, then start the next phase.
+
+Before a new SA: confirm no stray `dvmdostem` or `SA_setup_and_run.py` processes (`docker compose exec dvmdostem-autocal bash -c 'pgrep -a dvmdostem | head'`). If a run was canceled mid-pool, kill stuck workers and rebuild with `driver.post_hoc_build_all()` only when every `sample_*` has complete `output/` (see Step 2 Failure modes).
+
 Attach **one phase instruction file at a time** in Cursor, in order:
 
 1. [agent_calibration_setup](agent_calibration_setup/) — `@calibration_setup.md` (Phase 0)
