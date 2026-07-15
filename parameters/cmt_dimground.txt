@@ -510,55 +510,107 @@
       1.1450  //coefdeepb://  //  // 
       0.0230  //coefminea://  //  // 
       0.6078  //coefmineb://  //  // 
+//==========================================================
+// CMT75 // Bog-Igarka // 
+    250.0000  // snwdenmax: kg/m3 // max. snow density //  // 
+     50.0000  // snwdennew: kg/m3 // new (min.) snow density //  // 
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.4000  // maxmossthick: m // max. dead moss thickness //  // 
+      0.2100  // initdmossthick: m // initial dead moss thickness(not using anymore) //  // 
+      1  // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0867  // initfibthick: m //  //  // 
+      0.1730  // inithumthick: m //  //  // 
+      0.0271  // coefshlwa:  //  //  // 
+      1.0000  // coefshlwb:  //  //  // 
+      0.0275  // coefdeepa:  //  //  // 
+      1.0000  // coefdeepb:  //  //  // 
+      0.0300  // coefminea:  //  //  // 
+      1.0000  // coefmineb:  //  //  //
 //===========================================================
-// CMT75 // Igarka Bog - bonanza calibration
-1.430075e+02 // snwdenmax: 
-3.168183e+01 // snwdennew:  
-0.000000     // initsnwthick: 
-0.000000     // initsnwdense: 
-0.400000     // maxmossthick: 
-0.210000     // initdmossthick: 
-1.000000     // mosstype: 
-0.469375     // initfibthick: 
-0.420625     // inithumthick: 
-0.011090     // coefshlwa: 
-1.141000     // coefshlwb: 
-0.031270     // coefdeepa: 
-1.121200     // coefdeepb: 
-0.061540     // coefminea: 
-1.000000     // coefmineb: 
+// CMT76 // Shrub Tundra // Seida
+      599.356000   // snwdenmax: 
+      173.800000   // snwdennew: 
+      0.000000     // initsnwthick: 
+      0.000000     // initsnwdense: 
+      0.035000     // maxmossthick: 
+      0.005000     // initdmossthick: 
+      1.000000     // mosstype: 
+      0.090000     // initfibthick: 
+      0.110000     // inithumthick: 
+      0.085200     // coefshlwa: 
+      0.708000     // coefshlwb: 
+      0.047500     // coefdeepa: 
+      0.975000     // coefdeepb: 
+      0.053600     // coefminea: 
+      0.785100     // coefmineb: 
 //===========================================================
-// CMT92 // Abisko Bog - bonanza calibration
-1.430075e+02 // snwdenmax: 
-3.168183e+01 // snwdennew:  
-0.000000     // initsnwthick: 
-0.000000     // initsnwdense: 
-0.400000     // maxmossthick: 
-0.210000     // initdmossthick: 
-1.000000     // mosstype: 
-0.469375     // initfibthick: 
-0.420625     // inithumthick: 
-0.011090     // coefshlwa: 
-1.141000     // coefshlwb: 
-0.031270     // coefdeepa: 
-1.121200     // coefdeepb: 
-0.061540     // coefminea: 
-1.000000     // coefmineb:
+// CMT82 // ScotsPine-Fennosc // 
+    131.0000  // snwdenmax: kg/m3 // max. snow density //  // 
+     86.0000  // snwdennew: kg/m3 // new (min.) snow density //  // 
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.0350  // maxmossthick: m // max. dead moss thickness //  // 
+      0.0200  // initdmossthick: m // initial dead moss thickness(not using anymore) //  // 
+      2  // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0200  // initfibthick: m //  //  // 
+      0.0400  // inithumthick: m //  //  // 
+      0.0210  // coefshlwa:  //  //  // 
+      1.1800  // coefshlwb:  //  //  // 
+   2.923e-02  // coefdeepa:  //  //  // 
+      1.0210  // coefdeepb:  //  //  // 
+      0.0700  // coefminea:  //  //  // 
+      0.5019  // coefmineb:  //  //  //
 //===========================================================
-// CMT93 // Adventalen // imnavait calibration 
-1.359950e+02 // snwdenmax: 
-1.007067e+02 // snwdennew: 
-0.000000     // initsnwthick: 
-0.000000     // initsnwdense: 
-0.400000     // maxmossthick: 
-0.210000     // initdmossthick: 
-1.000000     // mosstype: 
-0.101250     // initfibthick: 
-0.165350     // inithumthick: 
-0.065200     // coefshlwa: 
-0.708000     // coefshlwb: 
-0.054500     // coefdeepa: 
-0.975000     // coefdeepb: 
-0.096600     // coefminea: 
-0.823900     // coefmineb: 
+// CMT90 // Heath-Zachenberg // 
+    300.0000  // snwdenmax: kg/m3 // max. snow density //  // 
+     60.0000  // snwdennew: kg/m3 // new (min.) snow density //  // 
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.0350  // maxmossthick: m // max. dead moss thickness //  // 
+      0.0050  // initdmossthick: m // initial dead moss thickness(not using anymore) //  // 
+      3  // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0100  // initfibthick: m //  //  // 
+      0.0200  // inithumthick: m //  //  // 
+      0.2592  // coefshlwa:  //  //  // 
+      0.9080  // coefshlwb:  //  //  // 
+      0.2650  // coefdeepa:  //  //  // 
+      0.9750  // coefdeepb:  //  //  // 
+      0.0471  // coefminea:  //  //  // 
+      0.7810  // coefmineb:  //  //  //
+//===========================================================
+// CMT92 // Bog- Abisko // 
+    316.1000  // snwdenmax: kg/m3 // max. snow density //  // 
+    109.0000  // snwdennew: kg/m3 // new (min.) snow density //  // 
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.4000  // maxmossthick: m // max. dead moss thickness //  // 
+      0.2100  // initdmossthick: m // initial dead moss thickness(not using anymore) //  // 
+      1  // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.1896  // initfibthick: m //  //  // 
+      0.3790  // inithumthick: m //  //  // 
+      0.0501  // coefshlwa:  //  //  // 
+      1.0000  // coefshlwb:  //  //  // 
+      0.0499  // coefdeepa:  //  //  // 
+      1.0000  // coefdeepb:  //  //  // 
+   7.313e-02  // coefminea:  //  //  // 
+      0.7500  // coefmineb:  //  //  //
+//===========================================================
+// CMT93 // WetSedgeTundra-Aventdalen // 
+//  THIS WAS created 12/13/25, MIGHT NEED TO UPDATE some values"
+    290.859647  // snwdenmax: kg/m3 //120 max. snow density //  // 
+     93.406423  // snwdennew: kg/m3 //90 new (min.) snow density //  // 
+      0.0000  // initsnwthick: m // initial snow thickness //  // 
+      0.0000  // initsnwdense: kg/m3 // initial snow density //  // 
+      0.0350  // maxmossthick: m // max. dead moss thickness //  // 
+      0.0050  // initdmossthick: m // initial dead moss thickness(not using anymore) //  // 
+      3  // mosstype:  // moss type (1:sphagnum-2:feathermoss-3:other) //  // 
+      0.0160  // initfibthick: m //  //  // 
+      0.0330  // inithumthick: m //  //  // 
+      0.0364  // coefshlwa:  //  //  // 
+      0.808  // coefshlwb:  //  //  // 
+      0.03125  // coefdeepa:  //  //  // 
+      0.975  // coefdeepb:  //  //  // 
+      0.0471  // coefminea:  //  //  // 
+      0.781  // coefmineb:  //  //  //
 //===========================================================

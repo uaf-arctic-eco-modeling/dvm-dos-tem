@@ -1292,133 +1292,263 @@
         1.8490       1.5000       0.1749       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 //static_lai[9]://  //  // 
         1.6360       1.5000       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 //static_lai[10]://  //  // 
         1.5650       1.5000       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 //static_lai[11]://  //  //
+//==========================================================
+// CMT75 // Bog-Igarka // 
+//     Shrubs     Sphagnum       Lichen        PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+        1            1            1            0            0            0            0            0            0            0      // vegfrac:  vegetation coverage on land - 0 indicates that PFT doesn't exist //  //  // 
+        1            0            0            0            0            0            0            0            0            0      // ifwoody:  woody plants (1) or not (0) //  //  // 
+        0            0            0            0            0            0            0            0            0            0      // ifdeciwoody:  deciduous woodland (1) or not (0) //  //  // 
+        1            1            1            0            0            0            0            0            0            0      // ifperenial:  perenial (1) or not (0) //  //  // 
+        0            1            3            0            0            0            0            0            0            0      // nonvascular type:  Vascular (0), sphagnum (1), feathermoss (2), lichen (3) //  //  // 
+     1.074e-02       0.0228       0.0079       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // sla:  specific leaf area (m2/gC) //  //  // 
+        0.3500       0.1500       0.1584       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // klai:  extinction coeff for conversion from lai to fpc //  //  // 
+        0.0010       0.0010       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // minleaf:  this and the following 4 parameters are for EET/PET controlled phenology - f(leaf) //  //  // 
+     4.289e-01       0.7964       0.7964       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // aleaf:  //  //  // 
+     3.330e-01    4.663e-01       0.4663       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // bleaf:  //  //  // 
+     3.223e-01   -2.873e-02   -2.873e-02       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cleaf:  //  //  // 
+        1.6662       1.6662       1.6662       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // kfoliage:  this and the following 1 parameters are for non-woody plant's f(foliage) //  //  // 
+       -0.2470      -0.0690      -2.5530       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cov:  //  //  // 
+       15.2060      15.2060      15.2060       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m1:  this and the following 3 parameters are for woody plant's f(foliage) //  //  // 
+    -3.197e-01   -3.197e-01   -3.197e-01       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m2:  //  //  // 
+        0.0401       0.0401       0.0401       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m3:  //  //  // 
+        0.0001       0.0001       0.0001       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m4:  //  //  // 
+       38.0000     100.0000     100.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[0]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       28.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[1]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       15.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[2]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       12.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[3]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        6.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[4]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        1.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[5]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[6]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[7]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[8]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[9]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.7731       6.6348       1.9355       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // initial_lai:  starting value for Leaf Area Index //  //  // 
+        0.0190       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[0]:  monthly LAI for a year //  used for static input of LAI //  // 
+        0.0140       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[1]:  //  //  // 
+        0.0260       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[2]:  //  //  // 
+        0.0350       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[3]:  //  //  // 
+        0.0580       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[4]:  //  //  // 
+        0.0800       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[5]:  //  //  // 
+        0.0900       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[6]:  //  //  // 
+        0.0900       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[7]:  //  //  // 
+        0.0580       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[8]:  //  //  // 
+        0.0360       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[9]:  //  //  // 
+        0.0250       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[10]:  //  //  // 
+        0.0200       3.7000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[11]:  //  //  // 
 //===========================================================
-// CMT75 // Igarka Bog - bonanza calibration
-//Sphag     Eshrub       Sedge        Dshrub         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9       // pftnames:
-1.00        1.00         1.00         1.00           0.00         0.00         0.00         0.00         0.00        0.00        // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
-0           1            0            1              0            0            0            0            0           0           // ifwoody: woody plants (1) or not (0)
-0           0            0            1              0            0            0            0            0           0           // ifdeciwoody: deciduous woodland (1) or not (0)
-1           1            1            1              0            0            0            0            0           0           // ifperenial: perenial (1) or not (0)
-1           0            0            0              0            0            0            0            0           0           // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
-0.0357	    0.0077	     0.0108	      0.0154         0            0            0            0            0           0           // sla: specific leaf area (m2/gC)
-0.15	    0.35	     0.15	      0.35           0            0            0            0            0           0           // klai: extinction coeff for conversion from lai to fpc
-0.001       0.001        0.001        0.001          0            0            0            0            0           0           // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
-0.79640     0.42893      0.42893      0.42893        0            0            0            0            0           0           // aleaf:
-0.46635     0.33295      0.33295      0.33295        0            0            0            0            0           0           // bleaf:
--0.02873    0.32228      0.32228      0.32228        0            0            0            0            0           0           // cleaf:
-1.6662      1.6662       1.6662       1.6662         0            0            0            0            0           0           // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage)
--0.069	   -0.247	    -0.48	     -0.273          0            0            0            0            0           0           // cov:
-15.206      15.206       15.206       15.206         0            0            0            0            0           0           // m1: this and the following 3 parameters are for woody plant's f(foliage)
--0.3197     -0.3197     -0.3197      -0.3197         0            0            0            0            0           0            // m2:
-0.0401      0.0401       0.0401       0.0401         0            0            0            0            0           0           // m3:
-0.0001      0.0001       0.0001       0.0001         0            0            0            0            0           0           // m4:
-0.00        38.0         28.0         38.0           0            0            0            0            0           0           // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        28.0         38.0         28.0           0            0            0            0            0           0           // frprod[1]:
-0.00        15.0         15.0         15.0           0            0            0            0            0           0           // frprod[2]:
-0.00        12.0         12.0         12.0           0            0            0            0            0           0           // frprod[3]:
-0.00        6.00         6.00         6.00           0            0            0            0            0           0           // frprod[4]:
-0.00        1.00         1.00         1.00           0            0            0            0            0           0           // frprod[5]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[6]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[7]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[8]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[9]:
-3.7         0.019        0.00         0.0            0            0            0            0            0           0           // initial_lai: starting value for Leaf Area Index
-3.7         0.019        0.00         0.0            0            0            0            0            0           0           // static_lai[0]: monthly LAI for a year, used for static input of LAI
-3.7         0.014        0.00         0.0            0            0            0            0            0           0           // static_lai[1]:
-3.7         0.026        0.00         0.0            0            0            0            0            0           0           // static_lai[2]:
-3.7         0.035        0.1          0.003          0            0            0            0            0           0           // static_lai[3]:
-3.7         0.058        0.205        0.005          0            0            0            0            0           0           // static_lai[4]:
-3.7         0.08         0.205        0.007          0            0            0            0            0           0           // static_lai[5]:
-3.7         0.09         0.205        0.008          0            0            0            0            0           0           // static_lai[6]:
-3.7         0.09         0.205        0.008          0            0            0            0            0           0           // static_lai[7]:
-3.7         0.058        0.15         0.004          0            0            0            0            0           0           // static_lai[8]:
-3.7         0.036        0.1          0.002          0            0            0            0            0           0           // static_lai[9]:
-3.7         0.025        0.00         0.0            0            0            0            0            0           0           // static_lai[10]:
-3.7         0.02         0.00         0.0            0            0            0            0            0           0           // static_lai[11]:
+// CMT76 // Shrub Tundra-Seida // 
+//  DecidShrub       Betnan        Salix   Graminoids     Sphagnum         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+        1            1            1            1            1            0            0            0            0            0      // vegfrac:  vegetation coverage on land - 0 indicates that PFT doesn't exist //  //  // 
+        1            1            1            0            0            0            0            0            0            0      // ifwoody:  woody plants (1) or not (0) //  //  // 
+        1            1            1            0            0            0            0            0            0            0      // ifdeciwoody:  deciduous woodland (1) or not (0) //  //  // 
+        1            1            1            1            0            0            0            0            0            0      // ifperenial:  perenial (1) or not (0) //  //  // 
+        0            0            0            0            1            0            0            0            0            0      // nonvascular type:  Vascular (0), sphagnum (1), feathermoss (2), lichen (3) //  //  // 
+        0.0109       0.0140       0.0135    1.139e-02    7.810e-03       0.0000       0.0000       0.0000       0.0000       0.0000 // sla:  specific leaf area (m2/gC) //  //  // 
+        0.4564       0.2500       0.2550       0.0537       0.1500       0.0000       0.0000       0.0000       0.0000       0.0000 // klai:  extinction coeff for conversion from lai to fpc //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0010       0.0000       0.0000       0.0000       0.0000       0.0000 // minleaf:  this and the following 4 parameters are for EET/PET controlled phenology - f(leaf) //  //  // 
+        0.7964       0.4289       0.4289       0.7964       0.7964       0.0000       0.0000       0.0000       0.0000       0.0000 // aleaf:  //  //  // 
+        0.4663       0.3330       0.3330       0.4663       0.4663       0.0000       0.0000       0.0000       0.0000       0.0000 // bleaf:  //  //  // 
+    -2.873e-02       0.3223       0.3223   -2.873e-02   -2.873e-02       0.0000       0.0000       0.0000       0.0000       0.0000 // cleaf:  //  //  // 
+        1.6662       1.6662       1.6662       1.6662       1.6662       0.0000       0.0000       0.0000       0.0000       0.0000 // kfoliage:  this and the following 1 parameters are for non-woody plant's f(foliage) //  //  // 
+       -0.1070      -0.0090      -0.0230      -0.5270      -0.0690       0.0000       0.0000       0.0000       0.0000       0.0000 // cov:  //  //  // 
+       15.2060      15.2060      15.2060      15.2060      15.2060       0.0000       0.0000       0.0000       0.0000       0.0000 // m1:  this and the following 3 parameters are for woody plant's f(foliage) //  //  // 
+    -3.197e-01   -3.197e-01   -3.197e-01   -3.197e-01   -3.197e-01       0.0000       0.0000       0.0000       0.0000       0.0000 // m2:  //  //  // 
+        0.0401       0.0401       0.0401       0.0401       0.0401       0.0000       0.0000       0.0000       0.0000       0.0000 // m3:  //  //  // 
+        0.0001       0.0001       0.0001       0.0001       0.0001       0.0000       0.0000       0.0000       0.0000       0.0000 // m4:  //  //  // 
+       30.0000      30.0000      30.0000      30.0000       1.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[0]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       50.0000      50.0000      50.0000      30.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[1]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       15.0000      15.0000      15.0000      20.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[2]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        5.0000       5.0000       5.0000      20.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[3]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[4]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[5]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[6]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[7]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[8]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[9]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+     1.340e-01       0.1667       0.1087       0.6059       0.8036       0.0000       0.0000       0.0000       0.0000       0.0000 // initial_lai:  starting value for Leaf Area Index //  //  // 
+        0.0000       0.0000       1.0000       0.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[0]:  monthly LAI for a year //  used for static input of LAI //  // 
+        0.0000       0.0000       1.1000       0.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[1]:  //  //  // 
+        0.0000       0.0000       1.2000       0.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[2]:  //  //  // 
+        1.0000       0.5000       1.2000       0.5000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[3]:  //  //  // 
+        1.9000       1.3000       1.3000       1.3000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[4]:  //  //  // 
+        2.5000       1.9000       1.9000       1.9000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[5]:  //  //  // 
+        2.0000       2.0000       2.0000       2.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[6]:  //  //  // 
+        2.0000       2.0000       2.0000       2.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[7]:  //  //  // 
+        1.5000       0.5000       1.5000       0.5000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[8]:  //  //  // 
+        0.0000       0.2000       1.3000       0.2000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[9]:  //  //  // 
+        0.0000       0.0000       1.1000       0.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[10]:  //  //  // 
+        0.0000       0.0000       1.0000       0.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[11]:  //  //  //
+//==========================================================
+// CMT82 // ScotsPine-Fennosc //
+//    ScotPine       Spruce  EGreenShrub      Omoss         Forb         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+        1            1            1            1            1            0            0            0            0            0      // vegfrac:  vegetation coverage on land - 0 indicates that PFT doesn't exist //  //  // 
+        1            1            1            0            0            0            0            0            0            0      // ifwoody:  woody plants (1) or not (0) //  //  // 
+        0            0            0            1            1            0            0            0            0            0      // ifdeciwoody:  deciduous woodland (1) or not (0) //  //  // 
+        1            1            1            0            1            0            0            0            0            0      // ifperenial:  perenial (1) or not (0) //  //  // 
+        0            0            0            2            0            0            0            0            0            0      // nonvascular type:  Vascular (0), sphagnum (1), feathermoss (2), lichen (3) //  //  // 
+        0.0010       0.0038       0.0246       0.0124    1.186e-02       0.0000       0.0000       0.0000       0.0000       0.0000 // sla:  specific leaf area (m2/gC) //  //  // 
+        0.5500       0.5500       0.4500       0.1000       0.3500       0.0000       0.0000       0.0000       0.0000       0.0000 // klai:  extinction coeff for conversion from lai to fpc //  //  // 
+        0.5000       0.5000       0.5000       0.5000       0.5000       0.0000       0.0000       0.0000       0.0000       0.0000 // minleaf:  this and the following 4 parameters are for EET/PET controlled phenology - f(leaf) //  //  // 
+        0.4289       0.4289       0.4289       0.4289       0.4289       0.0000       0.0000       0.0000       0.0000       0.0000 // aleaf:  //  //  // 
+        0.3330       0.3330       0.3330       0.3330       0.3330       0.0000       0.0000       0.0000       0.0000       0.0000 // bleaf:  //  //  // 
+        0.3223       0.3223       0.3223       0.3223       0.3223       0.0000       0.0000       0.0000       0.0000       0.0000 // cleaf:  //  //  // 
+        1.6662       1.6662       1.6662       1.6662       1.6662       0.0000       0.0000       0.0000       0.0000       0.0000 // kfoliage:  this and the following 1 parameters are for non-woody plant's f(foliage) //  //  // 
+    -1.571e-03   -1.571e-03   -2.920e-04      -0.0230   -2.920e-04       0.0000       0.0000       0.0000       0.0000       0.0000 // cov:  //  //  // 
+       19.6200      19.6200      38.5700      19.6200      38.5700       0.0000       0.0000       0.0000       0.0000       0.0000 // m1:  this and the following 3 parameters are for woody plant's f(foliage) //  //  // 
+    -3.999e-01   -3.999e-01   -4.509e-01   -3.999e-01   -4.509e-01       0.0000       0.0000       0.0000       0.0000       0.0000 // m2:  //  //  // 
+        0.1487       0.1487       0.0743       0.1487       0.0743       0.0000       0.0000       0.0000       0.0000       0.0000 // m3:  //  //  // 
+        0.0001       0.0001       0.0001       0.0001       0.0001       0.0000       0.0000       0.0000       0.0000       0.0000 // m4:  //  //  // 
+       52.7300      52.7300      40.4870     100.0000      40.4870       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[0]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       14.4100      14.4100      31.3540       0.0000      31.3540       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[1]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       14.4100      14.4100      14.0030       0.0000      14.0030       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[2]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       14.4100      14.4100       9.8510       0.0000       9.8510       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[3]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        3.2400       3.2400       4.3050       0.0000       4.3050       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[4]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.8000       0.8000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[5]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[6]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[7]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[8]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[9]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        1.1610       1.1600       0.5000       0.6572    1.060e-01       0.0000       0.0000       0.0000       0.0000       0.0000 // initial_lai:  starting value for Leaf Area Index //  //  // 
+        1.5650       1.5650       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[0]:  monthly LAI for a year // #N/A //  // 
+        1.6360       1.6360       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[1]:  //  //  // 
+        1.7070       1.7070       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[2]:  //  //  // 
+        1.7070       1.7070    6.699e-02       9.7130       0.0874       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[3]:  //  //  // 
+        1.8490       1.8490       0.1072       9.7130       0.1399       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[4]:  //  //  // 
+        2.7030       2.7030       0.2412       9.7130       0.3148       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[5]:  //  //  // 
+        2.8450       2.8450       0.3349       9.7130       0.4372       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[6]:  //  //  // 
+        2.8450       2.8450       0.2679       9.7130       0.3498       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[7]:  //  //  // 
+        2.1340       2.1340       0.2010       9.7130       0.2623       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[8]:  //  //  // 
+        1.8490       1.8490       0.1340       9.7130       0.1749       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[9]:  //  //  // 
+        1.6360       1.6360       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[10]:  //  //  // 
+        1.5650       1.5650       0.0000       9.7130       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[11]:  //  //  //
+//==========================================================
+// CMT90 // Heath-Zachenberg // 
+//  Dwarfshrub        Sedge  Cryptogamic         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+        1            1            1            0            0            0            0            0            0            0      // vegfrac:  vegetation coverage on land - 0 indicates that PFT doesn't exist //  //  // 
+        1            0            0            0            0            0            0            0            0            0      // ifwoody:  woody plants (1) or not (0) //  //  // 
+        1            0            0            0            0            0            0            0            0            0      // ifdeciwoody:  deciduous woodland (1) or not (0) //  //  // 
+        1            1            1            0            0            0            0            0            0            0      // ifperenial:  perenial (1) or not (0) //  //  // 
+        0            0            3            0            0            0            0            0            0            0      // nonvascular type:  Vascular (0), sphagnum (1), feathermoss (2), lichen (3) //  //  // 
+        0.0130       0.0072    1.175e-03       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // sla:  specific leaf area (m2/gC) //  //  // 
+        0.2500       0.1133       0.0537       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // klai:  extinction coeff for conversion from lai to fpc //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // minleaf:  this and the following 4 parameters are for EET/PET controlled phenology - f(leaf) //  //  // 
+        0.4289       0.7964       0.4298       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // aleaf:  //  //  // 
+        0.3330       0.4663       0.3330       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // bleaf:  //  //  // 
+        0.3223   -2.873e-02       0.3223       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cleaf:  //  //  // 
+        1.6662       1.6662       1.6662       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // kfoliage:  this and the following 1 parameters are for non-woody plant's f(foliage) //  //  // 
+       -0.1380      -0.6330      -0.0630       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cov:  //  //  // 
+       15.2060      15.2060      15.2060       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m1:  this and the following 3 parameters are for woody plant's f(foliage) //  //  // 
+    -3.197e-01   -3.197e-01   -3.197e-01       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m2:  //  //  // 
+        0.0401       0.0401       0.0401       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m3:  //  //  // 
+        0.0001       0.0001       0.0001       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m4:  //  //  // 
+       30.0000      50.0000     100.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[0]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       50.0000      50.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[1]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+       20.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[2]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[3]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[4]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[5]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[6]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[7]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[8]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[9]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0760       0.0337       0.1150       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // initial_lai:  starting value for Leaf Area Index //  //  // 
+        0.0000       0.0000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[0]:  monthly LAI for a year //  used for static input of LAI //  // 
+        0.0000       0.0000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[1]:  //  //  // 
+        0.0000       0.0000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[2]:  //  //  // 
+        1.0000       0.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[3]:  //  //  // 
+        1.9000       1.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[4]:  //  //  // 
+        2.5000       1.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[5]:  //  //  // 
+        2.0000       1.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[6]:  //  //  // 
+        2.0000       1.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[7]:  //  //  // 
+        1.5000       1.0000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[8]:  //  //  // 
+        0.0000       0.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[9]:  //  //  // 
+        0.0000       0.0000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[10]:  //  //  // 
+        0.0000       0.0000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[11]:  //  //  // 
 //===========================================================
-// CMT92 // Abisko Bog - bonanza calibration
-//Sphag     Eshrub       Sedge        Dshrub         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9       // pftnames:
-1.00        1.00         1.00         1.00           0.00         0.00         0.00         0.00         0.00        0.00        // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
-0           1            0            1              0            0            0            0            0           0           // ifwoody: woody plants (1) or not (0)
-0           0            0            1              0            0            0            0            0           0           // ifdeciwoody: deciduous woodland (1) or not (0)
-1           1            1            1              0            0            0            0            0           0           // ifperenial: perenial (1) or not (0)
-1           0            0            0              0            0            0            0            0           0           // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
-0.0357	    0.0077	     0.0108	      0.0154         0            0            0            0            0           0           // sla: specific leaf area (m2/gC)
-0.15	    0.35	     0.15	      0.35           0            0            0            0            0           0           // klai: extinction coeff for conversion from lai to fpc
-0.001       0.001        0.001        0.001          0            0            0            0            0           0           // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
-0.79640     0.42893      0.42893      0.42893        0            0            0            0            0           0           // aleaf:
-0.46635     0.33295      0.33295      0.33295        0            0            0            0            0           0           // bleaf:
--0.02873    0.32228      0.32228      0.32228        0            0            0            0            0           0           // cleaf:
-1.6662      1.6662       1.6662       1.6662         0            0            0            0            0           0           // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage)
--0.069	   -0.247	    -0.48	     -0.273          0            0            0            0            0           0           // cov:
-15.206      15.206       15.206       15.206         0            0            0            0            0           0           // m1: this and the following 3 parameters are for woody plant's f(foliage)
--0.3197     -0.3197     -0.3197      -0.3197         0            0            0            0            0           0            // m2:
-0.0401      0.0401       0.0401       0.0401         0            0            0            0            0           0           // m3:
-0.0001      0.0001       0.0001       0.0001         0            0            0            0            0           0           // m4:
-0.00        38.0         28.0         38.0           0            0            0            0            0           0           // frprod[0]: fine root allocation percentage vertically in soils (every 10 cm)
-0.00        28.0         38.0         28.0           0            0            0            0            0           0           // frprod[1]:
-0.00        15.0         15.0         15.0           0            0            0            0            0           0           // frprod[2]:
-0.00        12.0         12.0         12.0           0            0            0            0            0           0           // frprod[3]:
-0.00        6.00         6.00         6.00           0            0            0            0            0           0           // frprod[4]:
-0.00        1.00         1.00         1.00           0            0            0            0            0           0           // frprod[5]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[6]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[7]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[8]:
-0.00        0.00         0.00         0.00           0            0            0            0            0           0           // frprod[9]:
-3.7         0.019        0.00         0.0            0            0            0            0            0           0           // initial_lai: starting value for Leaf Area Index
-3.7         0.019        0.00         0.0            0            0            0            0            0           0           // static_lai[0]: monthly LAI for a year, used for static input of LAI
-3.7         0.014        0.00         0.0            0            0            0            0            0           0           // static_lai[1]:
-3.7         0.026        0.00         0.0            0            0            0            0            0           0           // static_lai[2]:
-3.7         0.035        0.1          0.003          0            0            0            0            0           0           // static_lai[3]:
-3.7         0.058        0.205        0.005          0            0            0            0            0           0           // static_lai[4]:
-3.7         0.08         0.205        0.007          0            0            0            0            0           0           // static_lai[5]:
-3.7         0.09         0.205        0.008          0            0            0            0            0           0           // static_lai[6]:
-3.7         0.09         0.205        0.008          0            0            0            0            0           0           // static_lai[7]:
-3.7         0.058        0.15         0.004          0            0            0            0            0           0           // static_lai[8]:
-3.7         0.036        0.1          0.002          0            0            0            0            0           0           // static_lai[9]:
-3.7         0.025        0.00         0.0            0            0            0            0            0           0           // static_lai[10]:
-3.7         0.02         0.00         0.0            0            0            0            0            0           0           // static_lai[11]:
+// CMT92 // Bog // Abisko
+//  EGrShrub   DecidShrub    Graminoid       Lichen         Moss         PFT5         PFT6         PFT7         PFT8         PFT9
+    1.000000     1.000000     1.000000     1.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // vegfrac: 
+    1.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // ifwoody: 
+    0.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // ifdeciwoody: 
+    1.000000     1.000000     1.000000     1.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // ifperenial: 
+    0.000000     0.000000     0.000000     3.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // nonvascular type: 
+    0.006500     0.008395     0.015200     0.007200     0.012000     0.000000     0.000000     0.000000     0.000000     0.000000 // sla: 
+    0.350000     0.350000     0.150000     0.150000     0.150000     0.000000     0.000000     0.000000     0.000000     0.000000 // klai: 
+    0.001000     0.001000     0.001000     0.001000     0.001000     0.000000     0.000000     0.000000     0.000000     0.000000 // minleaf: 
+    0.428900     0.428900     0.428900     0.796400     0.796400     0.000000     0.000000     0.000000     0.000000     0.000000 // aleaf: 
+    0.333000     0.333000     0.333000     0.466300     0.466300     0.000000     0.000000     0.000000     0.000000     0.000000 // bleaf: 
+    0.322300     0.322300     0.322300    -0.028730    -0.028730     0.000000     0.000000     0.000000     0.000000     0.000000 // cleaf: 
+    1.632000     1.679000     1.327000     2.316000     1.366000     0.000000     0.000000     0.000000     0.000000     0.000000 // kfoliage: 
+   -0.247000    -0.273000    -0.480000    -0.063000    -0.069000     0.000000     0.000000     0.000000     0.000000     0.000000 // cov: 
+   15.206000    15.206000    15.206000    15.206000    15.206000     0.000000     0.000000     0.000000     0.000000     0.000000 // m1: 
+   -0.319700    -0.319700    -0.319700    -0.319700    -0.319700     0.000000     0.000000     0.000000     0.000000     0.000000 // m2: 
+    0.040100     0.040100     0.040100     0.040100     0.040100     0.000000     0.000000     0.000000     0.000000     0.000000 // m3: 
+    0.000100     0.000100     0.000100     0.000100     0.000100     0.000000     0.000000     0.000000     0.000000     0.000000 // m4: 
+   38.000000    38.000000    28.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[0]: 
+   28.000000    28.000000    38.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[1]: 
+   15.000000    15.000000    15.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[2]: 
+   12.000000    12.000000    12.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[3]: 
+    6.000000     6.000000     6.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[4]: 
+    1.000000     1.000000     1.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[5]: 
+    0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[6]: 
+    0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[7]: 
+    0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[8]: 
+    0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000     0.000000 // frprod[9]: 
+    0.385500     0.127900     0.076000     0.086400     3.600000     0.000000     0.000000     0.000000     0.000000     0.000000 // initial_lai: 
+    0.019000     0.000000     0.000000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[0]: 
+    0.014000     0.000000     0.000000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[1]: 
+    0.026000     0.000000     0.000000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[2]: 
+    0.035000     0.003000     0.100000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[3]: 
+    0.058000     0.005000     0.205000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[4]: 
+    0.080000     0.007000     0.205000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[5]: 
+    0.090000     0.008000     0.205000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[6]: 
+    0.090000     0.008000     0.205000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[7]: 
+    0.058000     0.004000     0.150000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[8]: 
+    0.036000     0.002000     0.100000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[9]: 
+    0.025000     0.000000     0.000000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[10]: 
+    0.020000     0.000000     0.000000     2.000000     3.700000     0.000000     0.000000     0.000000     0.000000     0.000000 // static_lai[11]: 
 //===========================================================
-// CMT93 // Adventalen - imnavait calibration
-//Decid	    Sedges	     Grasses	  Forbs	         Lichens	  Feather	   Sphag        PFT7         PFT8         PFT9       // pftnames:
-1.00        1.00         1.00         1.00           1.00         1.00         1.00         0.00         0.00        0.00        // vegfrac: vegetation coverage on land - 0 indicates that PFT doesn't exist
-1           0            0            0              0            0            0            0            0           0           // ifwoody: woody plants (1) or not (0)
-1           0            0            0              0            0            0            0            0           0           // ifdeciwoody: deciduous woodland (1) or not (0)
-1           1            1            0              1            1            1            0            0           0           // ifperenial: perenial (1) or not (0)
-0           0            0            0              3            2            1            0            0           0           // nonvascular type: vascular (0), sphagnum (1), feathermoss (2), lichen (3)
-0.0072	    0.0072	     0.0072	      0.3546	     0.0072	      0.0072	   0.0072       0            0           0           // sla: specific leaf area (m2/gC)
-0.35	    0.15	     0.15	      0.15           0.15         0.15         0.15         0            0           0           // klai: extinction coeff for conversion from lai to fpc
-0.001       0.001        0.001        0.001          0.001        0.001        0.001        0            0           0           // minleaf: this and the following 4 parameters are for EET/PET controlled phenology - f(leaf)
-0.42893     0.079640     0.79640      0.42893        0.79640      0.079640     0.079640     0            0           0           // aleaf:
-0.33295     0.46635      0.46635      0.33295        0.46635      0.46635      0.46635      0            0           0           // bleaf:
-0.32228     -0.02873    -0.02873      0.32228       -0.02873     -0.02873     -0.02873      0            0           0           // cleaf:
-1.6662      1.6662       1.6662       1.6662         1.6662       1.6662       1.6662       0            0           0           // kfoliage: this and the following 1 parameters are for non-woody plant's f(foliage)
--0.850      -0.138      -0.633       -0.050         -2.553       -0.232       -0.232        0.00         0.00        0.00        // cov:
-15.206      15.206      15.206       15.206       15.206       15.206       15.206       0.00         0.00         0.00         // m1: this and the following 3 parameters are for woody plant's f(foliage)
--0.3197     -0.3197     -0.3197     -0.3197      -0.3197       -0.3197      -0.3197      0.00         0.00         0.00         // m2:
-0.0401      0.0401      0.0401       0.0401       0.0401       0.0401       0.0401       0.00         0.00         0.00         // m3:
-0.0001      0.0001      0.0001       0.0001       0.0001       0.0001       0.0001       0.00         0.00         0.00         // m4:
-30.0        30.0        30.0         30.0         1.00         1.00         1.00         0.0          0.00         0.00         // frprod[0]:
-50.0        50.0        50.0         50.0         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[1]:
-10.0        10.0        10.0         10.00        0.00         0.00         0.00         0.00         0.00         0.00         // frprod[2]:
-5.00        5.00        5.00         5.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[3]:   
-5.00        5.00        5.00         5.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[4]:
-0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[5]: 
-0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[6]:
-0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[7]:
-0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[8]:
-0.00        0.00        0.00         0.00         0.00         0.00         0.00         0.00         0.00         0.00         // frprod[9]:
-0.03        0.03        0.02         0.01         2.0          1.9          2.1          0.00         0.00         0.00         // initial_lai: start value for Leaf Area Index
-0.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[0]: monthly LAI for a year, used for static input of LAI
-0.0         0.0         0.0          0.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[1]:
-0.0         0.0         0.0          0.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[2]:
-1.0         0.5         1.0          1.2          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[3]:
-1.9         1.3         1.9          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[4]:
-2.5         1.9         2.5          1.9          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[5]:
-2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[6]:
-2.0         2.0         2.0          2.0          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[7]:
-1.5         0.5         1.5          1.5          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[8]:
-0.0         0.2         0.0          1.3          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[9]:
-0.0         0.0         0.0          0.8          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[10]:
-0.0         0.0         0.0          0.7          1.5          1.5          1.5          0.00         0.00         0.00         // static_lai[11]:
+// CMT93 // WetSedgeTundra-Aventdalen // 
+// THIS WAS created 12/13/25, MIGHT NEED TO UPDATE some values"
+//        Moss       Shrubs        Herbs        Grass         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9 // name: units // description // comment // refs
+        1            1            1            1            0            0            0            0            0            0      // vegfrac:  vegetation coverage on land - 0 indicates that PFT doesn't exist //  //  // 
+        0            1            0            0            0            0            0            0            0            0      // ifwoody:  woody plants (1) or not (0) //  //  // 
+        0            1            0            0            0            0            0            0            0            0      // ifdeciwoody:  deciduous woodland (1) or not (0) //  //  // 
+        1            1            1            1            0            0            0            0            0            0      // ifperenial:  perenial (1) or not (0) //  //  // 
+        1            0            0            0            0            0            0            0            0            0      // nonvascular type:  Vascular (0), sphagnum (1), feathermoss (2), lichen (3) //  //  // 
+        0.0200       0.0135       0.3546       0.0072       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // sla:  specific leaf area (m2/gC) //  //  // 
+        0.2500       0.2550       0.0537       0.1133       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // klai:  extinction coeff for conversion from lai to fpc //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // minleaf:  this and the following 4 parameters are for EET/PET controlled phenology - f(leaf) //  //  // 
+        0.7964       0.4289       0.4289       0.7964       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // aleaf:  //  //  // 
+        0.4664       0.3330       0.3330       0.4663       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // bleaf:  //  //  // 
+    -2.870e-02       0.3223       0.3223   -2.873e-02       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cleaf:  //  //  // 
+        1.6662       1.6662       1.6662       1.6662       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // kfoliage:  this and the following 1 parameters are for non-woody plant's f(foliage) //  //  // 
+       -0.0570      -0.0230      -0.0500      -0.6330       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // cov:  //  //  // 
+       15.2060      15.2060      15.2060      15.2060       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m1:  this and the following 3 parameters are for woody plant's f(foliage) //  //  // 
+    -3.197e-01   -3.197e-01   -3.197e-01   -3.197e-01       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m2:  //  //  // 
+        0.0401       0.0401       0.0401       0.0401       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m3:  //  //  // 
+        0.0001       0.0001       0.0001       0.0001       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // m4:  //  //  // 
+      100.0000      30.0000      30.0000      30.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[0]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000      50.0000      50.0000      50.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[1]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000      15.0000      10.0000      10.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[2]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       5.0000       5.0000       5.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[3]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       5.0000       5.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[4]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[5]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[6]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[7]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[8]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // frprod[9]:  fine root allocation percentage vertically in soils (every 10 cm) //  //  // 
+        0.3672       0.1136       0.4688       0.7544       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // initial_lai:  starting value for Leaf Area Index //  //  // 
+        1.5000       0.0000       0.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[0]:  monthly LAI for a year //  used for static input of LAI //  // 
+        1.5000       0.0000       0.3000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[1]:  //  //  // 
+        1.5000       0.0000       0.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[2]:  //  //  // 
+        1.5000       1.2000       1.2000       1.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[3]:  //  //  // 
+        1.5000       1.3000       1.3000       1.9000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[4]:  //  //  // 
+        1.5000       1.9000       1.9000       2.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[5]:  //  //  // 
+        1.5000       2.0000       2.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[6]:  //  //  // 
+        1.5000       2.0000       2.0000       2.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[7]:  //  //  // 
+        1.5000       1.5000       1.5000       1.5000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[8]:  //  //  // 
+        1.5000       1.3000       1.3000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[9]:  //  //  // 
+        1.5000       1.1000       0.8000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[10]:  //  //  // 
+        1.5000       1.0000       0.7000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000       0.0000 // static_lai[11]:  //  //  //
 //===========================================================
