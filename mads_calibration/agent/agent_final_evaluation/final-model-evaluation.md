@@ -8,8 +8,8 @@ Run inside `dvmdostem-autocal` (or `dvmdostem-dev`) with calibrated parameters i
 
 ## Prerequisites
 
-- Step 2 complete per [`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md) **Control flow**: N-level (`nlevel_pass`) and Krb (`krb_pass`) applied, last `analyze.py --phase main` exit `0`, and Nfall (`nfall_pass`) applied — or documented soft closure below
-- Step 1 `cmax` and Step 2 params in `parameters-step2`; N-level/Krb/Nfall and Phase 6/7 documented in closure summary if run
+- Step 2 complete per [`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md): applied `nlevel_pass` → `krb_pass` → `cfall_pass` → `nfall_pass` → `soil_pass` (and phase6/7 if used) — or documented soft closure below
+- Step 1 `cmax` and Step 2 params in `parameters-step2`
 - Site driver data; `--tr-yrs` ≤ historic climate length at site
 
 ## Procedure
@@ -109,36 +109,32 @@ cp -a /data/workflows/CMT04-IMN/parameters-step2 \
 
 ## Validated acceptance (reference — soft closure, any site)
 
-Use only when strict `analyze.py --phase main` exit `0` was documented
-unreachable **and** the N-level, Krb, and Nfall phases (Control flow Stages
-0/1/3) were each run to their own `*_pass` or documented exit `3`
-(structural ceiling) — do not invoke soft closure as a substitute for
-running those phases; it is a fallback for genuine residual misfits after
-the full parameter set has been tried, not a shortcut around missing
-phases. `accepted_limitations` must be recorded in the closure summary,
-naming which target(s) remain off-tier and which phase (if any) hit exit
-`3` for them:
+Use only when staged phases (nlevel → krb → cfall → nfall → soil) were each
+run to `*_pass` or documented exit `3` — not as a shortcut around missing
+phases. Record `accepted_limitations` (target + phase that hit exit `3`):
 
 - Final eval completes all TR years without crash
-- N ratio (INGPP:GPP) within `--biome` band on final parameters, or documented as unreachable via Stage 0 (N-level) exit `3`
 - AVLN within 20% tier on final parameters, or documented as unreachable via Stage 0 (N-level) exit `3`
-- Transient NPP/GPP within ~10% of equilibrium target sums (indicative), or documented as unreachable via Stage 1 (Krb) exit `3`
+- N ratio (INGPP:GPP) within `--biome` band on final parameters, or documented as unreachable via Stage 0 — **diagnostic of N-limitation intensity**, not proof of GPP field-target fit (see Step 2 design intent)
+- Transient NPP within ~10% of equilibrium target sums (indicative), or documented as unreachable via Stage 1 (Krb) exit `3`
+- Transient GPP compared to available observations when present; do not equate N-ratio pass with GPP calibration
 - VEGN (VegStructuralNitrogen) within 10% tier on final parameters, or documented as unreachable via Stage 3 (Nfall) exit `3`
 - Eq-stage soil pools (SHLWC, DEEPC, MINEC) within 20% tier on final parameters
 - Phase 6 and Phase 7 completed when MINEC was sensitive to `rhmoistfrozen`
 
-Set `status: complete` in closure summary when all `closure_criteria` are true. Loop back to Phase 7 (not skip) if soil pools regress after transient run. This section was originally IMN-specific reference language; it now applies to any site, since AVLN/N-ratio/NPP/VEGN misfits are addressed structurally (N-level/Krb/Nfall phases) before soft closure is considered, rather than being accepted as unreachable by default.
+Set `status: complete` in closure summary when all `closure_criteria` are true. Loop back to Phase 7 (not skip) if soil pools regress after transient run. Soft closure is a fallback after the full staged parameter set has been tried — not a shortcut around missing N-level/Krb/Nfall phases or around exit `3` HALTs.
 
 ## Interpreting mismatches
 
 | Symptom | Likely parameter focus | File | Notes |
 |---------|------------------------|------|-------|
-| GPP greatly underestimated | `cmax` | `cmt_calparbgc.txt` | Revisit **Step 1**; re-seed Step 2 if needed |
-| AVLN off tier, or N ratio (INGPP:GPP) outside `--biome` band | `nmax`, `micbnup` | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 2 Stage 0 (N-level) — do not treat as an unfixable Step 1 issue before trying this |
-| NPP off tier while GPP/N-ratio are on target | `krb(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Stage 1 (Krb) |
-| VEGN (VegStructuralNitrogen) off tier | `nfall(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Stage 3 (Nfall) |
-| RECO off, especially **winter RECO** | `rhmoistfrozen` | `cmt_bgcsoil.txt` | See Phase 6 |
-| Mineral soil C (MINEC) off tier | `rhmoistfrozen`, soil `kdc*`, `micbnup` | `cmt_bgcsoil.txt`, `cmt_calparbgc.txt` | Phase 6 then Phase 7 |
+| GPP greatly underestimated | `cmax` (Step 1) and/or `nmax`/`micbnup` (N-level) | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 1 reopen is **human-only**. N-level does not yet gate GPP targets — check AVLN + ratio first |
+| AVLN off tier, or N ratio (INGPP:GPP) outside `--biome` band | `nmax`, `micbnup` | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 2 Stage 0 (N-level). Ratio ≠ GPP fit |
+| NPP off tier while N-ratio is on band | `krb(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Krb — ratio can pass while NPP* is unreachable |
+| VEGC off tier | `cfall(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Cfall |
+| VEGN (VegStructuralNitrogen) off tier | `nfall(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Nfall |
+| RECO off, especially **winter RECO** | `rhmoistfrozen` | `cmt_bgcsoil.txt` | phase6 |
+| Mineral / layer soil C off tier | soil `kdc*` (± `rhmoistfrozen`) | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 2 Soil; phase6 then phase7 if needed. Do not re-tune micbnup here |
 | Soil temperature bias | `nfactor(s)`, `nfactor(w)` | `cmt_envground.txt` | Separate thermal SA |
 | ALD too shallow/deep | `nfactor(s)`, `nfactor(w)`, snow/ground params | `cmt_envground.txt` | Thermal SA before BGC retune |
 
@@ -160,7 +156,7 @@ After re-calibration, repeat SA checks, apply updated parameters, and **re-run t
 
 ## Checklist
 
-- [ ] Step 2 completion criteria satisfied (see [`agent-instructions-step2.md`](agent-instructions-step2.md)): N-level (`nlevel_pass`), Krb (`krb_pass`), main (`pass`), and Nfall (`nfall_pass`) each applied — or exit `3` documented in closure summary for any that were structurally unreachable
+- [ ] Step 2 completion criteria satisfied (see [`agent-instructions-step2.md`](agent-instructions-step2.md)): applied `nlevel_pass` → `krb_pass` → `cfall_pass` → `nfall_pass` → `soil_pass` (and phase6/7 if used) — or exit `3` documented in closure summary for any structurally unreachable stage
 - [ ] `sa-{site_label}-final-eval.yaml` in `logs/` from template
 - [ ] `setup_working_directory.py` run; outputs enabled in `output_spec.csv`
 - [ ] Full run: `--pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {TR_YRS}` matching site climate length
@@ -175,5 +171,5 @@ After re-calibration, repeat SA checks, apply updated parameters, and **re-run t
 | Doc | Purpose |
 |-----|---------|
 | [`../agent_calibration_step1/README.md`](../agent_calibration_step1/README.md) | Step 1 `cmax` calibration |
-| [`../agent_calibration_step2/README.md`](../agent_calibration_step2/README.md) | Step 2 integrated calibration |
+| [`../agent_calibration_step2/README.md`](../agent_calibration_step2/README.md) | Step 2 staged calibration |
 | [`../agent_calibration_step2/agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md) | Step 2 agent workflow |

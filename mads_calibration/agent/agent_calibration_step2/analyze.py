@@ -8,24 +8,13 @@ except chronic whitelist) before status pass.
 
 Typical usage inside dvmdostem-autocal:
 
-  # Main Step 2 iteration:
-  python mads_calibration/agent/agent_calibration_step2/analyze.py \\
-    --phase main \\
-    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter3/ \\
-    --biome tundra \\
-    --save-plots \\
-    --json-out /data/workflows/CMT04-IMN/logs/sa-step2-iter3/step2-result.yaml
-
-  # N-level (AVLN/N-ratio) / Krb (NPP) / Nfall (VEGN) pre-conditioning phases —
-  # see agent-instructions-step2.md Control flow for when these run relative
-  # to the main loop:
+  # Staged phases (see agent-instructions-step2.md):
   python .../analyze.py --phase nlevel --work-dir .../sa-step2-nlevel/ ...
   python .../analyze.py --phase krb --work-dir .../sa-step2-krb/ ...
+  python .../analyze.py --phase cfall --work-dir .../sa-step2-cfall/ ...
   python .../analyze.py --phase nfall --work-dir .../sa-step2-nfall/ ...
-
-  # Phase 6 (MINEC gate) / Phase 7 (SHLWC+DEEPC+MINEC gate):
-  python .../analyze.py --phase phase6 --work-dir .../sa-step2-rhmoistfrozen/ ...
-  python .../analyze.py --phase phase7 --work-dir .../sa-step2-soil-retune/ ...
+  python .../analyze.py --phase soil --work-dir .../sa-step2-soil/ ...
+  # Optional: phase6 (rhmoist/MINEC), phase7 (soil retune alias)
 """
 
 from __future__ import print_function
@@ -48,6 +37,12 @@ from eq_workdir import (  # noqa: E402
     build_step2_lim_dict,
     equilibrium_check_from_workdir,
 )
+from stage_ledger import (  # noqa: E402
+    infer_param_dir_from_work_dir,
+    ledger_path_for_param_dir,
+    load_ledger,
+    require_prerequisites,
+)
 
 RANKING_EXCLUDE_PREFIXES = ('RECO',)
 DIAGNOSTIC_VARS = ('DEEPC', 'VEGC_pft4_Root', 'MINEC', 'AVLN')
@@ -68,34 +63,38 @@ UNREACHABLE_REVIEW_MIN_BY_PHASE = {
     'main': UNREACHABLE_REVIEW_MIN,
     'nlevel': 1,
     'krb': 1,
+    'cfall': 1,
     'nfall': 1,
+    'soil': 1,
+    'phase6': 1,
+    'phase7': 1,  # alias of soil (post-rhmoist retune)
 }
 
 POOL_NCNAMES = frozenset(('SHLWC', 'DEEPC', 'MINEC', 'ORGN', 'AVLN'))
 
 PHASE_PASS_STATUS = {
-    'main': 'pass',
+    'main': 'pass',  # optional post-hoc on old integrated work_dirs only
     'nlevel': 'nlevel_pass',
     'krb': 'krb_pass',
+    'cfall': 'cfall_pass',
     'nfall': 'nfall_pass',
+    'soil': 'soil_pass',
     'phase6': 'phase6_pass',
-    'phase7': 'phase7_pass',
+    'phase7': 'phase7_pass',  # soil retune after rhmoist; same gates as soil
 }
 
 PASSING_STATUSES = frozenset(PHASE_PASS_STATUS.values())
 
-# Pool/column prefixes gated per analyze --phase (results.csv column names).
-# nlevel/krb/nfall are the pre-conditioning phases from
-# docs_src/sphinx/source/calibration.rst's Nmax -> Krb -> Cfall -> Nfall
-# ordering (see agent-instructions-step2.md Control flow):
-#   nlevel gates on AVLN (the target Nmax + micbnup jointly control)
-#   krb    gates on NPP  (the target Krb controls via GPP:NPP ratio)
-#   nfall  gates on VEGNSTR (the target Nfall controls via VEGN)
+# Gate prefixes (results.csv). Canonical: nlevel->krb->cfall->nfall->soil.
+# nlevel: AVLN only (+ N-ratio diagnostic). GPP field fit needs targets outside
+# this agent folder (calibration_targets.py) — not gated here yet.
 PHASE_GATE_POOLS = {
     'main': None,
     'nlevel': ('AVLN',),
     'krb': ('NPP',),
+    'cfall': ('VEGC',),
     'nfall': ('VEGNSTR',),
+    'soil': ('SHLWC', 'DEEPC', 'MINEC'),
     'phase6': ('MINEC',),
     'phase7': ('SHLWC', 'DEEPC', 'MINEC'),
 }
@@ -637,20 +636,28 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='Step 2 SA post-hoc analysis (strict per-target + N + eq gates).',
         epilog=(
-            'Exit 0: pass / nlevel_pass / krb_pass / nfall_pass / '
-            'phase6_pass / phase7_pass. '
-            'Exit 2: target_fit_review — iterate bounds/phases. '
-            'Exit 3: unreachable_review (main phase only). Exit 1: failed.'
+            'Exit 0: *_pass. Exit 2: target_fit_review. '
+            'Exit 3: unreachable_review. Exit 1: failed.'
         ),
     )
     parser.add_argument('--work-dir', required=True)
     parser.add_argument(
-        '--phase', default='main',
-        choices=['main', 'nlevel', 'krb', 'nfall', 'phase6', 'phase7'],
-        help=('Gate scope: main (all targets+N+eq), '
-              'nlevel (AVLN, via micbnup+nmax), krb (NPP, via Krb), '
-              'nfall (VEGNSTR, via Nfall), '
-              'phase6 (MINEC), phase7 (SHLWC+DEEPC+MINEC)'),
+        '--param-dir', default=None,
+        help='parameters-step2 dir for stage-ledger preflight (recommended)',
+    )
+    parser.add_argument(
+        '--skip-preflight', action='store_true',
+        help='Skip stage-order check (documented human approval only)',
+    )
+    parser.add_argument(
+        '--phase', default='cfall',
+        choices=[
+            'nlevel', 'krb', 'cfall', 'nfall', 'soil',
+            'phase6', 'phase7', 'main',
+        ],
+        help=('Gate: nlevel(AVLN)|krb(NPP)|cfall(VEGC)|nfall(VEGNSTR)|'
+              'soil(SHLWC+DEEPC+MINEC)|phase6(MINEC)|phase7(soil alias)|'
+              'main(all+eq)'),
     )
     parser.add_argument(
         '--biome', default='tundra',
@@ -698,6 +705,17 @@ def get_parser():
 
 def main():
     args = get_parser().parse_args()
+    param_dir = args.param_dir or infer_param_dir_from_work_dir(args.work_dir)
+    if param_dir and not args.skip_preflight:
+        ledger_path = ledger_path_for_param_dir(param_dir)
+        ledger = load_ledger(ledger_path)
+        try:
+            require_prerequisites(
+                ledger, args.phase, param_dir=param_dir,
+                force=args.skip_preflight)
+        except RuntimeError as exc:
+            print('PREFLIGHT FAILED: {}'.format(exc), file=sys.stderr)
+            sys.exit(1)
     result = analyze(
         work_dir=args.work_dir,
         biome=args.biome,

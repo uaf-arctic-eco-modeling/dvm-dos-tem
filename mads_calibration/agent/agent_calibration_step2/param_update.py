@@ -4,28 +4,11 @@ Apply recommended_params from step2-result.yaml to workflow parameter files.
 
 Uses util.param.update_inplace (routes to cmt_calparbgc.txt or cmt_bgcsoil.txt).
 
-  # Main apply (all params, requires status: pass):
-  python mads_calibration/agent/agent_calibration_step2/param_update.py \\
-    --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-iter3/step2-result.yaml \\
-    --param-dir /data/workflows/CMT04-IMN/parameters-step2 \\
-    --cmtnum 4
+  python .../param_update.py --phase cfall --step2-result .../step2-result.yaml \\
+    --param-dir .../parameters-step2 --cmtnum 4
 
-  # N-level (micbnup+nmax only, requires status: nlevel_pass):
-  python .../param_update.py --phase nlevel --step2-result .../sa-step2-nlevel/step2-result.yaml ...
-
-  # Krb (krb(0/1/2) only, requires status: krb_pass):
-  python .../param_update.py --phase krb --step2-result .../sa-step2-krb/step2-result.yaml ...
-
-  # Nfall (nfall(0/1/2) only, requires status: nfall_pass):
-  python .../param_update.py --phase nfall --step2-result .../sa-step2-nfall/step2-result.yaml ...
-
-  # Phase 6 (rhmoistfrozen only, requires status: phase6_pass):
-  python .../param_update.py --phase phase6 --step2-result .../sa-step2-rhmoistfrozen/step2-result.yaml ...
-
-  # Phase 7 (soil kdc*/micbnup only, requires status: phase7_pass):
-  python .../param_update.py --phase phase7 --step2-result .../sa-step2-soil-retune/step2-result.yaml ...
-
-  --force applies even when status does not match (documented approval only).
+Phases: nlevel | krb | cfall | nfall | soil | phase6 | phase7 | main(legacy)
+micbnup is applied only via --phase nlevel (frozen afterward).
 """
 
 from __future__ import print_function
@@ -46,34 +29,35 @@ if os.path.isdir(SCRIPTS_DIR) and SCRIPTS_DIR not in sys.path:
 
 import util.param as param  # noqa: E402
 
+from stage_ledger import (  # noqa: E402
+    ledger_path_for_param_dir,
+    load_ledger,
+    record_stage_apply,
+    save_ledger,
+)
+
 PFT_COL_RE = re.compile(r'^(.+)_pft(\d+)$')
 
-PASSING_STATUSES = frozenset((
-    'pass', 'nlevel_pass', 'krb_pass', 'nfall_pass',
-    'phase6_pass', 'phase7_pass',
-))
-
 PHASE_REQUIRED_STATUS = {
-    'main': 'pass',
     'nlevel': 'nlevel_pass',
     'krb': 'krb_pass',
+    'cfall': 'cfall_pass',
     'nfall': 'nfall_pass',
+    'soil': 'soil_pass',
     'phase6': 'phase6_pass',
     'phase7': 'phase7_pass',
+    'main': 'pass',  # optional post-hoc on old integrated work_dirs only
 }
 
-# Base param names (pre-`_pftN` split) allowed for each non-main apply phase.
-# nlevel/krb/nfall mirror propose_bounds.py's PARAM_FAMILIES; phase7 mirrors
-# the original soil-only apply scope.
-PHASE7_PARAM_NAMES = frozenset((
-    'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr',
-))
-
+# Base param names (pre-`_pftN`) allowed per phase. soil/phase7: kdc* only.
+KDC_PARAMS = frozenset(('kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'))
 PHASE_PARAM_NAMES = {
     'nlevel': frozenset(('micbnup', 'nmax')),
     'krb': frozenset(('krb(0)', 'krb(1)', 'krb(2)')),
+    'cfall': frozenset(('cfall(0)', 'cfall(1)', 'cfall(2)')),
     'nfall': frozenset(('nfall(0)', 'nfall(1)', 'nfall(2)')),
-    'phase7': PHASE7_PARAM_NAMES,
+    'soil': KDC_PARAMS,
+    'phase7': KDC_PARAMS,
 }
 
 
@@ -113,7 +97,7 @@ def filter_params_for_phase(recommended_params, phase):
     return filtered
 
 
-def require_pass_status(data, phase='main'):
+def require_pass_status(data, phase='cfall'):
     """Refuse apply unless analyze.py reported the expected status for phase."""
     status = data.get('status')
     result_phase = data.get('phase', 'main')
@@ -121,8 +105,7 @@ def require_pass_status(data, phase='main'):
     if status != required:
         raise RuntimeError(
             'Refusing to apply parameters: step2-result status is {!r}, not {!r}. '
-            'Do not write mid-loop SA samples into parameters-step2 — keep seed_path '
-            'fixed and take bounds from sample_matrix.csv / propose_bounds.py. '
+            'Keep seed_path fixed; take bounds from sample_matrix / propose_bounds. '
             'Use --force only with documented human approval.'.format(
                 status, required))
     if phase != 'main' and result_phase != phase:
@@ -141,11 +124,14 @@ def get_parser():
     parser.add_argument('--cmtnum', type=int, required=True)
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument(
-        '--phase', default='main',
-        choices=['main', 'nlevel', 'krb', 'nfall', 'phase6', 'phase7'],
-        help='Apply scope: main (all params, status pass), '
-             'nlevel (micbnup+nmax), krb (Krb), nfall (Nfall), '
-             'phase6 (rhmoistfrozen), phase7 (soil kdc*/micbnup)',
+        '--phase', default='cfall',
+        choices=sorted(PHASE_REQUIRED_STATUS),
+        help='Apply scope matching analyze --phase (default: cfall)',
+    )
+    parser.add_argument(
+        '--ledger',
+        default=None,
+        help='Stage ledger yaml (default: <workflow>/step2-stage-ledger.yaml)',
     )
     parser.add_argument(
         '--force', action='store_true',
@@ -170,6 +156,18 @@ def main():
         len(recommended), args.phase, args.param_dir))
     apply_recommended(args.param_dir, recommended, args.cmtnum, dry_run=args.dry_run)
     if not args.dry_run:
+        ledger_path = args.ledger or ledger_path_for_param_dir(args.param_dir)
+        ledger = load_ledger(ledger_path) or {'param_dir': os.path.abspath(args.param_dir)}
+        ledger = record_stage_apply(
+            ledger,
+            args.phase,
+            args.step2_result,
+            PHASE_REQUIRED_STATUS[args.phase],
+            work_dir=data.get('work_dir'),
+            run_id=data.get('run_id'),
+        )
+        save_ledger(ledger_path, ledger)
+        print('Updated stage ledger: {}'.format(ledger_path))
         print('Done.')
 
 

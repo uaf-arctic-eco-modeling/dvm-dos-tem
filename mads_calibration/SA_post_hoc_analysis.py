@@ -654,6 +654,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   
   # setting up subplots for INGPP:GPP and AVLN
   fig, ax = plt.subplots(1, 2, figsize=(10,10))
+  ref_len = 2000
   
   # looping through samples
   for i, sample in enumerate(samples):
@@ -671,27 +672,33 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
     gpp_path = os.path.join(dir_path, 'GPP_yearly_eq.nc')
     ingpp_path = os.path.join(dir_path, 'INGPP_yearly_eq.nc')
 
-    # catch if output variables do not exist
-    if not (os.path.exists(avln_path) and os.path.exists(gpp_path) and os.path.exists(ingpp_path)):
+    # INGPP and GPP are required for the N-ratio gate; AVLN is optional
+    # (e.g. Krb SA often omits AVLN from aux_outputs).
+    if not (os.path.exists(gpp_path) and os.path.exists(ingpp_path)):
       print(f"Data files not found for '{sample}'. Skipping...")
       continue
 
     # loading data
-    avln = nc.Dataset(avln_path).variables["AVLN"][:].data[:,0,0]
     gpp = nc.Dataset(gpp_path).variables["GPP"][:].data[:,0,0]
     ingpp = nc.Dataset(ingpp_path).variables["INGPP"][:].data[:,0,0]
+    ref_len = len(ingpp)
+    avln = None
+    if os.path.exists(avln_path):
+      avln = nc.Dataset(avln_path).variables["AVLN"][:].data[:,0,0]
 
     # calculating ratio of INGPP:GPP for whole time series
     ingpp2gpp = ingpp / gpp
 
     # plotting ratio and avln
     ax[0].plot(ingpp2gpp, color='gray', alpha=0.25)
-    ax[1].plot(avln, color='gray', alpha=0.25)
+    if avln is not None:
+      ax[1].plot(avln, color='gray', alpha=0.25)
 
     # populating n_check dataframe:
     # taking the mean of the last 10 years of equilibrium
     n_check.iloc[i, 0] = np.mean(ingpp2gpp[-10:])
-    n_check.iloc[i, 1] = np.mean(avln[-10:])
+    if avln is not None:
+      n_check.iloc[i, 1] = np.mean(avln[-10:])
     
     # testing whether there is N-limitation 
     if biome=='boreal':
@@ -702,9 +709,13 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
         n_check.iloc[i,2] = True
 
   # plotting visual bands for test acceptance
+  valid_ratios = n_check['ratio'].dropna()
+  if len(valid_ratios) == 0:
+    print("No samples with INGPP/GPP data for nitrogen_check.")
+    return n_check, None
   if biome=='boreal':
-    ax[0].plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--')
-    ax[0].fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.25, color='g')
+    ax[0].plot(range(0,ref_len), 1.25*np.ones(ref_len), alpha=0.5, color='g', linestyle='--')
+    ax[0].fill_between(range(0,ref_len), 1.15*np.ones(ref_len), 1.35*np.ones(ref_len), alpha=0.25, color='g')
     num_pass = f"{len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])} out of {len(n_check['ratio'])} passed"
     per_pass = f"{100*(len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])/len(n_check['ratio']))}% passed"
     if 100*(len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])/len(n_check['ratio'])) <= 70:
@@ -712,8 +723,8 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
     else:
       ax[0].set_title(f" {per_pass}, nitrogen is limited ", fontsize=10)
   if biome=='tundra':
-    ax[0].plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--')
-    ax[0].fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.25, color='c')
+    ax[0].plot(range(0,ref_len), 1.5*np.ones(ref_len), alpha=0.5, color='c', linestyle='--')
+    ax[0].fill_between(range(0,ref_len), 1.4*np.ones(ref_len), 1.6*np.ones(ref_len), alpha=0.25, color='c')
     num_pass = f"{len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])} out of {len(n_check['ratio'])} passed"
     per_pass = f"{100*(len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])/len(n_check['ratio']))}% passed"
     if 100*(len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])/len(n_check['ratio'])) <= 70:

@@ -49,3 +49,6 @@ scotty_creek:
 
 bnz-bog:
   - BOREAS_OBS_CMT69
+
+caribou_creek:
+  - MD1_CMT01

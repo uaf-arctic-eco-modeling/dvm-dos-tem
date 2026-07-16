@@ -30,6 +30,7 @@ if os.path.isdir(SCRIPTS_DIR) and SCRIPTS_DIR not in sys.path:
 import util.param as param  # noqa: E402
 
 from burial_params_setup import add_burial_rows  # noqa: E402
+from stage_ledger import init_ledger  # noqa: E402
 
 DEFAULT_SOURCE = '/work/parameters'
 FALLBACK_SOURCE = os.path.join(REPO_ROOT, 'parameters')
@@ -175,8 +176,14 @@ def main():
         manifest_path, args.step1_result, step1_data,
         args.dest, cmax_values, args.cmtnum, source,
     )
+    lpath, _ = init_ledger(
+        args.dest,
+        seed_manifest=mpath,
+        step1_result=args.step1_result,
+    )
     print('Wrote parameters to {}'.format(args.dest))
     print('Wrote manifest to {}'.format(mpath))
+    print('Wrote stage ledger to {}'.format(lpath))
 
 
 if __name__ == '__main__':

@@ -7,20 +7,13 @@ Use --step2-result to read best_sample_index from target-first analysis.
 
 Usage (inside dvmdostem-autocal):
 
-  # Main phase (soil + cfall):
   python mads_calibration/agent/agent_calibration_step2/propose_bounds.py \\
-    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-iter2/ \\
-    --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-iter2/step2-result.yaml \\
-    --soil-samples 6,16 --veg-span 0.30 \\
-    --yaml-out mads_calibration/logs/sa-IMN-step2-iter3-bounds.yaml
+    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-cfall-iter1/ \\
+    --step2-result .../step2-result.yaml \\
+    --family cfall --veg-span 0.30 \\
+    --yaml-out mads_calibration/logs/sa-IMN-step2-cfall-iter2-bounds.yaml
 
-  # N-level phase (micbnup + nmax -> AVLN/N-ratio), Krb phase (-> NPP), or
-  # Nfall phase (-> VEGN); see agent-instructions-step2.md:
-  python mads_calibration/agent/agent_calibration_step2/propose_bounds.py \\
-    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/ \\
-    --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/step2-result.yaml \\
-    --family nlevel --veg-span 0.30 \\
-    --yaml-out mads_calibration/logs/sa-IMN-step2-nlevel-iter2-bounds.yaml
+  Families: nlevel | krb | cfall | nfall | soil
 """
 
 from __future__ import print_function
@@ -39,20 +32,10 @@ if SCRIPT_DIR not in sys.path:
 SOIL_PARAMS = {'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'}
 MIN_POSITIVE = 1e-6
 
-# Parameter families for the staged Step 2 sequence (agent-instructions-step2.md
-# Control flow). Each family maps to the parameter set for one SA phase:
-#   main   -- soil decomposition (Kdc*, micbnup) + Cfall per PFT  -> VEGC/soil C
-#   nlevel -- micbnup + Nmax per PFT                              -> AVLN + N-ratio
-#   krb    -- Krb(0/1/2) per PFT                                  -> NPP
-#   nfall  -- Nfall(0/1/2) per PFT                                -> VEGN
-# See docs_src/sphinx/source/calibration.rst "Calibrate vegetation parameters
-# with N limitation" for the canonical Nmax -> Krb -> Cfall -> Nfall ordering.
+# Parameter families (agent-instructions-step2.md). Canonical order:
+#   nlevel -> krb -> cfall -> nfall -> soil
+# micbnup is sampled only in nlevel (frozen afterward).
 PARAM_FAMILIES = {
-    'main': {
-        'soil': ['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
-        'single': [],
-        'compartments': ['cfall(0)', 'cfall(1)', 'cfall(2)'],
-    },
     'nlevel': {
         'soil': ['micbnup'],
         'single': ['nmax'],
@@ -63,10 +46,21 @@ PARAM_FAMILIES = {
         'single': [],
         'compartments': ['krb(0)', 'krb(1)', 'krb(2)'],
     },
+    'cfall': {
+        'soil': [],
+        'single': [],
+        'compartments': ['cfall(0)', 'cfall(1)', 'cfall(2)'],
+    },
     'nfall': {
         'soil': [],
         'single': [],
         'compartments': ['nfall(0)', 'nfall(1)', 'nfall(2)'],
+    },
+    'soil': {
+        # kdc* only — micbnup stays fixed after nlevel_pass
+        'soil': ['kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
+        'single': [],
+        'compartments': [],
     },
 }
 
@@ -85,12 +79,10 @@ def pft_indices_from_step1(path):
     return sorted(indices)
 
 
-def step2_param_lists(pft_indices=None, pft_max=8, family='main'):
-    """Params for one Step 2 SA phase (family), Step 2 yaml `params`/`pftnums` layout.
+def step2_param_lists(pft_indices=None, pft_max=8, family='cfall'):
+    """Params for one Step 2 SA phase (family), yaml `params`/`pftnums` layout.
 
-    family='main' (default) preserves the original soil + cfall(0/1/2) layout.
-    Other families (nlevel/krb/nfall) return the params for their dedicated
-    phase — see PARAM_FAMILIES.
+    Prefer family in {nlevel, krb, cfall, nfall, soil}.
     """
     if family not in PARAM_FAMILIES:
         raise ValueError('family must be one of {}; got {!r}'.format(
@@ -142,16 +134,12 @@ def load_step2_result(path):
 
 
 def propose_bounds(work_dir, soil_samples, veg_sample, soil_span, veg_span,
-                   pft_indices=None, family='main'):
+                   pft_indices=None, family='cfall'):
     """Propose p_bounds for one param family from a prior SA sample_matrix.csv.
 
     Params in PARAM_FAMILIES[family]['soil'] are centered by averaging
-    `soil_samples` (mirrors the original main-phase behavior for
-    micbnup/kdc*). Every other param (single per-PFT scalars like nmax, or
-    compartment params like cfall/krb/nfall) is centered on `veg_sample`
-    — there is no dedicated "average a few good samples" precedent for
-    those yet, so this keeps behavior consistent with the original cfall
-    handling.
+    `soil_samples`. Other params (nmax, cfall/krb/nfall compartments) are
+    centered on `veg_sample`.
     """
     work_dir = os.path.abspath(work_dir)
     sm = pd.read_csv(os.path.join(work_dir, 'sample_matrix.csv'))
@@ -198,10 +186,8 @@ def main():
     parser.add_argument('--soil-span', type=float, default=0.25)
     parser.add_argument('--veg-span', type=float, default=0.30)
     parser.add_argument(
-        '--family', default='main', choices=sorted(PARAM_FAMILIES),
-        help='Param family for the target phase: main (soil+cfall), '
-             'nlevel (micbnup+nmax -> AVLN/N-ratio), krb (-> NPP), '
-             'nfall (-> VEGN)',
+        '--family', default='cfall', choices=sorted(PARAM_FAMILIES),
+        help='Param family: nlevel|krb|cfall|nfall|soil',
     )
     parser.add_argument('--yaml-out', default=None,
                         help='Write [[lo,hi],...] list as yaml fragment')

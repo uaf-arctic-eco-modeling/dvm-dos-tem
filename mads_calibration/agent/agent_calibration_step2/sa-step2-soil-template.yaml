@@ -1,0 +1,49 @@
+# Step 2 soil Kdc* SA — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Canonical: decomposition rates -> fibric/humic/mineral C (calibration.rst).
+# micbnup is NOT sampled (frozen after nlevel_pass).
+# Prerequisites: applied nfall_pass (ledger enforces full chain through cfall).
+# Analyze: --phase soil  |  Apply: --phase soil
+# After phase6 rhmoist apply, re-run this template with --phase phase7 analyze/apply.
+# See agent-instructions-step2.md
+
+seed_path: {{SEED_PATH}}
+observations: /work/calibration
+
+N_samples: {{N_SAMPLES}}
+
+work_dir: {{WORK_DIR}}
+
+params:
+  - kdcrawc
+  - kdcsoma
+  - kdcsompr
+  - kdcsomcr
+
+pftnums:
+  - null
+  - null
+  - null
+  - null
+
+percent_diffs: {{PERCENT_DIFFS}}
+# or p_bounds from propose_bounds.py --family soil
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+target_names:
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0

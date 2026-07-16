@@ -380,7 +380,7 @@ def setup_site(args):
                 '--skip-sync set but dest input missing: {}'.format(dest_input))
         warnings.append('GCS input sync skipped (--skip-sync)')
     elif not args.dry_run:
-        os.makedirs(os.path.dirname(dest_input), exist_ok=True)
+        os.makedirs(dest_input, exist_ok=True)
         gsutil_rsync(input_bucket_uri, dest_input, dry_run=False)
     else:
         print('[dry-run] would rsync {} -> {}'.format(input_bucket_uri, dest_input))
@@ -412,7 +412,7 @@ def setup_site(args):
             if args.force and os.path.isdir(seed_dir):
                 import shutil
                 shutil.rmtree(seed_dir)
-            os.makedirs(os.path.dirname(seed_dir), exist_ok=True)
+            os.makedirs(seed_dir, exist_ok=True)
             gsutil_rsync(param_bucket_uri, seed_dir, dry_run=False)
             param_cmt_in_file = parse_cmt_from_calpar(
                 os.path.join(seed_dir, 'cmt_calparbgc.txt'))
