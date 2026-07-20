@@ -4,10 +4,10 @@ Step 2 seed setup: copy parameters and fix cmax from Step 1 recommended_cmax.
 
 Typical usage inside dvmdostem-autocal:
 
-  python mads_calibration/agent/agent_calibration_step2/seed_setup.py \\
-    --step1-result /data/workflows/CMT04-IMN-sa-recovery-C/step1-result.yaml \\
-    --cmtnum 4 \\
-    --dest /data/workflows/CMT04-IMN/parameters-step2
+  python mads_calibration/agent/2_calibration/seed_setup.py \\
+    --step1-result /data/workflows/CMT{cmtnum:02d}-{site_label}/.../step1-result.yaml \\
+    --cmtnum {cmtnum} \\
+    --dest /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2
 """
 
 from __future__ import print_function

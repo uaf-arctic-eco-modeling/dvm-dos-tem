@@ -7,11 +7,11 @@ Use --step2-result to read best_sample_index from target-first analysis.
 
 Usage (inside dvmdostem-autocal):
 
-  python mads_calibration/agent/agent_calibration_step2/propose_bounds.py \\
-    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-cfall-iter1/ \\
+  python mads_calibration/agent/2_calibration/propose_bounds.py \\
+    --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-cfall-iter1/ \\
     --step2-result .../step2-result.yaml \\
     --family cfall --veg-span 0.30 \\
-    --yaml-out mads_calibration/logs/sa-IMN-step2-cfall-iter2-bounds.yaml
+    --yaml-out mads_calibration/logs/sa-{site_label}-step2-cfall-iter2-bounds.yaml
 
   Families: nlevel | krb | cfall | nfall | soil
 """
@@ -32,7 +32,7 @@ if SCRIPT_DIR not in sys.path:
 SOIL_PARAMS = {'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'}
 MIN_POSITIVE = 1e-6
 
-# Parameter families (agent-instructions-step2.md). Canonical order:
+# Parameter families (calibration_instructions.md). Canonical order:
 #   nlevel -> krb -> cfall -> nfall -> soil
 # micbnup is sampled only in nlevel (frozen afterward).
 PARAM_FAMILIES = {

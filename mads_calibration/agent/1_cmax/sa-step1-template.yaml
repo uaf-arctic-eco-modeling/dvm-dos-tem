@@ -1,13 +1,13 @@
 # Step 1 SA config template — copy and replace {{PLACEHOLDERS}}.
-# See step1-cmax-agent.md in this folder for agent workflow.
-# seed_path and site typically come from Phase 0 setup manifest (agent/agent_calibration_setup/calibration_setup.md).
+# See cmax_instructions.md in this folder for agent workflow.
+# seed_path and site typically come from Phase 0 setup manifest (agent/0_setup/setup_instructions.md).
 
 seed_path: {{SEED_PATH}}           # from logs/{site_label}-setup-manifest.yaml
 observations: /work/calibration
 
 N_samples: {{N_SAMPLES}}            # e.g. 100 (demo: 5)
 
-work_dir: {{WORK_DIR}}              # e.g. /data/workflows/CMT04-IMN-sa-N100
+work_dir: {{WORK_DIR}}              # e.g. /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N100
 
 # Equal-length lists: one cmax per active PFT (check cmt_bgcvegetation.txt).
 params: {{PARAMS_LIST}}            # e.g. [cmax, cmax, cmax, ...]

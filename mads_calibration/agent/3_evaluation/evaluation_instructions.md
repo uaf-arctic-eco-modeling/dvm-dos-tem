@@ -1,16 +1,28 @@
 # Final model evaluation
 
-Post-calibration validation after Step 2 completion criteria are satisfied ([`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md)). Load this file into your coding agent session for the evaluation stage (see [agent README](../README.md#using-this-harness)). Path: `mads_calibration/agent/agent_final_evaluation/final-model-evaluation.md`.
+Post-calibration validation after Step 2 completion criteria are satisfied ([`calibration_instructions.md`](../2_calibration/calibration_instructions.md)). Load this file into your coding agent session for the evaluation stage. Path: `mads_calibration/agent/3_evaluation/evaluation_instructions.md`.
 
 Calibration SA runs use equilibrium-only spinup (`--sp-yrs 0 --tr-yrs 0`). A **full site simulation** exercises spinup and transient years so fluxes, soil thermal state, and active layer depth can be compared against observations.
 
 Run inside `dvmdostem-autocal` (or `dvmdostem-dev`) with calibrated parameters in workflow `parameters-step2`.
 
+Path conventions: [Multisite conventions](../0_setup/setup_instructions.md#multisite-conventions).
+
+## Minimum user inputs
+
+```yaml
+cmtnum: {cmtnum}
+site: {site}
+site_label: {site_label}
+workflow: /data/workflows/CMT{cmtnum:02d}-{site_label}
+tr_yrs: {TR_YRS}   # transient years — must not exceed historic driver length
+```
+
 ## Prerequisites
 
-- Step 2 complete per [`agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md): applied `nlevel_pass` → `krb_pass` → `cfall_pass` → `nfall_pass` → `soil_pass` (and phase6/7 if used) — or documented soft closure below
-- Step 1 `cmax` and Step 2 params in `parameters-step2`
-- Site driver data; `--tr-yrs` ≤ historic climate length at site
+- Step 2 complete per [`calibration_instructions.md`](../2_calibration/calibration_instructions.md)
+- Step 1 `cmax` and Step 2 params in `{workflow}/parameters-step2`
+- `{TR_YRS}` determined from site driver (see below)
 
 ## Procedure
 
@@ -25,18 +37,28 @@ Copy [`sa-final-eval-template.yaml`](sa-final-eval-template.yaml) to `logs/sa-{s
 | `site`, `PXx`, `PXy`, `cmtnum` | Same as calibration |
 | `opt_run_setup` | `--pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {TR_YRS} --sc-yrs 0` |
 
-**Site constraint (CMT04 Imnavait):** historic climate at `/data/input-catalog/Imnavait/historic-climate.nc` spans **1901–2022 (122 years)**. Use `--tr-yrs 122`. Exceeding driver length causes a vector bounds crash at end of transient.
+### Determine `{TR_YRS}` (required for every site)
 
-Inspect your site driver or site documentation to set `{TR_YRS}` for other locations.
+`--tr-yrs` must not exceed the historic climate record at `{site}`. Inspect the driver inside the container:
+
+```bash
+docker compose exec -T dvmdostem-autocal bash -c \
+  'python -c "import netCDF4 as nc; f=nc.Dataset(\"{site}/historic-climate.nc\"); \
+print(\"years:\", len(f.dimensions[\"time\"]))"'
+```
+
+Use that count as `{TR_YRS}`. Exceeding driver length causes a vector bounds crash at end of transient.
+
+Example: Imnavait historic climate spans 1901–2022 → `{TR_YRS}=122`.
 
 ### 2. Setup working directory
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
   'python /work/scripts/util/setup_working_directory.py \
-    /data/workflows/CMT04-IMN/final-eval \
-    --force --input-data-path /data/input-catalog/Imnavait \
-    --seed-parameters /data/workflows/CMT04-IMN/parameters-step2 \
+    /data/workflows/CMT{cmtnum:02d}-{site_label}/final-eval \
+    --force --input-data-path {site} \
+    --seed-parameters /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 \
     --no-cal-targets'
 ```
 
@@ -51,16 +73,16 @@ Edit `$work_dir/config/output_spec.csv` and enable at minimum:
 - `ALD` if comparing active layer depth
 - Soil temperature layers if comparing thermal profile
 
-Without enabling outputs, transient comparison is limited (IMN v1 only wrote `GPP_yearly_tr.nc`).
+Without enabling outputs, transient comparison is limited.
 
 ### 4. Run full site simulation
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'cd /data/workflows/CMT04-IMN/final-eval && \
-   /work/dvmdostem --pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs 122 --sc-yrs 0 \
-   -l info --force-cmt 4 --ctrl-file config/config.js \
-   2>&1 | tee /data/workflows/CMT04-IMN/logs/final-eval-run.log'
+  'cd /data/workflows/CMT{cmtnum:02d}-{site_label}/final-eval && \
+   /work/dvmdostem --pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {TR_YRS} --sc-yrs 0 \
+   -l info --force-cmt {cmtnum} --ctrl-file config/config.js \
+   2>&1 | tee /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/final-eval-run.log'
 ```
 
 Verify:
@@ -103,8 +125,8 @@ Copy [`step2-closure-summary-template.yaml`](step2-closure-summary-template.yaml
 Archive final parameters:
 
 ```bash
-cp -a /data/workflows/CMT04-IMN/parameters-step2 \
-      /data/workflows/CMT04-IMN/parameters-step2-final
+cp -a /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 \
+      /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2-final
 ```
 
 ## Validated acceptance (reference — soft closure, any site)
@@ -156,7 +178,7 @@ After re-calibration, repeat SA checks, apply updated parameters, and **re-run t
 
 ## Checklist
 
-- [ ] Step 2 completion criteria satisfied (see [`agent-instructions-step2.md`](agent-instructions-step2.md)): applied `nlevel_pass` → `krb_pass` → `cfall_pass` → `nfall_pass` → `soil_pass` (and phase6/7 if used) — or exit `3` documented in closure summary for any structurally unreachable stage
+- [ ] Step 2 completion criteria satisfied (see [`calibration_instructions.md`](../2_calibration/calibration_instructions.md)): applied `nlevel_pass` → `krb_pass` → `cfall_pass` → `nfall_pass` → `soil_pass` (and phase6/7 if used) — or exit `3` documented in closure summary for any structurally unreachable stage
 - [ ] `sa-{site_label}-final-eval.yaml` in `logs/` from template
 - [ ] `setup_working_directory.py` run; outputs enabled in `output_spec.csv`
 - [ ] Full run: `--pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {TR_YRS}` matching site climate length
@@ -170,6 +192,6 @@ After re-calibration, repeat SA checks, apply updated parameters, and **re-run t
 
 | Doc | Purpose |
 |-----|---------|
-| [`../agent_calibration_step1/README.md`](../agent_calibration_step1/README.md) | Step 1 `cmax` calibration |
-| [`../agent_calibration_step2/README.md`](../agent_calibration_step2/README.md) | Step 2 staged calibration |
-| [`../agent_calibration_step2/agent-instructions-step2.md`](../agent_calibration_step2/agent-instructions-step2.md) | Step 2 agent workflow |
+| [`../1_cmax/cmax_instructions.md`](../1_cmax/cmax_instructions.md) | Step 1 `cmax` calibration |
+| [`../2_calibration/calibration_instructions.md`](../2_calibration/calibration_instructions.md) | Step 2 staged calibration |
+| [`../0_setup/setup_instructions.md`](../0_setup/setup_instructions.md) | Harness entry point (Phase 0) |

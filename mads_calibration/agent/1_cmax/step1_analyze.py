@@ -7,11 +7,11 @@ Mirrors the analysis cells in notebooks/calibration_process.ipynb:
 
 Typical usage inside dvmdostem-autocal:
 
-  python mads_calibration/agent/agent_calibration_step1/step1_analyze.py \\
-    --work-dir /data/workflows/CMT04-IMN-sa-N100/ \\
+  python mads_calibration/agent/1_cmax/step1_analyze.py \\
+    --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N100/ \\
     --rmse-threshold 10 \\
-    --config-yaml mads_calibration/logs/sa-IMN-step1.yaml \\
-    --json-out /data/workflows/CMT04-IMN-sa-N100/step1-result.yaml
+    --config-yaml mads_calibration/logs/sa-{site_label}-step1.yaml \\
+    --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N100/step1-result.yaml
 """
 
 from __future__ import print_function
@@ -25,9 +25,12 @@ import pandas as pd
 import yaml
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MADS_CALIB_DIR = os.path.dirname(SCRIPT_DIR)
-if MADS_CALIB_DIR not in sys.path:
-    sys.path.insert(0, MADS_CALIB_DIR)
+AGENT_DIR = os.path.dirname(SCRIPT_DIR)
+CALIBRATION_DIR = os.path.join(AGENT_DIR, '2_calibration')
+if AGENT_DIR not in sys.path:
+    sys.path.insert(0, AGENT_DIR)
+if CALIBRATION_DIR not in sys.path:
+    sys.path.insert(0, CALIBRATION_DIR)
 
 import SA_post_hoc_analysis as sa  # noqa: E402
 from eq_workdir import equilibrium_check_from_workdir  # noqa: E402

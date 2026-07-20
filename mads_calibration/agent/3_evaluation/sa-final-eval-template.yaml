@@ -1,5 +1,5 @@
 # Final model evaluation template — copy into logs/sa-{site_label}-final-eval.yaml.
-# See final-model-evaluation.md and step2-closure-summary-template.yaml.
+# See evaluation_instructions.md and step2-closure-summary-template.yaml.
 
 param_dir: {{PARAM_DIR}}
 work_dir: {{WORK_DIR}}
@@ -16,7 +16,7 @@ opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {{TR_YRS}} --sc-
 #   python scripts/util/setup_working_directory.py {{WORK_DIR}} \
 #     --force --input-data-path {{SITE}} \
 #     --seed-parameters {{PARAM_DIR}} --no-cal-targets
-#   Enable outputs on {{WORK_DIR}}/config/output_spec.csv (see final-model-evaluation.md)
+#   Enable outputs on {{WORK_DIR}}/config/output_spec.csv (see evaluation_instructions.md)
 
 # Run (inside dvmdostem-autocal):
 #   cd {{WORK_DIR}}

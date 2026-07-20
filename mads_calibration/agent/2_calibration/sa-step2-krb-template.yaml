@@ -1,6 +1,6 @@
-# Step 2 Nfall SA — nfall(0/1/2) -> VEGN. Prerequisites: applied cfall_pass.
-# Analyze/apply: --phase nfall
-# See agent-instructions-step2.md
+# Step 2 Krb SA — krb(0/1/2) -> NPP. Prerequisites: applied nlevel_pass.
+# Analyze/apply: --phase krb. Keep bounds negative (cmt_calparbgc convention).
+# See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
 observations: /work/calibration
@@ -12,7 +12,7 @@ work_dir: {{WORK_DIR}}
 params: {{PARAMS_LIST}}
 pftnums: {{PFTNUMS_LIST}}
 percent_diffs: {{PERCENT_DIFFS}}
-# p_bounds: [[0.0, 0.2], ...]
+# p_bounds: [[-15.0, -0.5], ...]
 
 site: {{SITE}}
 PXx: {{PXX}}
@@ -22,8 +22,7 @@ calib_mode: VEGC
 sampling_method: lhc
 
 target_names:
-- VegStructuralNitrogen
-- VegCarbon
+- NPPAll
 
 aux_outputs:
 - INGPP y

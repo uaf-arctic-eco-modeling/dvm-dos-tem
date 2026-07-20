@@ -3,8 +3,8 @@
 
 Called from ``seed_setup.py`` when building ``parameters-step2``. Standalone:
 
-  python mads_calibration/agent/agent_calibration_step2/burial_params_setup.py \\
-    --param-dir /data/workflows/CMT21-EML/parameters-step2 --cmtnum 21
+  python mads_calibration/agent/2_calibration/burial_params_setup.py \\
+    --param-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 --cmtnum {cmtnum}
 """
 
 from __future__ import print_function

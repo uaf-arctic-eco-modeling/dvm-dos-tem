@@ -1,5 +1,5 @@
 # Setup manifest template — written by calibration_setup.py (Phase 0).
-# Copy fields into Step 1 SA yaml and user inputs for step1-cmax-agent.md.
+# Copy fields into Step 1 SA yaml and user inputs for cmax_instructions.md.
 
 site_name: {{SITE_NAME}}              # GCS input folder name, e.g. Imnavait
 site_label: {{SITE_LABEL}}            # short token, e.g. IMN

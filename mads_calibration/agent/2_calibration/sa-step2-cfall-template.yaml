@@ -1,6 +1,8 @@
-# Step 2 Krb SA — krb(0/1/2) -> NPP. Prerequisites: applied nlevel_pass.
-# Analyze/apply: --phase krb. Keep bounds negative (cmt_calparbgc convention).
-# See agent-instructions-step2.md
+# Step 2 Cfall SA — copy into logs/ and replace {{PLACEHOLDERS}}.
+# Canonical: Cfall -> VEGC after Krb is fixed (calibration.rst).
+# Prerequisites: applied nlevel_pass AND krb_pass.
+# Analyze: --phase cfall  |  Apply: --phase cfall
+# See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
 observations: /work/calibration
@@ -9,10 +11,11 @@ N_samples: {{N_SAMPLES}}
 
 work_dir: {{WORK_DIR}}
 
+# cfall(0/1/2) per active PFT — propose_bounds.py --family cfall
 params: {{PARAMS_LIST}}
 pftnums: {{PFTNUMS_LIST}}
 percent_diffs: {{PERCENT_DIFFS}}
-# p_bounds: [[-15.0, -0.5], ...]
+# p_bounds: [[0.0, 0.2], ...]
 
 site: {{SITE}}
 PXx: {{PXX}}
@@ -22,6 +25,7 @@ calib_mode: VEGC
 sampling_method: lhc
 
 target_names:
+- VegCarbon
 - NPPAll
 
 aux_outputs:

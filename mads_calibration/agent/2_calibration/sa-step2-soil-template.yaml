@@ -4,7 +4,7 @@
 # Prerequisites: applied nfall_pass (ledger enforces full chain through cfall).
 # Analyze: --phase soil  |  Apply: --phase soil
 # After phase6 rhmoist apply, re-run this template with --phase phase7 analyze/apply.
-# See agent-instructions-step2.md
+# See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
 observations: /work/calibration

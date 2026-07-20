@@ -1,10 +1,52 @@
 # Step 2 Calibration — Agent Instructions
 
-Load this file for Step 2 (see [agent README](../README.md#using-this-harness)).
+Load this file for Step 2. Path: `mads_calibration/agent/2_calibration/calibration_instructions.md`.
 
-Canonical process: [`docs_src/sphinx/source/calibration.rst`](../../../docs_src/sphinx/source/calibration.rst) (N limitation ON, then soil). Handoff from Step 1: [`step1-transition.md`](step1-transition.md).
+Canonical process: [`docs_src/sphinx/source/calibration.rst`](../../../docs_src/sphinx/source/calibration.rst) (N limitation ON, then soil).
 
 `calib_mode: VEGC` turns NFEED on. Run **one SA at a time** per VM.
+
+Path conventions: [Multisite conventions](../0_setup/setup_instructions.md#multisite-conventions). Workflow root: `/data/workflows/CMT{cmtnum:02d}-{site_label}/`.
+
+---
+
+## Step 1 handoff
+
+Handoff from [`1_cmax/`](../1_cmax/) to Step 2.
+
+### Prerequisites
+
+| Field | Use |
+|-------|-----|
+| `recommended_cmax` | Fixed in Step 2 `seed_path`; **not** re-sampled |
+| `status` | Must be `pass` for `seed_setup.py` (default); `best_effort` needs `--force` |
+
+### What changes
+
+| Setting | Step 1 | Step 2 |
+|---------|--------|--------|
+| `params` | `cmax` | Staged: nlevel → krb → cfall → nfall → soil |
+| `calib_mode` | `GPPAllIgnoringNitrogen` | **`VEGC`** |
+| `opt_run_setup` | `--eq-yrs 200` | **`--eq-yrs 2000`** |
+| `seed_path` | repo/recovery params | **`parameters-step2`** |
+
+Do **not** reopen Step 1 from Step 2 on N-level failure (exit `3` = human HALT).
+
+### Seed
+
+```bash
+python mads_calibration/agent/2_calibration/seed_setup.py \
+  --step1-result /data/workflows/CMT{cmtnum:02d}-{site_label}/{step1-work-dir}/step1-result.yaml \
+  --cmtnum {cmtnum} \
+  --dest /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2
+```
+
+### Start checklist
+
+- [ ] Step 1 `status: pass` (or documented `--force`)
+- [ ] `parameters-step2` exists; `step2-stage-ledger.yaml` initialized (empty `stages`)
+- [ ] First SA is **N-level** (`sa-step2-nlevel-template.yaml`)
+- [ ] `calib_mode: VEGC`; `aux_outputs: [INGPP y, GPP y]`
 
 ---
 
@@ -31,14 +73,16 @@ Optional: `phase6` (`rhmoistfrozen` → MINEC) then re-run soil with analyze/app
 ## Minimum user inputs
 
 ```yaml
-cmtnum: 4
-site: /data/input-catalog/Imnavait
-PXx: 0
-PXy: 0
-site_label: IMN
-step1_result: /data/workflows/CMT04-IMN-sa-recovery-C/step1-result.yaml
-nitrogen_biome: tundra   # boreal | tundra
+cmtnum: {cmtnum}
+site: {site}
+PXx: {PXx}
+PXy: {PXy}
+site_label: {site_label}
+step1_result: /data/workflows/CMT{cmtnum:02d}-{site_label}/.../step1-result.yaml
+nitrogen_biome: tundra   # tundra (1.4–1.6) | boreal (1.15–1.35) — set from site/CMT
 ```
+
+Set `nitrogen_biome` from site ecology (arctic tundra sites → `tundra`; boreal forest → `boreal`). Pass the same value to every `analyze.py --biome` call for this site.
 
 ## Checklist
 
@@ -48,7 +92,7 @@ nitrogen_biome: tundra   # boreal | tundra
 - [ ] Cfall → exit `0` → `param_update --phase cfall`
 - [ ] Nfall → exit `0` → `param_update --phase nfall`
 - [ ] Soil → exit `0` → `param_update --phase soil` (phase6/7 if MINEC needs rhmoist)
-- [ ] [`final-model-evaluation.md`](../agent_final_evaluation/final-model-evaluation.md)
+- [ ] [`evaluation_instructions.md`](../3_evaluation/evaluation_instructions.md)
 
 ---
 
@@ -88,35 +132,35 @@ Preflight: `analyze.py` reads `step2-stage-ledger.yaml` (auto from `work_dir` un
 
 ```bash
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent/agent_calibration_step2/seed_setup.py \
-    --step1-result /data/workflows/CMT04-IMN-sa-recovery-C/step1-result.yaml \
-    --cmtnum 4 --dest /data/workflows/CMT04-IMN/parameters-step2'
+  'python /work/mads_calibration/agent/2_calibration/seed_setup.py \
+    --step1-result /data/workflows/CMT{cmtnum:02d}-{site_label}/.../step1-result.yaml \
+    --cmtnum {cmtnum} --dest /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2'
 
-# After filling logs/sa-{SITE}-step2-{phase}-iterN.yaml from the template:
+# After filling logs/sa-{site_label}-step2-{phase}-iterN.yaml from the template:
 docker compose exec -T dvmdostem-autocal bash -c \
   'cd /work && python mads_calibration/SA_setup_and_run.py --force \
-    mads_calibration/logs/sa-IMN-step2-nlevel-iter1.yaml'
+    mads_calibration/logs/sa-{site_label}-step2-nlevel-iter1.yaml'
 
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent/agent_calibration_step2/analyze.py \
-    --phase nlevel --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/ \
-    --param-dir /data/workflows/CMT04-IMN/parameters-step2 \
-    --biome tundra \
-    --json-out /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/step2-result.yaml'
+  'python /work/mads_calibration/agent/2_calibration/analyze.py \
+    --phase nlevel --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-nlevel-iter1/ \
+    --param-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 \
+    --biome {nitrogen_biome} \
+    --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-nlevel-iter1/step2-result.yaml'
 
 # exit 0:
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent/agent_calibration_step2/param_update.py \
+  'python /work/mads_calibration/agent/2_calibration/param_update.py \
     --phase nlevel \
-    --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/step2-result.yaml \
-    --param-dir /data/workflows/CMT04-IMN/parameters-step2 --cmtnum 4'
+    --step2-result /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-nlevel-iter1/step2-result.yaml \
+    --param-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 --cmtnum {cmtnum}'
 
 # exit 2:
 docker compose exec -T dvmdostem-autocal bash -c \
-  'python /work/mads_calibration/agent/agent_calibration_step2/propose_bounds.py \
-    --work-dir /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/ \
-    --step2-result /data/workflows/CMT04-IMN/logs/sa-step2-nlevel-iter1/step2-result.yaml \
-    --family nlevel --yaml-out mads_calibration/logs/sa-IMN-step2-nlevel-iter2-bounds.yaml'
+  'python /work/mads_calibration/agent/2_calibration/propose_bounds.py \
+    --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-nlevel-iter1/ \
+    --step2-result /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-nlevel-iter1/step2-result.yaml \
+    --family nlevel --yaml-out mads_calibration/logs/sa-{site_label}-step2-nlevel-iter2-bounds.yaml'
 ```
 
 Repeat the same pattern for `krb`, `cfall`, `nfall`, `soil` (change `--phase` / `--family` / template).
@@ -175,4 +219,4 @@ N-ratio bands: tundra 1.4–1.6, boreal 1.15–1.35. Every phase requires the **
 | Scripts | `seed_setup.py`, `stage_ledger.py`, `analyze.py`, `propose_bounds.py`, `param_update.py` |
 | Templates | `sa-step2-{nlevel,krb,cfall,nfall,soil,rhmoistfrozen}-template.yaml` |
 | Agent yamls | `mads_calibration/logs/` (gitignored) |
-| Closure | [`step2-closure-summary-template.yaml`](../agent_final_evaluation/step2-closure-summary-template.yaml) |
+| Closure | [`step2-closure-summary-template.yaml`](../3_evaluation/step2-closure-summary-template.yaml) |

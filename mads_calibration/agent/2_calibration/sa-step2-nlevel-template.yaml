@@ -1,8 +1,7 @@
-# Step 2 Cfall SA — copy into logs/ and replace {{PLACEHOLDERS}}.
-# Canonical: Cfall -> VEGC after Krb is fixed (calibration.rst).
-# Prerequisites: applied nlevel_pass AND krb_pass.
-# Analyze: --phase cfall  |  Apply: --phase cfall
-# See agent-instructions-step2.md
+# Step 2 N-level SA — micbnup + nmax -> AVLN (+ N-ratio diagnostic).
+# Canonical also targets actual GPP; GPP field keys are outside this agent folder.
+# First stage after seed. Analyze/apply: --phase nlevel
+# See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
 observations: /work/calibration
@@ -11,11 +10,10 @@ N_samples: {{N_SAMPLES}}
 
 work_dir: {{WORK_DIR}}
 
-# cfall(0/1/2) per active PFT — propose_bounds.py --family cfall
 params: {{PARAMS_LIST}}
 pftnums: {{PFTNUMS_LIST}}
 percent_diffs: {{PERCENT_DIFFS}}
-# p_bounds: [[0.0, 0.2], ...]
+# p_bounds: [[0.01, 1.0], ...]
 
 site: {{SITE}}
 PXx: {{PXX}}
@@ -25,8 +23,8 @@ calib_mode: VEGC
 sampling_method: lhc
 
 target_names:
-- VegCarbon
-- NPPAll
+- AvailableNitrogenSum
+- OrganicNitrogenSum
 
 aux_outputs:
 - INGPP y
