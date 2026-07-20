@@ -53,11 +53,11 @@ Example (CMT04 Imnavait): `cmtnum: 4`, `site: /data/input-catalog/Imnavait`, `si
 You are a calibration agent. Given a CMT number, site path, and grid cell, you will:
 
 1. Build and run a Step 1 sensitivity analysis (SA).
-2. Perform post-hoc analysis (equilibrium filter, rank by R², compute RMSE).
-3. If RMSE ≥ threshold, launch recovery-style perturbation runs (A–D); repeat until RMSE < threshold.
+2. Perform post-hoc analysis (equilibrium filter, rank by tier failures, compute metrics).
+3. If any active PFT exceeds the ±10% tier, launch recovery-style perturbation runs (A–D); repeat until all PFTs pass.
 4. When Step 1 is complete (`status: pass`), report `recommended_cmax` and metrics in the output contract format below.
 
-**Success criterion:** equilibrium-filtered best sample has **RMSE < 10** (aggregate across all INGPP PFT columns) **and** selection prefers **fewest per-PFT tier failures** (±10% per column via `step1_analyze.py`). Step 1 is **done only when** `status: pass`. If `best_effort`, continue iterating (recovery A–D, then re-seed from global best and retry) until pass.
+**Success criterion:** equilibrium-filtered best sample has **zero per-PFT tier failures** (each active INGPP column within ±10% of target via `step1_analyze.py`). Step 1 is **done only when** `status: pass`. If `best_effort`, continue iterating (recovery A–D, then re-seed from global best and retry) until pass.
 
 ---
 
@@ -76,14 +76,14 @@ You are a calibration agent. Given a CMT number, site path, and grid cell, you w
 The human or orchestrator provides a YAML block at invocation:
 
 ```yaml
-goal: "Calibrate cmax to match GPPAllIgnoringNitrogen with RMSE < 10"
+goal: "Calibrate cmax to match GPPAllIgnoringNitrogen within ±10% per active PFT"
 cmtnum: {cmtnum}
 site: {site}
 PXx: {PXx}
 PXy: {PXy}
 site_label: {site_label}
 N_samples: 100               # use 5 with sa-demo-config for smoke tests
-rmse_threshold: 10
+flux_rel_err_pct: 10
 percent_diffs: 0.25
 recovery_percent_diffs: 0.40
 ```
@@ -183,7 +183,6 @@ Prefer the headless CLI (mirrors [`calibration_process.ipynb`](../notebooks/cali
 docker compose exec -T dvmdostem-autocal bash -c \
   'python /work/mads_calibration/agent/1_cmax/step1_analyze.py \
     --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N{N}/ \
-    --rmse-threshold 10 \
     --config-yaml mads_calibration/logs/sa-{site_label}-step1.yaml \
     --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N{N}/step1-result.yaml'
 ```
@@ -200,8 +199,8 @@ The CLI sets both `status` in the output artifact **and** a process exit code. T
 
 | Exit code | `status` in artifact | Meaning | Agent action |
 |-----------|----------------------|---------|--------------|
-| `0` | `pass` | Best eq-filtered sample has RMSE < threshold | Step 1 complete — report `recommended_cmax`; **do not** run perturbation |
-| `2` | `best_effort` | Eq-filtered samples exist but RMSE ≥ threshold | **Continue iterating** — run Phase 4 recovery; if still ≥ threshold, re-seed from global best and repeat until pass |
+| `0` | `pass` | Best eq-filtered sample has zero tier failures (all active PFTs within ±10%) | Step 1 complete — report `recommended_cmax`; **do not** run perturbation |
+| `2` | `best_effort` | Eq-filtered samples exist but best sample has tier failures | **Continue iterating** — run Phase 4 recovery; if still failing tiers, re-seed from global best and repeat until pass |
 | `1` | `failed` | No samples passed equilibrium check | Stop or relax eq limits; do **not** proceed to perturbation |
 
 Exit `2` is expected during iteration; keep going until exit `0`.
@@ -212,7 +211,7 @@ Exit `2` is expected during iteration; keep going until exit `0`.
 
 ## Phase 3 — Acceptance Check
 
-- **Pass (`status: pass`, exit `0`):** best equilibrium-filtered sample has `RMSE < rmse_threshold`.
+- **Pass (`status: pass`, exit `0`):** best equilibrium-filtered sample has `selected_tier_failures == 0` (all active PFTs within `--flux-rel-err-pct`, default 10%).
 - **Best effort (`status: best_effort`, exit `2`):** not complete — proceed to Phase 4 or next iteration round.
 - **Failed (`status: failed`, exit `1`):** no equilibrium-passing samples; stop and report.
 
@@ -220,7 +219,7 @@ Extract `recommended_cmax` from the best sample's `cmax_*` columns in `sample_ma
 
 ---
 
-## Phase 4 — Perturbation Loop (when RMSE ≥ threshold)
+## Phase 4 — Perturbation Loop (when tier failures remain)
 
 Follow the recovery pattern in [`recovery_cmax_optima.yaml`](recovery_cmax_optima.yaml). Use that file for **`bias_tiers`** and **`runs`** only — bundled `reference_optima` are CMT04 examples; always pass `--reference-cmax-yaml` from your site's `step1-result.yaml`.
 
@@ -244,9 +243,9 @@ For each run A–D:
 1. Point `seed_path` to `parameters-recovery-{A|B|C|D}` under `dest-base`.
 2. Create `logs/sa-{site_label}-recovery-{A|B|C|D}.yaml` with `percent_diffs: 0.40`, unique `work_dir`.
 3. Run SA and analyze with `step1_analyze.py`.
-4. Track global best RMSE across baseline + all perturbation runs.
+4. Track global best tier score (fewest failures, then lowest excess) across baseline + all perturbation runs.
 
-After all runs, select the global best. If global best still has RMSE ≥ threshold, apply its `recommended_cmax` as new seed and repeat (recovery + new SA) until pass.
+After all runs, select the global best. If global best still has tier failures, apply its `recommended_cmax` as new seed and repeat (recovery + new SA) until pass.
 
 ---
 
@@ -258,6 +257,8 @@ Write a YAML/JSON artifact via `step1_analyze.py --json-out` to `{work_dir}/step
 run_id: CMT{cmtnum:02d}-{site_label}-step1
 status: pass
 best_rmse: 7.42
+selected_tier_failures: 0
+flux_rel_err_pct: 10
 work_dir: /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-recovery-C/
 config_yaml: mads_calibration/logs/sa-{site_label}-recovery-C.yaml
 recommended_cmax:
@@ -270,9 +271,9 @@ recommended_cmax:
 ## Decision Rules
 
 1. **Always** apply equilibrium filter before ranking samples.
-2. Rank by R² descending (take last rows from `n_top_runs`).
-3. RMSE is aggregate across all INGPP PFT target columns (`calc_metrics`).
-4. When `step1_analyze.py` returns exit `2` (`best_effort`), run Phase 4 recovery; if still ≥ threshold, re-seed and repeat until exit `0`.
+2. Rank by fewest per-PFT tier failures, then worst tier excess (`step1_analyze.py`).
+3. Report aggregate RMSE/R² via `calc_metrics` for diagnostics only.
+4. When `step1_analyze.py` returns exit `2` (`best_effort`), run Phase 4 recovery; if tier failures remain, re-seed and repeat until exit `0`.
 5. Enforce `(0, LIM]` on all written cmax values.
 6. Do not modify `calibration_targets.py` or `parameters/cmt_calparbgc.txt` in the repo — write copies under `/data/workflows/`.
 
@@ -292,7 +293,7 @@ recommended_cmax:
 
 ## Do Not
 
-- Run Step 2 (vegetation/soil targets) or declare Step 1 complete while RMSE ≥ threshold (`best_effort`).
+- Run Step 2 (vegetation/soil targets) or declare Step 1 complete while tier failures remain (`best_effort`).
 - Run `pip install` inside the container.
 - Modify `calibration/calibration_targets.py`.
 - Commit secrets or `.env` credentials.

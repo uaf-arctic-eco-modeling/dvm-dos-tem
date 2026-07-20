@@ -9,7 +9,6 @@ Typical usage inside dvmdostem-autocal:
 
   python mads_calibration/agent/1_cmax/step1_analyze.py \\
     --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N100/ \\
-    --rmse-threshold 10 \\
     --config-yaml mads_calibration/logs/sa-{site_label}-step1.yaml \\
     --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N100/step1-result.yaml
 """
@@ -71,7 +70,7 @@ def tier_failure_score_step1(results, targets, sample_idx, rel_err_pct):
 
 
 def select_best_sample_step1(results, targets, sample_matrix, rel_err_pct):
-    """Rank eq-filtered samples by fewest per-PFT tier failures, then RMSE."""
+    """Rank eq-filtered samples by fewest per-PFT tier failures, then excess."""
     scored = []
     for idx in results.index:
         n_fail, excess = tier_failure_score_step1(
@@ -87,7 +86,7 @@ def select_best_sample_step1(results, targets, sample_matrix, rel_err_pct):
     return best_idx, float(rmse_by_idx[best_idx]), float(r2_by_idx[best_idx]), scored
 
 
-def analyze(work_dir, rmse_threshold=10.0, n_top=10,
+def analyze(work_dir, n_top=10,
             slope_lim=1e-3, eps_lim=1e-5, cv_lim=1,
             flux_rel_err_pct=STEP1_FLUX_REL_ERR_PCT,
             run_id=None, config_yaml=None):
@@ -141,7 +140,7 @@ def analyze(work_dir, rmse_threshold=10.0, n_top=10,
 
     n_tier_fail, worst_excess = scored[0][0], scored[0][1]
 
-    status = 'pass' if best_rmse < rmse_threshold else 'best_effort'
+    status = 'pass' if n_tier_fail == 0 else 'best_effort'
 
     top_n_summary = []
     for n_fail, excess, idx in scored[:min(n_top, len(scored))]:
@@ -163,6 +162,7 @@ def analyze(work_dir, rmse_threshold=10.0, n_top=10,
         'best_sample_index': best_sample_index,
         'selected_tier_failures': n_tier_fail,
         'selected_worst_tier_excess_pct': float(worst_excess),
+        'flux_rel_err_pct': flux_rel_err_pct,
         'work_dir': work_dir,
         'config_yaml': config_yaml,
         'n_eq_passing': n_eq_passing,
@@ -192,10 +192,6 @@ def get_parser():
         help='SA work_dir from yaml (trailing slash optional)',
     )
     parser.add_argument(
-        '--rmse-threshold', type=float, default=10.0,
-        help='RMSE acceptance threshold (default: 10)',
-    )
-    parser.add_argument(
         '--n-top', type=int, default=10,
         help='Number of top R² runs to summarize (default: 10)',
     )
@@ -216,7 +212,7 @@ def get_parser():
     parser.add_argument('--cv-lim', type=float, default=1.0)
     parser.add_argument(
         '--flux-rel-err-pct', type=float, default=STEP1_FLUX_REL_ERR_PCT,
-        help='Per-PFT INGPP tier (%%) used for sample selection (default: 10)',
+        help='Per-PFT INGPP tier (%%) for selection and pass/fail (default: 10)',
     )
     return parser
 
@@ -225,7 +221,6 @@ def main():
     args = get_parser().parse_args()
     result = analyze(
         work_dir=args.work_dir,
-        rmse_threshold=args.rmse_threshold,
         n_top=args.n_top,
         slope_lim=args.slope_lim,
         eps_lim=args.eps_lim,

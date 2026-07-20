@@ -3,7 +3,7 @@
 # reference_optima below are CMT04 Imnavait examples only. At runtime, override
 # with --reference-cmax-yaml pointing to step1_analyze.py output (recommended_cmax).
 #
-# bias_tiers and runs define the A–D perturbation pattern used when RMSE >= threshold.
+# bias_tiers and runs define the A–D perturbation pattern used when tier failures remain.
 
 reference_optima:
   cmax_pft0: 243.201247

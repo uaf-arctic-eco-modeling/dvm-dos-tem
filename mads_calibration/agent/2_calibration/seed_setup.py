@@ -142,7 +142,7 @@ def main():
     recommended, step1_data = recommended_cmax_from_step1(args.step1_result)
     if step1_data.get('status') == 'best_effort' and not args.force:
         raise RuntimeError(
-            'Step 1 status is best_effort (RMSE threshold not met). '
+            'Step 1 status is best_effort (per-PFT GPP tier not met). '
             'Refusing seed_setup — complete Step 1 recovery or use --force with '
             'documented approval before Step 2.'
         )

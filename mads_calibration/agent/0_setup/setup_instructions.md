@@ -39,7 +39,7 @@ Before a new SA: confirm no stray `dvmdostem` or `SA_setup_and_run.py` processes
 | Phase | Script | Proceed when |
 |-------|--------|--------------|
 | 0 | `calibration_setup.py` | exit `0` or `2`; exit `1` blocks Step 1 (no cross-CMT param fallback) |
-| 1 | `step1_analyze.py` | `status: pass` (RMSE < 10); `best_effort` = keep iterating |
+| 1 | `step1_analyze.py` | `status: pass` (all active PFTs within ±10% tier); `best_effort` = keep iterating |
 | 1→2 | `seed_setup.py` (+ `burial_params_setup.py`) | Step 1 `status: pass` (or `--force`); creates `step2-stage-ledger.yaml` |
 | 2 preflight | `analyze.py` + `stage_ledger.py` | `--param-dir` set: prior `*_pass` stages applied (or `--skip-preflight` with approval) |
 | 2 | `analyze.py` | exit `0` = phase pass; `2` = iterate bounds; `3` = **HALT for human** (do **not** auto-reopen Step 1; do not start the next stage) |
