@@ -100,7 +100,24 @@ The evaluation run **adds** `--sp-yrs 250 --tr-yrs {TR_YRS}`.
 
 ### 5. Compare model vs observations
 
-Compare full-run outputs to site observations. Use plots and summary statistics (annual means, seasonal cycles) rather than a single global tolerance.
+Systematically compare **observed vs simulated** values for every variable with
+available site observations. This is a qualitative/semi-quantitative check — not
+the strict equilibrium-tolerance SA used during Step 2 calibration (which applies
+tier thresholds to stocks and fluxes under `--sp-yrs 0 --tr-yrs 0`).
+
+**General correlation.** Verify that simulated transient time series generally
+correlate with observed time series. Compute Pearson *r* (or Spearman ρ when
+distributions are skewed) and confirm visual agreement in time-series plots.
+Exact magnitude match is not required; the model should *track observed trends*.
+
+**Similar cycles over time.** Confirm that seasonal cycles (amplitude and phase)
+are similar between modeled and observed series — peaks and troughs should occur
+in roughly the same months with comparable relative magnitude. Check interannual
+variability: multi-year trends should move in the same direction even if absolute
+values differ.
+
+Use plots and summary statistics (annual means, seasonal amplitude, correlation
+coefficients) rather than a single global tolerance.
 
 | Variable | Typical outputs | Notes |
 |----------|-----------------|-------|
