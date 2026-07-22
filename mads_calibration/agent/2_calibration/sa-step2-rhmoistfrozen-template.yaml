@@ -5,7 +5,7 @@
 seed_path: {{SEED_PATH}}              # e.g. /data/workflows/CMT04-IMN/parameters-step2
 observations: /work/calibration
 
-N_samples: {{N_SAMPLES}}              # e.g. 50
+N_samples: 25              # last resort; smaller sample ok for single param
 
 work_dir: {{WORK_DIR}}                # e.g. /data/workflows/CMT04-IMN/logs/sa-step2-rhmoistfrozen
 

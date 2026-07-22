@@ -1,15 +1,15 @@
-# Step 2 soil Kdc* SA — copy into logs/ and replace {{PLACEHOLDERS}}.
-# Canonical: decomposition rates -> fibric/humic/mineral C (calibration.rst).
-# micbnup is NOT sampled (frozen after nlevel_pass).
-# Prerequisites: applied nfall_pass (ledger enforces full chain through cfall).
+# Step 2 soil Kdc* SA — targeted SA within soil phase (kdc* only).
+# micbnup is sampled in soil_exploration, not here.
+# Prerequisites: applied veg_pass (ledger enforces veg_exploration).
+# kdc ordering: kdcrawc > kdcsoma > kdcsompr > kdcsomcr; kdcrawc < 1.0
 # Analyze: --phase soil  |  Apply: --phase soil
-# After phase6 rhmoist apply, re-run this template with --phase phase7 analyze/apply.
-# See calibration_instructions.md
+# After phase6 rhmoist apply, re-run with --phase phase7 analyze/apply.
+# N_samples: 25 (default for Step 2 iteration). See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
 observations: /work/calibration
 
-N_samples: {{N_SAMPLES}}
+N_samples: 25
 
 work_dir: {{WORK_DIR}}
 

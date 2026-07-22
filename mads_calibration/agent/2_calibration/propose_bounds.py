@@ -13,7 +13,7 @@ Usage (inside dvmdostem-autocal):
     --family cfall --veg-span 0.30 \\
     --yaml-out mads_calibration/logs/sa-{site_label}-step2-cfall-iter2-bounds.yaml
 
-  Families: nlevel | krb | cfall | nfall | soil
+  Families: veg_exploration | soil_exploration | nlevel | krb | cfall | nfall | soil
 """
 
 from __future__ import print_function
@@ -30,12 +30,26 @@ if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
 SOIL_PARAMS = {'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'}
+KDC_ORDER = ('kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr')
 MIN_POSITIVE = 1e-6
 
-# Parameter families (calibration_instructions.md). Canonical order:
-#   nlevel -> krb -> cfall -> nfall -> soil
-# micbnup is sampled only in nlevel (frozen afterward).
+# Parameter families (calibration_instructions.md). Two-phase workflow:
+#   veg_exploration -> soil_exploration (+ targeted SA within each phase).
 PARAM_FAMILIES = {
+    'veg_exploration': {
+        'soil': [],
+        'single': ['nmax'],
+        'compartments': [
+            'krb(0)', 'krb(1)', 'krb(2)',
+            'cfall(0)', 'cfall(1)', 'cfall(2)',
+            'nfall(0)', 'nfall(1)', 'nfall(2)',
+        ],
+    },
+    'soil_exploration': {
+        'soil': ['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
+        'single': [],
+        'compartments': [],
+    },
     'nlevel': {
         'soil': ['micbnup'],
         'single': ['nmax'],
@@ -57,7 +71,6 @@ PARAM_FAMILIES = {
         'compartments': ['nfall(0)', 'nfall(1)', 'nfall(2)'],
     },
     'soil': {
-        # kdc* only — micbnup stays fixed after nlevel_pass
         'soil': ['kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
         'single': [],
         'compartments': [],
@@ -82,7 +95,7 @@ def pft_indices_from_step1(path):
 def step2_param_lists(pft_indices=None, pft_max=8, family='cfall'):
     """Params for one Step 2 SA phase (family), yaml `params`/`pftnums` layout.
 
-    Prefer family in {nlevel, krb, cfall, nfall, soil}.
+    Prefer family in {veg_exploration, soil_exploration, krb, cfall, nfall, soil}.
     """
     if family not in PARAM_FAMILIES:
         raise ValueError('family must be one of {}; got {!r}'.format(
@@ -127,6 +140,34 @@ def span_bounds(center, span, floor=MIN_POSITIVE, cap=None):
     return [float(lo), float(hi)]
 
 
+def constrain_kdc_bounds(params, bounds):
+    """Enforce kdcrawc > kdcsoma > kdcsompr > kdcsomcr and kdcrawc < 1.0."""
+    param_bounds = dict(zip(params, bounds))
+    if not any(p in param_bounds for p in KDC_ORDER):
+        return bounds
+
+    if 'kdcrawc' in param_bounds:
+        lo, hi = param_bounds['kdcrawc']
+        hi = min(hi, 1.0 - MIN_POSITIVE)
+        lo = min(lo, hi - MIN_POSITIVE)
+        param_bounds['kdcrawc'] = [max(lo, MIN_POSITIVE), hi]
+
+    for i in range(len(KDC_ORDER) - 1):
+        left, right = KDC_ORDER[i], KDC_ORDER[i + 1]
+        if left not in param_bounds or right not in param_bounds:
+            continue
+        left_lo, left_hi = param_bounds[left]
+        right_lo, right_hi = param_bounds[right]
+        right_hi = min(right_hi, left_lo - MIN_POSITIVE)
+        right_lo = min(right_lo, right_hi - MIN_POSITIVE)
+        right_lo = max(right_lo, MIN_POSITIVE)
+        if right_lo >= right_hi:
+            right_hi = right_lo + MIN_POSITIVE
+        param_bounds[right] = [right_lo, right_hi]
+
+    return [param_bounds[p] for p in params]
+
+
 def load_step2_result(path):
     with open(path) as f:
         data = yaml.safe_load(f)
@@ -160,6 +201,7 @@ def propose_bounds(work_dir, soil_samples, veg_sample, soil_span, veg_span,
         cap = 5e-4 if center <= MIN_POSITIVE else None
         bounds.append(span_bounds(center, veg_span, cap=cap))
 
+    bounds = constrain_kdc_bounds(params, bounds)
     return params, pftnums, bounds
 
 
@@ -186,8 +228,8 @@ def main():
     parser.add_argument('--soil-span', type=float, default=0.25)
     parser.add_argument('--veg-span', type=float, default=0.30)
     parser.add_argument(
-        '--family', default='cfall', choices=sorted(PARAM_FAMILIES),
-        help='Param family: nlevel|krb|cfall|nfall|soil',
+        '--family', default='veg_exploration', choices=sorted(PARAM_FAMILIES),
+        help='Param family: veg_exploration|soil_exploration|nlevel|krb|cfall|nfall|soil',
     )
     parser.add_argument('--yaml-out', default=None,
                         help='Write [[lo,hi],...] list as yaml fragment')

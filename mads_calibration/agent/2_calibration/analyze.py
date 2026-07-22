@@ -8,12 +8,12 @@ except chronic whitelist) before status pass.
 
 Typical usage inside dvmdostem-autocal:
 
-  # Staged phases (see calibration_instructions.md):
-  python .../analyze.py --phase nlevel --work-dir .../sa-step2-nlevel/ ...
+  # Two-phase workflow (see calibration_instructions.md):
+  python .../analyze.py --phase veg_exploration --work-dir .../sa-step2-veg-exploration/ ...
+  python .../analyze.py --phase soil_exploration --work-dir .../sa-step2-soil-exploration/ ...
+  # Targeted SA within a phase:
   python .../analyze.py --phase krb --work-dir .../sa-step2-krb/ ...
   python .../analyze.py --phase cfall --work-dir .../sa-step2-cfall/ ...
-  python .../analyze.py --phase nfall --work-dir .../sa-step2-nfall/ ...
-  python .../analyze.py --phase soil --work-dir .../sa-step2-soil/ ...
   # Optional: phase6 (rhmoist/MINEC), phase7 (soil retune alias)
 """
 
@@ -53,14 +53,15 @@ EXTINCT_OBS_THRESHOLD = 1e-3
 OBS_NEAR_ZERO = 1e-12
 UNREACHABLE_REVIEW_MIN = 3
 
-# nlevel/krb/nfall are single-purpose phases with far fewer gated columns
-# than main (nlevel gates on 1 column: AVLN); requiring 3 unreachable
-# columns before flagging a structural ceiling would almost never trigger.
-# Any unreachable column on these dedicated phases, after the parameter
-# built specifically to move it has already been swept, is itself the
-# structural signal.
+# Targeted per-param phases (krb/nfall/etc.) have far fewer gated columns
+# than veg_exploration or main; requiring 3 unreachable columns before
+# flagging a structural ceiling would almost never trigger. Any unreachable
+# column on these dedicated phases, after the parameter built specifically
+# to move it has already been swept, is itself the structural signal.
 UNREACHABLE_REVIEW_MIN_BY_PHASE = {
     'main': UNREACHABLE_REVIEW_MIN,
+    'veg_exploration': 2,
+    'soil_exploration': 1,
     'nlevel': 1,
     'krb': 1,
     'cfall': 1,
@@ -70,10 +71,15 @@ UNREACHABLE_REVIEW_MIN_BY_PHASE = {
     'phase7': 1,  # alias of soil (post-rhmoist retune)
 }
 
+KDC_ORDER = ('kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr')
+SOIL_KDC_PHASES = frozenset(('soil', 'soil_exploration', 'phase7'))
+
 POOL_NCNAMES = frozenset(('SHLWC', 'DEEPC', 'MINEC', 'ORGN', 'AVLN'))
 
 PHASE_PASS_STATUS = {
     'main': 'pass',  # optional post-hoc on old integrated work_dirs only
+    'veg_exploration': 'veg_pass',
+    'soil_exploration': 'soil_pass',
     'nlevel': 'nlevel_pass',
     'krb': 'krb_pass',
     'cfall': 'cfall_pass',
@@ -85,11 +91,12 @@ PHASE_PASS_STATUS = {
 
 PASSING_STATUSES = frozenset(PHASE_PASS_STATUS.values())
 
-# Gate prefixes (results.csv). Canonical: nlevel->krb->cfall->nfall->soil.
-# nlevel: AVLN only (+ N-ratio diagnostic). GPP field fit needs targets outside
-# this agent folder (calibration_targets.py) — not gated here yet.
+# Gate prefixes (results.csv). Two-phase: veg_exploration then soil_exploration.
+# Legacy per-param phases remain for targeted SA within each phase.
 PHASE_GATE_POOLS = {
     'main': None,
+    'veg_exploration': ('NPP', 'VEGC', 'VEGNSTR', 'AVLN'),
+    'soil_exploration': ('SHLWC', 'DEEPC', 'MINEC'),
     'nlevel': ('AVLN',),
     'krb': ('NPP',),
     'cfall': ('VEGC',),
@@ -113,6 +120,27 @@ def nitrogen_check_ratio_bounds(biome):
             'biome must be one of {}; got {!r}'.format(
                 list(NITROGEN_CHECK_BANDS), biome))
     return NITROGEN_CHECK_BANDS[biome]
+
+
+def validate_kdc_ordering(recommended_params):
+    """Check kdcrawc > kdcsoma > kdcsompr > kdcsomcr and kdcrawc < 1.0."""
+    present = [k for k in KDC_ORDER if k in recommended_params]
+    if len(present) < 2:
+        return True, []
+    violations = []
+    kdcrawc = recommended_params.get('kdcrawc')
+    if kdcrawc is not None and kdcrawc >= 1.0:
+        violations.append('kdcrawc must be < 1.0 (got {:.6g})'.format(kdcrawc))
+    for i in range(len(KDC_ORDER) - 1):
+        left, right = KDC_ORDER[i], KDC_ORDER[i + 1]
+        if left in recommended_params and right in recommended_params:
+            lv = recommended_params[left]
+            rv = recommended_params[right]
+            if lv <= rv:
+                violations.append(
+                    '{} must be > {} (got {:.6g} vs {:.6g})'.format(
+                        left, right, lv, rv))
+    return len(violations) == 0, violations
 
 
 def normalize_work_dir(path):
@@ -537,6 +565,16 @@ def analyze(work_dir, biome='tundra', n_top=10,
     selected_eq_pass, failing_eq_vars = evaluate_selected_eq(
         eq_var_check, best_idx, require_eq_pass)
 
+    kdc_ordering_valid = True
+    kdc_ordering_violations = []
+    if phase in SOIL_KDC_PHASES:
+        kdc_ordering_valid, kdc_ordering_violations = validate_kdc_ordering(
+            recommended_params)
+        if not kdc_ordering_valid:
+            notes_parts.append(
+                'Kdc ordering violation: {}'.format(
+                    '; '.join(kdc_ordering_violations)))
+
     if not target_fit_pass:
         cols = [f['column'] for f in failing_targets[:8]]
         notes_parts.append(
@@ -550,6 +588,7 @@ def analyze(work_dir, biome='tundra', n_top=10,
     unreachable_min = UNREACHABLE_REVIEW_MIN_BY_PHASE.get(
         phase, UNREACHABLE_REVIEW_MIN)
     if (selected_n_pass and target_fit_pass and selected_eq_pass
+            and kdc_ordering_valid
             and not misfit_classification['extinct_pool']):
         status = PHASE_PASS_STATUS[phase]
     elif (not target_fit_pass
@@ -618,6 +657,8 @@ def analyze(work_dir, biome='tundra', n_top=10,
         'failing_eq_vars': failing_eq_vars,
         'require_eq_pass': require_eq_pass,
         'misfit_classification': misfit_classification,
+        'kdc_ordering_valid': kdc_ordering_valid,
+        'kdc_ordering_violations': kdc_ordering_violations,
         'notes': ' '.join(notes_parts),
         **eq_diag,
     }
@@ -650,12 +691,15 @@ def get_parser():
         help='Skip stage-order check (documented human approval only)',
     )
     parser.add_argument(
-        '--phase', default='cfall',
+        '--phase', default='veg_exploration',
         choices=[
+            'veg_exploration', 'soil_exploration',
             'nlevel', 'krb', 'cfall', 'nfall', 'soil',
             'phase6', 'phase7', 'main',
         ],
-        help=('Gate: nlevel(AVLN)|krb(NPP)|cfall(VEGC)|nfall(VEGNSTR)|'
+        help=('Gate: veg_exploration(NPP+VEGC+VEGNSTR+AVLN)|'
+              'soil_exploration(SHLWC+DEEPC+MINEC)|'
+              'krb(NPP)|cfall(VEGC)|nfall(VEGNSTR)|'
               'soil(SHLWC+DEEPC+MINEC)|phase6(MINEC)|phase7(soil alias)|'
               'main(all+eq)'),
     )

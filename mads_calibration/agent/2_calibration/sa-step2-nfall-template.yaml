@@ -1,11 +1,11 @@
-# Step 2 Nfall SA — nfall(0/1/2) -> VEGN. Prerequisites: applied cfall_pass.
+# Step 2 Nfall SA — nfall(0/1/2) -> VEGN. Targeted SA within vegetation phase.
 # Analyze/apply: --phase nfall
-# See calibration_instructions.md
+# N_samples: 25 (default for Step 2 iteration). See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
 observations: /work/calibration
 
-N_samples: {{N_SAMPLES}}
+N_samples: 25
 
 work_dir: {{WORK_DIR}}
 

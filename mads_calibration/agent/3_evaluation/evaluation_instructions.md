@@ -131,32 +131,32 @@ cp -a /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 \
 
 ## Validated acceptance (reference — soft closure, any site)
 
-Use only when staged phases (nlevel → krb → cfall → nfall → soil) were each
-run to `*_pass` or documented exit `3` — not as a shortcut around missing
+Use only when both calibration phases (vegetation exploration → soil exploration)
+were run to `*_pass` or documented exit `3` — not as a shortcut around missing
 phases. Record `accepted_limitations` (target + phase that hit exit `3`):
 
 - Final eval completes all TR years without crash
-- AVLN within 20% tier on final parameters, or documented as unreachable via Stage 0 (N-level) exit `3`
-- N ratio (INGPP:GPP) within `--biome` band on final parameters, or documented as unreachable via Stage 0 — **diagnostic of N-limitation intensity**, not proof of GPP field-target fit (see Step 2 design intent)
-- Transient NPP within ~10% of equilibrium target sums (indicative), or documented as unreachable via Stage 1 (Krb) exit `3`
+- AVLN within 20% tier on final parameters, or documented as unreachable via vegetation exploration exit `3`
+- N ratio (INGPP:GPP) within `--biome` band on final parameters, or documented as unreachable — **diagnostic of N-limitation intensity**, not proof of GPP field-target fit (see Step 2 design intent)
+- Transient NPP within ~10% of equilibrium target sums (indicative), or documented as unreachable via vegetation exploration exit `3`
 - Transient GPP compared to available observations when present; do not equate N-ratio pass with GPP calibration
-- VEGN (VegStructuralNitrogen) within 10% tier on final parameters, or documented as unreachable via Stage 3 (Nfall) exit `3`
+- VEGN (VegStructuralNitrogen) within 10% tier on final parameters, or documented as unreachable via vegetation exploration exit `3`
 - Eq-stage soil pools (SHLWC, DEEPC, MINEC) within 20% tier on final parameters
 - Phase 6 and Phase 7 completed when MINEC was sensitive to `rhmoistfrozen`
 
-Set `status: complete` in closure summary when all `closure_criteria` are true. Loop back to Phase 7 (not skip) if soil pools regress after transient run. Soft closure is a fallback after the full staged parameter set has been tried — not a shortcut around missing N-level/Krb/Nfall phases or around exit `3` HALTs.
+Set `status: complete` in closure summary when all `closure_criteria` are true. Loop back to Phase 7 (not skip) if soil pools regress after transient run. Soft closure is a fallback after the full two-phase calibration has been tried — not a shortcut around missing vegetation or soil exploration phases or around exit `3` HALTs.
 
 ## Interpreting mismatches
 
 | Symptom | Likely parameter focus | File | Notes |
 |---------|------------------------|------|-------|
-| GPP greatly underestimated | `cmax` (Step 1) and/or `nmax`/`micbnup` (N-level) | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 1 reopen is **human-only**. N-level does not yet gate GPP targets — check AVLN + ratio first |
-| AVLN off tier, or N ratio (INGPP:GPP) outside `--biome` band | `nmax`, `micbnup` | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 2 Stage 0 (N-level). Ratio ≠ GPP fit |
-| NPP off tier while N-ratio is on band | `krb(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Krb — ratio can pass while NPP* is unreachable |
-| VEGC off tier | `cfall(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Cfall |
-| VEGN (VegStructuralNitrogen) off tier | `nfall(0/1/2)` | `cmt_calparbgc.txt` | Step 2 Nfall |
-| RECO off, especially **winter RECO** | `rhmoistfrozen` | `cmt_bgcsoil.txt` | phase6 |
-| Mineral / layer soil C off tier | soil `kdc*` (± `rhmoistfrozen`) | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 2 Soil; phase6 then phase7 if needed. Do not re-tune micbnup here |
+| GPP greatly underestimated | `cmax` (Step 1) and/or `nmax`/`micbnup` | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Step 1 reopen is **human-only**. Check AVLN + ratio first |
+| AVLN off tier, or N ratio (INGPP:GPP) outside `--biome` band | `nmax` (veg), `micbnup` (soil) | `cmt_calparbgc.txt`, `cmt_bgcsoil.txt` | Veg exploration for `nmax`; soil exploration for `micbnup`. Ratio ≠ GPP fit |
+| NPP off tier while N-ratio is on band | `krb(0/1/2)` | `cmt_calparbgc.txt` | Targeted krb SA within veg exploration — ratio can pass while NPP* is unreachable |
+| VEGC off tier | `cfall(0/1/2)` | `cmt_calparbgc.txt` | Targeted cfall SA within veg exploration |
+| VEGN (VegStructuralNitrogen) off tier | `nfall(0/1/2)` | `cmt_calparbgc.txt` | Targeted nfall SA within veg exploration |
+| RECO off, especially **winter RECO** | `rhmoistfrozen` | `cmt_bgcsoil.txt` | phase6 (last resort in soil phase) |
+| Mineral / layer soil C off tier | soil `kdc*` (± `rhmoistfrozen`) | `cmt_bgcsoil.txt` | Soil exploration or targeted kdc* SA; phase6 then phase7 if needed |
 | Soil temperature bias | `nfactor(s)`, `nfactor(w)` | `cmt_envground.txt` | Separate thermal SA |
 | ALD too shallow/deep | `nfactor(s)`, `nfactor(w)`, snow/ground params | `cmt_envground.txt` | Thermal SA before BGC retune |
 
@@ -178,7 +178,7 @@ After re-calibration, repeat SA checks, apply updated parameters, and **re-run t
 
 ## Checklist
 
-- [ ] Step 2 completion criteria satisfied (see [`calibration_instructions.md`](../2_calibration/calibration_instructions.md)): applied `nlevel_pass` → `krb_pass` → `cfall_pass` → `nfall_pass` → `soil_pass` (and phase6/7 if used) — or exit `3` documented in closure summary for any structurally unreachable stage
+- [ ] Step 2 completion criteria satisfied (see [`calibration_instructions.md`](../2_calibration/calibration_instructions.md)): applied `veg_pass` → `soil_pass` (and phase6/7 if used) — or exit `3` documented in closure summary for any structurally unreachable phase
 - [ ] `sa-{site_label}-final-eval.yaml` in `logs/` from template
 - [ ] `setup_working_directory.py` run; outputs enabled in `output_spec.csv`
 - [ ] Full run: `--pr-yrs 100 --eq-yrs 2000 --sp-yrs 250 --tr-yrs {TR_YRS}` matching site climate length

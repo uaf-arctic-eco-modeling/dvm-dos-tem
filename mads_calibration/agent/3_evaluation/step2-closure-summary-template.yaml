@@ -14,13 +14,10 @@ parameters_active: {{PARAM_DIR}}
 parameters_archive: {{PARAM_ARCHIVE}}
 
 composition:
-  nlevel: null         # nlevel_pass|unreachable_review (AVLN; N-ratio diagnostic)
-  krb: null            # krb_pass|unreachable_review (NPP*)
-  cfall: null          # cfall_pass|unreachable_review (VEGC*)
-  nfall: null          # nfall_pass|unreachable_review (VEGN)
-  soil: null           # soil_pass|unreachable_review (SHLWC/DEEPC/MINEC; kdc* only)
-  phase6: null         # rhmoistfrozen or documented_insensitive
-  phase7: null         # soil retune after phase6 (alias of soil)
+  veg_exploration: null   # veg_pass|unreachable_review (NPP/VEGC/VEGNSTR/AVLN; N-ratio)
+  soil_exploration: null  # soil_pass|unreachable_review (SHLWC/DEEPC/MINEC; micbnup+kdc*)
+  phase6: null            # rhmoistfrozen or documented_insensitive
+  phase7: null            # soil retune after phase6 (alias of soil)
 
 eq_calibration_gates:
   note: From last analyze.py on final parameter set
@@ -69,7 +66,7 @@ targeted_retune:
 nitrogen_diagnostic:
   eq_selected_ratio: null
   transient_tr_last10_ratio: null
-  note: INGPP:GPP is N-limitation diagnostic — not proof of GPP field-target fit (Step 2 nlevel does not yet gate GPPAll)
+  note: INGPP:GPP is N-limitation diagnostic — not proof of GPP field-target fit (Step 2 veg_exploration does not yet gate GPPAll)
 
 accepted_limitations:
   extinct_pool: []
@@ -77,11 +74,8 @@ accepted_limitations:
   unreachable: []
 
 closure_criteria:
-  nlevel_complete: false
-  krb_complete: false
-  cfall_complete: false
-  nfall_complete: false
-  soil_complete: false
+  veg_exploration_complete: false
+  soil_exploration_complete: false
   phase6_complete: false                  # applied or documented_insensitive / N/A
   phase7_complete: false                  # required after phase6 apply / N/A
   final_eval_completes: false

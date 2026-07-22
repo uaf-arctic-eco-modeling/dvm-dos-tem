@@ -12,8 +12,11 @@ import os
 
 import yaml
 
-# Canonical order: nlevel -> krb -> cfall -> nfall -> soil (+ optional phase6/7).
+# Two-phase workflow: veg_exploration -> soil_exploration (+ optional phase6/7).
+# Legacy per-param phases (nlevel/krb/cfall/nfall/soil) remain for targeted SA.
 PHASE_PASS_STATUS = {
+    'veg_exploration': 'veg_pass',
+    'soil_exploration': 'soil_pass',
     'nlevel': 'nlevel_pass',
     'krb': 'krb_pass',
     'cfall': 'cfall_pass',
@@ -25,14 +28,18 @@ PHASE_PASS_STATUS = {
 }
 
 PHASE_PREREQUISITES = {
-    'nlevel': (),
-    'krb': ('nlevel',),
-    'cfall': ('krb',),
-    'nfall': ('cfall',),
-    'soil': ('nfall',),
-    'phase6': ('nfall',),   # rhmoist branch during soil; veg chain must be applied
+    # Vegetation phase — flexible iteration within; no prior stage required
+    'veg_exploration': (),
+    'krb': (),
+    'cfall': (),
+    'nfall': (),
+    'nlevel': (),   # legacy compatibility
+    # Soil phase — requires vegetation pass
+    'soil_exploration': ('veg_exploration',),
+    'soil': ('veg_exploration',),
+    'phase6': ('veg_exploration',),
     'phase7': ('phase6',),
-    'main': ('soil',),  # post-hoc on old integrated work_dirs only
+    'main': ('soil_exploration',),
 }
 
 LEDGER_FILENAME = 'step2-stage-ledger.yaml'
@@ -122,7 +129,7 @@ def require_prerequisites(ledger, phase, param_dir=None, force=False):
         return
     path = ledger_path_for_param_dir(param_dir) if param_dir else None
     if ledger is None:
-        if phase == 'nlevel':
+        if phase in ('nlevel', 'veg_exploration'):
             raise RuntimeError(
                 'Stage ledger missing at {!r}. Run seed_setup.py first '
                 '(creates step2-stage-ledger.yaml beside parameters-step2).'.format(

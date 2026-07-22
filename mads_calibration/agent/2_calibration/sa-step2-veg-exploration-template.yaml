@@ -1,7 +1,8 @@
-# LEGACY — Step 2 N-level SA (micbnup + nmax). Superseded by two-phase workflow:
-#   veg_exploration (nmax, krb, cfall, nfall) then soil_exploration (micbnup + kdc*).
-# Kept for backward compatibility with in-flight calibrations only.
-# Analyze/apply: --phase nlevel
+# Step 2 vegetation exploration SA — all veg params together (N=25).
+# Params: nmax, krb(0/1/2), cfall(0/1/2), nfall(0/1/2) per active PFT.
+# cmax is fixed from Step 1 (not sampled).
+# First SA after seed_setup. Analyze/apply: --phase veg_exploration
+# Use targeted templates (krb/cfall/nfall) for troublesome PFTs after review.
 # See calibration_instructions.md
 
 seed_path: {{SEED_PATH}}
@@ -14,7 +15,7 @@ work_dir: {{WORK_DIR}}
 params: {{PARAMS_LIST}}
 pftnums: {{PFTNUMS_LIST}}
 percent_diffs: {{PERCENT_DIFFS}}
-# p_bounds: [[0.01, 1.0], ...]
+# or p_bounds from propose_bounds.py --family veg_exploration
 
 site: {{SITE}}
 PXx: {{PXX}}
@@ -24,8 +25,10 @@ calib_mode: VEGC
 sampling_method: lhc
 
 target_names:
+- VegCarbon
+- NPPAll
+- VegStructuralNitrogen
 - AvailableNitrogenSum
-- OrganicNitrogenSum
 
 aux_outputs:
 - INGPP y

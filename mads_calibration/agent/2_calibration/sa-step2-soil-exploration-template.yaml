@@ -1,0 +1,59 @@
+# Step 2 soil exploration SA — micbnup + kdc* together (N=25).
+# Prerequisites: applied veg_pass (ledger enforces veg_exploration).
+# kdc ordering: kdcrawc > kdcsoma > kdcsompr > kdcsomcr; kdcrawc < 1.0
+# Analyze/apply: --phase soil_exploration
+# Use propose_bounds.py --family soil_exploration to enforce kdc bounds.
+# rhmoistfrozen is last resort (sa-step2-rhmoistfrozen-template.yaml).
+# See calibration_instructions.md
+
+seed_path: {{SEED_PATH}}
+observations: /work/calibration
+
+N_samples: 25
+
+work_dir: {{WORK_DIR}}
+
+params:
+  - micbnup
+  - kdcrawc
+  - kdcsoma
+  - kdcsompr
+  - kdcsomcr
+
+pftnums:
+  - null
+  - null
+  - null
+  - null
+  - null
+
+percent_diffs: {{PERCENT_DIFFS}}
+# or p_bounds from propose_bounds.py --family soil_exploration
+# Example ordered bounds:
+# p_bounds:
+#   - [0.01, 0.5]      # micbnup
+#   - [0.05, 0.95]     # kdcrawc (must be < 1.0)
+#   - [0.01, 0.04]     # kdcsoma (< kdcrawc lower bound)
+#   - [0.005, 0.009]   # kdcsompr (< kdcsoma lower bound)
+#   - [0.001, 0.004]   # kdcsomcr (< kdcsompr lower bound)
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+target_names:
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+- AvailableNitrogenSum
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
