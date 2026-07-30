@@ -143,6 +143,7 @@ SEED → Veg exploration SA (N=25) → Analyze → Review
 
 2. **Review SA results** — understand parameter behavior before changing bounds:
    - Inspect `sample_matrix.csv`, `results.csv`, `targets.csv`
+   - Use `SA_post_hoc_analysis.plot_pft_matrix(results, sample_matrix, targets)` to identify which parameters are most influential for each target and find optimal parameter ranges (see [Reading SA results](#reading-sa-results))
    - Identify **insensitive** parameters (target response flat across sampled range)
    - Identify **correlated** parameters (moving one shifts multiple targets)
    - Note **troublesome PFTs** (specific PFT compartments failing tier while others pass)
@@ -169,6 +170,34 @@ SEED → Veg exploration SA (N=25) → Analyze → Review
 | One PFT compartment fails while others pass | **Troublesome PFT** | Run targeted SA on that PFT's compartments only |
 | Target outside SA envelope (min/max of results) | Target **unreachable** in current bounds | Widen bounds or HALT (exit `3`) |
 | N-ratio outside band | N limitation mis-set | Adjust `nmax` (in veg exploration) before krb/cfall/nfall |
+
+### Using `plot_pft_matrix` to identify parameter–target sensitivity
+
+`SA_post_hoc_analysis.plot_pft_matrix(results, sample_matrix, targets)` is the primary visual tool for determining which parameter(s) most influence a given target and for finding the optimal parameter range. For each target variable it produces a matrix of scatter plots (parameters × PFTs) with the target value drawn as a dashed line.
+
+**How to interpret the plots:**
+
+| Pattern | Interpretation | Action |
+|---------|---------------|--------|
+| Clear **linear trend** (positive or negative slope) | Parameter is **sensitive** — shifting its value larger/smaller moves the target predictably | Read where the scatter crosses the dashed target line to find the optimal parameter range |
+| Flat / no trend | Parameter is **insensitive** to that target | Exclude from next iteration or fix at seed |
+| Steep slope crossing the target line | Strong lever — small parameter change → large target change | Narrow bounds around the crossing point |
+
+Use `plot_pft_matrix` after every SA iteration (alongside `analyze.py`) to visually confirm which parameters are the strongest levers before adjusting bounds with `propose_bounds.py`.
+
+`SA_post_hoc_analysis.plot_relationships(results, sample_matrix, targets, parameters=[...])` provides a complementary view for a selected subset of parameters.
+
+### Parameter tradeoffs — `cfall` and NPP vs VEGC
+
+Certain parameters influence **two targets in opposite directions**. The most common case is `cfall`: increasing `cfall` reduces VEGC (more litterfall → less standing carbon) but can simultaneously improve NPP (faster turnover → more growth). This means a perfect fit for both NPP and VEGC Leaf may not be achievable with a single `cfall` value.
+
+**Resolution priority:** when `cfall` creates a tradeoff between NPP and VEGC Leaf, **prioritize reaching the NPP target under equilibrium**. A slightly imperfect VEGC Leaf match is acceptable provided:
+
+1. NPP is on target (within tier),
+2. Equilibrium is reached for the selected sample,
+3. VEGC Leaf is reasonably close (not grossly off).
+
+This priority reflects that NPP drives downstream carbon cycling and that VEGC Leaf will still be constrained by `cfall`'s relationship to the carbon balance. Document any such tradeoff in the stage ledger notes.
 
 ### GPP note
 
@@ -204,7 +233,7 @@ veg_pass → Soil exploration SA (N=25) → Analyze → Review
    - Analyze: `--phase soil_exploration`
    - Enforce kdc ordering in `p_bounds` (see above)
 
-2. **Review SA results** — same analysis approach as vegetation:
+2. **Review SA results** — same analysis approach as vegetation; use `plot_pft_matrix` to confirm parameter–target relationships:
    - `kdcrawc` primarily moves **SHLWC** (fibric layer)
    - `kdcsoma` moves **SHLWC** and **DEEPC** (active pool)
    - `kdcsompr` moves **DEEPC** and **MINEC** (physically resistant)
@@ -371,6 +400,5 @@ Legacy per-param statuses (`krb_pass`, `cfall_pass`, etc.) remain supported for 
 | Scripts | `seed_setup.py`, `stage_ledger.py`, `analyze.py`, `propose_bounds.py`, `param_update.py` |
 | Exploration templates | `sa-step2-veg-exploration-template.yaml`, `sa-step2-soil-exploration-template.yaml` |
 | Targeted templates | `sa-step2-{krb,cfall,nfall,soil,rhmoistfrozen}-template.yaml` |
-| Legacy | `sa-step2-nlevel-template.yaml` (superseded; in-flight sites only) |
 | Agent yamls | `mads_calibration/logs/` (gitignored) |
 | Closure | [`step2-closure-summary-template.yaml`](../3_evaluation/step2-closure-summary-template.yaml) |

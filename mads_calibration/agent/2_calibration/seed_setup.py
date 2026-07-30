@@ -29,7 +29,6 @@ if os.path.isdir(SCRIPTS_DIR) and SCRIPTS_DIR not in sys.path:
 
 import util.param as param  # noqa: E402
 
-from burial_params_setup import add_burial_rows  # noqa: E402
 from stage_ledger import init_ledger  # noqa: E402
 
 DEFAULT_SOURCE = '/work/parameters'
@@ -169,9 +168,6 @@ def main():
 
     copy_parameters(source, args.dest)
     apply_cmax_values(args.dest, cmax_values, args.cmtnum)
-    calpar_path = os.path.join(args.dest, 'cmt_calparbgc.txt')
-    if add_burial_rows(calpar_path, args.cmtnum, 0.5, 0.5):
-        print('Upgraded cmt_calparbgc.txt to 20-row schema (s2dfraction, d2mfraction)')
     mpath = write_manifest(
         manifest_path, args.step1_result, step1_data,
         args.dest, cmax_values, args.cmtnum, source,
