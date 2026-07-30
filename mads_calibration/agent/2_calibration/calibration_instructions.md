@@ -2,6 +2,8 @@
 
 Load this file for Step 2. Path: `mads_calibration/agent/2_calibration/calibration_instructions.md`.
 
+> **Do not spawn sub-agents or run parallel tasks. Perform the workflow sequentially in the main thread only.**
+
 Canonical process: [`docs_src/sphinx/source/calibration.rst`](../../../docs_src/sphinx/source/calibration.rst) (N limitation ON, then soil).
 
 `calib_mode: VEGC` turns NFEED on. Run **one SA at a time** per VM.

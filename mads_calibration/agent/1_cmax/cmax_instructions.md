@@ -2,6 +2,8 @@
 
 Load this file into your coding agent session when running Step 1. Path: `mads_calibration/agent/1_cmax/cmax_instructions.md`.
 
+> **Do not spawn sub-agents or run parallel tasks. Perform the workflow sequentially in the main thread only.**
+
 **Prerequisite:** Complete Phase 0 setup via [`setup_instructions.md`](../0_setup/setup_instructions.md) and obtain `logs/{site_label}-setup-manifest.yaml`.
 
 Automate **Step 1** of the MADS calibration workflow: calibrate **`cmax` per active PFT** against **`GPPAllIgnoringNitrogen`** field targets (modeled as NetCDF **`INGPP`**). Run entirely inside the `dvmdostem-autocal` Docker container. Do **not** proceed to Step 2 from this instruction set.
@@ -57,7 +59,13 @@ You are a calibration agent. Given a CMT number, site path, and grid cell, you w
 3. If any active PFT exceeds the ±10% tier, launch recovery-style perturbation runs (A–D); repeat until all PFTs pass.
 4. When Step 1 is complete (`status: pass`), report `recommended_cmax` and metrics in the output contract format below.
 
-**Success criterion:** equilibrium-filtered best sample has **zero per-PFT tier failures** (each active INGPP column within ±10% of target via `step1_analyze.py`). Step 1 is **done only when** `status: pass`. If `best_effort`, continue iterating (recovery A–D, then re-seed from global best and retry) until pass.
+**Success criterion:** the best sample must satisfy **both** conditions for every active PFT:
+1. **Equilibrium check passes** — all active PFTs pass the equilibrium quality filter (slope, epsilon, CV within limits).
+2. **Targets reached** — zero per-PFT tier failures (each active INGPP column within ±10% of target via `step1_analyze.py`).
+
+Step 1 is **done only when** `status: pass` (both conditions met for all PFTs). If `best_effort`, continue iterating (recovery A–D, then re-seed from global best and retry) until pass.
+
+**Persistent equilibrium failure:** If, after multiple `cmax` iteration rounds (baseline + recovery A–D + at least one re-seed cycle), one or two PFTs consistently fail the equilibrium check despite reaching or approaching their GPP targets, **stop and notify the human orchestrator**. Report which PFT(s) cannot equilibrate, the equilibrium metrics (slope, epsilon, CV), and the best `cmax` values found. The human orchestrator will determine whether to relax equilibrium limits for those PFTs, adjust model configuration, or accept a best-effort result. Do **not** autonomously relax equilibrium limits or skip the equilibrium gate without human approval.
 
 ---
 
@@ -211,9 +219,10 @@ Exit `2` is expected during iteration; keep going until exit `0`.
 
 ## Phase 3 — Acceptance Check
 
-- **Pass (`status: pass`, exit `0`):** best equilibrium-filtered sample has `selected_tier_failures == 0` (all active PFTs within `--flux-rel-err-pct`, default 10%).
+- **Pass (`status: pass`, exit `0`):** best sample has all active PFTs passing equilibrium check **and** `selected_tier_failures == 0` (all active PFTs within `--flux-rel-err-pct`, default 10%).
 - **Best effort (`status: best_effort`, exit `2`):** not complete — proceed to Phase 4 or next iteration round.
-- **Failed (`status: failed`, exit `1`):** no equilibrium-passing samples; stop and report.
+- **Failed (`status: failed`, exit `1`):** no samples passed equilibrium check; stop and report.
+- **Persistent PFT equilibrium failure:** if specific PFTs repeatedly fail equilibrium across multiple `cmax` iteration rounds, stop and notify the human orchestrator (see [Success criterion](#role-and-goal)).
 
 Extract `recommended_cmax` from the best sample's `cmax_*` columns in `sample_matrix.csv` (or from the artifact written by `--json-out`).
 
@@ -284,7 +293,8 @@ recommended_cmax:
 | Symptom | Action |
 |---------|--------|
 | CMT not in `calibration_targets.py` | Stop; report missing CMT. |
-| No equilibrium-passing samples | Report count; optionally relax eq limits and note in output. |
+| No equilibrium-passing samples | Report count; do **not** relax eq limits without human approval. |
+| One or two PFTs persistently fail equilibrium across multiple iteration rounds | **Stop and notify the human orchestrator.** Report failing PFT(s), equilibrium metrics, and best `cmax` values. Do not autonomously relax limits or skip the equilibrium gate. |
 | Negative cmax after perturbation | Reduce negative bias for affected PFT; re-run setup. |
 | SA sample folder errors | Inspect `sample_NNNNNNNNN/` logs; report failing sample indices. |
 | `results.csv` missing | SA did not complete; check container logs. |

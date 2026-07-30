@@ -2,6 +2,8 @@
 
 Instruction-driven workflow for MADS calibration (Phase 0 → Step 1 `cmax` → Step 2 staged → final evaluation). Works with any **coding agent** that can read markdown instructions and run shell commands on the calibration host (Cursor, Claude Code, Antigravity, etc.).
 
+> **Do not spawn sub-agents or run parallel tasks. Perform the workflow sequentially in the main thread only.**
+
 Path: `mads_calibration/agent/0_setup/setup_instructions.md`
 
 ## Execution environment

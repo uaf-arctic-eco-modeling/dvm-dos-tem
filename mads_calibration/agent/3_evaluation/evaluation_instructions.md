@@ -2,6 +2,8 @@
 
 Post-calibration validation after Step 2 completion criteria are satisfied ([`calibration_instructions.md`](../2_calibration/calibration_instructions.md)). Load this file into your coding agent session for the evaluation stage. Path: `mads_calibration/agent/3_evaluation/evaluation_instructions.md`.
 
+> **Do not spawn sub-agents or run parallel tasks. Perform the workflow sequentially in the main thread only.**
+
 Calibration SA runs use equilibrium-only spinup (`--sp-yrs 0 --tr-yrs 0`). A **full site simulation** exercises spinup and transient years so fluxes, soil thermal state, and active layer depth can be compared against observations.
 
 Run inside `dvmdostem-autocal` (or `dvmdostem-dev`) with calibrated parameters in workflow `parameters-step2`.
