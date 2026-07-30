@@ -12,6 +12,7 @@ using namespace std;
 #include "cohortconst.h"
 #include "timeconst.h"
 #include "layerconst.h"
+#include "parameters.h"
 
 class CohortLookup {
 public:
@@ -26,6 +27,15 @@ public:
   std::string calparbgc2str();
   void init();
   void assignBgcCalpar(string & dirname);
+
+  // Test addition of struct members as described in issue #806
+  // These structs should not affect model output with proper initialization
+  soipar_cal archive_soical_params;
+  soipar_dim archive_soidim_params;
+  soipar_env archive_soienv_params;
+  soipar_bgc archive_soibgc_params;
+  snwpar_dim archive_snwdim_params;
+  snwpar_env archive_snwenv_params;
 
   //calibration related
   //vegetation
