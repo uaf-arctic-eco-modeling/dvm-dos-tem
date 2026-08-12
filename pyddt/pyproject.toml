@@ -30,7 +30,8 @@ dependencies = [
   "matplotlib",
   "netCDF4",
   "lhsmdu",
-  "xarray"
+  "xarray",
+  "cf-units",
 ]
 
 [project.urls]

@@ -7,6 +7,7 @@
 
 import os
 import glob
+import shutil
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -15,6 +16,9 @@ import netCDF4 as nc
 import pandas as pd
 #import xarray as xr
 import collections
+import cf_units
+
+from pyddt.util.general import breakdown_outfile_name
 
 
 def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
@@ -160,6 +164,151 @@ def average_monthly_pool_to_yearly(data):
     output[i] = data[yr_start:yr_end].mean(axis=0)
 
   return output
+
+
+def as_cf_unit(units_str):
+  '''
+  Parse ``units_str`` into a ``cf_units.Unit``.
+
+  Raises
+  ======
+  RuntimeError
+      If ``units_str`` is not a valid UDUNITS / cf_units unit.
+  '''
+  try:
+    u = cf_units.Unit(units_str)
+  except ValueError as exc:
+    raise RuntimeError(
+        "Invalid units: {!r} ({})".format(units_str, exc)
+    ) from exc
+
+  if u.is_unknown() or u.is_no_unit():
+    raise RuntimeError("Invalid units: {!r}".format(units_str))
+
+  return u
+
+
+def convert_units_data(data, from_units, to_units):
+  '''
+  Convert array ``data`` from ``from_units`` to ``to_units`` using cf_units.
+
+  Handles any units that ``cf_units`` (UDUNITS) can convert between. Unit
+  strings that are already equal are returned unchanged.
+
+  Parameters
+  ==========
+  data : array-like
+    Numeric data to convert (numpy array or masked array).
+  from_units : str
+    Current units of ``data``.
+  to_units : str
+    Target units.
+
+  Returns
+  =======
+  converted : array-like
+    Data in ``to_units``.
+  meta_str : str
+    Short description of the conversion that was applied.
+
+  Raises
+  ======
+  RuntimeError
+      If the units are invalid or not convertible.
+  '''
+  src = as_cf_unit(from_units)
+  dst = as_cf_unit(to_units)
+
+  if not src.is_convertible(dst):
+    raise RuntimeError(
+        "Cannot convert units from {!r} to {!r}".format(from_units, to_units)
+    )
+
+  if src == dst:
+    converted = data
+    meta_str = "Units already in target format: {}".format(to_units)
+  else:
+    converted = src.convert(data, dst)
+    meta_str = "Converted from {} to {}".format(from_units, to_units)
+
+  return converted, meta_str
+
+
+def convert_units(nc_filepath, to_units, output_filepath=None, varname=None):
+  '''
+  Convert a dvmdostem output NetCDF file from its current units to ``to_units``.
+
+  Reads the variable's ``units`` attribute, converts the data with cf_units,
+  and writes a NetCDF with updated data and ``units`` attribute. Any units
+  pair that ``cf_units`` can convert is supported.
+
+  Parameters
+  ==========
+  nc_filepath : str
+    Path to a dvmdostem output file (``VAR_timeres_stage.nc``).
+  to_units : str
+    Target units string understood by cf_units / UDUNITS.
+  output_filepath : str, optional
+    Destination path. If ``None``, the input file is overwritten in place.
+  varname : str, optional
+    NetCDF variable to convert. If ``None``, inferred from the filename via
+    ``breakdown_outfile_name``.
+
+  Returns
+  =======
+  str
+    Path to the written file.
+
+  Raises
+  ======
+  RuntimeError
+      If the variable or units attribute is missing, or units cannot be
+      converted.
+  '''
+  nc_filepath = os.path.abspath(nc_filepath)
+  if not os.path.isfile(nc_filepath):
+    raise RuntimeError("Can't find file: {}".format(nc_filepath))
+
+  if varname is None:
+    _, varname, _, _ = breakdown_outfile_name(nc_filepath)
+
+  if output_filepath is None:
+    output_filepath = nc_filepath
+  else:
+    output_filepath = os.path.abspath(output_filepath)
+
+  if output_filepath != nc_filepath:
+    out_dir = os.path.dirname(output_filepath)
+    if out_dir:
+      os.makedirs(out_dir, exist_ok=True)
+    shutil.copy2(nc_filepath, output_filepath)
+
+  with nc.Dataset(output_filepath, 'r+') as ds:
+    if varname not in ds.variables:
+      raise RuntimeError(
+          "Variable {!r} not found in {}".format(varname, output_filepath)
+      )
+
+    var = ds.variables[varname]
+    if 'units' not in var.ncattrs():
+      raise RuntimeError(
+          "Variable {!r} in {} has no units attribute".format(
+              varname, output_filepath
+          )
+      )
+
+    from_units = var.units
+    converted, meta_str = convert_units_data(var[:], from_units, to_units)
+    var[:] = converted
+    var.setncattr('units', to_units)
+
+    history_note = "convert_units: {}".format(meta_str)
+    if 'history' in ds.ncattrs():
+      ds.history = "{}; {}".format(ds.history, history_note)
+    else:
+      ds.history = history_note
+
+  return output_filepath
 
 
 def load_output_dataframe(var=None, stage=None, timeres=None, px_y=None,
