@@ -744,6 +744,10 @@ def get_parser():
         '--no-require-eq-pass', action='store_false', dest='require_eq_pass',
         help='Disable equilibrium gate on selected sample',
     )
+    parser.add_argument(
+        '--generate-report', action='store_true',
+        help='Generate sa-validation-report.pdf in work_dir after analysis',
+    )
     return parser
 
 
@@ -816,6 +820,19 @@ def main():
     if args.json_out:
         write_output(result, args.json_out)
         print('\nWrote {}'.format(args.json_out))
+
+    if args.generate_report:
+        from sa_validation_report import generate as generate_report
+        try:
+            generate_report(
+                work_dir=args.work_dir,
+                result_yaml=args.json_out,
+                phase=args.phase,
+                biome=args.biome,
+            )
+        except Exception as exc:
+            print('Warning: report generation failed: {}'.format(exc),
+                  file=sys.stderr)
 
     if result['status'] == 'failed':
         sys.exit(1)

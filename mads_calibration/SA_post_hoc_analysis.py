@@ -78,6 +78,7 @@ def plot_boxplot(results, targets, save=False, saveprefix=''):
   ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
   if save:
     plt.savefig(saveprefix + "results_boxplot.png", bbox_inches='tight')
+  return fig
 
 def plot_spaghetti(results, targets, save=False, saveprefix=''):
   '''
@@ -140,6 +141,7 @@ def plot_spaghetti(results, targets, save=False, saveprefix=''):
   ax2.set_yscale('log')
   if save:
     plt.savefig(saveprefix + "spaghetti_plot.png", bbox_inches='tight')
+  return fig
 
 def plot_match(results, targets, save=False, saveprefix=''):
   '''
@@ -184,6 +186,7 @@ def plot_match(results, targets, save=False, saveprefix=''):
   ax.scatter(results, [targets for i in range(len(results))], alpha=.1)
   if save:
     plt.savefig(saveprefix + "one2one_match.png", bbox_inches='tight')
+  return fig
 
 
 
@@ -284,6 +287,7 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
   # Calculate correlation
   corr = calc_correlation(results, sample_matrix)
 
+  figs = []
   # loop through variables and create set of subplots for each
   for vars in variables:
     # Create a square of subplots from square root of number of parameters per variable
@@ -364,6 +368,8 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
       if save:
         name = saveprefix + f"{vars}-{'-'.join(parameters)}.png"
         plt.savefig(name, bbox_inches="tight")
+    figs.append(fig)
+  return figs
 
 def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
   '''
@@ -409,6 +415,7 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
 
   print(pft_nums_set)
 
+  figs = []
   for v in range(0,len(variables)):
     
     ncols = 10
@@ -437,6 +444,8 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
     if save:
       name = saveprefix + f"{variables[v]}_pft_plot.pdf"
       plt.savefig(name, format="pdf", bbox_inches="tight")
+    figs.append(fig)
+  return figs
 
 def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   '''
@@ -447,13 +456,14 @@ def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   '''
   import seaborn
 
-  plt.figure(figsize=(15,10))
+  fig = plt.figure(figsize=(15,10))
   seaborn.heatmap(df_corr, cmap="YlGnBu", annot=True, fmt=".2f")
   plt.title("Correlation Matrix [Results vs Parameters]", fontsize=16)
   plt.ylabel("Model Results", fontsize=14)
   plt.xlabel("Parameters", fontsize=14)
   if save:
     plt.savefig(saveprefix + "correlation_heatmap.png", bbox_inches='tight')
+  return fig
 
 def plot_output_scatter(results, targets,
                         r2lim=None, rmselim=None, mapelim=None,
@@ -563,6 +573,7 @@ def plot_output_scatter(results, targets,
   # Save figure
   if save:
     fig.savefig(saveprefix + 'output_target_scatter.png', bbox_inches='tight')
+  return fig
 
 def plot_r2_rmse(results, targets, save=False, saveprefix=''):
   '''
@@ -614,6 +625,7 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
 
   if save:
     plt.savefig(saveprefix + "r2_rmse_mape.png", bbox_inches='tight')
+  return fig
 
 def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   '''
@@ -771,6 +783,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   else:
     plt.title(f"mean AVLN: {np.round(n_check['avln'].mean(), 4)}")
   
+  fig_bar = plt.gcf()
   if save:
     plt.savefig(saveprefix + "_n-check-barplot.png", bbox_inches='tight')
 
@@ -993,6 +1006,7 @@ def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1,
   # filtering targets dataframe by specific variable
   targets = targets.filter(regex=var)
 
+  figs = []
   # looping through total number of variables (pft, compartment specific)
   for i in range(var_num):
 
@@ -1034,7 +1048,9 @@ def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1,
 
     # save if save=True
     if save:
-      plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_scatterplot.png", bbox_inches="tight") 
+      plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_scatterplot.png", bbox_inches="tight")
+    figs.append(fig)
+  return figs
 
 def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
   '''
@@ -1361,7 +1377,7 @@ def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.
   if save:
     plt.savefig(saveprefix + col.split('_')[0] +"_eq_plot.png", bbox_inches='tight')
 
-  return counts, eq_check, eq_data
+  return counts, eq_check, eq_data, fig
 
 def read_mads_iterationresults(iterationresults_file):
   '''

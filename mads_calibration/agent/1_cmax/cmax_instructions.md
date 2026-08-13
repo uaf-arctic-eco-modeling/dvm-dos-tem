@@ -192,10 +192,13 @@ docker compose exec -T dvmdostem-autocal bash -c \
   'python /work/mads_calibration/agent/1_cmax/step1_analyze.py \
     --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N{N}/ \
     --config-yaml mads_calibration/logs/sa-{site_label}-step1.yaml \
-    --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N{N}/step1-result.yaml'
+    --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}-sa-N{N}/step1-result.yaml \
+    --generate-report'
 ```
 
 Use the `work_dir` from your Step 1 yaml (trailing `/` required).
+
+**Always pass `--generate-report`** to produce `sa-validation-report.pdf` in the work directory. This PDF bundles SA post-hoc plots (spaghetti, boxplot, PFT matrix, equilibrium diagnostics) so the user can validate the calibration step.
 
 **Important:** `n_top_runs` sorts ascending by R² — the **last** row is the best fit.
 

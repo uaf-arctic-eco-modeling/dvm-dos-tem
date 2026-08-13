@@ -147,7 +147,7 @@ SEED → Veg exploration SA (N=25) → Analyze → Review
    - Identify **insensitive** parameters (target response flat across sampled range)
    - Identify **correlated** parameters (moving one shifts multiple targets)
    - Note **troublesome PFTs** (specific PFT compartments failing tier while others pass)
-   - Use diagnostic plots if helpful: `analyze.py --save-plots`
+   - Use diagnostic plots if helpful: `analyze.py --save-plots` (or `--generate-report` for a comprehensive PDF)
 
 3. **Targeted SA** (when needed) — narrow focus on failing parameter families or PFTs:
    - Templates: `sa-step2-krb-template.yaml`, `sa-step2-cfall-template.yaml`, `sa-step2-nfall-template.yaml`
@@ -283,7 +283,7 @@ Set `nitrogen_biome` from site ecology (arctic tundra sites → `tundra`; boreal
 
 ## Control flow
 
-Each SA iteration loop: fill yaml from template → `SA_setup_and_run.py --force` → `analyze.py --phase {p} --biome {biome}` →
+Each SA iteration loop: fill yaml from template → `SA_setup_and_run.py --force` → `analyze.py --phase {p} --biome {biome} --generate-report` →
 
 | Exit | Status | Action |
 |------|--------|--------|
@@ -322,7 +322,8 @@ docker compose exec -T dvmdostem-autocal bash -c \
     --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-veg-exploration-iter1/ \
     --param-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/parameters-step2 \
     --biome {nitrogen_biome} \
-    --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-veg-exploration-iter1/step2-result.yaml'
+    --json-out /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-veg-exploration-iter1/step2-result.yaml \
+    --generate-report'
 
 # exit 0:
 docker compose exec -T dvmdostem-autocal bash -c \
