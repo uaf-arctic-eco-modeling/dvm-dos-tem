@@ -18,10 +18,8 @@ import sys
 import textwrap
 from pathlib import Path
 
-# Prefer installed package imports (see pyddt/context.md).
-# Uncomment / extend as section implementations need them:
-# import pyddt.util.output
-# import pyddt.util.general
+from pyddt.util.general import breakdown_outfile_name
+from pyddt.util.output import convert_units
 
 
 # ---------------------------------------------------------------------------
@@ -46,18 +44,42 @@ def wetland_merging(directory_a: Path, directory_b: Path, output_directory: Path
 # Section 2: Unit conversion
 # ---------------------------------------------------------------------------
 
-def unit_conversion(directory_a: Path, directory_b: Path, output_directory: Path) -> None:
-  """Convert output variable units to WIEMIP / analysis targets.
+def unit_conversion(directory: Path, output_directory: Path) -> None:
+  """Convert listed variables in ``directory`` to target units.
+
+  For each NetCDF whose variable appears in ``unit_specifiers``, writes a
+  file under ``output_directory`` with ``_unitsconverted`` inserted before
+  the extension via ``pyddt.util.output.convert_units``.
 
   Parameters
   ----------
-  directory_a, directory_b
-    Source run/output directories (or intermediates from prior steps).
+  directory
+    Directory of dvmdostem output NetCDFs to convert.
   output_directory
-    Destination for unit-converted products.
+    Destination directory for unit-converted products.
   """
-  # TODO: implement unit conversion (e.g. via pyddt.util.output.convert_units)
-  pass
+  unit_specifiers = {
+    'VEGC': 'kg/m2',
+  }
+
+  output_directory.mkdir(parents=True, exist_ok=True)
+
+  for nc_path in sorted(directory.glob('*.nc')):
+    try:
+      _, varname, _, _ = breakdown_outfile_name(str(nc_path))
+    except ValueError:
+      continue
+
+    if varname not in unit_specifiers:
+      continue
+
+    output_filepath = output_directory / f"{nc_path.stem}_unitsconverted{nc_path.suffix}"
+    convert_units(
+      str(nc_path),
+      unit_specifiers[varname],
+      output_filepath=str(output_filepath),
+      varname=varname,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -149,11 +171,19 @@ def cmdline_run(args: argparse.Namespace) -> int:
 
   output_directory.mkdir(parents=True, exist_ok=True)
 
-  wetland_merging(directory_a, directory_b, output_directory)
+  merged_directory = output_directory / 'merged'
+  units_converted_directory = output_directory / 'units_converted'
+  variable_combined_directory = output_directory / 'variable_combined'
 
-  unit_conversion(directory_a, directory_b, output_directory)
+  merged_directory.mkdir(parents=True, exist_ok=True)
+  units_converted_directory.mkdir(parents=True, exist_ok=True)
+  variable_combined_directory.mkdir(parents=True, exist_ok=True)
 
-  variable_combination(directory_a, directory_b, output_directory)
+  wetland_merging(directory_a, directory_b, merged_directory)
+
+  unit_conversion(merged_directory, units_converted_directory)
+
+  variable_combination(directory_a, directory_b, variable_combined_directory)
 
   visuals_production(directory_a, directory_b, output_directory)
 
