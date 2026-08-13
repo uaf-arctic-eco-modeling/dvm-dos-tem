@@ -78,6 +78,7 @@ def plot_boxplot(results, targets, save=False, saveprefix=''):
   ax.scatter(range(1,len(targets.columns)+1), targets, color='red', zorder=1000)
   if save:
     plt.savefig(saveprefix + "results_boxplot.png", bbox_inches='tight')
+  return fig
 
 def plot_spaghetti(results, targets, save=False, saveprefix=''):
   '''
@@ -140,6 +141,7 @@ def plot_spaghetti(results, targets, save=False, saveprefix=''):
   ax2.set_yscale('log')
   if save:
     plt.savefig(saveprefix + "spaghetti_plot.png", bbox_inches='tight')
+  return fig
 
 def plot_match(results, targets, save=False, saveprefix=''):
   '''
@@ -184,6 +186,7 @@ def plot_match(results, targets, save=False, saveprefix=''):
   ax.scatter(results, [targets for i in range(len(results))], alpha=.1)
   if save:
     plt.savefig(saveprefix + "one2one_match.png", bbox_inches='tight')
+  return fig
 
 
 
@@ -284,6 +287,7 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
   # Calculate correlation
   corr = calc_correlation(results, sample_matrix)
 
+  figs = []
   # loop through variables and create set of subplots for each
   for vars in variables:
     # Create a square of subplots from square root of number of parameters per variable
@@ -364,6 +368,8 @@ def plot_relationships(results, sample_matrix, targets, variables=None,
       if save:
         name = saveprefix + f"{vars}-{'-'.join(parameters)}.png"
         plt.savefig(name, bbox_inches="tight")
+    figs.append(fig)
+  return figs
 
 def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
   '''
@@ -409,6 +415,7 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
 
   print(pft_nums_set)
 
+  figs = []
   for v in range(0,len(variables)):
     
     ncols = 10
@@ -437,6 +444,8 @@ def plot_pft_matrix(results, sample_matrix, targets, save=False, saveprefix=''):
     if save:
       name = saveprefix + f"{variables[v]}_pft_plot.pdf"
       plt.savefig(name, format="pdf", bbox_inches="tight")
+    figs.append(fig)
+  return figs
 
 def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   '''
@@ -447,13 +456,14 @@ def plot_corr_heatmap(df_corr, save=False, saveprefix=''):
   '''
   import seaborn
 
-  plt.figure(figsize=(15,10))
+  fig = plt.figure(figsize=(15,10))
   seaborn.heatmap(df_corr, cmap="YlGnBu", annot=True, fmt=".2f")
   plt.title("Correlation Matrix [Results vs Parameters]", fontsize=16)
   plt.ylabel("Model Results", fontsize=14)
   plt.xlabel("Parameters", fontsize=14)
   if save:
     plt.savefig(saveprefix + "correlation_heatmap.png", bbox_inches='tight')
+  return fig
 
 def plot_output_scatter(results, targets,
                         r2lim=None, rmselim=None, mapelim=None,
@@ -563,6 +573,7 @@ def plot_output_scatter(results, targets,
   # Save figure
   if save:
     fig.savefig(saveprefix + 'output_target_scatter.png', bbox_inches='tight')
+  return fig
 
 def plot_r2_rmse(results, targets, save=False, saveprefix=''):
   '''
@@ -614,6 +625,7 @@ def plot_r2_rmse(results, targets, save=False, saveprefix=''):
 
   if save:
     plt.savefig(saveprefix + "r2_rmse_mape.png", bbox_inches='tight')
+  return fig
 
 def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   '''
@@ -654,6 +666,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   
   # setting up subplots for INGPP:GPP and AVLN
   fig, ax = plt.subplots(1, 2, figsize=(10,10))
+  ref_len = 2000
   
   # looping through samples
   for i, sample in enumerate(samples):
@@ -663,7 +676,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
 
     # catch if there is no folder
     if not os.path.exists(dir_path):
-      print(f"Folder '{sample_folder}' not found. Skipping...")
+      print(f"Folder '{sample}' not found. Skipping...")
       continue
 
     # specifying paths for AVLN, GPP, and INGPP
@@ -671,27 +684,33 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
     gpp_path = os.path.join(dir_path, 'GPP_yearly_eq.nc')
     ingpp_path = os.path.join(dir_path, 'INGPP_yearly_eq.nc')
 
-    # catch if output variables do not exist
-    if not (os.path.exists(avln_path) and os.path.exists(gpp_path) and os.path.exists(ingpp_path)):
-      print(f"Data files not found for '{sample_folder}'. Skipping...")
+    # INGPP and GPP are required for the N-ratio gate; AVLN is optional
+    # (e.g. Krb SA often omits AVLN from aux_outputs).
+    if not (os.path.exists(gpp_path) and os.path.exists(ingpp_path)):
+      print(f"Data files not found for '{sample}'. Skipping...")
       continue
 
     # loading data
-    avln = nc.Dataset(avln_path).variables["AVLN"][:].data[:,0,0]
     gpp = nc.Dataset(gpp_path).variables["GPP"][:].data[:,0,0]
     ingpp = nc.Dataset(ingpp_path).variables["INGPP"][:].data[:,0,0]
+    ref_len = len(ingpp)
+    avln = None
+    if os.path.exists(avln_path):
+      avln = nc.Dataset(avln_path).variables["AVLN"][:].data[:,0,0]
 
     # calculating ratio of INGPP:GPP for whole time series
     ingpp2gpp = ingpp / gpp
 
     # plotting ratio and avln
     ax[0].plot(ingpp2gpp, color='gray', alpha=0.25)
-    ax[1].plot(avln, color='gray', alpha=0.25)
+    if avln is not None:
+      ax[1].plot(avln, color='gray', alpha=0.25)
 
     # populating n_check dataframe:
     # taking the mean of the last 10 years of equilibrium
     n_check.iloc[i, 0] = np.mean(ingpp2gpp[-10:])
-    n_check.iloc[i, 1] = np.mean(avln[-10:])
+    if avln is not None:
+      n_check.iloc[i, 1] = np.mean(avln[-10:])
     
     # testing whether there is N-limitation 
     if biome=='boreal':
@@ -702,9 +721,13 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
         n_check.iloc[i,2] = True
 
   # plotting visual bands for test acceptance
+  valid_ratios = n_check['ratio'].dropna()
+  if len(valid_ratios) == 0:
+    print("No samples with INGPP/GPP data for nitrogen_check.")
+    return n_check, None
   if biome=='boreal':
-    ax[0].plot(range(0,len(ingpp)), 1.25*np.ones(len(ingpp)), alpha=0.5, color='g', linestyle='--')
-    ax[0].fill_between(range(0,len(ingpp)), 1.15*np.ones(len(ingpp)), 1.35*np.ones(len(ingpp)), alpha=0.25, color='g')
+    ax[0].plot(range(0,ref_len), 1.25*np.ones(ref_len), alpha=0.5, color='g', linestyle='--')
+    ax[0].fill_between(range(0,ref_len), 1.15*np.ones(ref_len), 1.35*np.ones(ref_len), alpha=0.25, color='g')
     num_pass = f"{len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])} out of {len(n_check['ratio'])} passed"
     per_pass = f"{100*(len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])/len(n_check['ratio']))}% passed"
     if 100*(len([i for i in n_check['ratio'].values if (1.15<=i<=1.35)])/len(n_check['ratio'])) <= 70:
@@ -712,8 +735,8 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
     else:
       ax[0].set_title(f" {per_pass}, nitrogen is limited ", fontsize=10)
   if biome=='tundra':
-    ax[0].plot(range(0,len(ingpp)), 1.5*np.ones(len(ingpp)), alpha=0.5, color='c', linestyle='--')
-    ax[0].fill_between(range(0,len(ingpp)), 1.4*np.ones(len(ingpp)), 1.6*np.ones(len(ingpp)), alpha=0.25, color='c')
+    ax[0].plot(range(0,ref_len), 1.5*np.ones(ref_len), alpha=0.5, color='c', linestyle='--')
+    ax[0].fill_between(range(0,ref_len), 1.4*np.ones(ref_len), 1.6*np.ones(ref_len), alpha=0.25, color='c')
     num_pass = f"{len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])} out of {len(n_check['ratio'])} passed"
     per_pass = f"{100*(len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])/len(n_check['ratio']))}% passed"
     if 100*(len([i for i in n_check['ratio'].values if (1.4<=i<=1.6)])/len(n_check['ratio'])) <= 70:
@@ -760,6 +783,7 @@ def nitrogen_check(path='', biome='boreal', save=False, saveprefix=''):
   else:
     plt.title(f"mean AVLN: {np.round(n_check['avln'].mean(), 4)}")
   
+  fig_bar = plt.gcf()
   if save:
     plt.savefig(saveprefix + "_n-check-barplot.png", bbox_inches='tight')
 
@@ -982,6 +1006,7 @@ def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1,
   # filtering targets dataframe by specific variable
   targets = targets.filter(regex=var)
 
+  figs = []
   # looping through total number of variables (pft, compartment specific)
   for i in range(var_num):
 
@@ -1023,7 +1048,9 @@ def plot_equilibrium_metrics_scatter(eq_params, targets, cv_lim=15, p_lim = 0.1,
 
     # save if save=True
     if save:
-      plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_scatterplot.png", bbox_inches="tight") 
+      plt.savefig(saveprefix + f"{targets.columns[i]}_eq_metrics_scatterplot.png", bbox_inches="tight")
+    figs.append(fig)
+  return figs
 
 def plot_equilibrium_metrics_boxplot(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.001, save=False, saveprefix=''):
   '''
@@ -1350,7 +1377,7 @@ def equilibrium_check(eq_params, targets, cv_lim=15, p_lim = 0.1, slope_lim = 0.
   if save:
     plt.savefig(saveprefix + col.split('_')[0] +"_eq_plot.png", bbox_inches='tight')
 
-  return counts, eq_check, eq_data
+  return counts, eq_check, eq_data, fig
 
 def read_mads_iterationresults(iterationresults_file):
   '''

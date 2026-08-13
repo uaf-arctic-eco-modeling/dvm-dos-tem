@@ -1,0 +1,294 @@
+#!/usr/bin/env python
+"""
+Propose Step 2 p_bounds from a prior SA sample_matrix.csv or step2-result.yaml.
+
+Hybrid default: soil params averaged from --soil-samples, cfall from --veg-sample.
+Use --step2-result to read best_sample_index from target-first analysis.
+
+Usage (inside dvmdostem-autocal):
+
+  python mads_calibration/agent/2_calibration/propose_bounds.py \\
+    --work-dir /data/workflows/CMT{cmtnum:02d}-{site_label}/logs/sa-step2-cfall-iter1/ \\
+    --step2-result .../step2-result.yaml \\
+    --family cfall --veg-span 0.30 \\
+    --yaml-out mads_calibration/logs/sa-{site_label}-step2-cfall-iter2-bounds.yaml
+
+  Families: veg_exploration | soil_exploration | nlevel | krb | cfall | nfall | soil
+"""
+
+from __future__ import print_function
+
+import argparse
+import os
+import sys
+
+import pandas as pd
+import yaml
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
+SOIL_PARAMS = {'micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'}
+KDC_ORDER = ('kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr')
+MIN_POSITIVE = 1e-6
+
+# Parameter families (calibration_instructions.md). Two-phase workflow:
+#   veg_exploration -> soil_exploration (+ targeted SA within each phase).
+PARAM_FAMILIES = {
+    'veg_exploration': {
+        'soil': [],
+        'single': ['nmax'],
+        'compartments': [
+            'krb(0)', 'krb(1)', 'krb(2)',
+            'cfall(0)', 'cfall(1)', 'cfall(2)',
+            'nfall(0)', 'nfall(1)', 'nfall(2)',
+        ],
+    },
+    'soil_exploration': {
+        'soil': ['micbnup', 'kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
+        'single': [],
+        'compartments': [],
+    },
+    'nlevel': {
+        'soil': ['micbnup'],
+        'single': ['nmax'],
+        'compartments': [],
+    },
+    'krb': {
+        'soil': [],
+        'single': [],
+        'compartments': ['krb(0)', 'krb(1)', 'krb(2)'],
+    },
+    'cfall': {
+        'soil': [],
+        'single': [],
+        'compartments': ['cfall(0)', 'cfall(1)', 'cfall(2)'],
+    },
+    'nfall': {
+        'soil': [],
+        'single': [],
+        'compartments': ['nfall(0)', 'nfall(1)', 'nfall(2)'],
+    },
+    'soil': {
+        'soil': ['kdcrawc', 'kdcsoma', 'kdcsompr', 'kdcsomcr'],
+        'single': [],
+        'compartments': [],
+    },
+}
+
+
+def pft_indices_from_step1(path):
+    """Active PFT indices from Step 1 recommended_cmax keys."""
+    with open(path) as f:
+        data = yaml.safe_load(f)
+    recommended = data.get('recommended_cmax') or {}
+    indices = []
+    for key in recommended:
+        if key.startswith('cmax_pft'):
+            indices.append(int(key.replace('cmax_pft', '')))
+    if not indices:
+        raise ValueError('No cmax_pft* keys in {}'.format(path))
+    return sorted(indices)
+
+
+def step2_param_lists(pft_indices=None, pft_max=8, family='cfall'):
+    """Params for one Step 2 SA phase (family), yaml `params`/`pftnums` layout.
+
+    Prefer family in {veg_exploration, soil_exploration, krb, cfall, nfall, soil}.
+    """
+    if family not in PARAM_FAMILIES:
+        raise ValueError('family must be one of {}; got {!r}'.format(
+            sorted(PARAM_FAMILIES), family))
+    if pft_indices is None:
+        pft_indices = list(range(pft_max + 1))
+    spec = PARAM_FAMILIES[family]
+
+    params = list(spec['soil'])
+    pftnums = [None] * len(spec['soil'])
+
+    for pft in pft_indices:
+        for pname in spec['single']:
+            params.append(pname)
+            pftnums.append(pft)
+        for compartment in spec['compartments']:
+            params.append(compartment)
+            pftnums.append(pft)
+    return params, pftnums
+
+
+def parse_int_list(text):
+    return [int(x.strip()) for x in text.split(',') if x.strip()]
+
+
+def column_for_param(param, pftnum):
+    if pftnum is None:
+        return param
+    return '{}_pft{}'.format(param, pftnum)
+
+
+def span_bounds(center, span, floor=MIN_POSITIVE, cap=None):
+    lo = center * (1.0 - span)
+    hi = center * (1.0 + span)
+    if center <= 0:
+        lo, hi = floor, floor * 10.0
+    lo = max(lo, floor)
+    if cap is not None:
+        hi = min(hi, cap)
+    if lo >= hi:
+        hi = lo * 1.5 + floor
+    return [float(lo), float(hi)]
+
+
+def constrain_kdc_bounds(params, bounds):
+    """Enforce kdcrawc > kdcsoma > kdcsompr > kdcsomcr and kdcrawc < 1.0."""
+    param_bounds = dict(zip(params, bounds))
+    if not any(p in param_bounds for p in KDC_ORDER):
+        return bounds
+
+    if 'kdcrawc' in param_bounds:
+        lo, hi = param_bounds['kdcrawc']
+        hi = min(hi, 1.0 - MIN_POSITIVE)
+        lo = min(lo, hi - MIN_POSITIVE)
+        param_bounds['kdcrawc'] = [max(lo, MIN_POSITIVE), hi]
+
+    for i in range(len(KDC_ORDER) - 1):
+        left, right = KDC_ORDER[i], KDC_ORDER[i + 1]
+        if left not in param_bounds or right not in param_bounds:
+            continue
+        left_lo, left_hi = param_bounds[left]
+        right_lo, right_hi = param_bounds[right]
+        right_hi = min(right_hi, left_lo - MIN_POSITIVE)
+        right_lo = min(right_lo, right_hi - MIN_POSITIVE)
+        right_lo = max(right_lo, MIN_POSITIVE)
+        if right_lo >= right_hi:
+            right_hi = right_lo + MIN_POSITIVE
+        param_bounds[right] = [right_lo, right_hi]
+
+    return [param_bounds[p] for p in params]
+
+
+def load_step2_result(path):
+    with open(path) as f:
+        data = yaml.safe_load(f)
+    return data
+
+
+def propose_bounds(work_dir, soil_samples, veg_sample, soil_span, veg_span,
+                   pft_indices=None, family='cfall'):
+    """Propose p_bounds for one param family from a prior SA sample_matrix.csv.
+
+    Params in PARAM_FAMILIES[family]['soil'] are centered by averaging
+    `soil_samples`. Other params (nmax, cfall/krb/nfall compartments) are
+    centered on `veg_sample`.
+    """
+    work_dir = os.path.abspath(work_dir)
+    sm = pd.read_csv(os.path.join(work_dir, 'sample_matrix.csv'))
+    params, pftnums = step2_param_lists(pft_indices=pft_indices, family=family)
+    soil_family = set(PARAM_FAMILIES[family]['soil'])
+    bounds = []
+
+    for param, pftnum in zip(params, pftnums):
+        col = column_for_param(param, pftnum)
+
+        if param in soil_family:
+            vals = [float(sm.loc[i, col]) for i in soil_samples]
+            center = sum(vals) / float(len(vals))
+            bounds.append(span_bounds(center, soil_span))
+            continue
+
+        center = float(sm.loc[veg_sample, col])
+        cap = 5e-4 if center <= MIN_POSITIVE else None
+        bounds.append(span_bounds(center, veg_span, cap=cap))
+
+    bounds = constrain_kdc_bounds(params, bounds)
+    return params, pftnums, bounds
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Propose Step 2 p_bounds from prior SA.')
+    parser.add_argument('--work-dir', required=True)
+    parser.add_argument(
+        '--step2-result', default=None,
+        help='Use best_sample_index as --veg-sample when --veg-sample omitted',
+    )
+    parser.add_argument(
+        '--soil-samples', default=None,
+        help='Comma-separated sample indices for soil param centers (required unless only cfall from result)',
+    )
+    parser.add_argument('--veg-sample', type=int, default=None)
+    parser.add_argument(
+        '--step1-result', default=None,
+        help='Derive active PFT list from recommended_cmax (matches Step 2 yaml)',
+    )
+    parser.add_argument(
+        '--pft-max', type=int, default=None,
+        help='Max PFT index inclusive (0..N); default 8 or from --step1-result',
+    )
+    parser.add_argument('--soil-span', type=float, default=0.25)
+    parser.add_argument('--veg-span', type=float, default=0.30)
+    parser.add_argument(
+        '--family', default='veg_exploration', choices=sorted(PARAM_FAMILIES),
+        help='Param family: veg_exploration|soil_exploration|nlevel|krb|cfall|nfall|soil',
+    )
+    parser.add_argument('--yaml-out', default=None,
+                        help='Write [[lo,hi],...] list as yaml fragment')
+    args = parser.parse_args()
+
+    veg_sample = args.veg_sample
+    if veg_sample is None and args.step2_result:
+        result = load_step2_result(args.step2_result)
+        veg_sample = int(result['best_sample_index'])
+        print('# veg-sample from step2-result: {}'.format(veg_sample))
+        failing = result.get('failing_targets') or []
+        if failing:
+            print('# failing_targets — use plot_relationships / plot_pft_matrix on:')
+            for ft in failing:
+                col = ft['column'] if isinstance(ft, dict) else ft
+                print('#   {}'.format(col))
+
+    if veg_sample is None:
+        parser.error('Provide --veg-sample or --step2-result with best_sample_index')
+
+    if args.soil_samples:
+        soil_samples = parse_int_list(args.soil_samples)
+    else:
+        soil_samples = [veg_sample]
+
+    if args.step1_result:
+        pft_indices = pft_indices_from_step1(args.step1_result)
+        print('# active PFTs from step1-result: {}'.format(pft_indices))
+    elif args.pft_max is not None:
+        pft_indices = list(range(args.pft_max + 1))
+        print('# active PFTs 0..{}'.format(args.pft_max))
+    else:
+        pft_indices = list(range(9))
+        print('# active PFTs default 0..8')
+
+    params, pftnums, bounds = propose_bounds(
+        args.work_dir,
+        soil_samples=soil_samples,
+        veg_sample=veg_sample,
+        soil_span=args.soil_span,
+        veg_span=args.veg_span,
+        pft_indices=pft_indices,
+        family=args.family,
+    )
+
+    print('# p_bounds for {} params (family={}, soil from {}, veg from {})'.format(
+        len(bounds), args.family, soil_samples, veg_sample))
+    for (param, pftnum), b in zip(zip(params, pftnums), bounds):
+        pft = '' if pftnum is None else '_pft{}'.format(pftnum)
+        print('  # {}{}: [{:.6g}, {:.6g}]'.format(param, pft, b[0], b[1]))
+
+    if args.yaml_out:
+        out_dir = os.path.dirname(os.path.abspath(args.yaml_out))
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
+        with open(args.yaml_out, 'w') as f:
+            yaml.safe_dump({'p_bounds': bounds}, f, default_flow_style=True)
+        print('\nWrote {}'.format(args.yaml_out))
+
+
+if __name__ == '__main__':
+    main()

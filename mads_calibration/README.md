@@ -1,7 +1,7 @@
 MADS-TEM parameter calibration 
 ===========================================
 
-The autocalibration (AC) process is focused on matching average above- and below-ground carbon and nitrogen stocks and fluxes. We match mean annual observed values during the equilibrium run period to ensure that the model represents the history of a given site. All parameters and observations are vectors, where an element of a vector represents a given plant functional type (PFT) within a given vegetation community type or a subsurface parameter. The calibration parameters can be found in [`paramters/calparbgc.txt`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/parameters/cmt_calparbgc.txt) and targets can be found in [calibration/calibration_targets.py](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/calibration/calibration_targets.py). For example, if we calibrating parameters for CMT4 then the corresponding targets will be under CMT4 as well. 
+The autocalibration (AC) process is focused on matching average above- and below-ground carbon and nitrogen stocks and fluxes. We match mean annual observed values during the equilibrium run period to ensure that the model represents the history of a given site. All parameters and observations are vectors, where an element of a vector represents a given plant functional type (PFT) within a given vegetation community type or a subsurface parameter. The calibration parameters can be found in [`paramters/calparbgc.txt`](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/parameters/cmt_calparbgc.txt) and targets can be found in [calibration/calibration_targets.py](https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/blob/calib/calibration/calibration_targets.py). For example, if we calibrating parameters for CMT4 then the corresponding targets will be under CMT4 as well. The canonical expanded target set (including arctic sites such as CMT73 Chersky) lives at `gs://vb-tem/Calibration/calibration_targets.py`; sync into `calibration/` when the repo copy lacks a CMT (see [agent/0_setup/setup_instructions.md](agent/0_setup/setup_instructions.md)).
 ## Parameters (above ground)
 | Name          | Description         |
 | ------------- |  ------------------ |
@@ -70,6 +70,9 @@ Check for equilibrium runs
 ===========================================
 After sensitivity is finished, it is important to check for equilibrium. The `equilibrium_check.py` is under development to check for it. This script filters model outputs that do not satisfy the equilibrium criteria defined in the script.  
 
+Post-hoc SA analysis (notebook)
+===========================================
+For interactive exploration of SA results (spaghetti plots, equilibrium checks, parameter–target relationships, nitrogen checks), use the Jupyter notebook [`notebooks/calibration_process.ipynb`](notebooks/calibration_process.ipynb). Run it inside the `dvmdostem-dev` or `dvmdostem-autocal` Docker container; set `WORK_DIR` in the notebook to the `work_dir` from your SA yaml (see [`agent/1_cmax/sa-step1-example-imn.yaml`](agent/1_cmax/sa-step1-example-imn.yaml) for Step 1; Step 2 uses staged templates under [`agent/2_calibration/`](agent/2_calibration/)). For automated calibration, start with [`agent/0_setup/setup_instructions.md`](agent/0_setup/setup_instructions.md) — Phase 0 setup through final evaluation under [`agent/`](agent/). Agent-created SA configs go in `logs/` (gitignored); results are written under `/data/workflows/` via `--json-out`.
 
 Running the Calibration
 ===========================================

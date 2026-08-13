@@ -2054,11 +2054,29 @@ def build_param_lookup(pdir):
   return lu
 
 
+def _cmt_block_span(data, cmtnum):
+  '''Return (start, end) line indices for one CMT block in a parameter file.'''
+  if type(cmtnum) == int:
+    cmtkey = 'CMT%02i' % cmtnum
+  else:
+    cmtkey = cmtnum
+
+  startidx = find_cmt_start_idx(data, cmtkey)
+  if startidx is None:
+    raise RuntimeError("Can't find datablock for CMT: {} in file".format(cmtkey))
+
+  end = len(data)
+  for i, line in enumerate(data[startidx:]):
+    if i > 0 and "CMT" in line:
+      end = startidx + i
+      break
+  return startidx, end
+
+
 def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   '''
-  Updates a parameter value in a parameter file. This will overwrite the
-  existing parameter file! Also note that it will remove all other CMTs
-  in the file.
+  Update a parameter value for one CMT block, preserving all other CMT blocks
+  in the same file (required for multi-CMT files such as ``cmt_bgcsoil.txt``).
 
   Parameters
   ----------
@@ -2079,20 +2097,28 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   None
   '''
   f = which_file(param_dir, pname)
-  
-  cmt_dict = cmtdatablock2dict(get_CMT_datablock(f, cmtnum))
+
+  data = read_paramfile(f)
+  data = [line for line in data if line != '\n']
+
+  startidx, end = _cmt_block_span(data, cmtnum)
+  cmt_dict = cmtdatablock2dict(data[startidx:end])
 
   if pname in cmt_dict.keys():
-    # Not a PFT parameter...
     cmt_dict[pname] = new_value
   else:
     pftkey = 'pft{}'.format(pftnum)
     cmt_dict[pftkey][pname] = new_value
 
   formatted = format_CMTdatadict(cmt_dict, f)
+  new_block = [
+      line if line.endswith('\n') else line + '\n'
+      for line in formatted
+  ]
 
+  new_data = data[:startidx] + new_block + data[end:]
   with open(f, 'w') as updated_file:
-    updated_file.write('\n'.join(formatted))  
+    updated_file.writelines(new_data)  
 
 def cmdline_define():
   '''Define the command line interface and return the parser object.'''

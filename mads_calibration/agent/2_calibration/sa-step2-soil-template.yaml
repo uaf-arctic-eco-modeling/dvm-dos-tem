@@ -1,0 +1,49 @@
+# Step 2 soil Kdc* SA — targeted SA within soil phase (kdc* only).
+# micbnup is sampled in soil_exploration, not here.
+# Prerequisites: applied veg_pass (ledger enforces veg_exploration).
+# kdc ordering: kdcrawc > kdcsoma > kdcsompr > kdcsomcr; kdcrawc < 1.0
+# Analyze: --phase soil  |  Apply: --phase soil
+# After phase6 rhmoist apply, re-run with --phase phase7 analyze/apply.
+# N_samples: 25 (default for Step 2 iteration). See calibration_instructions.md
+
+seed_path: {{SEED_PATH}}
+observations: /work/calibration
+
+N_samples: 25
+
+work_dir: {{WORK_DIR}}
+
+params:
+  - kdcrawc
+  - kdcsoma
+  - kdcsompr
+  - kdcsomcr
+
+pftnums:
+  - null
+  - null
+  - null
+  - null
+
+percent_diffs: {{PERCENT_DIFFS}}
+# or p_bounds from propose_bounds.py --family soil
+
+site: {{SITE}}
+PXx: {{PXX}}
+PXy: {{PXY}}
+
+calib_mode: VEGC
+sampling_method: lhc
+
+target_names:
+- CarbonShallow
+- CarbonDeep
+- CarbonMineralSum
+
+aux_outputs:
+- INGPP y
+- GPP y
+
+cmtnum: {{CMTNUM}}
+
+opt_run_setup: --pr-yrs 100 --eq-yrs 2000 --sp-yrs 0 --tr-yrs 0 --sc-yrs 0
