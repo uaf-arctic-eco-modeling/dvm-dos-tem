@@ -8,7 +8,7 @@ where helpful; section bodies are intentionally left as stubs.
 
 Example
 -------
-  ./postprocess-wiemip.py directoryA directoryB output_directory
+  ./postprocess-wiemip.py directoryA directoryB wetland.nc output_directory
 """
 
 from __future__ import annotations
@@ -19,24 +19,42 @@ import textwrap
 from pathlib import Path
 
 from pyddt.util.general import breakdown_outfile_name
-from pyddt.util.output import convert_units
+from pyddt.util.output import convert_units, weighted_combine_veg
 
 
 # ---------------------------------------------------------------------------
 # Section 1: Wetland merging
 # ---------------------------------------------------------------------------
 
-def wetland_merging(directory_a: Path, directory_b: Path, output_directory: Path) -> None:
+def wetland_merging(
+  directory_a: Path,
+  directory_b: Path,
+  wetland: Path,
+  output_directory: Path,
+) -> None:
   """Merge wetland-related outputs from the two input directories.
+
+  Uses ``weighted_combine_veg`` with vegetation percent cover from
+  ``wetland`` (expects ``veg_pct_cov`` and ``veg_class``).
 
   Parameters
   ----------
   directory_a, directory_b
     Source run/output directories to merge.
+  wetland
+    NetCDF with vegetation information (``veg_pct_cov``, ``veg_class``)
+    used as weights for the merge.
   output_directory
     Destination for merged products.
   """
-  # TODO: implement wetland merging
+  # TODO: implement wetland merging (discover matching files, etc.)
+  # Example call for one matching variable file from each directory:
+  # weighted_combine_veg(
+  #   str(directory_a / "VEGC_yearly_tr.nc"),
+  #   str(directory_b / "VEGC_yearly_tr.nc"),
+  #   str(wetland),
+  #   str(output_directory / "VEGC_yearly_tr.nc"),
+  # )
   pass
 
 
@@ -149,6 +167,15 @@ def cmdline_define() -> argparse.ArgumentParser:
     help="Second input directory (e.g. a model run or output tree).",
   )
   parser.add_argument(
+    "wetland",
+    type=Path,
+    metavar="wetland",
+    help=(
+      "NetCDF with vegetation information (veg_pct_cov, veg_class) "
+      "used to weight wetland merging."
+    ),
+  )
+  parser.add_argument(
     "output_directory",
     type=Path,
     metavar="output_directory",
@@ -167,6 +194,7 @@ def cmdline_run(args: argparse.Namespace) -> int:
   """Execute the four postprocessing sections from parsed CLI args."""
   directory_a = args.directory_a
   directory_b = args.directory_b
+  wetland = args.wetland
   output_directory = args.output_directory
 
   output_directory.mkdir(parents=True, exist_ok=True)
@@ -179,7 +207,7 @@ def cmdline_run(args: argparse.Namespace) -> int:
   units_converted_directory.mkdir(parents=True, exist_ok=True)
   variable_combined_directory.mkdir(parents=True, exist_ok=True)
 
-  wetland_merging(directory_a, directory_b, merged_directory)
+  wetland_merging(directory_a, directory_b, wetland, merged_directory)
 
   unit_conversion(merged_directory, units_converted_directory)
 
