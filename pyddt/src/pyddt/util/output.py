@@ -311,6 +311,239 @@ def convert_units(nc_filepath, to_units, output_filepath=None, varname=None):
   return output_filepath
 
 
+class WeightedCombineError(Exception):
+  '''Raised when weighted_combine_veg inputs are missing fields or incompatible.'''
+
+
+def _dimension_sizes(dataset):
+  return {name: len(dim) for name, dim in dataset.dimensions.items()}
+
+
+def _require_variable(dataset, varname, path):
+  if varname not in dataset.variables:
+    available = ", ".join(sorted(dataset.variables.keys()))
+    raise WeightedCombineError(
+      "Required variable '{}' not found in '{}'. "
+      "Available variables: {}".format(varname, path, available)
+    )
+  return dataset.variables[varname]
+
+
+def _as_masked(var):
+  '''Read a NetCDF variable as a masked array, honoring _FillValue.'''
+  data = var[:]
+  if not isinstance(data, np.ma.MaskedArray):
+    fill = getattr(var, "_FillValue", None)
+    if fill is not None:
+      data = np.ma.masked_equal(data, fill)
+    else:
+      data = np.ma.array(data)
+  return np.ma.asarray(data)
+
+
+def _spatial_shape(shape):
+  if len(shape) < 2:
+    raise WeightedCombineError(
+      "Expected at least 2 dimensions for spatial data; got shape {}.".format(
+        shape
+      )
+    )
+  return int(shape[-2]), int(shape[-1])
+
+
+def _align_veg_to_data(veg_2d, data_shape):
+  '''Broadcast a (y, x) vegetation field onto a scientific data array shape.'''
+  y, x = _spatial_shape(data_shape)
+  if veg_2d.shape != (y, x):
+    raise WeightedCombineError(
+      "Vegetation spatial shape {} does not match scientific "
+      "data spatial shape {} (last two dimensions of {}).".format(
+        veg_2d.shape, (y, x), data_shape
+      )
+    )
+  # Prepend singleton dims so numpy broadcasting covers leading axes
+  # (e.g. time, pft, layer).
+  reshape = (1,) * (len(data_shape) - 2) + (y, x)
+  return np.ma.reshape(veg_2d, reshape)
+
+
+def _copy_variable_attrs(src, dst):
+  for attr in src.ncattrs():
+    if attr == "_FillValue":
+      continue
+    setattr(dst, attr, getattr(src, attr))
+
+
+def weighted_combine_veg(file1, file2, veg_file, outfile, varname=None):
+  '''
+  Combine two scientific NetCDF files weighted by vegetation percent cover.
+  Specifically designed for combining non-wetland and wetland files in
+  the case where the two are produced separately.
+
+    result = file1 * (1 - veg_pct_cov) + file2 * veg_pct_cov
+
+  Pixels where ``veg_class == 0`` are masked out before the combination.
+
+  Parameters
+  ==========
+  file1 : str
+    Path to the first scientific NetCDF file. Weighted by ``(1 - veg_pct_cov)``.
+  file2 : str
+    Path to the second scientific NetCDF file. Weighted by ``veg_pct_cov``.
+  veg_file : str
+    Path to the vegetation-related NetCDF file containing ``veg_pct_cov`` and
+    ``veg_class``.
+  outfile : str
+    Path for the results NetCDF file.
+  varname : str, optional
+    Explicit data variable name. If omitted, inferred from ``file1`` / ``file2``
+    via ``breakdown_outfile_name`` (and verified to match).
+
+  Returns
+  =======
+  str
+    Path to the written results file.
+
+  Raises
+  ======
+  WeightedCombineError
+    If required fields are missing, dimensions differ, or spatial shapes are
+    incompatible.
+  '''
+  required_veg_vars = ("veg_pct_cov", "veg_class")
+
+  for path in (file1, file2, veg_file):
+    if not os.path.isfile(path):
+      raise WeightedCombineError("Input file not found: {}".format(path))
+
+  _, name1, _, _ = breakdown_outfile_name(file1)
+  _, name2, _, _ = breakdown_outfile_name(file2)
+  if varname is None:
+    if name1 != name2:
+      raise WeightedCombineError(
+        "Inferred variable names differ between input files: "
+        "'{}' from '{}' vs '{}' from '{}'. "
+        "Pass varname= explicitly if they should share a field name.".format(
+          name1, file1, name2, file2
+        )
+      )
+    varname = name1
+  else:
+    if name1 != varname or name2 != varname:
+      print(
+        "Warning: varname '{}' differs from name(s) inferred from "
+        "filenames ('{}', '{}'). Using '{}'.".format(
+          varname, name1, name2, varname
+        )
+      )
+
+  with nc.Dataset(file1, "r") as ds1, nc.Dataset(file2, "r") as ds2, \
+       nc.Dataset(veg_file, "r") as dsv:
+
+    dims1 = _dimension_sizes(ds1)
+    dims2 = _dimension_sizes(ds2)
+    if dims1 != dims2:
+      raise WeightedCombineError(
+        "Scientific input files do not have identical dimensions.\n"
+        "  {}: {}\n"
+        "  {}: {}\n"
+        "Exiting without writing a results file.".format(
+          file1, dims1, file2, dims2
+        )
+      )
+
+    var1 = _require_variable(ds1, varname, file1)
+    var2 = _require_variable(ds2, varname, file2)
+    for veg_var in required_veg_vars:
+      _require_variable(dsv, veg_var, veg_file)
+
+    if var1.dimensions != var2.dimensions:
+      raise WeightedCombineError(
+        "Variable '{}' has different dimension order/names:\n"
+        "  {}: {}\n"
+        "  {}: {}".format(
+          varname, file1, var1.dimensions, file2, var2.dimensions
+        )
+      )
+
+    data1 = _as_masked(var1)
+    data2 = _as_masked(var2)
+    if data1.shape != data2.shape:
+      raise WeightedCombineError(
+        "Variable '{}' shapes differ: {} vs {}.".format(
+          varname, data1.shape, data2.shape
+        )
+      )
+
+    veg_pct = _as_masked(dsv.variables["veg_pct_cov"])
+    veg_class = _as_masked(dsv.variables["veg_class"])
+
+    if veg_pct.shape != veg_class.shape:
+      raise WeightedCombineError(
+        "veg_pct_cov shape {} does not match "
+        "veg_class shape {} in '{}'.".format(
+          veg_pct.shape, veg_class.shape, veg_file
+        )
+      )
+
+    # Mask pixels with veg_class == 0 (and any already-masked class values).
+    class_mask = np.ma.getmaskarray(veg_class) | (veg_class == 0)
+    veg_pct = np.ma.array(veg_pct, mask=np.ma.getmaskarray(veg_pct) | class_mask)
+
+    veg_pct_b = _align_veg_to_data(veg_pct, data1.shape)
+    weight2 = veg_pct_b
+    weight1 = 1.0 - veg_pct_b
+
+    combined = data1 * weight1 + data2 * weight2
+
+    out_dir = os.path.dirname(os.path.abspath(outfile))
+    if out_dir and not os.path.isdir(out_dir):
+      os.makedirs(out_dir, exist_ok=True)
+
+    with nc.Dataset(outfile, "w", format="NETCDF4") as dso:
+      # Dimensions from the scientific inputs.
+      for dim_name, dim_len in dims1.items():
+        dso.createDimension(
+          dim_name,
+          None if ds1.dimensions[dim_name].isunlimited() else dim_len,
+        )
+
+      # Copy non-data variables (coordinates, grid mapping, etc.) from file1.
+      for vname, svar in ds1.variables.items():
+        if vname == varname:
+          continue
+        fill = getattr(svar, "_FillValue", None)
+        kwargs = {"fill_value": fill} if fill is not None else {}
+        dvar = dso.createVariable(vname, svar.dtype, svar.dimensions, **kwargs)
+        _copy_variable_attrs(svar, dvar)
+        if svar.size > 0:
+          dvar[:] = svar[:]
+
+      fill = getattr(var1, "_FillValue", None)
+      kwargs = {"fill_value": fill} if fill is not None else {}
+      out_var = dso.createVariable(varname, var1.dtype, var1.dimensions, **kwargs)
+      _copy_variable_attrs(var1, out_var)
+      out_var[:] = combined.filled(fill if fill is not None else np.nan)
+
+      # Preserve useful globals from file1, then record inputs.
+      for attr in ds1.ncattrs():
+        setattr(dso, attr, getattr(ds1, attr))
+      dso.input_files = (
+        "file1={}; file2={}; veg_file={}".format(
+          os.path.abspath(file1),
+          os.path.abspath(file2),
+          os.path.abspath(veg_file),
+        )
+      )
+      dso.history = (
+        "weighted_combine_veg: {} = "
+        "file1*(1-veg_pct_cov) + file2*veg_pct_cov; "
+        "masked where veg_class==0".format(varname)
+      )
+
+  return outfile
+
+
 def load_output_dataframe(var=None, stage=None, timeres=None, px_y=None,
                           px_x=None, fileprefix=None):
   '''Builds a pandas.DataFrame for the requested output variable.
