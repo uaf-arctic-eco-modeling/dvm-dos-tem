@@ -14,12 +14,21 @@ Example
 from __future__ import annotations
 
 import argparse
+import shutil
 import sys
 import textwrap
 from pathlib import Path
 
+import netCDF4 as nc
+
 from pyddt.util.general import breakdown_outfile_name
-from pyddt.util.output import convert_units, weighted_combine_veg
+from pyddt.util.output import (
+  convert_units,
+  sum_across_compartments,
+  sum_across_layers,
+  sum_across_pfts,
+  weighted_combine_veg,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +98,7 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
       continue
 
     if varname not in unit_specifiers:
+      shutil.copy2(nc_path, output_directory / nc_path.name)
       continue
 
     output_filepath = output_directory / f"{nc_path.stem}_unitsconverted{nc_path.suffix}"
@@ -104,19 +114,142 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 # Section 3: Variable combination
 # ---------------------------------------------------------------------------
 
-def variable_combination(directory_a: Path, directory_b: Path, output_directory: Path) -> None:
-  """Combine variables into derived WIEMIP products.
+def _varname_from_outfile(nc_path: Path) -> str | None:
+  """Return the dvmdostem variable name, or None if the filename does not match.
+
+  Accepts the standard ``VAR_timeres_stage.nc`` pattern and extra stem suffixes
+  such as ``_unitsconverted``.
+  """
+  try:
+    _, varname, _, _ = breakdown_outfile_name(str(nc_path))
+    return varname
+  except ValueError:
+    parts = nc_path.stem.split('_')
+    if len(parts) < 3:
+      return None
+    return parts[0]
+
+
+def _copy_variable_attrs(src, dst) -> None:
+  for attr in src.ncattrs():
+    if attr == '_FillValue':
+      continue
+    setattr(dst, attr, getattr(src, attr))
+
+
+def _write_summed_nc(
+  src_path: Path,
+  dst_path: Path,
+  varname: str,
+  summed,
+  drop_dims: list[str],
+) -> None:
+  """Write ``summed`` to ``dst_path``, dropping ``drop_dims`` from the source file."""
+  dst_path.parent.mkdir(parents=True, exist_ok=True)
+
+  with nc.Dataset(str(src_path), 'r') as src, \
+       nc.Dataset(str(dst_path), 'w', format='NETCDF4') as dst:
+    src_var = src.variables[varname]
+
+    for dim_name, dim in src.dimensions.items():
+      if dim_name in drop_dims:
+        continue
+      dst.createDimension(dim_name, None if dim.isunlimited() else len(dim))
+
+    for vname, svar in src.variables.items():
+      if vname == varname:
+        continue
+      if any(d in drop_dims for d in svar.dimensions):
+        continue
+      fill = getattr(svar, '_FillValue', None)
+      kwargs = {'fill_value': fill} if fill is not None else {}
+      dvar = dst.createVariable(vname, svar.dtype, svar.dimensions, **kwargs)
+      _copy_variable_attrs(svar, dvar)
+      if svar.size > 0:
+        dvar[:] = svar[:]
+
+    out_dims = tuple(d for d in src_var.dimensions if d not in drop_dims)
+    fill = getattr(src_var, '_FillValue', None)
+    kwargs = {'fill_value': fill} if fill is not None else {}
+    dvar = dst.createVariable(varname, src_var.dtype, out_dims, **kwargs)
+    _copy_variable_attrs(src_var, dvar)
+    if fill is not None and hasattr(summed, 'filled'):
+      dvar[:] = summed.filled(fill)
+    else:
+      dvar[:] = summed
+
+    for attr in src.ncattrs():
+      setattr(dst, attr, getattr(src, attr))
+    history_note = "variable_combination: summed across {}".format(
+      ", ".join(drop_dims)
+    )
+    if 'history' in dst.ncattrs():
+      dst.history = "{}; {}".format(dst.history, history_note)
+    else:
+      dst.history = history_note
+
+
+def variable_combination(directory: Path, output_directory: Path) -> None:
+  """Sum PFT- or layer-resolved variables to ecosystem totals.
+
+  For each NetCDF in ``directory`` whose variable appears in
+  ``pft_to_ecosystem`` or ``layer_to_ecosystem``, applies
+  ``sum_across_pfts`` or ``sum_across_layers`` and writes a file under
+  ``output_directory`` with ``_summed`` inserted before the extension.
 
   Parameters
   ----------
-  directory_a, directory_b
-    Source run/output directories (or intermediates from prior steps).
+  directory
+    Directory of dvmdostem output NetCDFs (or intermediates from prior steps).
   output_directory
-    Destination for combined / derived products.
+    Destination for summed / derived products.
   """
-  # TODO: implement variable combination
-  pass
+  pft_to_ecosystem = {'GPP', 'LAI', 'NPP', 'VEGC'}
+  layer_to_ecosystem = {'RHSOM', 'SOC', 'VWCLAYER'}
 
+  output_directory.mkdir(parents=True, exist_ok=True)
+
+  for nc_path in sorted(directory.glob('*.nc')):
+    varname = _varname_from_outfile(nc_path)
+    if varname is None:
+      continue
+
+    if varname in pft_to_ecosystem:
+      with nc.Dataset(str(nc_path), 'r') as src:
+        if varname not in src.variables:
+          continue
+        data = src.variables[varname][:]
+      drop_dims = []
+      # VEGC may be (time, pftpart, pft, y, x); collapse compartments first.
+      if data.ndim == 5:
+        data = sum_across_compartments(data)
+        drop_dims.append('pftpart')
+      data = sum_across_pfts(data)
+      drop_dims.append('pft')
+    elif varname in layer_to_ecosystem:
+      with nc.Dataset(str(nc_path), 'r') as src:
+        if varname not in src.variables:
+          continue
+        data = src.variables[varname][:]
+      data = sum_across_layers(data)
+      drop_dims = ['layer']
+    else:
+      continue
+
+    output_filepath = output_directory / f"{nc_path.stem}_summed{nc_path.suffix}"
+    _write_summed_nc(nc_path, output_filepath, varname, data, drop_dims)
+
+  # Combining multi-file variables
+  # wiemip/trendy variable name: variables to combine for it
+  multi_file_additions = {
+#    'fFire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC'],
+    'cSoilPools': ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC']
+  }
+
+  multi_file_subtractions = {
+    'cSoilBelow1m': ['SOC', 'SOC0_100cm'], #SOC - SOC0_100cm
+    'ra': ['GPP', 'NPP'] #GPP - NPP
+  }
 
 # ---------------------------------------------------------------------------
 # Section 4: Visuals production
@@ -204,14 +337,23 @@ def cmdline_run(args: argparse.Namespace) -> int:
   variable_combined_directory = output_directory / 'variable_combined'
 
   merged_directory.mkdir(parents=True, exist_ok=True)
+  print(f"Created directory {merged_directory}")
   units_converted_directory.mkdir(parents=True, exist_ok=True)
+  print(f"Created directory {units_converted_directory}")
   variable_combined_directory.mkdir(parents=True, exist_ok=True)
+  print(f"Created directory {variable_combined_directory}")
 
+  print("Merging wetland to base")
   wetland_merging(directory_a, directory_b, wetland, merged_directory)
+  print("Finished merging wetland to base")
 
+  print("Converting units")
   unit_conversion(merged_directory, units_converted_directory)
+  print("Finished converting units")
 
-  variable_combination(directory_a, directory_b, variable_combined_directory)
+  print("Combining variables")
+  variable_combination(units_converted_directory, variable_combined_directory)
+  print("Finished combining variables")
 
   visuals_production(directory_a, directory_b, output_directory)
 
