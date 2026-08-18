@@ -56,15 +56,27 @@ def wetland_merging(
   output_directory
     Destination for merged products.
   """
-  # TODO: implement wetland merging (discover matching files, etc.)
-  # Example call for one matching variable file from each directory:
-  # weighted_combine_veg(
-  #   str(directory_a / "VEGC_yearly_tr.nc"),
-  #   str(directory_b / "VEGC_yearly_tr.nc"),
-  #   str(wetland),
-  #   str(output_directory / "VEGC_yearly_tr.nc"),
-  # )
-  pass
+  output_directory.mkdir(parents=True, exist_ok=True)
+
+  files_a = {p.name for p in directory_a.glob('*.nc')}
+  files_b = {p.name for p in directory_b.glob('*.nc')}
+
+  only_a = sorted(files_a - files_b)
+  only_b = sorted(files_b - files_a)
+  common = sorted(files_a & files_b)
+
+  for filename in only_a:
+    print(f"Skipping {filename}: present in {directory_a}, missing from {directory_b}")
+  for filename in only_b:
+    print(f"Skipping {filename}: present in {directory_b}, missing from {directory_a}")
+
+  for filename in common:
+    weighted_combine_veg(
+      str(directory_a / filename),
+      str(directory_b / filename),
+      wetland_file=str(wetland),
+      outfile=str(output_directory / filename),
+    )
 
 
 # ---------------------------------------------------------------------------
