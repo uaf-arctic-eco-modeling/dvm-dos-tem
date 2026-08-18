@@ -382,7 +382,10 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
 
     result = file1 * (1 - veg_pct_cov) + file2 * veg_pct_cov
 
-  Pixels where ``veg_class == 0`` are masked out before the combination.
+  Pixels where ``veg_class == 0`` (or wetland percent cover is otherwise
+  missing) are treated as having no wetland contribution, so file2 is not
+  used and the file1 value is preserved. Cells where file1 has a value but
+  file2 is missing keep the file1 value unchanged; the reverse keeps file2.
 
   Parameters
   ==========
@@ -496,10 +499,21 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
     )
 
     wetland_veg_pct_b = _align_veg_to_data(wetland_veg_pct, data1.shape)
-    weight2 = wetland_veg_pct_b
-    weight1 = 1.0 - wetland_veg_pct_b
+    # Missing wetland cover must not mask the whole cell: treat as 0% wetland
+    # so file1 is used at full weight.
+    weight2 = np.ma.filled(wetland_veg_pct_b, 0.0)
+    weight1 = 1.0 - weight2
 
-    combined = data1 * weight1 + data2 * weight2
+    valid1 = ~np.ma.getmaskarray(data1)
+    valid2 = ~np.ma.getmaskarray(data2)
+
+    combined = (
+      np.ma.filled(data1, 0.0) * weight1 + np.ma.filled(data2, 0.0) * weight2
+    )
+    combined = np.ma.array(combined, mask=~(valid1 | valid2))
+    # A missing input must not zero a cell that the other file still has.
+    combined = np.ma.where(valid1 & ~valid2, data1, combined)
+    combined = np.ma.where(~valid1 & valid2, data2, combined)
 
     out_dir = os.path.dirname(os.path.abspath(outfile))
     if out_dir and not os.path.isdir(out_dir):
@@ -543,7 +557,8 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       dso.history = (
         "weighted_combine_veg: {} = "
         "file1*(1-wetland_veg_pct_cov) + file2*wetland_veg_pct_cov; "
-        "masked where wetland_veg_class==0".format(varname)
+        "wetland_veg_class==0 treated as 0% wetland; "
+        "file1 preserved where file2 is missing".format(varname)
       )
 
   return outfile
