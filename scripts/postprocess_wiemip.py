@@ -67,6 +67,9 @@ def wetland_merging(
   only_b = sorted(files_b - files_a)
   common = sorted(files_a & files_b)
 
+  base_only_vars = ['BURNSOIL2AIRC', 'BURNTHICK', 'BURNVEG2AIRC']
+  wetland_only_vars = ['CH4EFFLUXTOT']
+
   for filename in only_a:
     print(f"Skipping {filename}: present in {directory_a}, missing from {directory_b}")
   for filename in only_b:

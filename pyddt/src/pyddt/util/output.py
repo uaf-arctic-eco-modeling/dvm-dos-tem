@@ -19,6 +19,7 @@ import collections
 import cf_units
 
 from pyddt.util.general import breakdown_outfile_name
+from pyddt.util.netcdf import copy_nc_file_structure_handles
 
 
 def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
@@ -367,13 +368,6 @@ def _align_veg_to_data(veg_2d, data_shape):
   return np.ma.reshape(veg_2d, reshape)
 
 
-def _copy_variable_attrs(src, dst):
-  for attr in src.ncattrs():
-    if attr == "_FillValue":
-      continue
-    setattr(dst, attr, getattr(src, attr))
-
-
 def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
   '''
   Combine two scientific NetCDF files weighted by vegetation percent cover.
@@ -415,10 +409,16 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
   '''
   required_wetland_vars = ("veg_pct_cov", "veg_class")
 
+  # File and directory existence
   for path in (file1, file2, wetland_file):
     if not os.path.isfile(path):
       raise WeightedCombineError("Input file not found: {}".format(path))
 
+  out_dir = os.path.dirname(os.path.abspath(outfile))
+  if out_dir and not os.path.isdir(out_dir):
+    os.makedirs(out_dir, exist_ok=True)
+
+  # Input file variable checks
   _, name1, _, _ = breakdown_outfile_name(file1)
   _, name2, _, _ = breakdown_outfile_name(file2)
   if varname is None:
@@ -440,9 +440,12 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
         )
       )
 
+  # Open all files
   with nc.Dataset(file1, "r") as ds1, nc.Dataset(file2, "r") as ds2, \
-       nc.Dataset(wetland_file, "r") as ds_wetland:
+       nc.Dataset(wetland_file, "r") as ds_wetland, \
+       nc.Dataset(outfile, "w") as dst:
 
+    # Input dimension check
     dims1 = _dimension_sizes(ds1)
     dims2 = _dimension_sizes(ds2)
     if dims1 != dims2:
@@ -455,6 +458,7 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
         )
       )
 
+    # Input variable check
     var1 = _require_variable(ds1, varname, file1)
     var2 = _require_variable(ds2, varname, file2)
     for wetland_var in required_wetland_vars:
@@ -469,15 +473,7 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
         )
       )
 
-    data1 = _as_masked(var1)
-    data2 = _as_masked(var2)
-    if data1.shape != data2.shape:
-      raise WeightedCombineError(
-        "Variable '{}' shapes differ: {} vs {}.".format(
-          varname, data1.shape, data2.shape
-        )
-      )
-
+    # Wetland data loading and checking
     wetland_veg_pct = _as_masked(ds_wetland.variables["veg_pct_cov"])
     wetland_veg_class = _as_masked(ds_wetland.variables["veg_class"])
 
@@ -498,68 +494,78 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       mask=np.ma.getmaskarray(wetland_veg_pct) | wetland_class_mask,
     )
 
-    wetland_veg_pct_b = _align_veg_to_data(wetland_veg_pct, data1.shape)
+    wetland_veg_pct_b = _align_veg_to_data(wetland_veg_pct, var1.shape)
     # Missing wetland cover must not mask the whole cell: treat as 0% wetland
     # so file1 is used at full weight.
     weight2 = np.ma.filled(wetland_veg_pct_b, 0.0)
     weight1 = 1.0 - weight2
 
-    valid1 = ~np.ma.getmaskarray(data1)
-    valid2 = ~np.ma.getmaskarray(data2)
 
-    combined = (
-      np.ma.filled(data1, 0.0) * weight1 + np.ma.filled(data2, 0.0) * weight2
+    # Copying output file structure from file1/data structure 1
+    copy_nc_file_structure_handles(ds1, dst, varname, drop_dims=[])
+
+    # Define output file variable
+    out_dims = tuple(dim for dim in var1.dimensions)
+    fill_value = getattr(var1, '_FillValue', None)
+    kwargs = {'fill_value': fill_value} if fill_value is not None else {}
+
+    output_var = dst.createVariable(
+      varname,
+      var1.dtype,
+      out_dims,
+      **kwargs)
+
+    # Copy variable attributes
+    output_var.setncatts(var1.__dict__)
+
+    # Processing data by block
+    timesteps = 120
+    for time_block in range (0, var1.shape[0], timesteps):
+      data_slice_1 = var1[time_block:time_block+timesteps, :, :, :]
+      data_slice_2 = var2[time_block:time_block+timesteps, :, :, :]
+
+      print(data_slice_1.shape)
+      print(data_slice_2.shape)
+
+      # Set up block-sized masks?
+
+      valid1 = ~np.ma.getmaskarray(data_slice_1)
+      valid2 = ~np.ma.getmaskarray(data_slice_2)
+
+      merged_slice = (
+        np.ma.filled(data_slice_1, 0.0) * weight1 + np.ma.filled(data_slice_2, 0.0) * weight2
+      )
+      merged_slice = np.ma.array(merged_slice, mask=~(valid1 | valid2))
+      # A missing input must not zero a cell that the other file still has.
+      merged_slice = np.ma.where(valid1 & ~valid2, data_slice_1, merged_slice)
+      merged_slice = np.ma.where(~valid1 & valid2, data_slice_2, merged_slice)
+      print(f"Merged slice shape: {merged_slice.shape}")
+
+      output_var[time_block:time_block+timesteps, :, :, :] = merged_slice
+
+
+    # Copy global attributes to output file, add history note
+    for attr in ds1.ncattrs():
+      setattr(dst, attr, getattr(ds1, attr))
+
+    dst.input_files = (
+      "file1={}; file2={}; wetland_file={}".format(
+        os.path.abspath(file1),
+        os.path.abspath(file2),
+        os.path.abspath(wetland_file),
+      )
     )
-    combined = np.ma.array(combined, mask=~(valid1 | valid2))
-    # A missing input must not zero a cell that the other file still has.
-    combined = np.ma.where(valid1 & ~valid2, data1, combined)
-    combined = np.ma.where(~valid1 & valid2, data2, combined)
 
-    out_dir = os.path.dirname(os.path.abspath(outfile))
-    if out_dir and not os.path.isdir(out_dir):
-      os.makedirs(out_dir, exist_ok=True)
-
-    with nc.Dataset(outfile, "w", format="NETCDF4") as dso:
-      # Dimensions from the scientific inputs.
-      for dim_name, dim_len in dims1.items():
-        dso.createDimension(
-          dim_name,
-          None if ds1.dimensions[dim_name].isunlimited() else dim_len,
-        )
-
-      # Copy non-data variables (coordinates, grid mapping, etc.) from file1.
-      for vname, svar in ds1.variables.items():
-        if vname == varname:
-          continue
-        fill = getattr(svar, "_FillValue", None)
-        kwargs = {"fill_value": fill} if fill is not None else {}
-        dvar = dso.createVariable(vname, svar.dtype, svar.dimensions, **kwargs)
-        _copy_variable_attrs(svar, dvar)
-        if svar.size > 0:
-          dvar[:] = svar[:]
-
-      fill = getattr(var1, "_FillValue", None)
-      kwargs = {"fill_value": fill} if fill is not None else {}
-      out_var = dso.createVariable(varname, var1.dtype, var1.dimensions, **kwargs)
-      _copy_variable_attrs(var1, out_var)
-      out_var[:] = combined.filled(fill if fill is not None else np.nan)
-
-      # Preserve useful globals from file1, then record inputs.
-      for attr in ds1.ncattrs():
-        setattr(dso, attr, getattr(ds1, attr))
-      dso.input_files = (
-        "file1={}; file2={}; wetland_file={}".format(
-          os.path.abspath(file1),
-          os.path.abspath(file2),
-          os.path.abspath(wetland_file),
-        )
-      )
-      dso.history = (
-        "weighted_combine_veg: {} = "
-        "file1*(1-wetland_veg_pct_cov) + file2*wetland_veg_pct_cov; "
-        "wetland_veg_class==0 treated as 0% wetland; "
-        "file1 preserved where file2 is missing".format(varname)
-      )
+    history_note = (
+      "weighted_combine_veg: {} = "
+      "file1*(1-wetland_veg_pct_cov) + file2*wetland_veg_pct_cov; "
+      "wetland_veg_class==0 treated as 0% wetland; "
+      "file1 preserved where file2 is missing".format(varname)
+    )
+    if 'merge_history' in dst.ncattrs():
+      dst.merge_history = f"{dst.merge_history}; {history_note}"
+    else:
+      dst.merge_history = history_note
 
   return outfile
 
