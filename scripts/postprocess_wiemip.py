@@ -19,6 +19,7 @@ import sys
 import textwrap
 from pathlib import Path
 
+import numpy as np
 import netCDF4 as nc
 
 from pyddt.util.general import breakdown_outfile_name
@@ -71,6 +72,7 @@ def wetland_merging(
     print(f"Skipping {filename}: present in {directory_b}, missing from {directory_a}")
 
   for filename in common:
+    print(f"Merging {filename}")
     weighted_combine_veg(
       str(directory_a / filename),
       str(directory_b / filename),
@@ -97,8 +99,12 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
   output_directory
     Destination directory for unit-converted products.
   """
+  # Manually specified target units for the variables that need conversion.
+  # Files for the variables not listed here will be copied through to
+  # the output directory unchanged.
   unit_specifiers = {
-    'VEGC': 'kg/m2',
+    'GPP': 'kg/m2/s',
+    'VEGC': 'kg/m2'
   }
 
   output_directory.mkdir(parents=True, exist_ok=True)
@@ -158,6 +164,7 @@ def _write_summed_nc(
 ) -> None:
   """Write ``summed`` to ``dst_path``, dropping ``drop_dims`` from the source file."""
   dst_path.parent.mkdir(parents=True, exist_ok=True)
+  print(f"Writing summed netCDF file for {varname}")
 
   with nc.Dataset(str(src_path), 'r') as src, \
        nc.Dataset(str(dst_path), 'w', format='NETCDF4') as dst:
@@ -201,6 +208,100 @@ def _write_summed_nc(
       dst.history = history_note
 
 
+def copy_nc_file_structure(
+  src_path: Path,
+  dst_path: Path,
+  varname: str,
+  drop_dims: list[str],
+) -> None:
+    """Wrapper method to open files when copying netCDF files from the command line"""
+    dst_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"Creating new netCDF file for {varname}")
+    with nc.Dataset(str(src_path), 'r') as src, \
+         nc.Dataset(str(dst_path), 'w', format='NETCDF4') as dst:
+      copy_nc_file_structure_handles(src, dst, varname, drop_dims)
+
+
+def copy_nc_file_structure_handles(
+  src: nc.Dataset,
+  dst: nc.Dataset,
+  varname: str,
+  drop_dims: list[str],
+) -> None:
+  """Construct a copy of src_path at dst_path, dropping ``drop_dims``"""
+
+  print(f"Copying netCDF file structure for {varname}")
+
+  # Copy dimensions
+  for dim_name, dim in src.dimensions.items():
+    if dim_name in drop_dims:
+      continue
+    dst.createDimension(dim_name, None if dim.isunlimited() else len(dim))
+
+  # Copy global attributes
+  dst.setncatts(src.__dict__)
+
+  # Copy variables other than the target variable
+  for vname, src_var in src.variables.items():
+    # Skip the variable to be modified - it will be populated elsewhere
+    if vname == varname:
+      continue
+
+    # Drop variables whose dimensions are being removed
+    if any(dim in drop_dims for dim in src_var.dimensions):
+      continue
+
+    fill_value = getattr(src_var, '_FillValue', None)
+    kwargs = {'fill_value': fill} if fill_value is not None else {}
+    dst_var = dst.createVariable(
+      vname,
+      src_var.dtype,
+      src_var.dimensions,
+      **kwargs)
+
+    # Copy variable attributes
+    dst_var.setncatts(src_var.__dict__)
+
+    # Copy coordinate/metadata variable data
+    if src_var.size > 0:
+      dst_var[:] = src_var[:]
+
+
+  # Copy target variable structure/metadata/etc.
+  # Fills with _FillValue but no data is copied
+  # This could be rolled into the loop above, but is left separate
+  # to allow easy modification if the target variable is not wanted
+  # in the destination file at all.
+
+#      _copy_variable_attrs(svar, dvar)
+#      if svar.size > 0:
+#        dvar[:] = svar[:]
+
+#  src_var = src.variables[varname]
+#
+#  out_dims = tuple(dim for dim in src_var.dimensions if dim not in drop_dims)
+#  fill = getattr(src_var, '_FillValue', None)
+#  kwargs = {'fill_value': fill} if fill is not None else {}
+#
+#  dst_var = dst.createVariable(varname, src_var.dtype, out_dims, **kwargs)
+#
+#  # Copy coordinate/metadata variable data
+#  if src_var.size > 0:
+#    dst_var[:] = src_var[:]
+#
+  for attr in src.ncattrs():
+    setattr(dst, attr, getattr(src, attr))
+
+  history_note = "Structure copied from source file".format(", ".join(drop_dims))
+  if 'history' in dst.ncattrs():
+    dst.history = "{}; {}".format(dst.history, history_note)
+  else:
+    dst.history = history_note
+
+
+
+
 def variable_combination(directory: Path, output_directory: Path) -> None:
   """Sum PFT- or layer-resolved variables to ecosystem totals.
 
@@ -224,21 +325,71 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
   for nc_path in sorted(directory.glob('*.nc')):
     varname = _varname_from_outfile(nc_path)
     if varname is None:
+      print(f"No variable name parsed from {nc_path}")
       continue
 
+    output_filepath = output_directory / f"{nc_path.stem}_summed{nc_path.suffix}"
+
     if varname in pft_to_ecosystem:
-      with nc.Dataset(str(nc_path), 'r') as src:
+      print(f"Combining {varname} to ecosystem level")
+
+      with nc.Dataset(str(nc_path), 'r') as src, \
+           nc.Dataset(output_filepath, 'w') as dst:
         if varname not in src.variables:
+          print(f"{varname} not found in {str(nc_path)}")
           continue
-        data = src.variables[varname][:]
-      drop_dims = []
-      # VEGC may be (time, pftpart, pft, y, x); collapse compartments first.
-      if data.ndim == 5:
-        data = sum_across_compartments(data)
-        drop_dims.append('pftpart')
-      data = sum_across_pfts(data)
-      drop_dims.append('pft')
+
+        src_var = src.variables[varname]
+
+        if src_var.dimensions == 5:
+          print(f"{varname} has 5 dimensions. Probably by-compartment.")
+          print("5-dimensional files are not currently handled.")
+          continue
+          # VEGC may be (time, pftpart, pft, y, x); collapse compartments first.
+          #if data.ndim == 5:
+          #  print("Five dimensions, summing across compartments")
+          #  data = sum_across_compartments(data)
+          #  drop_dims.append('pftpart')
+
+        drop_dims = ['pft']
+        # Create structure for the destination file
+        copy_nc_file_structure_handles(src, dst, varname, drop_dims)
+
+        # Define output file variable
+        out_dims = tuple(dim for dim in src_var.dimensions if dim not in drop_dims)
+        fill_value = getattr(src_var, '_FillValue', None)
+        kwargs = {'fill_value': fill_value} if fill_value is not None else {}
+        output_var = dst.createVariable(
+          varname,
+          src_var.dtype,
+          out_dims,
+          **kwargs)
+
+        # Copy variable attributes
+        output_var.setncatts(src_var.__dict__)
+
+        # Working on chunks of the file to allow for handling
+        # larger files. The '120' is a harcoded value based on
+        # prior knowledge of the GPP file block setup and
+        # should be changed to use dynamic information from the
+        # incoming file.
+        for timestep in range(0, src_var.shape[0], 120):
+          data_slice = src_var[timestep:timestep+120, :, :, :]
+          print(data_slice.shape)
+          summed_slice = np.ma.sum(data_slice, axis=1)
+
+          # Immediately write result slice out
+          output_var[timestep:timestep+120, :, :] = summed_slice
+
+        print(f"Done summing {varname}")
+        history_note = "Summed across {}".format(", ".join(drop_dims))
+        if 'history' in dst.ncattrs():
+          dst.history = f"{dst.history}; {history_note}"
+        else:
+          dst.history = history_note
+
     elif varname in layer_to_ecosystem:
+      print(f"Combining {varname} to ecosystem level")
       with nc.Dataset(str(nc_path), 'r') as src:
         if varname not in src.variables:
           continue
@@ -248,8 +399,6 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     else:
       continue
 
-    output_filepath = output_directory / f"{nc_path.stem}_summed{nc_path.suffix}"
-    _write_summed_nc(nc_path, output_filepath, varname, data, drop_dims)
 
   # Combining multi-file variables
   # wiemip/trendy variable name: variables to combine for it
