@@ -207,7 +207,8 @@ def _write_summed_nc(
     else:
       dst.history = history_note
 
-
+# This is a reasonably generic utility method and should be
+# moved to pyddt.
 def copy_nc_file_structure(
   src_path: Path,
   dst_path: Path,
@@ -223,6 +224,8 @@ def copy_nc_file_structure(
       copy_nc_file_structure_handles(src, dst, varname, drop_dims)
 
 
+# This is a reasonably generic utility method and should be
+# moved to pyddt.
 def copy_nc_file_structure_handles(
   src: nc.Dataset,
   dst: nc.Dataset,
@@ -330,6 +333,7 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
 
     output_filepath = output_directory / f"{nc_path.stem}_summed{nc_path.suffix}"
 
+    # Handling PFT variables
     if varname in pft_to_ecosystem:
       print(f"Combining {varname} to ecosystem level")
 
@@ -388,14 +392,59 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
         else:
           dst.history = history_note
 
+    # Handling layer variables
+    # There is a lot of duplicate code here, it should
+    # be generalized and moved to pyddt when time permits.
     elif varname in layer_to_ecosystem:
       print(f"Combining {varname} to ecosystem level")
-      with nc.Dataset(str(nc_path), 'r') as src:
+
+      with nc.Dataset(str(nc_path), 'r') as src, \
+           nc.Dataset(output_filepath, 'w') as dst:
         if varname not in src.variables:
+          print(f"{varname} not found in {str(nc_path)}")
           continue
-        data = src.variables[varname][:]
-      data = sum_across_layers(data)
-      drop_dims = ['layer']
+
+        src_var = src.variables[varname]
+
+        drop_dims = ['layer']
+        # Create structure for the destination file
+        copy_nc_file_structure_handles(src, dst, varname, drop_dims)
+
+        # Define output file variable
+        out_dims = tuple(dim for dim in src_var.dimensions if dim not in drop_dims)
+        fill_value = getattr(src_var, '_FillValue', None)
+        kwargs = {'fill_value': fill_value} if fill_value is not None else {}
+
+        output_var = dst.createVariable(
+          varname,
+          src_var.dtype,
+          out_dims,
+          **kwargs)
+
+        # Copy variable attributes
+        output_var.setncatts(src_var.__dict__)
+
+        # Working on chunks of the file to allow for handling
+        # larger files. The '120' is a harcoded value based on
+        # prior knowledge of the GPP file block setup and
+        # should be changed to use dynamic information from the
+        # incoming file.
+        for timestep in range(0, src_var.shape[0], 120):
+          data_slice = src_var[timestep:timestep+120, :, :, :]
+          print(data_slice.shape)
+          summed_slice = np.ma.sum(data_slice, axis=1)
+
+          # Immediately write result slice out
+          output_var[timestep:timestep+120, :, :] = summed_slice
+
+        print(f"Done summing {varname}")
+        history_note = "Summed across {}".format(", ".join(drop_dims))
+        if 'history' in dst.ncattrs():
+          dst.history = f"{dst.history}; {history_note}"
+        else:
+          dst.history = history_note
+
+    # varname has no summing specified
     else:
       continue
 
