@@ -122,10 +122,41 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
   # Manually specified target units for the variables that need conversion.
   # Files for the variables not listed here will be copied through to
   # the output directory unchanged.
+  # unit_specifiers = {
+  #   'GPP': 'kg/m2/s',
+  #   'VEGC': 'kg/m2'
+  # }
   unit_specifiers = {
     'GPP': 'kg/m2/s',
     'VEGC': 'kg/m2'
   }
+  # LAI is m2/m2 (unitless) and does not need converting
+  # ALD, WATERTAB are already 'm'
+  # unit_specifiers = {
+  #   'ALD': 'm',
+  #   'AVLN': 'kg N/m2',
+  #   'BURNSOIL2AIRC': 'kg C/m2/s',
+  #   'BURNVEG2AIRC': 'kg C/m2/s',
+  #   'CH4EFFLUXTOT': 'kg CH4/m2/s',
+  #   'DWDC': 'kg C/m2',
+  #   'EET': 'kg/m2/s',
+  #   'GPP': 'kg C/m2/s',
+  #   'NETNMIN': 'kg N/m2/s',
+  #   'NPP': 'kg C/m2/s',
+  #   'ORGN': 'kg N/m2',
+  #   'RHSOM': 'kg C/m2/s',
+  #   'SNOWFALL': 'kg/m2/s',
+  #   'SNOWTHICK': 'm',
+  #   'SOC': 'kg C/m2',
+  #   'SOC0_100cm': 'kg C/m2',
+  #   'SWE': 'kg/m2',
+  #   'TLAYER': 'degree_K',
+  #   'TRANSPIRATION': 'kg/m2/s',
+  #   'VEGC': 'kg C/m2',
+  #   'VEGNTOT': 'kg N/m2',
+  #   'VWCLayer': 'kg/m2',
+  #   'WATERTAB': 'm'
+  # }
 
   output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -136,6 +167,7 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
       continue
 
     if varname not in unit_specifiers:
+      print(f"{varname} does not require unit conversion, copying unchanged")
       shutil.copy2(nc_path, output_directory / nc_path.name)
       continue
 

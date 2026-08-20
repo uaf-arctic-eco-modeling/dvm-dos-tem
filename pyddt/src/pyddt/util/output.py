@@ -284,12 +284,14 @@ def convert_units(nc_filepath, to_units, output_filepath=None, varname=None):
       os.makedirs(out_dir, exist_ok=True)
     shutil.copy2(nc_filepath, output_filepath)
 
-  with nc.Dataset(output_filepath, 'r+') as ds:
+  with nc.Dataset(nc_filepath, 'r') as src, \
+       nc.Dataset(output_filepath, 'r+') as ds:
     if varname not in ds.variables:
       raise RuntimeError(
           "Variable {!r} not found in {}".format(varname, output_filepath)
       )
 
+    src_var = src.variables[varname]
     var = ds.variables[varname]
     if 'units' not in var.ncattrs():
       raise RuntimeError(
@@ -299,15 +301,25 @@ def convert_units(nc_filepath, to_units, output_filepath=None, varname=None):
       )
 
     from_units = var.units
-    converted, meta_str = convert_units_data(var[:], from_units, to_units)
-    var[:] = converted
+
+    # Working on chunks of the file to allow for handling
+    # larger files. The '120' is a harcoded value based on
+    # prior knowledge of the GPP file block setup and
+    # should be changed to use dynamic information from the
+    # incoming file.
+    timesteps = 120
+    for time_block in range (0, src_var.shape[0], timesteps):
+      time_slice = src_var[time_block:time_block+timesteps, :, :, :]
+      converted, meta_str = convert_units_data(time_slice, from_units, to_units)
+      var[time_block:time_block+timesteps, :, :, :] = converted
+
     var.setncattr('units', to_units)
 
     history_note = "convert_units: {}".format(meta_str)
-    if 'history' in ds.ncattrs():
-      ds.history = "{}; {}".format(ds.history, history_note)
+    if 'units_history' in ds.ncattrs():
+      ds.units_history = "{}; {}".format(ds.units_history, history_note)
     else:
-      ds.history = history_note
+      ds.units_history = history_note
 
   return output_filepath
 
