@@ -32,6 +32,22 @@ from pyddt.util.output import (
   weighted_combine_veg,
 )
 
+# Test, then move to pyddt?
+def _varname_from_outfile(nc_path: Path) -> str | None:
+  """Return the dvmdostem variable name, or None if the filename does not match.
+
+  Accepts the standard ``VAR_timeres_stage.nc`` pattern and extra stem suffixes
+  such as ``_unitsconverted``.
+  """
+  try:
+    _, varname, _, _ = breakdown_outfile_name(str(nc_path))
+    return varname
+  except ValueError:
+    parts = nc_path.stem.split('_')
+    if len(parts) < 3:
+      return None
+    return parts[0]
+
 
 # ---------------------------------------------------------------------------
 # Section 1: Wetland merging
@@ -135,22 +151,6 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 # ---------------------------------------------------------------------------
 # Section 3: Variable combination
 # ---------------------------------------------------------------------------
-
-def _varname_from_outfile(nc_path: Path) -> str | None:
-  """Return the dvmdostem variable name, or None if the filename does not match.
-
-  Accepts the standard ``VAR_timeres_stage.nc`` pattern and extra stem suffixes
-  such as ``_unitsconverted``.
-  """
-  try:
-    _, varname, _, _ = breakdown_outfile_name(str(nc_path))
-    return varname
-  except ValueError:
-    parts = nc_path.stem.split('_')
-    if len(parts) < 3:
-      return None
-    return parts[0]
-
 
 def _copy_variable_attrs(src, dst) -> None:
   for attr in src.ncattrs():
@@ -372,17 +372,42 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
 # Section 4: Visuals production
 # ---------------------------------------------------------------------------
 
-def visuals_production(directory_a: Path, directory_b: Path, output_directory: Path) -> None:
+def visuals_production(
+  directory_a: Path,
+  directory_b: Path,
+  merged_dir: Path,
+  units_converted_dir: Path,
+  variable_combined_dir: Path,
+  final_dir: Path,
+  visuals_dir: Path
+) -> None:
   """Produce plots and other visual summaries of postprocessed outputs.
 
   Parameters
   ----------
-  directory_a, directory_b
+  directory_a, directory_b, merged_dir, units_converted_dir,
+  variable_combined_dir, final_dir
     Source run/output directories (or intermediates from prior steps).
-  output_directory
+  visuals_dir
     Destination for figures and visual products.
   """
-  # TODO: implement visuals production
+#Do we default to putting plots in the final directory or
+# do we direct them elsewhere?
+
+  for nc_path in sorted(final_dir.glob('*.nc')):
+    varname = _varname_from_outfile(nc_path)
+    if varname is None:
+      print(f"No variable name parsed from {nc_path}")
+      continue
+
+    # Make initial pdf, using visuals_dir and varname
+
+    # for each provided directory:
+    #   try to find the given varname, if found:
+    #   prettyplot = plot_circumpolar(directory + varname + etc.)
+    #   otherplot = plot_rough_timeseries(directory + varname + etc.)
+
+    #   varname_pdf += plot
   pass
 
 
