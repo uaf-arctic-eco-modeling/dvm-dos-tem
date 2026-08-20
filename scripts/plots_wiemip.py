@@ -26,13 +26,13 @@ import cartopy.feature as cfeature
 import numpy as np
 
 # example input variables
-output_file_path="/Users/BenMaglio/Downloads/GPP_monthly_tr.nc"
-runmask_file_path="/Users/BenMaglio/Downloads/teminputs-new-run-mask2.nc"
-variable_name='gpp'
-time_string='1850-08-01'
-method = lambda x: x.mean(dim=["x", "y"])
+# output_file_path="/Users/BenMaglio/Downloads/GPP_monthly_tr.nc"
+# runmask_file_path="/Users/BenMaglio/Downloads/teminputs-new-run-mask2.nc"
+# variable_name='gpp'
+# time_string='1850-08-01'
+# method = lambda x: x.mean(dim=["x", "y"])
 
-def ts_plot(output_file_path, runmask_file_path, variable_name, method):
+def ts_plot(output_file_path, runmask_file_path, variable_name, method, preview=False, save=True):
     OUTPUT_PNG = 'ts_plot.png'
 
     output_var_ds = xr.open_dataset(output_file_path)
@@ -67,13 +67,15 @@ def ts_plot(output_file_path, runmask_file_path, variable_name, method):
     ax.set_xlabel('Time [years]')
 
     plt.tight_layout()
-    plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
-    
-    plt.show()
+
+    if save:
+        plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
+    if preview:
+        plt.show()
 
     return
 
-def map_plot(output_file_path, runmask_file_path, variable_name, time_string):
+def map_plot(output_file_path, runmask_file_path, variable_name, time_string, preview=False, save=True):
     MAP_OUTPUT_PATH = f'{variable_name}_{time_string}_map.png'
     MAP_PROJECTION = "north_polar"
     NORTH_POLAR_MIN_LAT = None
@@ -148,11 +150,11 @@ def map_plot(output_file_path, runmask_file_path, variable_name, time_string):
     ax.set_title(time_string)
 
     plt.tight_layout()
-    plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
-    print(f"\nSaved plot to {OUTPUT_PNG}")
-    plt.show()
-
+    if save:
+        plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
+    if preview:
+        plt.show()
     return
 
 # map_plot(output_file_path, runmask_file_path, 'GPP', '1850-08-01')
-ts_plot(output_file_path, runmask_file_path, 'GPP', method)
+# ts_plot(output_file_path, runmask_file_path, 'GPP', method)
