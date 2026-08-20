@@ -65,6 +65,9 @@ def ts_plot(output_file_path, runmask_file_path, variable_name, method):
     ax.plot(da.indexes['time'].to_datetimeindex(), da.values)
     ax.set_ylabel(variable_name+f" [{units}]")
     ax.set_xlabel('Time [years]')
+
+    plt.tight_layout()
+    plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
     
     plt.show()
 
