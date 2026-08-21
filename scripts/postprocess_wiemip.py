@@ -207,66 +207,6 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 # Section 3: Variable combination
 # ---------------------------------------------------------------------------
 
-def _copy_variable_attrs(src, dst) -> None:
-  for attr in src.ncattrs():
-    if attr == '_FillValue':
-      continue
-    setattr(dst, attr, getattr(src, attr))
-
-
-def _write_summed_nc(
-  src_path: Path,
-  dst_path: Path,
-  varname: str,
-  summed,
-  drop_dims: list[str],
-) -> None:
-  """Write ``summed`` to ``dst_path``, dropping ``drop_dims`` from the source file."""
-  dst_path.parent.mkdir(parents=True, exist_ok=True)
-  print(f"Writing summed netCDF file for {varname}")
-
-  with nc.Dataset(str(src_path), 'r') as src, \
-       nc.Dataset(str(dst_path), 'w', format='NETCDF4') as dst:
-    src_var = src.variables[varname]
-
-    for dim_name, dim in src.dimensions.items():
-      if dim_name in drop_dims:
-        continue
-      dst.createDimension(dim_name, None if dim.isunlimited() else len(dim))
-
-    for vname, svar in src.variables.items():
-      if vname == varname:
-        continue
-      if any(d in drop_dims for d in svar.dimensions):
-        continue
-      fill = getattr(svar, '_FillValue', None)
-      kwargs = {'fill_value': fill} if fill is not None else {}
-      dvar = dst.createVariable(vname, svar.dtype, svar.dimensions, **kwargs)
-      _copy_variable_attrs(svar, dvar)
-      if svar.size > 0:
-        dvar[:] = svar[:]
-
-    out_dims = tuple(d for d in src_var.dimensions if d not in drop_dims)
-    fill = getattr(src_var, '_FillValue', None)
-    kwargs = {'fill_value': fill} if fill is not None else {}
-    dvar = dst.createVariable(varname, src_var.dtype, out_dims, **kwargs)
-    _copy_variable_attrs(src_var, dvar)
-    if fill is not None and hasattr(summed, 'filled'):
-      dvar[:] = summed.filled(fill)
-    else:
-      dvar[:] = summed
-
-    for attr in src.ncattrs():
-      setattr(dst, attr, getattr(src, attr))
-    history_note = "variable_combination: summed across {}".format(
-      ", ".join(drop_dims)
-    )
-    if 'history' in dst.ncattrs():
-      dst.history = "{}; {}".format(dst.history, history_note)
-    else:
-      dst.history = history_note
-
-
 def variable_combination(directory: Path, output_directory: Path) -> None:
   """Sum PFT- or layer-resolved variables to ecosystem totals.
 
@@ -423,90 +363,6 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     'ra': ['GPP', 'NPP'] #GPP - NPP
   }
 
-# ---------------------------------------------------------------------------
-# Section 5: Visuals production
-# ---------------------------------------------------------------------------
-
-def visuals_production(
-  base_dir: Path,
-  wetland_dir: Path,
-  merged_dir: Path,
-  units_converted_dir: Path,
-  variable_combined_dir: Path,
-  run_mask: Path,
-  visuals_dir: Path
-) -> None:
-  """Produce plots and other visual summaries of postprocessed outputs.
-
-  Parameters
-  ----------
-  base_dir, wetland_dir, merged_dir, units_converted_dir, variable_combined_dir
-    Source run/output directories (or intermediates from prior steps).
-  visuals_dir
-    Destination for figures and visual products.
-  """
-  intermediate_dirs = [
-    base_dir, wetland_dir, merged_dir,
-    units_converted_dir, variable_combined_dir]
-
-  print(f"Starting visuals production, main dir = {variable_combined_dir}")
-
-  for nc_path in sorted(variable_combined_dir.glob('*.nc')):
-    varname = _varname_from_outfile(nc_path)
-    if varname is None:
-      print(f"No variable name parsed from {nc_path}")
-      continue
-    else:
-      print(varname)
-
-    map_figures = []
-    ts_figures = []
-    if varname == 'GPP':
-      print(f"Plotting {varname}")
-      timestep_to_plot = '1850-08-01'
-      ts_method = lambda x: x.mean(dim=["x", "y"])
-
-      for directory in intermediate_dirs:
-        varname_matches = [
-          path for path in directory.iterdir()
-          if path.is_file() and varname in path.name
-        ]
-
-        if len(varname_matches) != 1:
-          raise RuntimeError(
-            f"Expected exactly one file containing {varname!r} in {directory}, "
-            f"found {len(varname_matches)}"
-          )
-
-        map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
-        map_figures.append(map_fig)
-
-        ts_fig = ts_plot(nc_path, run_mask, varname, ts_method, visuals_dir)
-        ts_figures.append(ts_fig)
-
-    else:
-      print("didn't find GPP")
-
-
-    with PdfPages(f"{visuals_dir}/{varname}.pdf") as pdf:
-      for fig in map_figures:
-        pdf.savefig(fig)
-      for fig in ts_figures:
-        pdf.savefig(fig)
-
-
-    # If the plotter simply writes png files and does not return Figures,
-    # construct a pdf from the pngs.
-    # map_pngs = sorted(visuals_dir.glob(f'{varname}*map*.png'))
-    # print(f"map pngs: {map_pngs}")
-
-    # images = [Image.open(png).convert("RGB") for png in map_pngs]
-
-    # images[0].save(
-    #   f"{varname}.pdf",
-    #   save_all=True,
-    #   append_images=images[1:],
-    # )
 
 # ---------------------------------------------------------------------------
 # Section 4: Conform to WIEMIP naming/formatting
@@ -617,6 +473,92 @@ def conform_to_wiemip(
         dst.conform_history = "{}; {}".format(dst.conform_history, history_note)
       else:
         dst.conform_history = history_note
+
+
+# ---------------------------------------------------------------------------
+# Section 5: Visuals production
+# ---------------------------------------------------------------------------
+
+def visuals_production(
+  base_dir: Path,
+  wetland_dir: Path,
+  merged_dir: Path,
+  units_converted_dir: Path,
+  variable_combined_dir: Path,
+  run_mask: Path,
+  visuals_dir: Path
+) -> None:
+  """Produce plots and other visual summaries of postprocessed outputs.
+
+  Parameters
+  ----------
+  base_dir, wetland_dir, merged_dir, units_converted_dir, variable_combined_dir
+    Source run/output directories (or intermediates from prior steps).
+  visuals_dir
+    Destination for figures and visual products.
+  """
+  intermediate_dirs = [
+    base_dir, wetland_dir, merged_dir,
+    units_converted_dir, variable_combined_dir]
+
+  print(f"Starting visuals production, main dir = {variable_combined_dir}")
+
+  for nc_path in sorted(variable_combined_dir.glob('*.nc')):
+    varname = _varname_from_outfile(nc_path)
+    if varname is None:
+      print(f"No variable name parsed from {nc_path}")
+      continue
+    else:
+      print(varname)
+
+    map_figures = []
+    ts_figures = []
+    if varname == 'GPP':
+      print(f"Plotting {varname}")
+      timestep_to_plot = '1850-08-01'
+      ts_method = lambda x: x.mean(dim=["x", "y"])
+
+      for directory in intermediate_dirs:
+        varname_matches = [
+          path for path in directory.iterdir()
+          if path.is_file() and varname in path.name
+        ]
+
+        if len(varname_matches) != 1:
+          raise RuntimeError(
+            f"Expected exactly one file containing {varname!r} in {directory}, "
+            f"found {len(varname_matches)}"
+          )
+
+        map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
+        map_figures.append(map_fig)
+
+        ts_fig = ts_plot(nc_path, run_mask, varname, ts_method, visuals_dir)
+        ts_figures.append(ts_fig)
+
+    else:
+      print("didn't find GPP")
+
+
+    with PdfPages(f"{visuals_dir}/{varname}.pdf") as pdf:
+      for fig in map_figures:
+        pdf.savefig(fig)
+      for fig in ts_figures:
+        pdf.savefig(fig)
+
+
+    # If the plotter simply writes png files and does not return Figures,
+    # construct a pdf from the pngs.
+    # map_pngs = sorted(visuals_dir.glob(f'{varname}*map*.png'))
+    # print(f"map pngs: {map_pngs}")
+
+    # images = [Image.open(png).convert("RGB") for png in map_pngs]
+
+    # images[0].save(
+    #   f"{varname}.pdf",
+    #   save_all=True,
+    #   append_images=images[1:],
+    # )
 
 
 # ---------------------------------------------------------------------------
