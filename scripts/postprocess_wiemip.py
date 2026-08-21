@@ -21,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 import netCDF4 as nc
+import cfunits as ncascms_cfunits #Note that this is not the cf_units from Scitools
 
 from pyddt.util.general import breakdown_outfile_name
 from pyddt.util.netcdf import copy_nc_file_structure_handles
@@ -47,6 +48,22 @@ def _varname_from_outfile(nc_path: Path) -> str | None:
     if len(parts) < 3:
       return None
     return parts[0]
+
+# Test, combine with above, then move to pyddt?
+def _timestep_from_outfile(nc_path: Path) -> str | None:
+  """Return the dvmdostem timestep, or None if the filename does not match.
+
+  Accepts the standard ``VAR_timeres_stage.nc`` pattern and extra stem suffixes
+  such as ``_unitsconverted``.
+  """
+  try:
+    _, _, timestep, _ = breakdown_outfile_name(str(nc_path))
+    return timestep
+  except ValueError:
+    parts = nc_path.stem.split('_')
+    if len(parts) < 3:
+      return None
+    return parts[1]
 
 
 # ---------------------------------------------------------------------------
@@ -442,6 +459,116 @@ def visuals_production(
     #   varname_pdf += plot
   pass
 
+# ---------------------------------------------------------------------------
+# Section 5: Conform to WIEMIP naming/formatting
+# ---------------------------------------------------------------------------
+def conform_to_wiemip(
+  directory: Path,
+  gcm_short: str ("stable"),
+  exp_short: str,
+  output_directory: Path
+) -> None:
+  """Final file polishing, including renaming to fit WIEMIP's requested format,
+  marking units for some variables as 'C' and 'N', etc.
+  """
+
+  output_directory.mkdir(parents=True, exist_ok=True)
+
+#  print(f"gcm_short: {gcm_short}, exp_short: {exp_short}")
+
+  # TODO INCOMPLETE
+  variable_crosswalk = {
+    'GPP': 'gpp',
+    'LAI': 'lai',
+    'SOC': 'cSoil',
+    'SOC0_100cm': 'cSoilAbove1m',
+    'VEGC': 'cVeg'
+  }
+
+  # Irrelevant timesteps: '6-hourly': '6hr', 'Fixed': 'fx'
+  timestep_crosswalk = {
+    'yearly': 'yr',
+    'monthly': 'mon',
+    'daily': 'day'
+  }
+
+  force_SI_units = {
+    'GPP': ['kg/m2/s', 'kg C/m2/s'], #Which varname here?
+  }
+
+  # Renaming our output files (and their variables) to fit WIEMIP reqs.
+  # <MODEL_NAME>_<gcm_pattern_short_name>_<experiment_short_name>_<variable_name>_<frequency>_<spatial_resolution_short_name>.nc
+  # Example: dvmdostem_stable_ctrl_gpp_mon_05.nc
+  model_name = "dvmdostem"
+  spatial_resolution = "05"
+
+  possible_GCMs = ["stable", "ukesm", "gfdl", "ipsl"]
+  if gcm_short not in possible_GCMs:
+    print(f"Invalid GCM specified: {gcm_short}")
+    print("Options are: {}".format(", ".join(possible_GCMs)))
+
+  # Loop through all files in given directory
+  for nc_path in sorted(directory.glob('*.nc')):
+    varname = _varname_from_outfile(nc_path)
+    if varname is None:
+      print(f"No variable name parsed from {nc_path}")
+      continue
+
+    print(f"Conforming {varname}")
+    wiemip_varname = variable_crosswalk[varname]
+
+    timestep = _timestep_from_outfile(nc_path)
+    frequency = timestep_crosswalk[timestep]
+
+    wiemip_filename = "{}_{}_{}_{}_{}_{}.nc".format(
+      model_name, gcm_short, exp_short, wiemip_varname,
+      frequency, spatial_resolution
+    )
+
+    output_filepath = output_directory / wiemip_filename
+    shutil.copy2(nc_path, output_filepath)
+
+    print(f"Conforming {nc_path.name} to {wiemip_filename}")
+
+
+    # Updating output file
+    with nc.Dataset(str(output_filepath), 'r+') as dst:
+      dst_var = dst.variables[varname]
+
+      # If the variable units are what we expect for the given variable,
+      # update them to include 'C' and 'N' as needed.
+      # At this point, file variable name is still TEM-standard
+      if varname in force_SI_units:
+        file_current_units = ncascms_cfunits.Units(dst_var.units)
+        expected_var_units = ncascms_cfunits.Units(force_SI_units[varname][0])
+
+        if file_current_units.equivalent(expected_var_units):
+          #print(f"{dst_var.units} equivalent to {force_SI_units[varname][0]}")
+          old_units = dst_var.units
+          #dst.setncattr('units', force_SI_units[varname][1])
+          dst_var.setncattr('units', force_SI_units[varname][1])
+
+          unit_history_note = f"Forced {old_units} to {force_SI_units[varname][1]}"
+          print(f"Forced {old_units} to {force_SI_units[varname][1]}")
+        else:
+          print(f"Something is wrong with the incoming units for {varname}")
+
+      # Rename data variable if needed
+      if varname in variable_crosswalk:
+        dst.renameVariable(varname, wiemip_varname)
+        varname_history_note = f"Renamed {varname} to {wiemip_varname}"
+
+      history_note = f"Renamed {nc_path.name} to {wiemip_filename}"
+      if unit_history_note:
+        history_note = "{}; {}".format(history_note, unit_history_note)
+      if varname_history_note:
+        history_note = "{}; {}".format(history_note, varname_history_note)
+
+      if 'conform_history' in dst.ncattrs():
+        dst.conform_history = "{}; {}".format(dst.conform_history, history_note)
+      else:
+        dst.conform_history = history_note
+
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -462,16 +589,16 @@ def cmdline_define() -> argparse.ArgumentParser:
     """),
   )
   parser.add_argument(
-    "directory_a",
+    "base_directory",
     type=Path,
-    metavar="directoryA",
-    help="First input directory (e.g. a model run or output tree).",
+    metavar="base_directory",
+    help="Base data input directory",
   )
   parser.add_argument(
-    "directory_b",
+    "wetland_directory",
     type=Path,
-    metavar="directoryB",
-    help="Second input directory (e.g. a model run or output tree).",
+    metavar="wetland_directory",
+    help="Wetland data input directory",
   )
   parser.add_argument(
     "wetland",
@@ -480,6 +607,22 @@ def cmdline_define() -> argparse.ArgumentParser:
     help=(
       "NetCDF with vegetation information (veg_pct_cov, veg_class) "
       "used to weight wetland merging."
+    ),
+  )
+  parser.add_argument(
+    "gcm_short",
+    type=str,
+    metavar="gcm_short",
+    help=(
+      "GCM short name for WIEMIP naming conventions"
+    ),
+  )
+  parser.add_argument(
+    "exp_short",
+    type=str,
+    metavar="exp_short",
+    help=(
+      "Experiment short name for WIEMIP naming conventions"
     ),
   )
   parser.add_argument(
@@ -499,8 +642,8 @@ def cmdline_parse(argv=None) -> argparse.Namespace:
 
 def cmdline_run(args: argparse.Namespace) -> int:
   """Execute the four postprocessing sections from parsed CLI args."""
-  directory_a = args.directory_a
-  directory_b = args.directory_b
+  base_directory = args.base_directory
+  wetland_directory = args.wetland_directory
   wetland = args.wetland
   output_directory = args.output_directory
 
@@ -509,13 +652,23 @@ def cmdline_run(args: argparse.Namespace) -> int:
   merged_directory = output_directory / 'merged'
   units_converted_directory = output_directory / 'units_converted'
   variable_combined_directory = output_directory / 'variable_combined'
+  conformed_dir = output_directory / 'conformed'
+  visuals_dir = output_directory / 'visuals'
 
   merged_directory.mkdir(parents=True, exist_ok=True)
   print(f"Created directory {merged_directory}")
+
   units_converted_directory.mkdir(parents=True, exist_ok=True)
   print(f"Created directory {units_converted_directory}")
+
   variable_combined_directory.mkdir(parents=True, exist_ok=True)
   print(f"Created directory {variable_combined_directory}")
+
+  conformed_dir.mkdir(parents=True, exist_ok=True)
+  print(f"Created directory {conformed_dir}")
+
+  visuals_dir.mkdir(parents=True, exist_ok=True)
+  print(f"Created directory {visuals_dir}")
 
   print("Merging wetland to base")
   wetland_merging(directory_a, directory_b, wetland, merged_directory)
@@ -530,6 +683,9 @@ def cmdline_run(args: argparse.Namespace) -> int:
   print("Finished combining variables")
 
   visuals_production(directory_a, directory_b, output_directory)
+
+  print("Final file tweaks (renaming, unit string fixing, etc.)")
+  conform_to_wiemip(variable_combined_directory, args.gcm_short, args.exp_short, conformed_dir)
 
   return 0
 
