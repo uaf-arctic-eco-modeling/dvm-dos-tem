@@ -10,7 +10,7 @@ Plotting functions for WIEMIP outputs:
                across spatial domain.  
 
 An additional input file (e.g. run-mask.nc) is 
-required to provide geopspatial information (e.g.
+required to provide geospatial information (e.g.
 lat, lon, projection, etc) and mask pixels which
 were not run.
 
@@ -25,6 +25,8 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
 
+from pathlib import Path
+
 # example input variables
 # output_file_path="/Users/BenMaglio/Downloads/GPP_monthly_tr.nc"
 # runmask_file_path="/Users/BenMaglio/Downloads/teminputs-new-run-mask2.nc"
@@ -32,8 +34,13 @@ import numpy as np
 # time_string='1850-08-01'
 # method = lambda x: x.mean(dim=["x", "y"])
 
-def ts_plot(output_file_path, runmask_file_path, variable_name, method, preview=False, save=True):
-    OUTPUT_PNG = 'ts_plot.png'
+def ts_plot(output_file_path, runmask_file_path, variable_name, method,
+            plot_dir, preview=False, save=True):
+
+    if plot_dir:
+      OUTPUT_PNG = f'{str(plot_dir)}/{variable_name}_ts_plot.png'
+    else:
+      OUTPUT_PNG = 'ts_plot.png'
 
     output_var_ds = xr.open_dataset(output_file_path)
     units = output_var_ds[variable_name].attrs['units']
@@ -73,13 +80,18 @@ def ts_plot(output_file_path, runmask_file_path, variable_name, method, preview=
     if preview:
         plt.show()
 
-    return
+    return fig
 
-def map_plot(output_file_path, runmask_file_path, variable_name, time_string, preview=False, save=True):
+def map_plot(output_file_path, runmask_file_path, variable_name, time_string,
+             plot_dir, preview=False, save=True):
     MAP_OUTPUT_PATH = f'{variable_name}_{time_string}_map.png'
     MAP_PROJECTION = "north_polar"
     NORTH_POLAR_MIN_LAT = None
-    OUTPUT_PNG = 'map_plot.png'
+
+    if plot_dir:
+      OUTPUT_PNG = f'{str(plot_dir)}/{variable_name}_{time_string}_map.png'
+    else:
+      OUTPUT_PNG = 'map_plot.png'
 
     output_var_ds = xr.open_dataset(output_file_path)
     units = output_var_ds[variable_name].attrs['units']
@@ -154,7 +166,8 @@ def map_plot(output_file_path, runmask_file_path, variable_name, time_string, pr
         plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
     if preview:
         plt.show()
-    return
+
+    return fig
 
 # map_plot(output_file_path, runmask_file_path, 'GPP', '1850-08-01')
 # ts_plot(output_file_path, runmask_file_path, 'GPP', method)

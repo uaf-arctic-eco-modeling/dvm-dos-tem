@@ -22,6 +22,8 @@ from pathlib import Path
 import numpy as np
 import netCDF4 as nc
 import cfunits as ncascms_cfunits #Note that this is not the cf_units from Scitools
+#from PIL import Image
+from matplotlib.backends.backend_pdf import PdfPages
 
 from pyddt.util.general import breakdown_outfile_name
 from pyddt.util.netcdf import copy_nc_file_structure_handles
@@ -32,6 +34,10 @@ from pyddt.util.output import (
   sum_across_pfts,
   weighted_combine_veg,
 )
+
+# Use sys.path.append('/path/to/dvm-dos-tem/scripts/')
+# or add that directory to PYTHONPATH
+from plots_wiemip import map_plot, ts_plot
 
 # Test, then move to pyddt?
 def _varname_from_outfile(nc_path: Path) -> str | None:
@@ -418,49 +424,92 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
   }
 
 # ---------------------------------------------------------------------------
-# Section 4: Visuals production
+# Section 5: Visuals production
 # ---------------------------------------------------------------------------
 
 def visuals_production(
-  directory_a: Path,
-  directory_b: Path,
+  base_dir: Path,
+  wetland_dir: Path,
   merged_dir: Path,
   units_converted_dir: Path,
   variable_combined_dir: Path,
-  final_dir: Path,
+  run_mask: Path,
   visuals_dir: Path
 ) -> None:
   """Produce plots and other visual summaries of postprocessed outputs.
 
   Parameters
   ----------
-  directory_a, directory_b, merged_dir, units_converted_dir,
-  variable_combined_dir, final_dir
+  base_dir, wetland_dir, merged_dir, units_converted_dir, variable_combined_dir
     Source run/output directories (or intermediates from prior steps).
   visuals_dir
     Destination for figures and visual products.
   """
-#Do we default to putting plots in the final directory or
-# do we direct them elsewhere?
+  intermediate_dirs = [
+    base_dir, wetland_dir, merged_dir,
+    units_converted_dir, variable_combined_dir]
 
-  for nc_path in sorted(final_dir.glob('*.nc')):
+  print(f"Starting visuals production, main dir = {variable_combined_dir}")
+
+  for nc_path in sorted(variable_combined_dir.glob('*.nc')):
     varname = _varname_from_outfile(nc_path)
     if varname is None:
       print(f"No variable name parsed from {nc_path}")
       continue
+    else:
+      print(varname)
 
-    # Make initial pdf, using visuals_dir and varname
+    map_figures = []
+    ts_figures = []
+    if varname == 'GPP':
+      print(f"Plotting {varname}")
+      timestep_to_plot = '1850-08-01'
+      ts_method = lambda x: x.mean(dim=["x", "y"])
 
-    # for each provided directory:
-    #   try to find the given varname, if found:
-    #   prettyplot = plot_circumpolar(directory + varname + etc.)
-    #   otherplot = plot_rough_timeseries(directory + varname + etc.)
+      for directory in intermediate_dirs:
+        varname_matches = [
+          path for path in directory.iterdir()
+          if path.is_file() and varname in path.name
+        ]
 
-    #   varname_pdf += plot
-  pass
+        if len(varname_matches) != 1:
+          raise RuntimeError(
+            f"Expected exactly one file containing {varname!r} in {directory}, "
+            f"found {len(varname_matches)}"
+          )
+
+        map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
+        map_figures.append(map_fig)
+
+        ts_fig = ts_plot(nc_path, run_mask, varname, ts_method, visuals_dir)
+        ts_figures.append(ts_fig)
+
+    else:
+      print("didn't find GPP")
+
+
+    with PdfPages(f"{visuals_dir}/{varname}.pdf") as pdf:
+      for fig in map_figures:
+        pdf.savefig(fig)
+      for fig in ts_figures:
+        pdf.savefig(fig)
+
+
+    # If the plotter simply writes png files and does not return Figures,
+    # construct a pdf from the pngs.
+    # map_pngs = sorted(visuals_dir.glob(f'{varname}*map*.png'))
+    # print(f"map pngs: {map_pngs}")
+
+    # images = [Image.open(png).convert("RGB") for png in map_pngs]
+
+    # images[0].save(
+    #   f"{varname}.pdf",
+    #   save_all=True,
+    #   append_images=images[1:],
+    # )
 
 # ---------------------------------------------------------------------------
-# Section 5: Conform to WIEMIP naming/formatting
+# Section 4: Conform to WIEMIP naming/formatting
 # ---------------------------------------------------------------------------
 def conform_to_wiemip(
   directory: Path,
@@ -585,7 +634,8 @@ def cmdline_define() -> argparse.ArgumentParser:
         1. wetland merging
         2. unit conversion
         3. variable combination
-        4. visuals production
+        4. WIEMIP conforming
+        5. visuals production
     """),
   )
   parser.add_argument(
@@ -607,6 +657,14 @@ def cmdline_define() -> argparse.ArgumentParser:
     help=(
       "NetCDF with vegetation information (veg_pct_cov, veg_class) "
       "used to weight wetland merging."
+    ),
+  )
+  parser.add_argument(
+    "run_mask",
+    type=str,
+    metavar="run_mask",
+    help=(
+      "Relevant run mask for geospatial information and masking"
     ),
   )
   parser.add_argument(
@@ -641,7 +699,7 @@ def cmdline_parse(argv=None) -> argparse.Namespace:
 
 
 def cmdline_run(args: argparse.Namespace) -> int:
-  """Execute the four postprocessing sections from parsed CLI args."""
+  """Execute the five postprocessing sections from parsed CLI args."""
   base_directory = args.base_directory
   wetland_directory = args.wetland_directory
   wetland = args.wetland
@@ -671,7 +729,7 @@ def cmdline_run(args: argparse.Namespace) -> int:
   print(f"Created directory {visuals_dir}")
 
   print("Merging wetland to base")
-  wetland_merging(directory_a, directory_b, wetland, merged_directory)
+  wetland_merging(base_directory, wetland_directory, wetland, merged_directory)
   print("Finished merging wetland to base")
 
   print("Converting units")
@@ -682,10 +740,20 @@ def cmdline_run(args: argparse.Namespace) -> int:
   variable_combination(units_converted_directory, variable_combined_directory)
   print("Finished combining variables")
 
-  visuals_production(directory_a, directory_b, output_directory)
-
-  print("Final file tweaks (renaming, unit string fixing, etc.)")
+  print("Conforming to WIEMIP requirements")
   conform_to_wiemip(variable_combined_directory, args.gcm_short, args.exp_short, conformed_dir)
+  print("Finished conforming to WIEMIP requirements")
+
+
+  # This was developed to be run on files that still use TEM's variable names
+  # and units. It could probably be modified to also work with the
+  # WIEMIP-conformed files, but that is not yet guaranteed.
+  print("Producing visuals")
+  visuals_production(base_directory, wetland_directory, merged_directory, \
+                     units_converted_directory, variable_combined_directory, \
+                     args.run_mask, visuals_dir)
+  print("Finished producing visuals")
+
 
   return 0
 
