@@ -5,6 +5,13 @@ from pathlib import Path
 
 import netCDF4 as nc
 
+def get_compressor(filters: dict) -> str | None:
+  for name in ("zlib", "szip", "zstd", "bzip2", "blosc"):
+    if filters.get(name, False):
+      return name
+  return None
+
+
 # This is a reasonably generic utility method and should be
 # moved to pyddt.
 def copy_nc_file_structure(

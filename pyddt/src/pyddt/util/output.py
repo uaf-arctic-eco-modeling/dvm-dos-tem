@@ -19,7 +19,10 @@ import collections
 import cf_units
 
 from pyddt.util.general import breakdown_outfile_name
-from pyddt.util.netcdf import copy_nc_file_structure_handles
+from pyddt.util.netcdf import (
+  copy_nc_file_structure_handles,
+  get_compressor
+)
 
 
 def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
@@ -521,6 +524,19 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
     fill_value = getattr(var1, '_FillValue', None)
     kwargs = {'fill_value': fill_value} if fill_value is not None else {}
 
+    # Get incoming compression scheme and level
+    compressor = get_compressor(var1.filters())
+    if compressor == "zlib":
+      kwargs['zlib'] = True
+      kwargs['complevel'] = var1.filters()['complevel']
+      kwargs['shuffle'] = var1.filters().get('shuffle', False)
+      kwargs['chunksizes'] = var1.chunking()
+    else:
+      print(f"kwargs for compressor {compressor} not implemented")
+      return
+
+    print(f"kwargs: {kwargs}")
+
     output_var = dst.createVariable(
       varname,
       var1.dtype,
@@ -533,11 +549,14 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
     # Processing data by block
     timesteps = 120
     for time_block in range (0, var1.shape[0], timesteps):
+      block_count = var1.shape[0] / timesteps
+      print(f"Merging block {time_block/timesteps+1} of {block_count}")
+
       data_slice_1 = var1[time_block:time_block+timesteps, :, :, :]
       data_slice_2 = var2[time_block:time_block+timesteps, :, :, :]
 
       print(data_slice_1.shape)
-      print(data_slice_2.shape)
+      #print(data_slice_2.shape)
 
       # Set up block-sized masks?
 
@@ -551,7 +570,7 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       # A missing input must not zero a cell that the other file still has.
       merged_slice = np.ma.where(valid1 & ~valid2, data_slice_1, merged_slice)
       merged_slice = np.ma.where(~valid1 & valid2, data_slice_2, merged_slice)
-      print(f"Merged slice shape: {merged_slice.shape}")
+      #print(f"Merged slice shape: {merged_slice.shape}")
 
       output_var[time_block:time_block+timesteps, :, :, :] = merged_slice
 

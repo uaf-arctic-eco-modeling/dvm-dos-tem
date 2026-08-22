@@ -19,6 +19,8 @@ import sys
 import textwrap
 from pathlib import Path
 
+import time
+
 import numpy as np
 import netCDF4 as nc
 import cfunits as ncascms_cfunits #Note that this is not the cf_units from Scitools
@@ -106,8 +108,9 @@ def wetland_merging(
   only_b = sorted(files_b - files_a)
   common = sorted(files_a & files_b)
 
-  base_only_vars = ['BURNSOIL2AIRC', 'BURNTHICK', 'BURNVEG2AIRC']
+  burn_only_vars = ['BURNSOIL2AIRC', 'BURNTHICK', 'BURNVEG2AIRC']
   wetland_only_vars = ['CH4EFFLUXTOT']
+  base_only_vars = ['SOC0_100cm']
 
   for filename in only_a:
     print(f"Skipping {filename}: present in {directory_a}, missing from {directory_b}")
@@ -145,41 +148,32 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
   # Manually specified target units for the variables that need conversion.
   # Files for the variables not listed here will be copied through to
   # the output directory unchanged.
-  # unit_specifiers = {
-  #   'GPP': 'kg/m2/s',
-  #   'VEGC': 'kg/m2'
-  # }
-  unit_specifiers = {
-    'GPP': 'kg/m2/s',
-    'VEGC': 'kg/m2'
-  }
   # LAI is m2/m2 (unitless) and does not need converting
-  # ALD, WATERTAB are already 'm'
-  # unit_specifiers = {
-  #   'ALD': 'm',
-  #   'AVLN': 'kg N/m2',
-  #   'BURNSOIL2AIRC': 'kg C/m2/s',
-  #   'BURNVEG2AIRC': 'kg C/m2/s',
-  #   'CH4EFFLUXTOT': 'kg CH4/m2/s',
-  #   'DWDC': 'kg C/m2',
-  #   'EET': 'kg/m2/s',
-  #   'GPP': 'kg C/m2/s',
-  #   'NETNMIN': 'kg N/m2/s',
-  #   'NPP': 'kg C/m2/s',
-  #   'ORGN': 'kg N/m2',
-  #   'RHSOM': 'kg C/m2/s',
-  #   'SNOWFALL': 'kg/m2/s',
-  #   'SNOWTHICK': 'm',
-  #   'SOC': 'kg C/m2',
-  #   'SOC0_100cm': 'kg C/m2',
-  #   'SWE': 'kg/m2',
-  #   'TLAYER': 'degree_K',
-  #   'TRANSPIRATION': 'kg/m2/s',
-  #   'VEGC': 'kg C/m2',
-  #   'VEGNTOT': 'kg N/m2',
-  #   'VWCLayer': 'kg/m2',
-  #   'WATERTAB': 'm'
-  # }
+  # ALD, SNOWTHICK, WATERTAB are already 'm'
+  # SWE is already kg/m2
+  skip_converting = ['LAI', 'ALD', 'SNOWTHICK', 'WATERTAB', 'SWE']
+  unit_specifiers = {
+    'AVLN': 'kg/m2',
+    'BURNSOIL2AIRC': 'kg/m2/s',
+    'BURNVEG2AIRC': 'kg/m2/s',
+    'CH4EFFLUXTOT': 'kg/m2/s',
+#    'DWDC': 'kg/m2', #Check what we actually output (g/m2/time)
+#    'EET': 'kg/m2/s', #Check what we output (mm/m2/time)
+    'GPP': 'kg/m2/s',
+    'NETNMIN': 'kg/m2/s',
+    'NPP': 'kg/m2/s',
+    'ORGN': 'kg/m2',
+    'RHSOM': 'kg/m2/s',
+#    'SNOWFALL': 'kg/m2/s', #TODO Special handling. TEM units: mm
+    'SOC': 'kg C/m2',
+    'SOC0_100cm': 'kg/m2',
+    'TLAYER': 'degree_K',
+#    'TRANSPIRATION': 'kg/m2/s', #TODO special handling? TEM units: mm/day
+    'VEGC': 'kg/m2',
+    'VEGNTOT': 'kg/m2',
+#    'VWCLAYER': 'kg/m2', #TODO special handling? TEM units: m3/m3
+  }
+
 
   output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -189,11 +183,16 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
     except ValueError:
       continue
 
+    if varname not in unit_specifiers and varname not in skip_converting:
+      print(f"{varname} does not have unit conversion, FIX THIS")
+      continue
+
     if varname not in unit_specifiers:
       print(f"{varname} does not require unit conversion, copying unchanged")
       shutil.copy2(nc_path, output_directory / nc_path.name)
       continue
 
+    print(f"Converting {varname} to {unit_specifiers[varname]}")
     output_filepath = output_directory / f"{nc_path.stem}_unitsconverted{nc_path.suffix}"
     convert_units(
       str(nc_path),
@@ -397,6 +396,9 @@ def conform_to_wiemip(
     'daily': 'day'
   }
 
+#Variables that for sure need things like 'N' and 'C' added to units
+#AVLN, BURNSOIL2AIRC, BURNVEG2AIRC, CH4EFFLUXTOT, DWDC, GPP, NETNMIN, NPP
+#ORGN, SOC, SOC0_100cm, VEGC, VEGNTOT
   force_SI_units = {
     'GPP': ['kg/m2/s', 'kg C/m2/s'], #Which varname here?
   }
@@ -513,31 +515,28 @@ def visuals_production(
 
     map_figures = []
     ts_figures = []
-    if varname == 'GPP':
-      print(f"Plotting {varname}")
-      timestep_to_plot = '1850-08-01'
-      ts_method = lambda x: x.mean(dim=["x", "y"])
 
-      for directory in intermediate_dirs:
-        varname_matches = [
-          path for path in directory.iterdir()
-          if path.is_file() and varname in path.name
-        ]
+    print(f"Plotting {varname}")
+    timestep_to_plot = '1850-08-01'
+    ts_method = lambda x: x.mean(dim=["x", "y"])
 
-        if len(varname_matches) != 1:
-          raise RuntimeError(
-            f"Expected exactly one file containing {varname!r} in {directory}, "
-            f"found {len(varname_matches)}"
-          )
+    for directory in intermediate_dirs:
+      varname_matches = [
+        path for path in directory.iterdir()
+        if path.is_file() and varname in path.name
+      ]
 
-        map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
-        map_figures.append(map_fig)
+      if len(varname_matches) != 1:
+        raise RuntimeError(
+          f"Expected exactly one file containing {varname!r} in {directory}, "
+          f"found {len(varname_matches)}"
+        )
 
-        ts_fig = ts_plot(nc_path, run_mask, varname, ts_method, visuals_dir)
-        ts_figures.append(ts_fig)
+      map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
+      map_figures.append(map_fig)
 
-    else:
-      print("didn't find GPP")
+      ts_fig = ts_plot(nc_path, run_mask, varname, ts_method, visuals_dir)
+      ts_figures.append(ts_fig)
 
 
     with PdfPages(f"{visuals_dir}/{varname}.pdf") as pdf:
@@ -642,6 +641,8 @@ def cmdline_parse(argv=None) -> argparse.Namespace:
 
 def cmdline_run(args: argparse.Namespace) -> int:
   """Execute the five postprocessing sections from parsed CLI args."""
+  times = {}
+  times["launch"] = time.perf_counter()
   base_directory = args.base_directory
   wetland_directory = args.wetland_directory
   wetland = args.wetland
@@ -655,6 +656,7 @@ def cmdline_run(args: argparse.Namespace) -> int:
   conformed_dir = output_directory / 'conformed'
   visuals_dir = output_directory / 'visuals'
 
+  # Creating subdirectories
   merged_directory.mkdir(parents=True, exist_ok=True)
   print(f"Created directory {merged_directory}")
 
@@ -670,23 +672,37 @@ def cmdline_run(args: argparse.Namespace) -> int:
   visuals_dir.mkdir(parents=True, exist_ok=True)
   print(f"Created directory {visuals_dir}")
 
+  times["post_setup"] = time.perf_counter()
+
+  # Section 1: Wetland merging
   print("Merging wetland to base")
   wetland_merging(base_directory, wetland_directory, wetland, merged_directory)
-  print("Finished merging wetland to base")
+  times["post_merge"] = time.perf_counter()
+  print(f"Finished merging wetland to base, time taken: "
+        f"{times['post_merge']-times['post_setup']:.3f}s "
+        f"({(times['post_merge']-times['post_setup'])/60:.3f} min)")
 
+  # Section 2: Unit conversion
   print("Converting units")
   unit_conversion(merged_directory, units_converted_directory)
-  print("Finished converting units")
+  times["post_convert"] = time.perf_counter()
+  print(f"Finished converting units, time taken: "
+        f"{times['post_convert']-times['post_merge']:.3f}s "
+        f"({(times['post_convert']-times['post_merge'])/60:.3f} min)")
 
+  # Section :
   print("Combining variables")
   variable_combination(units_converted_directory, variable_combined_directory)
   print("Finished combining variables")
+  times["post_combine"] = time.perf_counter()
 
+  # Section :
   print("Conforming to WIEMIP requirements")
   conform_to_wiemip(variable_combined_directory, args.gcm_short, args.exp_short, conformed_dir)
   print("Finished conforming to WIEMIP requirements")
+  times["post_conform"] = time.perf_counter()
 
-
+  # Section :
   # This was developed to be run on files that still use TEM's variable names
   # and units. It could probably be modified to also work with the
   # WIEMIP-conformed files, but that is not yet guaranteed.
@@ -696,6 +712,18 @@ def cmdline_run(args: argparse.Namespace) -> int:
                      args.run_mask, visuals_dir)
   print("Finished producing visuals")
 
+  times["end"] = time.perf_counter()
+
+  print(times)
+  print(
+    f"Setup: {times['post_setup']-times['launch']:.3f}s\n",
+    f"Merge: {times['post_merge']-times['post_setup']:.3f}s\n",
+    f"Convert: {times['post_convert']-times['post_merge']:.3f}s\n",
+    f"Combine: {times['post_combine']-times['post_convert']:.3f}s\n",
+    f"Conform: {times['post_conform']-times['post_combine']:.3f}s\n",
+    f"Plot: {times['end']-times['post_conform']:.3f}s\n",
+    f"Total: {(times['end']-times['launch'])/60:.3f}s ({(times['end']-times['launch'])/60:.3f} minutes)\n",
+  )
 
   return 0
 
