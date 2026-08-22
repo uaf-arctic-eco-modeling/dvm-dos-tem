@@ -28,7 +28,10 @@ import cfunits as ncascms_cfunits #Note that this is not the cf_units from Scito
 from matplotlib.backends.backend_pdf import PdfPages
 
 from pyddt.util.general import breakdown_outfile_name
-from pyddt.util.netcdf import copy_nc_file_structure_handles
+from pyddt.util.netcdf import (
+  copy_nc_file_structure_handles,
+  get_compressor
+)
 from pyddt.util.output import (
   convert_units,
   sum_across_compartments,
@@ -108,6 +111,8 @@ def wetland_merging(
   only_b = sorted(files_b - files_a)
   common = sorted(files_a & files_b)
 
+  #TODO Handle single side variables - weight as usual by wetland pct
+  # but with only one file
   burn_only_vars = ['BURNSOIL2AIRC', 'BURNTHICK', 'BURNVEG2AIRC']
   wetland_only_vars = ['CH4EFFLUXTOT']
   base_only_vars = ['SOC0_100cm']
@@ -152,6 +157,11 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
   # ALD, SNOWTHICK, WATERTAB are already 'm'
   # SWE is already kg/m2
   skip_converting = ['LAI', 'ALD', 'SNOWTHICK', 'WATERTAB', 'SWE']
+
+  # Unit strings for the data calculation part of unit conversion. These
+  # aren't exactly what WIEMIP wants because the converting library
+  # doesn't handle 'kg/m2/s' to 'kg C/m2/s'. The 'C' and 'N' will be added
+  # to the unit strings in a later segment.
   unit_specifiers = {
     'AVLN': 'kg/m2',
     'BURNSOIL2AIRC': 'kg/m2/s',
@@ -165,7 +175,7 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
     'ORGN': 'kg/m2',
     'RHSOM': 'kg/m2/s',
 #    'SNOWFALL': 'kg/m2/s', #TODO Special handling. TEM units: mm
-    'SOC': 'kg C/m2',
+    'SOC': 'kg/m2',
     'SOC0_100cm': 'kg/m2',
     'TLAYER': 'degree_K',
 #    'TRANSPIRATION': 'kg/m2/s', #TODO special handling? TEM units: mm/day
@@ -222,11 +232,20 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     Destination for summed / derived products.
   """
   pft_to_ecosystem = {'GPP', 'LAI', 'NPP', 'VEGC'}
+  # LAYERDZ and TLAYER are also by-layer, but if we want them summed it will
+  # require custom handling. VWCLAYER might as well?
   layer_to_ecosystem = {'RHSOM', 'SOC', 'VWCLAYER'}
 
   output_directory.mkdir(parents=True, exist_ok=True)
 
-  for nc_path in sorted(directory.glob('*.nc')):
+  incoming_files = sorted(directory.glob('*.nc'))
+
+  ignored_files = [path for path in incoming_files if path not in pft_to_ecosystem \
+                   and path not in layer_to_ecosystem]
+  print(f"Variable combination, ignoring: {ignored_files}")
+
+#  for nc_path in sorted(directory.glob('*.nc')):
+  for nc_path in incoming_files:
     varname = _varname_from_outfile(nc_path)
     if varname is None:
       print(f"No variable name parsed from {nc_path}")
@@ -264,6 +283,24 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
         out_dims = tuple(dim for dim in src_var.dimensions if dim not in drop_dims)
         fill_value = getattr(src_var, '_FillValue', None)
         kwargs = {'fill_value': fill_value} if fill_value is not None else {}
+
+        # Manually define output variable chunking due to lost dimension
+        # THIS IS PROBLEMATIC TODO: Fix
+        dst_var_chunking = src_var.chunking()
+        del dst_var_chunking[1]
+        print(f"Manual dst var chunking: {dst_var_chunking}")
+
+        # Get incoming compression scheme and level
+        compressor = get_compressor(src_var.filters())
+        if compressor == "zlib":
+          kwargs['zlib'] = True
+          kwargs['complevel'] = src_var.filters()['complevel']
+          kwargs['shuffle'] = src_var.filters().get('shuffle', False)
+          kwargs['chunksizes'] = dst_var_chunking
+        else:
+          print(f"kwargs for compressor {compressor} not implemented")
+          return
+
         output_var = dst.createVariable(
           varname,
           src_var.dtype,
@@ -316,6 +353,23 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
         fill_value = getattr(src_var, '_FillValue', None)
         kwargs = {'fill_value': fill_value} if fill_value is not None else {}
 
+        # Manually define output variable chunking due to lost dimension
+        # THIS IS PROBLEMATIC TODO: Fix
+        dst_var_chunking = src_var.chunking()
+        del dst_var_chunking[1]
+        print(f"Manual dst var chunking: {dst_var_chunking}")
+
+        # Get incoming compression scheme and level
+        compressor = get_compressor(src_var.filters())
+        if compressor == "zlib":
+          kwargs['zlib'] = True
+          kwargs['complevel'] = src_var.filters()['complevel']
+          kwargs['shuffle'] = src_var.filters().get('shuffle', False)
+          kwargs['chunksizes'] = dst_var_chunking
+        else:
+          print(f"kwargs for compressor {compressor} not implemented")
+          return
+
         output_var = dst.createVariable(
           varname,
           src_var.dtype,
@@ -349,6 +403,7 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     else:
       continue
 
+  #VWCLayer to be output as both a total file and a by-layer file?
 
   # Combining multi-file variables
   # wiemip/trendy variable name: variables to combine for it
@@ -380,13 +435,32 @@ def conform_to_wiemip(
 
 #  print(f"gcm_short: {gcm_short}, exp_short: {exp_short}")
 
-  # TODO INCOMPLETE
+  # Match TEM output variable names to WIEMIP
   variable_crosswalk = {
+    'ALD': 'alt',
+    'AVLN': 'nInorgSoil',
+#    'BURNSOIL2AIRC': '', #check spreadsheet
+    'BURNVEG2AIRC': 'fFireCveg',
+    'CH4EFFLUXTOT': 'wetCH4',
+    'DWDC': 'cCwd',
+    'EET': 'evapotrans',
     'GPP': 'gpp',
     'LAI': 'lai',
+    'NETNMIN': 'fNnetmin',
+    'NPP': 'npp',
+    'ORGN': 'nOrgSoil',
+    'RHSOM': 'rh',
+    'SNOWFALL': 'snowf',
+    'SNOWTHICK': 'snowDepth',
     'SOC': 'cSoil',
     'SOC0_100cm': 'cSoilAbove1m',
-    'VEGC': 'cVeg'
+    'SWE': 'swe',
+    'TLAYER': 'soilT',
+    'TRANSPIRATION': 'tveg',
+    'VEGC': 'cVeg',
+    'VEGNTOT': 'nVeg',
+    'VWCLayer': 'mrsoLayer',
+    'WATERTAB': 'wtd',
   }
 
   # Irrelevant timesteps: '6-hourly': '6hr', 'Fixed': 'fx'
@@ -396,11 +470,24 @@ def conform_to_wiemip(
     'daily': 'day'
   }
 
-#Variables that for sure need things like 'N' and 'C' added to units
-#AVLN, BURNSOIL2AIRC, BURNVEG2AIRC, CH4EFFLUXTOT, DWDC, GPP, NETNMIN, NPP
-#ORGN, SOC, SOC0_100cm, VEGC, VEGNTOT
+  # Variables that need 'N' or 'C' added to units string
   force_SI_units = {
+    'AVLN': ['kg/m2', 'kg N/m2'],
+    'BURNSOIL2AIRC': ['kg/m2/s', 'kg C/m2/s'],
+    'BURNVEG2AIRC': ['kg/m2/s', 'kg C/m2/s'],
+    'CH4EFFLUXTOT': ['kg/m2/s', 'kg CH4/m2/s'],
+#    'DWDC': ['', 'kg C/m2'], #Unsure, check prior stages and actual units
+#    'EET': ['', 'kg/m2/s'], #Unsure, check prior stages and actual units
     'GPP': ['kg/m2/s', 'kg C/m2/s'], #Which varname here?
+    'NETNMIN': ['kg/m2/s', 'kg N/m2/s'],
+    'NPP': ['kg/m2/s', 'kg C/m2/s'],
+    'ORGN': ['kg/m2', 'kg N/m2'],
+    'RHSOM': ['kg/m2/s', 'kg C/m2/s'],
+#    'SNOWFALL': ['', 'kg/m2/s'], #Special handling, TEM units: mm
+    'SOC': ['kg/m2', 'kg C/m2'],
+    'SOC0_100cm': ['kg/m2', 'kg C/m2'],
+    'VEGC': ['kg/m2', 'kg C/m2'],
+    'VEGNTOT': ['kg/m2', 'kg N/m2'],
   }
 
   # Renaming our output files (and their variables) to fit WIEMIP reqs.
@@ -517,7 +604,7 @@ def visuals_production(
     ts_figures = []
 
     print(f"Plotting {varname}")
-    timestep_to_plot = '1850-08-01'
+
     ts_method = lambda x: x.mean(dim=["x", "y"])
 
     for directory in intermediate_dirs:
@@ -531,6 +618,12 @@ def visuals_production(
           f"Expected exactly one file containing {varname!r} in {directory}, "
           f"found {len(varname_matches)}"
         )
+
+      var_timestep = _timestep_from_outfile(varname_matches[0])
+      if var_timestep == "monthly":
+        timestep_to_plot = '1850-08-01'
+      else:
+        timestep_to_plot = '1850-01-01'
 
       map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
       map_figures.append(map_fig)
@@ -690,19 +783,19 @@ def cmdline_run(args: argparse.Namespace) -> int:
         f"{times['post_convert']-times['post_merge']:.3f}s "
         f"({(times['post_convert']-times['post_merge'])/60:.3f} min)")
 
-  # Section :
+  # Section 3: Variable combination
   print("Combining variables")
   variable_combination(units_converted_directory, variable_combined_directory)
   print("Finished combining variables")
   times["post_combine"] = time.perf_counter()
 
-  # Section :
+  # Section 4: Conform to WIEMIP naming/formatting
   print("Conforming to WIEMIP requirements")
   conform_to_wiemip(variable_combined_directory, args.gcm_short, args.exp_short, conformed_dir)
   print("Finished conforming to WIEMIP requirements")
   times["post_conform"] = time.perf_counter()
 
-  # Section :
+  # Section 5: Visuals production
   # This was developed to be run on files that still use TEM's variable names
   # and units. It could probably be modified to also work with the
   # WIEMIP-conformed files, but that is not yet guaranteed.
@@ -722,7 +815,7 @@ def cmdline_run(args: argparse.Namespace) -> int:
     f"Combine: {times['post_combine']-times['post_convert']:.3f}s\n",
     f"Conform: {times['post_conform']-times['post_combine']:.3f}s\n",
     f"Plot: {times['end']-times['post_conform']:.3f}s\n",
-    f"Total: {(times['end']-times['launch'])/60:.3f}s ({(times['end']-times['launch'])/60:.3f} minutes)\n",
+    f"Total: {(times['end']-times['launch']):.3f}s ({(times['end']-times['launch'])/60:.3f} minutes)\n",
   )
 
   return 0

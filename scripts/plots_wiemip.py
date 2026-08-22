@@ -98,11 +98,12 @@ def map_plot(output_file_path, runmask_file_path, variable_name, time_string,
     input_ds = xr.open_dataset(runmask_file_path)
 
     da = output_var_ds[variable_name].sel(time=time_string)
-    
+
     if 'pft' in da.dims:
         da = da.sum(dim='pft', skipna=True)
     if 'layer' in da.dims:
-        da = da.isel('layer'==0)
+#        da = da.sel('layer'==0)
+      da = da[:,0,:,:]
 
     da = da.squeeze()
 
