@@ -231,19 +231,86 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
   output_directory
     Destination for summed / derived products.
   """
-  pft_to_ecosystem = {'GPP', 'LAI', 'NPP', 'VEGC'}
-  # LAYERDZ and TLAYER are also by-layer, but if we want them summed it will
-  # require custom handling. VWCLAYER might as well?
-  layer_to_ecosystem = {'RHSOM', 'SOC', 'VWCLAYER'}
-
   output_directory.mkdir(parents=True, exist_ok=True)
 
+  incoming_files = sorted(directory.glob('*.nc'))
+
+  # Multi-file additions
+  multi_file_additions = {
+    'BURNC2AIR': {
+      'input_vars': ['BURNVEG2AIRC', 'BURNSOIL2AIRC'],
+      'guide_var': "BURNVEG2AIRC"
+    },
+    'SOILPOOLSSUMMED': {
+      'input_vars': ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC'],
+      'guide_var': "SOMA"
+    }
+  }
+
+  extra_handling_addition = {
+    'fCH4Fire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC', 'bonus addition']
+  } #TODO
+
+  # Multi-file subtractions
+  multi_file_subtractions = {
+    'SOCBELOW1M': {
+      'input_vars': ['SOC', 'SOC0_100cm'], #SOC - SOC0_100cm
+      'guide_var': "GPP"
+    },
+    'GPPMINUSNPP': {
+      'input_vars': ['GPP', 'NPP'], #GPP - NPP
+      'guide_var': "GPP"
+    }
+  }
+
+  # This should loop over all combined_varname in multi_file_additions and multi_file_subtractions
+  for combined_varname in multi_file_additions:
+    for filepath in incoming_files.iterdir():
+      # This assumes a single match possible. Not good, but...
+      if filepath.is_file() and multi_file_additions['combined_varname']['guide_var'] in filepath.name:
+        guide_filepath = filepath
+        print(guide_filepath)
+
+    # This assumes the basic TEM output filename structure:
+    # varname_timeres_stage.nc
+    _, _, timeres, stg = breakdown_outfile_name(guide_filepath)
+
+    # Writing composite files to the incoming directory in case they
+    # need summing across dimensions below
+    out_filepath = directory / f"{combined_varname}_{timeres}_{stg}_composite{nc_path.suffix}"
+
+    file_handles = []
+    for tem_varname in multi_file_additions[combined_varname]['input_vars']:
+      # Find tem_varname in incoming_files
+      # Create netCDF dataset filehandle for each
+
+      continue
+
+    # Create the new output file by copying the input file guide_filepath
+    # copy_nc_file_structure_() or
+
+    # If combined_varname in multi_file_additions, add incoming files together
+    # and write to the output file using the block chunking approach below
+
+    # If combined_varname in multi_file_subtractions, combine the incoming
+    # files by subtracting the second variable from the first and writing
+    # to the output file using the block chunking approach below
+
+
+
+  # Refreshing the 'incoming' files due to multi-file composites
   incoming_files = sorted(directory.glob('*.nc'))
 
   ignored_files = [path for path in incoming_files if path not in pft_to_ecosystem \
                    and path not in layer_to_ecosystem]
   print(f"Variable combination, ignoring: {ignored_files}")
 
+  pft_to_ecosystem = {'GPP', 'LAI', 'NPP', 'VEGC'}
+  # LAYERDZ and TLAYER are also by-layer, but if we want them summed it will
+  # require custom handling. VWCLAYER might as well? TODO CHECK THIS
+  layer_to_ecosystem = {'RHSOM', 'SOC', 'VWCLAYER'}
+
+  # Sum all variables specified to a 'total' file
 #  for nc_path in sorted(directory.glob('*.nc')):
   for nc_path in incoming_files:
     varname = _varname_from_outfile(nc_path)
@@ -403,23 +470,11 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     else:
       continue
 
-  #VWCLayer to be output as both a total file and a by-layer file?
+  #VWCLayer to be output as both a total file and a by-layer file? TODO
 
-  # Combining multi-file variables
-  # wiemip/trendy variable name: variables to combine for it
-  multi_file_additions = {
-#    'fFire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC'],
-    'cSoilPools': ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC']
-  }
 
-  extra_handling_addition = {
-    'fCH4Fire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC', 'bonus addition']
-  }
 
-  multi_file_subtractions = {
-    'cSoilBelow1m': ['SOC', 'SOC0_100cm'], #SOC - SOC0_100cm
-    'ra': ['GPP', 'NPP'] #GPP - NPP
-  }
+
 
 
 # ---------------------------------------------------------------------------
@@ -465,6 +520,10 @@ def conform_to_wiemip(
     'VEGNTOT': 'nVeg',
     'VWCLayer': 'mrsoLayer',
     'WATERTAB': 'wtd',
+    'BURNC2AIR': 'fFire', # Multi-file composite variable
+    'SOILPOOLSSUMMED': 'cSoilPools', # Multi-file composite variable
+    'GPPMINUSNPP': 'ra', # Multi-file composite variable
+    'SOCBELOW1M': 'cSoilBelow1m' # Multi-file composite variable
   }
 
   # Irrelevant timesteps: '6-hourly': '6hr', 'Fixed': 'fx'
