@@ -535,7 +535,7 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       print(f"kwargs for compressor {compressor} not implemented")
       return
 
-    print(f"kwargs: {kwargs}")
+#    print(f"kwargs: {kwargs}")
 
     output_var = dst.createVariable(
       varname,
@@ -552,10 +552,17 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       block_count = var1.shape[0] / timesteps
       print(f"Merging block {time_block/timesteps+1} of {block_count}")
 
-      data_slice_1 = var1[time_block:time_block+timesteps, :, :, :]
-      data_slice_2 = var2[time_block:time_block+timesteps, :, :, :]
+      if len(dims1) == 4:
+        data_slice_1 = var1[time_block:time_block+timesteps, :, :, :]
+        data_slice_2 = var2[time_block:time_block+timesteps, :, :, :]
+      elif len(dims1) == 3:
+        data_slice_1 = var1[time_block:time_block+timesteps, :, :]
+        data_slice_2 = var2[time_block:time_block+timesteps, :, :]
+      else:
+        print(f"Cannot handle variables with only 2 dimensions")
+        continue
 
-      print(data_slice_1.shape)
+      #print(data_slice_1.shape)
       #print(data_slice_2.shape)
 
       # Set up block-sized masks?
@@ -572,7 +579,10 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       merged_slice = np.ma.where(~valid1 & valid2, data_slice_2, merged_slice)
       #print(f"Merged slice shape: {merged_slice.shape}")
 
-      output_var[time_block:time_block+timesteps, :, :, :] = merged_slice
+      if len(dims1) == 4:
+        output_var[time_block:time_block+timesteps, :, :, :] = merged_slice
+      elif len(dims1) == 3:
+        output_var[time_block:time_block+timesteps, :, :] = merged_slice
 
 
     # Copy global attributes to output file, add history note

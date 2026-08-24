@@ -412,6 +412,10 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     'cSoilPools': ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC']
   }
 
+  extra_handling_addition = {
+    'fCH4Fire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC', 'bonus addition']
+  }
+
   multi_file_subtractions = {
     'cSoilBelow1m': ['SOC', 'SOC0_100cm'], #SOC - SOC0_100cm
     'ra': ['GPP', 'NPP'] #GPP - NPP
@@ -529,6 +533,7 @@ def conform_to_wiemip(
     with nc.Dataset(str(output_filepath), 'r+') as dst:
       dst_var = dst.variables[varname]
 
+      unit_history_note = None
       # If the variable units are what we expect for the given variable,
       # update them to include 'C' and 'N' as needed.
       # At this point, file variable name is still TEM-standard
@@ -788,12 +793,18 @@ def cmdline_run(args: argparse.Namespace) -> int:
   variable_combination(units_converted_directory, variable_combined_directory)
   print("Finished combining variables")
   times["post_combine"] = time.perf_counter()
+  print(f"Finished variable combination, time taken: "
+        f"{times['post_combine']-times['post_convert']:.3f}s "
+        f"({(times['post_combine']-times['post_convert'])/60:.3f} min)")
 
   # Section 4: Conform to WIEMIP naming/formatting
   print("Conforming to WIEMIP requirements")
   conform_to_wiemip(variable_combined_directory, args.gcm_short, args.exp_short, conformed_dir)
   print("Finished conforming to WIEMIP requirements")
   times["post_conform"] = time.perf_counter()
+  print(f"Finished variable combination, time taken: "
+        f"{times['post_conform']-times['post_combine']:.3f}s "
+        f"({(times['post_conform']-times['post_combine'])/60:.3f} min)")
 
   # Section 5: Visuals production
   # This was developed to be run on files that still use TEM's variable names
