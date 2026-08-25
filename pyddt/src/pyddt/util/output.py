@@ -312,9 +312,21 @@ def convert_units(nc_filepath, to_units, output_filepath=None, varname=None):
     # incoming file.
     timesteps = 120
     for time_block in range (0, src_var.shape[0], timesteps):
-      time_slice = src_var[time_block:time_block+timesteps, :, :, :]
+      # Keep the fractional block count visible: it indicates that the final
+      # block contains fewer than ``timesteps`` observations.
+      block_count = src_var.shape[0] / timesteps
+      print(f"Converting block {time_block/timesteps+1} of {block_count}")
+
+      # Limit the endpoint to the available time axis. Ellipsis retains all
+      # remaining dimensions, including optional PFT, compartment, or layer
+      # axes, without requiring a separate case for each data layout.
+      block_stop = min(time_block + timesteps, src_var.shape[0])
+      time_slice = src_var[time_block:block_stop, ...]
       converted, meta_str = convert_units_data(time_slice, from_units, to_units)
-      var[time_block:time_block+timesteps, :, :, :] = converted
+
+      # Write to the same bounded slice used for reading so a partial final
+      # block cannot extend beyond the incoming variable.
+      var[time_block:block_stop, ...] = converted
 
     var.setncattr('units', to_units)
 
@@ -546,21 +558,25 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
     # Copy variable attributes
     output_var.setncatts(var1.__dict__)
 
-    # Processing data by block
-    timesteps = 120
-    for time_block in range (0, var1.shape[0], timesteps):
-      block_count = var1.shape[0] / timesteps
-      print(f"Merging block {time_block/timesteps+1} of {block_count}")
+    # Process a limited number of timesteps at once so regional files do not
+    # need to be loaded entirely into memory. The final block is often shorter
+    # than 120 timesteps, so cap its endpoint at the length of the time axis.
+    block_size = 120
+    block_count = (var1.shape[0] + block_size - 1) // block_size
+    for block_start in range(0, var1.shape[0], block_size):
+      block_stop = min(block_start + block_size, var1.shape[0])
+      block_number = block_start // block_size + 1
+      print(f"Merging block {block_number} of {block_count}")
 
-      if len(dims1) == 4:
-        data_slice_1 = var1[time_block:time_block+timesteps, :, :, :]
-        data_slice_2 = var2[time_block:time_block+timesteps, :, :, :]
-      elif len(dims1) == 3:
-        data_slice_1 = var1[time_block:time_block+timesteps, :, :]
-        data_slice_2 = var2[time_block:time_block+timesteps, :, :]
-      else:
+      if len(dims1) == 2:
         print(f"Cannot handle variables with only 2 dimensions")
         continue
+
+      # The first dimension is time. Ellipsis retains every remaining
+      # dimension, whether the variable is organized by PFT, layer, or only
+      # the spatial y/x axes.
+      data_slice_1 = var1[block_start:block_stop, ...]
+      data_slice_2 = var2[block_start:block_stop, ...]
 
       #print(data_slice_1.shape)
       #print(data_slice_2.shape)
@@ -579,10 +595,9 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
       merged_slice = np.ma.where(~valid1 & valid2, data_slice_2, merged_slice)
       #print(f"Merged slice shape: {merged_slice.shape}")
 
-      if len(dims1) == 4:
-        output_var[time_block:time_block+timesteps, :, :, :] = merged_slice
-      elif len(dims1) == 3:
-        output_var[time_block:time_block+timesteps, :, :] = merged_slice
+      # Use the same bounded time slice for output, including a shorter final
+      # block when the number of timesteps is not divisible by block_size.
+      output_var[block_start:block_stop, ...] = merged_slice
 
 
     # Copy global attributes to output file, add history note

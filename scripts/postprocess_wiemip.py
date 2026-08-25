@@ -177,6 +177,10 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 #    'SNOWFALL': 'kg/m2/s', #TODO Special handling. TEM units: mm
     'SOC': 'kg/m2',
     'SOC0_100cm': 'kg/m2',
+    'SOMA': 'kg/m2',
+    'SOMCR': 'kg/m2',
+    'SOMPR': 'kg/m2',
+    'SOMRAWC': 'kg/m2',
     'TLAYER': 'degree_K',
 #    'TRANSPIRATION': 'kg/m2/s', #TODO special handling? TEM units: mm/day
     'VEGC': 'kg/m2',
@@ -195,6 +199,7 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 
     if varname not in unit_specifiers and varname not in skip_converting:
       print(f"{varname} does not have unit conversion, FIX THIS")
+      shutil.copy2(nc_path, output_directory / nc_path.name)
       continue
 
     if varname not in unit_specifiers:
@@ -263,52 +268,159 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     }
   }
 
-  # This should loop over all combined_varname in multi_file_additions and multi_file_subtractions
-  for combined_varname in multi_file_additions:
-    for filepath in incoming_files.iterdir():
-      # This assumes a single match possible. Not good, but...
-      if filepath.is_file() and multi_file_additions['combined_varname']['guide_var'] in filepath.name:
-        guide_filepath = filepath
-        print(guide_filepath)
+  # Index inputs by their TEM variable, time resolution, and stage. Extra
+  # filename suffixes (for example, ``_unitsconverted``) are intentionally
+  # ignored when establishing compatibility between files.
+  input_index = {}
+  for filepath in incoming_files:
+    parts = filepath.stem.split('_')
+    if len(parts) < 3:
+      continue
+    key = tuple(parts[:3])
+    if key in input_index:
+      raise RuntimeError(
+        f"Multiple input files match variable/timestep/stage {key}: "
+        f"{input_index[key]} and {filepath}"
+      )
+    input_index[key] = filepath
 
-    # This assumes the basic TEM output filename structure:
-    # varname_timeres_stage.nc
-    _, _, timeres, stg = breakdown_outfile_name(guide_filepath)
+  # Combine the dictionaries above into a cohesive single structure
+  # with function pointers indicating which operation to use
+  composite_specs = [
+    (combined_varname, spec, np.ma.add)
+    for combined_varname, spec in multi_file_additions.items()
+  ] + [
+    (combined_varname, spec, np.ma.subtract)
+    for combined_varname, spec in multi_file_subtractions.items()
+  ]
 
-    # Writing composite files to the incoming directory in case they
-    # need summing across dimensions below
-    out_filepath = directory / f"{combined_varname}_{timeres}_{stg}_composite{nc_path.suffix}"
+  for combined_varname, spec, operation in composite_specs:
+    guide_varname = spec['guide_var']
+    guide_keys = [key for key in input_index if key[0] == guide_varname]
 
-    file_handles = []
-    for tem_varname in multi_file_additions[combined_varname]['input_vars']:
-      # Find tem_varname in incoming_files
-      # Create netCDF dataset filehandle for each
-
+    if not guide_keys:
+      print(f"Skipping {combined_varname}: no {guide_varname} guide file found")
       continue
 
-    # Create the new output file by copying the input file guide_filepath
-    # copy_nc_file_structure_() or
+    for _, timeres, stg in guide_keys:
+      input_paths = []
+      missing_vars = []
+      for tem_varname in spec['input_vars']:
+        filepath = input_index.get((tem_varname, timeres, stg))
+        if filepath is None:
+          missing_vars.append(tem_varname)
+        else:
+          input_paths.append(filepath)
 
-    # If combined_varname in multi_file_additions, add incoming files together
-    # and write to the output file using the block chunking approach below
+      if missing_vars:
+        print(
+          f"Skipping {combined_varname}_{timeres}_{stg}: missing "
+          f"{', '.join(missing_vars)}"
+        )
+        continue
 
-    # If combined_varname in multi_file_subtractions, combine the incoming
-    # files by subtracting the second variable from the first and writing
-    # to the output file using the block chunking approach below
+      guide_filepath = input_index[(guide_varname, timeres, stg)]
+      out_filepath = directory / f"{combined_varname}_{timeres}_{stg}_composite.nc"
+      print(
+        f"Creating {out_filepath.name} from "
+        f"{', '.join(path.name for path in input_paths)}"
+      )
 
+      paths_to_open = list(dict.fromkeys([guide_filepath, *input_paths]))
+      file_handles = [nc.Dataset(str(path), 'r') for path in paths_to_open]
+      try:
+        datasets_by_path = dict(zip(paths_to_open, file_handles))
+        input_vars = [
+          datasets_by_path[path].variables[tem_varname]
+          for path, tem_varname in zip(input_paths, spec['input_vars'])
+        ]
+        guide_dataset = datasets_by_path[guide_filepath]
+        guide_variable = guide_dataset.variables[guide_varname]
 
+        for tem_varname, input_var in zip(spec['input_vars'], input_vars):
+          if input_var.dimensions != guide_variable.dimensions:
+            raise RuntimeError(
+              f"Cannot create {combined_varname}: {tem_varname} dimensions "
+              f"{input_var.dimensions} differ from {guide_varname} dimensions "
+              f"{guide_variable.dimensions}"
+            )
+          if input_var.shape != guide_variable.shape:
+            raise RuntimeError(
+              f"Cannot create {combined_varname}: {tem_varname} shape "
+              f"{input_var.shape} differs from {guide_varname} shape "
+              f"{guide_variable.shape}"
+            )
 
-  # Refreshing the 'incoming' files due to multi-file composites
+        # Create output file and variable, using the variable indicated
+        # the 'guide' variable
+        with nc.Dataset(str(out_filepath), 'w') as dst:
+          copy_nc_file_structure_handles(
+            guide_dataset, dst, guide_varname, drop_dims=[]
+          )
+
+          fill_value = getattr(guide_variable, '_FillValue', None)
+          kwargs = {'fill_value': fill_value} if fill_value is not None else {}
+          filters = guide_variable.filters()
+          compressor = get_compressor(filters)
+          if compressor == 'zlib':
+            kwargs['zlib'] = True
+            kwargs['complevel'] = filters['complevel']
+            kwargs['shuffle'] = filters.get('shuffle', False)
+          chunking = guide_variable.chunking()
+          if chunking != 'contiguous':
+            kwargs['chunksizes'] = chunking
+
+          output_var = dst.createVariable(
+            combined_varname,
+            guide_variable.dtype,
+            guide_variable.dimensions,
+            **kwargs,
+          )
+          output_var.setncatts({
+            name: value for name, value in guide_variable.__dict__.items()
+            if name != '_FillValue'
+          })
+          output_var.setncattr('source_variables', ' '.join(spec['input_vars']))
+
+          # Block size being hardcoded is not ideal, but we're working with
+          # it for now
+          block_size = 120
+          for block_start in range(0, guide_variable.shape[0], block_size):
+            block_stop = min(block_start + block_size, guide_variable.shape[0])
+            combined_data = input_vars[0][block_start:block_stop, ...]
+            for input_var in input_vars[1:]:
+              combined_data = operation(
+                combined_data, input_var[block_start:block_stop, ...]
+              )
+            output_var[block_start:block_stop, ...] = combined_data
+
+          symbol = '+' if operation is np.ma.add else '-'
+          history_note = (
+            f"Created {combined_varname} as "
+            f"{f' {symbol} '.join(spec['input_vars'])}"
+          )
+          if 'history' in dst.ncattrs():
+            dst.history = f"{dst.history}; {history_note}"
+          else:
+            dst.history = history_note
+      finally:
+        for file_handle in file_handles:
+          file_handle.close()
+
+  # Refresh the 'incoming' files due to multi-file composites
   incoming_files = sorted(directory.glob('*.nc'))
-
-  ignored_files = [path for path in incoming_files if path not in pft_to_ecosystem \
-                   and path not in layer_to_ecosystem]
-  print(f"Variable combination, ignoring: {ignored_files}")
 
   pft_to_ecosystem = {'GPP', 'LAI', 'NPP', 'VEGC'}
   # LAYERDZ and TLAYER are also by-layer, but if we want them summed it will
   # require custom handling. VWCLAYER might as well? TODO CHECK THIS
   layer_to_ecosystem = {'RHSOM', 'SOC', 'VWCLAYER'}
+
+  ignored_files = [
+    path for path in incoming_files
+    if _varname_from_outfile(path) not in pft_to_ecosystem
+    and _varname_from_outfile(path) not in layer_to_ecosystem
+  ]
+  print(f"Variable combination, ignoring: {ignored_files}")
 
   # Sum all variables specified to a 'total' file
 #  for nc_path in sorted(directory.glob('*.nc')):
@@ -468,6 +580,8 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
 
     # varname has no summing specified
     else:
+      print(f"{varname} has no dimension summing, copying unchanged")
+      shutil.copy2(nc_path, output_directory / nc_path.name)
       continue
 
   #VWCLayer to be output as both a total file and a by-layer file? TODO
@@ -526,6 +640,10 @@ def conform_to_wiemip(
     'SOCBELOW1M': 'cSoilBelow1m' # Multi-file composite variable
   }
 
+  # Variables that are not needed in the final set and do not need
+  # to be converted to WIEMIP standards
+  skip_vars = ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC']
+
   # Irrelevant timesteps: '6-hourly': '6hr', 'Fixed': 'fx'
   timestep_crosswalk = {
     'yearly': 'yr',
@@ -551,6 +669,7 @@ def conform_to_wiemip(
     'SOC0_100cm': ['kg/m2', 'kg C/m2'],
     'VEGC': ['kg/m2', 'kg C/m2'],
     'VEGNTOT': ['kg/m2', 'kg N/m2'],
+    'SOILPOOLSSUMMED': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
   }
 
   # Renaming our output files (and their variables) to fit WIEMIP reqs.
@@ -569,6 +688,10 @@ def conform_to_wiemip(
     varname = _varname_from_outfile(nc_path)
     if varname is None:
       print(f"No variable name parsed from {nc_path}")
+      continue
+
+    if varname in skip_vars:
+      print(f"Skipping conforming {varname}")
       continue
 
     print(f"Conforming {varname}")
@@ -677,7 +800,10 @@ def visuals_production(
         if path.is_file() and varname in path.name
       ]
 
-      if len(varname_matches) != 1:
+      if len(varname_matches) == 0:
+        print(f"{varname} does not exist in subset {directory}")
+        continue
+      elif len(varname_matches) > 1:
         raise RuntimeError(
           f"Expected exactly one file containing {varname!r} in {directory}, "
           f"found {len(varname_matches)}"
