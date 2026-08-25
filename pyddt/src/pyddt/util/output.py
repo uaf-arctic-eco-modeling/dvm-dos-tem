@@ -8,6 +8,8 @@
 import os
 import glob
 import shutil
+import tempfile
+from contextlib import contextmanager
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -395,6 +397,31 @@ def _align_veg_to_data(veg_2d, data_shape):
   return np.ma.reshape(veg_2d, reshape)
 
 
+@contextmanager
+def _staged_output_file(outfile):
+  '''Provide a temporary path and publish it only after successful processing.'''
+  destination = os.path.abspath(outfile)
+  destination_dir = os.path.dirname(destination)
+
+  # Keep the temporary file on the destination filesystem. This avoids using
+  # system temporary storage that may be too small for a regional NetCDF file.
+  with tempfile.TemporaryDirectory(
+    prefix=".weighted_combine_veg_",
+    dir=destination_dir,
+  ) as temporary_dir:
+    temporary_path = os.path.join(temporary_dir, os.path.basename(destination))
+    try:
+      yield temporary_path
+    except Exception:
+      # Do not replace a previous result when calculation or NetCDF writing
+      # fails. TemporaryDirectory removes the incomplete working file.
+      raise
+    else:
+      # The caller's NetCDF context closes before execution reaches this copy,
+      # ensuring that HDF5 metadata and buffered data have been fully written.
+      shutil.copy2(temporary_path, destination)
+
+
 def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
   '''
   Combine two scientific NetCDF files weighted by vegetation percent cover.
@@ -467,10 +494,13 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
         )
       )
 
-  # Open all files
-  with nc.Dataset(file1, "r") as ds1, nc.Dataset(file2, "r") as ds2, \
+  # Open all files. The destination is first written in a temporary directory;
+  # _staged_output_file copies it to outfile only after every NetCDF handle has
+  # closed successfully.
+  with _staged_output_file(outfile) as temporary_outfile, \
+       nc.Dataset(file1, "r") as ds1, nc.Dataset(file2, "r") as ds2, \
        nc.Dataset(wetland_file, "r") as ds_wetland, \
-       nc.Dataset(outfile, "w") as dst:
+       nc.Dataset(temporary_outfile, "w") as dst:
 
     # Input dimension check
     dims1 = _dimension_sizes(ds1)

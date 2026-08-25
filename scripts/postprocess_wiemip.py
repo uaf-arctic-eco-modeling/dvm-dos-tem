@@ -16,7 +16,9 @@ from __future__ import annotations
 import argparse
 import shutil
 import sys
+import tempfile
 import textwrap
+from contextlib import contextmanager
 from pathlib import Path
 
 import time
@@ -43,6 +45,37 @@ from pyddt.util.output import (
 # Use sys.path.append('/path/to/dvm-dos-tem/scripts/')
 # or add that directory to PYTHONPATH
 from plots_wiemip import map_plot, ts_plot
+
+
+@contextmanager
+def _staged_output_file(destination: Path, source: Path | None = None):
+  """Yield a temporary result path and publish it after successful writing.
+
+  The temporary file is kept beside the destination so large regional files
+  use the intended output filesystem. If ``source`` is supplied, its contents
+  seed the temporary file before the caller modifies it.
+  """
+  destination = Path(destination).resolve()
+  destination.parent.mkdir(parents=True, exist_ok=True)
+
+  with tempfile.TemporaryDirectory(
+    prefix=f".{destination.stem}_",
+    dir=destination.parent,
+  ) as temporary_directory:
+    temporary_path = Path(temporary_directory) / destination.name
+    if source is not None:
+      shutil.copy2(source, temporary_path)
+
+    try:
+      yield temporary_path
+    except Exception:
+      # Preserve any previous result when processing fails. The temporary
+      # directory removes the incomplete file as this exception propagates.
+      raise
+    else:
+      # Writers using this context have closed before this copy occurs, so all
+      # NetCDF metadata and buffered array data are complete on disk.
+      shutil.copy2(temporary_path, destination)
 
 # Test, then move to pyddt?
 def _varname_from_outfile(nc_path: Path) -> str | None:
@@ -124,6 +157,9 @@ def wetland_merging(
 
   for filename in common:
     print(f"Merging {filename}")
+    # weighted_combine_veg completes the NetCDF file in temporary storage and
+    # closes all HDF5 handles before copying the result into this directory.
+    # A failed merge therefore cannot leave a partial file at the final path.
     weighted_combine_veg(
       str(directory_a / filename),
       str(directory_b / filename),
@@ -199,22 +235,30 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 
     if varname not in unit_specifiers and varname not in skip_converting:
       print(f"{varname} does not have unit conversion, FIX THIS")
-      shutil.copy2(nc_path, output_directory / nc_path.name)
+      output_filepath = output_directory / nc_path.name
+      with _staged_output_file(output_filepath, source=nc_path):
+        # Retain the unconverted input without exposing a partial destination.
+        pass
       continue
 
     if varname not in unit_specifiers:
       print(f"{varname} does not require unit conversion, copying unchanged")
-      shutil.copy2(nc_path, output_directory / nc_path.name)
+      output_filepath = output_directory / nc_path.name
+      with _staged_output_file(output_filepath, source=nc_path):
+        # Supplying source creates the complete temporary copy; no additional
+        # scientific processing is required for this variable.
+        pass
       continue
 
     print(f"Converting {varname} to {unit_specifiers[varname]}")
     output_filepath = output_directory / f"{nc_path.stem}_unitsconverted{nc_path.suffix}"
-    convert_units(
-      str(nc_path),
-      unit_specifiers[varname],
-      output_filepath=str(output_filepath),
-      varname=varname,
-    )
+    with _staged_output_file(output_filepath) as temporary_output_filepath:
+      convert_units(
+        str(nc_path),
+        unit_specifiers[varname],
+        output_filepath=str(temporary_output_filepath),
+        varname=varname,
+      )
 
 
 # ---------------------------------------------------------------------------
@@ -260,7 +304,7 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
   multi_file_subtractions = {
     'SOCBELOW1M': {
       'input_vars': ['SOC', 'SOC0_100cm'], #SOC - SOC0_100cm
-      'guide_var': "GPP"
+      'guide_var': "SOC"
     },
     'GPPMINUSNPP': {
       'input_vars': ['GPP', 'NPP'], #GPP - NPP
@@ -353,7 +397,8 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
 
         # Create output file and variable, using the variable indicated
         # the 'guide' variable
-        with nc.Dataset(str(out_filepath), 'w') as dst:
+        with _staged_output_file(out_filepath) as temporary_out_filepath, \
+             nc.Dataset(str(temporary_out_filepath), 'w') as dst:
           copy_nc_file_structure_handles(
             guide_dataset, dst, guide_varname, drop_dims=[]
           )
@@ -436,18 +481,19 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     if varname in pft_to_ecosystem:
       print(f"Combining {varname} to ecosystem level")
 
-      with nc.Dataset(str(nc_path), 'r') as src, \
-           nc.Dataset(output_filepath, 'w') as dst:
+      with _staged_output_file(output_filepath) as temporary_output_filepath, \
+           nc.Dataset(str(nc_path), 'r') as src, \
+           nc.Dataset(temporary_output_filepath, 'w') as dst:
         if varname not in src.variables:
-          print(f"{varname} not found in {str(nc_path)}")
-          continue
+          raise RuntimeError(f"{varname} not found in {str(nc_path)}")
 
         src_var = src.variables[varname]
 
-        if src_var.dimensions == 5:
-          print(f"{varname} has 5 dimensions. Probably by-compartment.")
-          print("5-dimensional files are not currently handled.")
-          continue
+        if src_var.ndim == 5:
+          raise RuntimeError(
+            f"{varname} has 5 dimensions and is probably by-compartment; "
+            "5-dimensional files are not currently handled"
+          )
           # VEGC may be (time, pftpart, pft, y, x); collapse compartments first.
           #if data.ndim == 5:
           #  print("Five dimensions, summing across compartments")
@@ -477,8 +523,9 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
           kwargs['shuffle'] = src_var.filters().get('shuffle', False)
           kwargs['chunksizes'] = dst_var_chunking
         else:
-          print(f"kwargs for compressor {compressor} not implemented")
-          return
+          raise RuntimeError(
+            f"kwargs for compressor {compressor} not implemented"
+          )
 
         output_var = dst.createVariable(
           varname,
@@ -515,11 +562,11 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     elif varname in layer_to_ecosystem:
       print(f"Combining {varname} to ecosystem level")
 
-      with nc.Dataset(str(nc_path), 'r') as src, \
-           nc.Dataset(output_filepath, 'w') as dst:
+      with _staged_output_file(output_filepath) as temporary_output_filepath, \
+           nc.Dataset(str(nc_path), 'r') as src, \
+           nc.Dataset(temporary_output_filepath, 'w') as dst:
         if varname not in src.variables:
-          print(f"{varname} not found in {str(nc_path)}")
-          continue
+          raise RuntimeError(f"{varname} not found in {str(nc_path)}")
 
         src_var = src.variables[varname]
 
@@ -546,8 +593,9 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
           kwargs['shuffle'] = src_var.filters().get('shuffle', False)
           kwargs['chunksizes'] = dst_var_chunking
         else:
-          print(f"kwargs for compressor {compressor} not implemented")
-          return
+          raise RuntimeError(
+            f"kwargs for compressor {compressor} not implemented"
+          )
 
         output_var = dst.createVariable(
           varname,
@@ -581,7 +629,11 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     # varname has no summing specified
     else:
       print(f"{varname} has no dimension summing, copying unchanged")
-      shutil.copy2(nc_path, output_directory / nc_path.name)
+      output_filepath = output_directory / nc_path.name
+      with _staged_output_file(output_filepath, source=nc_path):
+        # This variable requires no calculation, but follows the same staged
+        # publication rule as newly generated ecosystem totals.
+        pass
       continue
 
   #VWCLayer to be output as both a total file and a by-layer file? TODO
@@ -706,13 +758,16 @@ def conform_to_wiemip(
     )
 
     output_filepath = output_directory / wiemip_filename
-    shutil.copy2(nc_path, output_filepath)
 
     print(f"Conforming {nc_path.name} to {wiemip_filename}")
 
 
-    # Updating output file
-    with nc.Dataset(str(output_filepath), 'r+') as dst:
+    # Modify a temporary copy of the source. The final filename becomes visible
+    # only after the NetCDF handle closes and all conformance edits succeed.
+    with _staged_output_file( \
+           output_filepath, source=nc_path
+         ) as temporary_output_filepath, \
+         nc.Dataset(str(temporary_output_filepath), 'r+') as dst:
       dst_var = dst.variables[varname]
 
       unit_history_note = None
