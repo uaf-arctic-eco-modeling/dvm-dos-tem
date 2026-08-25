@@ -896,9 +896,18 @@ def visuals_production(
     ts_method = lambda x: x.mean(dim=["x", "y"])
 
     for directory in intermediate_dirs:
+      # SOC is a prefix of SOC0_100cm, so a general substring search would
+      # select both products. For these two variables, require the complete
+      # TEM variable name followed by the filename's underscore separator.
+      overlapping_soc_names = {'SOC', 'SOC0_100cm'}
       varname_matches = [
         path for path in directory.iterdir()
-        if path.is_file() and varname in path.name
+        if path.is_file()
+        and (
+          path.name.startswith(f"{varname}_")
+          if varname in overlapping_soc_names
+          else varname in path.name
+        )
       ]
 
       if len(varname_matches) == 0:
