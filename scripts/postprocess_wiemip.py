@@ -493,7 +493,7 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
 
   pft_to_ecosystem = {'GPP', 'LAI', 'NPP', 'VEGC'}
   # LAYERDZ and TLAYER are also by-layer, but if we want them summed it will
-  # require custom handling. VWCLAYER might as well? TODO CHECK THIS
+  # require custom handling.
   layer_to_ecosystem = {'RHSOM', 'SOC', 'VWCLAYER'}
 
   ignored_files = [
@@ -511,7 +511,22 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
       print(f"No variable name parsed from {nc_path}")
       continue
 
-    output_filepath = output_directory / f"{nc_path.stem}_summed{nc_path.suffix}"
+    output_stem = nc_path.stem
+    if varname == 'VWCLAYER':
+      # The layer-resolved input is named VWCLAYER, while its ecosystem total
+      # is identified as VWCTOT in the result filename.
+      output_stem = output_stem.replace('VWCLAYER', 'VWCTOT', 1)
+    output_filepath = output_directory / f"{output_stem}_summed{nc_path.suffix}"
+
+    if varname == 'VWCLAYER':
+      # Preserve the original by-layer data alongside the newly calculated
+      # ecosystem total. Check this result independently so a missing layer
+      # file can still be copied when VWCTOT already exists, and vice versa.
+      layer_output_filepath = output_directory / nc_path.name
+      if not _result_exists(layer_output_filepath):
+        with _staged_output_file(layer_output_filepath, source=nc_path):
+          pass
+
     if _result_exists(output_filepath):
       continue
 
@@ -674,12 +689,6 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
         pass
       continue
 
-  #VWCLayer to be output as both a total file and a by-layer file? TODO
-
-
-
-
-
 
 # ---------------------------------------------------------------------------
 # Section 4: Conform to WIEMIP naming/formatting
@@ -702,21 +711,27 @@ def conform_to_wiemip(
   variable_crosswalk = {
     'ALD': 'alt',
     'AVLN': 'nInorgSoil',
-#    'BURNSOIL2AIRC': '', #check spreadsheet
+    'BURNC2AIR': 'fFire', # Multi-file composite variable
+    'BURNSOIL2AIRC': 'fFireCsoil', # Spreadsheet gave two options
     'BURNVEG2AIRC': 'fFireCveg',
     'CH4EFFLUXTOT': 'wetCH4',
     'DWDC': 'cCwd',
     'EET': 'evapotrans',
     'GPP': 'gpp',
+    'GPPMINUSNPP': 'ra', # Multi-file composite variable
     'LAI': 'lai',
+    'LFTOTC': 'fVegLitter', # Multi-file composite variable
     'NETNMIN': 'fNnetmin',
     'NPP': 'npp',
+    'NUPTAKETOT': 'fNup' # Multi-file composite variable
     'ORGN': 'nOrgSoil',
     'RHSOM': 'rh',
     'SNOWFALL': 'snowf',
     'SNOWTHICK': 'snowDepth',
     'SOC': 'cSoil',
     'SOC0_100cm': 'cSoilAbove1m',
+    'SOCBELOW1M': 'cSoilBelow1m', # Multi-file composite variable
+    'SOILPOOLSSUMMED': 'cSoilPools', # Multi-file composite variable
     'SWE': 'swe',
     'TLAYER': 'soilT',
     'TRANSPIRATION': 'tveg',
@@ -725,13 +740,7 @@ def conform_to_wiemip(
     'VWCLAYER': 'mrsoLayer',
     'VWCTOT': 'mrso',
     'WATERTAB': 'wtd',
-    'BURNC2AIR': 'fFire', # Multi-file composite variable
-    'SOILPOOLSSUMMED': 'cSoilPools', # Multi-file composite variable
-    'GPPMINUSNPP': 'ra', # Multi-file composite variable
-    'SOCBELOW1M': 'cSoilBelow1m', # Multi-file composite variable
-    'LFTOTC': 'fVegLitter', # Multi-file composite variable
-    'NUPTAKETOT': 'fNup' # Multi-file composite variable
-  } #VWCTOT: doesn't exist yet
+  }
 
   # Variables that are not needed in the final set and do not need
   # to be converted to WIEMIP standards
@@ -750,19 +759,25 @@ def conform_to_wiemip(
   # Variables that need 'N' or 'C' added to units string
   force_SI_units = {
     'AVLN': ['kg/m2', 'kg N/m2'],
+    'BURNC2AIR':  ['kg/m2/s', 'kg C/m2/s'], # Multi-file composite variable
     'BURNSOIL2AIRC': ['kg/m2/s', 'kg C/m2/s'],
     'BURNVEG2AIRC': ['kg/m2/s', 'kg C/m2/s'],
     'CH4EFFLUXTOT': ['kg/m2/s', 'kg CH4/m2/s'],
 #    'DWDC': ['', 'kg C/m2'], #Unsure, check prior stages and actual units
 #    'EET': ['', 'kg/m2/s'], #Unsure, check prior stages and actual units
-    'GPP': ['kg/m2/s', 'kg C/m2/s'], #Which varname here?
+    'GPP': ['kg/m2/s', 'kg C/m2/s'],
+    'GPPMINUSNPP': ['kg/m2/s', 'kg C/m2/s'], # Multi-file composite variable
+    'LFTOTC': ['kg/m2/s', 'kg C/m2/s'], # Multi-file composite variable
     'NETNMIN': ['kg/m2/s', 'kg N/m2/s'],
     'NPP': ['kg/m2/s', 'kg C/m2/s'],
+    'NUPTAKETOT': ['kg/m2/s', 'kg N/m2/s'], # Multi-file composite variable
     'ORGN': ['kg/m2', 'kg N/m2'],
     'RHSOM': ['kg/m2/s', 'kg C/m2/s'],
 #    'SNOWFALL': ['', 'kg/m2/s'], #Special handling, TEM units: mm
     'SOC': ['kg/m2', 'kg C/m2'],
     'SOC0_100cm': ['kg/m2', 'kg C/m2'],
+    'SOCBELOW1M': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
+    'SOILPOOLSSUMMED': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
     'VEGC': ['kg/m2', 'kg C/m2'],
     'VEGNTOT': ['kg/m2', 'kg N/m2'],
     'SOILPOOLSSUMMED': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
