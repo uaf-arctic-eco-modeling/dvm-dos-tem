@@ -290,14 +290,23 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
       'input_vars': ['BURNVEG2AIRC', 'BURNSOIL2AIRC'],
       'guide_var': "BURNVEG2AIRC"
     },
+    'LFTOTC': {
+      'input_vars': ['LFNVC', 'LFVC'],
+      'guide_var': "LFNVC"
+    },
+    'NUPTAKETOT': {
+      'input_vars': ['NUPTAKELAB', 'NUPTAKEST'],
+      'guide_var': "NUPTAKELAB"
+    },
     'SOILPOOLSSUMMED': {
       'input_vars': ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC'],
       'guide_var': "SOMA"
     }
   }
 
-  extra_handling_addition = {
-    'fCH4Fire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC', 'bonus addition']
+  extra_computation = {
+    'fCH4Fire': ['BURNVEG2AIRC', 'BURNSOIL2AIRC', 'bonus addition'],
+    'fdepth': ['LAYERDZ', 'TLAYER']
   } #TODO
 
   # Multi-file subtractions
@@ -684,17 +693,23 @@ def conform_to_wiemip(
     'TRANSPIRATION': 'tveg',
     'VEGC': 'cVeg',
     'VEGNTOT': 'nVeg',
-    'VWCLayer': 'mrsoLayer',
+    'VWCLAYER': 'mrsoLayer',
+    'VWCTOT': 'mrso',
     'WATERTAB': 'wtd',
     'BURNC2AIR': 'fFire', # Multi-file composite variable
     'SOILPOOLSSUMMED': 'cSoilPools', # Multi-file composite variable
     'GPPMINUSNPP': 'ra', # Multi-file composite variable
-    'SOCBELOW1M': 'cSoilBelow1m' # Multi-file composite variable
-  }
+    'SOCBELOW1M': 'cSoilBelow1m', # Multi-file composite variable
+    'LFTOTC': 'fVegLitter', # Multi-file composite variable
+    'NUPTAKETOT': 'fNup' # Multi-file composite variable
+  } #VWCTOT: doesn't exist yet
 
   # Variables that are not needed in the final set and do not need
   # to be converted to WIEMIP standards
-  skip_vars = ['SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC']
+  # NLOST: TODO check spreadsheet
+  # QRUNOFF: TODO check spreadsheet
+  skip_vars = ['LAYERDZ', 'LFNVC', 'LFVC', 'NLOST', 'NUPTAKELAB',
+               'NUPTAKEST', 'QRUNOFF', 'SOMA', 'SOMCR', 'SOMPR', 'SOMRAWC']
 
   # Irrelevant timesteps: '6-hourly': '6hr', 'Fixed': 'fx'
   timestep_crosswalk = {
