@@ -24,25 +24,46 @@ import matplotlib.path as mpath
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import numpy as np
+import argparse
 
 from pathlib import Path
 
 # example input variables
-# output_file_path="/Users/BenMaglio/Downloads/GPP_monthly_tr.nc"
+# output_file_path="/Users/BenMaglio/Downloads/SOC_yearly_tr_unitsconverted_summed.nc"
 # runmask_file_path="/Users/BenMaglio/Downloads/teminputs-new-run-mask2.nc"
-# variable_name='gpp'
-# time_string='1850-08-01'
-# method = lambda x: x.mean(dim=["x", "y"])
+# variable_name='SOC'
+# time_string='1850-01-01'
 
-def ts_plot(output_file_path, runmask_file_path, variable_name, method,
-            plot_dir, preview=False, save=True):
+def ts_plot(output_file_path, runmask_file_path, variable_name,
+            plot_dir, preview=False, save=True, label=''):
+
+    flux_list = ['BURNC2AIR','fFire','BURNSOIL2AIRC','fFireCsoil',
+                             'BURNVEG2AIRC', 'fFireCveg','CH4EFFLUXTOT','wetCH4',
+                             'EET','evapotrans','GPP','gpp','GPPMINUSNPP','ra',
+                             'LFTOTC','fVegLitter','NETNMIN','fNnetmin','NPP','npp',
+                             'NUPTAKETOT','fNup','RHSOM','rh','TRANSPIRATION','tveg',
+                             'LFNVC', 'LFVC', 'NLOST', 'NUPTAKELAB','NUPTAKEST', 
+                             'QRUNOFF']
+    
+    stock_list = ['AVLN','nInorgSoil','DWDC','cCwd','ORGN',
+                               'nOrgSoil','SOC','cSoil','SOC0_100cm','cSoilAbove1m',
+                               'SOCBELOW1M','cSoilBelow1m','SOILPOOLSSUMMED','cSoilPools',
+                               'VEGC','cVeg','VEGNTOT','nVeg','VWCLAYER', 
+                               'mrsoLayer','VWCTOT','mrso','SOMA', 'SOMCR', 
+                               'SOMPR', 'SOMRAWC']
+    
+    misc_list = ['LAI','lai','SNOWFALL','snowf','SNOWTHICK','snowDepth',
+                               'TLAYER','soilT','SWE','swe','WATERTAB','wtd']
+
+    flux_method = lambda x: x.mean(dim=["x", "y"])
+    stock_method = lambda x: x.sum(dim=["x", "y"])
 
     if plot_dir:
-      OUTPUT_PNG = f'{str(plot_dir)}/{variable_name}_ts_plot.png'
+      OUTPUT_PNG = f'{str(plot_dir)}/label_{variable_name}_ts_plot.png'
     else:
       OUTPUT_PNG = 'ts_plot.png'
 
-    output_var_ds = xr.open_dataset(output_file_path)
+    output_var_ds = xr.open_dataset(output_file_path, decode_times=True)
     units = output_var_ds[variable_name].attrs['units']
     input_ds = xr.open_dataset(runmask_file_path)
 
@@ -56,40 +77,70 @@ def ts_plot(output_file_path, runmask_file_path, variable_name, method,
     da = da.squeeze()
     # mask out pixels which were not run
     da = da.where(input_ds['run'].values != 0)
-    da = method(da)
 
     # check if data is monthly or yearly
     dt = da.time.diff('time')
     is_monthly = (dt >= np.timedelta64(28, "D")) & (
         dt <= np.timedelta64(31, "D")
-    )
+    )    
+
     all_monthly = bool(is_monthly.all())
-    if all_monthly:
-        da = da.resample(time='YS').sum()
-        print('NEED TO ADD CATCH FOR SUM/MEAN FOR FLUX/STOCK')
 
-    fig, ax = plt.subplots(figsize=(9,9))
-    ax.plot(da.indexes['time'].to_datetimeindex(), da.values)
-    ax.set_ylabel(variable_name+f" [{units}]")
-    ax.set_xlabel('Time [years]')
+    if all_monthly: 
+       if variable_name in flux_list:
+           da = flux_method(da)
+           da = da.resample(time='YS').sum()
+       elif variable_name in stock_list:
+           da = stock_method(da) 
+           da = da.resample(time='YS').mean()
 
-    plt.tight_layout()
+       elif variable_name in misc_list:
+           da = flux_method(da) 
+           da = da.resample(time='YS').mean()
+           
+       else:
+           print("Variable name may need to be added to yearly sum / mean calculations")
+    if not all_monthly:
+       if variable_name in flux_list:
+           da = flux_method(da)
+   
+       elif variable_name in stock_list:
+           da = stock_method(da) 
+   
+       elif variable_name in misc_list:
+           da = flux_method(da) 
+           
+       else:
+           print("Variable name may have additional dimensions which need handling...")
+       
 
-    if save:
-        plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
-    if preview:
-        plt.show()
+    if variable_name in ['LAYERDZ']:
+       print("Skipping LAYERDZ for plotting...")
+    else:
+        fig, ax = plt.subplots(figsize=(9,9))
+        ax.plot(da.indexes['time'].to_datetimeindex(unsafe=True, time_unit='s'), da.values)
+        ax.set_ylabel(variable_name+f" [{units}]")
+        ax.set_xlabel('Time [years]')
 
+        if label!='':
+            ax.set_title(label)
+
+        plt.tight_layout()
+
+        if save:
+            plt.savefig(OUTPUT_PNG, dpi=200, bbox_inches="tight")
+        if preview:
+            plt.show()
     return fig
 
 def map_plot(output_file_path, runmask_file_path, variable_name, time_string,
-             plot_dir, preview=False, save=True):
+             plot_dir, preview=False, save=True, label=''):
     MAP_OUTPUT_PATH = f'{variable_name}_{time_string}_map.png'
     MAP_PROJECTION = "north_polar"
     NORTH_POLAR_MIN_LAT = None
 
     if plot_dir:
-      OUTPUT_PNG = f'{str(plot_dir)}/{variable_name}_{time_string}_map.png'
+      OUTPUT_PNG = f'{str(plot_dir)}/label_{variable_name}_{time_string}_map.png'
     else:
       OUTPUT_PNG = 'map_plot.png'
 
@@ -101,6 +152,7 @@ def map_plot(output_file_path, runmask_file_path, variable_name, time_string,
 
     if 'pft' in da.dims:
         da = da.sum(dim='pft', skipna=True)
+        print("Summing across PFTs for mapped result...")
     if 'layer' in da.dims:
 #        da = da.sel('layer'==0)
       da = da[:,0,:,:]
@@ -160,7 +212,11 @@ def map_plot(output_file_path, runmask_file_path, variable_name, time_string,
     cbar = plt.colorbar(mesh, ax=ax, orientation="vertical", pad=0.03, shrink=0.8)
     cbar.set_label(variable_name+f" {' [' + units + ']' if units else ''}")
 
-    ax.set_title(time_string)
+    if label!='':
+       ax.set_title(label+' - '+time_string)
+    else:
+       ax.set_title(time_string)
+       
 
     plt.tight_layout()
     if save:
@@ -170,5 +226,24 @@ def map_plot(output_file_path, runmask_file_path, variable_name, time_string,
 
     return fig
 
-# map_plot(output_file_path, runmask_file_path, 'GPP', '1850-08-01')
-# ts_plot(output_file_path, runmask_file_path, 'GPP', method)
+def main(output_file_path, runmask_file_path, variable_name, time_string, plot_dir, preview=True, save=False, label=''):
+   
+   map_plot(output_file_path, runmask_file_path, variable_name, time_string, plot_dir, preview=preview, save=save, label=label)
+   ts_plot(output_file_path, runmask_file_path, variable_name, plot_dir, preview=preview, save=save, label=label)
+
+# CLI
+if __name__ == "__main__":
+   parser = argparse.ArgumentParser(description="Plot map or timeseries of WIEMIP output. \n " \
+   "E.g python plots_wiemip.py /Users/BenMaglio/Downloads/SOC_yearly_tr_unitsconverted_summed.nc --runmask /Users/BenMaglio/Downloads/teminputs-new-run-mask2.nc --variable SOC --time 1850-01-01 --outdir ./ --preview True --save False --label Test_label")
+   parser.add_argument("output_file_path", type=str, help="Path to file for plotting.")
+
+   parser.add_argument("--runmask", type=str, help="Path to runmask used for masking out un-run pixels.")
+   parser.add_argument("--variable", type=str, help="Name of variable for plotting (e.g. GPP).")
+   parser.add_argument("--time", type=str, help="Time string used for map plot at fixed temporal step")
+   parser.add_argument("--outdir", type=str, help="Directory path to output .png files.")
+   parser.add_argument("--preview", type=bool, help="True/False as to whether to preview plot.")
+   parser.add_argument("--save", type=bool, help="True/False as to whether to save plot.")
+   parser.add_argument("--label", type=str, help="Label added to plot file name and title.")
+   args = parser.parse_args()
+
+   main(args.output_file_path, args.runmask, args.variable, args.time, args.outdir, preview=args.preview, save=args.save, label=args.label)

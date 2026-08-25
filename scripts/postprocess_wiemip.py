@@ -908,8 +908,6 @@ def visuals_production(
 
     print(f"Plotting {varname}")
 
-    ts_method = lambda x: x.mean(dim=["x", "y"])
-
     for directory in intermediate_dirs:
       # SOC is a prefix of SOC0_100cm, so a general substring search would
       # select both products. For these two variables, require the complete
@@ -943,7 +941,7 @@ def visuals_production(
       map_fig = map_plot(varname_matches[0], run_mask, varname, timestep_to_plot, visuals_dir)
       map_figures.append(map_fig)
 
-      ts_fig = ts_plot(nc_path, run_mask, varname, ts_method, visuals_dir)
+      ts_fig = ts_plot(nc_path, run_mask, varname, visuals_dir)
       ts_figures.append(ts_fig)
 
 
