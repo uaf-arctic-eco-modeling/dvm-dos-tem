@@ -75,7 +75,22 @@ def _staged_output_file(destination: Path, source: Path | None = None):
     else:
       # Writers using this context have closed before this copy occurs, so all
       # NetCDF metadata and buffered array data are complete on disk.
-      shutil.copy2(temporary_path, destination)
+      if destination.exists():
+        print(
+          f"Skipping {destination.name}: result file already exists at "
+          f"{destination}"
+        )
+      else:
+        shutil.copy2(temporary_path, destination)
+
+
+def _result_exists(destination: Path) -> bool:
+  """Report an existing result so a processing loop can safely skip it."""
+  destination = Path(destination)
+  if destination.exists():
+    print(f"Skipping {destination.name}: result file already exists at {destination}")
+    return True
+  return False
 
 # Test, then move to pyddt?
 def _varname_from_outfile(nc_path: Path) -> str | None:
@@ -156,6 +171,10 @@ def wetland_merging(
     print(f"Skipping {filename}: present in {directory_b}, missing from {directory_a}")
 
   for filename in common:
+    result_filepath = output_directory / filename
+    if _result_exists(result_filepath):
+      continue
+
     print(f"Merging {filename}")
     # weighted_combine_veg completes the NetCDF file in temporary storage and
     # closes all HDF5 handles before copying the result into this directory.
@@ -164,7 +183,7 @@ def wetland_merging(
       str(directory_a / filename),
       str(directory_b / filename),
       wetland_file=str(wetland),
-      outfile=str(output_directory / filename),
+      outfile=str(result_filepath),
     )
 
 
@@ -236,6 +255,8 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
     if varname not in unit_specifiers and varname not in skip_converting:
       print(f"{varname} does not have unit conversion, FIX THIS")
       output_filepath = output_directory / nc_path.name
+      if _result_exists(output_filepath):
+        continue
       with _staged_output_file(output_filepath, source=nc_path):
         # Retain the unconverted input without exposing a partial destination.
         pass
@@ -244,6 +265,8 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
     if varname not in unit_specifiers:
       print(f"{varname} does not require unit conversion, copying unchanged")
       output_filepath = output_directory / nc_path.name
+      if _result_exists(output_filepath):
+        continue
       with _staged_output_file(output_filepath, source=nc_path):
         # Supplying source creates the complete temporary copy; no additional
         # scientific processing is required for this variable.
@@ -252,6 +275,8 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 
     print(f"Converting {varname} to {unit_specifiers[varname]}")
     output_filepath = output_directory / f"{nc_path.stem}_unitsconverted{nc_path.suffix}"
+    if _result_exists(output_filepath):
+      continue
     with _staged_output_file(output_filepath) as temporary_output_filepath:
       convert_units(
         str(nc_path),
@@ -374,6 +399,8 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
 
       guide_filepath = input_index[(guide_varname, timeres, stg)]
       out_filepath = directory / f"{combined_varname}_{timeres}_{stg}_composite.nc"
+      if _result_exists(out_filepath):
+        continue
       print(
         f"Creating {out_filepath.name} from "
         f"{', '.join(path.name for path in input_paths)}"
@@ -485,6 +512,8 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
       continue
 
     output_filepath = output_directory / f"{nc_path.stem}_summed{nc_path.suffix}"
+    if _result_exists(output_filepath):
+      continue
 
     # Handling PFT variables
     if varname in pft_to_ecosystem:
@@ -773,6 +802,8 @@ def conform_to_wiemip(
     )
 
     output_filepath = output_directory / wiemip_filename
+    if _result_exists(output_filepath):
+      continue
 
     print(f"Conforming {nc_path.name} to {wiemip_filename}")
 

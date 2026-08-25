@@ -419,7 +419,10 @@ def _staged_output_file(outfile):
     else:
       # The caller's NetCDF context closes before execution reaches this copy,
       # ensuring that HDF5 metadata and buffered data have been fully written.
-      shutil.copy2(temporary_path, destination)
+      if os.path.exists(destination):
+        print("Skipping {}: result file already exists".format(destination))
+      else:
+        shutil.copy2(temporary_path, destination)
 
 
 def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
@@ -471,6 +474,12 @@ def weighted_combine_veg(file1, file2, wetland_file, outfile, varname=None):
   out_dir = os.path.dirname(os.path.abspath(outfile))
   if out_dir and not os.path.isdir(out_dir):
     os.makedirs(out_dir, exist_ok=True)
+
+  # Treat an existing result as complete work. This also makes direct calls to
+  # this utility follow the non-overwriting behavior used by the WIEMIP stages.
+  if os.path.exists(outfile):
+    print("Skipping {}: result file already exists".format(outfile))
+    return outfile
 
   # Input file variable checks
   _, name1, _, _ = breakdown_outfile_name(file1)
