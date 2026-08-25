@@ -3,12 +3,8 @@
 WIEMIP postprocessing framework for dvm-dos-tem outputs.
 
 Standalone CLI that orchestrates wetland merging, unit conversion,
-variable combination, and visuals production. Uses pyddt utilities
-where helpful; section bodies are intentionally left as stubs.
-
-Example
--------
-  ./postprocess-wiemip.py directoryA directoryB wetland.nc output_directory
+variable combination, wiemip-specific name and unit conventions,
+and visuals production.
 """
 
 from __future__ import annotations
@@ -19,6 +15,7 @@ import sys
 import tempfile
 import textwrap
 from contextlib import contextmanager
+from datetime import timedelta
 from pathlib import Path
 
 import time
@@ -191,12 +188,159 @@ def wetland_merging(
 # Section 2: Unit conversion
 # ---------------------------------------------------------------------------
 
+def _next_time_coordinate(date, timestep: str):
+  """Return the expected boundary following the final time coordinate."""
+  if timestep == 'monthly':
+    next_month = date.month % 12 + 1
+    next_year = date.year + (date.month // 12)
+    return date.replace(year=next_year, month=next_month)
+  if timestep == 'yearly':
+    return date.replace(year=date.year + 1)
+  if timestep == 'daily':
+    return date + timedelta(days=1)
+  raise RuntimeError(f"Cannot infer timestep duration for {timestep!r}")
+
+
+def _time_step_seconds(dataset: nc.Dataset, timestep: str) -> np.ndarray:
+  """Calculate the duration represented by each time coordinate in seconds."""
+  if 'time' not in dataset.variables:
+    raise RuntimeError("Time-dependent unit conversion requires a time variable")
+
+  time_var = dataset.variables['time']
+  if 'units' not in time_var.ncattrs() or 'calendar' not in time_var.ncattrs():
+    raise RuntimeError(
+      "Time-dependent unit conversion requires time:units and time:calendar"
+    )
+
+  time_units = time_var.units
+  calendar = time_var.calendar
+  bounds_name = getattr(time_var, 'bounds', None)
+
+  if bounds_name and bounds_name in dataset.variables:
+    # Explicit bounds are the most direct description of the interval
+    # represented by each accumulated flux value.
+    bounds = dataset.variables[bounds_name][:]
+    if bounds.ndim != 2 or bounds.shape != (len(time_var), 2):
+      raise RuntimeError(
+        f"Time bounds {bounds_name!r} must have shape ({len(time_var)}, 2); "
+        f"found {bounds.shape}"
+      )
+    starts = nc.num2date(bounds[:, 0], time_units, calendar=calendar)
+    stops = nc.num2date(bounds[:, 1], time_units, calendar=calendar)
+  else:
+    # dvmdostem outputs normally store interval starts without explicit bounds.
+    # Adjacent coordinates define every interval except the last; extend the
+    # final coordinate by one calendar-aware model timestep.
+    starts = list(nc.num2date(time_var[:], time_units, calendar=calendar))
+    if not starts:
+      return np.asarray([], dtype=float)
+    stops = starts[1:] + [_next_time_coordinate(starts[-1], timestep)]
+
+  durations = np.asarray(
+    [(stop - start).total_seconds() for start, stop in zip(starts, stops)],
+    dtype=float,
+  )
+  if np.any(durations <= 0):
+    raise RuntimeError("Time coordinates must describe positive-duration intervals")
+  return durations
+
+
+def _convert_accumulated_flux_to_rate(
+  nc_filepath: Path,
+  output_filepath: Path,
+  varname: str,
+  target_units: str,
+) -> None:
+  """Convert a per-timestep accumulated flux to a per-second rate."""
+  if target_units != 'kg/m2/s':
+    raise RuntimeError(
+      f"Manual time conversion to {target_units!r} is not implemented"
+    )
+
+  # Seed the staged result with all dimensions, coordinates, metadata, and
+  # variables from the source file, then modify only the scientific variable.
+  shutil.copy2(nc_filepath, output_filepath)
+  with nc.Dataset(str(output_filepath), 'r+') as dataset:
+    if varname not in dataset.variables:
+      raise RuntimeError(f"{varname!r} not found in {nc_filepath}")
+
+    data_var = dataset.variables[varname]
+    if not data_var.dimensions or data_var.dimensions[0] != 'time':
+      raise RuntimeError(
+        f"{varname!r} must use time as its first dimension; "
+        f"found {data_var.dimensions}"
+      )
+    if 'units' not in data_var.ncattrs():
+      raise RuntimeError(f"{varname!r} has no units attribute")
+
+    timestep = _timestep_from_outfile(nc_filepath)
+    period_by_timestep = {
+      'daily': 'day',
+      'monthly': 'month',
+      'yearly': 'year',
+    }
+    if timestep not in period_by_timestep:
+      raise RuntimeError(f"Unsupported timestep {timestep!r} for {nc_filepath}")
+
+    incoming_units = ncascms_cfunits.Units(data_var.units)
+    mass_per_period_units = ncascms_cfunits.Units(
+      f"kg/m2/{period_by_timestep[timestep]}"
+    )
+    if not incoming_units.equivalent(mass_per_period_units):
+      raise RuntimeError(
+        f"Cannot convert {varname} from {data_var.units!r}; expected units "
+        f"equivalent to {mass_per_period_units}"
+      )
+
+    seconds_per_step = _time_step_seconds(dataset, timestep)
+    if len(seconds_per_step) != data_var.shape[0]:
+      raise RuntimeError(
+        f"Time axis has {len(seconds_per_step)} entries but {varname} has "
+        f"{data_var.shape[0]}"
+      )
+
+    # Work in bounded blocks so conversion does not load a regional variable
+    # into memory all at once. Ellipsis retains any PFT, layer, y, and x axes.
+    block_size = 120
+    block_count = data_var.shape[0] / block_size
+    for block_start in range(0, data_var.shape[0], block_size):
+      block_stop = min(block_start + block_size, data_var.shape[0])
+      print(
+        f"Converting block {block_start/block_size+1} of {block_count} "
+        f"for {varname}"
+      )
+      data_slice = data_var[block_start:block_stop, ...]
+      mass_per_period = ncascms_cfunits.Units.conform(
+        data_slice, incoming_units, mass_per_period_units
+      )
+      duration_shape = (block_stop - block_start,) + (1,) * (data_var.ndim - 1)
+      duration_seconds = seconds_per_step[block_start:block_stop].reshape(
+        duration_shape
+      )
+      data_var[block_start:block_stop, ...] = mass_per_period / duration_seconds
+
+    old_units = data_var.units
+    data_var.setncattr('units', target_units)
+    history_note = (
+      f"Converted {varname} from {old_units} accumulated per "
+      f"{period_by_timestep[timestep]} "
+      f"timestep to {target_units} using time:units={dataset.variables['time'].units!r} "
+      f"and time:calendar={dataset.variables['time'].calendar!r}"
+    )
+    if 'units_history' in dataset.ncattrs():
+      dataset.units_history = f"{dataset.units_history}; {history_note}"
+    else:
+      dataset.units_history = history_note
+
+
 def unit_conversion(directory: Path, output_directory: Path) -> None:
   """Convert listed variables in ``directory`` to target units.
 
   For each NetCDF whose variable appears in ``unit_specifiers``, writes a
   file under ``output_directory`` with ``_unitsconverted`` inserted before
-  the extension via ``pyddt.util.output.convert_units``.
+  the extension. Accumulated fluxes with per-second targets use the file's
+  calendar and time coordinates; other variables use
+  ``pyddt.util.output.convert_units``.
 
   Parameters
   ----------
@@ -243,6 +387,20 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
 #    'VWCLAYER': 'kg/m2', #TODO special handling? TEM units: m3/m3
   }
 
+  # Rates with a per-second target need calendar-aware conversion. A monthly
+  # accumulated value cannot use one fixed seconds-per-month constant because
+  # month length depends on both month and the file's model calendar.
+  time_conversion_specifiers = {
+    varname: target_units
+    for varname, target_units in unit_specifiers.items()
+    if '/s' in target_units
+  }
+  standard_conversion_specifiers = {
+    varname: target_units
+    for varname, target_units in unit_specifiers.items()
+    if varname not in time_conversion_specifiers
+  }
+
 
   output_directory.mkdir(parents=True, exist_ok=True)
 
@@ -277,10 +435,28 @@ def unit_conversion(directory: Path, output_directory: Path) -> None:
     output_filepath = output_directory / f"{nc_path.stem}_unitsconverted{nc_path.suffix}"
     if _result_exists(output_filepath):
       continue
+
+    if varname in time_conversion_specifiers:
+      # Per-timestep accumulated fluxes require the duration represented by
+      # each time coordinate, so they are handled locally instead of by the
+      # general unit converter.
+      with _staged_output_file(output_filepath) as temporary_output_filepath:
+        _convert_accumulated_flux_to_rate(
+          nc_path,
+          temporary_output_filepath,
+          varname,
+          time_conversion_specifiers[varname],
+        )
+      continue
+
+    if varname not in standard_conversion_specifiers:
+      raise RuntimeError(f"No standard unit conversion configured for {varname}")
+
+    # Variables with units that do not include time
     with _staged_output_file(output_filepath) as temporary_output_filepath:
       convert_units(
         str(nc_path),
-        unit_specifiers[varname],
+        standard_conversion_specifiers[varname],
         output_filepath=str(temporary_output_filepath),
         varname=varname,
       )
@@ -720,10 +896,10 @@ def conform_to_wiemip(
     'GPP': 'gpp',
     'GPPMINUSNPP': 'ra', # Multi-file composite variable
     'LAI': 'lai',
-    'LFTOTC': 'fVegLitter', # Multi-file composite variable
+    'LFTOTC': 'fVegSoil', # Multi-file composite variable
     'NETNMIN': 'fNnetmin',
     'NPP': 'npp',
-    'NUPTAKETOT': 'fNup' # Multi-file composite variable
+    'NUPTAKETOT': 'fNup', # Multi-file composite variable
     'ORGN': 'nOrgSoil',
     'RHSOM': 'rh',
     'SNOWFALL': 'snowf',
