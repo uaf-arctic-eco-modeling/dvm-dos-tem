@@ -470,9 +470,9 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
   """Sum PFT- or layer-resolved variables to ecosystem totals.
 
   For each NetCDF in ``directory`` whose variable appears in
-  ``pft_to_ecosystem`` or ``layer_to_ecosystem``, applies
-  ``sum_across_pfts`` or ``sum_across_layers`` and writes a file under
-  ``output_directory`` with ``_summed`` inserted before the extension.
+  ``pft_to_ecosystem`` or ``layer_to_ecosystem``, preserves the resolved file
+  and writes a second ecosystem-total file under ``output_directory``. Total
+  variable names append ``TOT``, except ``VWCLAYER``, which becomes ``VWCTOT``.
 
   Parameters
   ----------
@@ -687,169 +687,107 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
       print(f"No variable name parsed from {nc_path}")
       continue
 
-    output_stem = nc_path.stem
-    if varname == 'VWCLAYER':
-      # The layer-resolved input is named VWCLAYER, while its ecosystem total
-      # is identified as VWCTOT in the result filename.
-      output_stem = output_stem.replace('VWCLAYER', 'VWCTOT', 1)
-    output_filepath = output_directory / f"{output_stem}_summed{nc_path.suffix}"
+    if varname in pft_to_ecosystem or varname in layer_to_ecosystem:
+      drop_dim = 'pft' if varname in pft_to_ecosystem else 'layer'
+      # WIEMIP calls the total of VWCLAYER VWCTOT. All other resolved
+      # variables retain their full base name and append TOT.
+      total_varname = (
+        'VWCTOT' if varname == 'VWCLAYER' else f"{varname}TOT"
+      )
+      total_stem = nc_path.stem.replace(varname, total_varname, 1)
+      total_output_filepath = (
+        output_directory / f"{total_stem}_summed{nc_path.suffix}"
+      )
 
-    if varname == 'VWCLAYER':
-      # Preserve the original by-layer data alongside the newly calculated
-      # ecosystem total. Check this result independently so a missing layer
-      # file can still be copied when VWCTOT already exists, and vice versa.
-      layer_output_filepath = output_directory / nc_path.name
-      if not _result_exists(layer_output_filepath):
-        with _staged_output_file(layer_output_filepath, source=nc_path):
+      # Preserve the PFT- or layer-resolved scientific variable alongside its
+      # ecosystem total. These files are independent results, so either one
+      # can be produced when the other already exists.
+      resolved_output_filepath = output_directory / nc_path.name
+      if not _result_exists(resolved_output_filepath):
+        with _staged_output_file(resolved_output_filepath, source=nc_path):
           pass
 
-    if _result_exists(output_filepath):
-      continue
+      if _result_exists(total_output_filepath):
+        continue
 
-    # Handling PFT variables
-    if varname in pft_to_ecosystem:
-      print(f"Combining {varname} to ecosystem level")
-
-      with _staged_output_file(output_filepath) as temporary_output_filepath, \
+      print(
+        f"Combining {varname} across {drop_dim} into {total_varname}"
+      )
+      with _staged_output_file( \
+             total_output_filepath
+           ) as temporary_output_filepath, \
            nc.Dataset(str(nc_path), 'r') as src, \
            nc.Dataset(temporary_output_filepath, 'w') as dst:
         if varname not in src.variables:
           raise RuntimeError(f"{varname} not found in {str(nc_path)}")
 
         src_var = src.variables[varname]
-
+        if drop_dim not in src_var.dimensions:
+          raise RuntimeError(
+            f"Cannot sum {varname} across {drop_dim}: variable dimensions are "
+            f"{src_var.dimensions}"
+          )
         if src_var.ndim == 5:
           raise RuntimeError(
             f"{varname} has 5 dimensions and is probably by-compartment; "
             "5-dimensional files are not currently handled"
           )
-          # VEGC may be (time, pftpart, pft, y, x); collapse compartments first.
-          #if data.ndim == 5:
-          #  print("Five dimensions, summing across compartments")
-          #  data = sum_across_compartments(data)
-          #  drop_dims.append('pftpart')
 
-        drop_dims = ['pft']
-        # Create structure for the destination file
+        drop_dims = [drop_dim]
         copy_nc_file_structure_handles(src, dst, varname, drop_dims)
-
-        # Define output file variable
-        out_dims = tuple(dim for dim in src_var.dimensions if dim not in drop_dims)
+        out_dims = tuple(
+          dim for dim in src_var.dimensions if dim not in drop_dims
+        )
         fill_value = getattr(src_var, '_FillValue', None)
         kwargs = {'fill_value': fill_value} if fill_value is not None else {}
 
-        # Manually define output variable chunking due to lost dimension
-        # THIS IS PROBLEMATIC TODO: Fix
-        dst_var_chunking = src_var.chunking()
-        del dst_var_chunking[1]
-        print(f"Manual dst var chunking: {dst_var_chunking}")
+        # Remove the aggregated dimension from the source chunk layout while
+        # retaining chunk sizes for time and the remaining spatial dimensions.
+        source_chunking = src_var.chunking()
+        if source_chunking != 'contiguous':
+          dst_var_chunking = list(source_chunking)
+          del dst_var_chunking[src_var.dimensions.index(drop_dim)]
+          kwargs['chunksizes'] = dst_var_chunking
+          print(f"Manual dst var chunking: {dst_var_chunking}")
 
-        # Get incoming compression scheme and level
         compressor = get_compressor(src_var.filters())
         if compressor == "zlib":
           kwargs['zlib'] = True
           kwargs['complevel'] = src_var.filters()['complevel']
           kwargs['shuffle'] = src_var.filters().get('shuffle', False)
-          kwargs['chunksizes'] = dst_var_chunking
-        else:
+        elif compressor is not None:
           raise RuntimeError(
             f"kwargs for compressor {compressor} not implemented"
           )
 
         output_var = dst.createVariable(
-          varname,
+          total_varname,
           src_var.dtype,
           out_dims,
-          **kwargs)
+          **kwargs,
+        )
+        output_var.setncatts({
+          name: value for name, value in src_var.__dict__.items()
+          if name != '_FillValue'
+        })
+        output_var.setncattr('source_variable', varname)
 
-        # Copy variable attributes
-        output_var.setncatts(src_var.__dict__)
-
-        # Working on chunks of the file to allow for handling
-        # larger files. The '120' is a harcoded value based on
-        # prior knowledge of the GPP file block setup and
-        # should be changed to use dynamic information from the
-        # incoming file.
-        for timestep in range(0, src_var.shape[0], 120):
-          data_slice = src_var[timestep:timestep+120, :, :, :]
+        # Work in bounded time blocks and retain all remaining dimensions with
+        # ellipsis. The aggregation axis is located from the variable metadata
+        # rather than assuming PFT or layer is always dimension number one.
+        block_size = 120
+        aggregation_axis = src_var.dimensions.index(drop_dim)
+        for block_start in range(0, src_var.shape[0], block_size):
+          block_stop = min(block_start + block_size, src_var.shape[0])
+          data_slice = src_var[block_start:block_stop, ...]
           print(data_slice.shape)
-          summed_slice = np.ma.sum(data_slice, axis=1)
+          summed_slice = np.ma.sum(data_slice, axis=aggregation_axis)
+          output_var[block_start:block_stop, ...] = summed_slice
 
-          # Immediately write result slice out
-          output_var[timestep:timestep+120, :, :] = summed_slice
-
-        print(f"Done summing {varname}")
-        history_note = "Summed across {}".format(", ".join(drop_dims))
-        if 'history' in dst.ncattrs():
-          dst.history = f"{dst.history}; {history_note}"
-        else:
-          dst.history = history_note
-
-    # Handling layer variables
-    # There is a lot of duplicate code here, it should
-    # be generalized and moved to pyddt when time permits.
-    elif varname in layer_to_ecosystem:
-      print(f"Combining {varname} to ecosystem level")
-
-      with _staged_output_file(output_filepath) as temporary_output_filepath, \
-           nc.Dataset(str(nc_path), 'r') as src, \
-           nc.Dataset(temporary_output_filepath, 'w') as dst:
-        if varname not in src.variables:
-          raise RuntimeError(f"{varname} not found in {str(nc_path)}")
-
-        src_var = src.variables[varname]
-
-        drop_dims = ['layer']
-        # Create structure for the destination file
-        copy_nc_file_structure_handles(src, dst, varname, drop_dims)
-
-        # Define output file variable
-        out_dims = tuple(dim for dim in src_var.dimensions if dim not in drop_dims)
-        fill_value = getattr(src_var, '_FillValue', None)
-        kwargs = {'fill_value': fill_value} if fill_value is not None else {}
-
-        # Manually define output variable chunking due to lost dimension
-        # THIS IS PROBLEMATIC TODO: Fix
-        dst_var_chunking = src_var.chunking()
-        del dst_var_chunking[1]
-        print(f"Manual dst var chunking: {dst_var_chunking}")
-
-        # Get incoming compression scheme and level
-        compressor = get_compressor(src_var.filters())
-        if compressor == "zlib":
-          kwargs['zlib'] = True
-          kwargs['complevel'] = src_var.filters()['complevel']
-          kwargs['shuffle'] = src_var.filters().get('shuffle', False)
-          kwargs['chunksizes'] = dst_var_chunking
-        else:
-          raise RuntimeError(
-            f"kwargs for compressor {compressor} not implemented"
-          )
-
-        output_var = dst.createVariable(
-          varname,
-          src_var.dtype,
-          out_dims,
-          **kwargs)
-
-        # Copy variable attributes
-        output_var.setncatts(src_var.__dict__)
-
-        # Working on chunks of the file to allow for handling
-        # larger files. The '120' is a harcoded value based on
-        # prior knowledge of the GPP file block setup and
-        # should be changed to use dynamic information from the
-        # incoming file.
-        for timestep in range(0, src_var.shape[0], 120):
-          data_slice = src_var[timestep:timestep+120, :, :, :]
-          print(data_slice.shape)
-          summed_slice = np.ma.sum(data_slice, axis=1)
-
-          # Immediately write result slice out
-          output_var[timestep:timestep+120, :, :] = summed_slice
-
-        print(f"Done summing {varname}")
-        history_note = "Summed across {}".format(", ".join(drop_dims))
+        print(f"Done creating {total_varname}")
+        history_note = (
+          f"Created {total_varname} from {varname}; summed across {drop_dim}"
+        )
         if 'history' in dst.ncattrs():
           dst.history = f"{dst.history}; {history_note}"
         else:
@@ -859,6 +797,8 @@ def variable_combination(directory: Path, output_directory: Path) -> None:
     else:
       print(f"{varname} has no dimension summing, copying unchanged")
       output_filepath = output_directory / nc_path.name
+      if _result_exists(output_filepath):
+        continue
       with _staged_output_file(output_filepath, source=nc_path):
         # This variable requires no calculation, but follows the same staged
         # publication rule as newly generated ecosystem totals.
@@ -888,30 +828,37 @@ def conform_to_wiemip(
     'ALD': 'alt',
     'AVLN': 'nInorgSoil',
     'BURNC2AIR': 'fFire', # Multi-file composite variable
-    'BURNSOIL2AIRC': 'fFireCsoil', # Spreadsheet gave two options
+    'BURNSOIL2AIRC': 'ffirepeatTotal',
     'BURNVEG2AIRC': 'fFireCveg',
     'CH4EFFLUXTOT': 'wetCH4',
     'DWDC': 'cCwd',
     'EET': 'evapotrans',
-    'GPP': 'gpp',
+    'FROZENDEPTH': 'fdepth',
+    'GPP': 'gpppft',
+    'GPPTOT': 'gpp',
     'GPPMINUSNPP': 'ra', # Multi-file composite variable
-    'LAI': 'lai',
+    'LAI': 'laipft',
+    'LAITOT': 'lai',
     'LFTOTC': 'fVegSoil', # Multi-file composite variable
     'NETNMIN': 'fNnetmin',
-    'NPP': 'npp',
+    'NPP': 'npppft',
+    'NPPTOT': 'npp',
     'NUPTAKETOT': 'fNup', # Multi-file composite variable
     'ORGN': 'nOrgSoil',
-    'RHSOM': 'rh',
+    'RHSOM': 'rhLayers',
+    'RHSOMTOT': 'rh',
     'SNOWFALL': 'snowf',
     'SNOWTHICK': 'snowDepth',
-    'SOC': 'cSoil',
+    'SOC': 'cSoilLayers',
+    'SOCTOT': 'cSoil',
     'SOC0_100cm': 'cSoilAbove1m',
     'SOCBELOW1M': 'cSoilBelow1m', # Multi-file composite variable
-    'SOILPOOLSSUMMED': 'cSoilPools', # Multi-file composite variable
+#    'SOILPOOLSSUMMED': 'cSoilPools', # Multi-file composite variable
     'SWE': 'swe',
     'TLAYER': 'soilT',
     'TRANSPIRATION': 'tveg',
-    'VEGC': 'cVeg',
+    'VEGC': 'cVegpft',
+    'VEGCTOT': 'cVeg',
     'VEGNTOT': 'nVeg',
     'VWCLAYER': 'mrsoLayer',
     'VWCTOT': 'mrso',
@@ -934,29 +881,37 @@ def conform_to_wiemip(
 
   # Variables that need 'N' or 'C' added to units string
   force_SI_units = {
-    'AVLN': ['kg/m2', 'kg N/m2'],
-    'BURNC2AIR':  ['kg/m2/s', 'kg C/m2/s'], # Multi-file composite variable
-    'BURNSOIL2AIRC': ['kg/m2/s', 'kg C/m2/s'],
-    'BURNVEG2AIRC': ['kg/m2/s', 'kg C/m2/s'],
-    'CH4EFFLUXTOT': ['kg/m2/s', 'kg CH4/m2/s'],
-#    'DWDC': ['', 'kg C/m2'], #Unsure, check prior stages and actual units
-#    'EET': ['', 'kg/m2/s'], #Unsure, check prior stages and actual units
-    'GPP': ['kg/m2/s', 'kg C/m2/s'],
-    'GPPMINUSNPP': ['kg/m2/s', 'kg C/m2/s'], # Multi-file composite variable
-    'LFTOTC': ['kg/m2/s', 'kg C/m2/s'], # Multi-file composite variable
-    'NETNMIN': ['kg/m2/s', 'kg N/m2/s'],
-    'NPP': ['kg/m2/s', 'kg C/m2/s'],
-    'NUPTAKETOT': ['kg/m2/s', 'kg N/m2/s'], # Multi-file composite variable
-    'ORGN': ['kg/m2', 'kg N/m2'],
-    'RHSOM': ['kg/m2/s', 'kg C/m2/s'],
-#    'SNOWFALL': ['', 'kg/m2/s'], #Special handling, TEM units: mm
-    'SOC': ['kg/m2', 'kg C/m2'],
-    'SOC0_100cm': ['kg/m2', 'kg C/m2'],
-    'SOCBELOW1M': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
-    'SOILPOOLSSUMMED': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
-    'VEGC': ['kg/m2', 'kg C/m2'],
-    'VEGNTOT': ['kg/m2', 'kg N/m2'],
-    'SOILPOOLSSUMMED': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
+    'AVLN': ['kg/m2', 'kg N m-2'],
+    'BURNC2AIR':  ['kg/m2/s', 'kg C m-2 s-1'], # Multi-file composite variable
+    'BURNSOIL2AIRC': ['kg/m2/s', 'kg C m-2 s-1'],
+    'BURNVEG2AIRC': ['kg/m2/s', 'kg C m-2 s-1'],
+    'CH4EFFLUXTOT': ['kg/m2/s', 'kg CH4 m-2 s-1'],
+#we produce g/m2/time    'DWDC': ['', 'kg C m-2'], #Unsure, check prior stages and actual units
+    'EET': ['kg/m2/s', 'kg m-2 s-1'], # Check that we actually achieve kg/m2/s
+    'GPP': ['kg/m2/s', 'kg C m-2 s-1'],
+    'GPPTOT': ['kg/m2/s', 'kg C m-2 s-1'],
+    'GPPMINUSNPP': ['kg/m2/s', 'kg C m-2 s-1'], # Multi-file composite variable
+    'LFTOTC': ['kg/m2/s', 'kg C m-2 s-1'], # Multi-file composite variable
+    'NETNMIN': ['kg/m2/s', 'kg N m-2 s-1'],
+    'NPP': ['kg/m2/s', 'kg C m-2 s-1'],
+    'NPPTOT': ['kg/m2/s', 'kg C m-2 s-1'],
+    'NUPTAKETOT': ['kg/m2/s', 'kg N m-2 s-1'], # Multi-file composite variable
+    'ORGN': ['kg/m2', 'kg N m-2'],
+    'RHSOM': ['kg/m2/s', 'kg C m-2 s-1'],
+    'RHSOMTOT': ['kg/m2/s', 'kg C m-2 s-1'],
+    'SOC': ['kg/m2', 'kg C m-2'],
+    'SOCTOT': ['kg/m2', 'kg C m-2'],
+    'SOC0_100cm': ['kg/m2', 'kg C m-2'],
+    'SOCBELOW1M': ['kg/m2', 'kg C m-2'], # Multi-file composite variable
+#    'SOILPOOLSSUMMED': ['kg/m2', 'kg C/m2'], # Multi-file composite variable
+    'SWE': ['kg/m2', 'kg m-2'],
+    'TLAYER': ['degree_K', 'K'],
+#    'TRANSPIRATION': ['', 'kg m-2 s-1'],
+    'VEGC': ['kg/m2', 'kg C m-2'],
+    'VEGCTOT': ['kg/m2', 'kg C m-2'],
+    'VEGNTOT': ['kg/m2', 'kg N m-2'],
+    'VWCLAYER': ['kg/m2', 'kg m-2'],
+    'VWCTOT': ['kg/m2', 'kg m-2'],
   }
 
   # Renaming our output files (and their variables) to fit WIEMIP reqs.
@@ -1085,18 +1040,14 @@ def visuals_production(
     print(f"Plotting {varname}")
 
     for directory in intermediate_dirs:
-      # SOC is a prefix of SOC0_100cm, so a general substring search would
-      # select both products. For these two variables, require the complete
-      # TEM variable name followed by the filename's underscore separator.
-      overlapping_soc_names = {'SOC', 'SOC0_100cm'}
+      # Ecosystem totals append TOT to their source variable names,
+      # creating intentional prefixes such as NPP/NPPTOT and SOC/SOCTOT. Match
+      # the full variable token followed by the filename separator to keep each
+      # product associated with its own plots.
       varname_matches = [
         path for path in directory.iterdir()
         if path.is_file()
-        and (
-          path.name.startswith(f"{varname}_")
-          if varname in overlapping_soc_names
-          else varname in path.name
-        )
+        and path.name.startswith(f"{varname}_")
       ]
 
       if len(varname_matches) == 0:
