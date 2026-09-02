@@ -144,10 +144,10 @@ Continuous integration can selectively download data based on test requirements:
 ls -la testing-data/*/
 
 # Download comprehensive data (for validation)
-./testing-data/scripts/download-test-data.sh comprehensive
+./testing-data/download-test-data.sh comprehensive
 
 # Clean downloaded data (keeps minimal/)
-./testing-data/scripts/download-test-data.sh clean
+./testing-data/download-test-data.sh clean
 
 # Check data sizes
 du -sh testing-data/*/
