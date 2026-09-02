@@ -66,7 +66,7 @@ function setup() {
   # Use --tags so that lightweight tags are found. Useful for local tagging
   # as well as making sure that images built during the release process are 
   # appropriately tagged.
-  GIT_VERSION=$(git describe --tags)
+  GIT_VERSION=$(git describe --tags --abbrev=6 --dirty --always)
 
   # This helps with sharing host folders to container. It is important that the
   # user in the container has the same uid/gid as the host user so that both
