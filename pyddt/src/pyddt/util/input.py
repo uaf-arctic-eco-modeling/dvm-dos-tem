@@ -3,6 +3,7 @@
 import os
 import errno
 import glob
+import pathlib
 import sys
 import netCDF4 as nc
 import numpy as np
@@ -40,6 +41,42 @@ class MissingInputFilesValueError(ValueError):
 class MustSupplyPixelCoordsError(ValueError):
   '''Raise when user must supply pixel coordinates(i.e. command line flag --yx)'''
 
+def summarize_metadata(in_folder: pathlib.Path) -> None:
+  '''
+  Prints out a summary of the metadata for the input files in the provided folder.
+
+  Parameters
+  ----------
+  in_folder : Path
+    A path to a folder of dvmdostem inputs.
+
+  Returns
+  -------
+  None
+  '''
+  filelist = glob.glob(os.path.join(in_folder, "*.nc"))
+  for f in filelist:
+    with nc.Dataset(f) as ds:
+      print(f"File: {f}")
+      print("Global attributes:")
+      for attr_name in ds.ncattrs():
+        value = getattr(ds, attr_name)
+        if len(value) > 40:
+          value = value[0:40] + "..."
+        print(f"  {attr_name}: {value}")
+      print(f"Variables: {ds.variables.keys()}")
+      for var_name in ds.variables.keys():
+        var = ds.variables[var_name]
+        print(f"  Variable: {var_name}  dims: {var.dimensions}  shape: {var.shape}  type: {var.datatype}")
+        print(f"    Attributes:")
+        for attr_name in var.ncattrs():
+          value = getattr(var, attr_name)
+          if len(str(value)) > 40:
+            value = str(value)[0:40] + "..."
+          print(f"      {attr_name}: {value}")
+
+    print("\n")
+  
 def check_input_set_existence(in_folder):
   '''
   Raises various exceptions if there are problems with the files in the in_folder.
@@ -600,6 +637,198 @@ def climate_ts_plot(args):
     print("Cmd line arg should be checked such that you can't arrive here.")
     exit(-1)
 
+def inspect_soil_texture_percents(args):
+  '''
+  Verify that pct_sand, pct_silt, and pct_clay sum to exactly 100 for every
+  cell in a soil-texture netCDF file.
+
+  Parameters
+  ----------
+  args : argparse.Namespace
+    Must contain file, the path to the netCDF file to inspect.
+  '''
+  filepath = args.file
+  if not os.path.isfile(filepath):
+    raise FileNotFoundError(f'Soil texture file not found: {filepath}')
+
+  required_vars = ['pct_sand', 'pct_silt', 'pct_clay']
+
+  with nc.Dataset(filepath, 'r') as ds:
+    missing = [v for v in required_vars if v not in ds.variables]
+    if missing:
+      print(f'Missing data field(s): {", ".join(missing)}')
+      return
+
+    sand = np.array(ds.variables['pct_sand'][:])
+    silt = np.array(ds.variables['pct_silt'][:])
+    clay = np.array(ds.variables['pct_clay'][:])
+
+  if sand.shape != silt.shape or sand.shape != clay.shape:
+    print('pct_sand, pct_silt, and pct_clay must have the same shape.')
+    return
+
+  total = sand + silt + clay
+  n_cells = total.size
+  n_fail = int(np.sum(total != 100))
+
+  if n_fail == 0:
+    print(f'All {n_cells} cells pass: pct_sand + pct_silt + pct_clay == 100.')
+  else:
+    print(f'{n_fail} of {n_cells} cells fail: pct_sand + pct_silt + pct_clay != 100.')
+
+def climate_inspect(args):
+  '''
+  Interactive image maps of the 4 climate variables with a timestep slider.
+  Clicking any pixel plots its full time series below the maps.
+
+  Uses xarray for data loading (handles cftime automatically) and
+  matplotlib widgets for interactivity.
+  '''
+
+  import copy
+  import datetime as dt
+  import matplotlib.pyplot as plt
+  import matplotlib.widgets as widgets
+  from matplotlib.gridspec import GridSpec
+  import xarray as xr
+
+  VARS = ['nirr', 'precip', 'tair', 'vapor_press']
+  COLORMAPS = {
+    'nirr':        'YlOrRd',
+    'tair':        'plasma',
+    'precip':      'Blues',
+    'vapor_press': 'YlGn',
+  }
+
+  filepath = os.path.join(args.input_folder, args.file)
+  if not os.path.isfile(filepath):
+    raise FileNotFoundError(f'Climate file not found: {filepath}')
+
+  ds = xr.open_dataset(filepath)
+  present_vars = [v for v in VARS if v in ds]
+  n_timesteps = len(ds.time)
+
+  # Convert cftime/numpy datetimes to plain datetime objects for the x-axis.
+  time_dts = [dt.datetime(int(t.dt.year), int(t.dt.month), int(t.dt.day))
+              for t in ds.time]
+
+  # Pre-compute global min/max per variable across all timesteps.
+  global_ranges = {
+    var: (float(ds[var].min()), float(ds[var].max()))
+    for var in present_vars
+  }
+
+  fig = plt.figure(figsize=(5 * len(present_vars), 10))
+  gs = GridSpec(2, len(present_vars), figure=fig,
+                bottom=0.18, top=0.93, wspace=0.4, hspace=0.55)
+  axes_images = [fig.add_subplot(gs[0, i]) for i in range(len(present_vars))]
+  ax_ts = fig.add_subplot(gs[1, :])
+
+  images = []
+  pixel_markers = []
+
+  for ax, var in zip(axes_images, present_vars):
+    data = ds[var].isel(time=0)
+    im = ax.imshow(data, animated=True, cmap=COLORMAPS[var])
+    im.set_clim(vmin=float(data.min()), vmax=float(data.max()))
+    cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    gmin, gmax = global_ranges[var]
+    cb.set_label(f'global min: {gmin:.4g}  |  max: {gmax:.4g}', fontsize=8)
+    ax.set_title(var)
+    images.append(im)
+    marker, = ax.plot([], [], 'w+', markersize=14, markeredgewidth=2, zorder=5)
+    pixel_markers.append(marker)
+
+  ts_line, = ax_ts.plot([], [], lw=1)
+  ts_vline = ax_ts.axvline(x=time_dts[0], color='k', linestyle='--', lw=1, zorder=5)
+  ax_ts.set_title('Click a pixel in any image to show its time series')
+  ax_ts.set_xlabel('time')
+  time_title = fig.suptitle(f'time={ds.time.values[0]}', y=0.98)
+
+  clicked = {'var': None, 'px': None, 'py': None}
+
+  def update_timeseries():
+    if clicked['var'] is None:
+      return
+    var = clicked['var']
+    px, py = clicked['px'], clicked['py']
+    ny, nx = ds[var].shape[1], ds[var].shape[2]
+    px = max(0, min(px, nx - 1))
+    py = max(0, min(py, ny - 1))
+    ts_data = ds[var].isel(y=py, x=px).values
+    ts_line.set_xdata(time_dts)
+    ts_line.set_ydata(ts_data)
+    ax_ts.relim()
+    ax_ts.autoscale_view()
+    u = ds[var].attrs.get('units', '')
+    ax_ts.set_ylabel(f'{var} ({u})' if u else var)
+    ax_ts.set_title(f'{var} at pixel (x={px}, y={py})')
+
+  def on_click(event):
+    if event.inaxes not in axes_images or event.xdata is None:
+      return
+    idx = axes_images.index(event.inaxes)
+    clicked['var'] = present_vars[idx]
+    clicked['px'] = int(round(event.xdata))
+    clicked['py'] = int(round(event.ydata))
+    for marker in pixel_markers:
+      marker.set_xdata([clicked['px']])
+      marker.set_ydata([clicked['py']])
+    update_timeseries()
+    fig.canvas.draw_idle()
+
+  fig.canvas.mpl_connect('button_press_event', on_click)
+
+  ax_slider = plt.axes([0.2, 0.10, 0.6, 0.03])
+  slider = widgets.Slider(ax_slider, 'Time', 0, n_timesteps - 1,
+                          valinit=0, valstep=1)
+
+  ax_textbox = plt.axes([0.2, 0.04, 0.1, 0.04])
+  textbox = widgets.TextBox(ax_textbox, 'Go to:', initial='0')
+
+  ax_prev = plt.axes([0.38, 0.04, 0.08, 0.04])
+  btn_prev = widgets.Button(ax_prev, '< Prev')
+
+  ax_next = plt.axes([0.48, 0.04, 0.08, 0.04])
+  btn_next = widgets.Button(ax_next, 'Next >')
+
+  def update(val):
+    t = int(slider.val)
+    for im, var in zip(images, present_vars):
+      data = ds[var].isel(time=t)
+      im.set_data(data)
+      im.set_clim(vmin=float(data.min()), vmax=float(data.max()))
+    time_title.set_text(f'time={ds.time.values[t]}')
+    textbox.set_val(str(t))
+    ts_vline.set_xdata([time_dts[t]])
+    fig.canvas.draw_idle()
+
+  def on_textbox_submit(text):
+    try:
+      t = max(0, min(int(text), n_timesteps - 1))
+      slider.set_val(t)
+    except ValueError:
+      pass
+
+  def on_prev(event):
+    slider.set_val(max(0, int(slider.val) - 1))
+
+  def on_next(event):
+    slider.set_val(min(n_timesteps - 1, int(slider.val) + 1))
+
+  slider.on_changed(update)
+  textbox.on_submit(on_textbox_submit)
+  btn_prev.on_clicked(on_prev)
+  btn_next.on_clicked(on_next)
+
+  if args.save:
+    fig.savefig(args.save, bbox_inches='tight')
+    print(f'Saved to {args.save}')
+
+  plt.show()
+  ds.close()
+
+
 
 def tunnel_fast(latvar,lonvar,lat0,lon0):
   '''
@@ -658,6 +887,10 @@ def cmdline_define():
 
   query_parser = subparsers.add_parser('query', help=textwrap.dedent('''\
     Query one or more dvmdostem inputs for various information.'''))
+  
+  query_parser.add_argument('--summarize-metadata', action='store_true',
+    help=textwrap.dedent('''Print out a summary of the metadata for the input files.'''))
+  
   query_parser.add_argument('--iyix-from-latlon', default=None, nargs=2, type=float,
       help="Find closest pixel to provided lat and lon arguments.")
 
@@ -712,6 +945,41 @@ def cmdline_define():
     '''))
   climate_gap_count_plot_parser.add_argument('input_folder', help="Path to a folder containing a set of dvmdostem inputs.")
 
+  inspect_parser = subparsers.add_parser('inspect',
+    help=textwrap.dedent('''Inspect dvmdostem input files interactively.
+      Use a sub-command to specify the type of input to inspect.
+    '''))
+  inspect_subparsers = inspect_parser.add_subparsers(
+    help='type of input to inspect', dest='inspect_command')
+
+  inspect_climate_parser = inspect_subparsers.add_parser('climate',
+    help=textwrap.dedent('''Interactive image maps of all 4 climate variables
+      with a timestep slider. Click any pixel to plot its full time series.
+    '''))
+  inspect_climate_parser.add_argument('input_folder',
+    help='Path to a folder containing a set of dvmdostem inputs.')
+  inspect_climate_parser.add_argument('--file',
+    default='crujra-downscaled-historic-climate.nc',
+    help='Climate file within input_folder to inspect '
+         '(default: crujra-downscaled-historic-climate.nc).')
+  inspect_climate_parser.add_argument('--save', nargs='?',
+    const='/tmp/input_inspect.png', metavar='FILE',
+    help='Save figure to FILE before showing '
+         '(default when flag given: /tmp/input_inspect.png).')
+
+  inspect_soil_texture_parser = inspect_subparsers.add_parser('soil-texture',
+    help=textwrap.dedent('''Inspect soil-texture input files.'''))
+  inspect_soil_texture_subparsers = inspect_soil_texture_parser.add_subparsers(
+    help='soil-texture inspection command', dest='soil_texture_command')
+
+  inspect_soil_texture_percents_parser = inspect_soil_texture_subparsers.add_parser(
+    'percents',
+    usage='%(prog)s --file FILE',
+    help=textwrap.dedent('''Verify pct_sand, pct_silt, and pct_clay sum to 100
+      for every cell in a soil-texture netCDF file (--file FILE).'''))
+  inspect_soil_texture_percents_parser.add_argument('--file', required=True,
+    help='Path to a soil-texture netCDF file.')
+
   return parser
 
 def cmdline_parse(argv=None):
@@ -734,7 +1002,21 @@ def cmdline_run(args):
   if args.command == 'climate-gap-plot':
     climate_gap_count_plot(args)
 
+  if args.command == 'inspect':
+    if args.inspect_command == 'climate':
+      climate_inspect(args)
+    elif args.inspect_command == 'soil-texture':
+      if args.soil_texture_command == 'percents':
+        inspect_soil_texture_percents(args)
+      elif args.soil_texture_command is None:
+        cmdline_define().parse_args(['inspect', 'soil-texture', '--help'])
+    elif args.inspect_command is None:
+      cmdline_define().parse_args(['inspect', '--help'])
+
   if args.command == 'query':
+    if args.summarize_metadata:
+      summarize_metadata(args.input_folder)
+
     if args.check_existence:
       check_input_set_existence(args.input_folder)
 
