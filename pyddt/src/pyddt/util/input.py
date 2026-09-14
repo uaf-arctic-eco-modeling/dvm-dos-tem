@@ -7,6 +7,7 @@ import pathlib
 import sys
 import netCDF4 as nc
 import numpy as np
+import xarray as xr
 from collections import Counter
 
 import argparse
@@ -76,7 +77,29 @@ def summarize_metadata(in_folder: pathlib.Path) -> None:
           print(f"      {attr_name}: {value}")
 
     print("\n")
-  
+
+def _get_time_axis_name(ds):
+  """Return 'time' or 'year' if the dataset has one of those axes, else None."""
+  return next((name for name in ("time", "year") if name in ds.coords or name in ds.dims), None)
+
+def report_time_axes(input_directory, pattern="*.nc"):
+    """Open every file matching `pattern` in `input_directory` and report
+    the start and end of its time axis, if it has one (accepts either a
+    "time" or "year" axis)."""
+    input_directory = pathlib.Path(input_directory)
+    for path in sorted(input_directory.glob(pattern)):
+        try:
+            with xr.open_dataset(path) as ds:
+                axis_name = _get_time_axis_name(ds)
+                if axis_name is not None:
+                    start = ds[axis_name].values.min()
+                    end = ds[axis_name].values.max()
+                    print(f"{path.name}: {axis_name} {start} -> {end}")
+                else:
+                    print(f"{path.name}: no time axis")
+        except Exception as e:
+            print(f"{path.name}: failed to open ({e})")
+
 def check_input_set_existence(in_folder):
   '''
   Raises various exceptions if there are problems with the files in the in_folder.
@@ -887,6 +910,9 @@ def cmdline_define():
 
   query_parser = subparsers.add_parser('query', help=textwrap.dedent('''\
     Query one or more dvmdostem inputs for various information.'''))
+
+  query_parser.add_argument('--report-time-coverage', action='store_true', 
+    help='''Query the folder and report in the time coverage of all the files''' )
   
   query_parser.add_argument('--summarize-metadata', action='store_true',
     help=textwrap.dedent('''Print out a summary of the metadata for the input files.'''))
@@ -1016,6 +1042,11 @@ def cmdline_run(args):
   if args.command == 'query':
     if args.summarize_metadata:
       summarize_metadata(args.input_folder)
+
+    if args.report_time_coverage:
+      print(f"====== TIME COVERAGE REPORT FOR {args.input_folder}")
+      report_time_axes(args.input_folder)
+      print()
 
     if args.check_existence:
       check_input_set_existence(args.input_folder)
