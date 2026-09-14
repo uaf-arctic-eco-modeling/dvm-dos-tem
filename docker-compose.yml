@@ -12,6 +12,15 @@
 #   $ docker compose up -d to start the containers
 #
 # Then you can run various programs inside the containers, see examples below.
+#
+# WARNING: If you have different copies of dvm-dos-tem on your machine (i.e.
+# as a submodule), you will almost certainly run into problems with the volume
+# mounts! The solution is to delete the volumes before bringing up the project!
+# e.g.:
+#
+#   $ docker compose down -v
+#   $ docker volume ls | awk 'NR>1{print $2}' | grep dvm-dos-tem | xargs docker volume rm
+#
 
 services:
   # Some general dev tools - not expected to be used directly
