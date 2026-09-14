@@ -887,6 +887,151 @@ def tunnel_fast(latvar,lonvar,lat0,lon0):
   iy_min,ix_min = np.unravel_index(minindex_1d, latvals.shape)
   return iy_min,ix_min
 
+def _matches(name, *keywords):
+    name = name.lower()
+    return all(k in name for k in keywords)
+
+
+def _year_month(t):
+    """Return (year, month) for a time value that may be a numpy datetime64
+    or a cftime object (e.g. cftime.DatetimeNoLeap)."""
+    if isinstance(t, np.datetime64):
+        t = pd.Timestamp(t)
+    return t.year, t.month
+
+
+def _chop_time_overlap(ds, cutoff):
+    """Return (ds_trunc, n_dropped) keeping only time steps strictly after `cutoff`."""
+    mask = ds["time"].values > cutoff
+    return ds.isel(time=mask), int((~mask).sum())
+
+
+def align_projected_to_historic(input_directory, output_directory, pattern="*.nc"):
+    """Classify files in `input_directory` as historic/projected climate,
+    fire, and co2 files (based on filename keywords) and write corrected
+    copies to `output_directory` so the historic/projected boundary is the
+    same for climate, fire, and co2 (the historic climate file's last time
+    step). Nothing is shifted/rolled:
+      - projected climate files: time steps at or before the historic
+        climate file's last time step are dropped
+      - historic fire file(s): must have a time axis identical to the
+        historic climate file's; raises a ValueError if it does not
+      - projected fire files: time steps at or before the historic climate
+        file's last time step are dropped (same rule as projected climate)
+      - historic co2 file(s): year axis truncated to end at the historic
+        climate file's last year. If the historic co2 record extends past
+        that year, the extra years are not dropped - they are moved into
+        the projected co2 file(s) instead (with a note added to the
+        `history` attribute), since the "projected" files would otherwise
+        be missing those years
+      - projected co2 files: any years at or before the historic climate
+        file's last year (or duplicated by the historic years moved in
+        above) are dropped, and the moved-in historic years are prepended
+
+    Raises a ValueError if no historic or no projected climate file is found.
+    """
+    input_directory = pathlib.Path(input_directory)
+    output_directory = pathlib.Path(output_directory)
+    output_directory.mkdir(parents=True, exist_ok=True)
+
+    files = sorted(input_directory.glob(pattern))
+    historic_climate_files = [p for p in files if _matches(p.name, "historic", "climate")]
+    projected_climate_files = [p for p in files if _matches(p.name, "projected", "climate")]
+    historic_fire_files = [p for p in files if _matches(p.name, "historic", "fire")]
+    projected_fire_files = [p for p in files if _matches(p.name, "projected", "fire")]
+    historic_co2_files = [p for p in files if _matches(p.name, "historic", "co2")]
+    projected_co2_files = [p for p in files if _matches(p.name, "projected", "co2")]
+
+    if not historic_climate_files:
+        raise ValueError(f"No historic climate file found in {input_directory}")
+    if not projected_climate_files:
+        raise ValueError(f"No projected climate file found in {input_directory}")
+
+    historic_ends = []
+    historic_climate_times = []
+    for p in historic_climate_files:
+        with xr.open_dataset(p) as ds:
+            historic_climate_times.append(ds["time"].values)
+            historic_ends.append(ds["time"].values.max())
+    historic_end = max(historic_ends)
+    historic_end_year, _ = _year_month(historic_end)
+    historic_climate_time = (
+        historic_climate_times[0] if len(historic_climate_times) == 1
+        else np.concatenate(historic_climate_times)
+    )
+
+    for p in projected_climate_files:
+        with xr.open_dataset(p) as ds:
+            ds = ds.load()
+        ds_trunc, n_dropped = _chop_time_overlap(ds, historic_end)
+        out_path = output_directory / p.name
+        ds_trunc.to_netcdf(out_path)
+        print(f"{p.name}: dropped {n_dropped} time steps overlapping the historic record -> {ds_trunc['time'].values.min()} .. {ds_trunc['time'].values.max()} ({out_path})")
+
+    for p in historic_fire_files:
+        with xr.open_dataset(p) as ds:
+            ds = ds.load()
+        fire_time = ds["time"].values
+        if fire_time.shape != historic_climate_time.shape or not np.array_equal(fire_time, historic_climate_time):
+            raise ValueError(
+                f"{p.name}: time axis does not match the historic climate file's time axis "
+                f"({fire_time.min()} -> {fire_time.max()} vs {historic_climate_time.min()} -> {historic_climate_time.max()})"
+            )
+        out_path = output_directory / p.name
+        ds.to_netcdf(out_path)
+        print(f"{p.name}: time axis matches historic climate -> {fire_time.min()} .. {fire_time.max()} ({out_path})")
+
+    for p in projected_fire_files:
+        with xr.open_dataset(p) as ds:
+            ds = ds.load()
+        ds_trunc, n_dropped = _chop_time_overlap(ds, historic_end)
+        out_path = output_directory / p.name
+        ds_trunc.to_netcdf(out_path)
+        print(f"{p.name}: dropped {n_dropped} time steps overlapping the historic record -> {ds_trunc['time'].values.min()} .. {ds_trunc['time'].values.max()} ({out_path})")
+
+    # Historic co2 years beyond the climate boundary aren't dropped - they get
+    # moved into the projected co2 file(s) below instead.
+    historic_extras = []
+    for p in historic_co2_files:
+        with xr.open_dataset(p) as ds:
+            ds = ds.load()
+        keep_mask = ds["year"].values <= historic_end_year
+        ds_keep = ds.isel(year=keep_mask)
+        ds_keep.attrs["history"] = (
+            ds_keep.attrs.get("history", "")
+            + f"; truncated to year <= {historic_end_year} to match the historic climate boundary;"
+              f" later years moved to the projected co2 file(s)"
+        ).strip("; ")
+        out_path = output_directory / p.name
+        ds_keep.to_netcdf(out_path)
+        print(f"{p.name}: truncated year axis to <= {historic_end_year} -> {ds_keep['year'].values.min()} .. {ds_keep['year'].values.max()} ({out_path})")
+        if (~keep_mask).any():
+            historic_extras.append(ds.isel(year=~keep_mask))
+
+    historic_extra = xr.concat(historic_extras, dim="year").sortby("year") if historic_extras else None
+    extra_years = historic_extra["year"].values.tolist() if historic_extra is not None else []
+
+    for p in projected_co2_files:
+        with xr.open_dataset(p) as ds:
+            ds = ds.load()
+        keep_mask = ds["year"].values > historic_end_year
+        if extra_years:
+            keep_mask &= ~np.isin(ds["year"].values, extra_years)
+        ds_own = ds.isel(year=keep_mask)
+        merged = xr.concat([historic_extra, ds_own], dim="year").sortby("year") if historic_extra is not None else ds_own
+        if extra_years:
+            merged.attrs["history"] = (
+                merged.attrs.get("history", "")
+                + f"; years {extra_years} sourced from the historic co2 record so the historic/projected"
+                  f" boundary matches the historic climate file (year {historic_end_year})"
+            ).strip("; ")
+        out_path = output_directory / p.name
+        merged.to_netcdf(out_path)
+        print(f"{p.name}: year axis now {merged['year'].values.min()} .. {merged['year'].values.max()} ({out_path})")
+
+    return output_directory
+
+
 
 def cmdline_define():
   '''Define the command line interface, return the parser object.'''
@@ -907,6 +1052,12 @@ def cmdline_define():
       epilog=textwrap.dedent(''''''),
   )
   subparsers = parser.add_subparsers(help='sub commands', dest='command')
+
+  fix_parser = subparsers.add_parser('fix', help='Fix issues in the dvmdostem input files.')
+
+  fix_parser.add_argument('--adjust-hist-proj-split', nargs=2,
+    help='Adjust the historic projected split in the dvmdostem input files.')
+
 
   query_parser = subparsers.add_parser('query', help=textwrap.dedent('''\
     Query one or more dvmdostem inputs for various information.'''))
@@ -1016,6 +1167,11 @@ def cmdline_parse(argv=None):
 def cmdline_run(args):
 
   print(args)
+
+  if args.command == 'fix':
+    #check_input_set_existence(args.adjust_hist_proj_split[0])
+    if args.adjust_hist_proj_split:
+      align_projected_to_historic(args.adjust_hist_proj_split[0], args.adjust_hist_proj_split[1])
 
   if args.command == 'crop':
     check_input_set_existence(args.input_folder)
