@@ -49,6 +49,14 @@ public:
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;
   std::vector<double> qrunoff_for_output;
+  std::vector<double> tk_liq_generated_for_output;
+  std::vector<double> tk_liq_storage_for_output;
+  std::vector<double> tk_liq_runoff_for_output;
+  std::vector<double> tk_liq_drainage_for_output;
+  std::vector<double> tk_liq_other_for_output;
+  std::vector<double> tk_subsidence_for_output;
+  std::vector<double> tk_front_for_output;
+  std::vector<double> tk_front_type_for_output;
   std::vector<double> rainfall_for_output;
   std::vector<double> reco_for_output;
   std::vector<double> rhdwd_for_output;

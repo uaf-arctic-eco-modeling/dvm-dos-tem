@@ -534,11 +534,31 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // Treat it as an additional surface-water input so the existing ponding,
   // infiltration, and runoff closure decides where it goes. Consume it once.
   double thermokarst_melt = 0.0;
+  double thermokarst_generated = 0.0;
   if(ground->thermokarst.enabled) {
     thermokarst_melt = ground->thermokarst.pending_runoff;
     ground->thermokarst.pending_runoff = 0.0;
+    thermokarst_generated = ground->thermokarst.pending_generated;
+    ground->thermokarst.pending_generated = 0.0;
   }
   melt  = ed->d_snw2soi.melt + thermokarst_melt; // mm/day
+
+  // Diagnostic-only source-water tracer. Excess-ice melt already present in
+  // soil liquid plus its routed surface component is mixed with all mobile
+  // water. Retained tracer mass remains storage when it later refreezes.
+  double liquid_before = ed->d_soi2l.magic_puddle + rnth + melt;
+  for(Layer* l=ground->fstsoill;l && l->isSoil;l=l->nextl)
+    liquid_before += std::max(0.,l->liq);
+  using TK = ThermokarstState;
+  double tracer_available = 0.;
+  double tracer_fraction = 0.;
+  if(ground->thermokarst.enabled) {
+    tracer_available = std::max(0.,ground->thermokarst.value[TK::TRACER_STORAGE]
+                                   +thermokarst_generated);
+    const double mobile_tracer = std::min(tracer_available,
+                                           std::max(0.,liquid_before));
+    if(liquid_before>0.) tracer_fraction=mobile_tracer/liquid_before;
+  }
 
   //Calculate surface runoff
   ed->d_soi2l.qover  = 0.0;
@@ -684,6 +704,36 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // Richards and surface storage can change saturation after the pre-runoff
   // estimate. Publish the final water table on the settled geometry.
   ed->d_sois.watertab = getWaterTable(ground->lstsoill);
+
+  if(ground->thermokarst.enabled) {
+    double liquid_after=ed->d_soi2l.magic_puddle;
+    for(Layer* l=ground->fstsoill;l && l->isSoil;l=l->nextl)
+      liquid_after+=std::max(0.,l->liq);
+    const double runoff_loss=std::max(0.,ed->d_soi2l.qover);
+    const double drainage_loss=std::max(0.,ed->d_soi2l.qdrain);
+    const double gross_loss=std::max(0.,liquid_before-liquid_after);
+    const double other_loss=std::max(0.,gross_loss-runoff_loss-drainage_loss);
+    double tracer_runoff=std::min(tracer_available,runoff_loss*tracer_fraction);
+    double remaining=tracer_available-tracer_runoff;
+    double tracer_drainage=std::min(remaining,drainage_loss*tracer_fraction);
+    remaining-=tracer_drainage;
+    double tracer_other=std::min(remaining,other_loss*tracer_fraction);
+    remaining-=tracer_other;
+    ground->thermokarst.value[TK::TRACER_RUNOFF]+=tracer_runoff;
+    ground->thermokarst.value[TK::TRACER_DRAINAGE]+=tracer_drainage;
+    ground->thermokarst.value[TK::TRACER_OTHER]+=tracer_other;
+    ground->thermokarst.value[TK::TRACER_STORAGE]=std::max(0.,remaining);
+    ed->d_tk_liq_generated=thermokarst_generated;
+    ed->d_tk_liq_storage=ground->thermokarst.value[TK::TRACER_STORAGE];
+    ed->d_tk_liq_runoff=tracer_runoff;
+    ed->d_tk_liq_drainage=tracer_drainage;
+    ed->d_tk_liq_other=tracer_other;
+    ed->d_tk_subsidence=ground->thermokarst.value[TK::SUBSIDENCE];
+    if(!ground->frontsz.empty()) {
+      ed->d_tk_front=ground->frontsz.front();
+      ed->d_tk_front_type=ground->frontstype.front();
+    }
+  }
 }
 
 
@@ -1395,4 +1445,3 @@ double  Soil_Env::updateLayerTemp5Lat(Layer* currl, const double & infil) {
 
   return extraliq;
 };
-

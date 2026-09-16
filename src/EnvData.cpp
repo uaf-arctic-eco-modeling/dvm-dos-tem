@@ -350,6 +350,14 @@ void EnvData::grnd_beginOfDay() {
   // need to set some diagnostic variables to zero
   d_snw2soi.melt =0.;
   d_soi2a.evap_pet = 0.0;
+  d_tk_liq_generated = 0.;
+  d_tk_liq_storage = 0.;
+  d_tk_liq_runoff = 0.;
+  d_tk_liq_drainage = 0.;
+  d_tk_liq_other = 0.;
+  d_tk_subsidence = 0.;
+  d_tk_front = MISSING_D;
+  d_tk_front_type = MISSING_D;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
     d_soid.fbtran[il] = 0.0;
@@ -703,6 +711,14 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   daily_qdrain[dom] = d_soi2l.qdrain;
   daily_qinfl[dom] = d_soi2l.qinfl;
   daily_qover[dom] = d_soi2l.qover;
+  daily_tk_liq_generated[dom] = d_tk_liq_generated;
+  daily_tk_liq_storage[dom] = d_tk_liq_storage;
+  daily_tk_liq_runoff[dom] = d_tk_liq_runoff;
+  daily_tk_liq_drainage[dom] = d_tk_liq_drainage;
+  daily_tk_liq_other[dom] = d_tk_liq_other;
+  daily_tk_subsidence[dom] = d_tk_subsidence;
+  daily_tk_front[dom] = d_tk_front;
+  daily_tk_front_type[dom] = d_tk_front_type;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
     daily_layer_drain[dom][il] = d_soi2l.layer_drain[il];

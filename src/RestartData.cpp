@@ -496,13 +496,13 @@ void RestartData::verify_logical_values(){
 
   check_bounds("dsr", dsr);
   check_bounds("firea2sorgn", firea2sorgn);
-  if(TKversion < 0 || TKversion > 1) {
+  if(TKversion < 0 || TKversion > 2) {
     BOOST_LOG_SEV(glg, warn) << "unsupported TKversion: " << TKversion;
   }
   if(TKactive != 0 && TKactive != 1) {
     BOOST_LOG_SEV(glg, warn) << "TKactive is not logical: " << TKactive;
   }
-  if(TKversion == 1) {
+  if(TKversion >= 1) {
     check_bounds("TKpuddle", TKpuddle);
     for(int ii=0; ii<ThermokarstState::COUNT; ++ii)
       check_bounds("TKstate", TKstate[ii]);

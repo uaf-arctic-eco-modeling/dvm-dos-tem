@@ -121,9 +121,28 @@ public:
   double daily_qover[31];
   double daily_frontsdepth[31][MAX_NUM_FNT];
   int daily_frontstype[31][MAX_NUM_FNT];
+  double daily_tk_liq_generated[31];
+  double daily_tk_liq_storage[31];
+  double daily_tk_liq_runoff[31];
+  double daily_tk_liq_drainage[31];
+  double daily_tk_liq_other[31];
+  double daily_tk_subsidence[31];
+  double daily_tk_front[31];
+  double daily_tk_front_type[31];
   double daily_tlayer[31][MAX_SOI_LAY];
   double daily_root_water_uptake[31][MAX_SOI_LAY];
   double daily_percolation[31][MAX_SOI_LAY];
+
+  // Thermokarst source-water tracer. Fluxes are daily increments; storage,
+  // subsidence, and front fields are end-of-day states.
+  double d_tk_liq_generated;
+  double d_tk_liq_storage;
+  double d_tk_liq_runoff;
+  double d_tk_liq_drainage;
+  double d_tk_liq_other;
+  double d_tk_subsidence;
+  double d_tk_front;
+  double d_tk_front_type;
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterion for permafrost

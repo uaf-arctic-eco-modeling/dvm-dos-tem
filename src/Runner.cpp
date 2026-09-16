@@ -4316,6 +4316,41 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   }//end QRUNOFF 
   map_itr = netcdf_outputs.end();
 
+  // Thermokarst diagnostics are buffered for a full no-leap year, matching
+  // the existing daily drainage/runoff output convention.
+  #pragma omp critical(outputTHERMOKARSTDIAGNOSTICS)
+  {
+    auto output_tk_daily = [&](const std::string& name,
+                               std::vector<double>& buffer,
+                               const double* values) {
+      auto tk_itr=netcdf_outputs.find(name);
+      if(tk_itr==netcdf_outputs.end()) return;
+      OutputSpec tk_spec=tk_itr->second;
+      for(int id=0;id<DINM[month];++id) buffer.push_back(values[id]);
+      if(end_of_year) {
+        output_nc_3dim(&tk_spec,file_stage_suffix,&buffer[0],1,
+                       day_timestep,DINY);
+        buffer.clear();
+      }
+    };
+    output_tk_daily("TKLIQGEN",outhold.tk_liq_generated_for_output,
+                    cohort.edall->daily_tk_liq_generated);
+    output_tk_daily("TKLIQSTORAGE",outhold.tk_liq_storage_for_output,
+                    cohort.edall->daily_tk_liq_storage);
+    output_tk_daily("TKLIQRUNOFF",outhold.tk_liq_runoff_for_output,
+                    cohort.edall->daily_tk_liq_runoff);
+    output_tk_daily("TKLIQDRAINAGE",outhold.tk_liq_drainage_for_output,
+                    cohort.edall->daily_tk_liq_drainage);
+    output_tk_daily("TKLIQOTHER",outhold.tk_liq_other_for_output,
+                    cohort.edall->daily_tk_liq_other);
+    output_tk_daily("TKSUBSIDENCE",outhold.tk_subsidence_for_output,
+                    cohort.edall->daily_tk_subsidence);
+    output_tk_daily("TKFRONT",outhold.tk_front_for_output,
+                    cohort.edall->daily_tk_front);
+    output_tk_daily("TKFRONTTYPE",outhold.tk_front_type_for_output,
+                    cohort.edall->daily_tk_front_type);
+  }
+
 
   //RAINFALL
   map_itr = netcdf_outputs.find("RAINFALL");
@@ -6837,5 +6872,4 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 }
-
 

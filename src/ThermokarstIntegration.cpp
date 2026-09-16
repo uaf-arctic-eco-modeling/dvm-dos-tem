@@ -81,9 +81,18 @@ void advance(Ground& g,double top,double seconds) {
   // historical routed total must not also be seeded into Column::budget().
   c.runoff_mass=0.;c.runoff_energy=0.;
   c.boundary_energy=s.value[S::BOUNDARY_ENERGY];c.pond_capacity=0.;
+  double excess_before=0.;
+  for(const auto& cell:c.cells) if(cell.material!=thermokarst::SNOW_MATERIAL &&
+                                    cell.material!=thermokarst::ROCK_MATERIAL)
+    excess_before+=cell.excess;
   const auto before=c.budget();const double flux0=c.boundary_energy;
   c.reconcile_phase();c.advance(seconds,top);
   const auto after=c.budget();
+  double excess_after=0.;
+  for(const auto& cell:c.cells) if(cell.material!=thermokarst::SNOW_MATERIAL &&
+                                    cell.material!=thermokarst::ROCK_MATERIAL)
+    excess_after+=cell.excess;
+  const double generated=std::max(0.,excess_before-excess_after);
   const double water_error=after.water-before.water;
   const double energy_error=after.energy-before.energy-(c.boundary_energy-flux0);
   if(std::abs(water_error)>1e-7 || std::abs(energy_error)>1e-3)
@@ -108,6 +117,7 @@ void advance(Ground& g,double top,double seconds) {
     }
   }
   s.pending_runoff+=c.runoff_mass;
+  s.pending_generated+=generated;
   s.value[S::ELEVATION]=c.surface;s.value[S::SUBSIDENCE]=c.subsidence;
   s.value[S::SURFACE_MASS]=c.surface_mass;s.value[S::SURFACE_ENERGY]=c.surface_energy;
   s.value[S::EXPORTED_WATER]+=c.runoff_mass;
@@ -115,6 +125,7 @@ void advance(Ground& g,double top,double seconds) {
   s.value[S::HYDROLOGY_ENERGY]+=c.runoff_energy;
   s.value[S::BOUNDARY_ENERGY]=c.boundary_energy;
   s.value[S::WATER_RESIDUAL]=water_error;s.value[S::ENERGY_RESIDUAL]=energy_error;
+  s.value[S::GENERATED_WATER]+=generated;
   g.resortGroundLayers();g.updateSoilHorizons();rebuild_fronts(g,top<0.);
 }
 }

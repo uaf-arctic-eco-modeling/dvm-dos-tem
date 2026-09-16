@@ -33,7 +33,7 @@ void create_restart_shell(const std::string& path, bool with_thermokarst) {
 }
 
 void fill(RestartData& data) {
-  data.TKversion=1;
+  data.TKversion=2;
   data.TKactive=1;
   data.TKpuddle=4.25;
   for(int i=0;i<ThermokarstState::COUNT;++i)

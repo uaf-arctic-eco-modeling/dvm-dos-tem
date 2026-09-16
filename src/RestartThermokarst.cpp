@@ -4,6 +4,7 @@
 #include "../include/errorcode.h"
 
 #include <netcdf.h>
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -83,6 +84,13 @@ void read_netcdf_fields(RestartData& data, const char* filename, int row,
   const size_t start3[] = {point[0], point[1], 0};
   size_t count3[] = {1, 1, ThermokarstState::COUNT};
   nc_ok(nc_inq_varid(ncid, "TKstate", &variable), "find TKstate");
+  int state_dims[3]={-1,-1,-1};
+  size_t stored_state_count=0;
+  nc_ok(nc_inq_vardimid(ncid,variable,state_dims),"find TKstate dimensions");
+  nc_ok(nc_inq_dimlen(ncid,state_dims[2],&stored_state_count),
+        "read thermokarst_state length");
+  count3[2]=std::min(stored_state_count,
+                     static_cast<size_t>(ThermokarstState::COUNT));
   nc_ok(nc_get_vara_double(ncid, variable, start3, count3, data.TKstate),
         "read TKstate");
   count3[2] = MAX_SOI_LAY;
