@@ -58,7 +58,12 @@ bundle*
 # Reproducible thermokarst experiment outputs
 /build/thermokarst/
 /build/deps/
+/build/cache/
+/build/matplotlib-cache/
+/build/matplotlib-clean/
 /experiments/thermokarst/results/
 /experiments/thermokarst/production_validation_results/
+/experiments/thermokarst/active_thaw_validation_results/
+/experiments/thermokarst/thaw_tuning/
 
 /.venv-thermokarst/

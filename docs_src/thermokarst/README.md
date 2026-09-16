@@ -57,6 +57,19 @@ Results go to `experiments/thermokarst/results/` (ignored by Git). Override with
 integration check, or programmatic figure-boundary check fails. It stores source
 CSV data, test results, JSON metrics, PNG/SVG figures, and restart snapshots.
 
+Production restart validations are available as separate targets:
+
+```sh
+make thermokarst-production-validation
+make thermokarst-active-thaw-validation
+```
+
+The active-thaw test places a restart inside ongoing excess-ice melt under an
+explicitly one-year-periodic forcing. It compares subsidence, collapse water,
+conservation residuals, fronts, root remapping, and settled geometry. See
+[active-thaw-validation-report.md](active-thaw-validation-report.md) for the
+full configuration, results, figures, and limitations.
+
 Run a custom constant-temperature experiment:
 
 ```sh

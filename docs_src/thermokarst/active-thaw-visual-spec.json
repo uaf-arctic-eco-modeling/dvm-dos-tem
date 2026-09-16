@@ -1,0 +1,26 @@
+{
+  "claim": "Continuous and midpoint-restarted production TEM runs are identical during active excess-ice collapse.",
+  "source": "Production restart NetCDF fields from one Toolik grid cell.",
+  "forms": [
+    "paired time series",
+    "paired profile",
+    "ordered layer profile"
+  ],
+  "series_order": [
+    "frozen seed",
+    "continuous",
+    "restarted"
+  ],
+  "palette": {
+    "continuous": "#8D8D88",
+    "restarted": "#1F6F5F",
+    "seed": "#B6B6B0"
+  },
+  "target_width_in": 7.0,
+  "minimum_text_pt": 8.0,
+  "uncertainty": "None; deterministic single-cell integration test.",
+  "outputs": [
+    "PNG at 240 dpi",
+    "SVG vector"
+  ]
+}

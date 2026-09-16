@@ -1,0 +1,30 @@
+{
+  "forcing": {
+    "cold_seed_air_temperature_C": -20.0,
+    "warm_air_temperature_C": 5.0,
+    "warm_forcing_period_years": 1,
+    "precipitation": 0.0,
+    "net_radiation": 0.0
+  },
+  "initial_excess_ice_kg_m2": 183.39999999999998,
+  "midpoint_excess_ice_kg_m2": 178.42527499999997,
+  "final_excess_ice_kg_m2": 83.59178709487112,
+  "midpoint_subsidence_m": 0.0054249999999999915,
+  "final_subsidence_m": 0.10884210785728328,
+  "midpoint_collapse_meltwater_kg_m2": 4.9747250000000065,
+  "final_collapse_meltwater_kg_m2": 99.80821290512885,
+  "direct_thermal_overflow_kg_m2": 0.0,
+  "final_water_residual_kg_m2": 3.410605131648481e-11,
+  "final_enthalpy_residual_J_m2": -1.0728836059570312e-06,
+  "final_thaw_front_depth_m": 0.7336593829119012,
+  "maximum_root_fraction_difference": 0.0,
+  "maximum_layer_thickness_difference_m": 0.0,
+  "maximum_geometry_identity_error_m": 6.938893903907228e-18,
+  "bytewise_identical": true,
+  "active_pixel_variables_exact": true,
+  "fronts_exact": true,
+  "continuous_sha256": "100114896135c535b710b2c956978e4782333db0ff0d76bb6ac3094455d46985",
+  "resumed_sha256": "100114896135c535b710b2c956978e4782333db0ff0d76bb6ac3094455d46985",
+  "checks_passed": 14,
+  "checks_total": 14
+}

@@ -5,18 +5,34 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
+import warnings
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[2]
+MATPLOTLIB_CACHE = ROOT / "build/matplotlib-cache"
+MATPLOTLIB_CACHE.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(MATPLOTLIB_CACHE))
+original_path = os.environ.get("PATH", "")
+if sys.platform == "darwin":
+    os.environ["PATH"] = os.pathsep.join(
+        item for item in original_path.split(os.pathsep)
+        if item not in ("/usr/sbin", "/sbin"))
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+os.environ["PATH"] = original_path
+
+warnings.filterwarnings(
+    "ignore", message="Setting the shape on a NumPy array has been deprecated",
+    category=DeprecationWarning)
 
 
 def parse_json_with_comments(path):
@@ -274,7 +290,8 @@ def main():
     (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
 
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 9,
-                         "axes.spines.top": False, "axes.spines.right": False})
+                         "axes.spines.top": False, "axes.spines.right": False,
+                         "svg.fonttype": "none"})
     green, gray, black = "#1F6F5F", "#777777", "#111111"
     depth = np.cumsum(old["DZsoil"]) - old["DZsoil"] / 2
     fig, axes = plt.subplots(1, 3, figsize=(8.2, 3.4), layout="constrained")
