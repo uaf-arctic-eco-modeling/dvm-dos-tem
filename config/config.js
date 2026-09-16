@@ -126,7 +126,15 @@
     "cell_timelimit": 0, //Run time limit per cell in seconds. 0 for no limit.
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
-    "baseline_end": 1931     //end year for baseline EQ climate
+    "baseline_end": 1931,     //end year for baseline EQ climate
+    // Experimental production thermokarst path. Keep disabled for legacy runs.
+    // excess_fraction is excess-ice volume / expanded frozen-layer volume.
+    "thermokarst": {
+      "enabled": false,
+      "excess_fraction": 0.20,
+      "top_depth": 0.50,
+      "bottom_depth": 2.00
+    }
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
 //    //"fire_severity_as_input": 0,    // fire sev. as input or ??

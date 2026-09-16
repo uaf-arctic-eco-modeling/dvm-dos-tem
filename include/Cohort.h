@@ -63,6 +63,7 @@ public :
   // domain
   Vegetation veg;
   Ground ground;
+  void synchronizeThermokarstGeometry();
   
   // new domain
   Climate climate;

@@ -2,6 +2,15 @@
  *
  */
 #include "../include/SoilLayer.h"
+#include "../include/Thermokarst.h"
+
+namespace {
+thermokarst::Cell tkcell(const SoilLayer& l) {
+  thermokarst::Cell c; c.matrix=l.matrix_dz; c.porosity=l.matrix_porosity;
+  c.excess=l.excess_ice; c.ice=l.ice; c.water=l.liq;
+  c.solid_heat=l.vhcsolid; c.solid_k=l.tcsolid; return c;
+}
+}
 
 #include "../include/TEMLogger.h"
 extern src::severity_logger< severity_level > glg;
@@ -16,23 +25,27 @@ SoilLayer::~SoilLayer() {
 };
 
 double SoilLayer::getFrzVolHeatCapa() {
+  if(matrix_dz>0.) return tkcell(*this).capacity()/dz;
   double vhc = vhcsolid * (1-poro) + (liq+ice)/dz *SHCICE;
   return vhc;
 };
 
 double SoilLayer::getUnfVolHeatCapa() {
+  if(matrix_dz>0.) return tkcell(*this).capacity()/dz;
   double vhc= vhcsolid * (1-poro) + (liq+ice)/dz *SHCLIQ;
   return vhc;
 };
 
 //Yuan: unfrozen/frozen put together
 double SoilLayer::getMixVolHeatCapa() {
+  if(matrix_dz>0.) return tkcell(*this).capacity()/dz;
   double vhc = vhcsolid * (1-poro) + liq/dz *SHCLIQ+ice/dz *SHCICE;
   return vhc;
 };
 
 // get frozen layer thermal conductivity
 double SoilLayer::getFrzThermCond() {
+  if(matrix_dz>0.) return tkcell(*this).conductivity();
   double tc;
   double vice = getVolIce();
   double vliq = getVolLiq();
@@ -51,6 +64,7 @@ double SoilLayer::getFrzThermCond() {
 
 // get unfrozen layer thermal conductivity
 double SoilLayer::getUnfThermCond() {
+  if(matrix_dz>0.) return tkcell(*this).conductivity();
   double tc;
   double vice = getVolIce();
   double vliq = getVolLiq();
@@ -123,6 +137,7 @@ double SoilLayer::getAlbedoNir() {
 // derive properties from the assigned property
 // called when porosity/thickness is changed
 void SoilLayer::derivePhysicalProperty() {
+  if(matrix_dz>0.) poro=matrix_porosity*matrix_dz/dz;
   //hydraulic properties
   minliq = 0.05*poro * DENLIQ * dz;
   maxliq = poro * DENLIQ * dz;

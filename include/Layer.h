@@ -41,6 +41,11 @@ public:
   int indl;      ///< layer index, start from 1
   int solind;    ///< soil layer index, start from 1
   double age;    ///< age of a layer (year)
+  // Active only in the opt-in production thermokarst pathway.
+  double matrix_dz = 0.;
+  double matrix_porosity = 0.;
+  double excess_ice = 0.; // kg/m2, distinct from pore ice
+
   double dz;     ///< thickness of layer (unit : \f$ m \f$)
   double z;      ///< distance to the ground surface:
   // + means below surface, for soil layer

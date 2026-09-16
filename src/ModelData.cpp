@@ -1,3 +1,4 @@
+#include <cmath>
 #include <exception>
 #include <json/value.h>
 #include <boost/filesystem.hpp>
@@ -30,6 +31,15 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   BOOST_LOG_SEV(glg, debug) << "Creating a ModelData. New style constructor with injected controldata...";
 
+  const Json::Value tk=controldata["model_settings"]["thermokarst"];
+  thermokarst_enabled=tk.get("enabled",false).asBool();
+  thermokarst_fraction=tk.get("excess_fraction",0.).asDouble();
+  thermokarst_top=tk.get("top_depth",0.5).asDouble();
+  thermokarst_bottom=tk.get("bottom_depth",2.).asDouble();
+  if (!std::isfinite(thermokarst_fraction) || thermokarst_fraction<0. || thermokarst_fraction>=0.8 ||
+      !std::isfinite(thermokarst_top) || thermokarst_top<0. ||
+      !std::isfinite(thermokarst_bottom) || thermokarst_bottom<=thermokarst_top)
+    throw std::invalid_argument("invalid thermokarst ice profile");
   //General config settings
   run_name = controldata["general"]["output_global_attributes"]["run_name"].asString();
   run_description = controldata["general"]["output_global_attributes"]["description"].asString();

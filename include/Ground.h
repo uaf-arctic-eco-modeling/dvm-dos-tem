@@ -16,6 +16,7 @@ using namespace std;
 #include "SoilParent.h"
 
 #include "Layer.h"
+#include "ThermokarstState.h"
 #include "MossLayer.h"
 #include "SnowLayer.h"
 #include "MineralLayer.h"
@@ -35,6 +36,7 @@ using namespace std;
 class Ground: public DoubleLinkedList {
 
 public :
+  ThermokarstState thermokarst;
   Ground();
   Ground(MineralInfo mi);
 
@@ -105,6 +107,7 @@ public :
   void set_state_from_restartdata(snwstate_dim *snowdim, soistate_dim *soildim,
                              const RestartData & rdata);
   void resortGroundLayers();
+  void updateSoilHorizons();
 
   // snow layers
   bool constructSnowLayers(const double & dsmass, const double & tdrv);
@@ -164,7 +167,7 @@ private :
   void updateLayerIndex();
   void updateLayerZ();
 
-  void updateSoilHorizons();
+
 
   void redivideMossLayers(const int &mosstype);
   void redivideShlwLayers();

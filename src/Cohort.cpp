@@ -1,3 +1,4 @@
+#include "../include/ThermokarstIntegration.h"
   /*
  *  Cohort.cpp
  *
@@ -298,6 +299,11 @@ void Cohort::initialize_state_parameters() {
 
   // initializing soil bgc state conditions
   soilbgc.initializeState();
+  if(md->thermokarst_enabled) {
+    tem_thermokarst::initialize(ground,md->thermokarst_fraction,
+                              md->thermokarst_top,md->thermokarst_bottom);
+    synchronizeThermokarstGeometry();
+  }
 
   //integrating the individual 'bd' initial conditions into
   //  'bdall' initial conditions, if veg involved
@@ -367,6 +373,8 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
 
+  if(ground.thermokarst.enabled && (md->get_dslmodule() || md->get_dsbmodule()))
+    throw std::invalid_argument("thermokarst currently requires dsl=false and dsb=false; material layer IDs must remain stable");
   //
   if(currmind==0) {
     cd.beginOfYear();
@@ -627,7 +635,16 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 
     //snow-soil temperature, including snow-melting and
     //  soil water phase changing
+    if(ground.thermokarst.enabled) {
+      for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
+        int j=l->solind-1;
+        l->rawc=bdall->m_sois.rawc[j];l->soma=bdall->m_sois.soma[j];
+        l->sompr=bdall->m_sois.sompr[j];l->somcr=bdall->m_sois.somcr[j];
+        l->orgn=bdall->m_sois.orgn[j];l->avln=bdall->m_sois.avln[j];
+      }
+    }
     soilenv.updateDailyGroundT(tdrv, daylength);
+    if(ground.thermokarst.enabled) synchronizeThermokarstGeometry();
     //snow water/thickness changing - must be done after 'T' because of melting
     snowenv.updateDailyM(tdrv);
     //Capture daily snow water equivalent and thickness for NetCDF output
@@ -922,6 +939,36 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
   assignSoilBd2pfts_monthly();
   BOOST_LOG_SEV(glg, debug) << "END of updateMonthly_DIMgrd((midx=" << currmind << "):" << ground.layer_report_string("depth CN desc");
 
+}
+
+// Layer IDs are material labels in the thermokarst pathway. Monthly environmental
+// sums remain attached to those labels as thickness changes; they must not be
+// reinterpreted as fixed-elevation samples or reset after a settlement event.
+void Cohort::synchronizeThermokarstGeometry() {
+  ground.retrieveSoilDimension(&cd.m_soil);
+  getSoilFineRootFrac_Monthly();
+  cd.d_soil=cd.m_soil;
+  ground.setDrainL();
+  // Root extraction weights must follow the new geometry before Richards runs.
+  for(int ip=0;ip<NUM_PFT;++ip) {
+    if(cd.m_veg.vegcov[ip]>0. && cd.m_veg.nonvascular[ip]<=0) {
+      double roots[MAX_SOI_LAY];
+      for(int j=0;j<MAX_SOI_LAY;++j) roots[j]=cd.m_soil.frootfrac[j][ip];
+      ed[ip].d_vegd.btran = soilenv.getSoilTransFactor(
+          ed[ip].d_soid.r_e_ij,ground.fstsoill,roots);
+    }
+  }
+  // Repeat CLM3 Eq. 7.82 on the settled geometry. The daily aggregate is
+  // transpiration weighted, rather than a vegetation-cover mean.
+  for(int j=0;j<MAX_SOI_LAY;++j) {
+    double numerator=0.0, denominator=0.0;
+    for(int ip=0;ip<NUM_PFT;++ip) if(cd.m_veg.vegcov[ip]>0.) {
+      const double weight=ed[ip].d_v2a.tran*cd.d_veg.fpc[ip];
+      numerator+=ed[ip].d_soid.r_e_ij[j]*weight;
+      denominator+=weight;
+    }
+    edall->d_soid.r_e_i[j]=denominator>0.?numerator/denominator:0.;
+  }
 }
 
 /** Adjusting fine root fraction in soil */
@@ -1357,6 +1404,7 @@ void Cohort::set_state_from_restartdata() {
   solprntenv.set_state_from_restartdata(this->restartdata);
   soilbgc.set_state_from_restartdata(this->restartdata);
   fire.set_state_from_restartdata(this->restartdata);
+
 
   for(int ii=0; ii<NUM_PFT; ii++){
     vegbgc[ii].set_state_from_restartdata(this->restartdata);

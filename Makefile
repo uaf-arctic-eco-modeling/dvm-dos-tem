@@ -35,6 +35,8 @@ APPNAME=dvmdostem
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
+		src/Thermokarst.o \
+		src/ThermokarstIntegration.o \
 		src/TEMLogger.o \
 		src/CalController.o \
 		src/ArgHandler.o \
@@ -80,7 +82,9 @@ SOURCES= 	src/TEM.o \
 		src/SnowLayer.o \
 		src/SoilLayer.o
 
-OBJECTS =	ArgHandler.o \
+OBJECTS =	Thermokarst.o \
+		ThermokarstIntegration.o \
+		ArgHandler.o \
 		TEMLogger.o \
 		CalController.o \
 		TEMUtilityFunctions.o \

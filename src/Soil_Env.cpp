@@ -1,3 +1,4 @@
+#include "../include/ThermokarstIntegration.h"
 /*
  * Soil_Env.cpp
  *
@@ -255,6 +256,16 @@ void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
     updateDailySurfFlux(ground->toplayer, dayl);
     ed->d_snw2a.swrefl = 0.0;
     ed->d_snw2a.sublim = 0.0;
+  }
+
+  if (ground->thermokarst.enabled) {
+    tem_thermokarst::advance(*ground, tsurface, SEC_IN_DAY);
+    ground->retrieveSoilDimension(&cd->m_soil);
+    cd->d_soil=cd->m_soil;
+    updateDailySoilThermal4Growth(ground->fstsoill,tsurface);
+    updateLayerStateAfterThermal(ground->fstsoill,ground->lstsoill,ground->botlayer);
+    retrieveDailyFronts();
+    return; // the legacy Stefan/TemperatureUpdator solve must not run as well
   }
 
   // solution for snow-soil column thermal process
@@ -519,7 +530,15 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   rnth  = (ed->d_v2g.rthfl + ed->d_v2g.rdrip) +
           (1.0 - cd->m_vegd.fpcsum) * ed->d_a2l.rnfl;
 
-  melt  = ed->d_snw2soi.melt; // mm/day
+  // The thermal solve routes liquid released by excess-ice collapse here.
+  // Treat it as an additional surface-water input so the existing ponding,
+  // infiltration, and runoff closure decides where it goes. Consume it once.
+  double thermokarst_melt = 0.0;
+  if(ground->thermokarst.enabled) {
+    thermokarst_melt = ground->thermokarst.pending_runoff;
+    ground->thermokarst.pending_runoff = 0.0;
+  }
+  melt  = ed->d_snw2soi.melt + thermokarst_melt; // mm/day
 
   //Calculate surface runoff
   ed->d_soi2l.qover  = 0.0;
@@ -596,7 +615,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
 
   //Soil water dynamics at daily time step
 
-  for (int i=0; i<MAX_SOI_LAY+1; i++) {
+  for (int i=0; i<MAX_SOI_LAY; i++) {
     root_water_up[i] /= SEC_IN_DAY; // mm/day to mm/s
   }
 
@@ -662,6 +681,9 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   if(ed->d_soi2l.qdrain < 0){
    BOOST_LOG_SEV(glg, warn) << "qdrain is negative!";
   };
+  // Richards and surface storage can change saturation after the pre-runoff
+  // estimate. Publish the final water table on the settled geometry.
+  ed->d_sois.watertab = getWaterTable(ground->lstsoill);
 }
 
 
@@ -1373,5 +1395,4 @@ double  Soil_Env::updateLayerTemp5Lat(Layer* currl, const double & infil) {
 
   return extraliq;
 };
-
 

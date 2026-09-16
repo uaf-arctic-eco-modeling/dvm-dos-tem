@@ -35,6 +35,11 @@ public:
 
   string loop_order; // time-major or space-major
 
+  bool thermokarst_enabled = false;
+  double thermokarst_fraction = 0.;
+  double thermokarst_top = 0.5;
+  double thermokarst_bottom = 2.;
+
   int force_cmt; // used to override the veg map (calibration mode only)
 
   int eq_yrs;
