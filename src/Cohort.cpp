@@ -299,7 +299,10 @@ void Cohort::initialize_state_parameters() {
 
   // initializing soil bgc state conditions
   soilbgc.initializeState();
-  if(md->thermokarst_enabled) {
+  // A versioned restart supplies its own thermokarst state after the generic
+  // cohort initialization. Do not construct a fresh excess-ice profile from
+  // the new run's first climate value before that state is loaded.
+  if(md->thermokarst_enabled && md->restart_from.empty()) {
     tem_thermokarst::initialize(ground,md->thermokarst_fraction,
                               md->thermokarst_top,md->thermokarst_bottom);
     synchronizeThermokarstGeometry();
