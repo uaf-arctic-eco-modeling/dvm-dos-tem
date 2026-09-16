@@ -2,6 +2,7 @@
 
 **Date:** 2026-09-16
 **Repository:** `/Users/EJafarov/projects/TEM_abrupt_thaw_dev`
+**Base revision:** `7e12fdeb92853bc7940051a1295eeeb5414c4c96`
 **Branch:** `feature/thermokarst-prototype`
 
 ## Executive summary
