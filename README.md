@@ -120,3 +120,12 @@ information about the testing and CI, see the [Testing and Deployment](https://u
 > system. There is still info scattered across this README, the wiki, a Google
 > Doc and the Sphinx system but we are working on consolidating the info into 
 > primarily the Sphinx system (the User Guide).
+
+## Experimental thermokarst mechanism
+
+A standalone C++ reference column, opt-in production integration, and reproducible
+verification figures are available in
+[docs_src/thermokarst/README.md](docs_src/thermokarst/README.md). Run
+`make thermokarst-test` to build and test it. The production path uses one enthalpy
+phase-change solve and synchronizes settled geometry, roots, fronts, drainage,
+monthly accumulation, and versioned NetCDF restart state.

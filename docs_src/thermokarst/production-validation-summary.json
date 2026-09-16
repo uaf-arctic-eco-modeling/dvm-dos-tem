@@ -1,0 +1,27 @@
+{
+  "zero_excess": {
+    "temperature_rmse_C": 1.2234145511167065,
+    "temperature_max_abs_C": 1.8761696422447098,
+    "total_soil_water_relative_difference": 0.018306489751420144,
+    "layer_thickness_max_abs_m": 0.0,
+    "subsidence_m": 0.0,
+    "remaining_excess_ice_kg_m2": 0.0,
+    "frozen_state_exact": true
+  },
+  "restart_equivalence": {
+    "bytewise_identical": true,
+    "active_pixel_variables_exact": true,
+    "continuous_sha256": "565d93c4dd191a9f8345da7f7192577249a32ea3869c3c394087f380051ac1ff",
+    "resumed_sha256": "565d93c4dd191a9f8345da7f7192577249a32ea3869c3c394087f380051ac1ff",
+    "initial_excess_ice_kg_m2": 183.39999999999998,
+    "final_excess_ice_kg_m2": 183.39999999999998,
+    "final_subsidence_m": 0.0,
+    "maximum_geometry_identity_error_m": 6.938893903907228e-18,
+    "final_water_residual_kg_m2": 1.6552803572267294e-10,
+    "final_energy_residual_J_m2": -9.238719940185547e-06,
+    "maximum_final_soil_temperature_C": -18.990966136472647,
+    "final_frozen_state_all_one": true
+  },
+  "checks_passed": 17,
+  "checks_total": 17
+}

@@ -158,8 +158,11 @@ clean:
 
 
 # Dependency-light, experimental thermokarst column (not the production driver).
-.PHONY: thermokarst thermokarst-test
+.PHONY: thermokarst thermokarst-test thermokarst-production-validation
 thermokarst:
 	$(MAKE) -C tests/thermokarst all
 thermokarst-test:
 	$(MAKE) -C tests/thermokarst test
+
+thermokarst-production-validation:
+	.venv-thermokarst/bin/python experiments/thermokarst/production_validation.py --binary ./dvmdostem

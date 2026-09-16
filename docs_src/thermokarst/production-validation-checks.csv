@@ -1,0 +1,18 @@
+group,test,observed,criterion,status
+zero-excess,production runs complete,100/100,both status=100,PASS
+zero-excess,layer geometry unchanged,0.0,<=1e-12 m,PASS
+zero-excess,no subsidence,0.0,<=1e-12 m,PASS
+zero-excess,no excess ice,0.0,<=1e-12 kg m-2,PASS
+zero-excess,frozen classifications agree,True,exact,PASS
+zero-excess,temperature profile RMSE,1.2234145511167065,<=2 C,PASS
+zero-excess,maximum temperature difference,1.8761696422447098,<=2.5 C,PASS
+zero-excess,total soil water difference,0.018306489751420144,<=2%,PASS
+restart,all production runs complete,100/100/100/100,all status=100,PASS
+restart,NetCDF files bytewise identical,True,exact,PASS
+restart,active-pixel restart fields identical,True,exact,PASS
+restart,excess-ice inventory preserved,0.0,<=1e-12 kg m-2,PASS
+restart,no cold-column subsidence,0.0,<=1e-12 m,PASS
+restart,geometry identity,6.938893903907228e-18,<=1e-12 m,PASS
+restart,water budget residual,1.6552803572267294e-10,<=1e-7 kg m-2,PASS
+restart,energy budget residual,9.238719940185547e-06,<=1e-3 J m-2,PASS
+restart,column remains frozen,-18.990966136472647,<0 C and all frozen flags=1,PASS
