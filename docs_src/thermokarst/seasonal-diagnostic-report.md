@@ -74,3 +74,9 @@ From `/Users/EJafarov/projects/TEM_abrupt_thaw_dev`, with the Python environment
 ```
 
 Generated run products are ignored through `.gitignore`; the harness and generated figures remain source-controlled artifacts.
+
+## Interpretation and next steps
+
+This validation confirms that the diagnostic variables for liquid generation, storage, routing, subsidence, and thaw front positioning correctly capture the seasonal cycle of thermokarst dynamics. Importantly, these high-resolution daily variables were successfully plumbed into the existing TEM NetCDF output infrastructure without interfering with the internal state or causing divergences in the restart path. 
+
+The next step is to evaluate these processes within a broader ecological context by enabling the biogeochemical (BGC) components. Integrating thermokarst phase change and subsidence with soil organic matter decomposition and dynamic vegetation processes will allow us to assess abrupt thaw feedbacks on the carbon cycle and overall ecosystem stability.
