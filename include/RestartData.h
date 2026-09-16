@@ -10,6 +10,7 @@
 #include "errorcode.h"
 #include "cohortconst.h"
 #include "layerconst.h"
+#include "ThermokarstState.h"
 
 class RestartData {
 public :
@@ -47,6 +48,13 @@ public :
   void write_px_rock_vars(const std::string& fname, const int rowidx, const int colidx);
   void write_px_front_vars(const std::string& fname, const int rowidx, const int colidx);
   void write_px_prev_pft_vars(const std::string& fname, const int rowidx, const int colidx);
+
+  // Versioned extension. Files without these fields are read as inactive
+  // version-0 thermokarst restarts.
+  void read_px_thermokarst_vars(const std::string& fname, const int rowidx,
+                                const int colidx);
+  void write_px_thermokarst_vars(const std::string& fname, const int rowidx,
+                                 const int colidx);
 
   static void create_empty_file(const std::string& fname, const int ysize, const int xsize);
 
@@ -142,6 +150,14 @@ public :
   // previous 12-month litterfall (root death) input C/N ratios in each
   // soil layer for adjusting 'kd'
   double prvltrfcnA[12][MAX_SOI_LAY];
+
+  int TKversion;
+  int TKactive;
+  double TKstate[ThermokarstState::COUNT];
+  double TKpuddle;
+  double TKmatrix[MAX_SOI_LAY];
+  double TKporosity[MAX_SOI_LAY];
+  double TKexcess[MAX_SOI_LAY];
 
 
 };

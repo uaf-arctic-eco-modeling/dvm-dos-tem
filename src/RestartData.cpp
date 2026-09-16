@@ -23,6 +23,7 @@
 #endif
 
 #include "../include/RestartData.h"
+#include "../include/RestartThermokarst.h"
 #include "../include/TEMUtilityFunctions.h"
 
 #include "../include/TEMLogger.h"
@@ -40,7 +41,7 @@ RestartData::~RestartData() {
 MPI_Datatype RestartData::register_mpi_datatype() {
 
   // create types for all the dimensions in the RestartData object...
-  const int elems_in_restartdata = 63;
+  const int elems_in_restartdata = 70;
   int counts[elems_in_restartdata] = {
     1, // int dsr;
     1, // double firea2sorgn;
@@ -123,7 +124,14 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     
     MAX_SOI_LAY, // double avln[MAX_SOI_LAY];
     
-    12 * MAX_SOI_LAY // double prvltrfcnA[12][MAX_SOI_LAY];   //previous 12-month litterfall (root death) input C/N ratios in each soil layer for adjusting 'kd'
+    12 * MAX_SOI_LAY,
+    1,
+    1,
+    ThermokarstState::COUNT,
+    1,
+    MAX_SOI_LAY,
+    MAX_SOI_LAY,
+    MAX_SOI_LAY
   };
   MPI_Datatype old_types[elems_in_restartdata] = {
     MPI_INT, // int dsr;
@@ -188,7 +196,14 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     MPI_DOUBLE, // double wdebrisn;
     MPI_DOUBLE, // double orgn[MAX_SOI_LAY];
     MPI_DOUBLE, // double avln[MAX_SOI_LAY];
-    MPI_DOUBLE // double prvltrfcnA[12][MAX_SOI_LAY];
+    MPI_DOUBLE,
+    MPI_INT,
+    MPI_INT,
+    MPI_DOUBLE,
+    MPI_DOUBLE,
+    MPI_DOUBLE,
+    MPI_DOUBLE,
+    MPI_DOUBLE
   };
   MPI_Aint displacements[elems_in_restartdata] = {
     offsetof(RestartData, dsr),
@@ -253,7 +268,14 @@ MPI_Datatype RestartData::register_mpi_datatype() {
     offsetof(RestartData, wdebrisn),
     offsetof(RestartData, orgn),
     offsetof(RestartData, avln),
-    offsetof(RestartData, prvltrfcnA)
+    offsetof(RestartData, prvltrfcnA),
+    offsetof(RestartData, TKversion),
+    offsetof(RestartData, TKactive),
+    offsetof(RestartData, TKstate),
+    offsetof(RestartData, TKpuddle),
+    offsetof(RestartData, TKmatrix),
+    offsetof(RestartData, TKporosity),
+    offsetof(RestartData, TKexcess)
   };
   
   MPI_Datatype CUSTMPI_t_RestartData;
@@ -269,6 +291,15 @@ MPI_Datatype RestartData::register_mpi_datatype() {
 #endif
 
 void RestartData::reinitValue() {
+  TKversion = 0;
+  TKactive = 0;
+  TKpuddle = 0.;
+  for (int i = 0; i < ThermokarstState::COUNT; ++i) TKstate[i] = 0.;
+  for (int i = 0; i < MAX_SOI_LAY; ++i) {
+    TKmatrix[i] = 0.;
+    TKporosity[i] = 0.;
+    TKexcess[i] = 0.;
+  }
   // atmosphere
   dsr         = MISSING_I;
   firea2sorgn = MISSING_D;
@@ -405,6 +436,8 @@ void RestartData::update_from_ncfile(const std::string& fname, const int rowidx,
 
   read_px_prev_pft_vars(fname, rowidx, colidx);
 
+  read_px_thermokarst_vars(fname, rowidx, colidx);
+
   BOOST_LOG_SEV(glg, debug) << "Done reading data from file into RestartData.";
 }
 
@@ -436,6 +469,8 @@ void RestartData::write_pixel_to_ncfile(const std::string& fname, const int rowi
 
   write_px_prev_pft_vars(fname, rowidx, colidx);
 
+  write_px_thermokarst_vars(fname, rowidx, colidx);
+
   BOOST_LOG_SEV(glg, debug) << "Done writing RestartData.";
 
 }
@@ -461,6 +496,22 @@ void RestartData::verify_logical_values(){
 
   check_bounds("dsr", dsr);
   check_bounds("firea2sorgn", firea2sorgn);
+  if(TKversion < 0 || TKversion > 1) {
+    BOOST_LOG_SEV(glg, warn) << "unsupported TKversion: " << TKversion;
+  }
+  if(TKactive != 0 && TKactive != 1) {
+    BOOST_LOG_SEV(glg, warn) << "TKactive is not logical: " << TKactive;
+  }
+  if(TKversion == 1) {
+    check_bounds("TKpuddle", TKpuddle);
+    for(int ii=0; ii<ThermokarstState::COUNT; ++ii)
+      check_bounds("TKstate", TKstate[ii]);
+    for(int ii=0; ii<MAX_SOI_LAY; ++ii) {
+      check_bounds("TKmatrix", TKmatrix[ii]);
+      check_bounds("TKporosity", TKporosity[ii]);
+      check_bounds("TKexcess", TKexcess[ii]);
+    }
+  }
   check_bounds("yrsdist", yrsdist);
   for(int ii=0; ii<NUM_PFT; ii++){
     check_bounds("ifwoody", ifwoody[ii]);
@@ -991,6 +1042,8 @@ void RestartData::create_empty_file(const std::string& fname,
   temutil::nc( nc_def_dim(ncid, "fronts", 10, &frontsD) );
   temutil::nc( nc_def_dim(ncid, "prevten", 10, &prevtenD) );
   temutil::nc( nc_def_dim(ncid, "prevtwelve", 12, &prevtwelveD) );
+
+  restart_thermokarst::define_netcdf_fields(ncid, yD, xD, soillayerD);
 
 //  BOOST_LOG_SEV(glg, monitor) << " NUM_PFT = " << NUM_PFT ;
 //  BOOST_LOG_SEV(glg, monitor) << " NUM_PFT_PART = " << NUM_PFT_PART ;
@@ -1829,5 +1882,3 @@ void RestartData::restartdata_to_log(){
 
   BOOST_LOG_SEV(glg, debug) << "***** END RESTARTDATA *****";
 }
-
-

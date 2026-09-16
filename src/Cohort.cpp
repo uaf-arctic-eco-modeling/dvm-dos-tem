@@ -1404,6 +1404,28 @@ void Cohort::set_state_from_restartdata() {
   solprntenv.set_state_from_restartdata(this->restartdata);
   soilbgc.set_state_from_restartdata(this->restartdata);
   fire.set_state_from_restartdata(this->restartdata);
+  if(restartdata.TKversion>1)
+    throw std::invalid_argument("unsupported thermokarst restart version");
+  if(restartdata.TKversion==1) {
+    if(!md->thermokarst_enabled && restartdata.TKactive)
+      throw std::invalid_argument("thermokarst restart cannot be loaded with the module disabled");
+    ground.thermokarst.enabled=restartdata.TKactive!=0;
+    std::copy(restartdata.TKstate,restartdata.TKstate+ThermokarstState::COUNT,ground.thermokarst.value);
+    ground.thermokarst.pending_runoff=0.;
+    if(ground.thermokarst.enabled) for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl) {
+      int j=l->solind-1;l->matrix_dz=restartdata.TKmatrix[j];
+      l->matrix_porosity=restartdata.TKporosity[j];l->excess_ice=restartdata.TKexcess[j];
+      if(l->matrix_dz<=0. || std::abs(l->dz-l->matrix_dz-l->excess_ice/DENICE)>1e-9)
+        throw std::invalid_argument("inconsistent thermokarst restart geometry");
+      static_cast<SoilLayer*>(l)->derivePhysicalProperty();
+    }
+  } else if(md->thermokarst_enabled) {
+    tem_thermokarst::initialize(ground,md->thermokarst_fraction,md->thermokarst_top,md->thermokarst_bottom);
+  }
+  if(ground.thermokarst.enabled) {
+    edall->d_soi2l.magic_puddle=restartdata.TKpuddle;
+    synchronizeThermokarstGeometry();
+  }
 
 
   for(int ii=0; ii<NUM_PFT; ii++){
@@ -1525,6 +1547,15 @@ void Cohort::set_restartdata_from_state() {
     restartdata.ICEsnow[il] = edall->d_snws.snwice[il];
   }
 
+  restartdata.TKversion=1;
+  restartdata.TKactive=ground.thermokarst.enabled?1:0;
+  std::copy(ground.thermokarst.value,ground.thermokarst.value+ThermokarstState::COUNT,restartdata.TKstate);
+  restartdata.TKpuddle=ground.thermokarst.enabled?edall->d_soi2l.magic_puddle:0.;
+  for(int j=0;j<MAX_SOI_LAY;++j) restartdata.TKmatrix[j]=restartdata.TKporosity[j]=restartdata.TKexcess[j]=0.;
+  for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl) {
+    int j=l->solind-1;restartdata.TKmatrix[j]=l->matrix_dz;
+    restartdata.TKporosity[j]=l->matrix_porosity;restartdata.TKexcess[j]=l->excess_ice;
+  }
   // ground-soil
   restartdata.numsl  = cd.d_soil.numsl;     // actual number of soil layers
   restartdata.monthsfrozen   = edall->monthsfrozen;
