@@ -150,3 +150,10 @@ CFLAGS += -DGIT_SHA=\"$(GIT_SHA)\"
 clean:
 	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
 
+
+# Dependency-light, experimental thermokarst column (not the production driver).
+.PHONY: thermokarst thermokarst-test
+thermokarst:
+	$(MAKE) -C tests/thermokarst all
+thermokarst-test:
+	$(MAKE) -C tests/thermokarst test

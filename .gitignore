@@ -54,3 +54,11 @@ Debug/*
 bundle*
 
 .dvc/*
+
+# Reproducible thermokarst experiment outputs
+/build/thermokarst/
+/build/deps/
+/experiments/thermokarst/results/
+/experiments/thermokarst/production_validation_results/
+
+/.venv-thermokarst/

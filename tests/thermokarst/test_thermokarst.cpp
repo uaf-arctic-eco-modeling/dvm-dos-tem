@@ -1,0 +1,317 @@
+#include "../../include/Thermokarst.h"
+#include "../../include/physicalconst.h"
+#include <algorithm>
+#include <cmath>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+using namespace thermokarst;
+void check(bool ok, const char *msg) {
+  if (!ok)
+    throw std::runtime_error(msg);
+}
+void near(double a, double b, double tol = 1e-9) {
+  if (!std::isfinite(a) || !std::isfinite(b) ||
+      std::abs(a - b) >
+          tol * std::max(1., std::max(std::abs(a), std::abs(b)))) {
+    std::ostringstream s;
+    s << "expected " << b << ", got " << a;
+    throw std::runtime_error(s.str());
+  }
+}
+void rejects(const std::function<void()> &f) {
+  bool threw = false;
+  try {
+    f();
+  } catch (const std::invalid_argument &) {
+    threw = true;
+  }
+  check(threw, "invalid input accepted");
+}
+Column fixture(double x = 0.2, double t = 0.) {
+  Column c;
+  Cell a;
+  a.matrix = .5;
+  a.porosity = .5;
+  a.ice = .5 * .5 * DENICE;
+  a.excess = x * DENICE;
+  a.pools = {{10., 20., 30., 40., 5., 2.}};
+  a.set_temperature(t);
+  c.cells.push_back(a);
+  c.validate();
+  return c;
+}
+void conserved(const Budget &a, const Budget &b, double energy = 0.) {
+  near(a.water, b.water);
+  near(a.energy + energy, b.energy, 1e-8);
+  near(a.matrix, b.matrix);
+  for (unsigned i = 0; i < 6; ++i)
+    near(a.pools[i], b.pools[i]);
+}
+int main(int argc, char **argv) {
+  std::ofstream results(argc > 1 ? argv[1] : "test_results.csv");
+  if (!results) {
+    std::cerr << "Cannot open results file\n";
+    return 2;
+  }
+  results << "test,status\n";
+  int pass = 0, fail = 0;
+  auto run = [&](const char *name, const std::function<void()> &fn) {
+    try {
+      fn();
+      ++pass;
+      results << name << ",PASS\n";
+      std::cout << "PASS " << name << '\n';
+    } catch (const std::exception &e) {
+      ++fail;
+      results << name << ",FAIL\n";
+      std::cerr << "FAIL " << name << ": " << e.what() << '\n';
+    }
+  };
+  run("no_heat_no_change", [] {
+    auto c = fixture(.2, -2.);
+    auto b = c.budget();
+    c.add_energy({0.});
+    conserved(b, c.budget());
+    near(c.subsidence, 0.);
+  });
+  run("zero_excess_no_subsidence", [] {
+    auto c = fixture(0.);
+    c.add_energy({1e8});
+    near(c.subsidence, 0.);
+    near(c.surface, 0.);
+  });
+  run("sensible_heat_before_melt", [] {
+    auto c = fixture(.2, -2.);
+    double e = c.cells[0].capacity();
+    c.add_energy({e});
+    near(c.cells[0].temperature(), -1.);
+    near(c.subsidence, 0.);
+  });
+  run("pore_ice_melts_first", [] {
+    auto c = fixture();
+    double e = .5 * c.cells[0].ice * LHFUS;
+    c.add_energy({e});
+    near(c.cells[0].water, e / LHFUS);
+    near(c.subsidence, 0.);
+  });
+  run("partial_excess_analytical", [] {
+    auto c = fixture();
+    auto b = c.budget();
+    double e = (c.cells[0].ice + .05 * DENICE) * LHFUS;
+    c.add_energy({e});
+    near(c.subsidence, .05);
+    near(c.cells[0].excess, .15 * DENICE);
+    conserved(b, c.budget(), e);
+  });
+  run("complete_collapse_fixed_base", [] {
+    auto c = fixture();
+    double base = c.surface - c.depth();
+    auto b = c.budget();
+    double e = c.cells[0].mass() * LHFUS;
+    c.add_energy({e});
+    near(c.subsidence, .2);
+    near(c.cells[0].thickness(), .5);
+    near(c.surface - c.depth(), base);
+    conserved(b, c.budget(), e);
+  });
+  run("melt_energy_exactly_once", [] {
+    auto c = fixture();
+    double m = c.cells[0].mass();
+    c.add_energy({m * LHFUS});
+    near(c.cells[0].temperature(), 0.);
+    near(c.boundary_energy, m * LHFUS);
+  });
+  run("closed_overflow_retained", [] {
+    auto c = fixture();
+    double m = c.cells[0].mass();
+    c.add_energy({m * LHFUS});
+    near(c.surface_mass, m - 250.);
+    near(c.runoff_mass, 0.);
+    near(c.cells[0].water, 250.);
+  });
+  run("drained_water_and_energy", [] {
+    auto c = fixture();
+    c.pond_capacity = 0.;
+    auto b = c.budget();
+    double e = c.cells[0].mass() * LHFUS + 1e6;
+    c.add_energy({e});
+    check(c.runoff_mass > 0., "no runoff");
+    near(c.surface_mass, 0.);
+    conserved(b, c.budget(), e);
+  });
+  run("finite_pond_capacity", [] {
+    auto c = fixture();
+    c.pond_capacity = 10.;
+    double m = c.cells[0].mass();
+    c.add_energy({m * LHFUS});
+    near(c.surface_mass, 10.);
+    near(c.runoff_mass, m - 260.);
+  });
+  run("refreeze_no_heave_or_excess_creation", [] {
+    auto c = fixture();
+    auto b = c.budget();
+    double e = c.cells[0].mass() * LHFUS;
+    c.add_energy({e});
+    c.add_energy({-c.cells[0].enthalpy - 1e6});
+    near(c.subsidence, .2);
+    near(c.cells[0].excess, 0.);
+    check(c.cells[0].temperature() < 0., "not frozen");
+    conserved(b, c.budget(), c.boundary_energy);
+  });
+  run("frozen_overflow_is_not_runoff", [] {
+    auto c = fixture();
+    c.pond_capacity = 0.;
+    c.add_energy({c.cells[0].mass() * LHFUS});
+    double runoff = c.runoff_mass;
+    auto b = c.budget();
+    double e = -c.cells[0].enthalpy - 1e6;
+    c.add_energy({e});
+    near(c.runoff_mass, runoff);
+    check(c.surface_mass > 0., "missing surface ice");
+    check(c.surface_energy < 0., "surface ice should be cold");
+    conserved(b, c.budget(), e);
+  });
+  run("conservative_split_and_merge", [] {
+    auto c = fixture(.2, -2.);
+    auto b = c.budget();
+    c.regrid({.1, .2, .4});
+    conserved(b, c.budget());
+    c.regrid({.7});
+    conserved(b, c.budget());
+    near(c.cells[0].temperature(), -2.);
+    near(c.subsidence, 0.);
+  });
+  run("heterogeneous_frozen_enthalpy_remap", [] {
+    auto c = fixture(.2, -2.);
+    Cell d = c.cells[0];
+    d.matrix = .3;
+    d.porosity = .3;
+    d.ice = 40.;
+    d.excess = 0.;
+    d.solid_heat = 3e6;
+    d.set_temperature(-8.);
+    c.cells.push_back(d);
+    auto b = c.budget();
+    c.regrid({1.});
+    conserved(b, c.budget());
+    check(c.cells[0].temperature() < -2. && c.cells[0].temperature() > -8.,
+          "temperature outside donors");
+  });
+  run("all_six_pools_survive_repeated_regrid", [] {
+    auto c = fixture(.2, -2.);
+    auto b = c.budget();
+    for (int i = 0; i < 100; ++i) {
+      c.regrid({.1, .2, .4});
+      c.regrid({.7});
+    }
+    conserved(b, c.budget());
+  });
+  run("material_boundary_rejected_atomically", [] {
+    auto c = fixture();
+    Cell d = c.cells[0];
+    d.material = 1;
+    c.cells.push_back(d);
+    auto b = c.budget();
+    rejects([&] { c.regrid({1.4}); });
+    conserved(b, c.budget());
+    check(c.cells.size() == 2, "changed after failed remap");
+  });
+  run("phase_boundary_not_smeared", [] {
+    auto c = fixture(.2, -2.);
+    Cell d = c.cells[0];
+    d.excess = 0.;
+    d.ice = 0.;
+    d.water = 100.;
+    d.set_temperature(5.);
+    c.cells.push_back(d);
+    rejects([&] { c.regrid({1.2}); });
+  });
+  run("invalid_grid_and_nan_rejected", [] {
+    auto c = fixture();
+    rejects([&] { c.regrid({.8}); });
+    rejects([&] { c.regrid({0., .7}); });
+    rejects([&] { c.add_energy({std::numeric_limits<double>::quiet_NaN()}); });
+    rejects([&] { c.advance(-1., 2.); });
+  });
+  run("invalid_initial_state_rejected", [] {
+    auto c = fixture();
+    c.cells[0].porosity = 1.;
+    rejects([&] { c.validate(); });
+    c = fixture();
+    c.cells[0].water = 1000.;
+    rejects([&] { c.validate(); });
+  });
+  run("adaptive_split_layer_limit", [] {
+    auto c = fixture(.2, -2.);
+    auto b = c.budget();
+    c.split_thick(.11);
+    check(c.cells.size() == 7, "wrong split count");
+    for (auto &x : c.cells)
+      check(x.thickness() <= .11, "thick cell");
+    conserved(b, c.budget());
+  });
+  run("isothermal_conduction_equilibrium", [] {
+    auto c = fixture(.2, -2.);
+    c.split_thick(.1);
+    auto b = c.budget();
+    c.advance(86400., -2.);
+    conserved(b, c.budget());
+    near(c.subsidence, 0.);
+  });
+  run("conduction_boundary_budget", [] {
+    auto c = fixture(.2, -2.);
+    c.split_thick(.1);
+    auto b = c.budget();
+    c.advance(30. * 86400., 10., .05);
+    conserved(b, c.budget(), c.boundary_energy);
+    check(c.boundary_energy > 0., "no warming");
+  });
+  run("restart_roundtrip_all_fields", [] {
+    auto c = fixture();
+    c.pond_capacity = 5.;
+    c.add_energy({c.cells[0].mass() * LHFUS});
+    c.elapsed = 123.;
+    std::stringstream s;
+    c.write_restart(s);
+    auto d = Column::read_restart(s);
+    std::stringstream t, u;
+    c.write_restart(t);
+    d.write_restart(u);
+    check(t.str() == u.str(), "restart differs");
+  });
+  run("restart_continuation", [] {
+    auto c = fixture(.2, -2.);
+    c.split_thick(.1);
+    c.advance(10. * 86400., 8.);
+    std::stringstream s;
+    c.write_restart(s);
+    auto d = Column::read_restart(s);
+    c.advance(20. * 86400., 8.);
+    d.advance(20. * 86400., 8.);
+    std::stringstream a, b;
+    c.write_restart(a);
+    d.write_restart(b);
+    check(a.str() == b.str(), "continuation differs");
+  });
+  run("malformed_restart_rejected", [] {
+    std::stringstream a("TEM_THERMOKARST 99\n");
+    rejects([&] { Column::read_restart(a); });
+    std::stringstream b("TEM_THERMOKARST 1\n1\n");
+    rejects([&] { Column::read_restart(b); });
+  });
+  run("heat_pulse_timestep_independence", [] {
+    auto a = fixture(), b = a;
+    const double e = (a.cells[0].ice + .1 * DENICE) * LHFUS;
+    a.add_energy({e});
+    for (int i = 0; i < 100; ++i)
+      b.add_energy({e / 100.});
+    near(a.subsidence, b.subsidence);
+    conserved(a.budget(), b.budget());
+  });
+  std::cout << pass << " passed, " << fail << " failed\n";
+  return fail ? 1 : 0;
+}
