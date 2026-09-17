@@ -1,0 +1,11 @@
+test,observed,criterion,status
+synthetic extensive conservation,0.0,<=1e-12 relative,PASS
+prescribed matrix geometry,0.0,<=1e-15 m,PASS
+production completion,"{'initialization': [100, 100], 'continuous': [100, 100], 'split-first': [100, 100], 'resumed': [100, 100]}",all cells status 100,PASS
+production topology change,"[(19, 18), (20, 19)]",layer count or matrix thickness changes,PASS
+restart topology geometry,0.0,<=1e-12,PASS
+restart phase state,0.0005351106320148347,<=1e-3 in native units,PASS
+restart front state,1.2507460598332187e-06,<=5e-4 m,PASS
+restart thermokarst accumulators,7.008516837876672e-06,<=2e-5 relative,PASS
+restart ecosystem C/N inventory,0.0003990749119489875,<=5e-4 relative,PASS
+restart trajectory equivalence,0.0001515804045837399,<=5e-4 (front tolerance),PASS

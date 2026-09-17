@@ -15,14 +15,16 @@ Stefan/TemperatureUpdator path for that day. The adapter stores matrix thickness
 matrix porosity, excess ice, and cumulative budgets on production layers; contracts
 layers in place; rebuilds fronts and drainage; recalculates root distributions; and
 routes released liquid through existing ponding, infiltration, Richards drainage,
-and runoff. C/N pools and monthly accumulators remain attached to stable material
-layer IDs while their geometry changes. Production NetCDF restarts persist the
+and runoff. Annual dynamic-soil splits, merges, and resizes use a conservative
+material-horizon map for physical, C/N, root, front, and accumulated layer state.
+Production NetCDF restarts persist the
 versioned thermokarst state and geometry. With the setting absent or disabled, TEM
 uses its legacy thermal pathway.
 
-This is still an experimental one-column mechanism. Dynamic organic layer topology
-(`dsl`/`dsb`) is held fixed while thermokarst is active, ponded water has no thermal
-feedback, and lateral thermokarst drainage is not represented.
+This is still an experimental one-column mechanism. SOM-driven dynamic soil (`dsl`)
+is supported while thermokarst is active; fire-driven topology (`dsb`) remains
+disabled. Ponded water has no thermal feedback, and lateral thermokarst drainage is
+represented only through TEM's existing Richards drainage pathway.
 
 Base repository: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem
 
@@ -241,11 +243,11 @@ roots, and drainage; run snow mass bookkeeping; route collapse water through soi
 hydrology; then accumulate daily state into monthly arrays. This ordering makes the
 monthly thickness weights use settled geometry without resetting accumulated fluxes.
 
-Before scientific use, compare no-excess-ice runs against legacy TEM, validate pond
-and drainage behavior against observations, enable dynamic organic-layer topology
-with conservative remapping, add pond thermal feedback and lateral drainage, and
-test fire interactions. Use the current mechanism for numerical and integration
-experiments rather than calibrated ecosystem projections.
+Before scientific use, validate pond and drainage behavior against observations,
+add pond thermal feedback, and test fire interactions. Use the current mechanism
+for numerical and integration experiments rather than calibrated ecosystem
+projections. The production dynamic-soil validation is documented in
+[topology-map-validation-report.md](topology-map-validation-report.md).
 
 ## Additional build checks on this computer
 
@@ -261,9 +263,10 @@ minimal sanitizer-runtime probe also exited with an illegal instruction before
 printing its first message. On a supported host, enable it with
 `SANITIZERS=address,undefined sh tests/thermokarst/run_sanitizers.sh`.
 
-The unchanged production `make dvm` was attempted and stopped at missing
-`json/writer.h`. Production ecosystem execution/regression was therefore not
-verified here. This dependency does not affect the thermokarst targets.
+Production ecosystem execution is covered by the production, active-thaw,
+seasonal-diagnostic, BGC/drainage, and active-topology validation suites. The
+current consolidated results are in
+[topology-map-validation-report.md](topology-map-validation-report.md).
 
 The daily source-water tracer and seasonal restart validation are documented in
 [seasonal-diagnostic-report.md](seasonal-diagnostic-report.md). Reproduce the

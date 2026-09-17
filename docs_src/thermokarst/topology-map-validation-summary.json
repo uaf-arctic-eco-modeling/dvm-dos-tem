@@ -1,0 +1,94 @@
+{
+  "years": 2,
+  "forcing_period_years": 1,
+  "statuses": {
+    "initialization": [
+      100,
+      100
+    ],
+    "continuous": [
+      100,
+      100
+    ],
+    "split-first": [
+      100,
+      100
+    ],
+    "resumed": [
+      100,
+      100
+    ]
+  },
+  "synthetic_residuals": {
+    "excess_kg_m2": 0.0,
+    "water_kg_m2": 0.0,
+    "ice_kg_m2": 0.0,
+    "enthalpy_J_m2": 0.0,
+    "rawc": 0.0,
+    "soma": 0.0,
+    "sompr": 0.0,
+    "somcr": 0.0,
+    "orgn": 0.0,
+    "avln": 0.0,
+    "root_fraction": 0.0,
+    "accumulated_drainage_mm": 0.0
+  },
+  "restart_max_difference": {
+    "TKstate": 65.11843395233154,
+    "TKmatrix": 0.0,
+    "TKporosity": 0.0,
+    "TKexcess": 0.0,
+    "DZsoil": 0.0,
+    "TSsoil": 1.3948901398386226e-05,
+    "LIQsoil": 0.0005351106320148347,
+    "ICEsoil": 0.0004908101228835449,
+    "FROZENsoil": 0.0,
+    "FROZENFRACsoil": 6.253730299412424e-06,
+    "frontZ": 1.2507460598332187e-06,
+    "frontFT": 0.0,
+    "watertab": 0.0,
+    "rawc": 0.04802703857421875,
+    "soma": 0.09613609313964844,
+    "sompr": 1.8173828125,
+    "somcr": 0.15625,
+    "orgn": 0.8795928955078125,
+    "avln": 0.09465984255075455
+  },
+  "restart_tkstate_max_relative_difference": 7.008516837876672e-06,
+  "restart_inventory_relative_difference": {
+    "C": 7.799430254972235e-05,
+    "N": 0.0003990749119489875
+  },
+  "daily_max_difference": {
+    "TKLIQGEN": 0.0,
+    "TKLIQSTORAGE": 0.0001515804045837399,
+    "TKLIQRUNOFF": 5.721716289563972e-05,
+    "TKLIQDRAINAGE": 4.2688825138649175e-09,
+    "TKLIQOTHER": 5.509046324819744e-07,
+    "TKSUBSIDENCE": 0.0,
+    "TKFRONT": 1.2401521185534392e-06,
+    "TKFRONTTYPE": 0.0
+  },
+  "geometry": [
+    {
+      "cmt": 4,
+      "initial_layers": 19,
+      "final_layers": 18,
+      "initial_matrix_m": 5.3809000000000005,
+      "final_matrix_m": 5.2931163342151955,
+      "initial_excess_kg_m2": 183.39999999999998,
+      "final_excess_kg_m2": 0.0
+    },
+    {
+      "cmt": 5,
+      "initial_layers": 20,
+      "final_layers": 19,
+      "initial_matrix_m": 5.4216999999999995,
+      "final_matrix_m": 5.404326130857014,
+      "initial_excess_kg_m2": 183.39999999999998,
+      "final_excess_kg_m2": 86.72527500000001
+    }
+  ],
+  "checks_passed": 10,
+  "checks_total": 10
+}
