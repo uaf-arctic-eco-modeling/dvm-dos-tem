@@ -910,13 +910,25 @@ def _set_time_units(ds, time_name="time"):
     """Set the `units` encoding of `time_name` to 'days since <first date>' so
     the reference date reflects this file's own (possibly truncated) time
     axis rather than a value inherited from the source file."""
-    from IPython import embed; embed()
     first = ds[time_name].values[0]
     if isinstance(first, np.datetime64):
         first = pd.Timestamp(first)
-    ds[time_name].encoding["units"] = f"days since {first.strftime('%Y-%m-%d')}"
-    ds[time_name].encoding["calendar"] = "noleap"
-    ds[time_name].encoding["dtype"] = "int64"
+
+    if ds[time_name].encoding.get("units", "") != f"days since {first.strftime('%Y-%m-%d')}":
+      print(f"Current encoding for {time_name}: {ds[time_name].encoding}")
+      print(f"--> Setting encoding: days since {first.strftime('%Y-%m-%d')}")
+      ds[time_name].encoding["units"] = f"days since {first.strftime('%Y-%m-%d')}"
+
+    if ds[time_name].encoding.get("calendar", "") != "noleap":
+      print(f"Current calendar for {time_name}: {ds[time_name].encoding['calendar']}")
+      print("--> Setting calendar to 'noleap'")
+      ds[time_name].encoding["calendar"] = "noleap"
+
+    if ds[time_name].encoding.get("dtype", "") != "int64":
+      print(f"Current dtype for {time_name}: {ds[time_name].encoding.get('dtype', '')}")
+      print("--> Setting dtype to 'int64'")
+      ds[time_name].encoding["dtype"] = "int64"
+
     return ds
 
 
