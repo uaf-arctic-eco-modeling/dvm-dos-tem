@@ -78,6 +78,92 @@ Budget Column::budget() const {
   }
   return b;
 }
+std::vector<double> remap_extensive(
+    const std::vector<std::vector<double> >& weights,
+    const std::vector<double>& old_values) {
+  require(!weights.empty(), "empty topology map");
+  std::vector<double> result(weights.size(), 0.);
+  for (unsigned i=0;i<weights.size();++i) {
+    require(weights[i].size()==old_values.size(), "topology map width mismatch");
+    for (unsigned j=0;j<old_values.size();++j) {
+      require(std::isfinite(weights[i][j]) && weights[i][j]>=0. &&
+              std::isfinite(old_values[j]), "invalid topology remap value");
+      result[i]+=weights[i][j]*old_values[j];
+    }
+  }
+  return result;
+}
+std::vector<double> remap_intensive(
+    const std::vector<std::vector<double> >& weights,
+    const std::vector<double>& old_values) {
+  return remap_extensive(weights,old_values);
+}
+TopologyMap remap_matrix_topology(const std::vector<Cell>& old_cells,
+                                  const std::vector<double>& new_matrix,
+                                  const std::vector<int>& new_material) {
+  require(!old_cells.empty() && !new_matrix.empty() &&
+          new_matrix.size()==new_material.size(), "invalid topology map shape");
+  const unsigned no=old_cells.size(),nn=new_matrix.size();
+  TopologyMap map;map.cells.resize(nn);
+  map.donor_fraction.assign(nn,std::vector<double>(no,0.));
+  map.intensive_weight.assign(nn,std::vector<double>(no,0.));
+  for(double d:new_matrix) require(std::isfinite(d)&&d>1.e-9,"invalid target matrix thickness");
+  // Treat each contiguous material horizon independently. Normalized material
+  // coordinates allow a SOM-driven horizon thickness change while assigning
+  // every old extensive quantity exactly once.
+  unsigned ob=0,nb=0;
+  while(ob<no || nb<nn) {
+    require(ob<no && nb<nn,"material horizon missing from target topology");
+    const int material=old_cells[ob].material;
+    require(new_material[nb]==material,"material horizon order changed");
+    unsigned oe=ob,ne=nb;
+    while(oe<no && old_cells[oe].material==material) ++oe;
+    while(ne<nn && new_material[ne]==material) ++ne;
+    double old_total=0.,new_total=0.;
+    for(unsigned j=ob;j<oe;++j) {require(old_cells[j].matrix>1.e-9,"invalid donor matrix thickness");old_total+=old_cells[j].matrix;}
+    for(unsigned i=nb;i<ne;++i) new_total+=new_matrix[i];
+    double ntop=0.;
+    for(unsigned i=nb;i<ne;++i) {
+      const double nbot=ntop+new_matrix[i]/new_total;
+      double otop=0.;
+      for(unsigned j=ob;j<oe;++j) {
+        const double obot=otop+old_cells[j].matrix/old_total;
+        const double overlap=std::max(0.,std::min(nbot,obot)-std::max(ntop,otop));
+        if(overlap>0.) {
+          map.donor_fraction[i][j]=overlap/(obot-otop);
+          map.intensive_weight[i][j]=overlap/(nbot-ntop);
+        }
+        otop=obot;
+      }
+      ntop=nbot;
+    }
+    ob=oe;nb=ne;
+  }
+  std::vector<double> water(no),ice(no),excess(no),enthalpy(no),porosity(no),solid_heat(no),solid_k(no);
+  std::array<std::vector<double>,6> pools;
+  for(unsigned j=0;j<no;++j) {
+    water[j]=old_cells[j].water;ice[j]=old_cells[j].ice;excess[j]=old_cells[j].excess;
+    enthalpy[j]=old_cells[j].enthalpy;porosity[j]=old_cells[j].porosity;
+    solid_heat[j]=old_cells[j].solid_heat;solid_k[j]=old_cells[j].solid_k;
+    for(unsigned k=0;k<6;++k)pools[k].push_back(old_cells[j].pools[k]);
+  }
+  const auto rw=remap_extensive(map.donor_fraction,water),ri=remap_extensive(map.donor_fraction,ice),
+    rx=remap_extensive(map.donor_fraction,excess),rh=remap_extensive(map.donor_fraction,enthalpy),
+    rp=remap_intensive(map.intensive_weight,porosity),rc=remap_intensive(map.intensive_weight,solid_heat),
+    rk=remap_intensive(map.intensive_weight,solid_k);
+  std::array<std::vector<double>,6> remapped_pools;
+  for(unsigned k=0;k<6;++k)
+    remapped_pools[k]=remap_extensive(map.donor_fraction,pools[k]);
+  for(unsigned i=0;i<nn;++i) {
+    Cell& c=map.cells[i];c.material=new_material[i];c.matrix=new_matrix[i];c.porosity=rp[i];
+    c.solid_heat=rc[i];c.solid_k=rk[i];c.water=rw[i];c.ice=ri[i];c.excess=rx[i];c.enthalpy=rh[i];
+    for(unsigned k=0;k<6;++k)c.pools[k]=remapped_pools[k][i];
+  }
+  // Every donor fraction must sum to one and every intensive target row to one.
+  for(unsigned j=0;j<no;++j){double s=0.;for(unsigned i=0;i<nn;++i)s+=map.donor_fraction[i][j];require(std::abs(s-1.)<1.e-10,"incomplete donor coverage");}
+  for(unsigned i=0;i<nn;++i){double s=0.;for(double w:map.intensive_weight[i])s+=w;require(std::abs(s-1.)<1.e-10,"incomplete target coverage");}
+  return map;
+}
 void Column::validate() const {
   require(!cells.empty() && cells.size() <= 10000, "invalid layer count");
   require(std::isfinite(surface) && nonnegative(subsidence) &&

@@ -37,6 +37,24 @@ struct Budget {
   double matrix = 0.;
   std::array<double, 6> pools{{0., 0., 0., 0., 0., 0.}};
 };
+// Conservative mapping between two layerings of the same ordered material
+// column. donor_fraction[i][j] is the fraction of old cell j assigned to new
+// cell i. New matrix thickness is prescribed by the dynamic-soil grid; every
+// extensive donor quantity is conserved within each material horizon.
+struct TopologyMap {
+  std::vector<Cell> cells;
+  std::vector<std::vector<double> > donor_fraction;
+  std::vector<std::vector<double> > intensive_weight;
+};
+TopologyMap remap_matrix_topology(const std::vector<Cell>& old_cells,
+                                  const std::vector<double>& new_matrix,
+                                  const std::vector<int>& new_material);
+std::vector<double> remap_extensive(
+    const std::vector<std::vector<double> >& donor_fraction,
+    const std::vector<double>& old_values);
+std::vector<double> remap_intensive(
+    const std::vector<std::vector<double> >& intensive_weight,
+    const std::vector<double>& old_values);
 struct Column {
   std::vector<Cell> cells;
   double surface = 0.;

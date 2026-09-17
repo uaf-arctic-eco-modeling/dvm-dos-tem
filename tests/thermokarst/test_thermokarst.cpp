@@ -312,6 +312,40 @@ int main(int argc, char **argv) {
     near(a.subsidence, b.subsidence);
     conserved(a.budget(), b.budget());
   });
+  run("matrix_topology_conserves_phase_water_and_six_pools", [] {
+    std::vector<Cell> old(3);
+    old[0].material=old[1].material=1;old[2].material=2;
+    old[0].matrix=.2;old[1].matrix=.3;old[2].matrix=.5;
+    for(unsigned i=0;i<old.size();++i) {
+      old[i].porosity=.35+.05*i;old[i].solid_heat=2.e6+1.e5*i;
+      old[i].solid_k=.4+.2*i;old[i].water=10.+i;old[i].ice=20.+2.*i;
+      old[i].excess=30.+3.*i;old[i].enthalpy=-1.e7+2.e6*i;
+      for(unsigned k=0;k<6;++k) old[i].pools[k]=(i+1.)*(k+1.);
+    }
+    const auto map=remap_matrix_topology(old,{.1,.25,.35,.4},{1,1,1,2});
+    check(map.cells.size()==4,"wrong target layer count");
+    double ow=0.,nw=0.,oe=0.,ne=0.;std::array<double,6> op={{0,0,0,0,0,0}},np=op;
+    for(const auto& x:old){ow+=x.water+x.ice+x.excess;oe+=x.enthalpy;for(unsigned k=0;k<6;++k)op[k]+=x.pools[k];}
+    for(const auto& x:map.cells){nw+=x.water+x.ice+x.excess;ne+=x.enthalpy;for(unsigned k=0;k<6;++k)np[k]+=x.pools[k];}
+    near(nw,ow);near(ne,oe);for(unsigned k=0;k<6;++k)near(np[k],op[k]);
+    near(map.cells[0].matrix,.1);near(map.cells[3].matrix,.4);
+  });
+  run("matrix_topology_conserves_roots_and_accumulators", [] {
+    std::vector<Cell> old(2);old[0].material=old[1].material=3;
+    old[0].matrix=.4;old[1].matrix=.6;
+    const auto map=remap_matrix_topology(old,{.2,.3,.5},{3,3,3});
+    const auto roots=remap_extensive(map.donor_fraction,{.25,.75});
+    const auto drainage=remap_extensive(map.donor_fraction,{2.,7.});
+    const auto temperature=remap_intensive(map.intensive_weight,{-8.,2.});
+    double sr=0.,sd=0.;for(double x:roots)sr+=x;for(double x:drainage)sd+=x;
+    near(sr,1.);near(sd,9.);
+    for(double x:temperature)check(x>=-8.&&x<=2.,"intensive diagnostic outside donor range");
+  });
+  run("matrix_topology_rejects_material_reordering", [] {
+    std::vector<Cell> old(2);old[0].material=1;old[1].material=2;
+    old[0].matrix=old[1].matrix=.5;
+    rejects([&]{remap_matrix_topology(old,{.5,.5},{2,1});});
+  });
   std::cout << pass << " passed, " << fail << " failed\n";
   return fail ? 1 : 0;
 }

@@ -18,6 +18,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include <boost/assign/list_of.hpp> // for 'list_of()'
 
@@ -27,6 +28,88 @@
 #include "../include/Cohort.h"
 
 extern src::severity_logger< severity_level > glg;
+
+namespace {
+void remap_layer_array(double* values,int old_count,
+    const std::vector<std::vector<double> >& weights,bool intensive,
+    double fill=0.) {
+  std::vector<double> old(values,values+old_count);
+  const std::vector<double> mapped=intensive?
+      thermokarst::remap_intensive(weights,old):
+      thermokarst::remap_extensive(weights,old);
+  for(int i=0;i<MAX_SOI_LAY;++i) values[i]=i<int(mapped.size())?mapped[i]:fill;
+}
+void remap_environment(EnvData& e,int old_count,
+                       const thermokarst::TopologyMap& map) {
+  soistate_env* states[]={&e.d_sois,&e.m_sois,&e.y_sois};
+  for(soistate_env* s:states) {
+    remap_layer_array(s->liq,old_count,map.donor_fraction,false);
+    remap_layer_array(s->ice,old_count,map.donor_fraction,false);
+    remap_layer_array(s->ts,old_count,map.intensive_weight,true);
+    remap_layer_array(s->frozen,old_count,map.intensive_weight,true);
+    remap_layer_array(s->frozenfrac,old_count,map.intensive_weight,true);
+  }
+  soidiag_env* diagnostics[]={&e.d_soid,&e.m_soid,&e.y_soid};
+  for(soidiag_env* d:diagnostics) {
+    double* arrays[]={d->vwc,d->iwc,d->lwc,d->sws,d->aws,d->minliq,
+      d->tcond,d->hcond,d->r_e_i,d->r_e_ij,d->fbtran};
+    for(double* a:arrays) remap_layer_array(a,old_count,map.intensive_weight,true);
+  }
+  soi2lnd_env* land[]={&e.d_soi2l,&e.m_soi2l,&e.y_soi2l};
+  for(soi2lnd_env* f:land)
+    remap_layer_array(f->layer_drain,old_count,map.donor_fraction,false);
+  for(int day=0;day<31;++day) {
+    remap_layer_array(e.daily_tlayer[day],old_count,map.intensive_weight,true);
+    remap_layer_array(e.daily_root_water_uptake[day],old_count,map.donor_fraction,false);
+    remap_layer_array(e.daily_percolation[day],old_count,map.donor_fraction,false);
+    remap_layer_array(e.daily_layer_drain[day],old_count,map.donor_fraction,false);
+  }
+}
+void remap_litter_history(BgcData& b,int old_count,
+                          const thermokarst::TopologyMap& map) {
+  size_t history=0;for(int i=0;i<old_count;++i)
+    history=std::max(history,b.prvltrfcnque[i].size());
+  std::vector<std::deque<double> > output(map.cells.size());
+  for(size_t month=0;month<history;++month) {
+    std::vector<double> old(old_count,0.);
+    for(int i=0;i<old_count;++i)
+      if(month<b.prvltrfcnque[i].size()) old[i]=b.prvltrfcnque[i][month];
+    const auto mapped=thermokarst::remap_intensive(map.intensive_weight,old);
+    for(unsigned i=0;i<mapped.size();++i) output[i].push_back(mapped[i]);
+  }
+  for(int i=0;i<MAX_SOI_LAY;++i)
+    b.prvltrfcnque[i]=i<int(output.size())?output[i]:std::deque<double>();
+}
+void remap_bgc_accumulators(BgcData& b,int old_count,
+                            const thermokarst::TopologyMap& map) {
+  soistate_bgc* states[]={&b.m_sois,&b.y_sois};
+  for(soistate_bgc* s:states) {
+    double* arrays[]={s->rawc,s->soma,s->sompr,s->somcr,s->orgn,s->avln};
+    for(double* a:arrays)remap_layer_array(a,old_count,map.donor_fraction,false);
+  }
+  soidiag_bgc* diagnostics[]={&b.m_soid,&b.y_soid};
+  for(soidiag_bgc* d:diagnostics) {
+    double* intensive[]={d->knmoist,d->rhmoist,d->rhq10,d->ltrfcn};
+    for(double* a:intensive)remap_layer_array(a,old_count,map.intensive_weight,true);
+    remap_layer_array(d->tsomc,old_count,map.donor_fraction,false);
+  }
+  veg2soi_bgc* litter[]={&b.m_v2soi,&b.y_v2soi};
+  soi2veg_bgc* uptake[]={&b.m_soi2v,&b.y_soi2v};
+  soi2atm_bgc* respiration[]={&b.m_soi2a,&b.y_soi2a};
+  soi2soi_bgc* cycling[]={&b.m_soi2soi,&b.y_soi2soi};
+  for(veg2soi_bgc* f:litter)remap_layer_array(f->rtlfalfrac,old_count,map.donor_fraction,false);
+  for(soi2veg_bgc* f:uptake)remap_layer_array(f->nextract,old_count,map.donor_fraction,false);
+  for(soi2atm_bgc* f:respiration) {
+    double* arrays[]={f->rhrawc,f->rhsoma,f->rhsompr,f->rhsomcr};
+    for(double* a:arrays)remap_layer_array(a,old_count,map.donor_fraction,false);
+  }
+  for(soi2soi_bgc* f:cycling) {
+    remap_layer_array(f->netnmin,old_count,map.donor_fraction,false);
+    remap_layer_array(f->nimmob,old_count,map.donor_fraction,false);
+  }
+  remap_litter_history(b,old_count,map);
+}
+}
 
 Cohort::Cohort() {
   BOOST_LOG_SEV(glg, info) << "Cohort constructor; instantiating a cohort object.";
@@ -378,12 +461,6 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   if(ground.thermokarst.enabled && md->get_dsbmodule())
     throw std::invalid_argument("thermokarst currently requires dsb=false; fire-driven topology changes are not yet remapped");
-  if(ground.thermokarst.enabled && md->get_dslmodule()) {
-    for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
-      if(l->excess_ice>1.e-12)
-        throw std::invalid_argument("thermokarst with dsl=true requires zero excess ice; active-collapse topology changes are not yet remapped");
-    }
-  }
   //
   if(currmind==0) {
     cd.beginOfYear();
@@ -911,17 +988,22 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
 
   //only update the thickness at begin of year, since it is a slow process
   if(dslmodule && currmind==0) {
-    // Let the legacy dynamic-layer routines operate on their native matrix
-    // geometry.  Leaving the previous thermokarst metadata attached while a
-    // layer is resized makes derivePhysicalProperty() interpret the transient
-    // thickness as an excess-ice geometry.  Active excess ice is rejected in
-    // updateMonthly(), so clearing these zero-excess tags loses no state.
+    tem_thermokarst::TopologySnapshot topology_snapshot;
+    std::vector<std::vector<double> > old_roots;
+    int old_count=cd.m_soil.numsl;
     if(ground.thermokarst.enabled) {
-      for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
-        l->matrix_dz=0.;
-        l->matrix_porosity=0.;
-        l->excess_ice=0.;
+      // All six pools enter the snapshot from their authoritative BGC arrays;
+      // the legacy helper above copies only the four carbon pools.
+      int j=0;
+      for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl,++j) {
+        l->rawc=bdall->m_sois.rawc[j];l->soma=bdall->m_sois.soma[j];
+        l->sompr=bdall->m_sois.sompr[j];l->somcr=bdall->m_sois.somcr[j];
+        l->orgn=bdall->m_sois.orgn[j];l->avln=bdall->m_sois.avln[j];
       }
+      old_count=j;old_roots.assign(NUM_PFT,std::vector<double>(old_count,0.));
+      for(int ip=0;ip<NUM_PFT;++ip) for(int il=0;il<old_count;++il)
+        old_roots[ip][il]=cd.m_soil.frootfrac[il][ip];
+      topology_snapshot=tem_thermokarst::prepare_topology_change(ground);
     }
     // calculate the OSL layer thickness from C contents
     ground.updateOslThickness5Carbon(ground.fstsoill);
@@ -945,16 +1027,28 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
     }
 
     ground.redivideSoilLayers();
-    // Dynamic SOM thickness may split, merge, create, or resize layers.  In a
-    // zero-excess thermokarst column the resulting physical grid is the new
-    // matrix grid, so refresh the thermokarst metadata before the next daily
-    // thermal solve.  Active excess ice is rejected above because its material
-    // remapping needs a separate conservative topology-change implementation.
     if(ground.thermokarst.enabled) {
-      for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
-        l->matrix_dz=l->dz;
-        l->matrix_porosity=l->poro;
-        l->excess_ice=0.;
+      const auto result=tem_thermokarst::finish_topology_change(
+          ground,topology_snapshot);
+      ground.retrieveSoilDimension(&cd.m_soil);
+      for(int ip=0;ip<NUM_PFT;++ip) {
+        const auto roots=thermokarst::remap_extensive(
+            result.map.donor_fraction,old_roots[ip]);
+        for(int il=0;il<MAX_SOI_LAY;++il)
+          cd.m_soil.frootfrac[il][ip]=il<int(roots.size())?roots[il]:0.;
+      }
+      remap_environment(*edall,old_count,result.map);
+      for(int ip=0;ip<NUM_PFT;++ip) if(cd.m_veg.vegcov[ip]>0.)
+        remap_environment(ed[ip],old_count,result.map);
+      remap_bgc_accumulators(*bdall,old_count,result.map);
+      int j=0;for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl,++j) {
+        bdall->m_sois.orgn[j]=l->orgn;bdall->m_sois.avln[j]=l->avln;
+      }
+      for(;j<MAX_SOI_LAY;++j)
+        bdall->m_sois.orgn[j]=bdall->m_sois.avln[j]=0.;
+      for(int f=0;f<MAX_NUM_FNT;++f) {
+        edall->d_sois.frontsz[f]=ground.frntz[f];
+        edall->d_sois.frontstype[f]=ground.frnttype[f];
       }
     }
     // and save the bgc data in double-linked structure back to 'bdall'
@@ -964,7 +1058,8 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
   // update soil dimension
   ground.retrieveSoilDimension(&cd.m_soil);
 
-  getSoilFineRootFrac_Monthly();
+  if(!(ground.thermokarst.enabled && dslmodule && currmind==0))
+    getSoilFineRootFrac_Monthly();
 
   cd.d_soil = cd.m_soil;      //soil dimension remains constant in a month
   // update all soil 'bd' to each pft

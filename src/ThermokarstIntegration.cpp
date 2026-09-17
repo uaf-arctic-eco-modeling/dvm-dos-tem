@@ -34,6 +34,35 @@ thermokarst::Cell import_cell(const Layer& l) {
   c.enthalpy=c.capacity()*l.tem+LHFUS*c.water;
   return c;
 }
+void export_soil_cell(Layer& l,const thermokarst::Cell& a) {
+  l.matrix_dz=a.matrix;l.matrix_porosity=a.porosity;
+  l.dz=a.thickness();l.excess_ice=a.excess;l.ice=a.ice;l.liq=a.water;
+  l.rawc=a.pools[0];l.soma=a.pools[1];l.sompr=a.pools[2];
+  l.somcr=a.pools[3];l.orgn=a.pools[4];l.avln=a.pools[5];
+  l.tem=a.temperature();l.pce_t=l.pce_f=0.;
+  const double fv=(a.ice+a.excess)/DENICE,lv=a.water/DENLIQ;
+  l.frozenfrac=(fv+lv>0.)?fv/(fv+lv):(l.tem<=0.?1.:0.);
+  l.frozen=l.frozenfrac<=1e-12?-1:(l.frozenfrac>=1.-1e-12?1:0);
+  properties(l);
+}
+void load_global_state(thermokarst::Column& c,const ThermokarstState& s) {
+  using S=ThermokarstState;
+  c.surface=s.value[S::ELEVATION];c.subsidence=s.value[S::SUBSIDENCE];
+  c.surface_mass=s.value[S::SURFACE_MASS];c.surface_energy=s.value[S::SURFACE_ENERGY];
+  c.runoff_mass=0.;c.runoff_energy=0.;
+  c.boundary_energy=s.value[S::BOUNDARY_ENERGY];c.pond_capacity=0.;
+}
+void store_global_state(Ground& g,const thermokarst::Column& c,double generated,
+                        double water_error,double energy_error) {
+  auto& s=g.thermokarst;using S=ThermokarstState;
+  s.pending_runoff+=c.runoff_mass;s.pending_generated+=generated;
+  s.value[S::ELEVATION]=c.surface;s.value[S::SUBSIDENCE]=c.subsidence;
+  s.value[S::SURFACE_MASS]=c.surface_mass;s.value[S::SURFACE_ENERGY]=c.surface_energy;
+  s.value[S::EXPORTED_WATER]+=c.runoff_mass;s.value[S::EXPORTED_ENERGY]+=c.runoff_energy;
+  s.value[S::HYDROLOGY_ENERGY]+=c.runoff_energy;s.value[S::BOUNDARY_ENERGY]=c.boundary_energy;
+  s.value[S::WATER_RESIDUAL]=water_error;s.value[S::ENERGY_RESIDUAL]=energy_error;
+  s.value[S::GENERATED_WATER]+=generated;
+}
 }
 void initialize(Ground& g,double fraction,double top,double bottom) {
   g.thermokarst=ThermokarstState();g.thermokarst.enabled=true;
@@ -73,14 +102,7 @@ void advance(Ground& g,double top,double seconds) {
   if(!g.thermokarst.enabled) throw std::logic_error("thermokarst solver called while disabled");
   thermokarst::Column c;std::vector<Layer*> layers;
   for(Layer*l=g.toplayer;l;l=l->nextl){layers.push_back(l);c.cells.push_back(import_cell(*l));}
-  auto& s=g.thermokarst;using S=ThermokarstState;
-  c.surface=s.value[S::ELEVATION];c.subsidence=s.value[S::SUBSIDENCE];
-  c.surface_mass=s.value[S::SURFACE_MASS];c.surface_energy=s.value[S::SURFACE_ENERGY];
-  // Routed water is handed to TEM hydrology after this solve. It may
-  // infiltrate and therefore reappear in tomorrow's imported layers, so a
-  // historical routed total must not also be seeded into Column::budget().
-  c.runoff_mass=0.;c.runoff_energy=0.;
-  c.boundary_energy=s.value[S::BOUNDARY_ENERGY];c.pond_capacity=0.;
+  load_global_state(c,g.thermokarst);
   double excess_before=0.;
   for(const auto& cell:c.cells) if(cell.material!=thermokarst::SNOW_MATERIAL &&
                                     cell.material!=thermokarst::ROCK_MATERIAL)
@@ -116,16 +138,50 @@ void advance(Ground& g,double top,double seconds) {
       l.frozen=a.water<=1e-12?1:(a.ice<=1e-12?-1:0);
     }
   }
-  s.pending_runoff+=c.runoff_mass;
-  s.pending_generated+=generated;
-  s.value[S::ELEVATION]=c.surface;s.value[S::SUBSIDENCE]=c.subsidence;
-  s.value[S::SURFACE_MASS]=c.surface_mass;s.value[S::SURFACE_ENERGY]=c.surface_energy;
-  s.value[S::EXPORTED_WATER]+=c.runoff_mass;
-  s.value[S::EXPORTED_ENERGY]+=c.runoff_energy;
-  s.value[S::HYDROLOGY_ENERGY]+=c.runoff_energy;
-  s.value[S::BOUNDARY_ENERGY]=c.boundary_energy;
-  s.value[S::WATER_RESIDUAL]=water_error;s.value[S::ENERGY_RESIDUAL]=energy_error;
-  s.value[S::GENERATED_WATER]+=generated;
+  store_global_state(g,c,generated,water_error,energy_error);
   g.resortGroundLayers();g.updateSoilHorizons();rebuild_fronts(g,top<0.);
+}
+TopologySnapshot prepare_topology_change(Ground& g) {
+  if(!g.thermokarst.enabled) throw std::logic_error("thermokarst topology map called while disabled");
+  TopologySnapshot result;
+  result.freezing=!g.frontstype.empty()?g.frontstype.front()==1:
+      (g.fstsoill && g.fstsoill->tem<0.);
+  for(Layer*l=g.fstsoill;l&&l->isSoil;l=l->nextl) {
+    result.cells.push_back(import_cell(*l));
+    l->dz=l->matrix_dz;l->matrix_dz=0.;l->matrix_porosity=0.;l->excess_ice=0.;
+    properties(*l);
+  }
+  if(result.cells.empty()) throw std::runtime_error("empty thermokarst soil column");
+  g.resortGroundLayers();g.updateSoilHorizons();
+  return result;
+}
+TopologyResult finish_topology_change(Ground& g,const TopologySnapshot& snapshot) {
+  std::vector<Layer*> layers;std::vector<double> matrix;std::vector<int> material;
+  for(Layer*l=g.fstsoill;l&&l->isSoil;l=l->nextl) {
+    layers.push_back(l);matrix.push_back(l->dz);material.push_back(int(l->tkey));
+  }
+  TopologyResult result;
+  result.map=thermokarst::remap_matrix_topology(snapshot.cells,matrix,material);
+  thermokarst::Column before_column;before_column.cells=snapshot.cells;
+  load_global_state(before_column,g.thermokarst);
+  const auto before=before_column.budget();
+  thermokarst::Column c;c.cells=result.map.cells;load_global_state(c,g.thermokarst);
+  double excess_before=0.;for(const auto& x:c.cells) excess_before+=x.excess;
+  c.reconcile_phase();
+  double excess_after=0.;for(const auto& x:c.cells) excess_after+=x.excess;
+  const double generated=std::max(0.,excess_before-excess_after);
+  const auto after=c.budget();
+  result.water_residual=after.water-before.water;
+  result.energy_residual=after.energy-before.energy;
+  for(unsigned k=0;k<6;++k) result.pool_residual[k]=after.pools[k]-before.pools[k];
+  if(std::abs(result.water_residual)>1e-7 || std::abs(result.energy_residual)>1e-3)
+    throw std::runtime_error("thermokarst topology water/energy conservation failure");
+  for(double e:result.pool_residual) if(std::abs(e)>1e-8)
+    throw std::runtime_error("thermokarst topology C/N conservation failure");
+  if(c.cells.size()!=layers.size()) throw std::runtime_error("topology export size mismatch");
+  for(unsigned i=0;i<layers.size();++i) export_soil_cell(*layers[i],c.cells[i]);
+  store_global_state(g,c,generated,result.water_residual,result.energy_residual);
+  g.resortGroundLayers();g.updateSoilHorizons();rebuild_fronts(g,snapshot.freezing);
+  return result;
 }
 }
