@@ -15,6 +15,13 @@ struct TopologyResult {
   double energy_residual = 0.;
   std::array<double, 6> pool_residual{{0.,0.,0.,0.,0.,0.}};
 };
+struct FireTopologyResult {
+  thermokarst::FireTopologyMap fire;
+  double water_residual = 0.;
+  double energy_residual = 0.;
+  double matrix_residual = 0.;
+  std::array<double, 6> pool_residual{{0.,0.,0.,0.,0.,0.}};
+};
 void initialize(Ground& ground, double fraction, double top, double bottom);
 void advance(Ground& ground, double surface_temperature, double seconds);
 void rebuild_fronts(Ground& ground, bool freezing);
@@ -24,5 +31,9 @@ void rebuild_fronts(Ground& ground, bool freezing);
 TopologySnapshot prepare_topology_change(Ground& ground);
 TopologyResult finish_topology_change(Ground& ground,
                                       const TopologySnapshot& snapshot);
+// Finish a fire transaction after WildFire has changed the C/N pools and the
+// legacy Ground routine has prescribed the post-combustion layer grid.
+FireTopologyResult finish_fire_topology_change(
+    Ground& ground,const TopologySnapshot& snapshot,double burned_depth);
 }
 #endif

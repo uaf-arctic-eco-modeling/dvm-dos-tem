@@ -346,6 +346,41 @@ int main(int argc, char **argv) {
     old[0].matrix=old[1].matrix=.5;
     rejects([&]{remap_matrix_topology(old,{.5,.5},{2,1});});
   });
+  run("fire_topology_partitions_consumed_matrix_water_and_energy", [] {
+    std::vector<Cell> old(3);
+    for(unsigned i=0;i<old.size();++i) {
+      Cell& c=old[i];c.material=i<2?1:3;c.matrix=.2+.1*i;c.porosity=.5;
+      c.solid_heat=2.e6;c.solid_k=.5;c.ice=40.+10.*i;c.excess=18.+4.*i;
+      c.set_temperature(-2.-i);
+      for(unsigned k=0;k<6;++k)c.pools[k]=(i+1.)*(k+1.);
+    }
+    const double burn=.25;
+    const auto fire=remap_fire_topology(old,burn,{.18,.32,.38},{2,2,3});
+    near(fire.surviving_fraction[0],0.);
+    near(fire.surviving_fraction[1],1.-(burn-old[0].thickness())/old[1].thickness());
+    double old_water=0.,mapped_water=0.,old_energy=0.,mapped_energy=0.;
+    for(const auto& c:old){old_water+=c.mass();old_energy+=c.enthalpy;}
+    for(const auto& c:fire.topology.cells){mapped_water+=c.mass();mapped_energy+=c.enthalpy;}
+    near(mapped_water+fire.released_water,old_water);
+    near(mapped_energy+fire.released_phase_energy+fire.exported_solid_energy,old_energy,1.e-8);
+    near(fire.burned_matrix,
+         old[0].matrix+(1.-fire.surviving_fraction[1])*old[1].matrix);
+  });
+  run("fire_topology_allows_horizon_loss_and_humification", [] {
+    std::vector<Cell> old(3);
+    old[0].material=1;old[1].material=2;old[2].material=3;
+    for(unsigned i=0;i<old.size();++i) {
+      old[i].matrix=.2;old[i].porosity=.5;old[i].ice=20.;old[i].set_temperature(-1.);
+    }
+    const auto fire=remap_fire_topology(old,old[0].thickness(),{.15,.25},{2,3});
+    near(fire.surviving_fraction[0],0.);
+    check(fire.topology.cells.size()==2,"wrong fire target layer count");
+    check(fire.topology.cells[0].material==2,"post-fire material not prescribed");
+  });
+  run("fire_topology_rejects_burn_below_column", [] {
+    auto c=fixture(.1,-2.);
+    rejects([&]{remap_fire_topology(c.cells,2.,{.2},{1});});
+  });
   std::cout << pass << " passed, " << fail << " failed\n";
   return fail ? 1 : 0;
 }

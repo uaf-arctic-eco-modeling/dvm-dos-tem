@@ -82,7 +82,6 @@ void rebuild_fronts(Ground& g,bool freezing) {
   bool previous=false,have=false;
   auto segment=[&](double depth,bool frozen){
     if(have && frozen!=previous) {
-      if(g.frontsz.size()>=MAX_NUM_FNT) throw std::runtime_error("thermokarst front capacity exceeded");
       g.frontsz.push_back(depth);g.frontstype.push_back(previous?1:-1);
     }
     previous=frozen;have=true;
@@ -93,6 +92,24 @@ void rebuild_fronts(Ground& g,bool freezing) {
     else if(f>=1.-1e-12) segment(l->z,true);
     else if(freezing) {segment(l->z,true);segment(l->z+f*l->dz,false);}
     else {segment(l->z,false);segment(l->z+(1.-f)*l->dz,true);}
+  }
+  // The production Stefan solver represents an alternating thermal profile
+  // with at most MAX_NUM_FNT fronts. Regridding can expose more transitions
+  // at once, especially when a fire deletes or humifies shallow horizons.
+  // Apply the same physical reduction used by Stefan::combineExtraFronts:
+  // remove the closest pair so that alternation and the deep-column phase are
+  // both preserved. Do this only after reconstructing the complete profile;
+  // rejecting the (MAX_NUM_FNT + 1)th transition makes the result depend on
+  // traversal order rather than on front spacing.
+  while(g.frontsz.size()>MAX_NUM_FNT) {
+    std::size_t closest=0;
+    double separation=g.frontsz[1]-g.frontsz[0];
+    for(std::size_t i=1;i+1<g.frontsz.size();++i) {
+      const double candidate=g.frontsz[i+1]-g.frontsz[i];
+      if(candidate<separation) {separation=candidate;closest=i;}
+    }
+    g.frontsz.erase(g.frontsz.begin()+closest,g.frontsz.begin()+closest+2);
+    g.frontstype.erase(g.frontstype.begin()+closest,g.frontstype.begin()+closest+2);
   }
   for(int i=0;i<MAX_NUM_FNT;++i){g.frntz[i]=MISSING_D;g.frnttype[i]=MISSING_I;}
   for(unsigned i=0;i<g.frontsz.size();++i){g.frntz[i]=g.frontsz[i];g.frnttype[i]=g.frontstype[i];}
@@ -181,6 +198,62 @@ TopologyResult finish_topology_change(Ground& g,const TopologySnapshot& snapshot
   if(c.cells.size()!=layers.size()) throw std::runtime_error("topology export size mismatch");
   for(unsigned i=0;i<layers.size();++i) export_soil_cell(*layers[i],c.cells[i]);
   store_global_state(g,c,generated,result.water_residual,result.energy_residual);
+  g.resortGroundLayers();g.updateSoilHorizons();rebuild_fronts(g,snapshot.freezing);
+  return result;
+}
+FireTopologyResult finish_fire_topology_change(
+    Ground& g,const TopologySnapshot& snapshot,double burned_depth) {
+  std::vector<Layer*> layers;std::vector<double> matrix;std::vector<int> material;
+  std::vector<std::array<double,6> > postfire_pools;
+  std::vector<double> target_porosity,target_solid_heat,target_solid_k;
+  for(Layer*l=g.fstsoill;l&&l->isSoil;l=l->nextl) {
+    layers.push_back(l);matrix.push_back(l->dz);material.push_back(int(l->tkey));
+    postfire_pools.push_back({{l->rawc,l->soma,l->sompr,l->somcr,l->orgn,l->avln}});
+    target_porosity.push_back(l->poro);target_solid_heat.push_back(l->vhcsolid);
+    target_solid_k.push_back(l->tcsolid);
+  }
+  FireTopologyResult result;
+  result.fire=thermokarst::remap_fire_topology(
+      snapshot.cells,burned_depth,matrix,material);
+  for(unsigned i=0;i<result.fire.topology.cells.size();++i) {
+    result.fire.topology.cells[i].pools=postfire_pools[i];
+    // Fire may delete a horizon or convert fibric organic matter to humic
+    // material. Use the prescribed post-fire material properties; donor
+    // weighting is appropriate only for state, not for a changed material.
+    result.fire.topology.cells[i].porosity=target_porosity[i];
+    result.fire.topology.cells[i].solid_heat=target_solid_heat[i];
+    result.fire.topology.cells[i].solid_k=target_solid_k[i];
+  }
+  thermokarst::Column before_column;before_column.cells=snapshot.cells;
+  load_global_state(before_column,g.thermokarst);const auto before=before_column.budget();
+  thermokarst::Column c;c.cells=result.fire.topology.cells;load_global_state(c,g.thermokarst);
+  c.surface_mass+=result.fire.released_water;
+  c.surface_energy+=result.fire.released_phase_energy;
+  c.reconcile_phase();const auto after=c.budget();
+  result.water_residual=after.water-before.water;
+  result.energy_residual=after.energy+result.fire.exported_solid_energy-before.energy;
+  double old_matrix=0.;for(const auto& x:snapshot.cells)old_matrix+=x.matrix;
+  result.matrix_residual=after.matrix-(old_matrix-result.fire.burned_matrix);
+  for(unsigned k=0;k<6;++k) {
+    double expected=0.;for(const auto& p:postfire_pools)expected+=p[k];
+    result.pool_residual[k]=after.pools[k]-expected;
+  }
+  if(std::abs(result.water_residual)>1e-7 || std::abs(result.energy_residual)>1e-3)
+    throw std::runtime_error("thermokarst fire water/energy conservation failure");
+  for(double e:result.pool_residual)if(std::abs(e)>1e-8)
+    throw std::runtime_error("thermokarst fire post-combustion C/N transfer failure");
+  if(c.cells.size()!=layers.size())throw std::runtime_error("fire topology export size mismatch");
+  for(unsigned i=0;i<layers.size();++i)export_soil_cell(*layers[i],c.cells[i]);
+  // Only the liquid that leaves the zero-capacity thermokarst surface
+  // reservoir enters TEM's daily hydrology on this transaction. Tag exactly
+  // that mass as newly generated source water; colder released phase water
+  // remains in surface storage until a later thermal solve melts it.
+  store_global_state(g,c,c.runoff_mass,result.water_residual,result.energy_residual);
+  using S=ThermokarstState;
+  g.thermokarst.value[S::FIRE_RELEASED_WATER]+=result.fire.released_water;
+  g.thermokarst.value[S::FIRE_EXPORTED_ENERGY]+=result.fire.exported_solid_energy;
+  g.thermokarst.value[S::FIRE_MATRIX_LOSS]+=result.fire.burned_matrix;
+  g.thermokarst.value[S::FIRE_ROUTED_LIQUID]+=c.runoff_mass;
   g.resortGroundLayers();g.updateSoilHorizons();rebuild_fronts(g,snapshot.freezing);
   return result;
 }

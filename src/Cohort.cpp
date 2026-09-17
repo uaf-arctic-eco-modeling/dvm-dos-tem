@@ -19,6 +19,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <cmath>
 
 #include <boost/assign/list_of.hpp> // for 'list_of()'
 
@@ -34,9 +35,14 @@ void remap_layer_array(double* values,int old_count,
     const std::vector<std::vector<double> >& weights,bool intensive,
     double fill=0.) {
   std::vector<double> old(values,values+old_count);
-  const std::vector<double> mapped=intensive?
-      thermokarst::remap_intensive(weights,old):
-      thermokarst::remap_extensive(weights,old);
+  std::vector<double> mapped(weights.size(),0.);
+  for(unsigned i=0;i<weights.size();++i) {
+    double valid_weight=0.;
+    for(int j=0;j<old_count;++j)if(std::isfinite(old[j])) {
+      mapped[i]+=weights[i][j]*old[j];valid_weight+=weights[i][j];
+    }
+    if(intensive) mapped[i]=valid_weight>0.?mapped[i]/valid_weight:fill;
+  }
   for(int i=0;i<MAX_SOI_LAY;++i) values[i]=i<int(mapped.size())?mapped[i]:fill;
 }
 void remap_environment(EnvData& e,int old_count,
@@ -74,15 +80,24 @@ void remap_litter_history(BgcData& b,int old_count,
     std::vector<double> old(old_count,0.);
     for(int i=0;i<old_count;++i)
       if(month<b.prvltrfcnque[i].size()) old[i]=b.prvltrfcnque[i][month];
-    const auto mapped=thermokarst::remap_intensive(map.intensive_weight,old);
+    std::vector<double> mapped(map.intensive_weight.size(),0.);
+    for(unsigned i=0;i<mapped.size();++i) {
+      double valid=0.;for(int j=0;j<old_count;++j)if(std::isfinite(old[j])) {
+        mapped[i]+=map.intensive_weight[i][j]*old[j];valid+=map.intensive_weight[i][j];
+      }
+      if(valid>0.)mapped[i]/=valid;
+    }
     for(unsigned i=0;i<mapped.size();++i) output[i].push_back(mapped[i]);
   }
   for(int i=0;i<MAX_SOI_LAY;++i)
     b.prvltrfcnque[i]=i<int(output.size())?output[i]:std::deque<double>();
 }
 void remap_bgc_accumulators(BgcData& b,int old_count,
-                            const thermokarst::TopologyMap& map) {
-  soistate_bgc* states[]={&b.m_sois,&b.y_sois};
+                            const thermokarst::TopologyMap& map,
+                            bool map_monthly_state=true) {
+  std::vector<soistate_bgc*> states;
+  if(map_monthly_state)states.push_back(&b.m_sois);
+  states.push_back(&b.y_sois);
   for(soistate_bgc* s:states) {
     double* arrays[]={s->rawc,s->soma,s->sompr,s->somcr,s->orgn,s->avln};
     for(double* a:arrays)remap_layer_array(a,old_count,map.donor_fraction,false);
@@ -108,6 +123,14 @@ void remap_bgc_accumulators(BgcData& b,int old_count,
     remap_layer_array(f->nimmob,old_count,map.donor_fraction,false);
   }
   remap_litter_history(b,old_count,map);
+}
+std::vector<std::vector<double> > surviving_transfer(
+    const thermokarst::FireTopologyMap& fire) {
+  auto weights=fire.topology.donor_fraction;
+  for(unsigned i=0;i<weights.size();++i)for(unsigned j=0;j<weights[i].size();++j)
+    weights[i][j]=fire.surviving_fraction[j]>1.e-14?
+        weights[i][j]/fire.surviving_fraction[j]:0.;
+  return weights;
 }
 }
 
@@ -459,8 +482,6 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
 
-  if(ground.thermokarst.enabled && md->get_dsbmodule())
-    throw std::invalid_argument("thermokarst currently requires dsb=false; fire-driven topology changes are not yet remapped");
   //
   if(currmind==0) {
     cd.beginOfYear();
@@ -880,12 +901,29 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
   // see if it is an appropriate time to burn
   if ( fire.should_ignite(year, midx, stage) ) {
 
+    tem_thermokarst::TopologySnapshot fire_snapshot;
+    int old_soil_count=cd.m_soil.numsl;
+    if(ground.thermokarst.enabled) {
+      int il=0;for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl,++il) {
+        l->rawc=bdall->m_sois.rawc[il];l->soma=bdall->m_sois.soma[il];
+        l->sompr=bdall->m_sois.sompr[il];l->somcr=bdall->m_sois.somcr[il];
+        l->orgn=bdall->m_sois.orgn[il];l->avln=bdall->m_sois.avln[il];
+      }
+      fire_snapshot=tem_thermokarst::prepare_topology_change(ground);
+    }
+
     BOOST_LOG_SEV(glg, debug) << "Right before fire.burn(..)  " << ground.layer_report_string();
 
     // Fire!
     //  - Update C/N pools for each pft through 'bd', but not soil structure.
     //  - Soil root fraction also updated through 'cd'.
     fire.burn(year);
+
+    std::vector<std::vector<double> > postfire_roots(
+        NUM_PFT,std::vector<double>(old_soil_count,0.));
+    if(ground.thermokarst.enabled)
+      for(int ip=0;ip<NUM_PFT;++ip)for(int il=0;il<old_soil_count;++il)
+        postfire_roots[ip][il]=cd.m_soil.frootfrac[il][ip];
     
     BOOST_LOG_SEV(glg, debug) << "Right after fire.burn(..)  " << ground.layer_report_string();
 
@@ -907,12 +945,42 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
 
     BOOST_LOG_SEV(glg, debug) << "Post-burn, assign the updated C/N pools to double linked layer matrix in ground...";
     soilbgc.assignCarbonBd2LayerMonthly();
+    if(ground.thermokarst.enabled) {
+      int il=0;for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl,++il) {
+        l->orgn=bdall->m_sois.orgn[il];l->avln=bdall->m_sois.avln[il];
+      }
+    }
 
     BOOST_LOG_SEV(glg, debug) << "Post-burn, adjust soil structure...";
     ground.adjustSoilAfterburn(); // must call after soilbgc.assignCarbonBd2LayerMonthly()
 
+    if(ground.thermokarst.enabled) {
+      const auto result=tem_thermokarst::finish_fire_topology_change(
+          ground,fire_snapshot,fd->fire_soid.burnthick);
+      ground.retrieveSoilDimension(&cd.m_soil);
+      const auto root_weights=surviving_transfer(result.fire);
+      for(int ip=0;ip<NUM_PFT;++ip) {
+        std::vector<double> roots(result.fire.topology.cells.size(),0.);
+        if(cd.m_veg.vegcov[ip]>0.)for(unsigned i=0;i<roots.size();++i)
+          for(int j=0;j<old_soil_count;++j)if(std::isfinite(postfire_roots[ip][j]))
+            roots[i]+=root_weights[i][j]*postfire_roots[ip][j];
+        for(int il=0;il<MAX_SOI_LAY;++il)cd.m_soil.frootfrac[il][ip]=
+            il<int(roots.size())?roots[il]:0.;
+      }
+      remap_environment(*edall,old_soil_count,result.fire.topology);
+      for(int ip=0;ip<NUM_PFT;++ip)if(cd.m_veg.vegcov[ip]>0.)
+        remap_environment(ed[ip],old_soil_count,result.fire.topology);
+      remap_bgc_accumulators(*bdall,old_soil_count,result.fire.topology,false);
+    }
+
     BOOST_LOG_SEV(glg, debug) << "Post-burn, save the data back to 'bdall'...";
     soilbgc.assignCarbonLayer2BdMonthly();
+    if(ground.thermokarst.enabled) {
+      int il=0;for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl,++il) {
+        bdall->m_sois.orgn[il]=l->orgn;bdall->m_sois.avln[il]=l->avln;
+      }
+      for(;il<MAX_SOI_LAY;++il)bdall->m_sois.orgn[il]=bdall->m_sois.avln[il]=0.;
+    }
 
     BOOST_LOG_SEV(glg, debug) << "Post-burn, update all other pft's 'bd'...";
     assignSoilBd2pfts_monthly();
@@ -924,7 +992,7 @@ void Cohort::updateMonthly_Fir(const int & year, const int & midx, std::string s
     ground.retrieveSoilDimension(&cd.m_soil);
     cd.d_soil = cd.m_soil;
     cd.y_soil = cd.m_soil;
-    getSoilFineRootFrac_Monthly();
+    if(!ground.thermokarst.enabled)getSoilFineRootFrac_Monthly();
 
   } else {
     BOOST_LOG_SEV(glg, debug) << "Not time for a fire. Nothing to do.";
@@ -1532,7 +1600,7 @@ void Cohort::set_state_from_restartdata() {
   solprntenv.set_state_from_restartdata(this->restartdata);
   soilbgc.set_state_from_restartdata(this->restartdata);
   fire.set_state_from_restartdata(this->restartdata);
-  if(restartdata.TKversion>2)
+  if(restartdata.TKversion>3)
     throw std::invalid_argument("unsupported thermokarst restart version");
   if(restartdata.TKversion>=1) {
     if(!md->thermokarst_enabled && restartdata.TKactive)
@@ -1676,7 +1744,7 @@ void Cohort::set_restartdata_from_state() {
     restartdata.ICEsnow[il] = edall->d_snws.snwice[il];
   }
 
-  restartdata.TKversion=2;
+  restartdata.TKversion=3;
   restartdata.TKactive=ground.thermokarst.enabled?1:0;
   std::copy(ground.thermokarst.value,ground.thermokarst.value+ThermokarstState::COUNT,restartdata.TKstate);
   restartdata.TKpuddle=ground.thermokarst.enabled?edall->d_soi2l.magic_puddle:0.;

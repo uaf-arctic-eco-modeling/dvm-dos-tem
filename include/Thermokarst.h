@@ -46,9 +46,28 @@ struct TopologyMap {
   std::vector<std::vector<double> > donor_fraction;
   std::vector<std::vector<double> > intensive_weight;
 };
+// A fire map differs from the closed dynamic-soil map: combustion may remove
+// the top of the material column.  The surviving fraction is mapped to the
+// prescribed post-fire grid, while phase water is released to post-fire
+// hydrology and the sensible heat of the consumed solid matrix is exported.
+struct FireTopologyMap {
+  TopologyMap topology;
+  std::vector<double> surviving_fraction;
+  double burned_matrix = 0.;
+  double released_water = 0.;
+  double released_liquid = 0.;
+  double released_ice = 0.;
+  double released_excess = 0.;
+  double released_phase_energy = 0.;
+  double exported_solid_energy = 0.;
+};
 TopologyMap remap_matrix_topology(const std::vector<Cell>& old_cells,
                                   const std::vector<double>& new_matrix,
                                   const std::vector<int>& new_material);
+FireTopologyMap remap_fire_topology(const std::vector<Cell>& old_cells,
+                                    double burned_physical_depth,
+                                    const std::vector<double>& new_matrix,
+                                    const std::vector<int>& new_material);
 std::vector<double> remap_extensive(
     const std::vector<std::vector<double> >& donor_fraction,
     const std::vector<double>& old_values);

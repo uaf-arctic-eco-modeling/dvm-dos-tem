@@ -86,8 +86,10 @@ std::vector<double> remap_extensive(
   for (unsigned i=0;i<weights.size();++i) {
     require(weights[i].size()==old_values.size(), "topology map width mismatch");
     for (unsigned j=0;j<old_values.size();++j) {
-      require(std::isfinite(weights[i][j]) && weights[i][j]>=0. &&
-              std::isfinite(old_values[j]), "invalid topology remap value");
+      require(std::isfinite(weights[i][j]) && weights[i][j]>=0.,
+              "invalid topology remap weight");
+      require(std::isfinite(old_values[j]),
+              "nonfinite topology donor value");
       result[i]+=weights[i][j]*old_values[j];
     }
   }
@@ -163,6 +165,96 @@ TopologyMap remap_matrix_topology(const std::vector<Cell>& old_cells,
   for(unsigned j=0;j<no;++j){double s=0.;for(unsigned i=0;i<nn;++i)s+=map.donor_fraction[i][j];require(std::abs(s-1.)<1.e-10,"incomplete donor coverage");}
   for(unsigned i=0;i<nn;++i){double s=0.;for(double w:map.intensive_weight[i])s+=w;require(std::abs(s-1.)<1.e-10,"incomplete target coverage");}
   return map;
+}
+FireTopologyMap remap_fire_topology(const std::vector<Cell>& old_cells,
+                                    double burned_physical_depth,
+                                    const std::vector<double>& new_matrix,
+                                    const std::vector<int>& new_material) {
+  require(!old_cells.empty() && !new_matrix.empty() &&
+          new_matrix.size()==new_material.size(),"invalid fire topology shape");
+  require(std::isfinite(burned_physical_depth) && burned_physical_depth>=0.,
+          "invalid fire burn depth");
+  FireTopologyMap result;
+  const unsigned no=old_cells.size(),nn=new_matrix.size();
+  result.surviving_fraction.assign(no,1.);
+  double remaining=burned_physical_depth;
+  for(unsigned j=0;j<no && remaining>0.;++j) {
+    const double thickness=old_cells[j].thickness();
+    require(std::isfinite(thickness) && thickness>1.e-9,
+            "invalid fire donor thickness");
+    const double consumed=std::min(remaining,thickness);
+    result.surviving_fraction[j]=1.-consumed/thickness;
+    remaining-=consumed;
+  }
+  require(remaining<=1.e-9*std::max(1.,burned_physical_depth),
+          "fire burn depth exceeds soil column");
+  double survivor_matrix=0.,target_matrix=0.;
+  for(unsigned j=0;j<no;++j) survivor_matrix+=old_cells[j].matrix*result.surviving_fraction[j];
+  for(double d:new_matrix) {
+    require(std::isfinite(d) && d>1.e-9,"invalid fire target thickness");
+    target_matrix+=d;
+  }
+  require(survivor_matrix>1.e-9 && target_matrix>1.e-9,
+          "fire removed complete soil column");
+  TopologyMap& map=result.topology;
+  map.cells.resize(nn);map.donor_fraction.assign(nn,std::vector<double>(no,0.));
+  map.intensive_weight.assign(nn,std::vector<double>(no,0.));
+  double ntop=0.;
+  for(unsigned i=0;i<nn;++i) {
+    const double nbot=ntop+new_matrix[i]/target_matrix;
+    double otop=0.;
+    for(unsigned j=0;j<no;++j) {
+      const double span=old_cells[j].matrix*result.surviving_fraction[j]/survivor_matrix;
+      const double obot=otop+span;
+      const double overlap=std::max(0.,std::min(nbot,obot)-std::max(ntop,otop));
+      if(overlap>0. && span>0.) {
+        map.donor_fraction[i][j]=result.surviving_fraction[j]*overlap/span;
+        map.intensive_weight[i][j]=overlap/(nbot-ntop);
+      }
+      otop=obot;
+    }
+    ntop=nbot;
+  }
+  std::vector<double> water(no),ice(no),excess(no),enthalpy(no),porosity(no),solid_heat(no),solid_k(no);
+  std::array<std::vector<double>,6> pools;
+  for(unsigned j=0;j<no;++j) {
+    const Cell& c=old_cells[j];const double burned=1.-result.surviving_fraction[j];
+    require(std::isfinite(c.water),"nonfinite fire donor liquid");
+    require(std::isfinite(c.ice),"nonfinite fire donor pore ice");
+    require(std::isfinite(c.excess),"nonfinite fire donor excess ice");
+    require(std::isfinite(c.enthalpy),"nonfinite fire donor enthalpy");
+    require(std::isfinite(c.porosity),"nonfinite fire donor porosity");
+    require(std::isfinite(c.solid_heat),"nonfinite fire donor heat capacity");
+    require(std::isfinite(c.solid_k),"nonfinite fire donor conductivity");
+    for(unsigned k=0;k<6;++k)require(std::isfinite(c.pools[k]),"nonfinite fire donor C/N pool");
+    water[j]=c.water;ice[j]=c.ice;excess[j]=c.excess;enthalpy[j]=c.enthalpy;
+    porosity[j]=c.porosity;solid_heat[j]=c.solid_heat;solid_k[j]=c.solid_k;
+    for(unsigned k=0;k<6;++k)pools[k].push_back(c.pools[k]);
+    result.burned_matrix+=burned*c.matrix;
+    result.released_liquid+=burned*c.water;
+    result.released_ice+=burned*c.ice;
+    result.released_excess+=burned*c.excess;
+    const double temperature=c.temperature();
+    result.released_phase_energy+=burned*((c.water*SHCLIQ+(c.ice+c.excess)*SHCICE)*temperature+LHFUS*c.water);
+    result.exported_solid_energy+=burned*c.matrix*(1.-c.porosity)*c.solid_heat*temperature;
+  }
+  result.released_water=result.released_liquid+result.released_ice+result.released_excess;
+  const auto rw=remap_extensive(map.donor_fraction,water),ri=remap_extensive(map.donor_fraction,ice),
+    rx=remap_extensive(map.donor_fraction,excess),rh=remap_extensive(map.donor_fraction,enthalpy),
+    rp=remap_intensive(map.intensive_weight,porosity),rc=remap_intensive(map.intensive_weight,solid_heat),
+    rk=remap_intensive(map.intensive_weight,solid_k);
+  std::array<std::vector<double>,6> remapped_pools;
+  for(unsigned k=0;k<6;++k)remapped_pools[k]=remap_extensive(map.donor_fraction,pools[k]);
+  for(unsigned i=0;i<nn;++i) {
+    Cell& c=map.cells[i];c.material=new_material[i];c.matrix=new_matrix[i];c.porosity=rp[i];
+    c.solid_heat=rc[i];c.solid_k=rk[i];c.water=rw[i];c.ice=ri[i];c.excess=rx[i];c.enthalpy=rh[i];
+    for(unsigned k=0;k<6;++k)c.pools[k]=remapped_pools[k][i];
+  }
+  for(unsigned j=0;j<no;++j){double s=0.;for(unsigned i=0;i<nn;++i)s+=map.donor_fraction[i][j];
+    require(std::abs(s-result.surviving_fraction[j])<1.e-10,"incomplete fire donor coverage");}
+  for(unsigned i=0;i<nn;++i){double s=0.;for(double w:map.intensive_weight[i])s+=w;
+    require(std::abs(s-1.)<1.e-10,"incomplete fire target coverage");}
+  return result;
 }
 void Column::validate() const {
   require(!cells.empty() && cells.size() <= 10000, "invalid layer count");
