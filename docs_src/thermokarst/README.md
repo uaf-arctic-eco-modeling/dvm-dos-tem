@@ -17,13 +17,15 @@ layers in place; rebuilds fronts and drainage; recalculates root distributions; 
 routes released liquid through existing ponding, infiltration, Richards drainage,
 and runoff. Annual dynamic-soil splits, merges, and resizes use a conservative
 material-horizon map for physical, C/N, root, front, and accumulated layer state.
-Production NetCDF restarts persist the
+Fire-driven topology uses an open-system map that couples burned matrix, water,
+and sensible enthalpy to combustion and post-fire hydrology while retaining
+WildFire's authoritative C/N losses. Production NetCDF restarts persist the
 versioned thermokarst state and geometry. With the setting absent or disabled, TEM
 uses its legacy thermal pathway.
 
 This is still an experimental one-column mechanism. SOM-driven dynamic soil (`dsl`)
-is supported while thermokarst is active; fire-driven topology (`dsb`) remains
-disabled. Ponded water has no thermal feedback, and lateral thermokarst drainage is
+and fire-driven topology (`dsb`) are supported while thermokarst is active.
+Ponded water has no thermal feedback, and lateral thermokarst drainage is
 represented only through TEM's existing Richards drainage pathway.
 
 Base repository: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem
@@ -64,6 +66,7 @@ Production restart validations are available as separate targets:
 ```sh
 make thermokarst-production-validation
 make thermokarst-active-thaw-validation
+make thermokarst-fire-validation
 ```
 
 The active-thaw test places a restart inside ongoing excess-ice melt under an
@@ -71,6 +74,12 @@ explicitly one-year-periodic forcing. It compares subsidence, collapse water,
 conservation residuals, fronts, root remapping, and settled geometry. See
 [active-thaw-validation-report.md](active-thaw-validation-report.md) for the
 full configuration, results, figures, and limitations.
+
+The fire validation enables thermokarst, BGC, dynamic soil, and fire disturbance
+for CMT04 and CMT05. It checks combustion-linked water and enthalpy loss,
+post-fire hydrology, layer geometry, fronts, roots, C/N state, and restart
+continuation. See
+[fire-topology-validation-report.md](fire-topology-validation-report.md).
 
 Run a custom constant-temperature experiment:
 
@@ -243,8 +252,8 @@ roots, and drainage; run snow mass bookkeeping; route collapse water through soi
 hydrology; then accumulate daily state into monthly arrays. This ordering makes the
 monthly thickness weights use settled geometry without resetting accumulated fluxes.
 
-Before scientific use, validate pond and drainage behavior against observations,
-add pond thermal feedback, and test fire interactions. Use the current mechanism
+Before scientific use, validate pond and drainage behavior against observations
+and add pond thermal feedback. Use the current mechanism
 for numerical and integration experiments rather than calibrated ecosystem
 projections. The production dynamic-soil validation is documented in
 [topology-map-validation-report.md](topology-map-validation-report.md).
