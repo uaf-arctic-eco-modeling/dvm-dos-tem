@@ -707,13 +707,12 @@ def climate_inspect(args):
   Uses xarray for data loading (handles cftime automatically) and
   matplotlib widgets for interactivity.
   '''
-
-  import copy
   import datetime as dt
+
   import matplotlib.pyplot as plt
   import matplotlib.widgets as widgets
-  from matplotlib.gridspec import GridSpec
   import xarray as xr
+  from matplotlib.gridspec import GridSpec
 
   VARS = ['nirr', 'precip', 'tair', 'vapor_press']
   COLORMAPS = {
@@ -752,7 +751,7 @@ def climate_inspect(args):
 
   for ax, var in zip(axes_images, present_vars):
     data = ds[var].isel(time=0)
-    im = ax.imshow(data, animated=True, cmap=COLORMAPS[var])
+    im = ax.imshow(data, cmap=COLORMAPS[var])
     im.set_clim(vmin=float(data.min()), vmax=float(data.max()))
     cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     gmin, gmax = global_ranges[var]
