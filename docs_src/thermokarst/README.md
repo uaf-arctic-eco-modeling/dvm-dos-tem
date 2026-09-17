@@ -264,3 +264,11 @@ printing its first message. On a supported host, enable it with
 The unchanged production `make dvm` was attempted and stopped at missing
 `json/writer.h`. Production ecosystem execution/regression was therefore not
 verified here. This dependency does not affect the thermokarst targets.
+
+The daily source-water tracer and seasonal restart validation are documented in
+[seasonal-diagnostic-report.md](seasonal-diagnostic-report.md). Reproduce the
+continuous, midpoint-restarted, and diagnostics-disabled control cases with:
+
+```sh
+make thermokarst-seasonal-diagnostics-validation
+```

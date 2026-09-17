@@ -1,0 +1,75 @@
+{
+  "forcing": {
+    "monthly_tair_C": [
+      -20.0,
+      -18.0,
+      -12.0,
+      -4.0,
+      4.0,
+      10.0,
+      12.0,
+      8.0,
+      2.0,
+      -5.0,
+      -12.0,
+      -18.0
+    ],
+    "monthly_precip_mm": [
+      8.0,
+      7.0,
+      6.0,
+      7.0,
+      10.0,
+      18.0,
+      24.0,
+      22.0,
+      16.0,
+      12.0,
+      9.0,
+      8.0
+    ],
+    "monthly_nirr": [
+      0.0,
+      2.0,
+      6.0,
+      12.0,
+      18.0,
+      22.0,
+      20.0,
+      14.0,
+      8.0,
+      3.0,
+      0.0,
+      0.0
+    ],
+    "period_years": 1
+  },
+  "total_generated_mm": 25.237478305680042,
+  "final_storage_mm": 0.010525810262392896,
+  "cumulative_runoff_mm": 23.648178736810372,
+  "cumulative_drainage_mm": 0.0,
+  "cumulative_other_mm": 1.5787737586072985,
+  "final_subsidence_m": 0.027521786592890077,
+  "maximum_partition_closure_error_mm": 2.1316282072803006e-14,
+  "maximum_daily_restart_differences": {
+    "TKLIQGEN": 0.0,
+    "TKLIQSTORAGE": 0.0,
+    "TKLIQRUNOFF": 0.0,
+    "TKLIQDRAINAGE": 0.0,
+    "TKLIQOTHER": 0.0,
+    "TKSUBSIDENCE": 0.0,
+    "TKFRONT": 0.0,
+    "TKFRONTTYPE": 0.0
+  },
+  "thawing_front_days": 259,
+  "freezing_front_days": 112,
+  "thermokarst_physical_restart_fields_exact": true,
+  "diagnostics_passive_exact": true,
+  "preexisting_nonexact_restart_fields": [
+    "growingttime",
+    "growingttimeA",
+    "vegsnow"
+  ],
+  "checks_passed": 7,
+  "checks_total": 7
+}

@@ -1,0 +1,11 @@
+{
+  "claim": "Daily thermokarst water and trajectory diagnostics close and remain exact across a midpoint restart under periodic seasonal forcing.",
+  "source": "Five production TEM runs for one Toolik grid cell.",
+  "forms": ["daily time series", "cumulative stacked partition", "front trajectory"],
+  "series_order": ["continuous", "restarted"],
+  "palette": {"primary": "#1F6F5F", "comparison": "#777772", "context": "#B9C1BE"},
+  "target_width_in": 7.0,
+  "minimum_text_pt": 8.0,
+  "uncertainty": "None; deterministic integration test.",
+  "outputs": ["PNG at 240 dpi", "SVG vector"]
+}
