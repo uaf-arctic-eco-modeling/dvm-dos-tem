@@ -7,6 +7,7 @@ import pathlib
 import sys
 import netCDF4 as nc
 import numpy as np
+import pandas as pd
 import xarray as xr
 from collections import Counter
 
@@ -905,6 +906,20 @@ def _chop_time_overlap(ds, cutoff):
     return ds.isel(time=mask), int((~mask).sum())
 
 
+def _set_time_units(ds, time_name="time"):
+    """Set the `units` encoding of `time_name` to 'days since <first date>' so
+    the reference date reflects this file's own (possibly truncated) time
+    axis rather than a value inherited from the source file."""
+    from IPython import embed; embed()
+    first = ds[time_name].values[0]
+    if isinstance(first, np.datetime64):
+        first = pd.Timestamp(first)
+    ds[time_name].encoding["units"] = f"days since {first.strftime('%Y-%m-%d')}"
+    ds[time_name].encoding["calendar"] = "noleap"
+    ds[time_name].encoding["dtype"] = "int64"
+    return ds
+
+
 def align_projected_to_historic(input_directory, output_directory, pattern="*.nc"):
     """Classify files in `input_directory` as historic/projected climate,
     fire, and co2 files (based on filename keywords) and write corrected
@@ -926,6 +941,11 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
       - projected co2 files: any years at or before the historic climate
         file's last year (or duplicated by the historic years moved in
         above) are dropped, and the moved-in historic years are prepended
+
+    For every output file with a "time" axis (projected climate, historic
+    fire, projected fire), the time variable's `units` encoding is set to
+    "days since <first date in that file>" so the reference date reflects
+    the file's own (possibly truncated) time axis.
 
     Raises a ValueError if no historic or no projected climate file is found.
     """
@@ -963,6 +983,7 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
         with xr.open_dataset(p) as ds:
             ds = ds.load()
         ds_trunc, n_dropped = _chop_time_overlap(ds, historic_end)
+        ds_trunc = _set_time_units(ds_trunc)
         out_path = output_directory / p.name
         ds_trunc.to_netcdf(out_path)
         print(f"{p.name}: dropped {n_dropped} time steps overlapping the historic record -> {ds_trunc['time'].values.min()} .. {ds_trunc['time'].values.max()} ({out_path})")
@@ -976,6 +997,7 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
                 f"{p.name}: time axis does not match the historic climate file's time axis "
                 f"({fire_time.min()} -> {fire_time.max()} vs {historic_climate_time.min()} -> {historic_climate_time.max()})"
             )
+        ds = _set_time_units(ds)
         out_path = output_directory / p.name
         ds.to_netcdf(out_path)
         print(f"{p.name}: time axis matches historic climate -> {fire_time.min()} .. {fire_time.max()} ({out_path})")
@@ -984,6 +1006,7 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
         with xr.open_dataset(p) as ds:
             ds = ds.load()
         ds_trunc, n_dropped = _chop_time_overlap(ds, historic_end)
+        ds_trunc = _set_time_units(ds_trunc)
         out_path = output_directory / p.name
         ds_trunc.to_netcdf(out_path)
         print(f"{p.name}: dropped {n_dropped} time steps overlapping the historic record -> {ds_trunc['time'].values.min()} .. {ds_trunc['time'].values.max()} ({out_path})")
