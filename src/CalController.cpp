@@ -25,7 +25,7 @@ extern src::severity_logger< severity_level > glg;
  a txt file in the config/ director.
 */
 CalController::CalController(Cohort* cht_p):
-  io_service(new boost::asio::io_service),
+  io_service(new boost::asio::io_context),
   pause_sigs(*io_service, SIGINT, SIGTERM),
   cohort_ptr(cht_p) {
   cmd_map = {
@@ -421,7 +421,8 @@ void CalController::pause_handler(const boost::system::error_code& error,
  */
 void CalController::async_pause( ) {
   BOOST_LOG_SEV(glg, debug) << "Posting to the io_service.";
-  this->io_service->post( boost::bind(&CalController::control_loop, this) );
+  boost::asio::post(*this->io_service,
+                    boost::bind(&CalController::control_loop, this));
 }
 
 /** Forcibly pauses the simulation.
@@ -580,14 +581,13 @@ void CalController::archive_stage_JSON(const std::string& stage){
 /** Check the io_service object for signals that may have arrived. */
 void CalController::check_for_signals() {
   int handlers_run = 0;
-  boost::system::error_code ec;
   BOOST_LOG_SEV(glg, debug) << "Poll the io_service...";
-  handlers_run = io_service->poll(ec);
+  handlers_run = io_service->poll();
   BOOST_LOG_SEV(glg, debug) << "Handlers run: " << handlers_run;
 
   if (handlers_run > 0) {
     BOOST_LOG_SEV(glg, debug) << "Reset the io_service object.";
-    io_service->reset();
+    io_service->restart();
     BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";
     pause_sigs.async_wait(boost::bind(&CalController::pause_handler, this,
                                       boost::asio::placeholders::error,

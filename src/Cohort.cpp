@@ -376,8 +376,14 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
                             << yrcnt << " Month: " << currmind << " dinmcurr: "
                             << dinmcurr;
 
-  if(ground.thermokarst.enabled && (md->get_dslmodule() || md->get_dsbmodule()))
-    throw std::invalid_argument("thermokarst currently requires dsl=false and dsb=false; material layer IDs must remain stable");
+  if(ground.thermokarst.enabled && md->get_dsbmodule())
+    throw std::invalid_argument("thermokarst currently requires dsb=false; fire-driven topology changes are not yet remapped");
+  if(ground.thermokarst.enabled && md->get_dslmodule()) {
+    for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
+      if(l->excess_ice>1.e-12)
+        throw std::invalid_argument("thermokarst with dsl=true requires zero excess ice; active-collapse topology changes are not yet remapped");
+    }
+  }
   //
   if(currmind==0) {
     cd.beginOfYear();
@@ -905,6 +911,18 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
 
   //only update the thickness at begin of year, since it is a slow process
   if(dslmodule && currmind==0) {
+    // Let the legacy dynamic-layer routines operate on their native matrix
+    // geometry.  Leaving the previous thermokarst metadata attached while a
+    // layer is resized makes derivePhysicalProperty() interpret the transient
+    // thickness as an excess-ice geometry.  Active excess ice is rejected in
+    // updateMonthly(), so clearing these zero-excess tags loses no state.
+    if(ground.thermokarst.enabled) {
+      for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
+        l->matrix_dz=0.;
+        l->matrix_porosity=0.;
+        l->excess_ice=0.;
+      }
+    }
     // calculate the OSL layer thickness from C contents
     ground.updateOslThickness5Carbon(ground.fstsoill);
 
@@ -927,6 +945,18 @@ void Cohort::updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule) 
     }
 
     ground.redivideSoilLayers();
+    // Dynamic SOM thickness may split, merge, create, or resize layers.  In a
+    // zero-excess thermokarst column the resulting physical grid is the new
+    // matrix grid, so refresh the thermokarst metadata before the next daily
+    // thermal solve.  Active excess ice is rejected above because its material
+    // remapping needs a separate conservative topology-change implementation.
+    if(ground.thermokarst.enabled) {
+      for(Layer* l=ground.fstsoill;l && l->isSoil;l=l->nextl) {
+        l->matrix_dz=l->dz;
+        l->matrix_porosity=l->poro;
+        l->excess_ice=0.;
+      }
+    }
     // and save the bgc data in double-linked structure back to 'bdall'
     soilbgc.assignCarbonLayer2BdMonthly();
   }

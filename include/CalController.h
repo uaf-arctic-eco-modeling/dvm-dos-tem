@@ -71,7 +71,7 @@ public:
   boost::filesystem::path yearly_json;
 
 private:
-  boost::shared_ptr< boost::asio::io_service > io_service;
+  boost::shared_ptr< boost::asio::io_context > io_service;
   boost::asio::signal_set pause_sigs;
 
   Cohort* cohort_ptr;
@@ -121,5 +121,4 @@ private:
 };
 
 #endif /* _CALCONTROLLER_H_ */
-
 

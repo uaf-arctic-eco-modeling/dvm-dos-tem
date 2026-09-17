@@ -1680,7 +1680,7 @@ void Ground::combineTwoSoilLayersL2U(SoilLayer* lsl, SoilLayer* usl) {
   usl->sompr+=lsl->sompr;
   usl->somcr+=lsl->somcr;
   usl->orgn +=lsl->orgn;
-  usl->avln =+lsl->avln;
+  usl->avln +=lsl->avln;
   // after combination, needs to update 'usl'- 'frozen' status based on
   //   'fronts' if given
   getLayerFrozenstatusByFronts(usl);
@@ -2551,4 +2551,3 @@ void Ground::setBgcData(BgcData *bdp){
 void Ground::setCohortLookup(CohortLookup* chtlup) {
   chtlu = chtlup;
 };
-
