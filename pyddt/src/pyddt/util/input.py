@@ -7,6 +7,7 @@ import pathlib
 import sys
 import netCDF4 as nc
 import numpy as np
+import pandas as pd
 import xarray as xr
 from collections import Counter
 
@@ -707,13 +708,12 @@ def climate_inspect(args):
   Uses xarray for data loading (handles cftime automatically) and
   matplotlib widgets for interactivity.
   '''
-
-  import copy
   import datetime as dt
+
   import matplotlib.pyplot as plt
   import matplotlib.widgets as widgets
-  from matplotlib.gridspec import GridSpec
   import xarray as xr
+  from matplotlib.gridspec import GridSpec
 
   VARS = ['nirr', 'precip', 'tair', 'vapor_press']
   COLORMAPS = {
@@ -752,7 +752,7 @@ def climate_inspect(args):
 
   for ax, var in zip(axes_images, present_vars):
     data = ds[var].isel(time=0)
-    im = ax.imshow(data, animated=True, cmap=COLORMAPS[var])
+    im = ax.imshow(data, cmap=COLORMAPS[var])
     im.set_clim(vmin=float(data.min()), vmax=float(data.max()))
     cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     gmin, gmax = global_ranges[var]
@@ -900,10 +900,42 @@ def _year_month(t):
     return t.year, t.month
 
 
+def _years_array(time_values):
+    """Return a numpy int array of calendar years extracted from an array of
+    time values (numpy datetime64 or cftime objects)."""
+    return np.array([_year_month(t)[0] for t in time_values])
+
+
 def _chop_time_overlap(ds, cutoff):
     """Return (ds_trunc, n_dropped) keeping only time steps strictly after `cutoff`."""
     mask = ds["time"].values > cutoff
     return ds.isel(time=mask), int((~mask).sum())
+
+
+def _set_time_units(ds, time_name="time"):
+    """Set the `units` encoding of `time_name` to 'days since <first date>' so
+    the reference date reflects this file's own (possibly truncated) time
+    axis rather than a value inherited from the source file."""
+    first = ds[time_name].values[0]
+    if isinstance(first, np.datetime64):
+        first = pd.Timestamp(first)
+
+    if ds[time_name].encoding.get("units", "") != f"days since {first.strftime('%Y-%m-%d')}":
+      print(f"Current encoding for {time_name}: {ds[time_name].encoding}")
+      print(f"--> Setting encoding: days since {first.strftime('%Y-%m-%d')}")
+      ds[time_name].encoding["units"] = f"days since {first.strftime('%Y-%m-%d')}"
+
+    if ds[time_name].encoding.get("calendar", "") != "noleap":
+      print(f"Current calendar for {time_name}: {ds[time_name].encoding['calendar']}")
+      print("--> Setting calendar to 'noleap'")
+      ds[time_name].encoding["calendar"] = "noleap"
+
+    if ds[time_name].encoding.get("dtype", "") != "int64":
+      print(f"Current dtype for {time_name}: {ds[time_name].encoding.get('dtype', '')}")
+      print("--> Setting dtype to 'int64'")
+      ds[time_name].encoding["dtype"] = "int64"
+
+    return ds
 
 
 def align_projected_to_historic(input_directory, output_directory, pattern="*.nc"):
@@ -914,10 +946,15 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
     step). Nothing is shifted/rolled:
       - projected climate files: time steps at or before the historic
         climate file's last time step are dropped
-      - historic fire file(s): must have a time axis identical to the
-        historic climate file's; raises a ValueError if it does not
+      - historic fire file(s): fire files have an annual time axis while
+        climate files are monthly, so instead of comparing timestamps
+        directly, the set of calendar years in the fire file must exactly
+        match the set of calendar years in the historic climate file(s);
+        raises a ValueError if it does not
       - projected fire files: time steps at or before the historic climate
-        file's last time step are dropped (same rule as projected climate)
+        file's last time step are dropped (same rule as projected climate),
+        then the same year-set check as above is applied against the
+        (also truncated) projected climate file(s)
       - historic co2 file(s): year axis truncated to end at the historic
         climate file's last year. If the historic co2 record extends past
         that year, the extra years are not dropped - they are moved into
@@ -927,6 +964,11 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
       - projected co2 files: any years at or before the historic climate
         file's last year (or duplicated by the historic years moved in
         above) are dropped, and the moved-in historic years are prepended
+
+    For every output file with a "time" axis (projected climate, historic
+    fire, projected fire), the time variable's `units` encoding is set to
+    "days since <first date in that file>" so the reference date reflects
+    the file's own (possibly truncated) time axis.
 
     Raises a ValueError if no historic or no projected climate file is found.
     """
@@ -959,32 +1001,53 @@ def align_projected_to_historic(input_directory, output_directory, pattern="*.nc
         historic_climate_times[0] if len(historic_climate_times) == 1
         else np.concatenate(historic_climate_times)
     )
+    historic_climate_years = np.unique(_years_array(historic_climate_time))
 
+    projected_climate_times = []
     for p in projected_climate_files:
         with xr.open_dataset(p) as ds:
             ds = ds.load()
         ds_trunc, n_dropped = _chop_time_overlap(ds, historic_end)
+        ds_trunc = _set_time_units(ds_trunc)
+        projected_climate_times.append(ds_trunc["time"].values)
         out_path = output_directory / p.name
         ds_trunc.to_netcdf(out_path)
         print(f"{p.name}: dropped {n_dropped} time steps overlapping the historic record -> {ds_trunc['time'].values.min()} .. {ds_trunc['time'].values.max()} ({out_path})")
+    projected_climate_time = (
+        projected_climate_times[0] if len(projected_climate_times) == 1
+        else np.concatenate(projected_climate_times)
+    )
+    projected_climate_years = np.unique(_years_array(projected_climate_time))
 
     for p in historic_fire_files:
         with xr.open_dataset(p) as ds:
             ds = ds.load()
-        fire_time = ds["time"].values
-        if fire_time.shape != historic_climate_time.shape or not np.array_equal(fire_time, historic_climate_time):
+        fire_years = np.unique(_years_array(ds["time"].values))
+        if fire_years.shape != historic_climate_years.shape or not np.array_equal(fire_years, historic_climate_years):
             raise ValueError(
-                f"{p.name}: time axis does not match the historic climate file's time axis "
-                f"({fire_time.min()} -> {fire_time.max()} vs {historic_climate_time.min()} -> {historic_climate_time.max()})"
+                f"{p.name}: years in fire file's (annual) time axis do not match the years in the "
+                f"historic climate file's (monthly) time axis "
+                f"({fire_years.min()} -> {fire_years.max()}, {len(fire_years)} years vs "
+                f"{historic_climate_years.min()} -> {historic_climate_years.max()}, {len(historic_climate_years)} years)"
             )
+        ds = _set_time_units(ds)
         out_path = output_directory / p.name
         ds.to_netcdf(out_path)
-        print(f"{p.name}: time axis matches historic climate -> {fire_time.min()} .. {fire_time.max()} ({out_path})")
+        print(f"{p.name}: years match historic climate -> {fire_years.min()} .. {fire_years.max()} ({len(fire_years)} years) ({out_path})")
 
     for p in projected_fire_files:
         with xr.open_dataset(p) as ds:
             ds = ds.load()
         ds_trunc, n_dropped = _chop_time_overlap(ds, historic_end)
+        ds_trunc = _set_time_units(ds_trunc)
+        fire_years = np.unique(_years_array(ds_trunc["time"].values))
+        if fire_years.shape != projected_climate_years.shape or not np.array_equal(fire_years, projected_climate_years):
+            raise ValueError(
+                f"{p.name}: years in fire file's (annual) time axis do not match the years in the "
+                f"projected climate file's (monthly) time axis after dropping the historic overlap "
+                f"({fire_years.min()} -> {fire_years.max()}, {len(fire_years)} years vs "
+                f"{projected_climate_years.min()} -> {projected_climate_years.max()}, {len(projected_climate_years)} years)"
+            )
         out_path = output_directory / p.name
         ds_trunc.to_netcdf(out_path)
         print(f"{p.name}: dropped {n_dropped} time steps overlapping the historic record -> {ds_trunc['time'].values.min()} .. {ds_trunc['time'].values.max()} ({out_path})")
