@@ -22,6 +22,7 @@ TEAL="#1F6F5F"; BLUE="#4C78A8"; ORANGE="#D55E00"; INK="#171717"; MUTED="#777772"
 
 def absolute_io(base):
   for k,v in list(base["IO"].items()):
+    if not v: continue
     if k.endswith("_file") or k=="parameter_dir": base["IO"][k]=str((ROOT/v).resolve())
 
 def copy_spatial(base,out):
@@ -122,6 +123,26 @@ def inject_excess(source,dest,fraction=.2,top=.2,bottom=1.0):
         if overlap and temperature>1.e-8: raise RuntimeError(f"injection layer is thawed: {cell} layer {j}")
         if overlap and temperature>0.: d["TSsoil"][y,x,j]=0. # roundoff at the phase boundary
         mass=917.*overlap*fraction/(1.-fraction);d["TKexcess"][y,x,j]=mass;d["DZsoil"][y,x,j]=matrix+mass/917.;added+=mass;z+=matrix
+      before[str(cell)]=added
+  return before
+
+def inject_excess_mass(source,dest,mass,depth=.20):
+  """Place `mass` kg m-2 of excess ice in the soil layer that contains `depth` m."""
+  if not (np.isfinite(mass) and mass>=0.): raise ValueError("invalid excess-ice mass")
+  shutil.copy2(source,dest);before={}
+  with Dataset(dest,"r+") as d:
+    for cell in CELLS:
+      y,x=cell;n=int(d["numsl"][y,x]);z=0.;added=0.;placed=False
+      for j in range(n):
+        matrix=float(d["TKmatrix"][y,x,j])
+        contains=z<=depth<z+matrix or (j==n-1 and z+matrix>=depth)
+        if contains:
+          temperature=float(d["TSsoil"][y,x,j])
+          if mass and temperature>1.e-8: raise RuntimeError(f"injection layer is thawed: {cell} layer {j}")
+          if temperature>0.: d["TSsoil"][y,x,j]=0.
+          d["TKexcess"][y,x,j]=float(mass);d["DZsoil"][y,x,j]=matrix+mass/917.;added=float(mass);placed=True;break
+        z+=matrix
+      if not placed: raise RuntimeError(f"no layer contains depth {depth} m at {cell}")
       before[str(cell)]=added
   return before
 

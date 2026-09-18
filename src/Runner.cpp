@@ -4326,10 +4326,17 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
       auto tk_itr=netcdf_outputs.find(name);
       if(tk_itr==netcdf_outputs.end()) return;
       OutputSpec tk_spec=tk_itr->second;
+      if(!tk_spec.daily && !tk_spec.yearly) return;
       for(int id=0;id<DINM[month];++id) buffer.push_back(values[id]);
       if(end_of_year) {
-        output_nc_3dim(&tk_spec,file_stage_suffix,&buffer[0],1,
-                       day_timestep,DINY);
+        if(tk_spec.daily) {
+          output_nc_3dim(&tk_spec,file_stage_suffix,&buffer[0],1,
+                         day_timestep,DINY);
+        } else if(tk_spec.yearly) {
+          double year_end = buffer.back();
+          output_nc_3dim(&tk_spec,file_stage_suffix,&year_end,1,
+                         year,1);
+        }
         buffer.clear();
       }
     };

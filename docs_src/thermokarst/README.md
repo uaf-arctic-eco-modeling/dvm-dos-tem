@@ -101,6 +101,16 @@ temperatures use end-of-month subsidence. See
 make thermokarst-observed-fire-validation
 ```
 
+The historic-projection validation replaces the CMT severity lookup with an
+input burn-severity raster, runs the full 115-year historic and 85-year
+projected Toolik series, and injects 25, 50, and 100 kg m⁻² excess-ice lenses
+at 20 cm. See
+[historic-projection-validation-report.md](historic-projection-validation-report.md).
+
+```sh
+make thermokarst-historic-projection-validation
+```
+
 Run a custom constant-temperature experiment:
 
 ```sh

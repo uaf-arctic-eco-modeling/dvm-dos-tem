@@ -38,7 +38,8 @@ WildFire::~WildFire() {}
 WildFire::WildFire(const std::string& fri_fname,
                    const std::string& exp_fname, const double cell_slope,
                    const double cell_aspect, const double cell_elevation,
-                   const int y, const int x) {
+                   const int y, const int x,
+                   const std::string& burn_severity_fname) {
 
   #pragma omp critical(load_input)
   {
@@ -61,18 +62,42 @@ WildFire::WildFire(const std::string& fri_fname,
   this->slope = cell_slope;
   this->asp = cell_aspect;
   this->elev = cell_elevation;
+  this->burn_severity_file = burn_severity_fname;
+  this->raster_severity = -1;
+  this->pixel_y = y;
+  this->pixel_x = x;
+  apply_raster_severity();
 
   BOOST_LOG_SEV(glg, debug) << "Done making WildFire object.";
   BOOST_LOG_SEV(glg, debug) << this->report_fire_inputs();
 
 }
 
+void WildFire::apply_raster_severity() {
+  if (this->burn_severity_file.empty()) {
+    return;
+  }
+  this->raster_severity = temutil::get_scalar<int>(
+      this->burn_severity_file, "burn_severity", this->pixel_y, this->pixel_x);
+  for (size_t i = 0; i < this->exp_fire_severity.size(); ++i) {
+    if (this->exp_burn_mask[i] > 0 && this->raster_severity > 0) {
+      this->exp_fire_severity[i] = this->raster_severity;
+    }
+  }
+  BOOST_LOG_SEV(glg, info) << "Applied burn-severity raster value "
+                           << this->raster_severity << " at ("
+                           << this->pixel_y << "," << this->pixel_x << ").";
+}
+
 void WildFire::load_projected_explicit_data(const std::string& exp_fname, int y, int x) {
     BOOST_LOG_SEV(glg, info) << "Setting up explicit fire data...";
+    this->pixel_y = y;
+    this->pixel_x = x;
     this->exp_burn_mask = temutil::get_timeseries<int>(exp_fname, "exp_burn_mask", y, x);
     this->exp_fire_severity = temutil::get_timeseries<int>(exp_fname, "exp_fire_severity", y, x);
     this->exp_jday_of_burn = temutil::get_timeseries<int>(exp_fname, "exp_jday_of_burn", y, x);
     this->exp_area_of_burn = temutil::get_timeseries<int64_t>(exp_fname, "exp_area_of_burn", y, x);
+    apply_raster_severity();
 }
 
 /** Assemble and return a string with a bunch of data from this class */

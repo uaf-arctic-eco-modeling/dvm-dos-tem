@@ -888,7 +888,13 @@ void advance_model(const int rowidx, const int colidx,
 
     // update the cohort's restart data object
 
-    if ( modeldata.restart_from.empty() ) {
+    // A combined TR+SC run must continue from the TR endpoint. restart_from
+    // is the TR (or earlier) injector and must not replace the just-written
+    // historic state.
+    if (modeldata.tr_yrs > 0) {
+      BOOST_LOG_SEV(glg, info) << "Continuing SC from TR restart: " << tr_restart_fname;
+      runner.cohort.restartdata.update_from_ncfile(tr_restart_fname, rowidx, colidx);
+    } else if ( modeldata.restart_from.empty() ) {
       BOOST_LOG_SEV(glg, warn) << "No restart file specified for SC stage. "
                                << "Using default TR restart file from previous stage of this run: " << tr_restart_fname;
       BOOST_LOG_SEV(glg, debug) << "Loading RestartData from: " << tr_restart_fname;

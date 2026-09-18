@@ -66,6 +66,7 @@ bundle*
 /experiments/thermokarst/active_thaw_validation_results/
 /experiments/thermokarst/fire_recovery_validation_results/
 /experiments/thermokarst/observed_fire_validation_results/
+/experiments/thermokarst/historic_projection_validation_results/
 /experiments/thermokarst/thaw_tuning/
 
 /.venv-thermokarst/

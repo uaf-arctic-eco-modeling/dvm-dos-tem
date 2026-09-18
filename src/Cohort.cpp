@@ -188,8 +188,9 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   this->ground = Ground(mineral_info);
 
   BOOST_LOG_SEV(glg, debug) << "Setup the fire information, defaulting to HISTORIC explicit data.";
-  this->fire = WildFire(modeldatapointer->fri_fire_file, 
-    modeldatapointer->hist_exp_fire_file, this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x);
+  this->fire = WildFire(modeldatapointer->fri_fire_file,
+    modeldatapointer->hist_exp_fire_file, this->cd.cell_slope, this->cd.cell_aspect, this->cd.cell_elevation, y, x,
+    modeldatapointer->burn_severity_file);
 
 
   this->soilenv = Soil_Env();

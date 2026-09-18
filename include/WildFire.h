@@ -5,6 +5,7 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
+#include <string>
 
 #include "CohortData.h"
 #include "EnvData.h"
@@ -29,7 +30,8 @@ public:
            const double cell_slope,
            const double cell_aspect,
            const double cell_elevation,
-           const int y, const int x);
+           const int y, const int x,
+           const std::string& burn_severity_fname="");
   
   ~WildFire();
 
@@ -98,6 +100,13 @@ private:
   std::vector<int> exp_jday_of_burn;
   std::vector<int> exp_fire_severity;
   std::vector<int64_t> exp_area_of_burn;
+
+  std::string burn_severity_file;
+  int raster_severity;
+  int pixel_y;
+  int pixel_x;
+
+  void apply_raster_severity();
 
 
 

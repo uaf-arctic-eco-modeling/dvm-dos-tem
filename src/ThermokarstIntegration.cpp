@@ -213,7 +213,19 @@ TopologyResult finish_topology_change(Ground& g,const TopologySnapshot& snapshot
   if(c.cells.size()!=layers.size()) throw std::runtime_error("topology export size mismatch");
   for(unsigned i=0;i<layers.size();++i) export_soil_cell(*layers[i],c.cells[i]);
   store_global_state(g,c,generated,result.water_residual,result.energy_residual);
-  g.resortGroundLayers();g.updateSoilHorizons();rebuild_fronts(g,snapshot.freezing);
+  g.resortGroundLayers();g.updateSoilHorizons();
+  // Rebuilding fronts from frozenfrac after a no-op January dsl remap is the
+  // leading source of post-restart thaw-season lag while excess ice remains.
+  bool identity=snapshot.cells.size()==layers.size();
+  double matrix_shift=0.;
+  if(identity) {
+    for(unsigned i=0;i<layers.size();++i) {
+      if(snapshot.cells[i].material!=material[i]) {identity=false;break;}
+      matrix_shift=std::max(matrix_shift,std::abs(snapshot.cells[i].matrix-matrix[i]));
+    }
+    if(matrix_shift>1e-9) identity=false;
+  }
+  if(!identity) rebuild_fronts(g,snapshot.freezing);
   return result;
 }
 FireTopologyResult finish_fire_topology_change(
