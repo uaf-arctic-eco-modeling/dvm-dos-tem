@@ -215,10 +215,8 @@ void EnvData::grnd_beginOfYear() {
   y_soi2l.qover =0.;
   y_soi2l.qinfl =0.;
   y_soi2l.qdrain=0.;
-  //Clearing the daily value of magic_puddle here instead of in
-  // the daily prep function because it needs to maintain a value
-  // in between days (and possibly months).
-  d_soi2l.magic_puddle = 0.;
+  // magic_puddle is the overnight hydrology pond. Thermokarst merges it into
+  // the surface thermal store each morning, so it must persist across years.
 }
 
 // initialize monthly accumulators before daily-processes start
@@ -358,6 +356,8 @@ void EnvData::grnd_beginOfDay() {
   d_tk_subsidence = 0.;
   d_tk_front = MISSING_D;
   d_tk_front_type = MISSING_D;
+  d_tk_pond = 0.;
+  d_tk_surfice = 0.;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
     d_soid.fbtran[il] = 0.0;
@@ -719,6 +719,8 @@ void EnvData::grnd_endOfDay(const int & dinm, const int & doy) {
   daily_tk_subsidence[dom] = d_tk_subsidence;
   daily_tk_front[dom] = d_tk_front;
   daily_tk_front_type[dom] = d_tk_front_type;
+  daily_tk_pond[dom] = d_tk_pond;
+  daily_tk_surfice[dom] = d_tk_surfice;
 
   for(int il=0; il<MAX_SOI_LAY; il++){
     daily_layer_drain[dom][il] = d_soi2l.layer_drain[il];

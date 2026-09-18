@@ -24,6 +24,11 @@ struct FireTopologyResult {
 };
 void initialize(Ground& ground, double fraction, double top, double bottom);
 void advance(Ground& ground, double surface_temperature, double seconds);
+// puddle_mm is TEM's overnight hydrology pond (mm = kg m-2). It is merged
+// into the thermokarst surface store for the thermal solve, then liquid
+// that still fits pond_capacity_mm is returned for the day's hydrology.
+void advance(Ground& ground, double surface_temperature, double seconds,
+             double& puddle_mm, double pond_capacity_mm);
 void rebuild_fronts(Ground& ground, bool freezing);
 // Convert the physical column to its matrix-only geometry before the legacy
 // dynamic-soil routine changes layer count and thickness. finish_topology_change

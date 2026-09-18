@@ -503,15 +503,16 @@ int ntasks = 1;
 
             BOOST_LOG_SEV(glg, warn) << "EXCEPTION!! (row, col): (" << rowidx << ", " << colidx << "): " << e.what();
 
-            // IS THIS THREAD SAFE??
-            // IS IT SAFE WITH MPI??
-            std::ofstream outfile;
-            outfile.open((modeldata.output_dir + "fail_log.txt").c_str(), std::ios_base::app); // Append mode
-            outfile << "EXCEPTION!! At pixel at (row, col): ("<<rowidx <<", "<<colidx<<") "<< e.what() <<"\n";
-            outfile.close();
-
-            // Write to fail_mask.nc file?? or json? might be good for visualization
-            write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_FAIL); // <- what if this throws??
+            try {
+              std::ofstream outfile;
+              outfile.open((modeldata.output_dir + "fail_log.txt").c_str(), std::ios_base::app);
+              outfile << "EXCEPTION!! At pixel at (row, col): ("<<rowidx <<", "<<colidx<<") "<< e.what() <<"\n";
+              outfile.close();
+              write_status_info(run_status_fname, "run_status", rowidx, colidx, STATUS_FAIL);
+            } catch (...) {
+              BOOST_LOG_SEV(glg, warn) << "Exception handler could not write status for ("
+                                       << rowidx << ", " << colidx << ")";
+            }
             BOOST_LOG_SEV(glg, warn) << "End of exception handler.";
 
           }
@@ -850,7 +851,7 @@ void advance_model(const int rowidx, const int colidx,
     BOOST_LOG_SEV(glg, warn) << "MAKE SURE YOUR FIRE INPUTS ARE SETUP CORRECTLY!";
 
     // Run model
-    runner.run_years(0, modeldata.tr_yrs, "tr-run");
+    runner.run_years(modeldata.tr_start_yr, modeldata.tr_start_yr + modeldata.tr_yrs, "tr-run");
 
     // Update restartdata structure from the running state
     runner.cohort.set_restartdata_from_state();

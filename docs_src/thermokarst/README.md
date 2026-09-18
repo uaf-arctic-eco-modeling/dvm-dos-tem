@@ -25,8 +25,9 @@ uses its legacy thermal pathway.
 
 This is still an experimental one-column mechanism. SOM-driven dynamic soil (`dsl`)
 and fire-driven topology (`dsb`) are supported while thermokarst is active.
-Ponded water has no thermal feedback, and lateral thermokarst drainage is
-represented only through TEM's existing Richards drainage pathway.
+The budgeted surface ice/pond reservoir now conducts with the snowpack and the
+top soil layer. Lateral thermokarst drainage is still represented only through
+TEM's existing Richards drainage pathway.
 
 Base repository: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem
 
@@ -67,6 +68,8 @@ Production restart validations are available as separate targets:
 make thermokarst-production-validation
 make thermokarst-active-thaw-validation
 make thermokarst-fire-validation
+make thermokarst-fire-recovery-validation
+make thermokarst-observed-fire-validation
 ```
 
 The active-thaw test places a restart inside ongoing excess-ice melt under an
@@ -80,6 +83,23 @@ for CMT04 and CMT05. It checks combustion-linked water and enthalpy loss,
 post-fire hydrology, layer geometry, fronts, roots, C/N state, and restart
 continuation. See
 [fire-topology-validation-report.md](fire-topology-validation-report.md).
+
+The fire-recovery validation places that fire on day-of-year 180 while excess
+ice is still melting, uses a Toolik fire-weather year and site-specific
+severity, and follows three recovery years against an unburned control. See
+[fire-recovery-validation-report.md](fire-recovery-validation-report.md).
+
+The observed-fire validation keeps that coupled snow/pond/fire column under a
+multi-year Toolik climate series, a vegetation-mapped burn-severity field,
+dynamic soil through recovery, and TEM ponding merged with the thermokarst
+surface store as one overnight thermal mass. The resumed segment starts at
+transient year 3 of the same climate, CO2, and fire files. Original-surface
+temperatures use end-of-month subsidence. See
+[observed-fire-validation-report.md](observed-fire-validation-report.md).
+
+```sh
+make thermokarst-observed-fire-validation
+```
 
 Run a custom constant-temperature experiment:
 
@@ -155,9 +175,13 @@ Local surplus goes to an explicitly budgeted surface reservoir, without hydrauli
 travel time. Surplus ice from pore-water refreezing is retained at the surface.
 Only liquid above the configured surface-liquid capacity becomes runoff. Both
 mass and advected enthalpy are transferred. This is a bounded storage/outflow
-closure, **not Richards flow**. The reservoir does not feed back on conduction,
-freeze through an atmospheric boundary, infiltrate back into soil, or move C/N.
-Thus ponding and its thermal feedback are not yet simulated realistically.
+closure, **not Richards flow**. The reservoir conducts with adjacent snow and soil
+when its mass is at least 4 kg m⁻² (TEM's hydrology puddle), so retained surface ice and ponded liquid
+intercept atmospheric heat. The pond node's numerical thickness is the physical
+water/ice depth, so a 4 mm hydrology puddle is not padded into an air-filled
+insulator. Vanishing snow/organic films are omitted from the
+explicit stencil. It does not infiltrate back into
+soil as a separate Richards pond, move C/N, or replace TEM's hydrology puddle.
 
 ### Conservative regridding
 

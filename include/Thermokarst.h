@@ -92,6 +92,11 @@ struct Column {
   // Re-equilibrate phases after an external hydrology operator at fixed enthalpy.
   void reconcile_phase();
   void add_energy(const std::vector<double> &joules);
+  // Merge TEM ponding into the budgeted surface store, then later return
+  // liquid that still fits the hydrology puddle.
+  void accept_surface_water(double mass, double energy);
+  double release_surface_liquid(double max_mass);
+  double surface_liquid() const;
   void advance(double seconds, double top_temperature, double basal_flux = 0.,
                double max_step = 3600.);
   void regrid(const std::vector<double> &target_thicknesses);

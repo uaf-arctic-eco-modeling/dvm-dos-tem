@@ -197,6 +197,7 @@ def main():
     midpoint = output / "cold-split-first/restart-tr.nc"
     resumed = clone_config(base, output / "cold-resumed", runmask, True, 0.2,
                            cold_climate, midpoint)
+    resumed["stage_settings"]["tr_start_yr"] = 1
     run_case(binary, output, "cold-resumed", resumed, ["--tr-yrs", "1"])
 
     old = restart_state(output / "zero-legacy/restart-pr.nc")

@@ -57,6 +57,8 @@ public:
   std::vector<double> tk_subsidence_for_output;
   std::vector<double> tk_front_for_output;
   std::vector<double> tk_front_type_for_output;
+  std::vector<double> tk_pond_for_output;
+  std::vector<double> tk_surfice_for_output;
   std::vector<double> rainfall_for_output;
   std::vector<double> reco_for_output;
   std::vector<double> rhdwd_for_output;

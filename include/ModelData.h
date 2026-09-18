@@ -46,6 +46,7 @@ public:
   int pr_yrs;
   int sp_yrs;
   int tr_yrs;
+  int tr_start_yr = 0;
   int sc_yrs;
 
   //General config settings

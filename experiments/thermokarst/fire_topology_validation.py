@@ -29,7 +29,7 @@ def make_fire(source,dest,event_year=None):
     for n in ["exp_burn_mask","exp_jday_of_burn","exp_fire_severity","exp_area_of_burn"]:d[n][:]=0
     if event_year is not None:
       for y,x in CELLS:
-        d["exp_burn_mask"][event_year,y,x]=1;d["exp_jday_of_burn"][event_year,y,x]=350
+        d["exp_burn_mask"][event_year,y,x]=1;d["exp_jday_of_burn"][event_year,y,x]=273
         d["exp_fire_severity"][event_year,y,x]=4;d["exp_area_of_burn"][event_year,y,x]=1000000
 
 def make_spec(source,dest):
@@ -41,8 +41,8 @@ def make_spec(source,dest):
     if r["Name"] in ["BURNTHICK","BURNSOIL2AIRC","BURNSOIL2AIRN"]:r["Monthly"]="m"
   with dest.open("w",newline="") as f:w=csv.DictWriter(f,fieldnames=rows[0].keys(),lineterminator="\n");w.writeheader();w.writerows(rows)
 
-def config(base,directory,restart,fire_file,output=True):
-  c=bgc.config(base,directory,restart,dsl=True,output=output)
+def config(base,directory,restart,fire_file,output=True,tr_start=0):
+  c=bgc.config(base,directory,restart,dsl=False,output=output,tr_start=tr_start)
   c["IO"]["hist_exp_fire_file"]=str(fire_file)
   for stage in ["tr","sc"]:c["stage_settings"][stage]["dsb"]=True
   return c
@@ -68,7 +68,7 @@ def main():
   initial=out/"initialization/restart-eq.nc";injected=out/"restart-with-excess.nc";added=bgc.inject_excess(initial,injected,fraction=.2,top=0.,bottom=.8)
   statuses["continuous"]=bgc.run(a.binary.resolve(),out,"continuous",config(base,out/"continuous",injected,fire_continuous),["--tr-yrs","2"])
   statuses["split-first"]=bgc.run(a.binary.resolve(),out,"split-first",config(base,out/"split-first",injected,nofire),["--tr-yrs","1"])
-  statuses["resumed"]=bgc.run(a.binary.resolve(),out,"resumed",config(base,out/"resumed",out/"split-first/restart-tr.nc",fire_resumed),["--tr-yrs","1"])
+  statuses["resumed"]=bgc.run(a.binary.resolve(),out,"resumed",config(base,out/"resumed",out/"split-first/restart-tr.nc",fire_continuous,tr_start=1),["--tr-yrs","1"])
   burn=monthly(out/"continuous","BURNTHICK");soilc=monthly(out/"continuous","BURNSOIL2AIRC")
   final_c=out/"continuous/restart-tr.nc";final_r=out/"resumed/restart-tr.nc"
   physical=["TKstate","TKmatrix","TKporosity","TKexcess","DZsoil","TSsoil","LIQsoil","ICEsoil","FROZENsoil","FROZENFRACsoil","frontZ","frontFT"]

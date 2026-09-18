@@ -92,7 +92,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
 
         this->cohort.updateMonthly(iy, im, DINM[im], stage);
 
-        this->monthly_output(iy, im, stage, end_year);
+        this->monthly_output(iy - start_year, im, stage, end_year - start_year);
 
         // Prevent cells from running for an exceptionally long time,
         //  mostly for use in large regional runs.
@@ -107,7 +107,7 @@ void Runner::run_years(int start_year, int end_year, const std::string& stage) {
       } // end month loop
     } // end named scope
 
-    this->yearly_output(iy, stage, start_year, end_year);
+    this->yearly_output(iy - start_year, stage, 0, end_year - start_year);
 
     BOOST_LOG_SEV(glg, info) << "(END OF YEAR) " << cohort.ground.layer_report_string("depth thermal CN ptr");
 
@@ -4349,6 +4349,10 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
                     cohort.edall->daily_tk_front);
     output_tk_daily("TKFRONTTYPE",outhold.tk_front_type_for_output,
                     cohort.edall->daily_tk_front_type);
+    output_tk_daily("TKPOND",outhold.tk_pond_for_output,
+                    cohort.edall->daily_tk_pond);
+    output_tk_daily("TKSURFICE",outhold.tk_surfice_for_output,
+                    cohort.edall->daily_tk_surfice);
   }
 
 

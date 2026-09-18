@@ -312,6 +312,109 @@ int main(int argc, char **argv) {
     near(a.subsidence, b.subsidence);
     conserved(a.budget(), b.budget());
   });
+  run("vanishing_snow_film_does_not_underflow_timestep", [] {
+    auto c = fixture(.2, -5.);
+    Cell snow;
+    snow.material = SNOW_MATERIAL;
+    snow.matrix = 1e-5;
+    snow.porosity = 1.;
+    snow.ice = 1e-4;
+    snow.solid_k = .25;
+    snow.solid_heat = 1.;
+    snow.set_temperature(-5.);
+    c.cells.insert(c.cells.begin(), snow);
+    auto b = c.budget();
+    c.advance(86400., -5.);
+    conserved(b, c.budget());
+    near(c.cells[1].temperature(), -5., 1e-6);
+  });
+  run("empty_snow_and_puddle_do_not_underflow", [] {
+    auto c = fixture(.2, -8.);
+    Cell snow;
+    snow.material = SNOW_MATERIAL;
+    snow.matrix = 2e-3;
+    snow.porosity = 1.;
+    snow.ice = 1e-6;
+    snow.solid_k = .05;
+    snow.solid_heat = 1.;
+    snow.set_temperature(-8.);
+    c.cells.insert(c.cells.begin(), snow);
+    c.pond_capacity = 4.;
+    c.accept_surface_water(4., LHFUS * 4.);
+    auto b = c.budget();
+    c.advance(86400., -8.);
+    conserved(b, c.budget(), c.boundary_energy);
+  });
+  run("surface_reservoir_isothermal_with_snow", [] {
+    auto c = fixture(.2, -5.);
+    Cell snow;
+    snow.material = SNOW_MATERIAL;
+    snow.matrix = .15;
+    snow.porosity = 1.;
+    snow.ice = 40.;
+    snow.solid_k = .25;
+    snow.solid_heat = 1.;
+    snow.set_temperature(-5.);
+    c.cells.insert(c.cells.begin(), snow);
+    c.surface_mass = 25.;
+    c.surface_energy = 25. * SHCICE * (-5.);
+    auto b = c.budget();
+    c.advance(86400., -5.);
+    conserved(b, c.budget());
+    near(c.cells[0].temperature(), -5., 1e-6);
+    near(c.cells[1].temperature(), -5., 1e-6);
+    near(c.surface_energy, 25. * SHCICE * (-5.), 1e-6);
+  });
+  run("surface_reservoir_intercepts_atmospheric_heat", [] {
+    auto bare = fixture(.2, -8.);
+    auto ponded = bare;
+    ponded.surface_mass = 80.;
+    ponded.surface_energy = 80. * SHCICE * (-8.);
+    const double ice0 = ponded.surface_energy;
+    auto bb = ponded.budget();
+    bare.advance(2. * 86400., 6.);
+    ponded.advance(2. * 86400., 6.);
+    conserved(bb, ponded.budget(), ponded.boundary_energy);
+    check(ponded.surface_energy > ice0, "surface ice did not warm");
+    check(ponded.cells[0].temperature() < bare.cells[0].temperature(),
+          "pond/ice did not intercept atmospheric heat");
+  });
+  run("snow_pond_soil_thermal_sandwich", [] {
+    auto c = fixture(.2, -1.);
+    Cell snow;
+    snow.material = SNOW_MATERIAL;
+    snow.matrix = .2;
+    snow.porosity = 1.;
+    snow.ice = 60.;
+    snow.solid_k = .2;
+    snow.solid_heat = 1.;
+    snow.set_temperature(-12.);
+    c.cells.insert(c.cells.begin(), snow);
+    c.surface_mass = 30.;
+    c.surface_energy = 30. * SHCICE * (-6.);
+    auto b = c.budget();
+    c.advance(5. * 86400., -12.);
+    conserved(b, c.budget(), c.boundary_energy);
+    const double ice = std::max(0., c.surface_mass - std::max(0., std::min(c.surface_mass, c.surface_energy / LHFUS)));
+    const double cap = ice * SHCICE + std::max(0., c.surface_mass - ice) * SHCLIQ;
+    const double ts = cap > 0. ? (c.surface_energy - LHFUS * (c.surface_mass - ice)) / cap : 0.;
+    check(ts > -12. && ts < c.cells[1].temperature() + 1e-8,
+          "surface reservoir is not thermally between snow and soil");
+  });
+  run("overnight_puddle_is_thermal_mass", [] {
+    auto bare = fixture(.2, -8.);
+    auto ponded = bare;
+    ponded.pond_capacity = 4.;
+    ponded.accept_surface_water(4., LHFUS * 4.);
+    auto b = ponded.budget();
+    bare.advance(86400., -8.);
+    ponded.advance(86400., -8.);
+    conserved(b, ponded.budget(), ponded.boundary_energy);
+    check(ponded.release_surface_liquid(4.) + ponded.surface_mass > 0.,
+          "overnight puddle vanished");
+    check(ponded.cells[0].temperature() > bare.cells[0].temperature(),
+          "overnight puddle did not warm the soil");
+  });
   run("matrix_topology_conserves_phase_water_and_six_pools", [] {
     std::vector<Cell> old(3);
     old[0].material=old[1].material=1;old[2].material=2;

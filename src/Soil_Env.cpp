@@ -1,4 +1,5 @@
 #include "../include/ThermokarstIntegration.h"
+#include <exception>
 /*
  * Soil_Env.cpp
  *
@@ -259,7 +260,13 @@ void Soil_Env::updateDailyGroundT(const double & tdrv, const double & dayl) {
   }
 
   if (ground->thermokarst.enabled) {
-    tem_thermokarst::advance(*ground, tsurface, SEC_IN_DAY);
+    try {
+      tem_thermokarst::advance(*ground, tsurface, SEC_IN_DAY,
+                               ed->d_soi2l.magic_puddle, ponding_max_mm);
+    } catch (const std::exception& e) {
+      BOOST_LOG_SEV(glg, warn) << "thermokarst advance failed: " << e.what();
+      throw;
+    }
     ground->retrieveSoilDimension(&cd->m_soil);
     cd->d_soil=cd->m_soil;
     updateDailySoilThermal4Growth(ground->fstsoill,tsurface);
@@ -729,6 +736,8 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
     ed->d_tk_liq_drainage=tracer_drainage;
     ed->d_tk_liq_other=tracer_other;
     ed->d_tk_subsidence=ground->thermokarst.value[TK::SUBSIDENCE];
+    ed->d_tk_pond=ed->d_soi2l.magic_puddle;
+    ed->d_tk_surfice=ground->thermokarst.value[TK::SURFACE_MASS];
     if(!ground->frontsz.empty()) {
       ed->d_tk_front=ground->frontsz.front();
       ed->d_tk_front_type=ground->frontstype.front();

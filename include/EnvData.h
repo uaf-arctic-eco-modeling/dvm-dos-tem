@@ -129,6 +129,8 @@ public:
   double daily_tk_subsidence[31];
   double daily_tk_front[31];
   double daily_tk_front_type[31];
+  double daily_tk_pond[31];
+  double daily_tk_surfice[31];
   double daily_tlayer[31][MAX_SOI_LAY];
   double daily_root_water_uptake[31][MAX_SOI_LAY];
   double daily_percolation[31][MAX_SOI_LAY];
@@ -143,6 +145,8 @@ public:
   double d_tk_subsidence;
   double d_tk_front;
   double d_tk_front_type;
+  double d_tk_pond;
+  double d_tk_surfice;
 
   double monthsfrozen;      // months since bottom soil frozen started -
                             //   24 months is the criterion for permafrost

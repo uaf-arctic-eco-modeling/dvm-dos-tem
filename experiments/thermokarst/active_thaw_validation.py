@@ -271,6 +271,7 @@ def main():
         warm_climate, midpoint_path)
     resumed_config["model_settings"]["thermokarst"].update(
         {"top_depth": 0.2, "bottom_depth": 1.0})
+    resumed_config["stage_settings"]["tr_start_yr"] = 1
     production.run_case(binary, output, "thaw-resumed", resumed_config,
                         ["--tr-yrs", "1"])
 

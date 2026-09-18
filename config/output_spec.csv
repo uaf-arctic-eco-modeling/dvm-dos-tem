@@ -139,3 +139,5 @@ TKLIQOTHER,Thermokarst-source water lost by evapotranspiration or numerical clos
 TKSUBSIDENCE,Cumulative thermokarst surface subsidence,m,invalid,invalid,d,invalid,invalid,invalid,double,
 TKFRONT,Leading freeze or thaw front depth,m,invalid,invalid,d,invalid,invalid,invalid,double,
 TKFRONTTYPE,Leading front type (-1 thawing +1 freezing),1,invalid,invalid,d,invalid,invalid,invalid,double,
+TKPOND,Overnight surface ponding depth,mm,invalid,invalid,d,invalid,invalid,invalid,double,
+TKSURFICE,Thermokarst surface ice water equivalent,kg/m2,invalid,invalid,d,invalid,invalid,invalid,double,

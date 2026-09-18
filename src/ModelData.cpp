@@ -49,6 +49,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
 
   inter_stage_pause = controldata["stage_settings"]["inter_stage_pause"].asBool();
   tr_yrs = controldata["stage_settings"]["tr_yrs"].asInt();
+  tr_start_yr = controldata["stage_settings"].get("tr_start_yr", 0).asInt();
+  if (tr_start_yr < 0) throw std::invalid_argument("tr_start_yr must be >= 0");
   sc_yrs = controldata["stage_settings"]["sc_yrs"].asInt();
 
   //PR stage module settings

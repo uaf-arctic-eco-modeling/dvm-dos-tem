@@ -33,9 +33,8 @@ def read_probe(path):
   result={g:{k:np.array([float(r[k]) for r in rows if r["grid"]==g]) for k in numeric} for g in ("old","new")}
   result["rows"]=rows;return result
 
-def configure(base,directory,restart,output=True):
-  c=bgc.config(base,directory,restart,dsl=True,output=output)
-  return c
+def configure(base,directory,restart,output=True,tr_start=0):
+  return bgc.config(base,directory,restart,dsl=True,output=output,tr_start=tr_start)
 
 def restart_array(path,name,cell):
   with Dataset(path) as d:
@@ -66,7 +65,8 @@ def main():
     statuses[name]=bgc.completed(out,name) if a.reuse else None
     if statuses[name] is None:statuses[name]=bgc.run(a.binary.resolve(),out,name,configure(base,out/name,restart),["--tr-yrs",str(years)])
   statuses["resumed"]=bgc.completed(out,"resumed") if a.reuse else None
-  if statuses["resumed"] is None:statuses["resumed"]=bgc.run(a.binary.resolve(),out,"resumed",configure(base,out/"resumed",out/"split-first/restart-tr.nc"),["--tr-yrs",str(a.years-half)])
+  if statuses["resumed"] is None:
+    statuses["resumed"]=bgc.run(a.binary.resolve(),out,"resumed",configure(base,out/"resumed",out/"split-first/restart-tr.nc",tr_start=half),["--tr-yrs",str(a.years-half)])
   daily_names=bgc.TK;continuous={n:bgc.read_daily(out/"continuous",n) for n in daily_names}
   first={n:bgc.read_daily(out/"split-first",n) for n in daily_names};second={n:bgc.read_daily(out/"resumed",n) for n in daily_names}
   resumed={n:np.concatenate([first[n],second[n]],axis=0) for n in daily_names}

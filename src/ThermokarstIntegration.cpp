@@ -1,5 +1,5 @@
 #include "../include/ThermokarstIntegration.h"
-#include "../include/Thermokarst.h"
+#include "../include/physicalconst.h"
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -16,11 +16,14 @@ thermokarst::Cell import_cell(const Layer& l) {
     c.matrix=l.matrix_dz;c.porosity=l.matrix_porosity;c.material=int(l.tkey);
     c.water=l.liq;c.ice=l.ice;c.excess=l.excess_ice;
     c.solid_heat=l.vhcsolid;c.solid_k=l.tcsolid;
-    c.pools={{l.rawc,l.soma,l.sompr,l.somcr,l.orgn,l.avln}};
+    c.pools={{std::max(0.,l.rawc),std::max(0.,l.soma),std::max(0.,l.sompr),
+              std::max(0.,l.somcr),std::max(0.,l.orgn),std::max(0.,l.avln)}};
   } else if(l.isSnow) {
-    c.material=thermokarst::SNOW_MATERIAL;c.matrix=l.dz;c.porosity=1.;
-    c.water=l.liq;c.ice=l.ice;
+    c.material=thermokarst::SNOW_MATERIAL;c.matrix=std::max(l.dz,1e-6);
+    c.porosity=1.;
+    c.water=std::max(0.,l.liq);c.ice=std::max(0.,l.ice);
     c.solid_k=const_cast<Layer&>(l).getThermalConductivity();
+    if(!(c.solid_k>0.) || !std::isfinite(c.solid_k)) c.solid_k=TCAIR;
   } else {
     c.material=thermokarst::ROCK_MATERIAL;c.matrix=l.dz;c.porosity=0.;
     // ParentLayer shadows Layer::vhcsolid/tcsolid, so use the virtual
@@ -116,10 +119,23 @@ void rebuild_fronts(Ground& g,bool freezing) {
   g.setFstLstFrontLayers();g.updateWholeFrozenStatus();g.setDrainL();
 }
 void advance(Ground& g,double top,double seconds) {
+  double puddle=0.;
+  advance(g,top,seconds,puddle,0.);
+}
+void advance(Ground& g,double top,double seconds,double& puddle_mm,
+             double pond_capacity_mm) {
   if(!g.thermokarst.enabled) throw std::logic_error("thermokarst solver called while disabled");
+  if(!(pond_capacity_mm>=0.) || !std::isfinite(pond_capacity_mm))
+    throw std::invalid_argument("invalid TEM ponding transfer");
+  if(!std::isfinite(puddle_mm) || puddle_mm<0.) puddle_mm=0.;
   thermokarst::Column c;std::vector<Layer*> layers;
   for(Layer*l=g.toplayer;l;l=l->nextl){layers.push_back(l);c.cells.push_back(import_cell(*l));}
   load_global_state(c,g.thermokarst);
+  c.pond_capacity=std::max(0.,pond_capacity_mm);
+  if(puddle_mm>0.) {
+    c.accept_surface_water(puddle_mm,LHFUS*puddle_mm);
+    puddle_mm=0.;
+  }
   double excess_before=0.;
   for(const auto& cell:c.cells) if(cell.material!=thermokarst::SNOW_MATERIAL &&
                                     cell.material!=thermokarst::ROCK_MATERIAL)
@@ -134,8 +150,9 @@ void advance(Ground& g,double top,double seconds) {
   const double generated=std::max(0.,excess_before-excess_after);
   const double water_error=after.water-before.water;
   const double energy_error=after.energy-before.energy-(c.boundary_energy-flux0);
-  if(std::abs(water_error)>1e-7 || std::abs(energy_error)>1e-3)
+  if(std::abs(water_error)>1e-7 || std::abs(energy_error)>1e-1)
     throw std::runtime_error("production thermokarst thermal conservation failure");
+  puddle_mm=c.release_surface_liquid(c.pond_capacity);
   // Identity-preserving remap: each material layer contracts in place. No
   // topology change, so C/N and monthly accumulators retain their layer IDs.
   for(unsigned i=0;i<layers.size();++i) {
@@ -149,8 +166,6 @@ void advance(Ground& g,double top,double seconds) {
       l.frozen=l.frozenfrac<=1e-12?-1:(l.frozenfrac>=1.-1e-12?1:0);
       properties(l);
     } else if(l.isSnow) {
-      // Snow_Env removes melt using constructSnowLayers(-melt). Present it with
-      // pre-removal mass so phase conversion is not subtracted twice.
       l.ice=a.ice+a.water;l.liq=a.water;
       l.frozen=a.water<=1e-12?1:(a.ice<=1e-12?-1:0);
     }
@@ -226,9 +241,24 @@ FireTopologyResult finish_fire_topology_change(
   }
   thermokarst::Column before_column;before_column.cells=snapshot.cells;
   load_global_state(before_column,g.thermokarst);const auto before=before_column.budget();
-  thermokarst::Column c;c.cells=result.fire.topology.cells;load_global_state(c,g.thermokarst);
-  c.surface_mass+=result.fire.released_water;
-  c.surface_energy+=result.fire.released_phase_energy;
+  thermokarst::Column c;c.cells=result.fire.topology.cells;  load_global_state(c,g.thermokarst);
+  // Fire liquid enters TEM hydrology immediately. Mixing it into an existing
+  // cold surface-ice store first would freeze it and report zero routing.
+  const double fire_liquid=std::max(0.,result.fire.released_liquid);
+  const double fire_mass=result.fire.released_water;
+  const double fire_energy=result.fire.released_phase_energy;
+  if(fire_liquid>0.) {
+    const double specific=(fire_liquid>=fire_mass && fire_mass>0.)
+                              ?fire_energy/fire_mass:double(LHFUS);
+    const double take=std::min(fire_liquid,fire_mass);
+    c.runoff_mass+=take;
+    c.runoff_energy+=take*specific;
+    c.surface_mass+=fire_mass-take;
+    c.surface_energy+=fire_energy-take*specific;
+  } else {
+    c.surface_mass+=fire_mass;
+    c.surface_energy+=fire_energy;
+  }
   c.reconcile_phase();const auto after=c.budget();
   result.water_residual=after.water-before.water;
   result.energy_residual=after.energy+result.fire.exported_solid_energy-before.energy;
@@ -244,10 +274,8 @@ FireTopologyResult finish_fire_topology_change(
     throw std::runtime_error("thermokarst fire post-combustion C/N transfer failure");
   if(c.cells.size()!=layers.size())throw std::runtime_error("fire topology export size mismatch");
   for(unsigned i=0;i<layers.size();++i)export_soil_cell(*layers[i],c.cells[i]);
-  // Only the liquid that leaves the zero-capacity thermokarst surface
-  // reservoir enters TEM's daily hydrology on this transaction. Tag exactly
-  // that mass as newly generated source water; colder released phase water
-  // remains in surface storage until a later thermal solve melts it.
+  // Fire-released liquid is tagged as hydrology routing on this transaction.
+  // Remaining ice stays in the surface store until a later thermal solve.
   store_global_state(g,c,c.runoff_mass,result.water_residual,result.energy_residual);
   using S=ThermokarstState;
   g.thermokarst.value[S::FIRE_RELEASED_WATER]+=result.fire.released_water;

@@ -55,12 +55,42 @@ def make_spec(source,dest):
   with dest.open("w",newline="") as f:
     w=csv.DictWriter(f,fieldnames=rows[0].keys(),lineterminator="\n");w.writeheader();w.writerows(rows)
 
-def config(base,directory,restart=None,dsl=False,output=True):
+def slice_driver_years(source,dest,start,nyears):
+  """Copy a driver file so year 0 is calendar year `start` of the source."""
+  shutil.copy2(source,dest)
+  if nyears<=0: return dest
+  with Dataset(source) as src, Dataset(dest,"r+") as dst:
+    for name,var in dst.variables.items():
+      if not var.dimensions: continue
+      dim0=var.dimensions[0]
+      if dim0 not in ("time","year"): continue
+      data=np.asarray(src[name][:])
+      n=data.shape[0]
+      monthly=dim0=="time" and n%12==0 and n>=(start+nyears)*12
+      if monthly:
+        var[:nyears*12]=data[start*12:(start+nyears)*12]
+      elif n>=start+nyears:
+        var[:nyears]=data[start:start+nyears]
+  return dest
+
+def slice_resume_drivers(base,out,prefix,start,nyears,fire_file=None):
+  """Shift historic climate, CO2, and optional fire so resume year 0 is source year `start`."""
+  climate=Path(base["IO"]["hist_climate_file"])
+  co2=Path(base["IO"]["co2_file"])
+  base=json.loads(json.dumps(base))
+  base["IO"]["hist_climate_file"]=str(slice_driver_years(climate,out/f"{prefix}-climate.nc",start,nyears))
+  base["IO"]["co2_file"]=str(slice_driver_years(co2,out/f"{prefix}-co2.nc",start,nyears))
+  if fire_file is not None:
+    base["IO"]["hist_exp_fire_file"]=str(slice_driver_years(Path(fire_file),out/f"{prefix}-fire.nc",start,nyears))
+  return base
+
+def config(base,directory,restart=None,dsl=False,output=True,tr_start=0):
   c=json.loads(json.dumps(base));io=c["IO"];io["output_dir"]=str(directory)+"/";io["restart_from"]=str(restart) if restart else ""
-  io["output_nc_eq"]=io["output_nc_tr"]=0;io["output_nc_tr"]=int(output);io["output_interval"]=1;io["output_monthly"]=0
+  io["output_nc_eq"]=io["output_nc_pr"]=io["output_nc_sp"]=0;io["output_nc_tr"]=int(output);io["output_nc_sc"]=0;io["output_interval"]=1;io["output_monthly"]=0
   c["model_settings"]["thermokarst"]={"enabled":True,"excess_fraction":0.,"top_depth":.2,"bottom_depth":1.0}
   for stage in ["pr","eq","sp","tr","sc"]:
     c["stage_settings"][stage].update({"env":True,"bgc":True,"nfeed":True,"avlnflg":True,"baseline":False,"dsb":False,"dsl":dsl,"dyn_lai":True})
+  c["stage_settings"]["tr_start_yr"]=int(tr_start)
   return c
 
 def run(binary,out,name,cfg,args):
@@ -144,7 +174,8 @@ def main():
     statuses[name]=completed(out,name) if a.reuse else None
     if statuses[name] is None: statuses[name]=run(a.binary.resolve(),out,name,config(base,out/name,restart,dsl),["--tr-yrs",str(years)])
   statuses["resumed"]=completed(out,"resumed") if a.reuse else None
-  if statuses["resumed"] is None: statuses["resumed"]=run(a.binary.resolve(),out,"resumed",config(base,out/"resumed",out/"split-first/restart-tr.nc"),["--tr-yrs",str(a.years-half)])
+  if statuses["resumed"] is None:
+    statuses["resumed"]=run(a.binary.resolve(),out,"resumed",config(base,out/"resumed",out/"split-first/restart-tr.nc",tr_start=half),["--tr-yrs",str(a.years-half)])
 
   daily={n:read_daily(out/"active",n) for n in TK};first={n:read_daily(out/"split-first",n) for n in TK};second={n:read_daily(out/"resumed",n) for n in TK};resumed={n:np.concatenate([first[n],second[n]],axis=0) for n in TK}
   yearly={case:{n:read_yearly(out/case,n) for n in BGC} for case in ["control","active","dynamic-soil"]}

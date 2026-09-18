@@ -32,12 +32,27 @@ void equilibrate(Cell &c) {
   c.ice = frozen - c.excess;
   c.water = liquid;
 }
+double surface_liquid_mass(double mass, double energy) {
+  if (mass <= 0.)
+    return 0.;
+  return std::max(0., std::min(mass, energy / LHFUS));
+}
+double surface_temperature(double mass, double energy) {
+  const double liquid = surface_liquid_mass(mass, energy);
+  const double ice = std::max(0., mass - liquid);
+  const double cap = liquid * SHCLIQ + ice * SHCICE;
+  if (cap <= 0.)
+    return 0.;
+  return (energy - LHFUS * liquid) / cap;
+}
 } // namespace
 double Cell::thickness() const { return matrix + excess / DENICE; }
 double Cell::mass() const { return water + ice + excess; }
 double Cell::capacity() const {
-  return (material == SNOW_MATERIAL ? 0. : matrix * (1. - porosity) * solid_heat) + water * SHCLIQ +
-         (ice + excess) * SHCICE;
+  const double c =
+      (material == SNOW_MATERIAL ? 0. : matrix * (1. - porosity) * solid_heat) +
+      water * SHCLIQ + (ice + excess) * SHCICE;
+  return c > 1e-6 ? c : 1e-6;
 }
 double Cell::temperature() const {
   return (enthalpy - LHFUS * water) / capacity();
@@ -49,15 +64,17 @@ void Cell::set_temperature(double t) {
   enthalpy = capacity() * t + LHFUS * water;
 }
 double Cell::conductivity() const {
-  if (material == SNOW_MATERIAL) return solid_k;
-  const double d = thickness();
+  if (material == SNOW_MATERIAL)
+    return solid_k > 0. ? solid_k : double(TCAIR);
+  const double d = std::max(thickness(), 1e-9);
   const double solid = matrix * (1. - porosity) / d;
   const double liquid = water / DENLIQ / d;
   const double frozen = (ice + excess) / DENICE / d;
   const double air = std::max(0., 1. - solid - liquid - frozen);
   // Geometric mixture; a prototype closure, not a calibrated TEM replacement.
-  return std::pow(solid_k, solid) * std::pow(TCLIQ, liquid) *
-         std::pow(TCICE, frozen) * std::pow(TCAIR, air);
+  const double k = std::pow(solid_k, solid) * std::pow(TCLIQ, liquid) *
+                   std::pow(TCICE, frozen) * std::pow(TCAIR, air);
+  return k > 0. && std::isfinite(k) ? k : double(TCAIR);
 }
 double Column::depth() const {
   double d = 0.;
@@ -286,8 +303,35 @@ void Column::validate() const {
                 !(t > 1e-8 && c.ice + c.excess > 1e-8),
             "nonequilibrium phase state");
     for (double p : c.pools)
-      require(nonnegative(p), "invalid C/N pool");
+      require(p >= -1e-8, "invalid C/N pool");
   }
+}
+double Column::surface_liquid() const {
+  if (surface_mass <= 0.)
+    return 0.;
+  return std::max(0., std::min(surface_mass, surface_energy / LHFUS));
+}
+void Column::accept_surface_water(double mass, double energy) {
+  require(nonnegative(mass) && std::isfinite(energy),
+          "invalid surface-water transfer");
+  surface_mass += mass;
+  surface_energy += energy;
+}
+double Column::release_surface_liquid(double max_mass) {
+  require(std::isfinite(max_mass), "invalid surface-liquid request");
+  const double liquid = surface_liquid();
+  const double out = std::max(0., std::min(max_mass, liquid));
+  if (out <= 0.)
+    return 0.;
+  const double specific =
+      (liquid == surface_mass) ? surface_energy / surface_mass : double(LHFUS);
+  surface_mass -= out;
+  surface_energy -= out * specific;
+  if (surface_mass <= 0.) {
+    surface_mass = 0.;
+    surface_energy = 0.;
+  }
+  return out;
 }
 void Column::route_surplus() {
   // Local overflow to a surface reservoir, not a Richards-flow approximation.
@@ -369,34 +413,110 @@ void Column::advance(double seconds, double top_temperature, double basal_flux,
           "invalid thermal forcing/timestep");
   double done = 0.;
   while (done < seconds) {
-    const unsigned n = cells.size();
+    // Insert the budgeted surface reservoir between snow and soil so pond/ice
+    // exchanges heat with both the snowpack and the top mineral/organic layer.
+    struct Node {
+      double temperature;
+      double conductivity;
+      double thickness;
+      double cmin;
+      double *enthalpy;
+    };
+    std::vector<Node> nodes;
+    unsigned soil = 0;
+    while (soil < cells.size() && cells[soil].material == SNOW_MATERIAL)
+      ++soil;
+    auto add_cell = [&nodes](Cell &c) {
+      // Vanishing snow and late-melt films stay in the mass budget but are
+      // omitted from the explicit stencil. Including them forces sub-millisecond
+      // CFL steps after fire or seasonal melt, which can underflow dt to 0
+      // and abort the production driver.
+      if (c.material == SNOW_MATERIAL) {
+        if (c.thickness() < 1e-3 || c.mass() < 1.0)
+          return;
+      } else if (c.thickness() < 1e-3 && c.mass() < 1.0) {
+        return;
+      }
+      Node n;
+      n.temperature = c.temperature();
+      n.conductivity = c.conductivity();
+      if (!(n.conductivity > 0.) || !std::isfinite(n.conductivity))
+        n.conductivity = TCAIR;
+      n.thickness = c.material == SNOW_MATERIAL
+                        ? std::max(c.thickness(), 0.01)
+                        : std::max(c.thickness(), 1e-3);
+      n.cmin = (c.material == SNOW_MATERIAL
+                    ? 0.
+                    : c.matrix * (1. - c.porosity) * c.solid_heat) +
+               c.mass() * SHCICE;
+      n.cmin = std::max(n.cmin, 1.0);
+      n.enthalpy = &c.enthalpy;
+      nodes.push_back(n);
+    };
+    for (unsigned i = 0; i < soil; ++i)
+      add_cell(cells[i]);
+    const double liquid = surface_liquid_mass(surface_mass, surface_energy);
+    const double ice = std::max(0., surface_mass - liquid);
+    const double ice_dz = ice / DENICE;
+    const double liq_dz = liquid / DENLIQ;
+    const double dz_physical = ice_dz + liq_dz;
+    if ((liquid >= 4.0 || ice >= 20.0) && dz_physical > 1e-6) {
+      // 4 mm of liquid is TEM's hydrology puddle; ice couples only when the
+      // store is hydrologically thick so a frozen millimetre film is not an
+      // air-padded insulator.
+      const double dz = dz_physical;
+      const double fi = ice_dz / dz;
+      const double fl = liq_dz / dz;
+      const double fa = std::max(0., 1. - fi - fl);
+      Node n;
+      n.temperature = surface_temperature(surface_mass, surface_energy);
+      n.conductivity = std::pow(TCICE, fi) * std::pow(TCLIQ, fl) *
+                       std::pow(TCAIR, fa);
+      if (!(n.conductivity > 0.))
+        n.conductivity = TCICE;
+      n.thickness = dz;
+      n.cmin = std::max(ice * SHCICE + liquid * SHCLIQ, 1.0);
+      n.enthalpy = &surface_energy;
+      nodes.push_back(n);
+    }
+    for (unsigned i = soil; i < cells.size(); ++i)
+      add_cell(cells[i]);
+    if (nodes.empty()) {
+      for (int i = int(cells.size()) - 1; i >= 0; --i) {
+        add_cell(cells[unsigned(i)]);
+        if (!nodes.empty())
+          break;
+      }
+    }
+    const unsigned n = nodes.size();
+    require(n > 0, "empty thermal column");
     std::vector<double> g(n + 1, 0.), rate(n, 0.);
-    g[0] = 2. * cells[0].conductivity() / cells[0].thickness();
-    for (unsigned i = 1; i < n; ++i)
-      g[i] =
-          1. / (0.5 * cells[i - 1].thickness() / cells[i - 1].conductivity() +
-                0.5 * cells[i].thickness() / cells[i].conductivity());
+    g[0] = 2. * nodes[0].conductivity / nodes[0].thickness;
+    for (unsigned i = 1; i < n; ++i) {
+      const double r0 = 0.5 * nodes[i - 1].thickness / nodes[i - 1].conductivity;
+      const double r1 = 0.5 * nodes[i].thickness / nodes[i].conductivity;
+      g[i] = (r0 + r1 > 0. && std::isfinite(r0 + r1)) ? 1. / (r0 + r1) : 0.;
+    }
     double dt = std::min(max_step, seconds - done);
     for (unsigned i = 0; i < n; ++i) {
       // Minimum phase heat capacity gives a conservative explicit stability
       // bound.
-      const auto &c = cells[i];
-      const double cmin =
-          (c.material == SNOW_MATERIAL ? 0. : c.matrix * (1. - c.porosity) * c.solid_heat) + c.mass() * SHCICE;
-      dt = std::min(dt, 0.2 * cmin / (g[i] + g[i + 1]));
+      const double denom = g[i] + g[i + 1];
+      if (denom > 0. && std::isfinite(denom))
+        dt = std::min(dt, 0.2 * nodes[i].cmin / denom);
     }
     require(dt > 0. && done + dt > done, "thermal timestep underflow");
-    const double top = g[0] * (top_temperature - cells[0].temperature());
+    const double top = g[0] * (top_temperature - nodes[0].temperature);
     rate[0] += top;
     rate[n - 1] += basal_flux;
     for (unsigned i = 1; i < n; ++i) {
       const double flux =
-          g[i] * (cells[i - 1].temperature() - cells[i].temperature());
+          g[i] * (nodes[i - 1].temperature - nodes[i].temperature);
       rate[i - 1] -= flux;
       rate[i] += flux;
     }
     for (unsigned i = 0; i < n; ++i)
-      cells[i].enthalpy += dt * rate[i];
+      *nodes[i].enthalpy += dt * rate[i];
     boundary_energy += dt * (top + basal_flux);
     equilibrate_and_settle();
     done += dt;

@@ -33,8 +33,8 @@ def make_spec(source,dest):
   with dest.open("w",newline="") as f:
     w=csv.DictWriter(f,fieldnames=rows[0].keys(),lineterminator="\n");w.writeheader();w.writerows(rows)
 
-def cfg(base,out,mask,climate,restart=None,diagnostics=True):
-  c=production.clone_config(base,out,mask,True,.20,climate,restart);c["model_settings"]["thermokarst"].update({"top_depth":.2,"bottom_depth":1.0});c["IO"]["output_nc_tr"]=int(diagnostics);c["IO"]["output_interval"]=1;return c
+def cfg(base,out,mask,climate,restart=None,diagnostics=True,tr_start=0):
+  c=production.clone_config(base,out,mask,True,.20,climate,restart);c["model_settings"]["thermokarst"].update({"top_depth":.2,"bottom_depth":1.0});c["IO"]["output_nc_tr"]=int(diagnostics);c["IO"]["output_interval"]=1;c["stage_settings"]["tr_start_yr"]=int(tr_start);return c
 
 def daily(directory):
   result={}
@@ -64,7 +64,7 @@ def main():
   spec=out/"diagnostic-output-spec.csv";make_spec(ROOT/"config/output_spec.csv",spec);base["IO"]["output_spec_file"]=str(spec)
   production.run_case(a.binary.resolve(),out,"seed",cfg(base,out/"seed",mask,cold,diagnostics=False),["--pr-yrs","1"]);seed=out/"seed/restart-pr.nc"
   for name,years,restart,diag in [("continuous",2,seed,True),("split-first",1,seed,True),("control",2,seed,False)]: production.run_case(a.binary.resolve(),out,name,cfg(base,out/name,mask,climate,restart,diag),["--tr-yrs",str(years)])
-  middle=out/"split-first/restart-tr.nc";production.run_case(a.binary.resolve(),out,"resumed",cfg(base,out/"resumed",mask,climate,middle,True),["--tr-yrs","1"])
+  middle=out/"split-first/restart-tr.nc";production.run_case(a.binary.resolve(),out,"resumed",cfg(base,out/"resumed",mask,climate,middle,True,1),["--tr-yrs","1"])
   cont=daily(out/"continuous");first=daily(out/"split-first");second=daily(out/"resumed");resume={n:np.r_[first[n],second[n]] for n in NAMES};days=np.arange(1,731)
   generated=np.cumsum(cont["TKLIQGEN"]);runoff=np.cumsum(cont["TKLIQRUNOFF"]);drain=np.cumsum(cont["TKLIQDRAINAGE"]);other=np.cumsum(cont["TKLIQOTHER"]);closure=cont["TKLIQSTORAGE"]+runoff+drain+other-generated;diffs={n:maxdiff(cont[n],resume[n]) for n in NAMES}
   cr=production.active_pixel_variables(out/"continuous/restart-tr.nc");rr=production.active_pixel_variables(out/"resumed/restart-tr.nc");pr=production.active_pixel_variables(out/"control/restart-tr.nc");exact=lambda x,y,names:all(np.array_equal(x[n],y[n],equal_nan=True) for n in names);physical=["TKversion","TKactive","TKstate","TKmatrix","TKporosity","TKexcess","DZsoil","TSsoil","LIQsoil","ICEsoil","FROZENsoil","FROZENFRACsoil","frontZ","frontFT","watertab"];all_names=cr.keys()&pr.keys();ft=cont["TKFRONTTYPE"]
