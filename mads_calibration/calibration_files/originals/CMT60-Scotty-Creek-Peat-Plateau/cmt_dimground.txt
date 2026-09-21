@@ -1,0 +1,19 @@
+// CMT60 // Peat Plateau
+// Snow characteristics
+232                 // snwdenmax:  max. snow density (kg/m3)
+120.5                // snwdennew:  new (min.) snow density (kg/m3)
+0.                 // initsnwthick: initial snow thickness (m)
+0.                 // initsnwdense: initial snow density (kg/m3)
+// moss characteristics
+0.3                 // maxmossthick: max. dead moss thickness (m)
+0.02               // initdmossthick: initial dead moss thickness (m)
+1                  // mosstype: // moss type (1: sphagnum; 2: feathermoss; 3: other)
+// soil characteristics
+0.15                // initfibthick: meters
+0.20                // inithumthick:
+0.012              // coefshlwa:
+1.18               // coefshlwb:
+0.008              // coefdeepa:
+1.54               // coefdeepb:
+0.0995             // coefminea:
+0.8109             // coefmineb:

@@ -244,16 +244,30 @@ struct soi2atm_bgc {
   double rhsomprsum;
   double rhsomcrsum;
 
+  double ch4efflux;
+  double ch4efflux_ebul;
+  double ch4effdiff; //Efflux from diffusion
+  double ch4_oxid[MAX_SOI_LAY];
+
+  double ch4_oxid_sum;
+
+  double ch4_transport[MAX_SOI_LAY][NUM_PFT];
+
   double rhsom;  //RH for soil organic matter
   
   soi2atm_bgc(): rhwdeb(UIN_D), rhrawcsum(UIN_D),
-                 rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D) {
+                 rhsomasum(UIN_D), rhsomprsum(UIN_D), rhsomcrsum(UIN_D),
+                 ch4efflux(UIN_D), ch4effdiff(UIN_D), ch4_oxid_sum(UIN_D) {
 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
       rhrawc[i] = UIN_D;
       rhsoma[i] = UIN_D;
       rhsompr[i] = UIN_D;
       rhsomcr[i] = UIN_D;
+      ch4_oxid[i] = UIN_D;
+      for(int ip=0; ip<NUM_PFT; ip++){
+        ch4_transport[i][ip] = UIN_D;
+      }
     }
   }
   
@@ -283,11 +297,26 @@ struct soi2soi_bgc {
 
   double netnmin[MAX_SOI_LAY];
   double nimmob[MAX_SOI_LAY];
-  
+
+  double ch4_diff[MAX_SOI_LAY];
+  double ch4_ebul[MAX_SOI_LAY];
+
+  //ch4 production
+  double ch4_rawc[MAX_SOI_LAY];
+  double ch4_soma[MAX_SOI_LAY];
+  double ch4_sompr[MAX_SOI_LAY];
+  double ch4_somcr[MAX_SOI_LAY];
+
   soi2soi_bgc() : netnminsum(UIN_D), nimmobsum(UIN_D) {
-    for (int i = 0; i < MAX_SOI_LAY; ++i) {
-      netnmin[i] = UIN_D;
-      nimmob[i] = UIN_D;
+    for (int il = 0; il < MAX_SOI_LAY; ++il) {
+      netnmin[il] = UIN_D;
+      nimmob[il] = UIN_D;
+      ch4_diff[il] = UIN_D;
+      ch4_ebul[il] = UIN_D;
+      ch4_rawc[il] = UIN_D;
+      ch4_soma[il] = UIN_D;
+      ch4_sompr[il] = UIN_D;
+      ch4_somcr[il] = UIN_D;
     }
   }
   

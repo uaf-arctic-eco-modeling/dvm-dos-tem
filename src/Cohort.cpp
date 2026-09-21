@@ -69,6 +69,20 @@ Cohort::Cohort(int y, int x, ModelData* modeldatapointer):
   // overwritten by projected climate later when necessary.
   this->climate = Climate(modeldatapointer->hist_climate_file, modeldatapointer->co2_file, y, x);
 
+  if(modeldatapointer->get_ch4_module()){
+    this->climate.load_ch4(modeldatapointer->ch4_file);
+  }
+
+    // adding catch for regional simulations to circumvent config file and minimize additional ch4 related processes in non-wetlands
+  if(this->cd.cmttype == 6 || this->cd.cmttype == 31 || this->cd.cmttype == 32 || this->cd.cmttype == 55 || this->cd.cmttype == 61 || this->cd.cmttype == 75 || this->cd.cmttype == 92 || this->cd.cmttype == 93){
+    modeldatapointer->set_ch4_module(true);
+  } else {
+    modeldatapointer->set_ch4_module(false);
+  }
+
+  cd.groundwater_status = modeldatapointer->get_groundwater_status();
+  cd.runon_status = modeldatapointer->get_runon_status();
+
   this->climate.baseline_start = modeldatapointer->baseline_start;
   this->climate.baseline_end = modeldatapointer->baseline_end;
   //Prepare averaged input set for EQ stage
@@ -149,6 +163,11 @@ void Cohort::load_proj_climate(const std::string& proj_climate_file){
 void Cohort::load_proj_co2(const std::string& proj_co2_file){
   climate.load_proj_co2(proj_co2_file);
 }
+
+void Cohort::load_ch4(const std::string& ch4_file){
+  climate.load_ch4(ch4_file);
+}
+
 
 // initialization of pointers used in modules called here
 void Cohort::initialize_internal_pointers() {
@@ -418,7 +437,7 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
   if(md->get_bgcmodule()) {
     BOOST_LOG_SEV(glg, debug) << "Run the BGC processes to get the C/N fluxes.";
     BOOST_LOG_SEV(glg, debug) << "RIGHT BEFORE updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
-    updateMonthly_Bgc(currmind);
+    updateMonthly_Bgc(currmind, dinmcurr);
     BOOST_LOG_SEV(glg, debug) << "RIGHT AFTER updateMonthly_Bgc()" << ground.layer_report_string("depth CN");
 
   }
@@ -719,7 +738,7 @@ void Cohort::updateMonthly_Env(const int & currmind, const int & dinmcurr) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Biogeochemical Module Calling at monthly timestep
 ///////////////////////////////////////////////////////////////////////////////////////////
-void Cohort::updateMonthly_Bgc(const int & currmind) {
+void Cohort::updateMonthly_Bgc(const int & currmind, const int & dinmcurr) {
   BOOST_LOG_NAMED_SCOPE("bgc");
   //
   if(currmind==0) {
@@ -735,6 +754,8 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
     bdall->soil_beginOfYear();
     bdall->land_beginOfYear();
   }
+
+  bdall->soil_beginOfMonth();
 
   // vegetation BGC module calling
   for (int ip=0; ip<NUM_PFT; ip++) {
@@ -765,8 +786,24 @@ void Cohort::updateMonthly_Bgc(const int & currmind) {
   soilbgc.prepareIntegration(md->get_nfeed(), md->get_avlnflg(),
                              md->get_baseline());
   soilbgc.clear_del_structs();
+
+  // daily soil bgc processes
+  // Running ch4 calculations prior to updateMonthlySbgc
+  // So accrued daily ch4 production and oxidation
+  // alter SOM pools and CO2 emission
+  for (int id = 0; id < dinmcurr; id++){
+    int doy = temutil::day_of_year(currmind, id);
+
+    if(md->get_ch4_module()){
+      soilbgc.CH4Flux(currmind, id);
+    }
+
+    bdall->soil_endOfDay(dinmcurr, doy);
+  }
+
   solintegrator.updateMonthlySbgc(MAX_SOI_LAY);
   soilbgc.afterIntegration();
+
   bdall->soil_endOfMonth(currmind);   // yearly data accumulation
   bdall->land_endOfMonth();
 
@@ -1613,11 +1650,14 @@ void Cohort::set_restartdata_from_state() {
   restartdata.wdebrisc = bdall->m_sois.wdebrisc;
   restartdata.wdebrisn = bdall->m_sois.wdebrisn;
 
-  for(int il =0; il<cd.m_soil.numsl; il++) {
+  std::array<double, MAX_SOI_LAY> temp_ch4_bylayer = ground.get_ch4_bylayer();
+
+  for(int il=0; il<cd.m_soil.numsl; il++) {
     restartdata.rawc[il]  = bdall->m_sois.rawc[il];
     restartdata.soma[il]  = bdall->m_sois.soma[il];
     restartdata.sompr[il] = bdall->m_sois.sompr[il];
     restartdata.somcr[il] = bdall->m_sois.somcr[il];
+    restartdata.ch4[il] = temp_ch4_bylayer[il];
     restartdata.orgn[il] = bdall->m_sois.orgn[il];
     restartdata.avln[il] = bdall->m_sois.avln[il];
     

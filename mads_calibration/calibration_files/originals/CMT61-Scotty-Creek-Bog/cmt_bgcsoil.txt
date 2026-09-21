@@ -1,0 +1,20 @@
+//==========================================================
+// CMT61 // Scotty Creek Bog 
+2.1350    // rhq10: 
+0.0000    // moistmin: 
+0.8000    // moistopt: 
+1.0000    // moistmax: 
+92.100    // lcclnc: 
+0.3720    // fsoma: 
+0.6110    // fsompr: 
+0.0170    // fsomcr: 
+0.3460    // som2co2: 
+0.0042    // kn2: 
+30.530    // nmincnsoil:  // C:N totalC/orgN // calculated
+0.2000    // propftos: 
+0.0000    // fnloss:  // fraction N leaching (0 - 1) when drainage occurs
+5280      // initshlwc: 
+25226     // initdeepc: 
+77803     // initminec: 
+3548      // initsoln: 
+0.1400    // initavln:

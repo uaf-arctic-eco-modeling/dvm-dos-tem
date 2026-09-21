@@ -1,3 +1,4 @@
+
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
@@ -10,6 +11,7 @@
             "request": "launch",
             "program": "/work/dvmdostem",
             "args": ["-l", "fatal", "-p", "0", "-e", "0", "-s", "0", "-t", "2", "-n", "0", "--restart-run"],
+            // "args": ["-l", "fatal", "-p", "2", "-e", "2", "-s", "2", "-t", "2", "-n", "2", "--force-cmt", "31"],
             "stopAtEntry": false,
             "cwd": "/data/workflows/thermokarst/testing_flag",
             "environment": [],

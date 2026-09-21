@@ -120,10 +120,13 @@ public :
   void load_proj_climate(const std::string&);
   // Overwrites/fills co2 container with data from projected co2 input file
   void load_proj_co2(const std::string& proj_co2_file);
+  // Overwrites/fills ch4 containers with data from historic and projected ch4 input files
+  void load_ch4(const std::string& ch4_file);
   // Overwrites/fills explicit fire data containers with data from the projected fire input file.
   void load_proj_explicit_fire(const std::string& proj_exp_fire_file);
   // Overwrites/fills explicit fire data containers with data from the projected fire input file.
   void load_proj_explicit_thermokarst(const std::string& proj_exp_thermokarst_file);
+  
 private:
 
   Integrator vegintegrator[NUM_PFT];
@@ -134,7 +137,7 @@ private:
   void updateMonthly_DIMgrd(const int & currmind, const bool & dslmodule);
 
   void updateMonthly_Env(const int & currmind, const int & dinmcurr);
-  void updateMonthly_Bgc(const int & currmind);
+  void updateMonthly_Bgc(const int & currmind, const int & dinmcurr);
   void updateMonthly_Dsb(const int & yrcnt, const int & currmind, std::string stage);
 
   void updateMonthly_Fir(const int & year, const int & midx, std::string stage);

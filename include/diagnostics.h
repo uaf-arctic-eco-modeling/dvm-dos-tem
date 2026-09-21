@@ -147,6 +147,10 @@ struct soidiag_env {
   double fbtran[MAX_SOI_LAY]; //fraction of root water uptake (transpiration)
                               //  in each soil layer (total 1.0)
 
+  //Variables used for or resulting from CH4 flux calculation
+  double dfratio;
+  double co2ch4;
+  double oxid;
 
   // variables of summarized over soil horizons
   double tsave;    // all soil profile
@@ -181,6 +185,8 @@ struct soidiag_env {
       permafrost(UIN_I), unfrzcolumn(UIN_D), alc(UIN_D), ald(UIN_D),
       rtdpts(UIN_D), rtdpthawpct(UIN_D), rtdpgdd(UIN_D), rtdpgrowstart(UIN_I),
       rtdpgrowend(UIN_I), nfactor(UIN_D),
+
+      dfratio(UIN_D), co2ch4(UIN_D), oxid(UIN_D),
 
       tsave(UIN_D), tshlw(UIN_D), tdeep(UIN_D), tminea(UIN_D), tmineb(UIN_D),
       tminec(UIN_D), tbotrock(UIN_D), tcshlw(UIN_D), tcdeep(UIN_D),
@@ -230,9 +236,13 @@ struct soidiag_bgc {
   double orgnsum;
   double avlnsum;
 
+  //Variables used for or resulting from CH4 flux calculation
+  double ch4ebulsum; //Total ebullition
+
   soidiag_bgc(): shlwc(UIN_D), deepc(UIN_D), mineac(UIN_D), minebc(UIN_D),
       minecc(UIN_D), rawcsum(UIN_D), somasum(UIN_D), somprsum(UIN_D),
-      somcrsum(UIN_D), orgnsum(UIN_D), avlnsum(UIN_D) {
+      somcrsum(UIN_D), orgnsum(UIN_D), avlnsum(UIN_D),
+      ch4ebulsum(UIN_D) {
 
     for (int i = 0; i < MAX_SOI_LAY; ++i) {
       knmoist[i] = UIN_D;

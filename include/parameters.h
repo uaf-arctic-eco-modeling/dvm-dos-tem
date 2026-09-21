@@ -148,8 +148,43 @@ struct soipar_cal {
                    //respiration rate (at 0oC)
   double kdcsomcr; // calibrated soil chemically-resistant SOM
                    // respiration rate (at 0oC)
-  soipar_cal(): micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
-      kdcsompr(UIN_D), kdcsomcr(UIN_D) {}
+  double s2df_rawc;
+  double d2mf_rawc;
+  //Methane related values
+  double kdcrawc_ch4;
+  double kdcsoma_ch4;
+  double kdcsompr_ch4;
+  double kdcsomcr_ch4;
+
+  double ch4_ebul_rate;
+  double ch4_transport_rate;
+
+  double prodq10_ch4;
+  double oxidq10_ch4;
+
+  double prodTref_ch4;
+  double oxidTref_ch4;
+
+  double oxidkm_ch4;
+  double oxidVmax_ch4;
+
+  double s2df_soma;
+  double s2df_sompr;
+  double s2df_somcr;
+
+  double d2mf_soma;
+  double d2mf_sompr;
+  double d2mf_somcr;
+
+  soipar_cal() : micbnup(UIN_D), kdcrawc(UIN_D), kdcsoma(UIN_D),
+                 kdcsompr(UIN_D), kdcsomcr(UIN_D), kdcrawc_ch4(UIN_D),
+                 s2df_rawc(UIN_D), d2mf_rawc(UIN_D),
+                 kdcsoma_ch4(UIN_D), kdcsompr_ch4(UIN_D), kdcsomcr_ch4(UIN_D),
+                 ch4_ebul_rate(UIN_D), ch4_transport_rate(UIN_D), prodq10_ch4(UIN_D),
+                 oxidq10_ch4(UIN_D), prodTref_ch4(UIN_D), oxidTref_ch4(UIN_D),
+                 oxidkm_ch4(UIN_D), oxidVmax_ch4(UIN_D),
+                 s2df_soma(UIN_D), s2df_sompr(UIN_D), s2df_somcr(UIN_D),
+                 d2mf_soma(UIN_D), d2mf_sompr(UIN_D), d2mf_somcr(UIN_D) {}
 };
 
 struct soipar_dim {
@@ -230,6 +265,11 @@ struct soipar_bgc {
   double kdsompr[MAX_SOI_LAY];
   double kdsomcr[MAX_SOI_LAY];
 
+  double kdrawc_ch4[MAX_SOI_LAY];
+  double kdsoma_ch4[MAX_SOI_LAY];
+  double kdsompr_ch4[MAX_SOI_LAY];
+  double kdsomcr_ch4[MAX_SOI_LAY];
+
   soipar_bgc(): kn2(UIN_D), moistmin(UIN_D), moistmax(UIN_D), moistopt(UIN_D),
                 rhq10(UIN_D), rhmoistfrozen(UIN_D), propftos(UIN_D),
                 nmincnsoil(UIN_D), fnloss(UIN_D),
@@ -242,9 +282,12 @@ struct soipar_bgc {
       kdsoma[i] = UIN_D;
       kdsompr[i] = UIN_D;
       kdsomcr[i] = UIN_D;
+      kdrawc_ch4[i] = UIN_D;
+      kdsoma_ch4[i] = UIN_D;
+      kdsompr_ch4[i] = UIN_D;
+      kdsomcr_ch4[i] = UIN_D;
     }
   }
-
 };
 
 struct snwpar_dim {

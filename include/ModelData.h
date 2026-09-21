@@ -80,6 +80,8 @@ public:
   string drainage_file;
   string co2_file;
   string proj_co2_file;
+  string ch4_file;
+  string proj_ch4_file;
   string runmask_file;
   string output_dir;
   string restart_from;      // Restart from a previous run
@@ -134,6 +136,12 @@ public:
   bool get_thermokarst_module();
   void set_thermokarst_module(const std::string &s);
   void set_thermokarst_module(const bool v);
+  bool get_ch4_module();
+  void set_ch4_module(const std::string &s);
+  void set_ch4_module(const bool v);
+
+  bool get_runon_status();
+  bool get_groundwater_status();
 
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);
@@ -173,6 +181,10 @@ private:
   bool bgcmodule;             // BGC module on/off
   bool dynamic_lai_module;    // dynamic lai module on/off
   bool thermokarst_module;
+  bool ch4_module; //This only matters if the bgc module is enabled
+  
+  bool runon_enabled;
+  bool groundwater_enabled;
 
   bool dslmodule;  // dynamic soil layer module on/off
   bool dsbmodule;  // disturbance module on/off

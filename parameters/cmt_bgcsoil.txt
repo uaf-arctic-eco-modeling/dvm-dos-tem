@@ -127,26 +127,26 @@
 2200              //initsoln:
 8.9               //initavln:
 //===========================================================
-// CMT06 // Wet Sedge Tundra
-2.0               //rhq10:
-1.0               //rhmoistfrozen:
-0.0               //moistmin:
-0.5               //moistopt:
-1.0               //moistmax:
-41.30             //lcclnc:
-0.372             //fsoma:
-0.611             //fsompr:
-0.017             //fsomcr:
-0.346             //som2co2:
-0.0042            //kn2:
-29.73             //nmincnsoil:
-0.2               //propftos:
-0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
-3358              //initshlwc:
-8401              //initdeepc:
-44252             //initminec:
-2698              //initsoln:
-0.48              //initavln:
+// CMT06 // Wet sedge tundra
+2.0               // rhq10: 
+1.970639e-01 // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+41.3              // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+3079.0            // initshlwc: Updated
+7703.0            // initdeepc: Updated
+175000.0           // initminec: Updated
+2206.0            // initsoln: Updated
+8.958             // initavln: Updated
 //===========================================================
 // CMT07 // Heath Tundra
 2.0               //rhq10:
@@ -233,25 +233,46 @@
 1.7               //initavln:
 //===========================================================
 // CMT31 // Boreal Bog
-2.0               //rhq10:
-1.0               //rhmoistfrozen:
-0.0               //moistmin:
-0.8               //moistopt:changedfrom0.5to0.8
-1.0               //moistmax:
-50.00             //lcclnc:Updated.Subsequentlyreducedfrom65.43to50.0
-0.372             //fsoma:
-0.611             //fsompr:
-0.017             //fsomcr:
-0.346             //som2co2:
-0.0042            //kn2:
-19.34             //nmincnsoil:Updated
-0.2               //propftos:
-0.0               //fnloss:fractionNleaching(0-1)whendrainageoccurs
-6029              //initshlwc:Updated
-40300             //initdeepc:Updated
-37000             //initminec:Updated
-5548              //initsoln:Updated
-9.41              //initavln:Updated
+2.036690          // rhq10: 
+0.150000          // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+19.34             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+8731.942664       // initshlwc: Updated
+24091.95591       // initdeepc: Updated
+200000.00       // initminec: Updated
+4138              // initsoln: Updated
+7.134             // initavln: Updated
+//===========================================================
+// CMT32 // Boreal Fen //
+2.036690          // rhq10: 
+1.000000          // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+19.34             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+158               // initshlwc: Updated
+56300             // initdeepc: Updated
+215000.00          // initminec: Updated
+7135              // initsoln: Updated
+7.135             // initavln: Updated
 //===========================================================
 // CMT44 // Shrub Tundra Kougarok
 2.0               //rhq10:
@@ -337,26 +358,26 @@
    3209.0000  //initsoln://  //  // from calib targets
       0.3620  //initavln://  //  // from calib targets
 //===========================================================
-// CMT55 // Arctic Fen // Daring Creek
-      2.0000  //rhq10://  ////None
-0.0//rhmoistfrozen://nan//nan//nan
-      0.0000  //moistmin://  ////None
-      0.5000  //moistopt://  ////None
-      1.0000  //moistmax://  ////None
-     36.4000  //lcclnc://  ////None
-      0.3720  //fsoma://  ////None
-      0.6110  //fsompr://  ////None
-      0.0170  //fsomcr://  ////None
-      0.3460  //som2co2://  ////None
-      0.0042  //kn2://  ////None
-     18.43    //nmincnsoil:// C:N totalC/orgN // calculated //
-      0.2000  //propftos://  ////None
-      0.0000  //fnloss:// fraction N leaching (0 - 1) when drainage occurs // //None
-   2320       //initshlwc:// same as targets // //None
-   26838     //initdeepc:// same as targets // //None
-   14000     //initminec:// same as targets // //None
-   2341.5      //initsoln:// same as targets // //None
-      0.7060  //initavln:// same as targets // //None
+// CMT55 // Arctic Fen // Daring Creek - Imnavait calibration
+2.0               // rhq10: 
+1.970639e-01 // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+41.3              // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+29.73             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+3079.0            // initshlwc: Updated
+7703.0            // initdeepc: Updated
+175000.0           // initminec: Updated
+2206.0            // initsoln: Updated
+8.958             // initavln: Updated
 //===========================================================
 // CMT56 // Mixed Tundra // Darling Lake
  2.0000  //rhq10://  //  // 
@@ -420,6 +441,27 @@
 55667            //initminec:
 2561              //initsoln:
 1.38              //initavln:
+//===========================================================
+// CMT61 // Scotty creek Bog - bonanza calibration
+2.036690          // rhq10: 
+0.150000          // rhmoistfrozen: 
+0.0               // moistmin:
+0.8               // moistopt: changed from 0.5 to 0.8
+1.0               // moistmax:
+50.00             // lcclnc: Updated. Subsequently reduced from 65.43 to 50.0
+0.372             // fsoma:
+0.611             // fsompr:
+0.017             // fsomcr:
+0.346             // som2co2:
+0.0042            // kn2:
+19.34             // nmincnsoil: Updated
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+8731.942664       // initshlwc: Updated
+24091.95591       // initdeepc: Updated
+200000.00       // initminec: Updated
+4138              // initsoln: Updated
+7.134             // initavln: Updated
 //===========================================================
 // CMT65 // Mature Aspen // BOREAS
       1.3000  //rhq10://  //  // 

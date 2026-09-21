@@ -15,6 +15,8 @@
     "soil_texture_file":  "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/soil-texture.nc",
     "co2_file":           "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/co2.nc",
     "proj_co2_file":      "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-co2.nc",
+    "ch4_file":           "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/ch4.nc",
+    "proj_ch4_file":      "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-ch4.nc",
     "runmask_file":       "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/run-mask.nc",
     "topo_file":          "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/topo.nc",
     "fri_fire_file":      "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/fri-fire.nc",
@@ -129,6 +131,9 @@
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
     "baseline_end": 1931,     //end year for baseline EQ climate
+    "ch4": true, //controlled at the stage level by bgc settings above
+    "run-on": false, //enable run-on (use calculated runoff as input) only if poorly draining pixel
+    "groundwater": false //enable calibrated fixed groundwater recharge only if input if poorly draining pixel
     "thermokarst": false      //enabling thermokarst, controlled by disturbance (dsb) stage settings above
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,

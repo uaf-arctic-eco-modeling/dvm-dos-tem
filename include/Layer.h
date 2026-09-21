@@ -94,6 +94,7 @@ public:
 
   // misc.
   double cfrac; //fraction of carbon, relative to total SOM weight (mass) - not used but should be useful in future
+  double ch4;
 
   void advanceOneDay();
   double getHeatCapacity();
@@ -103,6 +104,7 @@ public:
   double getVolLiq();
   double getEffVolLiq();
   double getVolIce();
+  double getVolAir();
 
   virtual double getFrzThermCond()=0; // get frozen layer thermal conductivity
   virtual double getUnfThermCond()=0; // get unfrozen layer thermal conductivity

@@ -240,7 +240,25 @@ modified due to wildfire.
    <!-- From Tobey Carman's google drawing "dvmdostem-soil-detail" -->
    <img src="https://docs.google.com/drawings/d/1TPZNC_DazpOpkxSKkTJ3oMQlLvzBjUaY6DmBW9LR9cY/pub?w=1005&amp;h=746">
 
+=======================
+Methane
+=======================
 
+Methane flux calculations were developed based on work by (:cite:p:`walter2000processbased`;
+:cite:p:`zhuang2004methane`; :cite:p:`fan2013response`) and can be enabled by changing
+``"ch4": false`` to ``"ch4": true`` in ``"model_settings"`` within the configuration file. 
+Conceptually, the model relies on the position of the water table calculated in the 
+hydrological dynamics, which delineates aerobic and anaerobic regions in the soil column
+over time. Methane oxidation and production are calculated in each of these regions with
+three transport pathways. These include, ebullition below the water table, plant-mediated
+transport in soil layers containing roots, and diffusion across the full soil column. A rate
+of rhizospheric oxidation is assumed during plant-mediated transport. A schematic diagram is 
+shown below.
+
+.. raw:: html
+
+   <!-- From Ben Maglio's google drawing "dvmdostem_methane_framework" in Documentation_Embed_Images-->
+   <img src="https://docs.google.com/drawings/d/e/2PACX-1vSJZFiGHEQ1XA4oZQ4wQarGPUI91sWZuerlVwy2bi67jaJN504Wki6deJLRZkz7sXGImFCUDSXYadFC/pub?w=960&amp;h=720"> 
 
 *********************
 Inputs/Outputs (IO)

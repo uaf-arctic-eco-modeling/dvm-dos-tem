@@ -147,10 +147,14 @@ public :
   //
   void checkWaterValidity();
 
+
   double getCarbonForDepthRange(double topz, double bottomz);
 
   double getVWCAtDepth(double vwcdepth);
   double getTempAtDepth(double temperaturez);
+
+  std::array<double, MAX_SOI_LAY> get_ch4_bylayer();
+  void set_ch4_bylayer(const double* newch4);
 
 private :
 

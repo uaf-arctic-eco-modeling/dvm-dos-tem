@@ -102,6 +102,8 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   soil_texture_file = controldata["IO"]["soil_texture_file"].asString();
   co2_file          = controldata["IO"]["co2_file"].asString();
   proj_co2_file     = controldata["IO"]["proj_co2_file"].asString();
+  ch4_file          = controldata["IO"]["ch4_file"].asString();
+  proj_ch4_file     = controldata["IO"]["proj_ch4_file"].asString();
   runmask_file      = controldata["IO"]["runmask_file"].asString();
   output_dir        = controldata["IO"]["output_dir"].asString();
   restart_from      = controldata["IO"]["restart_from"].asString();
@@ -122,6 +124,9 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end = controldata["model_settings"]["baseline_end"].asInt();
   thermokarst_module = controldata["model_settings"]["thermokarst"].asBool(); 
+  ch4_module = controldata["model_settings"]["ch4"].asBool();
+  runon_enabled = controldata["model_settings"]["run-on"].asBool();
+  groundwater_enabled = controldata["model_settings"]["groundwater"].asBool();
 
   // These must be directories. If user forgets to add the trailing slash, 
   // do it here. Might be better to do something with boost::filesystem for 
@@ -227,6 +232,24 @@ void ModelData::set_thermokarst_module(const bool v){
   this->thermokarst_module = v;
 }
 
+bool ModelData::get_ch4_module() {
+  return this->ch4_module;
+}
+void ModelData::set_ch4_module(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << s;
+  this->ch4_module = temutil::onoffstr2bool(s);
+}
+void ModelData::set_ch4_module(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting ch4_module to " << v;
+  this->ch4_module = v;
+}
+
+bool ModelData::get_runon_status() {
+  return this->runon_enabled;
+}
+bool ModelData::get_groundwater_status() {
+  return this->groundwater_enabled;
+}
 
 bool ModelData::get_dslmodule() {
   return this->dslmodule;
@@ -519,6 +542,24 @@ void ModelData::create_netCDF_output_files(int ysize, int xsize,
         vartype3D_dimids[2] = xD;
 
         temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 3, vartype3D_dimids, &Var) );
+#ifdef WITHMPI
+        //Instruct HDF5 to use independent parallel access for this variable
+        temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
+#endif
+      }
+
+      // PFT and layer
+      else if(new_spec.pft && new_spec.layer){
+        temutil::nc( nc_def_dim(ncid, "pft", NUM_PFT, &pftD) );
+        temutil::nc( nc_def_dim(ncid, "layer", MAX_SOI_LAY, &layerD) );
+
+        vartypeVeg5D_dimids[0] = timeD;
+        vartypeVeg5D_dimids[1] = layerD;
+        vartypeVeg5D_dimids[2] = pftD;
+        vartypeVeg5D_dimids[3] = yD;
+        vartypeVeg5D_dimids[4] = xD;
+
+        temutil::nc( nc_def_var(ncid, name.c_str(), new_spec.data_type, 5, vartypeVeg5D_dimids, &Var) );
 #ifdef WITHMPI
         //Instruct HDF5 to use independent parallel access for this variable
         temutil::nc( nc_var_par_access(ncid, Var, NC_INDEPENDENT) );
