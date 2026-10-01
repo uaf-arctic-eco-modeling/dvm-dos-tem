@@ -73,8 +73,8 @@ When adding a new module:
 - If it needs to actually run or configure `dvmdostem` itself (drivers,
   working-directory setup, run masks tied to a live run), it's fine to assume
   the docker/run environment, but still isolate path-mapping logic (see
-  `load_ddt_env_mapping` / `resolve_io_path` in `util/runmonitor.py`) rather
-  than scattering container-path assumptions through the module.
+  `resolve_io_path` in `util/runmonitor.py`) rather than scattering
+  container-path assumptions through the module.
 - Mention in the module's top-level docstring/comment whether it's intended to
   run standalone or inside the container, if it's not obvious.
 
