@@ -45,5 +45,6 @@ pyddt-swd = "pyddt.util.setup_working_directory:main"
 pyddt-outspec = "pyddt.util.outspec:main"
 pyddt-qcal = "pyddt.util.qcal:main"
 pyddt-runmonitor = "pyddt.util.runmonitor:main"
+pyddt-region-resume = "pyddt.util.region_resume:main"
 
 
