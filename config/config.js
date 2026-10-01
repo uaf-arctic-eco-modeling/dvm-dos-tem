@@ -1,6 +1,9 @@
 {
   "general": {
-    "run_name": "A sample dvmdostem run. Modify this text to suit your needs."
+    "output_global_attributes": {
+        "run_name": "Demo dvmdostem run",
+        "description": "A basic test run. Data is not scientifically sound."
+    }
   },
 
   "IO": {
@@ -18,6 +21,7 @@
     "hist_exp_fire_file": "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/historic-explicit-fire.nc",
     "proj_exp_fire_file": "demo-data/cru-ts40_ar5_rcp85_ncar-ccsm4_toolik_field_station_10x10/projected-explicit-fire.nc",
     "output_dir":         "output/",
+    "restart_from":       "", // default
     "output_spec_file":   "config/output_spec.csv",
     "output_monthly":     1, //JSON specific
     "output_nc_eq":       0,
@@ -56,7 +60,6 @@
     // running instances of dvmdostem from overwriting eachothers json files.
   },
   "stage_settings": {
-    "restart_mode": "restart",   // other options??
     "inter_stage_pause": false,
     //Per-stage module settings
     "pr": {
@@ -120,6 +123,7 @@
   },
 
   "model_settings": {
+    "cell_timelimit": 0, //Run time limit per cell in seconds. 0 for no limit.
     "dynamic_lai": 1,                   // from model (1) or from input (0)
     "baseline_start": 1901,  //start year for baseline EQ climate
     "baseline_end": 1931     //end year for baseline EQ climate

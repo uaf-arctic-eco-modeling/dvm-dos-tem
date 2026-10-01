@@ -13,6 +13,12 @@ enum ERRORKEY { I_VAR_NULL =1, I_INPUT_INVALID,
                 I_NCVAR_GET_ERROR
               };
 
+// Codes for writing to the run status file
+const int STATUS_SUCCESS = 100;
+const int STATUS_MASKED = 0;
+const int STATUS_TIMEOUT = -5;
+const int STATUS_FAIL = -100;
+
 const int MISSING_I    = -9999;    //missing value (INT) used in the code
 const float MISSING_F  = -9999.f;  //missing value (FLOAT) used in the code
 const double MISSING_D = -9999.;   //missing value (DOUBLE) used in the code

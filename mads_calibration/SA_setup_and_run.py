@@ -11,7 +11,7 @@ import argparse
 import pathlib
 import textwrap
 
-import drivers.Sensitivity 
+import pyddt.drivers.sensitivity 
 
 def config_file_validator(arg_config_file):
   '''Make sure that the file exists'''
@@ -73,7 +73,7 @@ if __name__ == '__main__':
   # the Sensitivity constructor!
 
   # Make an instance of the driver object based on the config file...
-  driver = drivers.Sensitivity.Sensitivity.fromfilename(config_file_name)
+  driver = pyddt.drivers.sensitivity.Sensitivity.fromfilename(config_file_name)
 
   # Bug in some circumstances with directory not existing yet...
   pathlib.Path(driver.work_dir).mkdir(parents=True, exist_ok=True)

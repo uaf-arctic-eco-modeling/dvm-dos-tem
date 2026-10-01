@@ -1,0 +1,110 @@
+# The first attempt at a workflow for dvmdostem. Work in progress.
+# This could be made much smarter by using some kind of caching so that 
+# we don't have to wait for the images to build every time...
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # This is used for development and testing of the action. test-gh-actions
+  # is a throw-away branch, so you can force push to it. Force pushing to the
+  # branch triggers the workflow to run. It is also possible to do the
+  # development directly on Github, using their editor..."saving" triggers
+  # a commit on Github and you can set it to be comitting to this tesh-gh-actions
+  # branch just to quickly run the workflow
+  push:
+    branches: [ test-gh-actions ]
+
+  # Everytime a PR is made to master the workflow should run.
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Make input catalog and workflows dir
+        run: |
+          mkdir -p source
+          mkdir -p input-catalog
+          mkdir -p workflows
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      # We need to run this so that later when building the docker images,
+      # a call to git describe returns something to get used for the
+      # image tag.
+      - run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Set various env vars for docker compose to work
+        working-directory: source
+        run: |
+          GIT_VERSION="$(git describe --tags)"
+          DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
+          SOURCE_DIR="$GITHUB_WORKSPACE"/source
+
+          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
+          echo "DDT_INPUT_CATALOG=${DDT_INPUT_CATALOG}" >> $GITHUB_ENV
+          echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
+          echo "PWD=${SOURCE_DIR}" >> $GITHUB_ENV
+
+
+      - name: inspect the environment
+        run: |
+          echo "The github environment looks like this:"
+          echo $GITHUB_ENV
+
+      # Not sure why but running the docekr build wrapper in this context
+      # returns 1 which is considered an error and the subsequent steps
+      # don't run, even though by all indications from the information
+      # # printed to the console, the image build just fine.
+      - name: build first image layer
+        run: bash docker-build-wrapper.sh --cpp-dev
+        continue-on-error: true
+        working-directory: source
+
+      - name: build second image layer
+        run: bash docker-build-wrapper.sh --dev
+        continue-on-error: true
+        working-directory: source
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "docker-compose.yml"
+          # only built the dev image -> only start corresponding service
+          services: dvmdostem-dev
+          cwd: source
+
+      - name: compile in the running service
+        run: |
+          docker compose exec dvmdostem-dev make
+        working-directory: source
+
+      - name: run help
+        run: docker compose exec dvmdostem-dev dvmdostem --help
+        working-directory: source
+
+      # This runs the model in the source directory using the demo data.
+      # A more sophisticated test would use the input catalog and workflows
+      - name: run model
+        run: docker compose exec dvmdostem-dev dvmdostem -l monitor -p 10 -e 10 -s 10 -t 10 -n 10
+        working-directory: source
+
+      - name: see output
+        run: |
+          ls source/output
+

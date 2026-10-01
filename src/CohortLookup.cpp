@@ -458,12 +458,13 @@ void CohortLookup::assignBgc4Ground(string &dircmt) {
   
   // get a list of data for the cmt number
   std::list<std::string> datalist = temutil::parse_parameter_file(
-      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 18
+      dircmt + "cmt_bgcsoil.txt", temutil::cmtcode2num(this->cmtcode), 19
   );
 
   // pop each line off the front of the list
   // and assign to the right data member.
   temutil::pfll2data(datalist, rhq10);
+  temutil::pfll2data(datalist, rhmoistfrozen);
   temutil::pfll2data(datalist, moistmin);
   temutil::pfll2data(datalist, moistopt);
   temutil::pfll2data(datalist, moistmax);

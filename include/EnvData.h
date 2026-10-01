@@ -144,7 +144,7 @@ public:
   void grnd_beginOfDay();
 
   // accumulating/averaging monthly variables at the end of day
-  void atm_endOfDay(const int & dinm);
+  void atm_endOfDay(const int & dinm, const int & dayidx);
   void veg_endOfDay(const int & dinm);
   void grnd_endOfDay(const int & dinm, const int & doy);
 
@@ -154,6 +154,9 @@ public:
   void grnd_endOfMonth();
 
   void update_from_climate(const Climate& clm, const int mid, const int dayid);
+
+  double getTempAtDepthFromArray(double temperaturez);
+  double getVWCAtDepthFromArray(double vwcdepth);
 
 private:
 };

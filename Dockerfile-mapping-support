@@ -7,6 +7,9 @@ ARG UNAME=develop
 ARG UID=1000
 ARG GID=1000
 
+# Should try this updated image at some point...
+#FROM ghcr.io/osgeo/gdal:ubuntu-full-3.11.0
+
 # need this for netCDF
 FROM osgeo/gdal:ubuntu-full-3.2.2
 

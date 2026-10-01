@@ -275,7 +275,7 @@ on the original drawing!
 
 .. warning:: 
    
-   Soucre drawings for this document should probably be stored in the 
+   Source drawings for this document should probably be stored in the 
    Shared Google Drive so that they are not tied to an individual's account.
 
 In Google Docs, there is a way to insert a Google Drawing from a menu: 
@@ -518,7 +518,7 @@ trust.
 Releases and Version Numbering
 ================================
 
-Begining in 2021, we started using the "Releases" feature of Github to package
+Beginning in 2021, we started using the "Releases" feature of Github to package
 and distribute specific versions of ``dvmdostem``. We would like to make this a
 fully or nearly fully automated process but for the time being it is rather
 manual.
@@ -559,7 +559,7 @@ See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
 .. note::
 
   A common developer issue is that you may have installed custom libraries that
-  are not available yet inside the dvmdostem Docker image. When you shutdown
+  are not available yet inside the ``dvmdostem`` Docker image. When you shutdown
   your Docker containers, then any custom libraries you have installed will be
   lost. When you start your containers again, you will have to re-install these
   libraries. This can be somewhat tedious. One solution for this is that you
@@ -574,7 +574,7 @@ See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
     PyDemux=1.0
 
   And then when you start up your Docker container, you can run the following to
-  install your custom pacakges:
+  install your custom packages:
 
   .. code::
 
@@ -627,18 +627,52 @@ See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
 Testing and Deployment
 *******************************
 
-There is currently (Sept 2022) a very limited set of tests and their execution
+There is currently (March 2025) a limited set of tests and their execution
 is not automated. It is a goal to increase the test coverage and automate the
-test exectution in the near future. We are hoping to setup a CI/CD pipeline
-using Github Actions that can automatically test and deploy the ``dvmdostem``
-model and supporting tooling.
+test execution in the future. 
+
+=====================================
+Continuous Integration and Deployment
+=====================================
+
+We currently have a very basic GitHub Action configured for this project. The
+existing workflow is defined in the `main_sample.yml` file and primarily focuses
+on setting up the environment, building Docker images, and running the model.
+
+The current workflow includes the following steps:
+
+  - Setting up directories and checking out the source code.
+  - Fetching git history to ensure proper version tagging.
+  - Setting environment variables for Docker Compose.
+  - Building Docker images in two layers.
+  - Running Docker Compose to start the services.
+  - Compiling the code within the running Docker container.
+  - Running the model and confirming that an output file was created.
+
+While this setup is a good starting point, we aim to extend it further to
+include additional actions such as: 
+  
+  - Running the existing Python `doctest` tests.  
+  - Building and publishing Docker images to a container registry. 
+  - Automating the deployment of documentation updates.
+
+These enhancements will help ensure that our code is thoroughly tested and that
+our Docker images and documentation are consistently up-to-date and available
+for use.
+
+Future improvements to the GitHub Actions workflow will be tracked and
+implemented as part of our ongoing development efforts.
+
+=======
+Testing
+=======
 
 Testing is currently implemented for some of the Python scripts in the
-``scripts/`` directory using the Python ``doctest`` module. The style and
-structure of tests reflects the challenges we have had getting testing intgrated
-into this project. The ``doctest`` module has a nice feature that allows tests
-to be written in a literate fashion with much explanatory text. This allows us
-to hit several goals with one set of testing material:
+``pyddt/`` directory using the Python ``doctest`` module. The style and
+structure of tests reflects the challenges we have had getting testing
+integrated into this project. The ``doctest`` module has a nice feature that
+allows tests to be written in a literate fashion with much explanatory text.
+This allows us to hit several goals with one set of testing material:
  
  - explanations and examples of code/script usage; 
  - testing across a wide range of encapsulation; for example some of the tests
@@ -655,12 +689,12 @@ There are two primary places that the ``doctests`` will show up:
 
 The tests that are in the docstrings of a given file or function should be very
 narrow in their scope and should only check the functionality of that specific
-function, independant from everything else, whereas tests in a standalone file
+function, independent from everything else, whereas tests in a standalone file
 can be much broader and more flexible in their design - i.e. module level tests. 
 
 At present we have had much more luck writing the broader tests (that also serve
 as examples of usage) in stand alone files named with the following pattern:
-``scripts/tests/doctests/doctests_*[.md | .rst]``. The files are markdown or
+``pyddt/tests/doctests/doctests_*[.md | .rst]``. The files are markdown or
 reStructuredText formatted with embedded code that is executed by the
 ``doctest`` module. The execution context and other ``doctest`` particulars are
 described here:
@@ -670,33 +704,55 @@ To run the tests that are in ``__docstring__`` s of a function or file:
 
 .. code:: shell
 
-    $ PYTHONPATH="/work/scripts" python -m doctest scripts/util/param.py   # <-- script name!
+    $ python -m doctest pyddt/src/pyddt/util/param.py   # <-- script name!
 
-To run the tests that are in an independent file:
+.. warning::
+  
+    Note that for the most part the inline docstring tests are broken!! All the
+    recent work has been on the stand alone test files. So for now please focus
+    on running the stand alone test files.
+
+To run the tests that are in an independent file, there are two options:
+
+#. Run the tests using the ``doctest`` module directly on the file.
+#. Run the tests using ``pytest`` which has built in support for running
+   ``doctest`` tests.
+
+One advantage to using ``pytest`` is that it can automatically find all the
+``doctest`` files in a given directory and run them all in one command. This is
+very convenient for running all the tests at once. This can also be achieved 
+for the ``doctest`` module directly using a loop, as shown below. ``pytest``
+can also be controlled with command line flags to selectively run certain tests
+or control verbosity, etc. See the ``pytest`` documentation for more details:
+https://docs.pytest.org/en/7.1.x/.
+
+.. note::
+
+    The tests all assume that they will be run in the context of the project's 
+    Docker container or a development environment where the necessary
+    dependencies are installed and the paths to the demo and testing data match 
+    those in the Docker container.
+
+
+To run the tests using ``pytest``:
 
 .. code:: shell
 
-    $ PYTHONPATH="/work/scripts" python -m doctest scripts/tests/doctests/doctests_param_util.md  # <-- test file name!
+    $ pytest --doctest-glob "doctests_*" pyddt/tests/doctests/pytest 
 
-In either case, if all the tests execute successfully, then the command exits
-silently. If there errors, the ``doctest`` package tries to point you towards
-the tests that fail.
-
-Note that in both cases, the ``PYTHONPATH`` variable is set so that the module
-imports work properly in the scripts and tests. Many of the test currently use
-the demo-data, config files and parameter files in the main repo. The paths for
-these in the tests are assumed to be relative to the repo root. So you will
-likely have the best luck running the tests from the repo-root. For this reason
-you need to specify ``PYTHONPATH`` so that inside the test scripts, imports can
-be made of scripts and tools in the scripts folder.
-
-In order to run all the tests, this loop should work:
+To run the tests using the ``doctest`` module directly on the file:
 
 .. code:: shell
 
-    for i in $(ls scripts/tests/doctests/);
+    $ python -m doctest pyddt/src/pyddt/util/param.py
+
+Or to run all the tests in the ``pyddt/tests/doctests/`` directory:
+
+.. code:: shell
+
+    for i in $(ls pyddt/tests/doctests/);
     do
-        PYTHONPATH="/work/scripts" python -m doctest scripts/tests/doctests/$i;
+        python -m doctest pyddt/tests/doctests/$i;
     done
 
 
@@ -713,31 +769,32 @@ tried all of the following:
  * Vagrant managed VM.
  * Docker container stack.
 
-The current (2022) preference is generally for the Docker container stack,
-although on some systems a local installation is still preferable.
+The current (2025) preference is generally for the Docker container stack,
+although on some systems a local installation may be preferable.
 
 ===============================
 Setting up with Vagrant
 ===============================
-    WRITE THIS...
+  
+The Vagrant approach is not actively maintained, but there are some legacy files
+in the `virtualmachines/` directory that would be a start. 
 
 ===============================
 Setting up with Docker
 ===============================
-    WRITE THIS...
-    Install docker desktop 
-    Make sure you have docker and docker compose available on the command line
-    Find a place on your computer for:
-    Your dvmdostem repo
-    Your catalog of inputs
-    Your catalog of “workflows”
 
+See the quick start instructions on the main `README
+<https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem?tab=readme-ov-file#>`_. 
+For a more comprehensive walkthrough, see the :ref:`Basic Model Setup and
+Run <examples_and_tutorials/basic_model_run:Basic Model Setup and Run>` page.
 
 ===============================
 Setting up with Ubuntu
 ===============================
-    WRITE THIS...
 
+We don't maintain explicit documentation for this, however the Docker stack is 
+built using an Ubuntu base image, so it would be easy to simply use the 
+Dockerfile for a guide to setting up an installation directly on an Ubuntu host.
 
 .. _Arctic Eco Modeling Slack: https://arctic-eco-modeling.slack.com
 .. _Github Issues: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues
@@ -756,7 +813,7 @@ printed to your console will be overwhelming and likely saturate your scrollback
 buffer, making it impossible to read messages from the beginning of the run,
 which is where you usually want to look to diagnose initialization errors. One
 trick to overcome this is to redirect the standard output (``stdout``, ``1``)
-and standard error (``stderr``, ``2```) streams to a file which you can search
+and standard error (``stderr``, ``2``) streams to a file which you can search
 thru post-hoc using ``less`` or a text editor. For example:
 
 .. code:: shell

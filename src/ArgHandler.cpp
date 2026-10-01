@@ -44,10 +44,6 @@ void ArgHandler::parse(int argc, char** argv) {
      "such as PEcAn that makes assumptions about the presence of an output "
      "directory and may perform its own cleanup.")
 
-    ("restart-run", boost::program_options::bool_switch(&restart_run),
-     "Restart at the first stage with >0 years specified and "
-     "do not overwrite the files needed for that.")
-
     ("inter-stage-pause", boost::program_options::bool_switch(&inter_stage_pause),
      "With this flag, (and when in calibration mode), the model will pause and "
      "wait for user input at the end of each run-stage.")
@@ -84,15 +80,15 @@ void ArgHandler::parse(int argc, char** argv) {
       "files.)")
 
     ("pr-yrs,p", boost::program_options::value<int>(&pr_yrs)
-       ->default_value(100),
+       ->default_value(0),
      "Number of PRE RUN years to run.")
 
     ("eq-yrs,e", boost::program_options::value<int>(&eq_yrs)
-       ->default_value(1000),
+       ->default_value(0),
      "Number of EQUILIBRIUM years to run.")
 
     ("sp-yrs,s", boost::program_options::value<int>(&sp_yrs)
-       ->default_value(100),
+       ->default_value(0),
      "Number of SPINUP years to run.")
 
     ("tr-yrs,t", boost::program_options::value<int>(&tr_yrs)
@@ -178,6 +174,7 @@ void ArgHandler::verify() {
     BOOST_LOG_SEV(glg, warn) << "Forcing cmt number to " << this->force_cmt << "!";
   }
   // Check that the value for --force-cmt is present in all input parameter files?
+
 
 }
 

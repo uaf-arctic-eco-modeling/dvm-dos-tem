@@ -122,7 +122,7 @@ is as follows:
 
 Model simulation requires advancing the model consecutively through all of the
 run stages as needed (``pr -> eq -> sp -> tr ->``). It is possible to work with
-any subset of the stages using the command line ``--restart`` flag.
+any subset of the stages using the ``restart_from`` setting in the config file.
 
 .. note:: Automatic equilibrium (QSS) detection.
 

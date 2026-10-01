@@ -208,6 +208,7 @@ public:
 
   // Q10 and soil moisture factors for Rh
   double rhq10;
+  double rhmoistfrozen;
   double moistmin;
   double moistopt;
   double moistmax;

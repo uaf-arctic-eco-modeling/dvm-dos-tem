@@ -279,6 +279,61 @@ void BgcData::soil_beginOfYear() {
 };
 
 void BgcData::soil_endOfMonth(const int currmind) {
+
+  //The pools are modified in a separate method because it also
+  // needs to be done post disturbance, and the fluxes should
+  // not be done multiple times.
+  this->soil_updatePools(currmind);
+
+  // fluxes
+  m_soi2a.rhrawcsum = 0.;
+  m_soi2a.rhsomasum = 0.;
+  m_soi2a.rhsomprsum= 0.;
+  m_soi2a.rhsomcrsum= 0.;
+  m_soi2soi.netnminsum= 0.;
+  m_soi2soi.nimmobsum = 0.;
+
+  for (int il =0; il<MAX_SOI_LAY; il++) {
+    m_soi2a.rhrawcsum += m_soi2a.rhrawc[il];
+    m_soi2a.rhsomasum += m_soi2a.rhsoma[il];
+    m_soi2a.rhsomprsum+= m_soi2a.rhsompr[il];
+    m_soi2a.rhsomcrsum+= m_soi2a.rhsomcr[il];
+    m_soi2soi.netnminsum+= m_soi2soi.netnmin[il];
+    m_soi2soi.nimmobsum += m_soi2soi.nimmob[il];
+  }
+
+  m_soi2a.rhsom = m_soi2a.rhrawcsum +
+                  m_soi2a.rhsomasum +
+                  m_soi2a.rhsomprsum +
+                  m_soi2a.rhsomcrsum;
+
+  //cumulative annually
+  y_soi2a.rhwdeb    += m_soi2a.rhwdeb;
+  y_soi2a.rhrawcsum += m_soi2a.rhrawcsum;
+  y_soi2a.rhsomasum += m_soi2a.rhsomasum;
+  y_soi2a.rhsomprsum+= m_soi2a.rhsomprsum;
+  y_soi2a.rhsomcrsum+= m_soi2a.rhsomcrsum;
+  y_soi2a.rhsom += m_soi2a.rhsom;
+
+  for (int il =0; il<MAX_SOI_LAY; il++) {
+    y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il];
+    y_soi2a.rhsoma[il] += m_soi2a.rhsoma[il];
+    y_soi2a.rhsompr[il]+= m_soi2a.rhsompr[il];
+    y_soi2a.rhsomcr[il]+= m_soi2a.rhsomcr[il];
+    y_soi2soi.netnmin[il]+= m_soi2soi.netnmin[il];
+    y_soi2soi.nimmob[il] += m_soi2soi.nimmob[il];
+  }
+
+  y_soi2soi.netnminsum+= m_soi2soi.netnminsum;
+  y_soi2soi.nimmobsum += m_soi2soi.nimmobsum;
+  // connection to open-N cycle
+  y_a2soi.orgninput += m_a2soi.orgninput;
+  y_soi2l.orgnlost += m_soi2l.orgnlost;
+  y_a2soi.avlninput += m_a2soi.avlninput;
+  y_soi2l.avlnlost += m_soi2l.avlnlost;
+};
+
+void BgcData::soil_updatePools(const int currmind) {
   // status variable (diagnostics)
   m_soid.shlwc   = 0.;
   m_soid.deepc   = 0.;
@@ -345,7 +400,7 @@ void BgcData::soil_endOfMonth(const int currmind) {
     }
   }
 
-  // annual value should be the december value. not averaged, not sumed over year
+  // Annual value should be the December value, not averaged or summed.
   if (currmind == 11) {
 
     for (int il =0; il<MAX_SOI_LAY; il++) {
@@ -377,52 +432,6 @@ void BgcData::soil_endOfMonth(const int currmind) {
     y_soid.orgnsum  = m_soid.orgnsum    ;
   }
 
-  // fluxes
-  m_soi2a.rhrawcsum = 0.;
-  m_soi2a.rhsomasum = 0.;
-  m_soi2a.rhsomprsum= 0.;
-  m_soi2a.rhsomcrsum= 0.;
-  m_soi2soi.netnminsum= 0.;
-  m_soi2soi.nimmobsum = 0.;
-
-  for (int il =0; il<MAX_SOI_LAY; il++) {
-    m_soi2a.rhrawcsum += m_soi2a.rhrawc[il];
-    m_soi2a.rhsomasum += m_soi2a.rhsoma[il];
-    m_soi2a.rhsomprsum+= m_soi2a.rhsompr[il];
-    m_soi2a.rhsomcrsum+= m_soi2a.rhsomcr[il];
-    m_soi2soi.netnminsum+= m_soi2soi.netnmin[il];
-    m_soi2soi.nimmobsum += m_soi2soi.nimmob[il];
-  }
-
-  m_soi2a.rhsom = m_soi2a.rhrawcsum +
-                  m_soi2a.rhsomasum +
-                  m_soi2a.rhsomprsum +
-                  m_soi2a.rhsomcrsum;
-
-  //cumulative annually
-  y_soi2a.rhwdeb    += m_soi2a.rhwdeb;
-  y_soi2a.rhrawcsum += m_soi2a.rhrawcsum;
-  y_soi2a.rhsomasum += m_soi2a.rhsomasum;
-  y_soi2a.rhsomprsum+= m_soi2a.rhsomprsum;
-  y_soi2a.rhsomcrsum+= m_soi2a.rhsomcrsum;
-  y_soi2a.rhsom += m_soi2a.rhsom;
-
-  for (int il =0; il<MAX_SOI_LAY; il++) {
-    y_soi2a.rhrawc[il] += m_soi2a.rhrawc[il];
-    y_soi2a.rhsoma[il] += m_soi2a.rhsoma[il];
-    y_soi2a.rhsompr[il]+= m_soi2a.rhsompr[il];
-    y_soi2a.rhsomcr[il]+= m_soi2a.rhsomcr[il];
-    y_soi2soi.netnmin[il]+= m_soi2soi.netnmin[il];
-    y_soi2soi.nimmob[il] += m_soi2soi.nimmob[il];
-  }
-
-  y_soi2soi.netnminsum+= m_soi2soi.netnminsum;
-  y_soi2soi.nimmobsum += m_soi2soi.nimmobsum;
-  // connection to open-N cycle
-  y_a2soi.orgninput += m_a2soi.orgninput;
-  y_soi2l.orgnlost += m_soi2l.orgnlost;
-  y_a2soi.avlninput += m_a2soi.avlninput;
-  y_soi2l.avlnlost += m_soi2l.avlnlost;
 };
 
 

@@ -1,8 +1,8 @@
 ###########################
-qcal.py
+pyddt-qcal
 ###########################
 
 .. argparse::
-   :module: util.qcal
+   :module: pyddt.util.qcal
    :func: cmdline_define
-   :prog: qcal.py
+   :prog: pyddt-qcal

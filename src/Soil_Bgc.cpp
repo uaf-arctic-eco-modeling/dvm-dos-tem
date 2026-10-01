@@ -213,6 +213,23 @@ void Soil_Bgc::prepareIntegration(const bool &mdnfeedback,
 };
 
 void Soil_Bgc::afterIntegration() {
+
+  // Update layer values here instead of Integrator::y2cstate_soi()
+  //  due to variable access.
+  Layer* currl = ground->fstmossl;
+  while(currl->nextl != NULL){
+    currl->rawc = bd->m_sois.rawc[currl->solind-1];
+    currl->soma = bd->m_sois.soma[currl->solind-1];
+    currl->sompr = bd->m_sois.sompr[currl->solind-1];
+    currl->somcr = bd->m_sois.somcr[currl->solind-1];
+
+    currl->orgn = bd->m_sois.orgn[currl->solind-1];
+    currl->avln = bd->m_sois.avln[currl->solind-1];
+
+    currl = currl->nextl;
+  }
+
+  // Update total carbon pool array
   for(int i=0; i<cd->m_soil.numsl; i++) {
     bd->m_soid.tsomc[i] = bd->m_sois.rawc[i] + bd->m_sois.soma[i]
                           + bd->m_sois.sompr[i] + bd->m_sois.somcr[i];
@@ -365,23 +382,24 @@ void Soil_Bgc::set_state_from_restartdata(const RestartData & rdata) {
 
 void Soil_Bgc::initializeParameter() {
   BOOST_LOG_SEV(glg, info) << "Initializing parameters in Soil_Bgc from chtlu (CohortLookup) values.";
-  calpar.micbnup    = chtlu->micbnup;
-  calpar.kdcrawc    = chtlu->kdcrawc;
-  calpar.kdcsoma    = chtlu->kdcsoma;
-  calpar.kdcsompr   = chtlu->kdcsompr;
-  calpar.kdcsomcr   = chtlu->kdcsomcr;
-  bgcpar.rhq10      = chtlu->rhq10;
-  bgcpar.moistmin   = chtlu->moistmin;
-  bgcpar.moistmax   = chtlu->moistmax;
-  bgcpar.moistopt   = chtlu->moistopt;
-  bgcpar.fsoma      = chtlu->fsoma;
-  bgcpar.fsompr     = chtlu->fsompr;
-  bgcpar.fsomcr     = chtlu->fsomcr;
-  bgcpar.som2co2    = chtlu->som2co2;
-  bgcpar.lcclnc     = chtlu->lcclnc;
-  bgcpar.kn2        = chtlu->kn2;
-  bgcpar.propftos   = chtlu->propftos;
-  bgcpar.fnloss     = chtlu->fnloss;
+  calpar.micbnup = chtlu->micbnup;
+  calpar.kdcrawc = chtlu->kdcrawc;
+  calpar.kdcsoma = chtlu->kdcsoma;
+  calpar.kdcsompr = chtlu->kdcsompr;
+  calpar.kdcsomcr = chtlu->kdcsomcr;
+  bgcpar.rhq10 = chtlu->rhq10;
+  bgcpar.rhmoistfrozen = chtlu->rhmoistfrozen;
+  bgcpar.moistmin = chtlu->moistmin;
+  bgcpar.moistmax = chtlu->moistmax;
+  bgcpar.moistopt = chtlu->moistopt;
+  bgcpar.fsoma = chtlu->fsoma;
+  bgcpar.fsompr = chtlu->fsompr;
+  bgcpar.fsomcr = chtlu->fsomcr;
+  bgcpar.som2co2 = chtlu->som2co2;
+  bgcpar.lcclnc = chtlu->lcclnc;
+  bgcpar.kn2 = chtlu->kn2;
+  bgcpar.propftos = chtlu->propftos;
+  bgcpar.fnloss = chtlu->fnloss;
   bgcpar.nmincnsoil = chtlu->nmincnsoil;
 
   BOOST_LOG_SEV(glg, info) << "Calculating parameter in Soil_Bgc from Jenkinson and Rayner (1977).";
@@ -403,10 +421,10 @@ void Soil_Bgc::initializeParameter() {
 void Soil_Bgc::initSoilCarbon(double & initshlwc, double & initdeepc,
                               double & initminec) {
   for(int il =0; il <MAX_SOI_LAY ; il++) {
-    bd->m_sois.rawc[il]  = 0.;
-    bd->m_sois.soma[il]  = 0.;
-    bd->m_sois.sompr[il] = 0.;
-    bd->m_sois.somcr[il] = 0.;
+    bd->m_sois.rawc[il] = 0.0;
+    bd->m_sois.soma[il] = 0.0;
+    bd->m_sois.sompr[il] = 0.0;
+    bd->m_sois.somcr[il] = 0.0;
   }
 
   initOslayerCarbon(initshlwc, initdeepc);
@@ -588,8 +606,8 @@ void Soil_Bgc::deltac() {
   for (int il =0; il<cd->m_soil.numsl; il++) {
     //HG: 01122023 - this condition allows for winter respiration
     //(Natali et al. 2019, Nature Climate Change)
-    if (ed->m_sois.ts[il] <0.) {
-      bd->m_soid.rhmoist[il] = 1;
+    if (ed->m_sois.ts[il] < 0.0) {
+      bd->m_soid.rhmoist[il] = bgcpar.rhmoistfrozen;
     } else {
       // Yuan: vwc normalized by total pore - this will allow
       // respiration (methane/oxidation) implicitly
@@ -599,8 +617,8 @@ void Soil_Bgc::deltac() {
                                            bgcpar.moistopt );
     }
     bd->m_soid.rhq10[il] = getRhq10(ed->m_sois.ts[il]);
-    krawc  = bgcpar.kdrawc[il];
-    ksoma  = bgcpar.kdsoma[il];
+    krawc = bgcpar.kdrawc[il];
+    ksoma = bgcpar.kdsoma[il];
     ksompr = bgcpar.kdsompr[il];
     ksomcr = bgcpar.kdsomcr[il];
 

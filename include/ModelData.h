@@ -12,11 +12,10 @@
 #include "layerconst.h"
 #include "errorcode.h"
 
+#include <netcdf.h>
 #ifdef WITHMPI
 #include <mpi.h>
 #include <netcdf_par.h>
-#else
-#include <netcdf.h>
 #endif
 
 using namespace std;
@@ -38,13 +37,15 @@ public:
 
   int force_cmt; // used to override the veg map (calibration mode only)
 
-  int initmode;  // NOT USED?
-
   int eq_yrs;
   int pr_yrs;
   int sp_yrs;
   int tr_yrs;
   int sc_yrs;
+
+  //General config settings
+  std::string run_name;
+  std::string run_description;
 
   //Config Stage Settings
   bool inter_stage_pause; // Controls pauses between EQ, SP, TR, SC
@@ -79,6 +80,7 @@ public:
   string proj_co2_file;
   string runmask_file;
   string output_dir;
+  string restart_from;      // Restart from a previous run
   string output_spec_file;
   bool output_monthly;
   bool nc_eq; // NetCDF output flags for each stage
@@ -108,6 +110,9 @@ public:
   int changeco2; // 0: default (up to run stage); 1: dynamical; -1: static
   bool dynamic_LAI; // True: calculate LAI as a function of vegc, False: use static_lai from CohortLookup 
   bool useseverity; // using fire severity inputs
+
+  int cell_timelimit; //Time limit in seconds for cell computation time
+  time_t cell_stime; //Start time per cell. Move to Runner?
 
   bool outSiteDay;
 

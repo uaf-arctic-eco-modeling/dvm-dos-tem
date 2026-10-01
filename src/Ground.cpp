@@ -2398,6 +2398,150 @@ void Ground::cleanRockLayers() {
 }
 
 
+/* Returns the total carbon pool between two depths in the soil stack.
+ *
+ * Provide parameters as meters (i.e. 0.1 for 10 cm)
+ */
+double Ground::getCarbonForDepthRange(double upperz, double lowerz){
+
+  if(lowerz < upperz){
+    BOOST_LOG_SEV(glg, fatal) << "getCarbon, invalid order of depths";
+  }
+
+  double accumulatedC = 0.0;
+
+  //Ignore moss and start with the first fibric layer
+  Layer *currl = fstshlwl;
+
+  while(!currl->isRock){
+    double currl_bottom = currl->z + currl->dz;
+
+    // If the layer contains the upper boundary
+    if((upperz > currl->dz) && (upperz < currl_bottom)){
+
+      // If the layer also contains the lower boundary
+      if(lowerz < currl_bottom){
+
+        // Calculate percentage of carbon pool between boundaries
+        double layerpercent = (lowerz - upperz) / currl->dz;
+        double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+        accumulatedC += layerpercent * layerC;
+        break;
+      }
+      // Layer does not contain lower boundary
+      else{
+        // Calculate percentage of carbon pool below upper bound
+        double layerpercent = (currl_bottom - upperz) / currl->dz;
+        double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+        accumulatedC += layerpercent * layerC;
+      }
+    }
+    // If the layer is fully within the upper and lower boundary range
+    else if((currl->z > upperz) && (currl_bottom <= lowerz)){
+      double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+      accumulatedC += layerC;
+    }
+    // If the layer contains the lower boundary
+    else if((lowerz > currl->z) && (lowerz < currl_bottom)){
+      // Calculate percentage of carbon in the layer above the lower bound
+      double layerpercent = (lowerz - currl->z) / currl->dz;
+      double layerC = currl->rawc + currl->soma + currl->sompr + currl->somcr;
+      accumulatedC += layerpercent * layerC;
+    }
+
+    currl = currl->nextl;
+  }
+
+  return accumulatedC;
+}
+
+
+/* Returns the interpolated temperature at a specified depth in
+ *  the soil stack. Because this is based on the linked list
+ *  and not the arrays, the values are not averaged for the
+ *  month.
+ *
+ * Provide parameter as meters (i.e. 0.1 for 10 cm)
+ */
+double Ground::getVWCAtDepth(double vwcdepth){
+
+  double requested_vwc = UIN_D;
+
+  Layer *currl = fstmossl;
+
+  while(!currl->isRock){
+    double currl_bottom = currl->z + currl->dz;
+    // Assumes that the calculated VWC is at the middle of the layer
+    double currl_mid = currl->z + (currl->dz / 2);
+
+    // If the point is in the upper half of the layer
+    if((vwcdepth > currl->z) && (vwcdepth < currl_mid)){
+      // Find midpoint of previous layer
+      double prevl_mid = currl->z - (currl->prevl->dz / 2);
+      requested_vwc = temutil::interpolate(currl->prevl->getVolWater(),
+                                           currl->getVolWater(),
+                                           prevl_mid, currl_mid,
+                                           vwcdepth, I_LINEAR);
+    }
+    // If the point is in the bottom half of the layer
+    else if((vwcdepth > currl_mid) && (vwcdepth < currl_bottom)){
+      // Find midpoint of next layer
+      double nextl_mid = currl_bottom + (currl->nextl->dz / 2);
+      requested_vwc = temutil::interpolate(currl->getVolWater(),
+                                           currl->nextl->getVolWater(),
+                                           currl_mid, nextl_mid,
+                                           vwcdepth, I_LINEAR);
+    }
+
+    currl = currl->nextl;
+  }
+
+  return requested_vwc;
+}
+
+
+/* Returns the interpolated temperature at a specified depth in
+ *  the soil stack. Because this is based on the linked list
+ *  and not the arrays, the values are not averaged for the
+ *  month.
+ *
+ * Provide parameter as meters (i.e. 0.1 for 10 cm)
+ */
+double Ground::getTempAtDepth(double temperaturez){
+
+  double requested_temp = UIN_D;
+
+  Layer *currl = fstmossl;
+
+  while(!currl->isRock){
+    double currl_bottom = currl->z + currl->dz;
+    // Assumes that the layer temperature is at the middle of the layer
+    double currl_mid = currl->z + (currl->dz / 2);
+
+    // If the temperature point is in the upper half of the layer
+    if((temperaturez > currl->z) && (temperaturez < currl_mid)){
+      // Find midpoint (temperature location) of previous layer
+      double prevl_mid = currl->z - (currl->prevl->dz / 2);
+      requested_temp = temutil::interpolate(currl->prevl->tem, currl->tem,
+                                            prevl_mid, currl_mid,
+                                            temperaturez, I_LINEAR);
+    }
+    // If the temperature point is in the bottom half of the layer
+    else if((temperaturez > currl_mid) && (temperaturez < currl_bottom)){
+      // Find midpoint (temperature location) of next layer
+      double nextl_mid = currl_bottom + (currl->nextl->dz / 2);
+      requested_temp = temutil::interpolate(currl->tem, currl->nextl->tem,
+                                            currl_mid, nextl_mid,
+                                            temperaturez, I_LINEAR);
+    }
+
+    currl = currl->nextl;
+  }
+
+  return requested_temp;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 void Ground::setBgcData(BgcData *bdp){

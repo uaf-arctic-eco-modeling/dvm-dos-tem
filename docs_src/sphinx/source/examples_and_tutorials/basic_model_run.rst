@@ -15,35 +15,64 @@ bunch of the supporting tools, including Docker, and Git. For post processing
 and visualization, see the :ref:`Plotting Example
 <examples_and_tutorials/plotting_discussion:Plotting>`. 
 
-.. hint:: Quickstart Summary
+.. hint:: Quick-start summary
 
-  For users who have Docker and Git installed. 
+  For users who have Docker and Git installed and some familiarity with the 
+  command line.
 
-  The default settings will run the model in the source code directory, using the
-  sample data that is included with the repository in the ``demo-data/`` directory.
-  The run will output a single variable (GPP), and will run for 2 pixels.
+  .. note::
 
-  - Clone the repository (``git clone https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem.git``).
-  - Change into directory (``cd dvm-dos-tem``).
-  - Get some input data (optional).
-  - Build Docker images (``./docker-build-wrapper.sh cpp-dev && ./docker-build-wrapper.sh dev``).
-  - Setup your environment variables in ``.env`` file for ``V_TAG``, ``DDT_INPUT_CATALOG``, and ``DDT_WORKFLOWS`` (optional).
-  - Start Docker containers (``V_TAG=$(git describe) docker compose up -d dvmdostem-dev``).
-  - Obtain shell in container (``docker compose exec dvmdostem-dev bash``)
-  - Compile code (``develop@56ef79004e31:/work$ make``)
-  - Setup working directory (optional).
-  - Change into working directory (optional) .
-  - Adjust as needed (optional):
+    These instructions should work for users with `Podman <https://podman.io>`_
+    rather than Docker, but several additional steps may be necessary to ensure
+    that Podman can run with non-root access. See this
+    `issue <https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776>`_
+    for more information.
 
-     - Your run mask (``run-mask.nc``)
-     - The outputs you would like to generate (``output_spec.csv``)
-     - Any other configuration items (``config.js``)
-     - Any custom parameters (``parameters/``)
-     - Any custom target data (``calibration/calibration_targets.py``).
 
-  - Start the model run (``develop@56ef79004e31:/work$ ./dvmdostem --log-level monitor -p 100 -e 1000 -s 250 -t 115 -n 85``).
-  - Analyze run (``develop@56ef79004e31:/work ./scripts/plot_output_var.py --yx 0 0 --file output/GPP_yearly_tr.nc``).
- 
+  The settings shown here will use the input data that is shipped with the code
+  in the repository's ``demo-data/`` directory. The run will output a single
+  variable (GPP), and will run for 2 pixels.
+
+  Only the steps are described here. For quick-start instructions with example
+  commands see the `README`_.
+
+  1. Clone the repository and change into the directory:
+  
+  2. Make yourself locations for input data and your modeling workflows. We
+     don't actually use the input directory for this quick-start, but creating
+     it and setting the ``env`` variable below prevents some warnings. On some
+     systems you will need to make Docker usable by non-root users. `See here
+     <https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo>`_.
+
+  3. Build Docker images. For this demo we only build 2 of the images. For your
+     needs you might want to build the other images. See
+     ``./docker-build-wrapper.sh --help`` for more info.
+    
+  4. Setup your environment variables ``V_TAG``, ``DDT_INPUT_CATALOG``, and
+     ``DDT_WORKFLOWS``. You can do this in a ``.env`` file, your ``.bashrc``, or
+     by exporting them to your shell. For example using the ``.env`` file.
+
+  5. Start the Docker containers.
+
+  6. Obtain a shell in the container.
+
+  7. Compile the code.
+
+  8. Setup a working directory for your model run and change into it. The
+     ``setup_working_directory.py`` script bootstraps a new directory to hold
+     your model run. This includes a few configuration files and a folder for 
+     the outputs.
+
+  9. Adjust run mask, config, outputs as necessary. The default settings should
+     run 1 or 2 pixels and produce outputs for GPP. There are more tools
+     provided in the ``scripts/`` directory for working with the config file,
+     run mask, output specifications and parameters.
+
+  10. Start the model run.
+
+  11. Visualize run.
+
+
 .. note::
 
   This lab is more or less a duplicate of an existing wiki page:
@@ -127,6 +156,14 @@ container should be portable and able to run on a wide variety of host systems.
 The dependencies for a piece of software are isolated inside the container. This
 isolation allows software with conflicting dependencies to run on the host
 system.
+
+.. hint::
+
+  These instructions should work for users with `Podman <https://podman.io>`_
+  rather than Docker, but several additional steps may be necessary to ensure
+  that Podman can run with non-root access. See this
+  `issue <https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues/776>`_
+  for more information.
 
 There are other ways you can get the environment necessary for running,
 compiling and developing ``dvmdostem``, such as a native installation, or using
@@ -1016,3 +1053,4 @@ like.
 .. _GDAL: https://gdal.org
 .. _ncview: https://cirrus.ucsd.edu/ncview/ 
 .. _CF Conventions: https://cfconventions.org/
+.. _README: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/

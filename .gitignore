@@ -52,3 +52,5 @@ Debug/*
 
 # assorted temporary stuff
 bundle*
+
+.dvc/*
