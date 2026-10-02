@@ -80,7 +80,7 @@ import textwrap
 from pathlib import Path
 
 import commentjson
-import numpy as np
+import xarray as xr
 
 from pyddt.util import outspec as pyddt_outspec
 from pyddt.util import param as pyddt_param
@@ -121,7 +121,33 @@ def check_directory_layout(run_dir):
   -------
   issues : list of Issue
   '''
-  raise NotImplementedError
+  issues = []
+
+  if not (run_dir / 'calibration').is_dir():
+    issues.append(Issue(WARNING, 'calibration/ directory not present.'))
+
+  config_dir = run_dir / 'config'
+  if not config_dir.is_dir():
+    issues.append(Issue(ERROR, 'config/ directory not present.'))
+  else:
+    if not (config_dir / 'config.js').is_file():
+      issues.append(Issue(ERROR, 'config/config.js not present.'))
+    if not (config_dir / 'output_spec.csv').is_file():
+      issues.append(Issue(ERROR, 'config/output_spec.csv not present.'))
+
+  if not (run_dir / 'parameters').is_dir():
+    issues.append(Issue(ERROR, 'parameters/ directory not present.'))
+
+  output_dir = run_dir / 'output'
+  if not output_dir.is_dir():
+    issues.append(Issue(ERROR, 'output/ directory not present.'))
+  elif any(output_dir.iterdir()):
+    issues.append(Issue(WARNING, 'output/ directory is not empty.'))
+
+  if not (run_dir / 'run-mask.nc').is_file():
+    issues.append(Issue(ERROR, 'run-mask.nc not present in the run directory.'))
+
+  return issues
 
 
 def load_config(run_dir):
@@ -138,7 +164,15 @@ def load_config(run_dir):
     None if the file is missing or unreadable.
   issues : list of Issue
   '''
-  raise NotImplementedError
+  config_path = run_dir / 'config' / 'config.js'
+  if not config_path.is_file():
+    return None, [Issue(ERROR, f'config/config.js not found at {config_path}; skipping remaining checks.')]
+  try:
+    with open(config_path) as f:
+      config = commentjson.load(f)
+  except (OSError, ValueError) as e:
+    return None, [Issue(ERROR, f'config/config.js could not be read/parsed ({e}); skipping remaining checks.')]
+  return config, []
 
 
 def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_dir=None):
@@ -157,7 +191,42 @@ def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_di
   -------
   issues : list of Issue
   '''
-  raise NotImplementedError
+  issues = []
+  io = config.get('IO', {})
+
+  def check_path(key, default, is_dir, standard_practice):
+    '''Resolve io[key] (or `default`), warn if absolute, error if missing.'''
+    raw = io.get(key, default)
+    if not raw:
+      issues.append(Issue(ERROR, f"config.js IO section is missing '{key}'"))
+      return
+    if Path(raw).is_absolute():
+      issues.append(Issue(WARNING, f"IO.{key} ('{raw}') is an absolute path; {standard_practice}"))
+    resolved = runmonitor.resolve_io_path(raw, run_dir, input_catalog_dir, workflows_dir)
+    exists = resolved.is_dir() if is_dir else resolved.is_file()
+    if not exists:
+      issues.append(Issue(ERROR, f'IO.{key} not found: {resolved}'))
+
+  check_path('runmask_file', None, is_dir=False,
+             standard_practice='common practice is to keep run-mask.nc in the run directory with a relative path.')
+  check_path('parameter_dir', 'parameters/', is_dir=True,
+             standard_practice='common practice is to keep parameters/ in the run directory with a relative path.')
+  check_path('output_dir', 'output/', is_dir=True,
+             standard_practice='common practice is to keep output/ in the run directory with a relative path.')
+
+  # the heavier inputs may legitimately be shared/absolute; just check they exist
+  for key in INPUT_FILE_KEYS:
+    if key == 'runmask_file':
+      continue  # already checked above, with the relative-path warning
+    raw = io.get(key)
+    if not raw:
+      issues.append(Issue(ERROR, f"config.js IO section is missing or empty '{key}'"))
+      continue
+    resolved = runmonitor.resolve_io_path(raw, run_dir, input_catalog_dir, workflows_dir)
+    if not resolved.is_file():
+      issues.append(Issue(ERROR, f'IO.{key} not found: {resolved}'))
+
+  return issues
 
 
 def check_output_spec(output_spec_path):
@@ -173,7 +242,41 @@ def check_output_spec(output_spec_path):
   -------
   issues : list of Issue
   '''
-  raise NotImplementedError
+  issues = []
+
+  try:
+    data = pyddt_outspec.csv_file_to_data_dict_list(str(output_spec_path))
+  except (OSError, RuntimeError) as e:
+    issues.append(Issue(ERROR, f'output_spec.csv is malformed: {e}'))
+    return issues
+
+  def is_enabled(row):
+    return any(row.get(res, '') not in ('', 'invalid') for res in ('Yearly', 'Monthly', 'Daily'))
+
+  by_name = {row['Name']: row for row in data}
+
+  cmtnum_row = by_name.get('CMTNUM')
+  if cmtnum_row is None:
+    issues.append(Issue(ERROR, 'output_spec.csv has no CMTNUM row.'))
+  elif not is_enabled(cmtnum_row):
+    issues.append(Issue(ERROR, 'CMTNUM output is not enabled in output_spec.csv.'))
+
+  layerdz_row = by_name.get('LAYERDZ')
+  layerdz_enabled = layerdz_row is not None and is_enabled(layerdz_row)
+
+  forced_layer_vars = sorted(row['Name'] for row in data
+                              if row.get('Layers') == 'forced' and row['Name'] != 'LAYERDZ' and is_enabled(row))
+  if forced_layer_vars and not layerdz_enabled:
+    issues.append(Issue(ERROR, f'Layer-resolution output(s) enabled ({", ".join(forced_layer_vars)}) but '
+                               f'LAYERDZ is not enabled; per-layer values cannot be matched to depths.'))
+
+  layer_named_vars = sorted(row['Name'] for row in data
+                             if 'LAYER' in row['Name'] and row['Name'] != 'LAYERDZ' and is_enabled(row))
+  if layer_named_vars and not layerdz_enabled:
+    issues.append(Issue(WARNING, f'Layer-description output(s) enabled ({", ".join(layer_named_vars)}) without '
+                                 f'LAYERDZ; depths will not be available when interpreting them.'))
+
+  return issues
 
 
 def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
@@ -189,7 +292,39 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
   -------
   issues : list of Issue
   '''
-  raise NotImplementedError
+  issues = []
+
+  mask_info = runmonitor.summarize_run_mask(run_mask_path)
+  active_mask = mask_info['active_mask']
+
+  with xr.open_dataset(veg_class_path) as ds:
+    veg_values = ds['veg_class'].values
+
+  if veg_values.shape != active_mask.shape:
+    issues.append(Issue(ERROR, f'vegetation file shape {veg_values.shape} does not match '
+                               f'run mask shape {active_mask.shape}; cannot check CMT coverage.'))
+    return issues
+
+  active_cmts = sorted(set(int(v) for v in veg_values[active_mask]))
+
+  file_cmts = {}
+  for f in sorted(Path(parameters_dir).iterdir()):
+    if not f.is_file():
+      continue
+    try:
+      cmts_in_file = pyddt_param.get_CMTs_in_file(str(f))
+    except (OSError, UnicodeDecodeError) as e:
+      issues.append(Issue(WARNING, f'could not read parameter file {f.name} ({e}); skipped for CMT coverage check.'))
+      continue
+    file_cmts[f.name] = set(c['cmtnum'] for c in cmts_in_file)
+
+  for cmtnum in active_cmts:
+    missing_from = sorted(fname for fname, cmts in file_cmts.items() if cmtnum not in cmts)
+    if missing_from:
+      issues.append(Issue(ERROR, f'CMT{cmtnum:02d} is used by active run mask cell(s) but has no data '
+                                 f'block in parameter file(s): {", ".join(missing_from)}'))
+
+  return issues
 
 
 def run_preflight(run_dir, input_catalog_dir=None, workflows_dir=None):
