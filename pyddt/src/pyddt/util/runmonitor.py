@@ -347,6 +347,7 @@ def print_report(run_dir, input_catalog_dir=None, workflows_dir=None, plot=False
     If True, also save a status summary plot into a plots/ dir alongside the
     run's output directory.
   '''
+  raw_run_dir = run_dir
   run_dir = Path(run_dir).resolve()
   print(f'{"=" * 60}')
   print(f'Run: {run_dir}')
@@ -354,6 +355,9 @@ def print_report(run_dir, input_catalog_dir=None, workflows_dir=None, plot=False
 
   if not run_dir.is_dir():
     print('  ERROR: run directory does not exist.')
+    # relative paths resolve against cwd, which is a common source of mistakes
+    if not Path(raw_run_dir).is_absolute():
+      print(f'  (given as {raw_run_dir!r}, resolved relative to cwd {Path.cwd()})')
     return
 
   config = load_run_config(run_dir)
