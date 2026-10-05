@@ -194,6 +194,40 @@ RUN rm -rf /var/lib/apt/lists/*
 USER $UNAME
 WORKDIR /work
 
+# ==== IMAGE FOR GCP CLUSTER DEV ==========
+#This may be incomplete, test before using
+FROM dvmdostem-hpcdev:${GIT_VERSION} AS dvmdostem-gcpcluster
+ARG UNAME
+ARG UID
+ARG GID
+
+USER root
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    build-essential \
+    git-all \
+    libbz2-dev \
+    libffi-dev \
+    libgdbm-dev \
+    libjsoncpp-dev \
+    liblapacke-dev \
+    liblzma-dev \
+    libncurses-dev \
+    libreadline-dev \
+    libssl-dev \
+    libsqlite3-dev \
+    libxml2-dev \
+    zlib1g-dev \
+    nco \
+    ncview \
+    python3-pip \
+    tk-dev \
+    wget \
+    curl \
+  && rm -rf /var/lib/apt/lists/*
+
+USER $UNAME
+WORKDIR /work
+
 
 # ==== IMAGE FOR RUNNING JULIA/MADS AUTO CALIBRATION STUFF ====================
 # Basically the dev image with Julia and MADS installed. Julia and MADS add
