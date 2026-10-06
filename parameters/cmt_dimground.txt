@@ -194,7 +194,7 @@
 0.0995             // coefminea:
 0.7078             // coefmineb:
 //===========================================================
-// CMT15 // Boreal Black Spruce //Calibrated for Caribou Creek.
+// CMT15 // Boreal Black Spruce Forest //Calibrated for Caribou Creek.
 // Snow characteristics
 250                // snwdenmax:  max. snow density (kg/m3)
 120                // snwdennew:  new (min.) snow density (kg/m3)

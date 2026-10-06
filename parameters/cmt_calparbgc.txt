@@ -193,7 +193,7 @@
 0.0085      //kdcsompr:
 0.000025    //kdcsomcr:
 //===========================================================
-// CMT13 // Black Spruce Bog //                                                           
+// CMT13 // Black Spruce Peatland //
 //BlackSpr     Moss           Shrub        Sedge       Lichen        PFT5       PFT6         PFT7     PFT8           PFT9        // pftnames:      
 420.4455630     311.182724     362.94552    158.43417   34.069582     0          0            0        0             0            // cmax:      
 3.7436597454   3.71137695791  0.535881447  7.97863772  12.2566596    0          0            0        0             0            // nmax:      
@@ -215,7 +215,7 @@
 0.00078      // kdcsompr:0.007763 0.005763 0.007763                                                           
 1.6e-4  // kdcsomcr:1.658316e-4 
 //===========================================================
-// CMT14 // Boreal Birch Forest //
+// CMT14 // Boreal Birch Forest // Calibrated for Caribou Creek.
 //EverTree  DecidShrub   DecidTree      Moss         EvrShrub  PFT5    PFT6    PFT7     PFT8     PFT9    // pftnames:
 4.0         65.5         600.0          6.0          9.1       0.0      0.0     0.0     0.0      0.0     // cmax:
 0.566893    0.800        10.8            0.52         1.1       0.0      0.0     0.0     0.0      0.0     // nmax:
@@ -237,7 +237,7 @@
 0.05     // kdcsompr: 0.0549  
 0.00005   // kdcsomcr: 0.000025
 //===========================================================
-// CMT15 // Boreal Black Spruce // 11/11/23 boreal black spruce with caribou-poker creek research watershed climate
+// CMT15 // Boreal Black Spruce Forest // 11/11/23 boreal black spruce with caribou-poker creek research watershed climate
 //EverTree  DecidShrub   EvrShrub       Moss         Lichen       PFT5      PFT6     PFT7       PFT8     PFT9       // pftnames:
 500.0       58.2         33.0           80.0        22.0        0.0        0.0      0.0       0.0       0.0       // cmax: black spruce 408.69 moss 968.08
 4.26        1.213350     0.42       3.081049     0.939893       0.0        0.0      0.0       0.0       0.0       // nmax:

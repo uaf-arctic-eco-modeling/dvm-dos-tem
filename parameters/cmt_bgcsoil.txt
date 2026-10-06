@@ -231,7 +231,7 @@
 1876.0            // initsoln:
 3.5               // initavln:
 //===========================================================
-// CMT15 // Boreal Black Spruce // AM Calibrated for Caribou Creek.
+// CMT15 // Boreal Black Spruce Forest // AM Calibrated for Caribou Creek.
 1.7              // rhq10:2.386951
 1.0               //rhmoistfrozen:
 0.0               // moistmin:
