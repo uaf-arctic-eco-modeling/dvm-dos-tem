@@ -293,8 +293,8 @@ calibration_targets = {
     'OrganicNitrogenSum':     1904.10,    #  soln
     'AvailableNitrogenSum':      4.00,    #  avln
   },
-   ## Prepared from US-Prr
-  "Open Canopy Black Spruce Peatland - US-Prr": {
+  "Black Spruce Peatland": {
+    #'comment': "Open canopy black spruce peatland prepared from US-Prr.",
     'cmtnumber': 13,
                                 ##      pft0       pft1      pft2      pft3     pft4     pft5     pft6     pft7      pft8    pft9   
                   'PFTNames':    ['BlackSpr', 'Moss', 'Shrub', 'Sedge', 'Lichen', 'Misc.', 'Misc.', 'Misc.', 'Misc.', 'Misc.'],
@@ -319,8 +319,7 @@ calibration_targets = {
     'OrganicNitrogenSum':     2748.367,    #  soln
     'AvailableNitrogenSum':     6.153826,    #  avln
   },
-    ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
-  "deciduous forest": {
+  "Boreal Birch Forest": {
     'cmtnumber': 14,
                                  #    pft0       pft1           pft2          pft3    pft4        pft5    pft6    pft7    pft8    pft9
                   'PFTNames':    [  'EverTree',  'DecidShrub', 'DecidTree', 'Moss',  'EvrShrub', '',     '',     '',     ''],
@@ -345,8 +344,9 @@ calibration_targets = {
     'OrganicNitrogenSum':      1876.0,    #  soln
     'AvailableNitrogenSum':      3.41,    #  avln
   },
-    ## WARNING: JUNK, PLACEHOLDER VALUES! USE AT YOUR OWN RISK!
-  "BONA black spruce forest": {
+
+  "Boreal Black Spruce Forest": {
+    # 'comment': 'BONA black spruce forest',
     'cmtnumber': 15,
                                  #    pft0       pft1           pft2          pft3    pft4        pft5    pft6    pft7    pft8    pft9
                   'PFTNames':    [  'EverTree',  'DecidShrub', 'EverShrub', 'Moss',  'Lichen', '',     '',     '',     ''],
