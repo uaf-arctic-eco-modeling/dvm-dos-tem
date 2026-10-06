@@ -38,6 +38,7 @@ Homepage = "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem"
 Issues = "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/issues"
 
 [project.scripts]
+pyddt = "pyddt.cli:main"
 pyddt-runmask = "pyddt.util.runmask:main"
 pyddt-input = "pyddt.util.input:main"
 pyddt-param = "pyddt.util.param:main"
@@ -45,5 +46,4 @@ pyddt-swd = "pyddt.util.setup_working_directory:main"
 pyddt-outspec = "pyddt.util.outspec:main"
 pyddt-qcal = "pyddt.util.qcal:main"
 pyddt-config = "pyddt.util.config:main"
-
 
