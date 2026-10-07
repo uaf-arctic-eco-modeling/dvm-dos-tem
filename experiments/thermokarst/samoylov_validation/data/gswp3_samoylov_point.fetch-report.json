@@ -1,0 +1,19 @@
+{
+  "lat_requested": 72.3667,
+  "lon_requested": 126.4667,
+  "grid_tas": {
+    "lat": 72.25,
+    "lon": 126.25,
+    "variable": "tas"
+  },
+  "grid_pr": {
+    "lat": 72.25,
+    "lon": 126.25,
+    "variable": "pr"
+  },
+  "tas_global": "/Users/EJafarov/projects/TEM_abrupt_thaw_dev/experiments/thermokarst/samoylov_validation/data/cache/gswp3_tas_global_monthly_1901_2019.nc",
+  "pr_global": "/Users/EJafarov/projects/TEM_abrupt_thaw_dev/experiments/thermokarst/samoylov_validation/data/cache/gswp3_pr_global_monthly_1901_2019.nc",
+  "output": "/Users/EJafarov/projects/TEM_abrupt_thaw_dev/experiments/thermokarst/samoylov_validation/data/gswp3_samoylov_point.nc",
+  "nmonths": 1428,
+  "source": "GSWP3-W5E5 ISIMIP3a obsclim monthly 1901-2019"
+}

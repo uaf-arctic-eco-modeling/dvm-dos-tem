@@ -1,0 +1,6 @@
+treatment,subsidence_rate_cm_yr,ci_low_cm_yr,ci_high_cm_yr,approx_total_cm_9yr,notes
+control,1.2,0.7,1.7,10.8,gradual nonpatterned subsidence
+air_warming,1.4,0.9,2.0,,not significantly different from control
+soil_warming,5.4,4.8,5.9,,~4x control; thermokarst ponds from 2016 in blocks B/C
+air_soil_warming,6.1,5.6,6.7,,~5x control; highest treatment rate
+site_max,,,,89.2,max kriged cell over 9 yr (mean ± SE 3.5 cm)

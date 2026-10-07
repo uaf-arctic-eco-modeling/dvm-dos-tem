@@ -12,5 +12,7 @@ struct ThermokarstState {
   double value[COUNT] = {};
   double pending_runoff = 0.; // consumed once by TEM hydrology; not a second store
   double pending_generated = 0.; // diagnosed source water awaiting daily partitioning
+  // Yesterday's cumulative subsidence (m); used to preserve absolute WTD after collapse.
+  double prev_subsidence = 0.;
 };
 #endif

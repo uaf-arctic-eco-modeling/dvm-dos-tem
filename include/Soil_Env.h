@@ -54,6 +54,8 @@ public:
   double getWaterTable(Layer* fstsoil);
 
 private:
+  void coupleWaterTableToDailySubsidence();
+  void syncThermokarstSubsidenceBaseline();
 
   Ground * ground;
   CohortData * cd;

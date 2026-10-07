@@ -1,0 +1,94 @@
+{
+  "mode": "ice_bracket",
+  "alt_min_cm": 30.0,
+  "alt_jones_max_cm": 75.0,
+  "alt_target_cm": 55.0,
+  "candidates_C": [
+    2.5,
+    3.5,
+    4.5,
+    5.5,
+    6.5,
+    7.5,
+    8.5,
+    9.5,
+    10.5,
+    11.5
+  ],
+  "workflow": "hybrid SP(20)+TR(24) control-only from restart-sp-tk-ready",
+  "results": [
+    {
+      "bias_C": 2.5,
+      "alt_max_control_cm": 27.52065802774038,
+      "alt_mean_control_cm": 3.353374801077866,
+      "distance_from_target_cm": 27.47934197225962,
+      "in_jones_range": false
+    },
+    {
+      "bias_C": 3.5,
+      "alt_max_control_cm": 37.56339531190202,
+      "alt_mean_control_cm": 4.440356455276356,
+      "distance_from_target_cm": 17.43660468809798,
+      "in_jones_range": true
+    },
+    {
+      "bias_C": 4.5,
+      "alt_max_control_cm": 46.729443585056465,
+      "alt_mean_control_cm": 7.022780807544499,
+      "distance_from_target_cm": 8.270556414943535,
+      "in_jones_range": true
+    },
+    {
+      "bias_C": 5.5,
+      "alt_max_control_cm": 69.73479750287927,
+      "alt_mean_control_cm": 12.879419159376084,
+      "distance_from_target_cm": 14.734797502879275,
+      "in_jones_range": true
+    },
+    {
+      "bias_C": 6.5,
+      "alt_max_control_cm": 83.1308545115465,
+      "alt_mean_control_cm": 17.362311208244158,
+      "distance_from_target_cm": 28.130854511546502,
+      "in_jones_range": false
+    },
+    {
+      "bias_C": 7.5,
+      "alt_max_control_cm": 128.44758411020462,
+      "alt_mean_control_cm": 25.468774654175736,
+      "distance_from_target_cm": 73.44758411020462,
+      "in_jones_range": false
+    },
+    {
+      "bias_C": 8.5,
+      "alt_max_control_cm": 128.57417018150886,
+      "alt_mean_control_cm": 35.267095346540934,
+      "distance_from_target_cm": 73.57417018150886,
+      "in_jones_range": false
+    },
+    {
+      "bias_C": 9.5,
+      "alt_max_control_cm": 158.2303311099478,
+      "alt_mean_control_cm": 44.2779706404904,
+      "distance_from_target_cm": 103.2303311099478,
+      "in_jones_range": false
+    },
+    {
+      "bias_C": 10.5,
+      "alt_max_control_cm": 188.66933752757186,
+      "alt_mean_control_cm": 52.45422978383595,
+      "distance_from_target_cm": 133.66933752757186,
+      "in_jones_range": false
+    },
+    {
+      "bias_C": 11.5,
+      "alt_max_control_cm": 250.0,
+      "alt_mean_control_cm": 98.436519691842,
+      "distance_from_target_cm": 195.0,
+      "in_jones_range": false
+    }
+  ],
+  "selected_bias_C": 4.5,
+  "selected_alt_max_control_cm": 46.729443585056465,
+  "note": "Prefer control max 0 \u00b0C isotherm ALT in 30\u201375 cm (Jones coring); else closest to 55 cm target."
+}

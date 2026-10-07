@@ -1,0 +1,7 @@
+# Jones et al. (2024) Supplement — volumetric excess-ice content of frozen soils (Yedoma uplands/slopes)
+# Source: https://doi.org/10.1038/s41598-024-58998-5
+layer,n_samples,mean_excess_ice_volume_pct,notes
+frozen_active_layer,8,0.2,June 2021 samples
+transient_layer,9,9.4,
+intermediate_layer_upper_permafrost,40,44.6,primary ice-rich horizon above ice wedges
+underlying_syngenetic_permafrost,7,38.2,

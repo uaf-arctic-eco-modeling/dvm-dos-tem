@@ -1,0 +1,8 @@
+{
+  "source": "bnz453_eml_hourly_lter",
+  "ncei_url": "https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&stations=USC00503585&startDate=2004-01-01&endDate=2018-12-31&dataTypes=TMAX,TMIN,PRCP&units=metric&format=csv",
+  "notes": [
+    "BNZ:453 EML site hourly met (9 files)"
+  ],
+  "n_months": 161
+}

@@ -112,17 +112,31 @@ def completed(out,name):
   with Dataset(path) as d: status=[int(d["run_status"][y,x]) for y,x in CELLS]
   return status if status==[100,100] else None
 
+def _layer_matrix(dataset,y,x,j):
+  dz=float(np.ma.asarray(dataset["DZsoil"][y,x,j]).filled(0.))
+  if "TKmatrix" not in dataset.variables: return dz
+  matrix=float(np.ma.asarray(dataset["TKmatrix"][y,x,j]).filled(0.))
+  if matrix>0.: return matrix
+  if "TKexcess" in dataset.variables:
+    excess=float(np.ma.asarray(dataset["TKexcess"][y,x,j]).filled(0.))
+    if excess>0.: return max(0.,dz-excess/917.)
+  return dz
+
 def inject_excess(source,dest,fraction=.2,top=.2,bottom=1.0):
   shutil.copy2(source,dest);before={}
   with Dataset(dest,"r+") as d:
     for cell in CELLS:
-      y,x=cell;n=int(d["numsl"][y,x]);z=0.;added=0.
+      y,x=cell;n=int(np.ma.asarray(d["numsl"][y,x]).filled(0));z=0.;added=0.
       for j in range(n):
-        matrix=float(d["TKmatrix"][y,x,j]);overlap=max(0.,min(z+matrix,bottom)-max(z,top))
+        matrix=_layer_matrix(d,y,x,j);overlap=max(0.,min(z+matrix,bottom)-max(z,top))
         temperature=float(d["TSsoil"][y,x,j])
         if overlap and temperature>1.e-8: raise RuntimeError(f"injection layer is thawed: {cell} layer {j}")
         if overlap and temperature>0.: d["TSsoil"][y,x,j]=0. # roundoff at the phase boundary
-        mass=917.*overlap*fraction/(1.-fraction);d["TKexcess"][y,x,j]=mass;d["DZsoil"][y,x,j]=matrix+mass/917.;added+=mass;z+=matrix
+        mass=917.*overlap*fraction/(1.-fraction)
+        if "TKexcess" in d.variables: d["TKexcess"][y,x,j]=mass
+        if "TKmatrix" in d.variables and float(np.ma.asarray(d["TKmatrix"][y,x,j]).filled(0.))<=0.:
+          d["TKmatrix"][y,x,j]=matrix
+        d["DZsoil"][y,x,j]=matrix+mass/917.;added+=mass;z+=matrix
       before[str(cell)]=added
   return before
 

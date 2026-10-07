@@ -1,0 +1,13 @@
+# Jones et al. (2024) Scientific Reports Table 1 — repeat LiDAR thaw subsidence
+# Source: https://doi.org/10.1038/s41598-024-58998-5
+# Study area: 50 km2 Yedoma mosaic within 2007 Anaktuvuk River fire (LiDAR 2009, 2014, 2021)
+# Detection: Geomorphic Change Detection v7; subsidence > 0.24 m between epochs (0.15 m error, 0.80 confidence)
+terrain_unit,terrain_unit_area_ha,period_start,period_end,subsidence_area_ha,subsidence_area_pct,mean_subsidence_rate_m_yr,volume_ha_m,notes
+Yedoma uplands,2127,2009,2014,378,17.8,0.08,151,
+Yedoma slopes,321,2009,2014,131,40.8,0.08,62,
+DLBs and channels,2230,2009,2014,174,7.8,0.08,64,
+Totals,4678,2009,2014,683,14.6,0.08,277,landscape-scale primary validation window
+Yedoma uplands,2127,2014,2021,8,0.4,0.05,3,stabilization phase
+Yedoma slopes,321,2014,2021,10,3.2,0.05,4,localized ongoing thaw on slopes
+DLBs and channels,2230,2014,2021,18,0.8,0.05,6,
+Totals,4678,2014,2021,36,0.8,0.05,1.9,~30x decline vs 2009-2014 period

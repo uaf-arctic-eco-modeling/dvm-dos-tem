@@ -1606,16 +1606,34 @@ void Cohort::set_state_from_restartdata() {
   if(restartdata.TKversion>=1) {
     if(!md->thermokarst_enabled && restartdata.TKactive)
       throw std::invalid_argument("thermokarst restart cannot be loaded with the module disabled");
-    ground.thermokarst.enabled=restartdata.TKactive!=0;
-    std::copy(restartdata.TKstate,restartdata.TKstate+ThermokarstState::COUNT,ground.thermokarst.value);
-    ground.thermokarst.pending_runoff=0.;
-    ground.thermokarst.pending_generated=0.;
-    if(ground.thermokarst.enabled) for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl) {
-      int j=l->solind-1;l->matrix_dz=restartdata.TKmatrix[j];
-      l->matrix_porosity=restartdata.TKporosity[j];l->excess_ice=restartdata.TKexcess[j];
-      if(l->matrix_dz<=0. || std::abs(l->dz-l->matrix_dz-l->excess_ice/DENICE)>1e-9)
-        throw std::invalid_argument("inconsistent thermokarst restart geometry");
-      static_cast<SoilLayer*>(l)->derivePhysicalProperty();
+    if(md->thermokarst_enabled && !restartdata.TKactive) {
+      // Hybrid handoff: light spin-up saved thermokarst inactive; enable it now.
+      ground.thermokarst=ThermokarstState();
+      ground.thermokarst.enabled=true;
+      for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl) {
+        l->excess_ice=0.;
+        l->matrix_dz=l->dz;
+        l->matrix_porosity=l->poro;
+      }
+    } else {
+      ground.thermokarst.enabled=restartdata.TKactive!=0;
+      std::copy(restartdata.TKstate,restartdata.TKstate+ThermokarstState::COUNT,ground.thermokarst.value);
+      ground.thermokarst.pending_runoff=0.;
+      ground.thermokarst.pending_generated=0.;
+      ground.thermokarst.prev_subsidence=
+          ground.thermokarst.value[ThermokarstState::SUBSIDENCE];
+      if(ground.thermokarst.enabled) for(Layer*l=ground.fstsoill;l&&l->isSoil;l=l->nextl) {
+        int j=l->solind-1;l->matrix_dz=restartdata.TKmatrix[j];
+        l->matrix_porosity=restartdata.TKporosity[j];l->excess_ice=restartdata.TKexcess[j];
+        if(l->matrix_porosity<=0.) l->matrix_porosity=l->poro;
+        if(l->matrix_dz<=0.) {
+          l->matrix_dz=l->dz-l->excess_ice/DENICE;
+          if(l->matrix_dz<=0.) l->matrix_dz=l->dz;
+        }
+        if(l->matrix_dz<=0. || std::abs(l->dz-l->matrix_dz-l->excess_ice/DENICE)>1e-9)
+          throw std::invalid_argument("inconsistent thermokarst restart geometry");
+        static_cast<SoilLayer*>(l)->derivePhysicalProperty();
+      }
     }
   } else if(md->thermokarst_enabled) {
     tem_thermokarst::initialize(ground,md->thermokarst_fraction,md->thermokarst_top,md->thermokarst_bottom);

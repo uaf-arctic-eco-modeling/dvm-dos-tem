@@ -70,7 +70,55 @@ make thermokarst-active-thaw-validation
 make thermokarst-fire-validation
 make thermokarst-fire-recovery-validation
 make thermokarst-observed-fire-validation
+make thermokarst-samoylov-validation
+make thermokarst-samoylov-phase1-validation
+make thermokarst-samoylov-gswp3-climate
+make thermokarst-samoylov-fetch-data
+make thermokarst-samoylov-hydrology-tune
+make thermokarst-samoylov-phase2-validation
+make thermokarst-eml-validation
+make thermokarst-eml-phase1-validation
 ```
+
+Refresh Boike (2002–2014) and GSWP3 point forcing:
+
+```sh
+make thermokarst-samoylov-fetch-data
+```
+
+Center hydrology tuning (drainage/CMT matrix, 10 EQ + 13 TR):
+
+```sh
+make thermokarst-samoylov-hydrology-tune
+```
+
+Build GSWP3+Boike climate only:
+
+```sh
+make thermokarst-samoylov-gswp3-climate
+# with real GSWP3:
+.venv-thermokarst/bin/python experiments/thermokarst/samoylov_validation/build_gswp3_climate.py \
+  --gswp3 /path/to/gswp3_samoylov_monthly.nc
+```
+
+Phase 2 scaffolds drivers and run scripts by default (no century simulation).
+Add `RUN=1` to execute the full 150 EQ + 114 TR run:
+
+```sh
+make thermokarst-samoylov-phase2-validation RUN=1
+```
+
+The Samoylov Phase 0 harness runs two-cell Rim/Center polygon columns under
+synthetic Arctic forcing (1 PR + 10 EQ + 13 TR years), injects shallow excess
+ice, and checks subsidence plus original-depth soil temperatures.
+
+Phase 1 extends spin-up to 30 EQ years, uses paper-depth ice (0.25–3 m) and
+paper-calibrated synthetic forcing (~236 mm yr⁻¹), compares soil temperature,
+snow, and September ALT against reference curves in
+`experiments/thermokarst/samoylov_validation/obs/`, and writes
+[samoylov-validation-report.md](samoylov-validation-report.md).
+
+See [samoylov-experiment-spec.md](samoylov-experiment-spec.md).
 
 The active-thaw test places a restart inside ongoing excess-ice melt under an
 explicitly one-year-periodic forcing. It compares subsidence, collapse water,
@@ -110,6 +158,51 @@ at 20 cm. See
 ```sh
 make thermokarst-historic-projection-validation
 ```
+
+Draft experiment specifications for additional Arctic validation sites:
+
+- [Samoylov experiment spec](samoylov-experiment-spec.md) — Bender-inspired Rim/Center
+  polygon tundra (not yet implemented).
+- [Barrow CRREL subsidence spec](barrow-experiment-spec.md) — Streletskiy et al. (2016)
+  plots 34, 37, 40, 44; four-cell isotropic subsidence validation.
+  Report: [barrow-validation-report.md](barrow-validation-report.md) (Phases 0–2).
+
+```sh
+make thermokarst-barrow-validation-phase0   # pipeline proof
+make thermokarst-barrow-alt-calibration     # Phase A: ALT via n-factor (no ice)
+make thermokarst-barrow-alt-calibrate       # Phase A: sweep nfactor_s grid
+make thermokarst-barrow-diagnostic-plots    # climate, soil thermal, isotherm ALT figures
+make thermokarst-barrow-validation-phase1   # Streletskiy 2003–2015 window
+make thermokarst-barrow-validation-phase2   # full 1962–2015 record
+make thermokarst-barrow-validation          # all phases
+```
+
+- [EML CiPEHR subsidence spec](eml-experiment-spec.md) — Rodenhizer et al. (2020)
+  warming-treatment subsidence and thaw-penetration validation at Eight Mile Lake.
+- [Anaktuvuk River fire subsidence spec](anaktuvuk-experiment-spec.md) — Jones et al. (2024)
+  2007 burned vs unburned Yedoma tundra; LiDAR subsidence 2009–2014 and ground-temperature
+  validation against Arctic Data Center observations.
+- [Anaktuvuk validation report](anaktuvuk-validation-report.md) — Phase 0 (15/15) and Phase 1 harness results.
+
+```sh
+make thermokarst-anaktuvuk-validation
+make thermokarst-anaktuvuk-climate-calibration
+make thermokarst-anaktuvuk-phase1-validation
+```
+
+```sh
+make thermokarst-eml-validation          # Phase 0 pipeline
+make thermokarst-eml-phase1-validation   # Healy climate + calibrated treatment runs
+make thermokarst-eml-phase2-validation   # BNZ:453 climate, thaw penetration, GPS obs
+make thermokarst-eml-phase3-validation   # snow-fence bias, 15-yr deep thaw, WTD gates
+make thermokarst-eml-phase4-validation   # WTD subsidence coupling + multi-objective calibration
+make thermokarst-eml-phase5-validation   # CiPEHR snow SWE proxy (40/80 cm) + recalibration
+make thermokarst-eml-thermal-plots       # soil T depth–time contours for validation report
+make thermokarst-eml-climate-plots       # climate driver figure for validation report
+```
+
+Report: [eml-validation-report.md](eml-validation-report.md) (Phase 1 control brackets
+Rodenhizer; Phases 2–3 add BNZ site met, thaw-penetration, GPS, and water-table gates).
 
 Run a custom constant-temperature experiment:
 

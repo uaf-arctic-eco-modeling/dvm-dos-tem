@@ -1,0 +1,11 @@
+# Jones et al. (2024) Scientific Reports Table 1 — permafrost borehole coring (2021-2023)
+# Source: https://doi.org/10.1038/s41598-024-58998-5
+terrain_unit,core_location,n_boreholes,max_post_fire_thaw_depth_cm,transient_layer_cm,intermediate_layer_cm,post_fire_permafrost_aggradation_cm,notes
+Yedoma uplands,trough,21,58.9,5.3,12.2,17.5,no actively degrading wedges found on upland surface by 2021-2023
+Yedoma uplands,center,6,66.5,7.0,13.3,20.3,
+Yedoma slopes,trough,11,49.8,2.8,3.6,6.5,5 of 11 wedges still degrading in Aug 2022
+Yedoma slopes,center,1,52.0,8.0,0.0,8.0,
+DLBs and channels,trough,9,58.8,1.9,14.6,16.4,
+DLBs and channels,center,1,52.0,16.0,0.0,16.0,
+Totals,trough,41,57.5,4.6,10.3,15.0,ice wedge troughs pooled
+Totals,center,8,58.9,7.0,13.3,18.3,polygon centers pooled

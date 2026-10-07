@@ -1,0 +1,9 @@
+variable,value,unit,source,notes
+mean_annual_air_temperature,-0.94,degC,Healy/McKinley stations WRCC+NOAA,nonsummer Oct-Apr mean -10.09; summer May-Sep mean 11.91
+elevation,670,m,Geoid 12B,foothills Alaska Range
+organic_layer_thickness,0.35,m,soil cores,moss layer measured above cryoturbated mineral
+site_slope,5,percent,topography,relatively flat; erosion minor
+soil_warming_surface_delta_7yr,1.49,degC,5-10 cm nonsummer,Mauritz et al. 2017
+soil_warming_deep_delta_7yr,1.05,degC,20-40 cm nonsummer,Mauritz et al. 2017
+air_warming_summer_delta,0.3,degC,first OTC season,Natali et al. 2011
+permafrost_ice_content_range,248-778,g kg-1,2009 soil cores,prior to induced thaw

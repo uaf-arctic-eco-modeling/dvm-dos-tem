@@ -69,6 +69,7 @@ void store_global_state(Ground& g,const thermokarst::Column& c,double generated,
 }
 void initialize(Ground& g,double fraction,double top,double bottom) {
   g.thermokarst=ThermokarstState();g.thermokarst.enabled=true;
+  g.thermokarst.prev_subsidence=0.;
   for(Layer*l=g.fstsoill;l && l->isSoil;l=l->nextl) {
     l->matrix_dz=l->dz;l->matrix_porosity=l->poro;
     const double overlap=std::max(0.,std::min(l->z+l->dz,bottom)-std::max(l->z,top));

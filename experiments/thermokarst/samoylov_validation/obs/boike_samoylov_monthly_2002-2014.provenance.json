@@ -1,0 +1,13 @@
+{
+  "source_doi": "10.1594/PANGAEA.905230",
+  "years": [
+    2002,
+    2014
+  ],
+  "records": 130827,
+  "monthly_rows": 130,
+  "daily_rows": 3725,
+  "mean_annual_precip_mm": 123.07100000000004,
+  "monthly_out": "/Users/EJafarov/projects/TEM_abrupt_thaw_dev/experiments/thermokarst/samoylov_validation/obs/boike_samoylov_monthly_2002-2014.csv",
+  "daily_out": "/Users/EJafarov/projects/TEM_abrupt_thaw_dev/experiments/thermokarst/samoylov_validation/obs/boike_samoylov_daily_2002-2014.csv"
+}

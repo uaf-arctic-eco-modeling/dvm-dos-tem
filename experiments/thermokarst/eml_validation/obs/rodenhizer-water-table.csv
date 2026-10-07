@@ -1,0 +1,5 @@
+treatment,year,water_table_depth_cm,se_cm,notes
+control,2009,27.6,0.4,depth below soil surface
+control,2018,18.4,0.3,33% closer to surface vs 2009
+soil_warming,2009,25.4,0.5,
+soil_warming,2018,6.6,0.3,74% closer to surface vs 2009

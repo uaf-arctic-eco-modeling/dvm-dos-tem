@@ -1,0 +1,32 @@
+{
+  "climate_bias_C": 7.5,
+  "snow_ratio_band": [0.85, 1.15],
+  "candidates": [2, 3, 4],
+  "results": [
+    {
+      "severity": 4,
+      "post_fire_mean_snow_ratio": 0.9994037623756115,
+      "post_fire_snow_ratios": [
+        0.9991181830243318,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        0.9994037623756115,
+        1.0003408575012571
+      ],
+      "burn_depth_m": 0.055959002300940766,
+      "snow_distance_from_unity": 0.000596237624388485
+    }
+  ],
+  "selected_severity": 4,
+  "selected_post_fire_mean_snow_ratio": 0.9994037623756115,
+  "note": "Severity 4 already yields burned/control snow ratio ~1.0 on paired Phase 1 runs; figure mismatch was from mixing calibration probe with full run."
+}

@@ -67,6 +67,23 @@ bundle*
 /experiments/thermokarst/fire_recovery_validation_results/
 /experiments/thermokarst/observed_fire_validation_results/
 /experiments/thermokarst/historic_projection_validation_results/
+/experiments/thermokarst/barrow_validation_results/
+/experiments/thermokarst/barrow_validation_phase0_results/
+/experiments/thermokarst/barrow_validation_phase1_results/
+/experiments/thermokarst/barrow_validation_phase2_results/
+/experiments/thermokarst/barrow_validation_phaseA_results/
+/experiments/thermokarst/barrow_validation/parameters/
+/experiments/thermokarst/barrow_validation/barrow-alt-calibration.json
 /experiments/thermokarst/thaw_tuning/
 
 /.venv-thermokarst/
+/experiments/thermokarst/samoylov_validation/data/cache/*.nc
+/experiments/thermokarst/samoylov_phase1_validation_results/
+/experiments/thermokarst/samoylov_phase2_validation_results/
+/experiments/thermokarst/samoylov_hydrology_tune_results/
+/experiments/thermokarst/samoylov_validation_results/
+/experiments/thermokarst/anaktuvuk_*_results/
+/experiments/thermokarst/anaktuvuk_ice_bracket_run.log
+/experiments/thermokarst/eml_*_results/
+/experiments/thermokarst/eml_snow_swe_probe*/
+/experiments/thermokarst/stage_a_benchmark/

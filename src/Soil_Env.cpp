@@ -572,6 +572,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   ed->d_soi2l.qdrain = 0.0;
   //Update water table for runoff calculation
   ed->d_sois.watertab = getWaterTable(lstsoill);
+  coupleWaterTableToDailySubsidence();
   if( (rnth + melt) > 0 ) {
     ed->d_soi2l.qover = getRunoff(fstsoill, drainl, rnth, melt); // mm/day
   } else {
@@ -711,6 +712,7 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
   // Richards and surface storage can change saturation after the pre-runoff
   // estimate. Publish the final water table on the settled geometry.
   ed->d_sois.watertab = getWaterTable(ground->lstsoill);
+  coupleWaterTableToDailySubsidence();
 
   if(ground->thermokarst.enabled) {
     double liquid_after=ed->d_soi2l.magic_puddle;
@@ -742,7 +744,27 @@ void Soil_Env::updateDailySM(double weighted_veg_tran) {
       ed->d_tk_front=ground->frontsz.front();
       ed->d_tk_front_type=ground->frontstype.front();
     }
+    syncThermokarstSubsidenceBaseline();
   }
+}
+
+
+void Soil_Env::coupleWaterTableToDailySubsidence() {
+  if(!ground->thermokarst.enabled) return;
+  using TK = ThermokarstState;
+  const double sub_now = ground->thermokarst.value[TK::SUBSIDENCE];
+  const double d_sub = sub_now - ground->thermokarst.prev_subsidence;
+  if(d_sub > 0.0) {
+    // Surface settled today; Richards diagnostic is on collapsed geometry.
+    // Shallow WTD by today's collapse to preserve absolute water-table elevation.
+    ed->d_sois.watertab = fmax(0.0, ed->d_sois.watertab - d_sub);
+  }
+}
+
+
+void Soil_Env::syncThermokarstSubsidenceBaseline() {
+  using TK = ThermokarstState;
+  ground->thermokarst.prev_subsidence = ground->thermokarst.value[TK::SUBSIDENCE];
 }
 
 
