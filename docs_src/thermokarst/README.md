@@ -62,6 +62,31 @@ Results go to `experiments/thermokarst/results/` (ignored by Git). Override with
 integration check, or programmatic figure-boundary check fails. It stores source
 CSV data, test results, JSON metrics, PNG/SVG figures, and restart snapshots.
 
+### Code-only clone: inputs and report figures
+
+Git tracks **source, harnesses, small obs CSVs, and markdown reports** — not
+LTER/PANGAEA/GSWP3 caches, prebuilt site climate NetCDF, or PNG figures under
+`docs_src/thermokarst/`. After checkout, prepare site drivers once:
+
+```sh
+# Barrow: builds nws-barrow-climate-full.nc on first validation run if missing
+make thermokarst-barrow-validation-phase0
+
+# Samoylov
+make thermokarst-samoylov-fetch-data
+make thermokarst-samoylov-gswp3-climate
+
+# EML (Healy / CiPEHR)
+make thermokarst-eml-fetch-data thermokarst-eml-fetch-gps thermokarst-eml-fetch-wtd
+make thermokarst-eml-climate
+```
+
+Anaktuvuk uses bundled obs CSVs only; North Slope climate is built at run time
+(see [anaktuvuk-experiment-spec.md](anaktuvuk-experiment-spec.md)). Report PNGs
+embedded in `*-report.md` files are regenerated when you run the corresponding
+`make thermokarst-*-validation` (or plot) targets; SVG copies may remain in Git
+where committed.
+
 Production restart validations are available as separate targets:
 
 ```sh

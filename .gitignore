@@ -77,7 +77,15 @@ bundle*
 /experiments/thermokarst/thaw_tuning/
 
 /.venv-thermokarst/
-/experiments/thermokarst/samoylov_validation/data/cache/*.nc
+# Site validation inputs (fetch/build locally; see docs_src/thermokarst/README.md)
+/experiments/thermokarst/eml_validation/data/cache/
+!/experiments/thermokarst/eml_validation/data/cache/.gitkeep
+/experiments/thermokarst/samoylov_validation/data/cache/
+!/experiments/thermokarst/samoylov_validation/data/cache/.gitkeep
+/experiments/thermokarst/samoylov_validation/data/*.nc
+/experiments/thermokarst/samoylov_validation/data/*.json
+/experiments/thermokarst/barrow_validation/*.nc
+/docs_src/thermokarst/*.png
 /experiments/thermokarst/samoylov_phase1_validation_results/
 /experiments/thermokarst/samoylov_phase2_validation_results/
 /experiments/thermokarst/samoylov_hydrology_tune_results/
