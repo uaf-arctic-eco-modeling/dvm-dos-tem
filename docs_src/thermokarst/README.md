@@ -364,6 +364,11 @@ material/phase boundaries, and conservative regridding.
 
 ## Production configuration and sequencing
 
+Thermokarst is controlled in each run JSON under `model_settings.thermokarst`.
+The stock [`config/config.js`](../../config/config.js) keeps it **disabled** for
+legacy TEM runs; validation harnesses set `"enabled": true` when they exercise
+subsidence, excess ice, or coupled pond/fire topology.
+
 ```json
 "thermokarst": {
   "enabled": true,
@@ -372,6 +377,33 @@ material/phase boundaries, and conservative regridding.
   "bottom_depth": 2.00
 }
 ```
+
+| Field | Role |
+|---|---|
+| `enabled` | `true`: finite-volume snow–soil enthalpy path, matrix/excess geometry, subsidence, and TK restart fields. `false` or omitted: legacy Stefan/`TemperatureUpdator` thermal path (default). |
+| `excess_fraction` | Volume fraction of **added** excess ice within `[top_depth, bottom_depth]` on a **fresh** run (no versioned TK restart yet). Ignored once settled TK geometry is loaded from restart. |
+| `top_depth`, `bottom_depth` | Depth bounds (m below surface) for that initial excess-ice band. |
+
+There is **no separate per-stage** (`pr`, `eq`, `sp`, `tr`, `sc`) thermokarst switch;
+the same `enabled` value applies for the whole execution. To spin up BGC on legacy
+physics and turn thermokarst on only for the experiment segment, use a **hybrid**
+workflow: save a restart with `enabled: false`, then start the transient with
+`enabled: true` and that restart (see
+[anaktuvuk-experiment-spec.md](anaktuvuk-experiment-spec.md), Stage A / Stage B).
+
+### Restart compatibility (`TKversion` ≥ 1)
+
+NetCDF restarts record `TKactive` (1 = thermokarst was on when the file was written).
+
+| Run config `enabled` | Restart `TKactive` | Outcome |
+|---:|---:|---|
+| `false` | 1 | **Rejected** — cannot load an active thermokarst state with the module disabled. |
+| `true` | 0 | **Hybrid handoff** — BGC/soil state from a light spin-up; thermokarst is enabled on load and layers get matrix geometry (excess ice is added separately if needed). |
+| `true` | 1 | Full TK state, geometry, and puddle restored. |
+| `true` | (no `TKversion`) | Legacy restart: thermokarst initialized from `excess_fraction` and depth bounds above. |
+
+You cannot toggle thermokarst mid-run by editing config; start a new stage from an
+appropriate restart or change `enabled` only at process launch.
 
 The daily order is: copy production C/N pools into the layer state; run one enthalpy
 and phase-change solve; contract affected material layers; rebuild geometry, fronts,
