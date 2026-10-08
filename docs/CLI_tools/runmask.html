@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyddt-runmask &mdash; dvmdostem v0.8.3-85-g465d6165 documentation</title>
+  <title>pyddt-runmask &mdash; dvmdostem v0.8.4 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> dvmdostem
           </a>
               <div class="version">
-                v0.8.3-85-g465d6165
+                v0.8.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -124,9 +124,8 @@
 <h1>pyddt-runmask<a class="headerlink" href="#pyddt-runmask" title="Permalink to this heading"></a></h1>
 <p><p>Helper script for modifying a dvm-dos-tem runmask netcdf file.</p>
 </p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">pyddt</span><span class="o">-</span><span class="n">runmask</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reset</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">on</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span><span class="o">-</span><span class="n">off</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">show</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cell</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
-                     <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">inputs</span> <span class="n">FOLDER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">available</span><span class="o">-</span><span class="n">params</span> <span class="n">PARAM_FOLDER</span> <span class="n">VEG_FILE</span><span class="p">]</span>
-                     <span class="p">[</span><span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">pyddt</span><span class="o">-</span><span class="n">runmask</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reset</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">on</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">yx</span><span class="o">-</span><span class="n">off</span> <span class="n">Y</span> <span class="n">X</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">show</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">cell</span><span class="o">-</span><span class="n">count</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">inputs</span> <span class="n">FOLDER</span><span class="p">]</span>
+                     <span class="p">[</span><span class="o">--</span><span class="n">conform</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">available</span><span class="o">-</span><span class="n">params</span> <span class="n">PARAM_FOLDER</span> <span class="n">VEG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">select</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">cmt</span> <span class="n">FOLDER</span> <span class="n">CMT</span><span class="p">]</span>
                      <span class="p">[</span><span class="n">FILE</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -217,7 +216,7 @@ script again with this option to select only certain CMTs.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
+    <p>&#169; Copyright 2026, Tobey Carman, Ruth Rutter, Helene Genet, Eugenie Euskirchen.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
