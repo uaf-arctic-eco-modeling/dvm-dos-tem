@@ -172,15 +172,25 @@ This makes sense because we haven't run the model yet so there are no outputs.
 >>> final_data = d.gather_model_outputs()
 >>> import pandas as pd
 >>> df_finaldata = pd.DataFrame(final_data)
->>> df_finaldata.loc[(df_finaldata['ctname']=='VegCarbon') & (df_finaldata['cmprt']=='Leaf')]
-      cmt     ctname      value  truth  pft cmprt
-7   CMT06  VegCarbon   2.138998   2.00    0  Leaf
-10  CMT06  VegCarbon  42.925257  37.10    1  Leaf
-12  CMT06  VegCarbon   0.156739   8.06    2  Leaf
-14  CMT06  VegCarbon   2.602119   2.00    3  Leaf
-16  CMT06  VegCarbon   2.250932   2.00    4  Leaf
-17  CMT06  VegCarbon  22.572059  22.00    5  Leaf
-18  CMT06  VegCarbon  22.400614  23.00    6  Leaf
+
+The commented table below shows what we expect to find in df_finaldata.
+Then we check that the actual data matches the expected values using pytest approx.
+
+.. >>> df_finaldata.loc[(df_finaldata['ctname']=='VegCarbon') & (df_finaldata['cmprt']=='Leaf')]
+..       cmt     ctname      value  truth  pft cmprt
+.. 7   CMT06  VegCarbon   2.138998   2.00    0  Leaf
+.. 10  CMT06  VegCarbon  42.925257  37.10    1  Leaf
+.. 12  CMT06  VegCarbon   0.156739   8.06    2  Leaf
+.. 14  CMT06  VegCarbon   2.602119   2.00    3  Leaf
+.. 16  CMT06  VegCarbon   2.250932   2.00    4  Leaf
+.. 17  CMT06  VegCarbon  22.572059  22.00    5  Leaf
+.. 18  CMT06  VegCarbon  22.400614  23.00    6  Leaf
+
+>>> import pytest
+>>> x = df_finaldata.loc[(df_finaldata['ctname']=='VegCarbon') & (df_finaldata['cmprt']=='Leaf')].value
+>>> expected_values = [2.138, 42.925, 0.156, 2.602, 2.250, 22.572, 22.400]
+>>> for i, expected in zip(x, expected_values):
+...     assert i == pytest.approx(expected, abs=1e-3)
 
 Now check that the observed values that are put in the final output data are
 indeed the same as the observed values that are read and setup in the

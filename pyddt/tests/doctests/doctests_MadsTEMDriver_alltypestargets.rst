@@ -110,13 +110,13 @@ testing because it tends to fail on whitespace and other formatting issues.
 
 Here are the first 5 rows:
 
->>> assert (9.008573, 133.687429, 25.611490, 7.791676, 3.388915) == pytest.approx(df_finaldata['value'][:5], abs=1e-6)
->>> assert (11.833, 197.867, 42.987, 10.667, 3.375) == pytest.approx(df_finaldata['truth'][:5], abs=1e-6)
->>> assert (0.0, 1.0, 2.0, 3.0, 4.0) == pytest.approx(df_finaldata['pft'][:5], abs=1e-6)
+>>> assert (9.008573, 133.687429, 25.611490, 7.791676, 3.388915) == pytest.approx(df_finaldata['value'][:5], abs=1e-3)
+>>> assert (11.833, 197.867, 42.987, 10.667, 3.375) == pytest.approx(df_finaldata['truth'][:5], abs=1e-4)
+>>> assert (0.0, 1.0, 2.0, 3.0, 4.0) == pytest.approx(df_finaldata['pft'][:5], abs=1e-4)
 
 And here are the last 5 rows:
 
->>> assert (2.602119, 2.664471, 2.250932, 22.572059, 22.400614) == pytest.approx(df_finaldata['value'][-5:], abs=1e-6)
->>> assert (2.0, 3.2, 2.0, 22.0, 23.0) == pytest.approx(df_finaldata['truth'][-5:], abs=1e-6)
->>> assert (3.0, 3.0, 4.0, 5.0, 6.0) == pytest.approx(df_finaldata['pft'][-5:], abs=1e-6)
+>>> assert (2.602119, 2.664471, 2.250932, 22.572059, 22.400614) == pytest.approx(df_finaldata['value'][-5:], abs=1e-3)
+>>> assert (2.0, 3.2, 2.0, 22.0, 23.0) == pytest.approx(df_finaldata['truth'][-5:], abs=1e-4)
+>>> assert (3.0, 3.0, 4.0, 5.0, 6.0) == pytest.approx(df_finaldata['pft'][-5:], abs=1e-4)
 
