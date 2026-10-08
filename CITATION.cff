@@ -11,7 +11,7 @@ identifiers:
 
   - description: "The GitHub release URL."
     type: url
-    value: "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases/tag/v0.8.3"
+    value: "https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases/tag/v0.8.4"
 
 repository-code: "https://uaf-arctic-eco-modeling/dvm-dos-tem"
 url: >-
@@ -73,6 +73,11 @@ authors:
     given-names: "Elchin"
     affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
     orcid: "https://orcid.org/0000-0002-8310-3261"
+
+  - family-names: "Briones" # Calibration
+    given-names: "Valeria"
+    affiliation: "Woodwell Climate Research Center, Falmouth 02540, Massachusetts, USA"
+    orcid: https://orcid.org/0000-0002-5649-851X
 
   - family-names: "Yi" # DOS
     given-names: "Shuhua"
