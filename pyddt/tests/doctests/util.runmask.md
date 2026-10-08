@@ -12,10 +12,19 @@ the original.
     ...   shutil.rmtree(tmp_dir)
 
     >>> shutil.copytree(
-    ...   "testing-data/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10",
+    ...   "testing-data/standard/inputs/cru-ts40_ar5_rcp85_ncar-ccsm4_IMNAVIAT_CREEK_10x10",
     ...   "/tmp/test"
     ... )
     '/tmp/test'
+
+Make sure the copy only has 2 pixels enabled.
+
+    >>> pyddt.util.runmask.cmdline_run(pyddt.util.runmask.cmdline_parse(["--reset", "/tmp/test/run-mask.nc"]))
+    0
+    >>> pyddt.util.runmask.cmdline_run(pyddt.util.runmask.cmdline_parse(["--yx", "0", "0", "/tmp/test/run-mask.nc"]))
+    0
+    >>> pyddt.util.runmask.cmdline_run(pyddt.util.runmask.cmdline_parse(["--yx", "1", "1", "/tmp/test/run-mask.nc"]))
+    0
 
 Show the copy:
 
