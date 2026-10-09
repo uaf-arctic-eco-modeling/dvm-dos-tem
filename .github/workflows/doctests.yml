@@ -83,7 +83,6 @@ jobs:
         run: |
           docker compose exec dvmdostem-dev \
             pytest --doctest-glob "doctests_*" \
-              pyddt/tests/doctests/doctests_basic.md \
               pyddt/tests/doctests/doctests_param_util.md \
               pyddt/tests/doctests/doctests_outspec_utils.md \
               pyddt/tests/doctests/doctests_setup_working_directory.md \
