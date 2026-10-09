@@ -1,7 +1,10 @@
-# Runs a subset of the pyddt doctest suite (pyddt/tests/doctests/doctests_*)
-# on every PR. Kept separate from checkout_build_run.yml because this suite
-# is slated for a refactor; isolating it here lets that work happen without
+# Runs a subset of the pyddt doctest suite (pyddt/tests/doctests/doctests_*) on
+# every PR. Kept separate from checkout_build_run.yml because this suite is
+# slated for a refactor; isolating it here lets that work happen without
 # touching the build/run smoke-test workflow.
+#
+# In development. Change this line, commit and force push to test-gh-actions if
+# you want to trigger a test run of the workflow.
 #
 # Uses the minimal/standard data shipped in testing-data/ (see
 # testing-data/README.md) -- no Git LFS and no external data download needed.
