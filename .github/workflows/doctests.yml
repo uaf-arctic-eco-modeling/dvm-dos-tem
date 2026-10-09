@@ -1,0 +1,88 @@
+# Runs a subset of the pyddt doctest suite (pyddt/tests/doctests/doctests_*)
+# on every PR. Kept separate from checkout_build_run.yml because this suite
+# is slated for a refactor; isolating it here lets that work happen without
+# touching the build/run smoke-test workflow.
+#
+# Uses the minimal/standard data shipped in testing-data/ (see
+# testing-data/README.md) -- no Git LFS and no external data download needed.
+
+name: Doctests
+
+on:
+  push:
+    branches: [ test-gh-actions ]
+
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  doctests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Make input catalog and workflows dir
+        run: |
+          mkdir -p source
+          mkdir -p input-catalog
+          mkdir -p workflows
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      # Needed so that later, `git describe` returns something usable for
+      # the docker image tag.
+      - run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Set various env vars for docker compose to work
+        working-directory: source
+        run: |
+          GIT_VERSION="$(git describe --tags)"
+          DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
+
+          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
+          echo "DDT_INPUT_CATALOG=${DDT_INPUT_CATALOG}" >> $GITHUB_ENV
+          echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
+
+      - name: build first image layer
+        run: bash docker-build-wrapper.sh --cpp-dev
+        continue-on-error: true
+        working-directory: source
+
+      - name: build second image layer
+        run: bash docker-build-wrapper.sh --dev
+        continue-on-error: true
+        working-directory: source
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "docker-compose.yml"
+          services: dvmdostem-dev
+          cwd: source
+
+      # Needed because doctests_qcal.md exercises the compiled binary.
+      - name: compile in the running service
+        run: docker compose exec dvmdostem-dev make
+        working-directory: source
+
+      # Scoped to the doctest files confirmed fast and stable (seconds, not
+      # minutes). The Sensitivity_*/MadsTEMDriver_* files spawn multiprocessing
+      # worker pools that have been observed to deadlock under pytest's output
+      # capture, and are left for the planned test-suite refactor.
+      - name: run doctests
+        run: |
+          docker compose exec dvmdostem-dev \
+            pytest --doctest-glob "doctests_*" \
+              pyddt/tests/doctests/doctests_basic.md \
+              pyddt/tests/doctests/doctests_param_util.md \
+              pyddt/tests/doctests/doctests_outspec_utils.md \
+              pyddt/tests/doctests/doctests_setup_working_directory.md \
+              pyddt/tests/doctests/doctests_util_general.md \
+              pyddt/tests/doctests/doctests_qcal.md
+        working-directory: source
