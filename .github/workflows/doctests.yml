@@ -20,6 +20,9 @@ on:
 jobs:
   doctests:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Make input catalog and workflows dir
@@ -49,15 +52,13 @@ jobs:
           echo "DDT_INPUT_CATALOG=${DDT_INPUT_CATALOG}" >> $GITHUB_ENV
           echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
 
-      - name: build first image layer
-        run: bash docker-build-wrapper.sh --cpp-dev
-        continue-on-error: true
+      # Reuses a cached image from GHCR when Dockerfile/requirements are
+      # unchanged, instead of rebuilding the images from scratch every run.
+      - name: build or reuse dev image
+        run: bash scripts/ci/ensure-dev-image.sh
         working-directory: source
-
-      - name: build second image layer
-        run: bash docker-build-wrapper.sh --dev
-        continue-on-error: true
-        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.0.1

@@ -1,6 +1,6 @@
-# The first attempt at a workflow for dvmdostem. Work in progress.
-# This could be made much smarter by using some kind of caching so that 
-# we don't have to wait for the images to build every time...
+# Builds the dvmdostem-dev image (reusing a cached build from GHCR when
+# possible, see scripts/ci/ensure-dev-image.sh), compiles the binary, and runs
+# a basic smoke-test of the model.
 
 name: CI
 
@@ -28,6 +28,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -67,19 +70,13 @@ jobs:
           echo "The github environment looks like this:"
           echo $GITHUB_ENV
 
-      # Not sure why but running the docekr build wrapper in this context
-      # returns 1 which is considered an error and the subsequent steps
-      # don't run, even though by all indications from the information
-      # # printed to the console, the image build just fine.
-      - name: build first image layer
-        run: bash docker-build-wrapper.sh --cpp-dev
-        continue-on-error: true
+      # Reuses a cached image from GHCR when Dockerfile/requirements are
+      # unchanged, instead of rebuilding the images from scratch every run.
+      - name: build or reuse dev image
+        run: bash scripts/ci/ensure-dev-image.sh
         working-directory: source
-
-      - name: build second image layer
-        run: bash docker-build-wrapper.sh --dev
-        continue-on-error: true
-        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.0.1
