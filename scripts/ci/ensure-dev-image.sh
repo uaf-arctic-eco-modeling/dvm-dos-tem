@@ -18,7 +18,12 @@
 set -euo pipefail
 
 REGISTRY="ghcr.io/${GITHUB_REPOSITORY,,}"
-DEPS_TAG="deps-$(cat Dockerfile requirements_general_dev.txt requirements_mapping.txt | sha256sum | cut -c1-16)"
+HOSTUID="$(id -u)"
+HOSTGID="$(id -g)"
+
+# The image bakes in the container user's UID/GID, which must match the host
+# user for the bind-mounted /work to be writable, so they are part of the key.
+DEPS_TAG="deps-$( (cat Dockerfile requirements_general_dev.txt requirements_mapping.txt; echo "${HOSTUID}:${HOSTGID}") | sha256sum | cut -c1-16)"
 
 echo "Dependency (cache) tag: ${DEPS_TAG}"
 
@@ -34,9 +39,11 @@ else
   # cross-image reference rather than an internal multi-stage build name, so
   # cpp-dev must be built and tagged first under the same tag value.
   docker build --build-arg GIT_VERSION="${DEPS_TAG}" \
+               --build-arg UID="${HOSTUID}" --build-arg GID="${HOSTGID}" \
                --target cpp-dev --tag "cpp-dev:${DEPS_TAG}" .
   docker build --progress plain \
                --build-arg GIT_VERSION="${DEPS_TAG}" \
+               --build-arg UID="${HOSTUID}" --build-arg GID="${HOSTGID}" \
                --target dvmdostem-dev --tag "dvmdostem-dev:${DEPS_TAG}" .
 
   docker tag "cpp-dev:${DEPS_TAG}" "${REGISTRY}/cpp-dev:${DEPS_TAG}"
