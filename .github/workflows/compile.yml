@@ -52,13 +52,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          GIT_VERSION="$(git describe --tags)"
-          DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
-          DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
-
-          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "DDT_INPUT_CATALOG=${DDT_INPUT_CATALOG}" >> $GITHUB_ENV
-          echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
+          export V_TAG="$(git describe --tags)"
+          export DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          export DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
 
           # Pull or build the dev image
           bash scripts/ci/ensure-dev-image.sh dev
