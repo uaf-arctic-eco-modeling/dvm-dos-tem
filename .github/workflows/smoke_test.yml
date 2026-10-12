@@ -1,7 +1,7 @@
 # Builds the dev image (reused from GHCR if cached), compiles the binary
 # (reused from cache/artifact), and runs a basic smoke test of the model.
 
-name: CI
+name: Smoke Test
 
 on:
   workflow_call:
