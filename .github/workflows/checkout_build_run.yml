@@ -1,38 +1,33 @@
-# Builds the dvmdostem-dev image (reusing a cached build from GHCR when
-# possible, see scripts/ci/ensure-dev-image.sh), compiles the binary, and runs
-# a basic smoke-test of the model.
+# Builds the dev image (reused from GHCR if cached), compiles the binary
+# (reused from cache/artifact), and runs a basic smoke test of the model.
 
 name: CI
 
-# Controls when the workflow will run
 on:
-  # This is used for development and testing of the action. test-gh-actions
-  # is a throw-away branch, so you can force push to it. Force pushing to the
-  # branch triggers the workflow to run. It is also possible to do the
-  # development directly on Github, using their editor..."saving" triggers
-  # a commit on Github and you can set it to be comitting to this tesh-gh-actions
-  # branch just to quickly run the workflow
+  workflow_call:
+  workflow_dispatch:
   push:
     branches: [ test-gh-actions ]
-
-  # Everytime a PR is made to master the workflow should run.
   pull_request:
     branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build-images:
+    uses: ./.github/workflows/build_images.yml
+    secrets: inherit
+
+  compile:
+    needs: build-images
+    uses: ./.github/workflows/compile.yml
+    secrets: inherit
+
+  smoke-test:
+    needs: [build-images, compile]
     runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Make input catalog and workflows dir
         run: |
@@ -45,11 +40,17 @@ jobs:
         with:
           path: source
 
-      # We need to run this so that later when building the docker images,
-      # a call to git describe returns something to get used for the
-      # image tag.
       - run: git fetch --prune --unshallow
         working-directory: source
+
+      - name: Download compiled binary
+        uses: actions/download-artifact@v4
+        with:
+          name: dvmdostem-binary
+          path: source
+
+      - name: Ensure binary is executable
+        run: chmod +x source/dvmdostem
 
       - name: Set various env vars for docker compose to work
         working-directory: source
@@ -64,16 +65,9 @@ jobs:
           echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
           echo "PWD=${SOURCE_DIR}" >> $GITHUB_ENV
 
-
-      - name: inspect the environment
-        run: |
-          echo "The github environment looks like this:"
-          echo $GITHUB_ENV
-
-      # Reuses a cached image from GHCR when Dockerfile/requirements are
-      # unchanged, instead of rebuilding the images from scratch every run.
-      - name: build or reuse dev image
-        run: bash scripts/ci/ensure-dev-image.sh
+      # Reuses the cached dev image from GHCR (ensured by build-images)
+      - name: pull dev image
+        run: bash scripts/ci/ensure-dev-image.sh dev
         working-directory: source
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -82,21 +76,14 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "docker-compose.yml"
-          # only built the dev image -> only start corresponding service
           services: dvmdostem-dev
           cwd: source
-
-      - name: compile in the running service
-        run: |
-          docker compose exec dvmdostem-dev make
-        working-directory: source
 
       - name: run help
         run: docker compose exec dvmdostem-dev dvmdostem --help
         working-directory: source
 
       # This runs the model in the source directory using the demo data.
-      # A more sophisticated test would use the input catalog and workflows
       - name: run model
         run: docker compose exec dvmdostem-dev dvmdostem -l monitor -p 10 -e 10 -s 10 -t 10 -n 10
         working-directory: source
