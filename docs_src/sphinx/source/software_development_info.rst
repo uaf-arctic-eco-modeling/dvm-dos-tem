@@ -670,41 +670,51 @@ See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
 Testing and Deployment
 *******************************
 
-There is currently (March 2025) a limited set of tests and their execution
-is not automated. It is a goal to increase the test coverage and automate the
-test execution in the future. 
+Continuous integration and automated testing are managed through GitHub Actions
+workflows located in ``.github/workflows/``.
 
 =====================================
 Continuous Integration and Deployment
 =====================================
 
-We currently have a very basic GitHub Action configured for this project. The
-existing workflow is defined in the `main_sample.yml` file and primarily focuses
-on setting up the environment, building Docker images, and running the model.
+The project uses a composable, multi-job GitHub Actions CI/CD setup:
 
-The current workflow includes the following steps:
+- **Build Images** (``build_images.yml``): Manages development container
+  images. To avoid slow rebuilds on every run, images are cached in GitHub
+  Container Registry (GHCR) and keyed by a content hash of files affecting
+  the image (``Dockerfile``, requirements files, host UID/GID) using the
+  ``scripts/ci/ensure-dev-image.sh`` script.
+- **Compile** (``compile.yml``): Compiles the C++ model binary (``dvmdostem``)
+  inside the development container. It caches the binary by source file hash
+  and publishes it as a workflow artifact named ``dvmdostem-binary``.
+- **Smoke Test** (``smoke_test.yml``): Downloads the compiled binary and dev
+  container, starts the container via Docker Compose, runs ``dvmdostem``
+  against demo data, and verifies model completion and output generation.
+- **Doctests** (``doctests.yml``): Executes the fast and stable Python
+  doctest suite (``pyddt/tests/doctests/``) using ``pytest`` inside the
+  running container.
+- **Release** (``release.yml``): Triggered automatically when a GitHub Release
+  is published (or via manual workflow dispatch). Runs test suites, builds
+  and packages the binary into release tarballs with SHA256 checksums,
+  uploads the assets to the GitHub Release, and tags/pushes release Docker
+  images to GHCR (tagged with the version and ``latest``).
+- **Draft PDF** (``draft-joss-pdf.yml``): Compiles draft paper PDFs for JOSS
+  manuscript submissions when paper sources change.
 
-  - Setting up directories and checking out the source code.
-  - Fetching git history to ensure proper version tagging.
-  - Setting environment variables for Docker Compose.
-  - Building Docker images in two layers.
-  - Running Docker Compose to start the services.
-  - Compiling the code within the running Docker container.
-  - Running the model and confirming that an output file was created.
+Branch Triggers and Automation
+------------------------------
 
-While this setup is a good starting point, we aim to extend it further to
-include additional actions such as: 
-  
-  - Running the existing Python `doctest` tests.  
-  - Building and publishing Docker images to a container registry. 
-  - Automating the deployment of documentation updates.
+CI workflows run automatically on:
 
-These enhancements will help ensure that our code is thoroughly tested and that
-our Docker images and documentation are consistently up-to-date and available
-for use.
-
-Future improvements to the GitHub Actions workflow will be tracked and
-implemented as part of our ongoing development efforts.
+- **Pull Requests targeting ``develop``**: Every PR from a topic branch
+  triggers smoke tests and doctests to verify changes before merging.
+- **Pull Requests targeting ``master``**: Release candidate PRs from
+  ``develop`` (or release branches) run the full test suite to guarantee
+  stability before a release is merged.
+- **Pushes to ``develop`` and ``master``**: Verifies the integrated post-merge
+  state on both branches.
+- **Release Publication**: Triggers the release workflow to publish release
+  Docker images and release binaries.
 
 =======
 Testing
