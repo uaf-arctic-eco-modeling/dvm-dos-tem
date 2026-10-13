@@ -52,6 +52,12 @@ is shown here!
 A very similar example to these steps is shown graphically in the accompanying
 slides ~14-27
 
+.. warning:: Slides need updating!
+   
+   As of October 2026, we have switched back to using the ``develop`` branch as
+   the primary integration branch for ongoing development. These slides have not been updated to reflect that change!
+
+
 .. raw:: html
 
   <!-- Shared from Tobey Carman's WS2022_Lab5 Google Slides presentation -->
@@ -105,9 +111,9 @@ The steps:
    PR, Slack, or other communications.
 
    #. Group reviews indicate work is complete: Go to next step
-   #. Group reviews indicate more work to be done: continue coding, and
-       committing. When you push the topic branch upstream, the Github Pull
-       Request will track the updated commits.
+   #. Group reviews indicate more work to be done: 
+      continue coding, and committing. When you push the topic branch upstream,
+      the Github Pull Request will track the updated commits.
 
 #.  In the meantime while waiting on this PR to be merged, you may go
     back to your ``develop`` branch and checkout a new topic branch to start
@@ -156,7 +162,7 @@ example is shown graphically in the associated slides.
 
 #. Person Z checks to make sure Person Y has not pushed - but they have!
 
-#. Person Z does a ``git pull - rebase`` which carries out the following
+#. Person Z does a ``git pull --rebase`` which carries out the following
    steps more or less automatically:
 
    #. takes Person Z's recent commits on top of the topic branch and sets
