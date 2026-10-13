@@ -554,20 +554,20 @@ trust.
 Releases and Version Numbering
 ================================
 
-Beginning in 2021, we started using the "Releases" feature of Github to package
-and distribute specific versions of ``dvmdostem``. We would like to make this a
-fully or nearly fully automated process but for the time being it is rather
-manual.
+We use the "Releases" feature of GitHub to package and distribute official
+versions of ``dvmdostem``. Releases are cut from the ``master`` branch after
+merging completed and tested changes from ``develop`` via a release Pull
+Request.
 
 As described in the ``HOWTO_RELEASE.md`` document in the repo, the project uses
-a three part version number: vMAJOR.MINOR.PATCH.
+a three part version number: ``vMAJOR.MINOR.PATCH``.
 
 We use the following rules for incrementing the version number:
  * The PATCH number (farthest right) will be incremented for changes 
    that do not affect the general scientific concepts in the 
    software.
  * The MINOR number (middle) will be updated when changes have been made 
-   to science concepts, major implementation changes for scienctifc aspects 
+   to science concepts, major implementation changes for scientific aspects 
    of the code calibration numbers are updated, or large new features are added.
  * The MAJOR (left) number will be updated for major milestones. This will
    likely be points where the model is run for "production" or major testing and
@@ -580,11 +580,18 @@ Until the project reaches ``v1.0.0``, we will not make any guarantees about
 backwards compatibility. Once the project reaches ``v1.0.0``, we may decide to
 handle the rules for incrementing version numbers differently.
 
-Releases are currently made on an as-needed basis by tcarman2@alaska.edu or
-rarutter@alaska.edu. 
+Releases are prepared by maintainers following the step-by-step instructions in
+``HOWTO_RELEASE.md``. When a release is published on GitHub:
 
-The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
-that release is visible here: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
+  - The automated release workflow (``.github/workflows/release.yml``) executes
+    test suites, compiles the standalone binary, uploads release tarballs and
+    checksums as GitHub Release assets, and builds/pushes release Docker images to
+    GitHub Container Registry (GHCR) tagged with the version and ``latest``.
+  - Zenodo automatically archives the release and mints a permanent DOI.
+  - Documentation is published to GitHub Pages using ``publish_github_pages.sh``.
+
+Published releases are visible at:
+https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
 
 ================================================
 Keeping your repo up to date with ``upstream``

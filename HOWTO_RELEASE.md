@@ -1,101 +1,111 @@
 # How to create a release of dvmdostem
 
-1. Decide on a commit upon which to base your release. The commit you choose
-   must be on the master branch. Following the rest of the release process will
-   create a new commit that updates version numbers.
+1. Ensure that all desired features, bugfixes, and contributions for this
+   release have been merged into the `develop` branch and that all CI checks
+   on `develop` are green.
 
 2. Choose a version number, see below.
 
-3. Create a lightweight tag:
+3. Create a release branch off `develop`:
 
+    ```bash
+    $ git checkout develop
+    $ git pull upstream develop
+    $ git checkout -b release/vN.N.N
     ```
+
+4. Bump version numbers and update release notes:
+   - In `docs_src/sphinx/source/conf.py` (`version = 'vN.N.N'`, `release = 'vN.N.N'`)
+   - In `CITATION.cff`, specifically under the `identifiers.description` for
+     the Github release URL: `https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases/tag/vN.N.N`
+   - Update `changelog.txt` with the itemized list of changes for this release.
+
+   Test docs build locally if desired:
+
+    ```bash
+    $ docker compose exec --workdir /work/docs_src/sphinx \
+        dvmdostem-dev make version=vN.N.N release=vN.N.N html
+    ```
+
+   Commit the version bump and changelog:
+
+    ```bash
+    $ git commit -am "Prepare release vN.N.N"
+    ```
+
+5. Push the release branch and open a Pull Request into `master`:
+
+    ```bash
+    $ git push upstream release/vN.N.N
+    ```
+
+   - Go to GitHub and open a Pull Request with base `master` and compare
+     `release/vN.N.N`.
+   - GitHub Actions CI (doctests and smoke tests) will run automatically on the
+     Pull Request targeting `master`.
+   - Once the checks pass and reviews are complete, merge the Pull Request
+     into `master`.
+
+6. Tag the release commit on `master`:
+
+    ```bash
     $ git checkout master
     $ git pull upstream master
-    $ git tag vN.N.N
+    $ git tag -a vN.N.N -m "Release vN.N.N" --cleanup verbatim --file /tmp/release_msg.txt
+    $ git push upstream master
+    $ git push upstream vN.N.N
     ```
 
-4. Build images, compile model, run all tests:
+   Make sure to use an annotated tag (`-a`). You can compose your release note
+   in a file (`/tmp/release_msg.txt`) and pass `--file` with `--cleanup verbatim`
+   so markdown formatting is preserved.
 
-   * Run the `docker-build-wrapper.sh`
-   * Launch new containers from the new images:
+7. Back-merge `master` into `develop` so `develop` receives the version bump
+   commit and release history:
 
-         ```
-         # alternatively, set V_TAG in your .env file
-         $ V_TAG=$(git describe --tags) docker compose up -d
-         ```
-
-   * Run the tests in the container:
-
-         ```
-         $ docker compose exec dvmdostem-dev bash
-         develop@987b5bc3c824:/work/ $ cd scripts
-         develop@987b5bc3c824:/work/ $ for i in $(ls doctests_*); do python -m doctest $i; done
-         ```
-
-   If the tests fail, then you very likely will need to make more modifications
-   and commits before the release. Depending on the magnitude of the changes
-   this could be a single commit directly to the master branch or might trigger
-   a new topic branch/pull request process. Once the commit(s) have been made,
-   go back to step 1. You will need to delete the tag created in step 3 so that
-   you can re-create it.
-
-5. Bump version numbers:
-  -  in `docs_src/sphinx/sources/conf.py `, and
-  -  in the `CITATION.cff` file, specifically under the
-     `identifiers.description` for the Github release URL.
-
-  Then commit the changes and build the docs:
-
-         ```
-         $ docker compose exec --workdir /work/docs_src/sphinx \
-         dvmdostem-dev make version=vN.N.N release=vN.N.N html
-         ```
-
-6. Compose a release note. This should be something like an itemized list of
-   changes since the last release. The note should be formatted with Markdown.
-   See past notes and the notes below for more formatting guidelines.
-
-7. Tag the new commit you just made with the version number bump. Make sure to
-   use an annotated tag and use the release note you just composed as the tag
-   message body. This is best done via the command line: 
-
-    ```
-    $ git tag -d vN.N.N # Delete temporary lightweight tag before creating new annotated tag
-    $ git tag -a vN.N.N <commit SHA> --cleanup verbatim --file /tmp/release_msg.txt
+    ```bash
+    $ git checkout develop
+    $ git pull upstream develop
+    $ git merge master
+    $ git push upstream develop
+    $ git branch -d release/vN.N.N
+    $ git push upstream --delete release/vN.N.N
     ```
 
-   The Github web interface lists and sorts releases based on commit date (for
-   lightweight tags) and by creation date (for annotated tags and presumably
-   releases created on the web interface). The message you provide will show up
-   in gitk as well as on Github. To use a detailed message, you can write your
-   notes in a file, (e.g. `/tmp/release_msg.txt`) and then pass that file to
-   `git-tag`. By default, the message is cleaned up so git strips it of comments
-   and whitespace. This means that if you wrote your message with markdown
-   formatting it might not end up as you expect! So you can ask git not to touch
-   the message contents with the `--cleanup=verbatim` flag.
+8. **Important!** Create the release on GitHub so that the Zenodo integration
+   and release workflow trigger:
 
-8. **Important** Push tag to github: `$ git push upstream vN.N.N`, push version bump, then tag
+   Zenodo is tied to the release event notification coming from GitHub.
+   While pushed annotated tags show up in the "Releases" list on GitHub,
+   the event does not trigger unless an actual release is published.
+   Furthermore, the automated release workflow (`.github/workflows/release.yml`)
+   triggers on release publication to build/upload binaries and publish Docker images.
 
-9. **Important!** Create the release on Github so that the Zenodo integration
-works. Basically Zendo is tied to the release event notification coming from
-Github and while pushed annotated tags show up in the "Releases" list on Github,
-the event does not trigger unless an actual release is drafted and published.
-There is probably an automated way to do this, but I haven't figured it out yet.
-So:
-   * Go to https://github.com/ua-snap/dvm-dos-tem/releases.
+   Via the GitHub Web UI:
+   * Go to https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases.
    * Click the button for "Draft new release" (upper right).
-   * Choose the Tag version in the tag box.
-   * Put the version number and date in the title box (first line of your
-     release note).
-   * Paste your markdown release message into the description box.
+   * Choose the tag `vN.N.N` in the tag box (target: `master`).
+   * Put the version number and date in the title box (`vN.N.N - YYYY-MM-DD`).
+   * Paste your markdown release notes into the description box.
    * Check the preview.
-   * Click the Publish button.
+   * Click the "Publish release" button.
 
-10. Optionally edit the info on the github website release page. Editing 
-does not trigger a new release notification and does not break the Zenodo
-integration.
+   Or via the GitHub CLI:
 
-11. Update published documentation, use `publish_github_pages.sh`.
+    ```bash
+    $ gh release create vN.N.N --target master --title "vN.N.N - $(date +%Y-%m-%d)" --notes-file /tmp/release_msg.txt
+    ```
+
+   Publishing the release triggers:
+   - The automated `.github/workflows/release.yml` workflow: runs test suites,
+     compiles the `dvmdostem` binary, packages it into a tarball with sha256
+     checksum, attaches it as a GitHub Release asset, and builds/pushes
+     release-tagged Docker images (`dvmdostem-dev:vN.N.N`, `cpp-dev:vN.N.N`,
+     and `:latest`) to GHCR.
+   - Zenodo DOI minting / archive creation.
+
+9. Update published documentation:
+   Run `publish_github_pages.sh` from the `master` branch.
 
 ## Release note format
 
