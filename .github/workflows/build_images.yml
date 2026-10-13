@@ -23,7 +23,7 @@ on:
         default: 'dev'
 
   push:
-    branches: [ test-gh-actions ]
+    branches: [ develop, master, test-gh-actions ]
     paths:
       - 'Dockerfile'
       - 'requirements_general_dev.txt'

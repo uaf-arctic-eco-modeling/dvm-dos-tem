@@ -13,9 +13,9 @@ on:
   workflow_call:
   workflow_dispatch:
   push:
-    branches: [ test-gh-actions ]
+    branches: [ develop, master, test-gh-actions ]
   pull_request:
-    branches: [ master ]
+    branches: [ develop, master ]
 
 jobs:
   build-images:
