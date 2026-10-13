@@ -81,10 +81,10 @@ The steps:
 
    #. A bug or missing feature in the program.
 
-#. Make sure you have the master branch checked out and are up-to-date
-   with the ``upstream/master``.
+#. Make sure you have the develop branch checked out and are up-to-date
+   with the ``upstream/develop`` (``git checkout develop && git pull upstream develop``).
 
-#. Checkout a topic branch for your fix.
+#. Checkout a topic branch for your fix (e.g. ``git checkout -b fix-foo develop``).
 
 #. Engage in the core development process loop as much as necessary to
    make your modification and verify that it works. For fixing a simple
@@ -99,23 +99,23 @@ The steps:
 
 #. Once you have finished your work, use the Github website to Create a
    Pull Request. You want to request that your topic branch be merged
-   into the uaf-arctic-eco-modeling/dvm-dos-tem master branch.
+   into the uaf-arctic-eco-modeling/dvm-dos-tem ``develop`` branch.
 
 #. Engage in discussion with other folks using Github’s comments on the
    PR, Slack, or other communications.
 
    #. Group reviews indicate work is complete: Go to next step
    #. Group reviews indicate more work to be done: continue coding, and
-      committing. When you push the topic branch upstream, the Github Pull
-      Request will track the updated commits.
+       committing. When you push the topic branch upstream, the Github Pull
+       Request will track the updated commits.
 
 #.  In the meantime while waiting on this PR to be merged, you may go
-    back to your master branch and checkout a new topic branch to start
+    back to your ``develop`` branch and checkout a new topic branch to start
     another project. It is fine to have several topic branches going at
     one time.
 
 #. Once your PR has been merged, you need to update your repository to reflect
-   the changes: ``git checkout master && git pull upstream master``
+   the changes: ``git checkout develop && git pull upstream develop``
 
 #. You are ready to start again!
 
@@ -138,7 +138,7 @@ prescriptive steps for, so instead an example sequence will be enumerated and it
 will be up to the reader to translate that into their own concrete steps. This
 example is shown graphically in the associated slides.
 
-#. Both people start with the master branch checked out.
+#. Both people start with the ``develop`` branch checked out and updated.
 
 #. Person Y checks out a new topic branch and makes several commits.
 
@@ -187,7 +187,7 @@ DISCUSS:
    -  Avoids merge commits in the history which can be ard to read.
 
    -  Makes it likely that topic branch will merge cleanly into
-      ``upstream/master``
+      ``upstream/develop``
 
    -  Provides opportunity for commits to be rearranged and cleaned up
       before being pushed
