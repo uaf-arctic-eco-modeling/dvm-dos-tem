@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [ test-gh-actions ]
+    branches: [ develop, master, test-gh-actions ]
 
 jobs:
   compile:
