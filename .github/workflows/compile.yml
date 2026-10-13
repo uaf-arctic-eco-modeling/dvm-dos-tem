@@ -1,0 +1,79 @@
+# Reusable workflow to compile the dvmdostem binary using the dvmdostem-dev image.
+# Caches the binary by hash of C++ sources/headers/Makefile, and uploads
+# it as a workflow artifact named 'dvmdostem-binary' for test workflows to consume.
+
+name: Compile
+
+on:
+  workflow_call:
+    outputs:
+      artifact_name:
+        description: 'Name of the uploaded binary artifact'
+        value: 'dvmdostem-binary'
+
+  workflow_dispatch:
+
+  push:
+    branches: [ test-gh-actions ]
+
+jobs:
+  compile:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Make workspace dirs
+        run: |
+          mkdir -p source
+          mkdir -p input-catalog
+          mkdir -p workflows
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Fetch tags for git describe
+        run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Check binary cache
+        id: binary-cache
+        uses: actions/cache@v4
+        with:
+          path: source/dvmdostem
+          key: dvmdostem-bin-${{ runner.os }}-${{ hashFiles('source/src/**', 'source/include/**', 'source/Makefile') }}
+
+      - name: Compile binary in container if not cached
+        if: steps.binary-cache.outputs.cache-hit != 'true'
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export V_TAG="$(git describe --tags)"
+          export DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          export DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
+
+          # Pull or build the dev image
+          bash scripts/ci/ensure-dev-image.sh dev
+
+          # Start container
+          docker compose up -d dvmdostem-dev
+
+          # Compile inside container
+          docker compose exec dvmdostem-dev make
+
+          # Stop container
+          docker compose stop dvmdostem-dev
+
+      - name: Ensure binary permissions
+        run: chmod +x source/dvmdostem
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dvmdostem-binary
+          path: source/dvmdostem
+          if-no-files-found: error

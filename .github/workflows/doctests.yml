@@ -1,0 +1,103 @@
+# Runs the pyddt doctest suite (pyddt/tests/doctests/doctests_*) on every PR.
+# Composed of reusable workflows:
+#   1) build-images: ensures dev container image is cached in GHCR
+#   2) compile: compiles binary in container (or restores from cache) & uploads artifact
+#   3) doctests: downloads binary, starts container, runs doctests
+#
+# Uses the minimal/standard data shipped in testing-data/ (see
+# testing-data/README.md) -- no Git LFS and no external data download needed.
+
+name: Basic doctests
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches: [ test-gh-actions ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-images:
+    uses: ./.github/workflows/build_images.yml
+    secrets: inherit
+
+  compile:
+    needs: build-images
+    uses: ./.github/workflows/compile.yml
+    secrets: inherit
+
+  doctests:
+    needs: [build-images, compile]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Make input catalog and workflows dir
+        run: |
+          mkdir -p source
+          mkdir -p input-catalog
+          mkdir -p workflows
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Download compiled binary
+        uses: actions/download-artifact@v4
+        with:
+          name: dvmdostem-binary
+          path: source
+
+      - name: Ensure binary is executable
+        run: chmod +x source/dvmdostem
+
+      - name: Set various env vars for docker compose to work
+        working-directory: source
+        run: |
+          GIT_VERSION="$(git describe --tags)"
+          DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
+
+          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
+          echo "DDT_INPUT_CATALOG=${DDT_INPUT_CATALOG}" >> $GITHUB_ENV
+          echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
+
+      # Reuses the cached dev image from GHCR (ensured by build-images)
+      - name: pull dev image
+        run: bash scripts/ci/ensure-dev-image.sh dev
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "docker-compose.yml"
+          services: dvmdostem-dev
+          cwd: source
+
+      # Note: No compilation needed here. The binary was downloaded to source/dvmdostem,
+      # which is bind-mounted at /work/dvmdostem inside the dvmdostem-dev container.
+
+      # Scoped to the doctest files confirmed fast and stable (seconds, not
+      # minutes). The Sensitivity_*/MadsTEMDriver_* files spawn multiprocessing
+      # worker pools that have been observed to deadlock under pytest's output
+      # capture, and are left for the planned test-suite refactor.
+      # this one: pyddt/tests/doctests/doctests_qcal.md always fails on its first
+      # run, and succeeds on the second pass; ignore it for now.
+      - name: run doctests
+        run: |
+          docker compose exec dvmdostem-dev \
+            pytest --doctest-glob "doctests_*" \
+              pyddt/tests/doctests/doctests_param_util.md \
+              pyddt/tests/doctests/doctests_outspec_utils.md \
+              pyddt/tests/doctests/doctests_setup_working_directory.md \
+              pyddt/tests/doctests/doctests_util_general.md
+        working-directory: source

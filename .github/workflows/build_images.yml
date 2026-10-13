@@ -1,0 +1,64 @@
+# Reusable workflow to ensure required Docker images exist in GHCR / local cache.
+# Other workflows can call this via `workflow_call`.
+
+name: Build Images
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: 'Image target to build or ensure (dev, autocal, etc.)'
+        type: string
+        default: 'dev'
+    outputs:
+      deps_tag:
+        description: 'Content-hashed tag of the ensured image'
+        value: ${{ jobs.build-images.outputs.deps_tag }}
+
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Image target to build or ensure'
+        type: string
+        default: 'dev'
+
+  push:
+    branches: [ test-gh-actions ]
+    paths:
+      - 'Dockerfile'
+      - 'requirements_general_dev.txt'
+      - 'requirements_mapping.txt'
+      - 'scripts/ci/ensure-dev-image.sh'
+      - '.github/workflows/build_images.yml'
+
+jobs:
+  build-images:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      deps_tag: ${{ steps.ensure-image.outputs.deps_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Fetch tags for git describe
+        run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Setup environment
+        working-directory: source
+        run: |
+          GIT_VERSION="$(git describe --tags)"
+          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
+
+      - name: Build or reuse image
+        id: ensure-image
+        run: bash scripts/ci/ensure-dev-image.sh "${{ inputs.target || 'dev' }}"
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
