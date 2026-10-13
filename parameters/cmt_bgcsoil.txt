@@ -190,6 +190,69 @@
 2177.91           //initsoln:
 0.8               //initavln:
 //===========================================================
+// CMT13 // Black Spruce Peatland      
+1.860264                 // rhq10: Marty et al., 2019; Nagano et al., 2018
+1.0               //rhmoistfrozen:
+0.0                // moistmin:
+0.5               // moistopt:
+1.0                 // moistmax:
+53.11571429       // lcclnc:
+0.371957143       // fsoma:
+0.611028571       // fsompr:
+0.017014286       // fsomcr:
+0.320585714       // som2co2:
+0.0042            // kn2:
+30.0      // nmincnsoil: was 24.26571429 
+0.2               // propftos:
+0.0                 // fnloss:
+4362.19          // initshlwc: 4362.19
+22396.02          // initdeepc: 22396.02
+45220.4          // initminec: 45220.4
+2748.367          // initsoln: 2748.367
+11.153826          // initavln: from 6.153826 then 11.153862
+//===========================================================
+// CMT14 // Boreal Birch Forest // AM Calibrated for Caribou Creek.
+2.0               // rhq10:
+1.0               //rhmoistfrozen:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+44.               // lcclnc:
+0.3717            // fsoma:
+0.6112            // fsompr:
+0.0171            // fsomcr:
+0.2571            // som2co2:
+0.042            // kn2:
+18.557            // nmincnsoil:
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+728.5664             // initshlwc:
+2307.0           // initdeepc:
+33481.0           // initminec:
+1876.0            // initsoln:
+3.5               // initavln:
+//===========================================================
+// CMT15 // Boreal Black Spruce Forest // AM Calibrated for Caribou Creek.
+1.7              // rhq10:2.386951
+1.0               //rhmoistfrozen:
+0.0               // moistmin:
+0.5               // moistopt:
+1.0               // moistmax:
+44.               // lcclnc:
+0.3717            // fsoma:
+0.6112            // fsompr:
+0.0171            // fsomcr:
+0.25            // som2co2:
+0.0042            // kn2:
+30.            // nmincnsoil:was 30
+0.2               // propftos:
+0.0               // fnloss:  fraction N leaching (0 - 1) when drainage occurs
+2768.09             // initshlwc:
+8765.64           // initdeepc:
+63294.0           // initminec:
+2981.04            // initsoln:
+0.2               // initavln:
+//===========================================================
 // CMT20 // EML Shrub Tundra
 2.0               //rhq10:
 1.0               //rhmoistfrozen:
@@ -423,7 +486,7 @@
 //===========================================================
 // CMT65 // Mature Aspen // BOREAS
       1.3000  //rhq10://  //  // 
-      0.192     //rhmoistfrozen://None//None//None
+      0.014     //rhmoistfrozen://None//None//previously0.192
       0.0000  //moistmin://  //  // 
       0.5000  //moistopt://  //  // 
       1.0000  //moistmax://  //  // 
@@ -444,7 +507,7 @@
 //===========================================================
 // CMT66 // Mature Jack Pine // BOREAS
       1.6000  //rhq10://  //  // 
-0.0//rhmoistfrozen://nan//nan//nan
+      1.0//rhmoistfrozen://nan//nan//nan
       0.0000  //moistmin://  //  // 
       0.5000  //moistopt://  //  // 
       1.0000  //moistmax://  //  // 
@@ -507,7 +570,7 @@
 //===========================================================
 // CMT70 // Dwarf Shrub-Chokurdakh // 
       2.0000  //rhq10://  //  // 
-0.0//rhmoistfrozen://nan//nan//nan
+      1.0//rhmoistfrozen://nan//nan//nan
       0.0000  //moistmin://  //  // 
       0.5000  //moistopt://  //  // 
       1.0000  //moistmax://  //  // 

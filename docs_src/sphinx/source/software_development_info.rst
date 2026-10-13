@@ -351,6 +351,10 @@ upstream repo. See the branching and workflow sections below for more details.
 Branching Model
 ==================
 
+The project uses a two-branch workflow based on two long-running branches:
+``develop`` and ``master``, supplemented by topic branches and experiment
+branches.
+
 A generalized view of our branching model can be seen in the diagram:
 
 .. raw:: html
@@ -358,57 +362,89 @@ A generalized view of our branching model can be seen in the diagram:
     <!--From Google Drawing in
     Shared Drive > DVM-DOS-TEM Documentation > drawings > branching_model
     -->
+    <!-- New version is stored in Google Drawings version history. Restore when 
+    publishing! 
+    -->
     <img src="https://docs.google.com/drawings/d/e/2PACX-1vRnnwNqLaMeWfcvUPI1BK47KVBAYJSGnOWoD_0fqoBwx27oRM1idQvZ0sS1Yaebr6bl7AcmNB1oAAjw/pub?w=960&amp;h=720">
 
-The image shows one long-running branch (red commits; ``master``), three topic
-branches (green commits; ``issue-47``, ``modify-dvm``, and ``bugfix-4``) and
-three “experiment branches'' (gray commits; ``exp-iem-0``, ``exp-akyrb-0``,
-``exp-QCF-SA``). 
+The image shows two long-running branches (blue commits; ``develop``, yellow
+commits; ``master``), three topic branches (green commits; ``issue-47``,
+``modify-dvm``, and ``bugfix-4``) and three “experiment branches'' (gray
+commits; ``exp-iem-0``, ``exp-akyrb-0``, ``exp-QCF-SA``). Two of the topic
+branches have been merged to develop. One of the topic branches (``modify-dvm``)
+will be merged in the future (dotted blue arrow). A user who clones the
+repository will get the latest release snapshot of the code, which in this case
+is ``v0.5.2``. If the user needs feature or fixes that are not yet in the latest
+release they will need to wait for the next official release or checkout the
+``develop`` branch. In general commits made on experiment branches (gray
+commits) are not merged into the main development branches. These changes might
+be to configuration files or experimental code that is not yet ready for
+integration into the main development branches.
 
-Two of the topic branches have been merged (blue arrows). One of the topic
-branches (``modify-dvm``) will be merged in the future (dotted blue arrow). The
-dark red commits on the master branch have been tagged to make an official
-release of the code. The gray commits are for “experiment branches” which are
-used to track a specific model run or set of model runs. Often the changes on
-these branches are only to config and parameter files, but some experiments
-might require code changes as well.
+.. .. list-table::
+..    :width: 100 px
+..    :widths: 20 80
+..    :header-rows: 1
+..    :class: wrap-cells
+.. * - Branch
+..   - Purpose
 
-This diagram does not explicitly show interaction between multiple developers;
-assume that each commit in the drawing could be made by any of the trusted
-collaborators with push access to the upstream repository.
+* ``develop``: The primary integration branch for ongoing development. 
+    All topic branches (features, bug fixes, enhancements) branch off
+    ``develop`` and are merged back into ``develop`` via GitHub Pull Requests.
+    It reflects the latest fully tested integration state.
+* ``master``: The stable production release branch. Direct commits are disallowed.
+    The ``master`` branch only receives merges from ``develop`` (via
+    release Pull Requests) when cutting an official release. Every commit
+    on ``master`` represents a release candidate or official release and is
+    tagged with a version tag.
 
-As a basic safety feature we have placed a restriction on the master branch of
-the upstream repository such that only the administrators (tcarman2@alaska.edu
-and rarutter@alaska.edu ) are allowed push access. This restriction makes it
-unlikely that a trusted collaborator can accidentally push something that breaks
-the master branch. The best way for trusted collaborators to get code into the
-``upstream/master`` is to open a pull request from their topic branch (e.g.
-``upstream/topic-foo-bar``) into ``upstream/master`` using the Github web
-interface for pull requests. All interested parties then have an opportunity to
-review the code, comment on Github, and push new commits to the topic branch (if
-necessary). Only the administrators can merge the pull request. 
+Branching and Integration Lifecycle
+-----------------------------------
 
-As a general practice we try to have most work done in topic branches and merged
-into master using Github pull requests. For some small changes (usually for
-details that were inadvertently excluded from a recent pull request) we will
-make commits directly on the master branch without using the topic branch/pull
-request process. Using the topic branch/pull request process helps to organize
-work and will provide a convenient place to run Github Actions, for example an
-action to run the test suite before green-lighting a pull request for merging.
+1. **Topic branches**: When beginning work on a bugfix, feature, or
+   refactoring, checkout a new topic branch from the latest
+   ``upstream/develop`` (e.g., ``git checkout -b feature-foo upstream/develop``).
+2. **Pull Requests**: Once changes are committed and validated locally, push
+   the topic branch to GitHub and open a Pull Request targeting the
+   ``develop`` branch. Automated GitHub Actions CI workflows (running smoke
+   tests and doctests) execute on the PR to ensure nothing is broken.
+3. **Review and Merge**: Collaborators review and discuss the code on GitHub.
+   Once approved and all CI checks are green, the PR is merged into
+   ``develop``.
+4. **Releases**: When accumulated changes on ``develop`` are ready for a
+   release, a release branch is cut from ``develop`` to bump version numbers in
+   ``conf.py`` and ``CITATION.cff`` and update ``changelog.txt``. A Pull
+   Request is then opened from the release branch into ``master``. Automated
+   CI verifies the PR, and once approved, it is merged into ``master``.
+5. **Tagging and Release**: The merge commit on ``master`` is tagged with an
+   annotated version tag (e.g., ``v0.8.5``). Publishing the release on GitHub
+   triggers the automated release workflow (building release Docker images,
+   compiling the binary, and attaching release assets) and mints a DOI on
+   Zenodo.
+6. **Back-merge**: The ``master`` branch is merged back into ``develop`` so
+   that the version bump and release history are synchronized across both
+   branches.
+7. **Experiment branches**: Researchers may maintain experiment branches
+   (e.g., ``exp-iem-0``, ``exp-akyrb-0``) to track specific simulation runs,
+   custom configurations, or parameter sets.
 
-Recently (2022 and the several years prior) we have been using a single
-long-running branch (``master``) and have been able to manage all contributions
-by periodically merging topic branches. If the need arises we can switch back to
-using an additional long-running branch. This would allow different levels of
-stability as described in the `Git Book Branching Workflows
-section <https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows>`_.
+Branch Protection Rules
+-----------------------
 
-In the event that you need work from ``upstream/master`` in order to continue
-the work on your topic branch, you can periodically merge ``upstream/master``
-into your topic branch. However please only use this when absolutely necessary
-as it can make the history harder to read and the pull requests harder to
-review. See this :ref:`Note <merge or rebase>` for a description of one
-potential problem with merges.
+To protect the integrity of the codebase:
+
+- The ``master`` branch is protected: direct pushes are disabled. Merges into
+  ``master`` require a Pull Request, code review approval, and passing CI
+  status checks.
+- The ``develop`` branch is also protected: direct pushes are restricted.
+  All contributions must be submitted via Pull Requests and pass automated CI
+  checks before merging.
+
+In the event that you need recent work from ``upstream/develop`` in order to
+continue working on your topic branch, prefer rebasing your topic branch onto
+``upstream/develop`` (``git pull --rebase upstream develop``) or merge only
+when necessary to keep the commit history linear and clear.
 
 .. _merge or rebase:
 .. note:: 
@@ -425,15 +461,15 @@ potential problem with merges.
     .. code:: shell
         
         $ git checkout long-running-branch
-        (long-running-branch)$ git pull upstream master
+        (long-running-branch)$ git pull upstream develop
 
     Then you will get a merge message by default that starts with something like this:
 
     .. code:: shell
 
-        Merge branch 'master' from github.com:uaf-arctic-eco-modeling/dvm-dos-tem into 'long-running-branch'
+        Merge branch 'develop' from github.com:uaf-arctic-eco-modeling/dvm-dos-tem into 'long-running-branch'
 
-    All well and good, but later, once you work has evolved, you may decide to
+    All well and good, but later, once your work has evolved, you may decide to
     change the name of long-running-branch to something more relevant:
 
     .. code:: shell
@@ -467,7 +503,7 @@ If you are not one of our trusted collaborators and have contributions to make,
 then you will need to follow the Git Book “Integration Manager Workflow”. You
 will simply fork the upstream repository on Github, clone to your computer and
 push changes back to your fork. You can then make a pull request from your fork
-into the ``upstream/master``.
+into ``upstream/develop``.
 
 When two or more developers want or need to work contemporaneously on a topic
 branch, it is up to the developers to communicate and make sure that they do not
@@ -518,20 +554,20 @@ trust.
 Releases and Version Numbering
 ================================
 
-Beginning in 2021, we started using the "Releases" feature of Github to package
-and distribute specific versions of ``dvmdostem``. We would like to make this a
-fully or nearly fully automated process but for the time being it is rather
-manual.
+We use the "Releases" feature of GitHub to package and distribute official
+versions of ``dvmdostem``. Releases are cut from the ``master`` branch after
+merging completed and tested changes from ``develop`` via a release Pull
+Request.
 
 As described in the ``HOWTO_RELEASE.md`` document in the repo, the project uses
-a three part version number: vMAJOR.MINOR.PATCH.
+a three part version number: ``vMAJOR.MINOR.PATCH``.
 
 We use the following rules for incrementing the version number:
  * The PATCH number (farthest right) will be incremented for changes 
    that do not affect the general scientific concepts in the 
    software.
  * The MINOR number (middle) will be updated when changes have been made 
-   to science concepts, major implementation changes for scienctifc aspects 
+   to science concepts, major implementation changes for scientific aspects 
    of the code calibration numbers are updated, or large new features are added.
  * The MAJOR (left) number will be updated for major milestones. This will
    likely be points where the model is run for "production" or major testing and
@@ -544,11 +580,18 @@ Until the project reaches ``v1.0.0``, we will not make any guarantees about
 backwards compatibility. Once the project reaches ``v1.0.0``, we may decide to
 handle the rules for incrementing version numbers differently.
 
-Releases are currently made on an as-needed basis by tcarman2@alaska.edu or
-rarutter@alaska.edu. 
+Releases are prepared by maintainers following the step-by-step instructions in
+``HOWTO_RELEASE.md``. When a release is published on GitHub:
 
-The steps are described in the ``HOWTO_RELEASE.md`` document and the result is 
-that release is visible here: https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
+  - The automated release workflow (``.github/workflows/release.yml``) executes
+    test suites, compiles the standalone binary, uploads release tarballs and
+    checksums as GitHub Release assets, and builds/pushes release Docker images to
+    GitHub Container Registry (GHCR) tagged with the version and ``latest``.
+  - Zenodo automatically archives the release and mints a permanent DOI.
+  - Documentation is published to GitHub Pages using ``publish_github_pages.sh``.
+
+Published releases are visible at:
+https://github.com/uaf-arctic-eco-modeling/dvm-dos-tem/releases
 
 ================================================
 Keeping your repo up to date with ``upstream``
@@ -627,41 +670,51 @@ See the :ref:`"Command Cheat Sheet"<staying_udpated>`.
 Testing and Deployment
 *******************************
 
-There is currently (March 2025) a limited set of tests and their execution
-is not automated. It is a goal to increase the test coverage and automate the
-test execution in the future. 
+Continuous integration and automated testing are managed through GitHub Actions
+workflows located in ``.github/workflows/``.
 
 =====================================
 Continuous Integration and Deployment
 =====================================
 
-We currently have a very basic GitHub Action configured for this project. The
-existing workflow is defined in the `main_sample.yml` file and primarily focuses
-on setting up the environment, building Docker images, and running the model.
+The project uses a composable, multi-job GitHub Actions CI/CD setup:
 
-The current workflow includes the following steps:
+- **Build Images** (``build_images.yml``): Manages development container
+  images. To avoid slow rebuilds on every run, images are cached in GitHub
+  Container Registry (GHCR) and keyed by a content hash of files affecting
+  the image (``Dockerfile``, requirements files, host UID/GID) using the
+  ``scripts/ci/ensure-dev-image.sh`` script.
+- **Compile** (``compile.yml``): Compiles the C++ model binary (``dvmdostem``)
+  inside the development container. It caches the binary by source file hash
+  and publishes it as a workflow artifact named ``dvmdostem-binary``.
+- **Smoke Test** (``smoke_test.yml``): Downloads the compiled binary and dev
+  container, starts the container via Docker Compose, runs ``dvmdostem``
+  against demo data, and verifies model completion and output generation.
+- **Doctests** (``doctests.yml``): Executes the fast and stable Python
+  doctest suite (``pyddt/tests/doctests/``) using ``pytest`` inside the
+  running container.
+- **Release** (``release.yml``): Triggered automatically when a GitHub Release
+  is published (or via manual workflow dispatch). Runs test suites, builds
+  and packages the binary into release tarballs with SHA256 checksums,
+  uploads the assets to the GitHub Release, and tags/pushes release Docker
+  images to GHCR (tagged with the version and ``latest``).
+- **Draft PDF** (``draft-joss-pdf.yml``): Compiles draft paper PDFs for JOSS
+  manuscript submissions when paper sources change.
 
-  - Setting up directories and checking out the source code.
-  - Fetching git history to ensure proper version tagging.
-  - Setting environment variables for Docker Compose.
-  - Building Docker images in two layers.
-  - Running Docker Compose to start the services.
-  - Compiling the code within the running Docker container.
-  - Running the model and confirming that an output file was created.
+Branch Triggers and Automation
+------------------------------
 
-While this setup is a good starting point, we aim to extend it further to
-include additional actions such as: 
-  
-  - Running the existing Python `doctest` tests.  
-  - Building and publishing Docker images to a container registry. 
-  - Automating the deployment of documentation updates.
+CI workflows run automatically on:
 
-These enhancements will help ensure that our code is thoroughly tested and that
-our Docker images and documentation are consistently up-to-date and available
-for use.
-
-Future improvements to the GitHub Actions workflow will be tracked and
-implemented as part of our ongoing development efforts.
+- **Pull Requests targeting ``develop``**: Every PR from a topic branch
+  triggers smoke tests and doctests to verify changes before merging.
+- **Pull Requests targeting ``master``**: Release candidate PRs from
+  ``develop`` (or release branches) run the full test suite to guarantee
+  stability before a release is merged.
+- **Pushes to ``develop`` and ``master``**: Verifies the integrated post-merge
+  state on both branches.
+- **Release Publication**: Triggers the release workflow to publish release
+  Docker images and release binaries.
 
 =======
 Testing
