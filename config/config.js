@@ -133,7 +133,7 @@
     "baseline_end": 1931,     //end year for baseline EQ climate
     "ch4": true, //controlled at the stage level by bgc settings above
     "run-on": false, //enable run-on (use calculated runoff as input) only if poorly draining pixel
-    "groundwater": false //enable calibrated fixed groundwater recharge only if input if poorly draining pixel
+    "groundwater": false, //enable calibrated fixed groundwater recharge only if input if poorly draining pixel
     "thermokarst": false      //enabling thermokarst, controlled by disturbance (dsb) stage settings above
 //    //"dynamic_climate": 0,
 //    //"varied_co2": 0,
