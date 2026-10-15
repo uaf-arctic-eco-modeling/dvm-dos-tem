@@ -266,7 +266,7 @@ def climate_gap_count_plot(args):
   import matplotlib.pyplot as plt
   import matplotlib.gridspec as gridspec
 
-  CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
+  CLIMATE_FILES = ['crujra-downscaled-historic-climate.nc', 'cmip6-ssp245-downscaled-projected-climate.nc']
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
 
   ROWS = 2
@@ -302,11 +302,12 @@ def climate_gap_count_plot(args):
             origin='lower',
 
         )
-      ax.set_title(v)
-      plt.colorbar(img, ax=ax)
+      #ax.set_title(v)
+      #plt.colorbar(img, ax=ax)
 
     plt.suptitle(os.path.join(args.input_folder, cf))
     plt.tight_layout()
+    plt.savefig(os.path.join(args.input_folder, f'{cf}-gap-counts.png'))
     plt.show(block=True)
 
 
