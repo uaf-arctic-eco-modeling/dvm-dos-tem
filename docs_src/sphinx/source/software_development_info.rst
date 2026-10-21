@@ -17,10 +17,9 @@ make contributions to the ``dvmdostem`` project.
 .. important:: 
 
   In order to keep the base repository size from growing out of control, the
-  testing and sample data is tracked using `Git LFS <https://git-lfs.com>`_. If
-  you need to use the testing data (i.e. to run the tests, or to build the
-  documentation from source) then you should install Git LFS and run ``git lfs
-  pull`` to make sure that the actual data is downloaded.
+  testing and sample data is not stored in the repository. If you need to use
+  the testing data (i.e. to run the tests, or to build the documentation from
+  source) then run ``testing-data/download-test-data.sh`` to fetch the data.
 
 ******************************
 Languages, Software Structure

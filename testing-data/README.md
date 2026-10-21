@@ -117,7 +117,7 @@ When you need more extensive testing data:
 ```bash
 
 # Download comprehensive testing data (500+ MB)  
-./testing-data/scripts/download-test-data.sh comprehensive
+./testing-data/download-test-data.sh comprehensive
 
 ```
 
@@ -130,7 +130,7 @@ Continuous integration can selectively download data based on test requirements:
 # Example GitHub Actions
 - name: Download standard test data
   run: |
-    ./testing-data/scripts/download-test-data.sh standard
+    ./testing-data/download-test-data.sh standard
     
 - name: Run comprehensive tests  
   run: |
@@ -144,10 +144,10 @@ Continuous integration can selectively download data based on test requirements:
 ls -la testing-data/*/
 
 # Download comprehensive data (for validation)
-./testing-data/scripts/download-test-data.sh comprehensive
+./testing-data/download-test-data.sh comprehensive
 
 # Clean downloaded data (keeps minimal/)
-./testing-data/scripts/download-test-data.sh clean
+./testing-data/download-test-data.sh clean
 
 # Check data sizes
 du -sh testing-data/*/
