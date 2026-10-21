@@ -2,6 +2,8 @@
 #ifndef GROUND_H_
 #define GROUND_H_
 
+#include <array>
+#include <string>
 #include <sstream>
 #include <cmath>
 #include <iostream>
@@ -146,6 +148,9 @@ public :
   double getVWCAtDepth(double vwcdepth);
   double getTempAtDepth(double temperaturez);
 
+  template<typename T>
+    std::array<T, MAX_SOI_LAY> get_variable_bylayer(T Layer::*member, const std::string& varname);
+
 private :
 
   bool rocklayercreated;
@@ -194,5 +199,7 @@ private :
   void cleanRockLayers();
 
 };
+
+#include "Ground.ipp"
 
 #endif /*GROUND_H_*/
