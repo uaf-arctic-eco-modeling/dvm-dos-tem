@@ -6,6 +6,7 @@ makes sure that the interface can handle situation with only soil targets are
 specified.
 
 >>> import yaml
+>>> import pytest
 
 >>> my_yaml_string = """
 ... work_dir: /tmp/test_CA
@@ -82,6 +83,20 @@ This makes sense because we haven't run the model yet so there are no outputs.
 
 >>> d.run()
 
->>> d.gather_model_outputs()
+Once we collect the model outputs, we end up with a list of dicts, like this:
 [{'cmt': 'CMT06', 'ctname': 'CarbonShallow', 'value': 3193.170117276907, 'truth': 3358.0}]
+
+
+>>> out = d.gather_model_outputs()
+>>> len(out) == 1
+True
+>>> out = out[0]
+>>> out['cmt'] == 'CMT06'
+True
+>>> out['ctname'] == 'CarbonShallow'
+True
+>>> out['truth'] == pytest.approx(3358.0, abs=1e-1)
+True
+>>> out['value'] == pytest.approx(3193.1, abs=1e-1)
+True
 

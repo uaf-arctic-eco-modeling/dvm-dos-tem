@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <ctime>
 #include <json/writer.h>
 
 
@@ -22,6 +23,11 @@ Runner::Runner(ModelData mdldata, bool cal_mode, int y, int x):
                            << "injected ModelData, and for explicit (y,x) "
                            << "position w/in the input data region.";
   this->md = mdldata;
+  // Reset the cell timer here: mdldata.cell_stime is shared/global and only
+  // reflects the start of the whole program (or a stale previous cell), so
+  // without this every cell's elapsed-time check in run_years() would be
+  // measured from program start rather than from this cell's start.
+  this->md.cell_stime = time(0);
   this->cohort = Cohort(y, x, &mdldata); // explicitly constructed cohort...
 
   BOOST_LOG_SEV(glg, info) << "Calibration mode?: " << cal_mode;

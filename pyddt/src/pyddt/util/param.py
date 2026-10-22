@@ -2093,6 +2093,162 @@ def update_inplace(new_value, param_dir, pname, cmtnum, pftnum=None):
   with open(f, 'w') as updated_file:
     updated_file.write('\n'.join(formatted))  
 
+
+def _get_named_cmap(name):
+  '''
+  Version-safe lookup of a named matplotlib colormap.
+
+  matplotlib.colormaps (added in 3.5) is the modern API; matplotlib.cm.get_cmap
+  and pyplot.cm.get_cmap were deprecated in 3.7 and removed in later versions,
+  so we fall back to them only if matplotlib.colormaps isn't available.
+
+  Parameters
+  ----------
+  name : str
+      Name of a registered matplotlib colormap, e.g. 'tab20'.
+
+  Returns
+  -------
+  matplotlib.colors.Colormap
+  '''
+  import matplotlib
+  if hasattr(matplotlib, 'colormaps'):
+    return matplotlib.colormaps[name]
+  else:
+    import matplotlib.pyplot as plt
+    return plt.cm.get_cmap(name)
+
+
+def build_cmt_colormap(pdir, neutral='#c8c8c8'):
+  '''
+  Builds a matplotlib ListedColormap mapping CMT numbers to unique colors.
+
+  Checks that all cmt_*.txt files in pdir agree on CMT set, then assigns
+  each present CMT a unique qualitative color drawn from tab20/tab20b/tab20c.
+  Unused slots (CMT numbers 0-99 not in the files) get the neutral color.
+
+  Parameters
+  ----------
+  pdir : str
+      Path to a directory of dvmdostem parameter files.
+  neutral : str
+      Hex color string for unused CMT slots. Default '#c8c8c8'.
+
+  Returns
+  -------
+  (cmap, norm) : tuple
+      cmap is a matplotlib.colors.ListedColormap with 100 entries where
+      index == CMT number. norm is a matplotlib.colors.BoundaryNorm suited
+      for use with imshow/pcolormesh on CMT-valued rasters.
+
+  Raises
+  ------
+  ImportError
+      If matplotlib is not available.
+  ValueError
+      If no cmt_*.txt files are found, or files disagree on CMT set.
+
+  Examples
+  --------
+  >>> import util.param
+  >>> cmap, norm = util.param.build_cmt_colormap("/work/parameters")
+  >>> import matplotlib.pyplot as plt
+  >>> plt.imshow(cmt_raster, cmap=cmap, norm=norm)
+  '''
+  import matplotlib.colors as mcolors
+
+  all_files = sorted(glob.glob(os.path.join(pdir, 'cmt_*.txt')))
+
+  if not all_files:
+    raise ValueError("No cmt_*.txt files found in {}".format(pdir))
+
+  file_cmts = {f: get_CMTs_in_file(f) for f in all_files}
+
+  ref_file = all_files[0]
+  ref_keys = [c['cmtnum'] for c in file_cmts[ref_file]]
+  mismatches = []
+  for f in all_files[1:]:
+    keys = [c['cmtnum'] for c in file_cmts[f]]
+    if keys != ref_keys:
+      mismatches.append((f, keys))
+
+  if mismatches:
+    lines = ["CMT sets differ across parameter files.",
+             "Reference ({}): {}".format(ref_file, ref_keys)]
+    for f, keys in mismatches:
+      lines.append("  {}: {}".format(f, keys))
+    raise ValueError("\n".join(lines))
+
+  cmt_nums = sorted([c['cmtnum'] for c in file_cmts[ref_file]])
+
+  # 60-color qualitative pool: tab20 + tab20b + tab20c
+  pool = []
+  for cn in ('tab20', 'tab20b', 'tab20c'):
+    pool.extend(_get_named_cmap(cn).colors)
+
+  color_list = [neutral] * 100
+  for i, cmt_num in enumerate(cmt_nums):
+    color_list[cmt_num] = mcolors.to_hex(pool[i % len(pool)])
+
+  cmap = mcolors.ListedColormap(color_list, name='dvmdostem_cmt', N=100)
+  norm = mcolors.BoundaryNorm(boundaries=range(101), ncolors=100)
+
+  return cmap, norm
+
+
+def export_qgis_color_map(pdir, dst, neutral='#c8c8c8'):
+  '''
+  Writes a QGIS-compatible "Color Map" text file for the CMT colormap.
+
+  Builds the same colormap as build_cmt_colormap(...) and writes it in the
+  text format QGIS uses for raster "Color Map" import/export (available for
+  both the Singleband Pseudocolor and Paletted/Unique values renderers, under
+  Raster Properties > Symbology > Style > Load Color Map from File). Uses
+  EXACT interpolation, since CMT numbers are discrete categories rather than
+  a continuous ramp.
+
+  Parameters
+  ----------
+  pdir : str
+      Path to a directory of dvmdostem parameter files.
+  dst : str
+      Path to write the QGIS color map text file.
+  neutral : str
+      Hex color string for unused CMT slots. Default '#c8c8c8'.
+
+  Returns
+  -------
+  None
+
+  Raises
+  ------
+  ImportError
+      If matplotlib is not available.
+  ValueError
+      If no cmt_*.txt files are found, or files disagree on CMT set.
+
+  Examples
+  --------
+  >>> import util.param
+  >>> util.param.export_qgis_color_map("/work/parameters", "cmt_colormap.txt")
+  '''
+  import matplotlib.colors as mcolors
+
+  cmap, norm = build_cmt_colormap(pdir, neutral=neutral)
+
+  ref_file = sorted(glob.glob(os.path.join(pdir, 'cmt_*.txt')))[0]
+  cmt_names = {c['cmtnum']: c['cmtname'] for c in get_CMTs_in_file(ref_file)}
+
+  lines = ['# QGIS Generated Color Map Export File', 'INTERPOLATION:EXACT']
+  for i in range(100):
+    r, g, b, a = (int(round(x * 255)) for x in mcolors.to_rgba(cmap.colors[i]))
+    label = cmt_names.get(i, 'CMT{:02d}'.format(i))
+    lines.append('{},{},{},{},{},{}'.format(i, r, g, b, a, label))
+
+  with open(dst, 'w') as f:
+    f.write('\n'.join(lines) + '\n')
+
+
 def cmdline_define():
   '''Define the command line interface and return the parser object.'''
 
@@ -2155,9 +2311,26 @@ def cmdline_define():
         Prints n/a if the CMT does not exist in the file!'''))
 
   parser.add_argument('--report-all-cmts', nargs=1, metavar=('FOLDER'),
-      help=textwrap.dedent('''Prints out a table with all the CMT names found
-        in each file found in the %(metavar)s. Only looks at files named like:
-        'cmt_*.txt' in the %(metavar)s.'''))
+      help=textwrap.dedent('''Checks that every 'cmt_*.txt' file in FOLDER
+        contains the same set of CMTs, then prints a single table listing all
+        CMT keys, numbers, names, and comments. Exits with an error if any
+        file has a different set of CMTs.'''))
+
+  parser.add_argument('--cmt-colormap', nargs=1, metavar=('FOLDER'),
+      help=textwrap.dedent('''Checks that every 'cmt_*.txt' file in FOLDER
+        contains the same set of CMTs, then prints Python code defining a
+        matplotlib ListedColormap with 100 slots (one per possible CMT number).
+        CMTs present in the files get unique qualitative colors; unused slots
+        are neutral grey. Also prints a matching BoundaryNorm. Requires
+        matplotlib. Exits with an error if files disagree on CMTs.'''))
+
+  parser.add_argument('--cmt-colormap-qgis', nargs=2, metavar=('FOLDER','DST'),
+      help=textwrap.dedent('''Checks that every 'cmt_*.txt' file in FOLDER
+        contains the same set of CMTs, then writes a QGIS-compatible "Color
+        Map" text file to DST (load via Raster Properties > Symbology >
+        Style > Load Color Map from File, for Singleband Pseudocolor or
+        Paletted/Unique values renderers). Requires matplotlib. Exits with an
+        error if files disagree on CMTs.'''))
 
   parser.add_argument('--plot-static-lai', nargs=2, metavar=('INFOLDER','CMT'),
       help=textwrap.dedent('''Makes plots of the static_lai parameter. 
@@ -2534,16 +2707,89 @@ def cmdline_run(args):
 
     infolder = args.report_all_cmts[0]
 
-    all_files = glob.glob(os.path.join(args.report_all_cmts[0], 'cmt_*.txt'))
+    all_files = sorted(glob.glob(os.path.join(infolder, 'cmt_*.txt')))
 
+    file_cmts = {}
     for f in all_files:
-      cmts = get_CMTs_in_file(f)
-      print(f)
-      print("{:>7} {:>5}   {:<50s} {}".format('key', 'num', 'name', 'comment'))
-      for c in cmts:
-        print("{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment']))
-      print("")
+      file_cmts[f] = get_CMTs_in_file(f)
 
+    # Use the first file as the reference; compare all others against it.
+    ref_file = all_files[0]
+    ref_keys = [c['cmtnum'] for c in file_cmts[ref_file]]
+    mismatches = []
+    for f in all_files[1:]:
+      keys = [c['cmtnum'] for c in file_cmts[f]]
+      if keys != ref_keys:
+        mismatches.append(f)
+
+    if mismatches:
+      print("ERROR: Not all parameter files contain the same CMTs.")
+      print("Reference file: {}".format(ref_file))
+      print("  CMTs: {}".format(ref_keys))
+      for f in mismatches:
+        keys = [c['cmtnum'] for c in file_cmts[f]]
+        print("Mismatch in: {}".format(f))
+        print("  CMTs: {}".format(keys))
+      return 1
+
+    print("{:>7} {:>5}   {:<50s} {}".format('key', 'num', 'name', 'comment'))
+    for c in file_cmts[ref_file]:
+      print("{:>7} {:>5d}   {:50s} {}".format(c['cmtkey'], c['cmtnum'], c['cmtname'], c['cmtcomment']))
+
+    return 0
+
+  if args.cmt_colormap:
+
+    infolder = args.cmt_colormap[0]
+
+    try:
+      import matplotlib.colors as mcolors
+      cmap, norm = build_cmt_colormap(infolder)
+    except ImportError:
+      print("ERROR: matplotlib is required for --cmt-colormap")
+      return 1
+    except ValueError as e:
+      print("ERROR: {}".format(e))
+      return 1
+
+    # Re-read names for source-code comments (files already validated above)
+    ref_cmts = get_CMTs_in_file(sorted(glob.glob(os.path.join(infolder, 'cmt_*.txt')))[0])
+    cmt_names = {c['cmtnum']: c['cmtname'] for c in ref_cmts}
+    cmt_nums = sorted(cmt_names.keys())
+    colors = [mcolors.to_hex(c) for c in cmap.colors]
+
+    print("# dvmdostem CMT colormap")
+    print("# Generated from: {}".format(infolder))
+    print("# CMTs present ({}): {}".format(len(cmt_nums), cmt_nums))
+    print("import matplotlib.colors as mcolors")
+    print("")
+    print("_dvmdostem_cmt_colors = [")
+    for i, color in enumerate(colors):
+      if i in cmt_nums:
+        print("    {:>9s},  # CMT{:02d} {}".format("'{}'".format(color), i, cmt_names[i]))
+      else:
+        print("    {:>9s},  # CMT{:02d}".format("'{}'".format(color), i))
+    print("]")
+    print("")
+    print("dvmdostem_cmt_cmap = mcolors.ListedColormap(_dvmdostem_cmt_colors, name='dvmdostem_cmt', N=100)")
+    print("dvmdostem_cmt_norm = mcolors.BoundaryNorm(boundaries=range(101), ncolors=100)")
+
+    return 0
+
+  if args.cmt_colormap_qgis:
+
+    infolder, dst = args.cmt_colormap_qgis
+
+    try:
+      export_qgis_color_map(infolder, dst)
+    except ImportError:
+      print("ERROR: matplotlib is required for --cmt-colormap-qgis")
+      return 1
+    except ValueError as e:
+      print("ERROR: {}".format(e))
+      return 1
+
+    print("Wrote QGIS color map to {}".format(dst))
     return 0
 
   if args.report_cmt_names:

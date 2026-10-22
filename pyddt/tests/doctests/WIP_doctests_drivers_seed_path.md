@@ -6,8 +6,8 @@ and then runs the method(s) that sets up the run directory(s), the parameters
 in the run directory(s) will be from the seed.
 
 To run these tests make sure you have access to the testing data. The testing
-data is stored in the project's `testing-data/` directroy. It is tracked with
-Git LFS so you may need to fetch the files locally before you begin ()
+data is stored in the project's `testing-data/` directroy. Run
+`testing-data/download-test-data.sh` to fetch the files locally before you begin.
 
 
     >>> site = 'testing-data/inputs/cru-ts40_ar5_rcp85_mri-cgcm3_NEON_Healy_10x10'
