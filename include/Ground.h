@@ -3,6 +3,7 @@
 #define GROUND_H_
 
 #include <array>
+#include <cstddef>
 #include <string>
 #include <sstream>
 #include <cmath>
@@ -33,6 +34,15 @@ using namespace std;
 
 #include "parameters.h"
 #include "TEMUtilityFunctions.h"
+
+/** A snapshot of layer values and geometry; entries below count are valid. */
+template<typename T>
+struct LayerVariableProfile {
+  std::array<T, MAX_SOI_LAY> values{};
+  std::array<Layer::TYPEKEY, MAX_SOI_LAY> tkey{};
+  std::array<double, MAX_SOI_LAY> dz{}; ///< Layer thicknesses in meters.
+  std::size_t count = 0;
+};
 
 class Ground: public DoubleLinkedList {
 
@@ -149,7 +159,8 @@ public :
   double getTempAtDepth(double temperaturez);
 
   template<typename T>
-    std::array<T, MAX_SOI_LAY> get_variable_bylayer(T Layer::*member, const std::string& varname);
+  LayerVariableProfile<T> get_variable_bylayer(
+      T Layer::*member, const std::string& varname) const;
 
 private :
 

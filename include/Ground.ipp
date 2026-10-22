@@ -9,36 +9,38 @@ extern src::severity_logger<severity_level> glg;
  * @brief Retrieves values of a specified member variable for each soil and rock layer.
  *
  * Iterates through the layers, extracting the specified variable for
- * valid soil and rock layers (isSoil/isRock && index below maximum
- * soil layer count).
- * Invalid layers retain a default-initialized value.
+ * soil and rock layers. The values, type keys, and thicknesses at each
+ * index describe the same layer. Only entries below count are valid;
+ * unused entries retain default-initialized values.
  *
  * @tparam T Data type of the member variable.
  * @param member Pointer to the Layer member variable to retrieve.
  * @param varname Variable name used for logging.
- * @return std::array<T, MAX_SOI_LAY> Array of by-layer values.
+ * @return Layer values, type keys, thicknesses in meters, and populated count.
  */
 template<typename T>
-std::array<T, MAX_SOI_LAY> Ground::get_variable_bylayer(T Layer::*member, const std::string& varname) {
+LayerVariableProfile<T> Ground::get_variable_bylayer(
+    T Layer::*member, const std::string& varname) const {
 
   BOOST_LOG_SEV(glg, debug) << "Getting by-layer " << varname;
 
-  std::array<T, MAX_SOI_LAY> layer_array{};
+  LayerVariableProfile<T> profile;
 
-  Layer* currl = fstsoill;
-  int il = 0;
+  const Layer* currl = fstsoill;
 
-  while (currl != nullptr && il < MAX_SOI_LAY) {
+  while (currl != nullptr && profile.count < profile.values.size()) {
+    if (currl->isSoil || currl->isRock) {
+      const std::size_t il = profile.count;
+      profile.values[il] = currl->*member;
+      profile.tkey[il] = currl->tkey;
+      profile.dz[il] = currl->dz;
+      ++profile.count;
+    }
 
-      if (currl->isSoil || currl->isRock) {
-          layer_array[il] = currl->*member;
-      }
-
-      currl = currl->nextl;
-      il++;
+    currl = currl->nextl;
   }
 
-  return layer_array;
-};
+  return profile;
+}
 
 #endif /* GROUND_IPP_ */
