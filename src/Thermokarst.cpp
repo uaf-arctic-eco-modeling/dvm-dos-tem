@@ -169,10 +169,7 @@ void Thermokarst::initiate(int year) {
   // lost through thermokarst disturbance (either slump or
   // detachment).
   double thermokarstdepth = getThermokarstSoilRemoval(year);
-  // we might want to think about mineral soil removal as well
-  // but also how to handle different thermokarst types in the
-  // future
-
+  
   BOOST_LOG_SEV(glg, debug) << tkdata->report_to_string("After Thermokarst::getThermokarstSoilthick(..)");
 
   BOOST_LOG_SEV(glg, info) << "Setup some temporary pools for tracking various thermokarst related attributes (depths, C, N)";
