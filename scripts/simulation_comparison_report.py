@@ -527,7 +527,9 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
         out['scenario'] = sclist[i]
         wt = pd.concat([wt,ds],axis=0)
         wt2 = pd.concat([wt2,out],axis=0)
-    wt10 = wt[wt['year']>wt['year'].max()-10]
+    # Keep an independent table for the last ten years so adding plotting
+    # columns below does not modify a potentially shared slice of wt.
+    wt10 = wt.loc[wt['year'] > wt['year'].max() - 10].copy()
 #    print('olt')
     olt = pd.DataFrame(soilstruc[soilstruc['LAYERTYPE']==3].groupby(['scenario','year'])['LAYERDEPTH'].min())
     olt.reset_index(inplace=True)
@@ -556,11 +558,10 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
     #Producing a fake time index since the various plotting calls do
     # not work well with the datetime values in 'time' for tr and sc
-    month_count = int(len(ald_seas['time']) / len(sclist))
-    #print("month count: " + str(month_count))
-    ald_seas['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
-    olt_seas['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
-    wt10['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
+    # Number months separately for each scenario so any number of simulations
+    # can be compared, including simulations with different time spans.
+    for frame in (ald_seas, olt_seas, wt10):
+      frame['faketime'] = frame.groupby('scenario').cumcount()
 
     for i in range(0,len(sclist)):
       scname=sclist[i]
@@ -764,6 +765,8 @@ def cmdline_parse(argv=None):
       help='Plot line color for each simulation.')
   parser.add_argument('--widthlist', required=True, nargs='+', type=float,
       metavar='WIDTH', help='Plot line width for each simulation.')
+  parser.add_argument('--stage', choices=('pr', 'eq', 'sp', 'tr', 'sc'),
+      default='eq', help='Simulation stage to compare (default: eq).')
   args = parser.parse_args(argv)
 
   # Each directory needs its own label, color, and width. Check before reading
@@ -799,6 +802,7 @@ if __name__ == '__main__':
   scenariolist = args.scenariolist
   colorlist = args.colorlist
   widthlist = args.widthlist
+  stage = args.stage
 
 
   ### Create all plots
@@ -806,9 +810,7 @@ if __name__ == '__main__':
 
   os.mkdir(os.path.join(outdir,'results'))
 
-  stage = 'eq'
-
-  print("Generating timeseries flux plots...")
+  print("Generating timeseries flux plots...", end="", flush=True)
   VARlist=['RHSOM','GPP','NPP','LFVC','RG','RM']
   ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series',stage)
 
@@ -817,39 +819,49 @@ if __name__ == '__main__':
 
   VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
   ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', stage)
+  print("Done")
 
-  print("Generating ts stock plots...")
+
+  print("Generating ts stock plots...", end="", flush=True)
   VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
   ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series', stage)
 
   VARlist=['AVLN','ORGN','VEGNSTR','NETNMIN','LFVN']
-  #ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series',stage)
+  ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series',stage)
 
   VARlist=['DEADC','DWDC','DEADN','DWDN']
   ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', stage)
+  print("Done")
 
-  #print("Generating seasonality plots...")
-  #VARlist=['GPP','RHSOM','LAI']
-  #seasonality(outdir,data_dirs,VARlist,scenariolist,colorlist,'Seas_Bio',stage)
+
+  print("Generating seasonality plots...", end="", flush=True)
+  VARlist=['GPP','RHSOM','LAI']
+  seasonality(outdir,data_dirs,VARlist,scenariolist,colorlist,'Seas_Bio',stage)
 
   #Commented out when EET by PFT was disabled. This will need to
   # be modified to work with ecosystem EET or wait until EET by
   # PFT is fixed.
   #VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
   #seasonality(outdir,data_dirs,VARlist,scenariolist,colorlist,'Seas_Env', stage)
+  print("Done")
 
-  #print("Generating soil CN plots...")
-  #soilcnprofile(outdir,data_dirs,scenariolist,stage)
 
-  print("Generating soil env plots...")
+  print("Generating soil CN plots...", end="", flush=True)
+  soilcnprofile(outdir,data_dirs,scenariolist,stage)
+  print("Done")
+
+
+  print("Generating soil env plots...", end="", flush=True)
   VARlist=['TLAYER','VWCLAYER']
   soilenvprofile(outdir,data_dirs,VARlist,scenariolist,'Profile',stage)
+  print("Done")
 
-  #print("Generating vegetation dynamic plots...")
+
+  print("Generating vegetation dynamic plots...", end="", flush=True)
   VARlist=['VEGC','VEGNSTR']
-  #vegdynamic(outdir,data_dirs,VARlist,scenariolist,'Veg_Dyn',stage)
+  vegdynamic(outdir,data_dirs,VARlist,scenariolist,'Veg_Dyn',stage)
+  print("Done")
+
 
   merge_pngs_to_pdf(outdir);
-
-
-
+  print("PNGs merged to PDF.")
