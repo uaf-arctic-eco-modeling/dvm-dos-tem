@@ -14,7 +14,6 @@
 #include <iostream>
 #include <sstream>
 #include <list>
-#include <netcdf.h>
 #include <json/value.h>
 
 #include <boost/lexical_cast.hpp>
