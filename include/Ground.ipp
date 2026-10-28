@@ -9,14 +9,14 @@ extern src::severity_logger<severity_level> glg;
  * @brief Retrieves values of a specified member variable for each soil and rock layer.
  *
  * Iterates through the layers, extracting the specified variable for
- * soil and rock layers. The values, type keys, and thicknesses at each
+ * soil and rock layers. The values, type keys, thicknesses, and depths at each
  * index describe the same layer. Only entries below count are valid;
  * unused entries retain default-initialized values.
  *
  * @tparam T Data type of the member variable.
  * @param member Pointer to the Layer member variable to retrieve.
  * @param varname Variable name used for logging.
- * @return Layer values, type keys, thicknesses in meters, and populated count.
+ * @return Layer values, type keys, thicknesses and depths in meters, and count.
  */
 template<typename T>
 LayerVariableProfile<T> Ground::get_variable_bylayer(
@@ -34,6 +34,7 @@ LayerVariableProfile<T> Ground::get_variable_bylayer(
       profile.values[il] = currl->*member;
       profile.tkey[il] = currl->tkey;
       profile.dz[il] = currl->dz;
+      profile.z[il] = currl->z;
       ++profile.count;
     }
 
