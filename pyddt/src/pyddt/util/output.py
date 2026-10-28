@@ -416,7 +416,7 @@ def build_full_datetimeindex(hds, pds, timeres):
   monotonic, and not missing any points.'''
   
   if timeres == 'yearly':
-    freq = 'AS-JAN'
+    freq = 'YS-JAN'
   elif timeres == 'monthly':
     freq = 'MS'
   else:
