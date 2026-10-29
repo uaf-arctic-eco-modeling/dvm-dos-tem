@@ -2646,23 +2646,3 @@ void Ground::set_ch4_bylayer(const double* newch4){
   }
 };
 
-std::array<double, MAX_SOI_LAY> Ground::get_ch4_bylayer(){
-  BOOST_LOG_SEV(glg, debug) << "Getting by-layer ch4";
-
-  std::array<double, MAX_SOI_LAY> curr_ch4;
-
-  Layer* currl = fstsoill;
-  int il = 0;
-
-  while(currl!=NULL) {
-    if(currl->isSoil && currl->ch4>0) {
-      curr_ch4[il] = currl->ch4;
-    }
-
-    currl = currl->nextl;
-    il++;
-  }
-
-  return curr_ch4;
-};
-
