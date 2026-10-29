@@ -42,6 +42,7 @@ struct LayerVariableProfile {
   std::array<T, MAX_SOI_LAY> values{};
   std::array<Layer::TYPEKEY, MAX_SOI_LAY> tkey{};
   std::array<double, MAX_SOI_LAY> dz{}; ///< Layer thicknesses in meters.
+  std::array<double, MAX_SOI_LAY> z{}; ///< Layer top depths in meters.
   std::size_t count = 0;
 };
 
