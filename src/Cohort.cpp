@@ -921,6 +921,7 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
     // the method as this should be identical between variable profiles
     auto ice_profile = ground.get_variable_bylayer(&Layer::ice, "ice");
     auto liq_profile = ground.get_variable_bylayer(&Layer::liq, "liquid");
+    std::array<double, MAX_SOI_LAY> depths = ice_profile.z;
 
     std::cout << std::fixed << std::setprecision(5);
     std::cout << std::setw(12) << "Depth"
@@ -936,20 +937,14 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
     // Calculate ice mass to compare with ice content in thawed layers
     double excess_ice_mass = excess_ice_fraction * thaw  * DENICE; //[kg/m2] == mm;
 
-    // depth of layer declared for looping
-    double depth = 0.0;
-
     for (int il = 0; il < ice_profile.count; ++il) {
       // Checking for the thaw depth being within a layer
-      // depth is the depth of the current layer and 
-      // depth+ice_profile.dz[il] is the depth of the next
-      // layer
-      if (depth < thaw & depth+ice_profile.dz[il] > thaw){
+      if (depths[il] < thaw && depths[il+1] > thaw){
         // this should be the percentage of water within the layer up to the removal depth - needs checking
-        thaw_water += (ice_profile.values[il] + liq_profile.values[il]) / (thaw - depth) / (ice_profile.dz[il]);
+        thaw_water += (ice_profile.values[il] + liq_profile.values[il]) / (thaw - depths[il]) / (ice_profile.dz[il]);
       }
-      else if (depth <= thaw){
-        std::cout << std::setw(12) << depth
+      else if (depths[il] <= thaw){
+        std::cout << std::setw(12) << depths[il]
                   << std::setw(12) << ice_profile.values[il]
                   << std::setw(12) << liq_profile.values[il]
                   << '\n';
@@ -959,8 +954,6 @@ void Cohort::updateMonthly_Thermokarst(const int & year, const int & midx, std::
       else{
         break;
       }
-      // adding thickness to depth to make equivalent
-      depth += ice_profile.dz[il];
     }
     std::cout << "excess ice mass: " << excess_ice_mass << "\n";
     std::cout << "thaw water mass: " << thaw_water << "\n";
