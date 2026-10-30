@@ -1,0 +1,94 @@
+# Builds the dev image (reused from GHCR if cached), compiles the binary
+# (reused from cache/artifact), and runs a basic smoke test of the model.
+
+name: Smoke Test
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches: [ develop, master, test-gh-actions ]
+  pull_request:
+    branches: [ develop, master ]
+
+jobs:
+  build-images:
+    uses: ./.github/workflows/build_images.yml
+    secrets: inherit
+
+  compile:
+    needs: build-images
+    uses: ./.github/workflows/compile.yml
+    secrets: inherit
+
+  smoke-test:
+    needs: [build-images, compile]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Make input catalog and workflows dir
+        run: |
+          mkdir -p source
+          mkdir -p input-catalog
+          mkdir -p workflows
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Download compiled binary
+        uses: actions/download-artifact@v4
+        with:
+          name: dvmdostem-binary
+          path: source
+
+      - name: Ensure binary is executable
+        run: chmod +x source/dvmdostem
+
+      - name: Set various env vars for docker compose to work
+        working-directory: source
+        run: |
+          GIT_VERSION="$(git describe --tags)"
+          DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
+          SOURCE_DIR="$GITHUB_WORKSPACE"/source
+
+          echo "V_TAG=${GIT_VERSION}" >> $GITHUB_ENV
+          echo "DDT_INPUT_CATALOG=${DDT_INPUT_CATALOG}" >> $GITHUB_ENV
+          echo "DDT_WORKFLOWS=${DDT_WORKFLOWS}" >> $GITHUB_ENV
+          echo "PWD=${SOURCE_DIR}" >> $GITHUB_ENV
+
+      # Reuses the cached dev image from GHCR (ensured by build-images)
+      - name: pull dev image
+        run: bash scripts/ci/ensure-dev-image.sh dev
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "docker-compose.yml"
+          services: dvmdostem-dev
+          cwd: source
+
+      - name: run help
+        run: docker compose exec dvmdostem-dev dvmdostem --help
+        working-directory: source
+
+      # This runs the model in the source directory using the demo data.
+      - name: run model
+        run: docker compose exec dvmdostem-dev dvmdostem -l monitor -p 10 -e 10 -s 10 -t 10 -n 10
+        working-directory: source
+
+      - name: see output
+        run: |
+          ls source/output
+

@@ -1,8 +1,5 @@
-// dvmdostem parameter file
-// Initial values for BGC plant physiological parameters
-// Maximum of 10 PFTs
-// PFT names should be CamelCase and must not have a period in them!
-//
+// dmvdostem parameter file
+// soil microbial activity (BGC) parameters and default initial conditions
 //===========================================================
 // CMT00 // BARE GROUND OPEN WATER SNOW AND ICE  // ##JUNK VALUES!!!###
 //PFT0       PFT1         PFT2         PFT3         PFT4         PFT5         PFT6         PFT7         PFT8         PFT9         // names: comments                  

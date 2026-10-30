@@ -361,43 +361,55 @@ can be re-run for a single variable at a time.
 =============================
 Running from Restart Files
 =============================
-``Dvmdostem`` can be stopped at and restarted from any inter-stage pause. The
-most useful point to do so will be after either EQ or SP, so the bulk of the
-computing does not need to be repeated and experimental TR+SC runs can be
-completed quickly.
+``Dvmdostem`` can be stopped at and restarted from any inter-stage pause after
+the eq stage. The most useful point to do so will be after either EQ or SP, so
+the bulk of the computing does not need to be repeated and experimental TR+SC
+runs can be completed quickly. It is not possible to do a restart run from the 
+``pr`` stage as there is not enough information saved to initialize the model.
+The ``pr`` stage runs only the environmental portion of the model and does not
+run the biogeochemical portion. The model should exit with an error message if 
+you attempt a restart run for the ``pr`` or ``eq`` stages.
 
-The files needed to do this are automatically created and named after the stage
-that they hold data from: ``restart-[stage].nc``.
+The files needed for a restart run are automatically created and named after 
+the stage that they hold data from: ``restart-[stage].nc``.
 
 .. raw:: html
 
     <!-- This is an embed link to a Google Drawing created by Ruth Rutter and Tobey Carman -->
+    <!-- drawing is titled "restart_process" and is in the Shared Drive, Documentation Embed Images folder -->
     <img src="https://docs.google.com/drawings/d/e/2PACX-1vSL4SJun4GptQWQqkKoTxc1RhiDZcdjz7E8Gkk1bL-pldPu8L0jYC1z2UlrwW-pvE-oH3TTKaQDKS-x/pub?w=963&amp;h=513">
 
 ------
 Set up
 ------
-Complete an initial run through to the point you wish to restart from. If you
-want the outputs from later stages for comparison purposes, running those as
-well will not disrupt the process.
+Complete an initial run through to the point you wish to restart from. It is
+helpful to name your output directory with the stages that are being run, for
+example, if you are running pr and eq, in your config file, set the 
+``output_dir`` entry to something like ``output_pr_eq``. Then run the model, 
+specifying the number of years to run for each stage. For example, you might do
+something like this:
 
-If you produced output files in your initial run that you want to retain, you
-will need to manually move them elsewhere. Leave the restart files in the output
-directory.
+.. code::
 
--------
-Restart
--------
-Two flags are necessary in order to restart: ``--no-output-cleanup`` and
-``--restart-run``. The first keeps dvmdostem from re-creating the output
-directory (and therefore deleting its contents) and the second prevents it from
-creating new ``restart-[stage].nc`` files that would overwrite the ones needed
-to restart.
+    dvmdostem -p 100 -e 1000 -s 0 -t 0 -n 0 --config-file=config/config.js
 
-Where to restart from is controlled by how many years are specified per stage.
-If 0, a stage is skipped and dvmdostem attempts to continue from the next stage.
-For example, to restart after spinup and only run transient and scenario, the
-year counts would be something like this: ``-p 0 -e 0 -s 0 -t 115 -n 85``
+Next you will set the ``restart_from`` entry in your config file to point to the
+``restart-[stage].nc`` file that was created in your output directory from the
+previous step. You will also want to set the ``output_dir`` to an appropriate
+value describing what you are doing, for example ``output_sp`` if you are only
+running the ``sp`` stage.
+
+The stages that are run are controlled by the command line options specifying
+how many years to run for each stage. So to continue with the previous example
+your next run might look like this, running only the spinup stage for 250 years:
+
+.. code::
+
+    dvmdostem -p 0 -e 0 -s 250 -t 0 -n 0 --config-file=config/config.js
+
+An alternate way to handle the outputs could be using the ``--no-output-cleanup``
+command line flag, but this could prove to be confusing if you are not careful.
+
 
 ==================================
 Running a Sensitivity Analysis

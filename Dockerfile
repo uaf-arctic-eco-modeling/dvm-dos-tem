@@ -46,7 +46,8 @@ ARG GID=1000
 
 # === IMAGE FOR GENERAL C++ DEVELOPMENT =======================================
 # General development tools, compilers, text editors, etc
-FROM ubuntu:jammy AS cpp-dev
+FROM ubuntu:noble AS cpp-dev
+RUN userdel -r ubuntu
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y --fix-missing && apt-get install -y \
     build-essential \
@@ -145,14 +146,88 @@ RUN pip install -r requirements_general_dev.txt
 
 COPY --chown=$UNAME:$UNAME special_configurations/jupyter_notebook_config.py /home/$UNAME/.jupyter/jupyter_notebook_config.py
 
+# Copy the python source directory into the container so that we can pip install
+# this results in an editable install using the which looks like this in 
+# pip freeze output in the container.
+# -e git+ssh://git@github.com/<username>/dvm-dos-tem.git@<SHA>#egg=pyddt&subdirectory=pyddt
+# The pyddt directory may get fully replaced later if a volume is mounted to 
+# /work (as is typical done to make the host source code available inside the
+# container). But the editable install should still work...?
+COPY pyddt /work/pyddt
+RUN pip install -e /work/pyddt/
+
 ENV SITE_SPECIFIC_INCLUDES="-I/usr/include/jsoncpp"
 ENV SITE_SPECIFIC_LIBS="-I/usr/lib"
 ENV PATH="/work:$PATH"
-ENV PATH="/work/scripts:$PATH"
-ENV PATH="/work/scripts/util:$PATH"
+
 WORKDIR /work
 # or use command
 #ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+
+
+# ==== IMAGE FOR RUNNING IN AN HPC ENVIRONMENT ==========
+FROM dvmdostem-dev:${GIT_VERSION} AS dvmdostem-hpcdev
+ARG UNAME
+ARG UID
+ARG GID
+
+USER root
+RUN apt-get update -y --fix-missing
+RUN apt-get install -y libhdf5-mpi-dev
+
+RUN apt-get remove --purge -y libnetcdf-dev
+#RUN apt-get remove --purge -y libnetcdf-bin
+
+WORKDIR /usr/src/
+RUN wget https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.3.tar.gz \
+  && tar -xzf v4.9.3.tar.gz \
+  && rm v4.9.3.tar.gz
+WORKDIR netcdf-c-4.9.3
+RUN CC=mpicc CPPFLAGS=-I/usr/include/hdf5/openmpi/ \
+             LDFLAGS=-L/usr/lib/x86_64-linux-gnu/hdf5/openmpi/ \
+             ./configure --enable-parallel-tests
+RUN make install
+
+ENV LD_LIBRARY_PATH="/usr/local/lib/:$LD_LIBRARY_PATH"
+
+RUN rm -rf /var/lib/apt/lists/*
+USER $UNAME
+WORKDIR /work
+
+# ==== IMAGE FOR GCP CLUSTER DEV ==========
+#This may be incomplete, test before using
+FROM dvmdostem-hpcdev:${GIT_VERSION} AS dvmdostem-gcpcluster
+ARG UNAME
+ARG UID
+ARG GID
+
+USER root
+RUN apt-get update -y --fix-missing && apt-get install -y \
+    build-essential \
+    git-all \
+    libbz2-dev \
+    libffi-dev \
+    libgdbm-dev \
+    libjsoncpp-dev \
+    liblapacke-dev \
+    liblzma-dev \
+    libncurses-dev \
+    libreadline-dev \
+    libssl-dev \
+    libsqlite3-dev \
+    libxml2-dev \
+    zlib1g-dev \
+    nco \
+    ncview \
+    python3-pip \
+    tk-dev \
+    wget \
+    curl \
+  && rm -rf /var/lib/apt/lists/*
+
+USER $UNAME
+WORKDIR /work
+
 
 # ==== IMAGE FOR RUNNING JULIA/MADS AUTO CALIBRATION STUFF ====================
 # Basically the dev image with Julia and MADS installed. Julia and MADS add

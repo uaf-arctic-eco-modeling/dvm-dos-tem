@@ -2,6 +2,9 @@
 #ifndef GROUND_H_
 #define GROUND_H_
 
+#include <array>
+#include <cstddef>
+#include <string>
 #include <sstream>
 #include <cmath>
 #include <iostream>
@@ -30,6 +33,17 @@ using namespace std;
 #include "RestartData.h"
 
 #include "parameters.h"
+#include "TEMUtilityFunctions.h"
+
+/** A snapshot of layer values and geometry; entries below count are valid. */
+template<typename T>
+struct LayerVariableProfile {
+  std::array<T, MAX_SOI_LAY> values{};
+  std::array<Layer::TYPEKEY, MAX_SOI_LAY> tkey{};
+  std::array<double, MAX_SOI_LAY> dz{}; ///< Layer thicknesses in meters.
+  std::array<double, MAX_SOI_LAY> z{}; ///< Layer top depths in meters.
+  std::size_t count = 0;
+};
 
 class Ground: public DoubleLinkedList {
 
@@ -143,8 +157,14 @@ public :
   //
   void checkWaterValidity();
 
-  void set_ch4_bylayer(const double* newch4);
-  std::array<double, MAX_SOI_LAY> get_ch4_bylayer();
+  double getCarbonForDepthRange(double topz, double bottomz);
+
+  double getVWCAtDepth(double vwcdepth);
+  double getTempAtDepth(double temperaturez);
+
+  template<typename T>
+  LayerVariableProfile<T> get_variable_bylayer(
+      T Layer::*member, const std::string& varname) const;
 
 private :
 
@@ -194,5 +214,7 @@ private :
   void cleanRockLayers();
 
 };
+
+#include "Ground.ipp"
 
 #endif /*GROUND_H_*/

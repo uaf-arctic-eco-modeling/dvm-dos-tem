@@ -4,7 +4,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/signal_set.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/tokenizer.hpp>
@@ -63,35 +63,35 @@ CalController::CalController(Cohort* cht_p):
 
             {"quitat",
               CalCommand("quits and exits at simulation year specified",
-                         boost::bind(&CalController::quit_at, this, _1)) },
+                         boost::bind(&CalController::quit_at, this, boost::placeholders::_1)) },
             {"pauseat",
               CalCommand("pauses at simulation year specified",
-                         boost::bind(&CalController::pause_at, this, _1)) },
+                         boost::bind(&CalController::pause_at, this, boost::placeholders::_1)) },
 
             {"env",
               CalCommand("changes env module state",
-                         boost::bind(&CalController::env_cmd, this, _1)) },
+                         boost::bind(&CalController::env_cmd, this, boost::placeholders::_1)) },
             {"bgc",
               CalCommand("changes bgc module state",
-                         boost::bind(&CalController::bgc_cmd, this, _1)) },
+                         boost::bind(&CalController::bgc_cmd, this, boost::placeholders::_1)) },
             {"avln",
               CalCommand("changes available Nitrogen setting",
-                         boost::bind(&CalController::avln_cmd, this, _1)) },
+                         boost::bind(&CalController::avln_cmd, this, boost::placeholders::_1)) },
             {"dsb",
               CalCommand("changes dsb module state",
-                         boost::bind(&CalController::dsb_cmd, this, _1)) },
+                         boost::bind(&CalController::dsb_cmd, this, boost::placeholders::_1)) },
             {"dsl",
               CalCommand("changes dsl module state",
-                         boost::bind(&CalController::dsl_cmd, this, _1)) },
+                         boost::bind(&CalController::dsl_cmd, this, boost::placeholders::_1)) },
             {"dynlai",
               CalCommand("changes dynamic lai module state",
-                         boost::bind(&CalController::dynlai_cmd, this, _1)) },
+                         boost::bind(&CalController::dynlai_cmd, this, boost::placeholders::_1)) },
             {"nfeed",
               CalCommand("changes nitrogen feedback setting",
-                          boost::bind(&CalController::nfeed_cmd, this, _1)) },
+                          boost::bind(&CalController::nfeed_cmd, this, boost::placeholders::_1)) },
             {"baseline",
               CalCommand("changes baseline setting",
-                          boost::bind(&CalController::baseline_cmd, this, _1)) },
+                          boost::bind(&CalController::baseline_cmd, this, boost::placeholders::_1)) },
             };
 
   BOOST_LOG_SEV(glg, debug) << "Set async wait on signals to PAUSE handler.";

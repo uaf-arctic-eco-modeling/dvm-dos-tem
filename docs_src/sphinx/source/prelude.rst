@@ -391,11 +391,11 @@ WRITE THIS....
 Docker
 **********************
 
-As of 2023, Docker is the current reccomended virtualization tool for working
+As of 2023, Docker is the current recommended virtualization tool for working
 with TEM. It is definitely still possible to use a traditional Virtual Machine,
 (i.e. with VirtualBox, perhaps managed by Vagrant), but all of our current
 documentation assumed you will be using Docker. Overall Docker offers some
-advatages in being able to standardize the internal layout of the virtual
+advantages in being able to standardize the internal layout of the virtual
 environment amongst users.
 
 The following slideshow attempts to explain some of the concepts.
