@@ -37,6 +37,61 @@ def breakdown_outfile_name(outfilepath):
   return path_prefix, varname, timeres, stage
 
 
+def merge_pngs_to_pdf(outdir, png_dir=None, pdf_name='result.pdf'):
+  """Combine PNG images into a PDF report, retaining the original images.
+
+  Parameters
+  ----------
+  outdir : str or os.PathLike
+    Existing directory in which to write the final PDF report.
+  png_dir : str or os.PathLike, optional
+    Existing directory containing the PNG images. Defaults to ``results/``
+    inside ``outdir``. An explicitly supplied relative path is interpreted
+    relative to the current working directory.
+  pdf_name : str, optional
+    Filename for the final report inside ``outdir``. Defaults to
+    ``result.pdf``. An existing report with this name is replaced.
+
+  Notes
+  -----
+  Each PNG is converted to a temporary PDF in ``png_dir``. All PDF files in
+  that directory, including any that already exist, are merged in filename
+  order and deleted after being appended. Use a directory dedicated to the
+  report images to avoid removing unrelated PDFs. PNG images are preserved.
+  """
+  from pypdf import PdfWriter
+  from PIL import Image
+
+  if png_dir is None:
+    png_dir = os.path.join(outdir, 'results')
+  report_path = os.path.join(outdir, pdf_name)
+
+  # Convert images to PDF pages before assembling the combined report.
+  listpng = os.listdir(png_dir)
+  listpng2 = [ x for x in listpng if '.png' in x ]
+
+  for png in listpng2:
+    image_1 = Image.open(os.path.join(png_dir, png))
+    im_1 = image_1.convert('RGB')
+    im_1.save(os.path.join(png_dir, png.replace(".png", "") + '.pdf'))
+
+  if os.path.isfile(report_path):
+    os.remove(report_path)
+
+  listpdf = os.listdir(png_dir)
+  listpdf2 = [ x for x in listpdf if '.pdf' in x ]
+
+  # Sorting filenames makes the page order repeatable across runs.
+  writer = PdfWriter()
+  for pdf in sorted(listpdf2):
+    writer.append(os.path.join(png_dir, pdf))
+    os.remove(os.path.join(png_dir, pdf))
+
+  writer.write(report_path)
+
+  print("PNGs merged to PDF.")
+
+
 '''
 pyTEM
 pytem

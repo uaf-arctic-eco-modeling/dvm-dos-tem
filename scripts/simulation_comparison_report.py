@@ -21,7 +21,7 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mplc
-from PIL import Image
+from pyddt.util.general import merge_pngs_to_pdf
 from pyddt.util.output import load_reduced_dataframe
 
 
@@ -531,7 +531,6 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
     for i in range(0,len(sclist)):
       scname=sclist[i]
-      print("Scenario: " + scname)
       ax = plt.subplot(nrows, ncols, i + 1)
       bottom = np.zeros(len(result['time'].drop_duplicates()))
 
@@ -675,39 +674,6 @@ def vegdynamic(simpath,simlist,vlist,sclist,oname,stage):
 
 
 
-def merge_pngs_to_pdf(outdir):
-  from pypdf import PdfWriter
-
-  ### Merge all plots to a pdf report
-
-  print("Generating final report...")
-
-  listpng = os.listdir(os.path.join(outdir,'results'))
-  listpng2 = [ x for x in listpng if '.png' in x ]
-
-  for png in listpng2:
-    image_1 = Image.open(os.path.join(outdir,'results',png))
-    im_1 = image_1.convert('RGB')
-    im_1.save(os.path.join(outdir,'results',png.replace(".png", "") + '.pdf'))
-  #  os.remove(os.path.join(outdir,'results',png))
-
-  if os.path.isfile(os.path.join(outdir,'result.pdf')):
-    os.remove(os.path.join(outdir,'result.pdf'))
-
-  listpdf = os.listdir(os.path.join(outdir,'results'))
-  listpdf2 = [ x for x in listpdf if '.pdf' in x ]
-
-  writer = PdfWriter()
-  for pdf in sorted(listpdf2):
-    writer.append(os.path.join(outdir,'results',pdf))
-    os.remove(os.path.join(outdir,'results',pdf))
-
-  writer.write(os.path.join(outdir,'result.pdf'))
-
-  print("Done merging plots into a single report")
-
-
-
 def cmdline_parse(argv=None):
   """Read report options and check that each simulation has a plot style."""
   parser = argparse.ArgumentParser(
@@ -777,6 +743,10 @@ if __name__ == '__main__':
   widthlist = args.widthlist
   stage = args.stage
 
+  print("Scenarios:")
+  for scname in scenariolist:
+    print(scname)
+ 
 
   ### Create all plots
   print("Generating single plots...")
@@ -836,5 +806,6 @@ if __name__ == '__main__':
   print("Done")
 
 
+  print("Generating final report...")
   merge_pngs_to_pdf(outdir);
-  print("PNGs merged to PDF.")
+  print("Done merging plots into a single report pdf")
