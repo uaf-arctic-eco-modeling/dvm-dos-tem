@@ -32,6 +32,8 @@ public:
   int yrsdist; // years since last disturbance
   int mthsdist; //months since last disturbance
   
+  bool dsbinterpolation; //only interpolate within maximum timeframe impacted from dsb with cmt change
+  
   int drainage_type;
   double cell_slope;
   double cell_aspect;

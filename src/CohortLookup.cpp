@@ -51,10 +51,143 @@ void CohortLookup::init() {
   assignFirePar(dir);
 }
 
+void CohortLookup::loadVegetationParams() {
+  BOOST_LOG_SEV(glg, info) << "Load vegetation parameters from file...";
+  assignBgcCalparVeg(dir);
+  assignVegDimension(dir);
+  assignEnv4Canopy(dir);
+  assignBgc4Vegetation(dir);
+}
+
+void CohortLookup::loadSoilParams() {
+  BOOST_LOG_SEV(glg, info) << "Load soil parameters from file...";
+  assignBgcCalparSoil(dir);
+  // assignGroundDimension(dir);
+  // assignEnv4Ground(dir);
+  // assignBgc4Ground(dir);
+}
+
+/*
+ * This archives current chtlu parameter values
+ * to structs for interpolation after cmt change 
+**/
+void CohortLookup::archiveSoilParams(){
+  BOOST_LOG_SEV(glg, info) << "Archive soil parameters...";
+  archive_soical_params.micbnup = this->micbnup;
+  archive_soical_params.kdcrawc = this->kdcrawc;
+  archive_soical_params.kdcsoma = this->kdcsoma;
+  archive_soical_params.kdcsompr = this->kdcsompr;
+  archive_soical_params.kdcsomcr = this->kdcsomcr;
+
+  archive_soidim_params.coefshlwa = this->coefshlwa;
+  archive_soidim_params.coefshlwb = this->coefshlwb;
+  archive_soidim_params.coefdeepa = this->coefdeepa;
+  archive_soidim_params.coefdeepb = this->coefdeepb;
+  archive_soidim_params.coefminea = this->coefminea;
+  archive_soidim_params.coefmineb = this->coefmineb;
+
+  initial_tcsolid_moss = this->tcsolid_moss;
+  initial_tcsolid_f = this->tcsolid_f;
+  initial_tcsolid_h = this->tcsolid_h;
+
+  initial_bulkden_moss = this->bulkden_moss;
+  initial_bulkden_f = this->bulkden_f;
+  initial_bulkden_h = this->bulkden_h;
+
+  initial_poro_moss = this->poro_moss;
+  initial_poro_f = this->poro_f;
+  initial_poro_h = this->poro_h;
+
+  initial_hksat_moss = this->hksat_moss;
+  initial_hksat_f = this->hksat_f;
+  initial_hksat_h = this->hksat_h;
+
+  initial_nfactor_s = this->nfactor_s;
+  initial_nfactor_w = this->nfactor_w;
+
+  archive_snwdim_params.denmax = this->snwdenmax;
+  archive_snwdim_params.newden = this->snwdennew;
+
+  // archive_soienv_params.tcsolid_moss = this->tcsolid_moss;
+  // archive_soienv_params.tcsolid_f = this->tcsolid_f;
+  // archive_soienv_params.tcsolid_h = this->tcsolid_h;
+  // archive_soienv_params.poro_moss = this->poro_moss;
+  // archive_soienv_params.poro_f = this->poro_f;
+  // archive_soienv_params.poro_h = this->poro_h;
+  // archive_soienv_params.bulkden_moss = this->bulkden_moss;
+  // archive_soienv_params.bulkden_f = this->bulkden_f;
+  // archive_soienv_params.bulkden_h = this->bulkden_h;
+  // archive_soienv_params.hksat_moss = this->hksat_moss;
+  // archive_soienv_params.hksat_f = this->hksat_f;
+  // archive_soienv_params.hksat_h = this->hksat_h;
+  // archive_soienv_params.nfactor_s = this->nfactor_s;
+  // archive_soienv_params.nfactor_w = this->nfactor_w;
+
+  // archive_snwdim_params.denmax = this->snwdenmax;
+  // archive_snwdim_params.newden = this->snwdennew;
+  // archive_snwdim_params.initsnwthick = this->initsnwthick;
+  // archive_snwdim_params.initsnwdense = this->initsnwdense;
+  
+  // archive_soidim_params.maxdmossthick = this->maxdmossthick;
+  // archive_soidim_params.initdmossthick = this->initdmossthick;
+  // archive_soidim_params.mosstype = this->mosstype;
+  // archive_soidim_params.initfibthick = this->initfibthick;
+  // archive_soidim_params.inithumthick = this->inithumthick;
+  // archive_soidim_params.coefshlwa = this->coefshlwa;
+  // archive_soidim_params.coefshlwb = this->coefshlwb;
+  // archive_soidim_params.coefdeepa = this->coefdeepa;
+  // archive_soidim_params.coefdeepb = this->coefdeepb;
+  // archive_soidim_params.coefminea = this->coefminea;
+  // archive_soidim_params.coefmineb = this->coefmineb;
+
+  // archive_snwenv_params.snwalbmax = this->snwalbmax;
+  // archive_snwenv_params.snwalbmin = this->snwalbmin;
+  // archive_snwenv_params.initsnwtem = this->initsnwtem;
+
+  // archive_soienv_params.psimax = this->psimax;
+  // archive_soienv_params.evapmin = this->evapmin;
+  // archive_soienv_params.drainmax = this->drainmax;
+  // archive_soienv_params.rtdp4gdd = this->rtdp4gdd;
+  // archive_soienv_params.tcsolid_moss = this->tcsolid_moss;
+  // archive_soienv_params.tcsolid_f = this->tcsolid_f;
+  // archive_soienv_params.tcsolid_h = this->tcsolid_h;
+  // archive_soienv_params.poro_moss = this->poro_moss;
+  // archive_soienv_params.poro_f = this->poro_f;
+  // archive_soienv_params.poro_h = this->poro_h;
+  // archive_soienv_params.bulkden_moss = this->bulkden_moss;
+  // archive_soienv_params.bulkden_f = this->bulkden_f;
+  // archive_soienv_params.bulkden_h = this->bulkden_h;
+  // archive_soienv_params.hksat_moss = this->hksat_moss;
+  // archive_soienv_params.hksat_f = this->hksat_f;
+  // archive_soienv_params.hksat_h = this->hksat_h;
+  // archive_soienv_params.nfactor_s = this->nfactor_s;
+  // archive_soienv_params.nfactor_w = this->nfactor_w;
+
+  // archive_soibgc_params.rhq10 = this->rhq10;
+  // archive_soibgc_params.moistmin = this->moistmin;
+  // archive_soibgc_params.moistopt = this->moistopt;
+  // archive_soibgc_params.moistmax = this->moistmax;
+  // archive_soibgc_params.lcclnc = this->lcclnc;
+  // archive_soibgc_params.fsoma = this->fsoma;
+  // archive_soibgc_params.fsompr = this->fsompr;
+  // archive_soibgc_params.fsomcr = this->fsomcr;
+  // archive_soibgc_params.som2co2 = this->som2co2;
+  // archive_soibgc_params.kn2 = this->kn2;
+  // archive_soibgc_params.nmincnsoil = this->nmincnsoil;
+  // archive_soibgc_params.propftos = this->propftos;
+  // archive_soibgc_params.fnloss = this->fnloss;
+  // archive_soibgc_params.initshlwc = this->initshlwc;
+  // archive_soibgc_params.initdeepc = this->initdeepc;
+  // archive_soibgc_params.initminec = this->initminec;
+  // archive_soibgc_params.initsoln = this->initsoln;
+  // archive_soibgc_params.initavln = this->initavln;
+}
+
 /** Prints data from this-> fields mimics format of cmt_calparbgc.txt file,
  * but only for one cmt type which ever one "this->cmtcode" refers to..
  */
-std::string CohortLookup::calparbgc2str() {
+std::string CohortLookup::calparbgc2str()
+{
   std::stringstream s("");
   s << "CMT code: " << this->cmtcode << "\n";
 
@@ -183,9 +316,18 @@ std::string CohortLookup::calparbgc2str() {
   return s.str();
 }
 
-
 /** Set calibrated BCG parameters based on values in file. */
 void CohortLookup::assignBgcCalpar(std::string & dircmt) {
+
+  // loading calibrated BGC vegetation 
+  // and soil parameters independently
+  assignBgcCalparVeg(dircmt);
+  assignBgcCalparSoil(dircmt);
+
+}
+
+/** Set calibrated BCG vegetation parameters based on values in file. */
+void CohortLookup::assignBgcCalparVeg(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
@@ -207,6 +349,25 @@ void CohortLookup::assignBgcCalpar(std::string & dircmt) {
   temutil::pfll2data_pft(l, krb[I_stem]);
   temutil::pfll2data_pft(l, krb[I_root]);
   temutil::pfll2data_pft(l, frg);
+
+  // ignoring last five lines as these are soil parameters
+
+}
+
+/** Set calibrated BCG soil parameters based on values in file. */
+void CohortLookup::assignBgcCalparSoil(std::string & dircmt) {
+
+  // get a list of data for the cmt number
+  std::list<std::string> l = temutil::parse_parameter_file(
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 35
+  );
+
+  // ignoring vegetation parameters by erasing lines read in 
+  // from parameter file 
+  std::list<std::string>::iterator it_begin_veg, it_end_veg;
+  it_begin_veg = it_end_veg = l.begin();
+  advance(it_end_veg, 13);
+  l.erase(it_begin_veg, it_end_veg);
 
   temutil::pfll2data(l, micbnup);
   temutil::pfll2data(l, kdcrawc);

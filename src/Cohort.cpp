@@ -294,7 +294,6 @@ void Cohort::initialize_state_parameters() {
   snowenv.initializeParameter();
   soilenv.initializeParameter();
   soilbgc.initializeParameter();
-
   ground.initDimension();   // read-in snow/soil structure from 'chtlu', does not appear to touch Layer objects...?
 
   // FIX THIS!
@@ -411,7 +410,31 @@ void Cohort::updateMonthly(const int & yrcnt, const int & currmind,
 
   //
   if(currmind==0) {
+
     cd.beginOfYear();
+
+    // cd.dsbinterpolationcounter/ dsbinterpolationyrs
+    // localized counter to not be confused with ysd used
+    // exclusively for cmt change related parameter interpolation
+
+    if(cd.dsbinterpolation){
+      interpolateSoilParameters();
+    }
+
+    // if(>x_years_from_disturbance){ // come up with a way of working out if dsb has occurred... 
+    //   interpolateSoilParameters(); // variable DISTURBANCE_HAS_HAPPENED?
+    //                                // LAST_DISTURBANCE_MNTH == -9999
+    //                                // LAST_DISTURBANCE_YEAR == -9999
+    // }
+    // updateDSB record somewhere maybe runnner that a disturbance has happened
+    // if we record year and month of disturbance (will need to compare both)
+    // Do we need to track multiple disturbance (many years and months)
+    // OR most recent disturbance (just months)
+    // we want to know how long since disturbance for interpolation
+    // IF we store year and month of disturbance
+    // initialize to an invalid value or track both year and month of disturbance
+    // 
+    // months since disturbance!
   }
 
   BOOST_LOG_SEV(glg, debug) << "Clean up before a month starts.";
@@ -824,6 +847,22 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
   }
   
   //updateMonthly_Flood(...)
+
+  // if fd.rolb > 0.75 * OLT
+
+  if(md->cmt_change
+     && fire.getSeverity(yrind) >= 1 // we may this to be based on remaining OLT
+     && cd.mthsdist == 0){
+    cmtChange(currmind);
+    cd.dsbinterpolation = true;
+    // hardcoded switch to poorly-drained (provided input is not already set to 1).
+    // could add gradual change of baseflow (1-0) in dsb interpolation?
+    cd.drainage_type = 1;
+    // turn-on ch4 after disturbance has occurred.
+    // md->set_ch4_module(true); Needs to be on otherwise inputs are not loaded!
+    md->set_runon_status(true);
+    md->set_groundwater_status(true);
+  }
 }
 
 /** Fire Disturbance module. */
@@ -1557,6 +1596,302 @@ void Cohort::getBd4allveg_monthly() {
   }
 }
 
+/**
+ * Changing CMT vegetation following disturbance, reloading 
+ * vegetation parameters, and redistributing carbon and 
+ * nitrogen pools based on new init and C:N values
+ */
+void Cohort::cmtChange(const int & currmind){
+  // Determine cmt to succeed to (for testing we are
+  // using cmt1 -> cmt3)
+  std::string new_cmt = "CMT06";
+  // define whether subsidence parameter changes should
+  // take place.
+  bool subsidence = true;
+
+  // Load relevant parameters from new CMT
+  chtlu.cmtcode = new_cmt;
+  // reset cohort data cmt type
+  cd.cmttype = temutil::cmtcode2num(chtlu.cmtcode);
+
+  // reinitializing vegetation parameters - there are several
+  // duplicated function calls and some manual rewrites further
+  // down in this function which would be good to rework and
+  // tidy, but so far this is functioning for vegetation
+  // change.
+  chtlu.loadVegetationParams();
+  veg.initializeParameter();
+  veg.initializeState();
+
+  // reassign pools to new PFTs
+  double cpool = 0.0;
+  double npool = 0.0;
+  double labnpool = 0.0;
+
+  // Looping over previous set of PFTs to accumulate remaining
+  // carbon and nitrogen pools
+  for(int ip=0; ip<NUM_PFT; ip++){
+
+    if(cd.m_veg.vegcov[ip]>0.){//only check PFTs that exist
+
+      labnpool += bd[ip].m_vegs.labn;
+
+      // clearing LAI to account for removing PFTs
+      cd.m_veg.lai[ip] = UIN_D;
+
+      for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+        cpool += bd[ip].m_vegs.c[ipp];
+        npool += bd[ip].m_vegs.strn[ipp];
+      }
+    }
+  }
+
+  double initvegc_tot = 0.0;
+  
+  // total expected nitrogen for new cmt based on
+  // cn ratio parameters
+  double initvegn_tot = 0.0;
+
+  double initvegc_pft[NUM_PFT] = {0.0};
+  double initvegn_part_pft[NUM_PFT_PART][NUM_PFT] = {0.0};
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+
+    for(int ipp=0; ipp<NUM_PFT_PART; ipp++){
+
+      // accumulating pft specific carbon values
+      initvegc_pft[ip] += chtlu.initvegc[ipp][ip];
+
+      // only calculate nitrogen if c:n ratio is non-zero
+      // otherwise NaNs created from divide by zero due to
+      // PFTs without all compartments
+      if (chtlu.initc2neven[ipp][ip]>0){
+        initvegn_part_pft[ipp][ip] = chtlu.initvegc[ipp][ip] / chtlu.initc2neven[ipp][ip];
+        initvegn_tot += initvegn_part_pft[ipp][ip];
+      }
+    }
+
+    // break out of loop once all new pfts have been summed
+    if (initvegc_pft[ip] == 0.0){
+      break;
+    }
+
+    initvegc_tot += initvegc_pft[ip];
+  }
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+    // break out of loop once all new pfts have been
+    // accounted for
+    if (initvegc_pft[ip] == 0.0){
+      // bd[ip].m_vegs.c[ipp] = 0.0;
+      // and other places where needed to be updated
+      // continue
+      break;
+    }
+
+    double new_pft_pool = (initvegc_pft[ip] / initvegc_tot) * cpool;
+    bd[ip].m_vegs.call = new_pft_pool;
+    // clearing structural nitrogen summed for each pft and calculating
+    // after partitioning between compartments in loop below
+    bd[ip].m_vegs.strnall = 0.0;
+
+    for (int ipp = 0; ipp < NUM_PFT_PART; ipp++){
+      // redistribute carbon to compartments
+      bd[ip].m_vegs.c[ipp] = chtlu.cpart[ipp][ip] * new_pft_pool;
+      
+      // calculate new nitrogen distribution based on 
+      // percentage from new c:n ratios while maintaining
+      // total nitrogen 
+      bd[ip].m_vegs.strn[ipp] = (initvegn_part_pft[ipp][ip] / initvegn_tot) * npool;
+      // sum across compartments to calculate new strnall
+      bd[ip].m_vegs.strnall += bd[ip].m_vegs.strn[ipp];
+    }
+
+    // if(!update_LAI_from_vegc) {
+    //   // logging statement: need DVM on for FIRE;
+    // }
+
+    // also update lai from redistributed leaf carbon
+    // this calculation assumes leaf carbon has been tested
+    // for existence and updated accordingly. Post disturbance
+    // we assume there is a non-zero leaf carbon for all PFTs
+    // assigned above
+    cd.m_veg.lai[ip] = veg.vegdimpar.sla[ip] * bd[ip].m_vegs.c[I_leaf];
+    
+    // update labile nitrogen     
+    bd[ip].m_vegs.labn = (bd[ip].m_vegs.strnall/ npool) * labnpool;
+  }
+  // update monthly phenological variables (factors used for GPP), and LAI
+  // veg.phenology(currmind);
+  // veg.updateLai(currmind); // this must be done after phenology
+
+  // LAI updated above for each PFT, but FPC
+  //    (foliage percent cover) may need adjustment
+
+  veg.updateVegcov();
+  veg.updateFpc();
+  // DO WE WANT TO UPDATE FROOTFRAC OR ALLOW THIS TO REMAIN THE SAME?
+  // veg.updateFrootfrac();
+
+  for(int ip=0; ip<NUM_PFT; ip++){
+    cd.d_veg.ifwoody[ip] = cd.m_veg.ifwoody[ip];
+    cd.d_veg.ifdeciwoody[ip] = cd.m_veg.ifdeciwoody[ip];
+    cd.d_veg.ifperenial[ip] = cd.m_veg.ifperenial[ip];
+    cd.d_veg.nonvascular[ip] = cd.m_veg.nonvascular[ip];
+    cd.d_veg.vegcov[ip] = cd.m_veg.vegcov[ip];
+    cd.d_veg.lai[ip] = cd.m_veg.lai[ip];
+    cd.d_veg.fpc[ip] = cd.m_veg.fpc[ip];
+
+    // re-initialization of some bgc and env states and
+    // parameter values required following cmt change
+    vegenv[ip].initializeState();
+    vegenv[ip].initializeParameter();
+    vegbgc[ip].initializeParameter();
+    // for(int il=0; il<cd.m_soil.numsl; il++){
+    //   cd.d_veg.frootfrac[il][ip] = cd.m_veg.frootfrac[il][ip];
+    // }
+  }
+
+  if (subsidence){
+
+    chtlu.tcsolid_moss *= 1.5;
+    chtlu.tcsolid_f *= 1.5;
+    chtlu.tcsolid_h *= 1.5;
+    chtlu.bulkden_moss *= 1.5;
+    chtlu.bulkden_f *= 1.5;
+    chtlu.bulkden_h *= 1.5;
+    chtlu.hksat_moss *= 0.75;
+    chtlu.hksat_f *= 0.75;
+    chtlu.hksat_h *= 0.75;
+    chtlu.poro_moss *= 0.75;
+    chtlu.poro_f *= 0.75;
+    chtlu.poro_h *= 0.75;
+
+    chtlu.nfactor_s *= 1.25;
+    chtlu.nfactor_w *= 0.75;
+
+    ground.snowdimpar.denmax *= 0.75;
+  }
+  
+  // store / archive old soil params
+  chtlu.archiveSoilParams();
+
+  // load soil parameters
+  chtlu.loadSoilParams();
+  chtlu.target_tcsolid_moss = chtlu.tcsolid_moss;
+  chtlu.target_tcsolid_f = chtlu.tcsolid_f;
+  chtlu.target_tcsolid_h = chtlu.tcsolid_h;
+  chtlu.target_bulkden_moss = chtlu.bulkden_moss;
+  chtlu.target_bulkden_f = chtlu.bulkden_f;
+  chtlu.target_bulkden_h = chtlu.bulkden_h;
+  chtlu.target_hksat_moss = chtlu.hksat_moss;
+  chtlu.target_hksat_f = chtlu.hksat_f;
+  chtlu.target_hksat_h = chtlu.hksat_h;
+  chtlu.target_poro_moss = chtlu.poro_moss;
+  chtlu.target_poro_f = chtlu.poro_f;
+  chtlu.target_poro_h = chtlu.poro_h;
+  chtlu.target_nfactor_s = chtlu.nfactor_s;
+  chtlu.target_nfactor_w = chtlu.nfactor_w;
+  interpolateSoilParameters();
+
+  // need to re-initialize parameters so we have ch4 parameters loaded
+  soilbgc.initializeParameter();
+
+  // std::cout << temutil::interpolate(1, 2, 5, 10, 7, I_LINEAR);
+  // std::cout << temutil::interpolate(1, 2, 5, 10000, 7000, I_LOG10);
+
+  /*
+
+  How to change from initial soil parameters to new soil parameters?
+
+     This problem relates to the soil parameters defining environmental
+     and biogeochemical conditions of the CMT. Therefore, as an example
+     evergreen to deciduous succession would represent a change in litter
+     fall quality, microbial composition, and eventually structure over
+     time. 
+
+     We could do this in a simple way (i.e. linear interpolation over a 
+     given time) or tracking the ratio of the old and new carbon inputs 
+     to the soils.
+
+     Relatively simple first approach:
+        Assume that we can estimate (or calibrate) the rate of change
+        between one kdc and another.
+        E.g. kdcraw1->2 takes 5 years to update
+             kdcsoma1->2 takes 25 years to update
+             etc.
+  */
+};
+
+/*
+ * Interpolating soil parameters following cmt change
+ */
+void Cohort::interpolateSoilParameters(){
+
+  int tsd = this->cd.yrsdist;
+  int start_year = 0;
+
+  // group number of years for each subgroup of parameters
+  // e.g. fibric-related parameters, humic-related
+  // and so fibric_n_years, etc
+  // bring constants out from below and make consisteng in
+  // interpolation function.
+  int moss_n_years = 5;
+  int fibric_n_years = 50;
+  int humic_n_years = 100;
+  int mineral_n_years = 500;
+
+  // maximum number of years to finish transitioning
+  // to new parameters (likely kdcsomcr will take longest)
+  // this is currently set to mineral_n_year for now though
+  // it might be different or simply be limited by the 
+  // mineral_n_years which will likely be the longest.
+  int max_n_years = mineral_n_years;
+
+  if(tsd<=max_n_years){
+    // interpolating between initial parameter, new parameter, 
+    // with years being 0 immediately following disturbance and
+    // for this parameter (e.g. kdc) transition to new parameter
+    // will take 5 years. tsd is used as the interpolation position
+    // during this time, with a linear method.
+
+    if(tsd<=moss_n_years){ 
+      this->soilbgc.calpar.kdcrawc = temutil::interpolate(chtlu.archive_soical_params.kdcrawc, chtlu.kdcrawc, start_year, moss_n_years, tsd, I_LINEAR);
+      ground.snowdimpar.denmax = temutil::interpolate(chtlu.archive_snwdim_params.denmax, chtlu.snwdenmax, start_year, moss_n_years, tsd, I_LINEAR);
+      // loading layer values from chtlu, and using initial (post-disturbance) and target (new cmt) parameters
+      // post-disturbance can be either pre-disturbance cmt values or subsided parameter.
+      chtlu.tcsolid_moss = temutil::interpolate(chtlu.initial_tcsolid_moss, chtlu.target_tcsolid_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.poro_moss = temutil::interpolate(chtlu.initial_poro_moss, chtlu.target_poro_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.bulkden_moss = temutil::interpolate(chtlu.initial_bulkden_moss, chtlu.target_bulkden_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.hksat_moss = temutil::interpolate(chtlu.initial_hksat_moss, chtlu.target_hksat_moss, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.nfactor_s = temutil::interpolate(chtlu.initial_nfactor_s, chtlu.target_nfactor_s, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.nfactor_w = temutil::interpolate(chtlu.initial_nfactor_w, chtlu.target_nfactor_w, start_year, moss_n_years, tsd, I_LINEAR);
+    }
+    if(tsd<=fibric_n_years){
+      this->soilbgc.calpar.kdcsoma = temutil::interpolate(chtlu.archive_soical_params.kdcsoma, chtlu.kdcsoma, start_year, fibric_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefshlwa = temutil::interpolate(chtlu.archive_soidim_params.coefshlwa, chtlu.coefshlwa, start_year, moss_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefshlwb = temutil::interpolate(chtlu.archive_soidim_params.coefshlwb, chtlu.coefshlwb, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.tcsolid_f = temutil::interpolate(chtlu.initial_tcsolid_f, chtlu.target_tcsolid_f, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.poro_f = temutil::interpolate(chtlu.initial_poro_f, chtlu.target_poro_f, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.bulkden_f = temutil::interpolate(chtlu.initial_bulkden_f, chtlu.target_bulkden_f, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.hksat_f = temutil::interpolate(chtlu.initial_hksat_f, chtlu.target_hksat_f, start_year, moss_n_years, tsd, I_LINEAR);
+    } 
+    if(tsd<=humic_n_years){
+      this->soilbgc.calpar.kdcsompr = temutil::interpolate(chtlu.archive_soical_params.kdcsompr, chtlu.kdcsompr, start_year, humic_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefdeepa = temutil::interpolate(chtlu.archive_soidim_params.coefdeepa, chtlu.coefdeepa, start_year, moss_n_years, tsd, I_LINEAR);
+      this->ground.soildimpar.coefdeepb = temutil::interpolate(chtlu.archive_soidim_params.coefdeepb, chtlu.coefdeepb, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.tcsolid_h = temutil::interpolate(chtlu.initial_tcsolid_h, chtlu.target_tcsolid_h, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.poro_h = temutil::interpolate(chtlu.initial_poro_h, chtlu.target_poro_h, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.bulkden_h = temutil::interpolate(chtlu.initial_bulkden_h, chtlu.target_bulkden_h, start_year, moss_n_years, tsd, I_LINEAR);
+      chtlu.hksat_h = temutil::interpolate(chtlu.initial_hksat_h, chtlu.target_hksat_h, start_year, moss_n_years, tsd, I_LINEAR);
+    } 
+    if(tsd<=mineral_n_years){
+      this->soilbgc.calpar.kdcsomcr = temutil::interpolate(chtlu.archive_soical_params.kdcsomcr, chtlu.kdcsomcr, start_year, mineral_n_years, tsd, I_LINEAR);
+    }
+  } else{
+    cd.dsbinterpolation = false;
+  }
+}
 
 /** Synchronizes Cohort and CohortData's internal fields from the
  * RestartData object.

@@ -97,6 +97,8 @@ public:
   int baseline_start;//Start year for baseline EQ climate
   int baseline_end;//End year for baseline EQ climate
 
+  bool cmt_change;//Allow cmt change following disturbance
+
   // Maps holding data about variables to be output at specific timesteps
   // C++11 would allow the use of unordered_maps, which have a faster
   // by-key access time.
@@ -141,7 +143,12 @@ public:
   void set_ch4_module(const bool v);
 
   bool get_runon_status();
+  void set_runon_status(const std::string &s);
+  void set_runon_status(const bool v);
+
   bool get_groundwater_status();
+  void set_groundwater_status(const std::string &s);
+  void set_groundwater_status(const bool v);
 
   bool get_dslmodule();
   void set_dslmodule(const std::string &s);

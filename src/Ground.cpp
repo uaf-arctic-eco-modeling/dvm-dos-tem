@@ -427,6 +427,22 @@ void Ground::initSnowSoilLayers() {
     insertFront(sl);
   }
 }
+/**
+  * Setting layer parameters from CohortLookup
+  * to alter physical properties following
+  * post-disturbance CMT change.
+**/
+void Ground::setLayerParamsFromChtlu(){
+  // loop through layers
+  // if certain type
+  // reload values from chtlu
+  Layer * currl = fstmossl;
+  while(currl!=NULL){
+    if(currl->isFibric){
+      currl->tcsolid = chtlu->tcsolid_f;
+    }
+  }
+}
 
 void Ground::set_state_from_restartdata(snwstate_dim *snowdim,
                                    soistate_dim *soildim,

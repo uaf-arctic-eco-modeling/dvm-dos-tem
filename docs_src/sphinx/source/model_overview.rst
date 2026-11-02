@@ -261,6 +261,18 @@ shown below.
    <img src="https://docs.google.com/drawings/d/e/2PACX-1vSJZFiGHEQ1XA4oZQ4wQarGPUI91sWZuerlVwy2bi67jaJN504Wki6deJLRZkz7sXGImFCUDSXYadFC/pub?w=960&amp;h=720"> 
 
 *********************
+Processes
+*********************
+
+Adding process descriptions here...
+
+
+========
+CMT Change
+========
+
+
+*********************
 Inputs/Outputs (IO)
 *********************
 

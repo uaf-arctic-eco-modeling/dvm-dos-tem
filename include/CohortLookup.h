@@ -12,6 +12,7 @@ using namespace std;
 #include "cohortconst.h"
 #include "timeconst.h"
 #include "layerconst.h"
+#include "parameters.h"
 
 class CohortLookup {
 public:
@@ -26,6 +27,16 @@ public:
   std::string calparbgc2str();
   void init();
   void assignBgcCalpar(string & dirname);
+  void assignBgcCalparVeg(string & dirname);
+  void assignBgcCalparSoil(std::string & dirname);
+  // For reloading parameters following cmt change
+  // Loading veg-specific parameters
+  void loadVegetationParams();
+  // Loading soil-specific parameters
+  void loadSoilParams();
+
+  // method for archiving soil params
+  void archiveSoilParams();
 
   //calibration related
   //vegetation
@@ -284,14 +295,48 @@ public:
   double r_retain_c; // 0.1 calculated from Harden et al., 2003 (ATHarden42003a)
   double r_retain_n; // 0.3 calculated from Harden et al., 2003 (ATHarden42003a)
 
+  // shallow to deep carbon burial fraction from deep C developments
   double s2df_soma;
   double s2df_sompr;
   double s2df_somcr;
-
+  // deep to mineral carbon burial fraction
   double d2mf_soma;
   double d2mf_sompr;
   double d2mf_somcr;
+  // s2df/d2mf_rawc are above in this file
 
+  // structs used for archiving soil parameters prior to cmt change
+  soipar_cal archive_soical_params;
+  soipar_dim archive_soidim_params;
+  soipar_env archive_soienv_params;
+  soipar_bgc archive_soibgc_params;
+  snwpar_dim archive_snwdim_params;
+  snwpar_env archive_snwenv_params;
+
+  // additional parameters for interpolating between initial (post-disturbance)
+  // and target (new cmt)
+
+  // Solid thermal conductivity parameters
+  double initial_tcsolid_moss, initial_tcsolid_f, initial_tcsolid_h;
+  double target_tcsolid_moss, target_tcsolid_f, target_tcsolid_h;
+
+  // Summer and winter nfactor
+  double initial_nfactor_s, initial_nfactor_w;
+  double target_nfactor_s, target_nfactor_w;
+
+  // Layer porosity parameters
+  double initial_poro_moss, initial_poro_f, initial_poro_h;
+  double target_poro_moss, target_poro_f, target_poro_h;
+
+  // Soil bulk density parameters
+  double initial_bulkden_moss, initial_bulkden_f, initial_bulkden_h;
+  double target_bulkden_moss, target_bulkden_f, target_bulkden_h;
+
+  // Hydraulic conductivity at saturation parameters
+  double initial_hksat_moss, initial_hksat_f, initial_hksat_h;
+  double target_hksat_moss, target_hksat_f, target_hksat_h;
+
+  
 private:
 
   void assignVegDimension(string & dir);

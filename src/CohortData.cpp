@@ -37,6 +37,7 @@ void CohortData::clear() {
   cmttype = MISSING_I;
   yrsdist = MISSING_I;
   mthsdist = MISSING_I;
+  dsbinterpolation = false;
   drainage_type = MISSING_I;
   cell_slope = MISSING_D;
   cell_aspect = MISSING_D;

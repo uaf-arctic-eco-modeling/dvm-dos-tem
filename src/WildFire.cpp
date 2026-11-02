@@ -292,7 +292,11 @@ void WildFire::burn(int year) {
     }
 
     for (int il =0; il <cd->m_soil.numsl; il++) {
-      cd->m_soil.frootfrac[il][ip] /= rootfracsum;
+      if(rootfracsum==0){// adding check to prevent divide by zero
+        cd->m_soil.frootfrac[il][ip] = 0.0;
+      }else{
+        cd->m_soil.frootfrac[il][ip] /= rootfracsum;
+      }
     }
   }
 
@@ -681,4 +685,9 @@ void WildFire::setFirData(FirData* fdp) {
 int WildFire::getFRI(){
   return fri;
 }
+
+int WildFire::getSeverity(int year){
+  return exp_fire_severity[year];
+}
+
 

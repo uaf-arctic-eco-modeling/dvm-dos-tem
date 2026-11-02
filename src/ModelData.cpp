@@ -124,6 +124,7 @@ ModelData::ModelData(Json::Value controldata):force_cmt(-1) {
   baseline_start = controldata["model_settings"]["baseline_start"].asInt();
   baseline_end = controldata["model_settings"]["baseline_end"].asInt();
   thermokarst_module = controldata["model_settings"]["thermokarst"].asBool(); 
+  cmt_change = controldata["model_settings"]["cmt_change"].asBool();
   ch4_module = controldata["model_settings"]["ch4"].asBool();
   runon_enabled = controldata["model_settings"]["run-on"].asBool();
   groundwater_enabled = controldata["model_settings"]["groundwater"].asBool();
@@ -247,8 +248,25 @@ void ModelData::set_ch4_module(const bool v) {
 bool ModelData::get_runon_status() {
   return this->runon_enabled;
 }
+void ModelData::set_runon_status(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting runon to " << s;
+  this->runon_enabled = temutil::onoffstr2bool(s);
+}
+void ModelData::set_runon_status(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting runon to " << v;
+  this->runon_enabled = v;
+}
+
 bool ModelData::get_groundwater_status() {
   return this->groundwater_enabled;
+}
+void ModelData::set_groundwater_status(const std::string &s) {
+  BOOST_LOG_SEV(glg, info) << "Setting groundwater to " << s;
+  this->groundwater_enabled = temutil::onoffstr2bool(s);
+}
+void ModelData::set_groundwater_status(const bool v) {
+  BOOST_LOG_SEV(glg, info) << "Setting groundwater to " << v;
+  this->groundwater_enabled = v;
 }
 
 bool ModelData::get_dslmodule() {

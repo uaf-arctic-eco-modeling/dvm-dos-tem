@@ -116,6 +116,9 @@ public :
   void initParameter();
   void initDimension();
   void initLayerStructure(snwstate_dim * snowdim, soistate_dim * soildim);
+
+  void setLayerParamsFromChtlu();
+  
   void set_state_from_restartdata(snwstate_dim *snowdim, soistate_dim *soildim,
                              const RestartData & rdata);
   void resortGroundLayers();
@@ -159,7 +162,6 @@ public :
 
   //
   void checkWaterValidity();
-
 
   double getCarbonForDepthRange(double topz, double bottomz);
 
