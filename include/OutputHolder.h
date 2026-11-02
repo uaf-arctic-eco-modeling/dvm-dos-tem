@@ -37,24 +37,35 @@ public:
   std::vector<double> burnveg2soilblwc_for_output;
   std::vector<double> deadc_for_output;
   std::vector<double> deepc_for_output;
+  std::vector<double> deepdz_for_output;
+  std::vector<float> driving_rainfall_for_output;
+  std::vector<float> driving_snowfall_for_output;
   std::vector<double> dwdc_for_output;
   std::vector<double> minec_for_output;
   std::vector<double> lfnvc_for_output; //non-vascular litterfall C
   std::vector<double> lfnvn_for_output; //non-vascular litterfall N
   std::vector<double> mossdz_for_output;
+  std::vector<double> nlost_for_output;
   std::vector<double> qdrain_for_output;
   std::vector<double> qinfil_for_output;
   std::vector<double> qrunoff_for_output;
+  std::vector<double> rainfall_for_output;
   std::vector<double> reco_for_output;
   std::vector<double> rhdwd_for_output;
   std::vector<double> socfrozen_for_output;
   std::vector<double> socunfrozen_for_output;
   std::vector<double> shlwc_for_output;
+  std::vector<double> shlwdz_for_output;
+  std::vector<double> snowfall_for_output;
   std::vector<double> snowthick_for_output;
   std::vector<double> swe_for_output;
+  std::vector<double> vegntot_for_output;
   std::vector<double> watertab_for_output;
 
   //Variables by layer
+  std::vector<double> netnmin_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> netnmin_for_output;
+
   std::vector<double> rh_tot_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> rh_for_output;
 
@@ -84,6 +95,9 @@ public:
   std::vector<std::array<double, MAX_SOI_LAY>> layerdz_for_output;
   std::vector<std::array<int, MAX_SOI_LAY>> layertype_for_output;
   std::vector<std::array<double, MAX_SOI_LAY>> lwclayer_for_output;
+
+  std::vector<double> orgn_tot_for_output;
+  std::vector<std::array<double, MAX_SOI_LAY>> orgn_for_output;
 
   std::vector<double> tsoil_30_for_output;
   std::vector<double> tsoil_100_for_output;
@@ -129,10 +143,23 @@ public:
   std::vector<std::array<double, NUM_PFT>> ingpp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> ingpp_for_output; 
 
+  std::vector<double> innpp_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> innpp_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> innpp_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> innpp_for_output; 
+
   std::vector<double> npp_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> npp_part_for_output;
   std::vector<std::array<double, NUM_PFT>> npp_pft_for_output;
   std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> npp_for_output; 
+
+  std::vector<double> nuptakest_tot_for_output;
+  std::vector<std::array<double, NUM_PFT_PART>> nuptakest_part_for_output;
+  std::vector<std::array<double, NUM_PFT>> nuptakest_pft_for_output;
+  std::vector<std::array<std::array<double, NUM_PFT>, NUM_PFT_PART>> nuptakest_for_output;
+
+  std::vector<double> nuptakelab_tot_for_output;
+  std::vector<std::array<double, NUM_PFT>> nuptakelab_pft_for_output;
 
   std::vector<double> rg_tot_for_output;
   std::vector<std::array<double, NUM_PFT_PART>> rg_part_for_output;

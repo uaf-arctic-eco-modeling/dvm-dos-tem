@@ -1,0 +1,130 @@
+# Workflow triggered on GitHub release publication (or manual dispatch).
+# Runs test suites, builds and tags Docker images with the release version,
+# compiles the dvmdostem binary, packages it, and uploads the binary and
+# checksum to the GitHub Release.
+
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag name (e.g. v0.8.5)'
+        required: false
+        type: string
+
+jobs:
+  smoke-test:
+    uses: ./.github/workflows/smoke_test.yml
+    secrets: inherit
+
+  doctests:
+    uses: ./.github/workflows/doctests.yml
+    secrets: inherit
+
+  publish-release:
+    needs: [smoke-test, doctests]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Make workspace dirs
+        run: |
+          mkdir -p source
+          mkdir -p input-catalog
+          mkdir -p workflows
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Fetch tags for git describe
+        run: git fetch --prune --unshallow
+        working-directory: source
+
+      - name: Determine release tag
+        id: release-tag
+        working-directory: source
+        run: |
+          TAG="${{ github.event.release.tag_name || inputs.tag_name }}"
+          if [ -z "$TAG" ]; then
+            TAG="$(git describe --tags --abbrev=0 2>/dev/null || git describe --tags)"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_TAG=${TAG}" >> "$GITHUB_ENV"
+          echo "Release tag determined as: ${TAG}"
+
+      - name: Ensure dev image and build binary
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export V_TAG="${RELEASE_TAG}"
+          export DDT_INPUT_CATALOG="$GITHUB_WORKSPACE"/input-catalog
+          export DDT_WORKFLOWS="$GITHUB_WORKSPACE"/workflows
+
+          # Ensure dev image is available
+          bash scripts/ci/ensure-dev-image.sh dev
+
+          # Compile binary inside container
+          docker compose up -d dvmdostem-dev
+          docker compose exec dvmdostem-dev make
+          docker compose stop dvmdostem-dev
+
+      - name: Package compiled binary
+        working-directory: source
+        run: |
+          chmod +x dvmdostem
+          ARCHIVE_NAME="dvmdostem-${RELEASE_TAG}-linux-x86_64.tar.gz"
+          tar -czf "${ARCHIVE_NAME}" dvmdostem
+          sha256sum "${ARCHIVE_NAME}" > "${ARCHIVE_NAME}.sha256"
+          echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> "$GITHUB_ENV"
+
+      - name: Tag and push release Docker images to GHCR
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REGISTRY="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+
+          # Pull cpp-dev cache if present so it can be tagged as well
+          HOSTUID="$(id -u)"
+          HOSTGID="$(id -g)"
+          DEPS_TAG="deps-$( (cat Dockerfile requirements_general_dev.txt requirements_mapping.txt; echo "${HOSTUID}:${HOSTGID}") | sha256sum | cut -c1-16)"
+          docker pull "${REGISTRY}/cpp-dev:${DEPS_TAG}" || true
+          docker tag "${REGISTRY}/cpp-dev:${DEPS_TAG}" "cpp-dev:${RELEASE_TAG}" || true
+
+          # Tag with release version
+          docker tag "dvmdostem-dev:${RELEASE_TAG}" "${REGISTRY}/dvmdostem-dev:${RELEASE_TAG}"
+          docker tag "cpp-dev:${RELEASE_TAG}" "${REGISTRY}/cpp-dev:${RELEASE_TAG}" || true
+
+          # Tag latest
+          docker tag "dvmdostem-dev:${RELEASE_TAG}" "${REGISTRY}/dvmdostem-dev:latest"
+          docker tag "cpp-dev:${RELEASE_TAG}" "${REGISTRY}/cpp-dev:latest" || true
+
+          # Push release tags
+          docker push "${REGISTRY}/dvmdostem-dev:${RELEASE_TAG}"
+          docker push "${REGISTRY}/cpp-dev:${RELEASE_TAG}" || true
+          docker push "${REGISTRY}/dvmdostem-dev:latest"
+          docker push "${REGISTRY}/cpp-dev:latest" || true
+
+      - name: Upload artifacts to GitHub Release
+        working-directory: source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "Uploading assets to release ${RELEASE_TAG}..."
+            gh release upload "${RELEASE_TAG}" \
+              "${ARCHIVE_NAME}" \
+              "${ARCHIVE_NAME}.sha256" \
+              --clobber
+          else
+            echo "Release ${RELEASE_TAG} not yet found on GitHub, skipping asset upload."
+          fi
