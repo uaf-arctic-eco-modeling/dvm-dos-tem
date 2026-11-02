@@ -63,6 +63,8 @@ def load_reduced_dataframe(filepath, xidx=0, yidx=0):
     ds['year'] = ds['string_time'].str.split('-').str[0].astype('int')
     ds['month'] = ds['string_time'].str.split('-').str[1].astype('int')
     ds = ds.drop(columns=['string_time'])
+
+  #Unknown time data type
   else:
     print("Incoming time column is of unhandled type " + str(type(ds['time'][0])))
     exit()
@@ -540,8 +542,11 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
     if seas10[v].min() > 0:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=1.00001*seas10[v].min(), vmax=seas10[v].max())
+    elif seas10[v].min() == 0.0:
+      norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=seas10[v].max()*0.00001, vmax=seas10[v].max())
     else:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=0, vmax=seas10[v].max())
+
     cmap = plt.cm.ScalarMappable(norm=norm,cmap=plt.set_cmap('bwr'))
     cmap.set_array([])
     clrs = pd.DataFrame(plt.get_cmap('bwr')(norm(seas10[v])))
@@ -565,7 +570,7 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
     for i in range(0,len(sclist)):
       scname=sclist[i]
-#      print(scname)
+      print("Scenario: " + scname)
       ax = plt.subplot(nrows, ncols, i + 1)
       bottom = np.zeros(len(result['time'].drop_duplicates()))
 
@@ -586,10 +591,13 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
       ax.set_title(str(scname), fontsize=12)
 
       ax.plot(ald_seas[ald_seas['scenario']==scname]['faketime'], -ald_seas[ald_seas['scenario']==scname]['ALD'], c='blue', linewidth=1.5,linestyle='dashed')
+      #ax.plot(ald_seas[ald_seas['scenario']==scname]['year'], -ald_seas[ald_seas['scenario']==scname]['ALD'], c='blue', linewidth=1.5,linestyle='dashed')
 
       ax.plot(olt_seas[olt_seas['scenario']==scname]['faketime'], -olt_seas[olt_seas['scenario']==scname]['OLT'], c='black', linewidth=1.5,linestyle='dashed')
+      #ax.plot(olt_seas[olt_seas['scenario']==scname]['year'], -olt_seas[olt_seas['scenario']==scname]['OLT'], c='black', linewidth=1.5,linestyle='dashed')
 
       ax.plot(wt10[wt10['scenario']==scname]['faketime'], -wt10[wt10['scenario']==scname]['WATERTAB'], c='cyan', linewidth=1.5,linestyle='dashed')
+      #ax.plot(wt10[wt10['scenario']==scname]['year'], -wt10[wt10['scenario']==scname]['WATERTAB'], c='cyan', linewidth=1.5,linestyle='dashed')
 
     plt.subplots_adjust(left=0.1,bottom=0.1, right=0.8, top=0.85,wspace=0.4,hspace=0.4)
     cax = plt.axes([0.85, 0.1, 0.025, 0.8])
@@ -603,10 +611,14 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     ty = pd.merge(soilstruc[['scenario','year','layer','LAYERDZ','LAYERDEPTH','LAYERDEPTHBOT']],dt2,on=['scenario','year','layer'], how='outer')
     ty = ty[ty['LAYERDEPTH']>=0]
     plt.set_cmap('bwr')
+
     if seas10[v].min() > 0:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=1.00001*seas10[v].min(), vmax=seas10[v].max())
+    elif seas10[v].min() == 0.0:
+      norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=seas10[v].max()*0.00001, vmax=seas10[v].max())
     else:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=0, vmax=seas10[v].max())
+
     cmap = plt.cm.ScalarMappable(norm=norm,cmap=plt.set_cmap('bwr'))
     cmap.set_array([])
     clrs = pd.DataFrame(plt.get_cmap('bwr')(norm(ty[v])))
