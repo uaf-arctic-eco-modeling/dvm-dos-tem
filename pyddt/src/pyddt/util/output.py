@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import netCDF4 as nc
 import pandas as pd
-#import xarray as xr
+import xarray as xr
+from cftime import datetime
 import collections
 
 
@@ -245,6 +246,78 @@ def load_output_dataframe(var=None, stage=None, timeres=None, px_y=None,
   }
 
   return pd.DataFrame(data[slice_tuple].reshape(final_shape)), meta
+
+
+def load_reduced_dataframe(filepath, xidx=0, yidx=0):
+  """Read one grid cell's model output into a table for plotting.
+
+  Parameters
+  ----------
+  filepath : str
+    Path to a NetCDF model output file. For integer-valued time, the path
+    must contain ``monthly`` or ``yearly`` to identify the time resolution.
+  xidx, yidx : int, optional
+    Values of the file's x and y coordinates identifying the grid cell to
+    select. Both default to 0.
+
+  Returns
+  -------
+  pandas.DataFrame
+    Output values for the selected cell, retaining the original ``time``
+    column and any layer, plant functional type, or compartment columns.
+    The spatial columns ``x``, ``y``, and ``albers_conical_equal_area`` are
+    removed. A ``year`` column is added; ``month`` is also added for monthly
+    integer time and calendar dates, with January represented by 1.
+
+  Notes
+  -----
+  Integer time represents elapsed model time in pre-run, equilibrium, and
+  spinup outputs. Monthly values are interpreted as zero-based month counts;
+  yearly values are used directly as years. Calendar dates in transient and
+  scenario outputs supply their calendar year and month instead. Values are
+  not averaged or summed, so multiple rows per time may remain when the file
+  contains layers or plant functional types. An unsupported time type prints
+  a message and exits the program.
+
+  This was developed in conjunction with the simulation comparison
+  report script and may contain elements specific to it that need to
+  be generalized.
+  """
+  ds = xr.open_dataset(filepath)
+  ds = ds.to_dataframe()
+
+  #Add 0-based index column
+  ds.reset_index(inplace=True)
+
+  #Restrict to a single cell
+  ds = ds[(ds['x'] == xidx)]
+  ds = ds[(ds['y'] == yidx)]
+
+  #x,y unnecessary because of single cell reduction
+  ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
+
+  #Construct separated time columns
+  #A time type of int indicates stages PR, EQ, or SP
+  if isinstance(ds['time'][0], np.int64):
+    if 'monthly' in filepath:
+      ds['month'] = (ds['time'] % 12 + 1).astype('int')
+      ds['year'] = (ds['time'] / 12).astype('int')
+    elif 'yearly' in filepath:
+      ds['year'] = ds['time'].astype('int')
+
+  #A time type of cftime.datetime indicates stages TR or SC
+  elif isinstance(ds['time'][0], datetime):
+    ds['string_time'] = ds['time'].astype(pd.StringDtype())
+    ds['year'] = ds['string_time'].str.split('-').str[0].astype('int')
+    ds['month'] = ds['string_time'].str.split('-').str[1].astype('int')
+    ds = ds.drop(columns=['string_time'])
+
+  #Unknown time data type
+  else:
+    print("Incoming time column is of unhandled type " + str(type(ds['time'][0])))
+    exit()
+
+  return ds
 
 
 def load_trsc_dataframe(var=None, timeres=None, px_y=None, px_x=None, 

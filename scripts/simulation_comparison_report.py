@@ -21,9 +21,8 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mplc
-import xarray as xr
 from PIL import Image
-from cftime import datetime
+from pyddt.util.output import load_reduced_dataframe
 
 
 from IPython import embed
@@ -32,44 +31,6 @@ import pdb
 
 # color of plot bars for each PFT
 pftcolorlist = ['darkgreen','limegreen','mediumaquamarine','teal','slateblue','orchid','crimson','lightcoral','peachpuff','sandybrown','darkorange']
-
-
-def load_reduced_dataframe(filepath, xidx=0, yidx=0):
-  ds = xr.open_dataset(filepath)
-  ds = ds.to_dataframe()
-
-  #Add 0-based index column
-  ds.reset_index(inplace=True)
-
-  #Restrict to a single cell
-  ds = ds[(ds['x'] == xidx)]
-  ds = ds[(ds['y'] == yidx)]
-
-  #x,y unnecessary because of single cell reduction
-  ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-
-  #Construct separated time columns
-  #A time type of int indicates stages PR, EQ, or SP
-  if isinstance(ds['time'][0], np.int64):
-    if 'monthly' in filepath:
-      ds['month'] = (ds['time'] % 12 + 1).astype('int')
-      ds['year'] = (ds['time'] / 12).astype('int')
-    elif 'yearly' in filepath:
-      ds['year'] = ds['time'].astype('int')
-
-  #A time type of cftime.datetime indicates stages TR or SC
-  elif isinstance(ds['time'][0], datetime):
-    ds['string_time'] = ds['time'].astype(pd.StringDtype())
-    ds['year'] = ds['string_time'].str.split('-').str[0].astype('int')
-    ds['month'] = ds['string_time'].str.split('-').str[1].astype('int')
-    ds = ds.drop(columns=['string_time'])
-
-  #Unknown time data type
-  else:
-    print("Incoming time column is of unhandled type " + str(type(ds['time'][0])))
-    exit()
-
-  return ds
 
 
 ### Define all plot functions
