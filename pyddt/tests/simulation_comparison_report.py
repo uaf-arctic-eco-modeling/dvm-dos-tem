@@ -15,87 +15,22 @@ import os
 import sys
 import glob
 import argparse
+import textwrap
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as mplc
-import xarray as xr
-from pypdf import PdfWriter
-from PIL import Image
-
-from cftime import datetime
+from pyddt.util.general import merge_pngs_to_pdf
+from pyddt.util.output import load_reduced_dataframe
 
 
+from IPython import embed
+import pdb
 
-
-### Flags
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--POD', nargs='+')
-parser.add_argument('--PODlist', nargs='+')
-parser.add_argument('--scenariolist', nargs='+')
-parser.add_argument('--colorlist', nargs='+')
-parser.add_argument('--widthlist', nargs='+')
-args = parser.parse_args()
-
-
-# path to the directory with the various simulations to compare
-# example: POD='/Users/helene/Helene/TEM/DVMDOSTEM/dvmdostem_workflows/fire_fix/'
-POD = str(args.POD[0])
-
-# list of the subdirectories containing single simulations
-# example: PODlist = ['master_nofire','master_fire','fix1','fix2','fix3']
-PODlist = args.PODlist
-
-# title for each simulations
-# example: scenariolist = ['0. master_nofire','1. master_fire','2. black_carbon_fix','3. root_dist_fix','4. root_dist_removal']
-scenariolist = args.scenariolist
-
-# color and width of plot lines for each scenartio
-# example: colorlist = ['black', 'brown', 'cyan','green','blue']
-# example: widthlist = [4, 3.2, 2.4, 1.6, 0.8]
-colorlist = args.colorlist
-widthlist = args.widthlist
 
 # color of plot bars for each PFT
 pftcolorlist = ['darkgreen','limegreen','mediumaquamarine','teal','slateblue','orchid','crimson','lightcoral','peachpuff','sandybrown','darkorange']
-
-
-def load_reduced_dataframe(filepath, xidx=0, yidx=0):
-  ds = xr.open_dataset(filepath)
-  ds = ds.to_dataframe()
-
-  #Add 0-based index column
-  ds.reset_index(inplace=True)
-
-  #Restrict to a single cell
-  ds = ds[(ds['x'] == xidx)]
-  ds = ds[(ds['y'] == yidx)]
-
-  #x,y unnecessary because of single cell reduction
-  ds = ds.drop(columns=['y','x','albers_conical_equal_area'])
-
-  #Construct separated time columns
-  #A time type of int indicates stages PR, EQ, or SP
-  if isinstance(ds['time'][0], np.int64):
-    if 'monthly' in filepath:
-      ds['month'] = (ds['time'] % 12 + 1).astype('int')
-      ds['year'] = (ds['time'] / 12).astype('int')
-    elif 'yearly' in filepath:
-      ds['year'] = ds['time'].astype('int')
-
-  #A time type of cftime.datetime indicates stages TR or SC
-  elif isinstance(ds['time'][0], datetime):
-    ds['string_time'] = ds['time'].astype(pd.StringDtype())
-    ds['year'] = ds['string_time'].str.split('-').str[0].astype('int')
-    ds['month'] = ds['string_time'].str.split('-').str[1].astype('int')
-    ds = ds.drop(columns=['string_time'])
-  else:
-    print("Incoming time column is of unhandled type " + str(type(ds['time'][0])))
-    exit()
-
-  return ds
 
 
 ### Define all plot functions
@@ -115,9 +50,9 @@ def ts_flux(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl,stage):
     dt = pd.DataFrame()
     for j in range(len(simlist)):
       simlist[j]
-      PODout = (os.path.join(simpath,simlist[j],'output'))
-#      print(PODout)
-      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      sim_data_path = (os.path.join(simlist[j],'output'))
+#      print(sim_data_path)
+      fileglob = glob.glob(sim_data_path + '/' + VAR + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -170,9 +105,9 @@ def ts_stock(simpath,simlist,vlist,sclist,clist,wlist,oname,ttl,stage):
     dt = pd.DataFrame()
     for j in range(len(simlist)):
       simlist[j]
-      PODout = (os.path.join(simpath,simlist[j],'output'))
-#      print(PODout)
-      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      sim_data_path = (os.path.join(simlist[j],'output'))
+#      print(sim_data_path)
+      fileglob = glob.glob(sim_data_path + '/' + VAR + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -223,9 +158,9 @@ def seasonality(simpath, simlist, vlist, sclist, clist, oname, stage):
     #For each simulation subdirectory
     for i in range(len(simlist)):
       simlist[i]
-      PODout = (os.path.join(simpath,simlist[i],'output'))
+      sim_data_path = (os.path.join(simlist[i],'output'))
 
-      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      fileglob = glob.glob(sim_data_path + '/' + VAR + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -283,10 +218,10 @@ def soilcnprofile(simpath,simlist,sclist,stage):
     dt = pd.DataFrame()
     for i in range(len(simlist)):
       simlist[i]
-      PODout = (os.path.join(simpath,simlist[i],'output'))
-#      print(PODout)
+      sim_data_path = (os.path.join(simlist[i],'output'))
+#      print(sim_data_path)
 
-      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      fileglob = glob.glob(sim_data_path + '/' + VAR + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -302,9 +237,9 @@ def soilcnprofile(simpath,simlist,sclist,stage):
   ald = pd.DataFrame()
   for i in range(len(simlist)):
     simlist[i]
-    PODout = (os.path.join(simpath,simlist[i],'output'))
-#    print(PODout)
-    fileglob = glob.glob(PODout + "/ALD_*_" + stage + ".nc")
+    sim_data_path = (os.path.join(simlist[i],'output'))
+#    print(sim_data_path)
+    fileglob = glob.glob(sim_data_path + "/ALD_*_" + stage + ".nc")
     if len(fileglob) > 0:
       filepath = fileglob[0]
 
@@ -469,13 +404,13 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     dt = pd.DataFrame()
     for i in range(len(simlist)):
       simlist[i]
-      PODout = (os.path.join(POD,simlist[i],'output'))
-#      print(PODout)
+      sim_data_path = (os.path.join(simlist[i],'output'))
+#      print(sim_data_path)
 
-    #   if len(glob.glob(PODout + '/' + VAR + "_*_eq.nc")) > 0:
-    #     filepath = glob.glob(PODout + '/' + VAR + "_*_eq.nc")[0]
+    #   if len(glob.glob(sim_data_path + '/' + VAR + "_*_eq.nc")) > 0:
+    #     filepath = glob.glob(sim_data_path + '/' + VAR + "_*_eq.nc")[0]
 
-      fileglob = glob.glob(PODout + '/' + VAR + "_*_" + stage + ".nc")
+      fileglob = glob.glob(sim_data_path + '/' + VAR + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -496,10 +431,10 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     dt2 = pd.DataFrame()
     for i in range(len(simlist)):
       simlist[i]
-      PODout = (os.path.join(simpath,simlist[i],'output'))
-#      print(PODout)
+      sim_data_path = (os.path.join(simlist[i],'output'))
+#      print(sim_data_path)
 
-      fileglob = glob.glob(PODout + '/' + str(v) + "_*_" + stage + ".nc")
+      fileglob = glob.glob(sim_data_path + '/' + str(v) + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -518,12 +453,12 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     ts = seas10[['scenario','year','month','time']].drop_duplicates()
 #    print('ald')
     ald = pd.DataFrame()
-    for i in range(len(PODlist)):
-      PODlist[i]
-      PODout = (os.path.join(POD,PODlist[i],'output'))
-#      print(PODout)
+    for i in range(len(simlist)):
+      simlist[i]
+      sim_data_path = (os.path.join(simlist[i],'output'))
+#      print(sim_data_path)
 
-      fileglob = glob.glob(PODout + "/ALD_*_" + stage + ".nc")
+      fileglob = glob.glob(sim_data_path + "/ALD_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -540,10 +475,10 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     wt2 = pd.DataFrame()
     for i in range(len(simlist)):
       simlist[i]
-      PODout = (os.path.join(simpath,simlist[i],'output'))
-#      print(PODout)
+      sim_data_path = (os.path.join(simlist[i],'output'))
+#      print(sim_data_path)
 
-      fileglob = glob.glob(PODout + "/WATERTAB_*_" + stage + ".nc")
+      fileglob = glob.glob(sim_data_path + "/WATERTAB_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -555,7 +490,9 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
         out['scenario'] = sclist[i]
         wt = pd.concat([wt,ds],axis=0)
         wt2 = pd.concat([wt2,out],axis=0)
-    wt10 = wt[wt['year']>wt['year'].max()-10]
+    # Keep an independent table for the last ten years so adding plotting
+    # columns below does not modify a potentially shared slice of wt.
+    wt10 = wt.loc[wt['year'] > wt['year'].max() - 10].copy()
 #    print('olt')
     olt = pd.DataFrame(soilstruc[soilstruc['LAYERTYPE']==3].groupby(['scenario','year'])['LAYERDEPTH'].min())
     olt.reset_index(inplace=True)
@@ -566,8 +503,11 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
     if seas10[v].min() > 0:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=1.00001*seas10[v].min(), vmax=seas10[v].max())
+    elif seas10[v].min() == 0.0:
+      norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=seas10[v].max()*0.00001, vmax=seas10[v].max())
     else:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=0, vmax=seas10[v].max())
+
     cmap = plt.cm.ScalarMappable(norm=norm,cmap=plt.set_cmap('bwr'))
     cmap.set_array([])
     clrs = pd.DataFrame(plt.get_cmap('bwr')(norm(seas10[v])))
@@ -584,15 +524,13 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
 
     #Producing a fake time index since the various plotting calls do
     # not work well with the datetime values in 'time' for tr and sc
-    month_count = int(len(ald_seas['time']) / len(sclist))
-    #print("month count: " + str(month_count))
-    ald_seas['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
-    olt_seas['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
-    wt10['faketime'] = list(range(0, month_count)) + list(range(0, month_count))
+    # Number months separately for each scenario so any number of simulations
+    # can be compared, including simulations with different time spans.
+    for frame in (ald_seas, olt_seas, wt10):
+      frame['faketime'] = frame.groupby('scenario').cumcount()
 
     for i in range(0,len(sclist)):
       scname=sclist[i]
-#      print(scname)
       ax = plt.subplot(nrows, ncols, i + 1)
       bottom = np.zeros(len(result['time'].drop_duplicates()))
 
@@ -613,10 +551,13 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
       ax.set_title(str(scname), fontsize=12)
 
       ax.plot(ald_seas[ald_seas['scenario']==scname]['faketime'], -ald_seas[ald_seas['scenario']==scname]['ALD'], c='blue', linewidth=1.5,linestyle='dashed')
+      #ax.plot(ald_seas[ald_seas['scenario']==scname]['year'], -ald_seas[ald_seas['scenario']==scname]['ALD'], c='blue', linewidth=1.5,linestyle='dashed')
 
       ax.plot(olt_seas[olt_seas['scenario']==scname]['faketime'], -olt_seas[olt_seas['scenario']==scname]['OLT'], c='black', linewidth=1.5,linestyle='dashed')
+      #ax.plot(olt_seas[olt_seas['scenario']==scname]['year'], -olt_seas[olt_seas['scenario']==scname]['OLT'], c='black', linewidth=1.5,linestyle='dashed')
 
       ax.plot(wt10[wt10['scenario']==scname]['faketime'], -wt10[wt10['scenario']==scname]['WATERTAB'], c='cyan', linewidth=1.5,linestyle='dashed')
+      #ax.plot(wt10[wt10['scenario']==scname]['year'], -wt10[wt10['scenario']==scname]['WATERTAB'], c='cyan', linewidth=1.5,linestyle='dashed')
 
     plt.subplots_adjust(left=0.1,bottom=0.1, right=0.8, top=0.85,wspace=0.4,hspace=0.4)
     cax = plt.axes([0.85, 0.1, 0.025, 0.8])
@@ -630,10 +571,14 @@ def soilenvprofile(simpath,simlist,vlist,sclist,oname,stage):
     ty = pd.merge(soilstruc[['scenario','year','layer','LAYERDZ','LAYERDEPTH','LAYERDEPTHBOT']],dt2,on=['scenario','year','layer'], how='outer')
     ty = ty[ty['LAYERDEPTH']>=0]
     plt.set_cmap('bwr')
+
     if seas10[v].min() > 0:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=1.00001*seas10[v].min(), vmax=seas10[v].max())
+    elif seas10[v].min() == 0.0:
+      norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=seas10[v].max()*0.00001, vmax=seas10[v].max())
     else:
       norm = mplc.TwoSlopeNorm(vmin=seas10[v].min(), vcenter=0, vmax=seas10[v].max())
+
     cmap = plt.cm.ScalarMappable(norm=norm,cmap=plt.set_cmap('bwr'))
     cmap.set_array([])
     clrs = pd.DataFrame(plt.get_cmap('bwr')(norm(ty[v])))
@@ -679,9 +624,9 @@ def vegdynamic(simpath,simlist,vlist,sclist,oname,stage):
     data = pd.DataFrame()
     for i in range(len(simlist)):
       simlist[i]
-      PODout = (os.path.join(simpath,simlist[i],'output'))
-#      print(PODout)
-      fileglob = glob.glob(PODout + '/' + str(v) + "_*_" + stage + ".nc")
+      sim_data_path = (os.path.join(simlist[i],'output'))
+#      print(sim_data_path)
+      fileglob = glob.glob(sim_data_path + '/' + str(v) + "_*_" + stage + ".nc")
       if len(fileglob) > 0:
         filepath = fileglob[0]
 
@@ -729,87 +674,138 @@ def vegdynamic(simpath,simlist,vlist,sclist,oname,stage):
 
 
 
+def cmdline_parse(argv=None):
+  """Read report options and check that each simulation has a plot style."""
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description="Compare simulation outputs and write plots and a PDF report.",
+    epilog=textwrap.dedent(r"""
+      Entries in the four lists correspond by position. Quote scenario names
+      that contain spaces. Relative data paths are relative to the current
+      working directory.
+
+      Example:
+        python scripts/simulation_comparison_report.py \
+          --outdir /data/comparison \
+          --data_dirs /data/baseline /data/late_climate \
+          --scenariolist baseline "late climate" \
+          --colorlist black blue --widthlist 4 2
+
+      Plots are saved in OUTDIR/results/ and the report in OUTDIR/result.pdf.
+    """)
+  )
+  parser.add_argument('--outdir', required=True, metavar='OUTDIR',
+      help='Existing directory in which to create results/ and result.pdf.')
+  parser.add_argument('--data_dirs', required=True, nargs='+', metavar='DIR',
+      help='Simulation directories, each containing an output/ subdirectory.')
+  parser.add_argument('--scenariolist', required=True, nargs='+', metavar='NAME',
+      help='Title for each simulation, in the same order as --data_dirs.')
+  parser.add_argument('--colorlist', required=True, nargs='+', metavar='COLOR',
+      help='Plot line color for each simulation.')
+  parser.add_argument('--widthlist', required=True, nargs='+', type=float,
+      metavar='WIDTH', help='Plot line width for each simulation.')
+  parser.add_argument('--stage', choices=('pr', 'eq', 'sp', 'tr', 'sc'),
+      default='eq', help='Simulation stage to compare (default: eq).')
+  args = parser.parse_args(argv)
+
+  # Each directory needs its own label, color, and width. Check before reading
+  # data or creating files so an incomplete list produces a useful error.
+  list_names = ('data_dirs', 'scenariolist', 'colorlist', 'widthlist')
+  counts = {name: len(getattr(args, name)) for name in list_names}
+  if len(set(counts.values())) != 1:
+    parser.error('all four lists must have the same number of entries: ' +
+        ', '.join('--{}={}'.format(name, count)
+                  for name, count in counts.items()))
+  if not os.path.isdir(args.outdir):
+    parser.error("--outdir '{}' does not exist".format(args.outdir))
+  # Protect earlier reports before creating plots or writing any new files.
+  # Check both destinations because either may remain from a previous run.
+  existing_paths = [os.path.join(args.outdir, name)
+                    for name in ('results', 'result.pdf')
+                    if os.path.lexists(os.path.join(args.outdir, name))]
+  if existing_paths:
+    parser.error('report output already exists: {}. Manually delete or move '
+        'these paths before running the report generator again.'.format(
+            ', '.join(existing_paths)))
+  for directory in args.data_dirs:
+    if not os.path.isdir(os.path.join(directory, 'output')):
+      parser.error("--data_dirs '{}' must contain an output/ directory".format(
+          directory))
+  return args
 
 
+if __name__ == '__main__':
+  args = cmdline_parse()
+  outdir = args.outdir
+  data_dirs = args.data_dirs
+  scenariolist = args.scenariolist
+  colorlist = args.colorlist
+  widthlist = args.widthlist
+  stage = args.stage
 
-### Create all plots
-print("Generating single plots...")
+  print("Scenarios:")
+  for scname in scenariolist:
+    print(scname)
+ 
 
-os.mkdir(os.path.join(POD,'results'))
+  ### Create all plots
+  print("Generating single plots...")
 
-stage = 'eq'
+  os.mkdir(os.path.join(outdir,'results'))
 
-print("Generating timeseries flux plots...")
-VARlist=['RHSOM','GPP','NPP','LFVC','RG','RM']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series',stage)
+  print("Generating timeseries flux plots...", end="", flush=True)
+  VARlist=['RHSOM','GPP','NPP','LFVC','RG','RM']
+  ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series',stage)
 
-VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LFVN']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', stage)
+  VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LFVN']
+  ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', stage)
 
-VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
-ts_flux(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', stage)
-
-print("Generating ts stock plots...")
-VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series', stage)
-
-VARlist=['AVLN','ORGN','VEGNSTR','NETNMIN','LFVN']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series',stage)
-
-VARlist=['DEADC','DWDC','DEADN','DWDN']
-ts_stock(POD,PODlist,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', stage)
-
-print("Generating seasonality plots...")
-VARlist=['GPP','RHSOM','LAI']
-seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Bio',stage)
-
-#Commented out when EET by PFT was disabled. This will need to
-# be modified to work with ecosystem EET or wait until EET by
-# PFT is fixed.
-#VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
-#seasonality(POD,PODlist,VARlist,scenariolist,colorlist,'Seas_Env', stage)
-
-print("Generating soil CN plots...")
-soilcnprofile(POD,PODlist,scenariolist,stage)
-
-print("Generating soil env plots...")
-VARlist=['TLAYER','VWCLAYER']
-soilenvprofile(POD,PODlist,VARlist,scenariolist,'Profile',stage)
-
-print("Generating vegetation dynamic plots...")
-VARlist=['VEGC','VEGNSTR']
-vegdynamic(POD,PODlist,VARlist,scenariolist,'Veg_Dyn',stage)
+  VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
+  ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist, 'fire', 'Yearly Wildfire Flux Time Series', stage)
+  print("Done")
 
 
+  print("Generating ts stock plots...", end="", flush=True)
+  VARlist=['SHLWC','DEEPC','MINEC','SOMRAWC','SOMA','SOMPR','SOMCR','VEGC']
+  ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist, 'carbon','Yearly Carbon Stock Time Series', stage)
+
+  VARlist=['AVLN','ORGN','VEGNSTR','NETNMIN','LFVN']
+  ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Stock Time Series',stage)
+
+  VARlist=['DEADC','DWDC','DEADN','DWDN']
+  ts_stock(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'wildfire','Yearly Burned C, N Stock in Time series', stage)
+  print("Done")
 
 
+  print("Generating seasonality plots...", end="", flush=True)
+  VARlist=['GPP','RHSOM','LAI']
+  seasonality(outdir,data_dirs,VARlist,scenariolist,colorlist,'Seas_Bio',stage)
 
-### Merge all plots to a pdf report
-
-print("Generating final report...")
-
-listpng = os.listdir(os.path.join(POD,'results'))
-listpng2 = [ x for x in listpng if '.png' in x ]
-
-for png in listpng2:
-  image_1 = Image.open(os.path.join(POD,'results',png))
-  im_1 = image_1.convert('RGB')
-  im_1.save(os.path.join(POD,'results',png.replace(".png", "") + '.pdf'))
-#  os.remove(os.path.join(POD,'results',png))
-
-if os.path.isfile(os.path.join(POD,'result.pdf')):   
-  os.remove(os.path.join(POD,'result.pdf'))
-
-listpdf = os.listdir(os.path.join(POD,'results'))
-listpdf2 = [ x for x in listpdf if '.pdf' in x ]
-
-writer = PdfWriter()
-for pdf in sorted(listpdf2):
-  writer.append(os.path.join(POD,'results',pdf))
-  os.remove(os.path.join(POD,'results',pdf))
-
-writer.write(os.path.join(POD,'result.pdf'))
-
-print("Done")
+  #Commented out when EET by PFT was disabled. This will need to
+  # be modified to work with ecosystem EET or wait until EET by
+  # PFT is fixed.
+  #VARlist=['SNOWTHICK','EET','PET','TRANSPIRATION','WATERTAB']
+  #seasonality(outdir,data_dirs,VARlist,scenariolist,colorlist,'Seas_Env', stage)
+  print("Done")
 
 
+  print("Generating soil CN plots...", end="", flush=True)
+  soilcnprofile(outdir,data_dirs,scenariolist,stage)
+  print("Done")
+
+
+  print("Generating soil env plots...", end="", flush=True)
+  VARlist=['TLAYER','VWCLAYER']
+  soilenvprofile(outdir,data_dirs,VARlist,scenariolist,'Profile',stage)
+  print("Done")
+
+
+  print("Generating vegetation dynamic plots...", end="", flush=True)
+  VARlist=['VEGC','VEGNSTR']
+  vegdynamic(outdir,data_dirs,VARlist,scenariolist,'Veg_Dyn',stage)
+  print("Done")
+
+
+  print("Generating final report...")
+  merge_pngs_to_pdf(outdir);
+  print("Done merging plots into a single report pdf")
