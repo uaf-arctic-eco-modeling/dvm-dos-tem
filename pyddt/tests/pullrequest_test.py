@@ -86,7 +86,7 @@ test_output_set = [
   "NETNMIN y m",
   "NIMMOB y m",
   "NPP y m pft",
-  "NRESORB y m",
+  "NRESORPTION y m",
   "NUPTAKELAB y m",
   "NUPTAKEST y m",
   "ORGN y m l",

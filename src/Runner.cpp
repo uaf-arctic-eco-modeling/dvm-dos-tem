@@ -3713,13 +3713,13 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
   map_itr = netcdf_outputs.end();
 
 
-  //NRESORB
-  map_itr = netcdf_outputs.find("NRESORB");
+  //NRESORPTION
+  map_itr = netcdf_outputs.find("NRESORPTION");
   if(map_itr != netcdf_outputs.end()){
-    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NRESORB";
+    BOOST_LOG_SEV(glg, debug)<<"NetCDF output: NRESORPTION";
     curr_spec = map_itr->second;
 
-    #pragma omp critical(outputNRESORB)
+    #pragma omp critical(outputNRESORPTION)
     {
       //PFT and compartment
       if(curr_spec.pft && curr_spec.compartment){
@@ -3793,7 +3793,7 @@ void Runner::output_netCDF(std::map<std::string, OutputSpec> &netcdf_outputs, in
 
       }
     }
-  }//end NRESORB
+  }//end NRESORPTION
   map_itr = netcdf_outputs.end();
 
 
