@@ -68,7 +68,8 @@ function setup() {
   # Use --tags so that lightweight tags are found. Useful for local tagging
   # as well as making sure that images built during the release process are 
   # appropriately tagged.
-  GIT_VERSION=$(git describe --tags)
+  GIT_VERSION=$(git describe --tags) || exit 1
+  check_image_versions
 
   # This helps with sharing host folders to container. It is important that the
   # user in the container has the same uid/gid as the host user so that both
@@ -78,6 +79,41 @@ function setup() {
   export HOSTUID=$(id -u $(logname))
   export HOSTGID=$(id -g $(logname))
 
+}
+
+# Read only V_TAG; do not execute the contents of .env as shell code.
+function check_image_versions() {
+  local env_version="" images
+  if [[ -f .env ]]; then
+    env_version=$(sed -nE "s/^[[:space:]]*(export[[:space:]]+)?V_TAG[[:space:]]*=[[:space:]]*(.*)/\2/p" .env | tail -n 1)
+    env_version=$(printf '%s' "$env_version" | sed -E "s/[[:space:]]+#.*$//; s/[[:space:]]+$//; s/^[\"']//; s/[\"']$//")
+  fi
+  images=$(docker image ls --format '{{.Repository}}:{{.Tag}}') || {
+    echo "ERROR: Cannot list local Docker images. Check that Docker is running and accessible." >&2
+    exit 1
+  }
+  echo "Docker image version check:"
+  echo "  Current git describe --tags: $GIT_VERSION"
+  echo "  .env V_TAG: ${env_version:-<unset or .env missing>}"
+  echo "  Existing local project images (suffix after ':'):"
+  local project_images
+  project_images=$(printf '%s\n' "$images" | awk '/^(cpp-dev|dvmdostem-[^:]+):/ { print "    " $0 }' | sort -u)
+  echo "${project_images:-    <none>}"
+  if [[ -n "$env_version" && "$env_version" != "$GIT_VERSION" ]]; then
+    echo "WARNING: .env V_TAG differs from the current Git version. This wrapper builds with $GIT_VERSION; Compose uses .env V_TAG." >&2
+    echo "Update V_TAG in .env to $GIT_VERSION when you want Compose to use the newly built images." >&2
+  fi
+}
+
+function require_parent_image() {
+  local repository=$1 build_option=$2
+  if ! docker image inspect "$repository:$GIT_VERSION" >/dev/null 2>&1; then
+    echo "ERROR: Required local parent image $repository:$GIT_VERSION is missing." >&2
+    echo "See the version check above for existing image suffixes, .env V_TAG, and the current Git version." >&2
+    echo "Build the prerequisite with ./docker-build-wrapper.sh $build_option (and its prerequisites), or check out the Git version matching your existing images." >&2
+    echo "Changing .env alone will not change this wrapper's build tag. Stopping before Docker attempts a registry pull." >&2
+    exit 1
+  fi
 }
 
 function build_all() {
@@ -100,6 +136,7 @@ function build_cpp_dev() {
 }
 
 function build_dev() {
+  require_parent_image cpp-dev cpp-dev
   # IMAGE FOR GENERAL DVMDOSTEM DEVELOPMENT 
   # Makes the specific dvmdostem development image with dvmdostem specific
   # dependencies installed, e.g: boost, netcdf, jsoncpp, etc. Intention is that
@@ -112,6 +149,7 @@ function build_dev() {
 }
 
 function build_hpc_dev() {
+  require_parent_image dvmdostem-dev dev
   echo "Building hpc-oriented dev image for $GIT_VERSION using hostuid=$HOSTUID and hostgid=$HOSTGID"
   docker build --build-arg GIT_VERSION=$GIT_VERSION \
                --build-arg UID=$HOSTUID --build-arg GID=$HOSTGID \
@@ -119,6 +157,7 @@ function build_hpc_dev() {
 }
 
 function build_autocal() {
+  require_parent_image dvmdostem-dev dev
   # IMAGE FOR DVMDOSTEM AUTO-CALIBRATION WITH MADS
   # This adds the Julia Language and the Mads Package to enable auto-calibration.
   # Otherwise the usage is basically the same as the dev container with the same
@@ -130,6 +169,7 @@ function build_autocal() {
 }
 
 function build_build() {
+  require_parent_image dvmdostem-dev dev
   # IMAGE FOR BUILDING (COMPILING) DVMDOSTEM
   # This is for a stand-alone container that can be used to compile the
   # dvmdostem binary without needing to mount volumes when the container
@@ -144,6 +184,7 @@ function build_build() {
 }
 
 function build_run() {
+  require_parent_image dvmdostem-dev dev
   # IMAGE FOR SIMPLY RUNNING DMVDOSTEM AND ASSOCIATED SCRIPTS
   # A lean images with only the bare minimum stuff to run dvmdostem
   # Does NOT have development tools, compilers, editors, etc

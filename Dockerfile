@@ -188,7 +188,8 @@ RUN CC=mpicc CPPFLAGS=-I/usr/include/hdf5/openmpi/ \
              ./configure --enable-parallel-tests
 RUN make install
 
-ENV LD_LIBRARY_PATH="/usr/local/lib/:$LD_LIBRARY_PATH"
+RUN printf '%s\n' '/usr/local/lib' > /etc/ld.so.conf.d/netcdf.conf \
+  && ldconfig
 
 RUN rm -rf /var/lib/apt/lists/*
 USER $UNAME
@@ -431,4 +432,3 @@ ENV PATH="/work/scripts/util:$PATH"
 
 #Lots of good ideas here:
 # https://github.com/cpp-projects-showcase/docker-images/blob/master/ubuntu2004/Dockerfile
-
