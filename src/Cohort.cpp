@@ -844,6 +844,9 @@ void Cohort::updateMonthly_Dsb(const int & yrind, const int & currmind, std::str
   
   if(md->get_thermokarst_module()){
     updateMonthly_Thermokarst(yrind, currmind, stage);
+    cd.drainage_type = 1;
+    md->set_runon_status(true);
+    md->set_groundwater_status(true);
   }
   
   //updateMonthly_Flood(...)

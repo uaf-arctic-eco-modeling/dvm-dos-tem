@@ -359,7 +359,7 @@ void CohortLookup::assignBgcCalparSoil(std::string & dircmt) {
 
   // get a list of data for the cmt number
   std::list<std::string> l = temutil::parse_parameter_file(
-      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 35
+      dircmt + "cmt_calparbgc.txt", temutil::cmtcode2num(this->cmtcode), 41
   );
 
   // ignoring vegetation parameters by erasing lines read in 
