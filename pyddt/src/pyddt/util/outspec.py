@@ -387,7 +387,7 @@ def cmdline_run(args):
       #('Nuptake','NUPTAKE'), 
       ('VegCarbon','VEGC'),
       ('VegStructuralNitrogen','VEGNSTR'),
-      ('MossDeathC','MOSSDEATHC'),
+      ('MossDeathC','LFNVC'),
       ('CarbonShallow','SHLWC'),
       ('CarbonDeep','DEEPC'),
       ('CarbonMineralSum','MINEC'),
@@ -397,7 +397,7 @@ def cmdline_run(args):
 
     data = csv_file_to_data_dict_list(args.file)
 
-    for v in "MOSSDEATHC SHLWC DEEPC MINEC ORGN AVLN".split():
+    for v in "LFNVC SHLWC DEEPC MINEC ORGN AVLN".split():
       data = toggle_on_variable(data, v, 'yearly', verbose=args.DEBUG)
 
     for v in "INGPP INNPP NPP GPP".split():

@@ -22,7 +22,7 @@ calibration_targets = {
       'Stem': {'units': 'g/m2', 'desc': '', 'comment': 'vegnw', 'ref': '', 'ncname': 'VEGN'},
       'Root': {'units': 'g/m2', 'desc': '', 'comment': 'vegnr', 'ref': '', 'ncname': 'VEGN'},
     },
-    'MossDeathC': {'units': 'g/m2', 'desc': '', 'comment': 'dmossc', 'ref': '', 'ncname': 'MOSSDEATHC'},
+    'MossDeathC': {'units': 'g/m2', 'desc': '', 'comment': 'dmossc', 'ref': '', 'ncname': 'LFNVC'},
     'CarbonShallow': {'units': 'g/m2', 'desc': '', 'comment': 'shlwc', 'ref': '', 'ncname': 'SHLWC'},
     'CarbonDeep': {'units': 'g/m2', 'desc': '', 'comment': 'deep', 'ref': '', 'ncname': 'DEEPC'},
     'CarbonMineralSum': {'units': 'g/m2', 'desc': '', 'comment': 'minec', 'ref': '', 'ncname': 'MINEC'},
