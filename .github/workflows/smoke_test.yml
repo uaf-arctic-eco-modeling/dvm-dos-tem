@@ -79,6 +79,10 @@ jobs:
           services: dvmdostem-dev
           cwd: source
 
+      - name: Run fast Mechanical tests
+        run: ./scripts/test.sh mechanical
+        working-directory: source
+
       - name: run help
         run: docker compose exec dvmdostem-dev dvmdostem --help
         working-directory: source
@@ -91,4 +95,3 @@ jobs:
       - name: see output
         run: |
           ls source/output
-
