@@ -8,7 +8,7 @@
 import subprocess
 import glob
 import pyddt.util.run_util
-import pyddt.util.test_util
+import pyddt.util.netcdf
 
 #Configuration settings relevant for all cases
 test_config = {
@@ -143,7 +143,7 @@ def run_pr_test():
             + "output/" + varname + "_*_eq.nc"
     fileB = glob.glob(patternB)[0]
 
-    filesmatch = pyddt.util.test_util.compare_nc_with_nco(fileA, fileB, varname, True)
+    filesmatch = pyddt.util.netcdf.compare_nc_with_nco(fileA, fileB, varname, True)
     if not filesmatch:
       print("{} files differ".format(varname))
 
