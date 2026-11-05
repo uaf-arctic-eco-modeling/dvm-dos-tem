@@ -105,15 +105,20 @@ Visualize run:
 
 ## Testing and Continuous Integration (CI)
 
-This project has a very basic CI workflow implemented using Github Actions. When
-a pull request is made to the `master` branch, an action is run that checks out
-the code, builds one of the Docker images, compiles the `dvmdostem` binary and
-runs the model using the demo data for a short number of years. This test does
-not confirm any of the scientific aspects of the model and does not exercise any
-of the supporting pre- and post-processing tools. Extending and improving the
-CI coverage remains an open project. We would like for future development to 
-improve overall test coverage and setup more actions to run the tests. For more 
-information about the testing and CI, see the [Testing and Deployment](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/software_development_info.html#testing-and-deployment) of the User Guide.
+Run the fast Mechanical test tier in the same Docker environment used by CI:
+
+    $ ./scripts/test.sh mechanical
+
+This command requires the `dvmdostem-dev` service to be running. Build the image
+with `./docker-build-wrapper.sh dev`, configure `.env` as described above, and
+start the service with `docker compose up -d dvmdostem-dev`. The command currently
+validates the supported pytest configuration behavior. It does not evaluate
+scientific model outputs.
+
+CI also builds the Docker image, compiles the `dvmdostem` binary, and executes a
+short model run using the demo data. For more information about testing and CI,
+see the [Testing and Deployment](https://uaf-arctic-eco-modeling.github.io/dvm-dos-tem/software_development_info.html#testing-and-deployment)
+of the User Guide.
 
 > [!WARNING]
 > Sept 2022 - We are in the process of updating the entire documentation
