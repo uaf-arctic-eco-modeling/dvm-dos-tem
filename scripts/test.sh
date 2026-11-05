@@ -25,7 +25,13 @@ case $1 in
   mechanical)
     docker compose exec -T --workdir /work dvmdostem-dev \
       pytest -q pyddt/tests/test_config.py
+      #pytest -q pyddt/tests/test_config_util.py
 
+      pytest --doctest-glob "doctests_*" \
+        pyddt/tests/doctests/doctests_param_util.md \
+        pyddt/tests/doctests/doctests_outspec_utils.md \
+        #pyddt/tests/doctests/doctests_setup_working_directory.md \
+        pyddt/tests/doctests/doctests_util_general.md
 
     ;;
   *)
