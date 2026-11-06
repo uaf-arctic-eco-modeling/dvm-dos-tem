@@ -4,7 +4,7 @@
 
 import os
 import platform
-import distutils.spawn
+import shutil
 import subprocess
 
 USEOMP = False
@@ -76,6 +76,8 @@ src_files = Split("""src/TEM.cpp
                      src/Vegetation_Bgc.cpp
                      src/Vegetation_Env.cpp""")
 
+test_src_files = Split("""tests/cpp/TestMain.cpp""")
+
 
 platform_name = platform.system()
 release = platform.release()
@@ -87,7 +89,7 @@ platform_include_path = []
 platform_library_path = []
 
 # By default, attempt to find g++. Will be overwritten later if necessary.
-compiler = distutils.spawn.find_executable('g++')
+compiler = shutil.which('g++')
 print(compiler)
 
 # Determine platform and modify libraries and paths accordingly
@@ -125,7 +127,7 @@ elif platform_name == 'Darwin':
   # On OSX, using Homebrew, alternate g++ versions are installed so as not
   # to interfere with the system g++, so here, we have to set the compiler
   # to the specific version of g++ that we need.
-  compiler = distutils.spawn.find_executable('g++-4.8')
+  compiler = shutil.which('g++-4.8')
 
   platform_include_path = ['/usr/local/include']
   platform_library_path = ['/usr/local/lib']
@@ -197,7 +199,7 @@ if(USEOMP):
 
 # Modify setup for MPI, if necessary
 if(USEMPI):
-  compiler = distutils.spawn.find_executable('mpic++')
+  compiler = shutil.which('mpic++')
   print(compiler)
 
   # append src/parallel-code stuff to src_files and include_paths and libs
@@ -214,8 +216,11 @@ if(USEMPI):
 
 print("Compiler: " + compiler)
 
-GIT_SHA = subprocess.Popen('git describe --abbrev=6 --dirty --always --tags', stdout=subprocess.PIPE, shell=True).stdout.read().strip()
-compiler_flags += ' -DGIT_SHA=\\"' + str(GIT_SHA) + '\\"'
+GIT_SHA = subprocess.check_output(
+    ['git', '-c', 'safe.directory={}'.format(os.path.abspath('.')),
+     'describe', '--abbrev=6', '--dirty', '--always', '--tags'],
+    universal_newlines=True).strip()
+compiler_flags += ' -DGIT_SHA=\\"' + GIT_SHA + '\\"'
 
 #Object compilation
 object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
@@ -227,4 +232,11 @@ object_list = Object(src_files, CXX=compiler, CPPPATH=platform_include_path,
 Program('dvmdostem', object_list, CXX=compiler, CPPPATH=local_include_paths,
         LIBS=platform_libs, LIBPATH=platform_library_path, 
         LINKFLAGS="-fopenmp")
+
+test_compiler_flags = compiler_flags.replace('c++11', 'c++14').replace('c++0x', 'c++14')
+test_object_list = Object('obj/TestMain.o', test_src_files, CXX=compiler,
+                          CPPPATH=platform_include_path, CPPFLAGS=test_compiler_flags)
+test_program = Program('dvmdostem-tests', test_object_list, CXX=compiler,
+                       LIBS=['gtest', 'pthread'])
+Alias('test', test_program)
 #Library()

@@ -56,6 +56,8 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
     gdb \
     gdbserver \
     git \
+    libgtest-dev \
+    scons \
     vim \
   && rm -rf /var/lib/apt/lists/*
 

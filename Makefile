@@ -32,6 +32,7 @@ endif
 $(shell mkdir -p obj)
 
 APPNAME=dvmdostem
+TEST_APPNAME=dvmdostem-tests
 LIBDIR=$(SITE_SPECIFIC_LIBS)
 INCLUDES=$(SITE_SPECIFIC_INCLUDES)
 SOURCES= 	src/TEM.o \
@@ -134,9 +135,19 @@ GIT_SHA ?= $(shell git describe --abbrev=6 --dirty --always --tags)
 
 
 TEMOBJ = obj/TEM.o
+TESTOBJ = obj/TestMain.o
+TEST_CFLAGS = $(filter-out -std=c++11,$(CFLAGS)) -std=c++14
 
 dvm: $(SOURCES) $(TEMOBJ)
 	$(CC) $(SITE_SPECIFIC_LINK_FLAGS) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS) $(OMPLFLAGS)
+
+test: $(TEST_APPNAME)
+
+$(TEST_APPNAME): $(TESTOBJ)
+	$(CC) -o $(TEST_APPNAME) $(TESTOBJ) -lgtest -lpthread
+
+$(TESTOBJ): tests/cpp/TestMain.cpp
+	$(CC) $(TEST_CFLAGS) $(INCLUDES) $< -o $@
 
 
 lib: $(SOURCES) 
@@ -148,5 +159,4 @@ CFLAGS += -DGIT_SHA=\"$(GIT_SHA)\"
 	$(CC) $(CFLAGS) $(MPICFLAGS) $(OMPCFLAGS) $(INCLUDES) $(MPIINCLUDES) $< -o obj/$(notdir $@)
 
 clean:
-	rm -f $(OBJECTS) $(APPNAME) TEM.o libTEM.so* *~ obj/*
-
+	rm -f $(OBJECTS) $(APPNAME) $(TEST_APPNAME) TEM.o libTEM.so* *~ obj/*

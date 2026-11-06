@@ -25,14 +25,24 @@ case $1 in
   mechanical)
     docker compose exec -T --workdir /work dvmdostem-dev \
       pytest -q pyddt/tests/test_config.py
-      #pytest -q pyddt/tests/test_config_util.py
+      #pytest -q pyddt/tests/test_config_util.py # bug in test, fix later
 
+    docker compose exec -T --workdir /work dvmdostem-dev \
       pytest --doctest-glob "doctests_*" \
         pyddt/tests/doctests/doctests_param_util.md \
         pyddt/tests/doctests/doctests_outspec_utils.md \
-        #pyddt/tests/doctests/doctests_setup_working_directory.md \
+        #pyddt/tests/doctests/doctests_setup_working_directory.md \ # missing data issue
         pyddt/tests/doctests/doctests_util_general.md
 
+    docker compose exec -T --workdir /work dvmdostem-dev \
+      make test
+    docker compose exec -T --workdir /work dvmdostem-dev \
+      ./dvmdostem-tests
+
+    docker compose exec -T --workdir /work dvmdostem-dev \
+      scons test
+    docker compose exec -T --workdir /work dvmdostem-dev \
+      ./dvmdostem-tests
     ;;
   *)
     usage

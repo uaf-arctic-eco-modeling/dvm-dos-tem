@@ -112,8 +112,9 @@ Run the fast Mechanical test tier in the same Docker environment used by CI:
 This command requires the `dvmdostem-dev` service to be running. Build the image
 with `./docker-build-wrapper.sh dev`, configure `.env` as described above, and
 start the service with `docker compose up -d dvmdostem-dev`. The command currently
-validates the supported pytest configuration behavior. It does not evaluate
-scientific model outputs.
+validates the supported pytest configuration behavior and builds and runs the
+GoogleTest runner through Make and SCons. It does not evaluate scientific model
+outputs.
 
 CI also builds the Docker image, compiles the `dvmdostem` binary, and executes a
 short model run using the demo data. For more information about testing and CI,
