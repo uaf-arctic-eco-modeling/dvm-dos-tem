@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Configure strict Bash behavior: -e exits on command failure, -u errors on
+# unset variables, and -o pipefail makes a pipeline fail if any command fails.
 set -euo pipefail
 
 usage() {
