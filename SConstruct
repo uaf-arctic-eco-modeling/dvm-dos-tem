@@ -76,8 +76,6 @@ src_files = Split("""src/TEM.cpp
                      src/Vegetation_Bgc.cpp
                      src/Vegetation_Env.cpp""")
 
-test_src_files = Split("""tests/cpp/TestMain.cpp""")
-
 
 platform_name = platform.system()
 release = platform.release()
@@ -234,9 +232,28 @@ Program('dvmdostem', object_list, CXX=compiler, CPPPATH=local_include_paths,
         LINKFLAGS="-fopenmp")
 
 test_compiler_flags = compiler_flags.replace('c++11', 'c++14').replace('c++0x', 'c++14')
-test_object_list = Object('obj/TestMain.o', test_src_files, CXX=compiler,
-                          CPPPATH=platform_include_path, CPPFLAGS=test_compiler_flags)
+test_object_list = [
+    Object('obj/TestMain.o', 'tests/cpp/TestMain.cpp', CXX=compiler,
+           CPPPATH=platform_include_path + local_include_paths,
+           CPPFLAGS=test_compiler_flags),
+    Object('obj/TEMUtilityFunctions.o', 'src/TEMUtilityFunctions.cpp',
+           CXX=compiler, CPPPATH=platform_include_path,
+           CPPFLAGS=compiler_flags),
+    Object('obj/TEMLogger.o', 'src/TEMLogger.cpp', CXX=compiler,
+           CPPPATH=platform_include_path, CPPFLAGS=compiler_flags),
+]
+test_libs = Split("""gtest
+                     netcdf
+                     boost_system
+                     boost_filesystem
+                     boost_program_options
+                     boost_thread
+                     boost_log
+                     jsoncpp
+                     pthread
+                     readline
+                     lapacke""")
 test_program = Program('dvmdostem-tests', test_object_list, CXX=compiler,
-                       LIBS=['gtest', 'pthread'])
+                       LIBS=test_libs)
 Alias('test', test_program)
 #Library()

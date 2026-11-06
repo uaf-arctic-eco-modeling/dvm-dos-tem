@@ -135,19 +135,26 @@ GIT_SHA ?= $(shell git describe --abbrev=6 --dirty --always --tags)
 
 
 TEMOBJ = obj/TEM.o
-TESTOBJ = obj/TestMain.o
+TESTOBJS = obj/TestMain.o obj/TEMUtilityFunctions.o obj/TEMLogger.o
 TEST_CFLAGS = $(filter-out -std=c++11,$(CFLAGS)) -std=c++14
+TEST_INCLUDES = $(INCLUDES) -Iinclude
 
 dvm: $(SOURCES) $(TEMOBJ)
 	$(CC) $(SITE_SPECIFIC_LINK_FLAGS) -o $(APPNAME) $(INCLUDES) $(addprefix obj/, $(OBJECTS)) $(TEMOBJ) $(LIBDIR) $(LIBS) $(MPILFLAGS) $(OMPLFLAGS)
 
 test: $(TEST_APPNAME)
 
-$(TEST_APPNAME): $(TESTOBJ)
-	$(CC) -o $(TEST_APPNAME) $(TESTOBJ) -lgtest -lpthread
+$(TEST_APPNAME): $(TESTOBJS)
+	$(CC) -o $(TEST_APPNAME) $(TESTOBJS) $(LIBDIR) $(LIBS) -lgtest
 
-$(TESTOBJ): tests/cpp/TestMain.cpp
-	$(CC) $(TEST_CFLAGS) $(INCLUDES) $< -o $@
+obj/TestMain.o: tests/cpp/TestMain.cpp
+	$(CC) $(TEST_CFLAGS) $(TEST_INCLUDES) $< -o $@
+
+obj/TEMUtilityFunctions.o: src/TEMUtilityFunctions.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
+
+obj/TEMLogger.o: src/TEMLogger.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
 
 
 lib: $(SOURCES) 
