@@ -33,8 +33,8 @@ case $1 in
       pytest --doctest-glob "doctests_*" \
         pyddt/tests/doctests/doctests_param_util.md \
         pyddt/tests/doctests/doctests_outspec_utils.md \
-        #pyddt/tests/doctests/doctests_setup_working_directory.md \ # missing data issue
         pyddt/tests/doctests/doctests_util_general.md
+        #pyddt/tests/doctests/doctests_setup_working_directory.md \ # missing data issue
 
     docker compose exec -T --workdir /work dvmdostem-dev \
       make test
