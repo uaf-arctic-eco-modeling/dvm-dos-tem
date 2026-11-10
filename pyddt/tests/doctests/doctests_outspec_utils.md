@@ -30,14 +30,14 @@ Check summary for that single variable
 
     >>> pyddt.util.outspec.cmdline_entry(['--summary','/tmp/test-outspec_utils.csv'])
                     Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
-                    AVLN                 g/m2            y                   invalid      invalid      invalid            l       double     Total soil available N
+                    AVLN                 g/m2            y                   invalid      invalid      invalid            l       double     Soil available nitrogen
     0
 
 Looking at the original file however, there should be only the default variable(s) enabled:
 
     >>> pyddt.util.outspec.cmdline_entry(['-s', 'config/output_spec.csv'])
                     Name                Units       Yearly      Monthly        Daily          PFT Compartments       Layers    Data Type     Description
-                     GPP            g/m2/time            y                   invalid                                invalid       double     GPP
+                     GPP            g/m2/time            y                   invalid                                invalid       double     Gross primary productivity (positive value)
     0
 
 Enable all yearly variables at the highest detail possible in the test file
