@@ -29,7 +29,7 @@ sc_list = ('y', 'm', 'm_pft_layer', 'm_pft_part')
 ### Month to year test
 
 
-varlist = ('AVLN','DEEPC','EET','GPP','HKDEEP','LAI','LFVC','LFVN','MINEC','NETNMIN','NIMMOB','NPP','NRESORB','NUPTAKELAB','NUPTAKEST','ORGN','PET','QDRAINAGE','QINFILTRATION','QRUNOFF','RAINFALL','RG','RHSOM','RM','SHLWC','SNOWFALL','SNOWTHICK','SOMA','SOMCR','SOMPR','SOMRAWC','SWE','TCDEEP','TDEEP','TRANSPIRATION','TSHLW','VEGC','VEGNSTR','VWCDEEP','WATERTAB')
+varlist = ('AVLN','DEEPC','EET','GPP','HKDEEP','LAI','LFVC','LFVN','MINEC','NETNMIN','NIMMOB','NPP','NRESORPTION','NUPTAKELAB','NUPTAKEST','ORGN','PET','QDRAINAGE','QINFILTRATION','QRUNOFF','RAINFALL','RG','RHSOM','RM','SHLWC','SNOWFALL','SNOWTHICK','SOMA','SOMCR','SOMPR','SOMRAWC','SWE','TCDEEP','TDEEP','TRANSPIRATION','TSHLW','VEGC','VEGNSTR','VWCDEEP','WATERTAB')
 statlist = ('stock','stock','flux','flux','mean','mean','flux','flux','stock','flux','flux','flux','flux','flux','flux','stock','flux','flux','flux','flux','flux','flux','flux','flux','stock','flux','stock','stock','stock','stock','stock','mean','mean','mean','flux','mean','stock','stock','mean','mean')
 
 sc = 'y'
@@ -86,7 +86,7 @@ print(test)
 
 ###  pft to ecosystem test
 
-varlist = ('EET','GPP','LAI','LFVC','LFVN','NPP','NRESORB','NUPTAKELAB','NUPTAKEST','PET','RG','RM','VEGC','VEGNSTR')
+varlist = ('EET','GPP','LAI','LFVC','LFVN','NPP','NRESORPTION','NUPTAKELAB','NUPTAKEST','PET','RG','RM','VEGC','VEGNSTR')
 
 sc = 'm_pft_layer'
 pft = pd.DataFrame(columns = ['year','month','pft'])
@@ -122,7 +122,7 @@ print(test)
 
 ###  part to pft test
 
-varlist = ('GPP','LFVC','LFVN','NPP','NRESORB','NUPTAKEST','RG','RM','VEGC','VEGNSTR')
+varlist = ('GPP','LFVC','LFVN','NPP','NRESORPTION','NUPTAKEST','RG','RM','VEGC','VEGNSTR')
 
 sc = 'm_pft_part'
 part = pd.DataFrame(columns = ['year','month','pft','pftpart'])

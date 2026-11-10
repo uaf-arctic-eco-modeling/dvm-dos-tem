@@ -757,7 +757,7 @@ if __name__ == '__main__':
   VARlist=['RHSOM','GPP','NPP','LFVC','RG','RM']
   ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'carbon','Yearly Carbon Flux Time Series',stage)
 
-  VARlist=['NUPTAKEST','NUPTAKELAB','NRESORB','NIMMOB','NETNMIN','LFVN']
+  VARlist=['NUPTAKEST','NUPTAKELAB','NRESORPTION','NIMMOB','NETNMIN','LFVN']
   ts_flux(outdir,data_dirs,VARlist,scenariolist,colorlist,widthlist,'nitrogen','Yearly Nitrogen Flux Time Series', stage)
 
   VARlist=['BURNSOIL2AIRC','BURNVEG2AIRC','BURNVEG2DEADC','RHDWD', 'BURNAIR2SOILN','BURNSOIL2AIRN','BURNVEG2AIRN','BURNVEG2DEADN']
