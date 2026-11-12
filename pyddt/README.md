@@ -8,6 +8,7 @@ After adding new console entry points, rerun this command to make them available
 Run `pyddt` or `pyddt --help` for an overview of the available commands:
 
 - `pyddt-input`: validate, crop, and plot input NetCDF files.
+- `pyddt-netcdf`: NetCDF utilities, including Python and NCO comparisons.
 - `pyddt-outspec`: list and enable output variables.
 - `pyddt-param`: read, edit, and convert parameter files.
 - `pyddt-runmask`: create, modify, and view run masks.

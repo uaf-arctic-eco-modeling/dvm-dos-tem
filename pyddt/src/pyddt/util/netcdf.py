@@ -2,6 +2,8 @@
 
 
 import os
+import argparse
+import sys
 import shutil #For non-empty directory tree deletion
 import subprocess
 import re
@@ -195,3 +197,109 @@ def compare_nc_with_python(fileA, fileB, varname):
   ## @brief Compare values directly to avoid subtraction overflow or rounding
   # large integers through a conversion to floating-point numbers.
   return np.array_equal(values_a.compressed(), values_b.compressed())
+
+
+class _NetcdfHelpFormatter(argparse.HelpFormatter):
+  """! @brief Show the optional fourth NCO argument accurately in CLI help.
+
+  Argparse has no built-in argument count for three required values plus
+  one optional value belonging to the same flag. Parsing checks that count.
+  """
+
+  def _format_args(self, action, default_metavar):
+    """! @brief Format NCO operands, using standard formatting otherwise."""
+    if action.dest == "compare_nc_nco":
+      return "FILE_A FILE_B VARIABLE [FILE_CLEANUP]"
+    return super()._format_args(action, default_metavar)
+
+
+def cmdline_define():
+  """! @brief Define operation flags for the NetCDF utility command.
+  @return An argument parser with one required operation and its inputs.
+  """
+  parser = argparse.ArgumentParser(
+    description="Utilities for working with NetCDF files.",
+    formatter_class=_NetcdfHelpFormatter,
+    epilog=("Comparison exit codes: 0 = match, 1 = different values or masks, "
+            "2 = invalid arguments or operation error. "
+            "Example: pyddt-netcdf --compare-nc-python "
+            "first.nc second.nc GPP"))
+  ## @brief Each operation owns its arguments so future utilities can accept
+  # different inputs. Select one operation per invocation.
+  operations = parser.add_mutually_exclusive_group(required=True)
+  operations.add_argument(
+    "--compare-nc-python", nargs=3,
+    metavar=("FILE_A", "FILE_B", "VARIABLE"),
+    help="Compare one numeric variable exactly using Python, without "
+         "temporary files.")
+  operations.add_argument(
+    "--compare-nc-nco", nargs="+", metavar="ARG",
+    help="Compare one numeric variable exactly using ncdiff and ncap2. "
+         "Optional FILE_CLEANUP is true (default) or false. True removes "
+         "temporary files, including after failure; false retains them "
+         "under /tmp for inspection.")
+  return parser
+
+
+def cmdline_parse(argv=None):
+  """! @brief Parse arguments for the NetCDF utility command.
+  @param argv Argument strings, or None to read the shell arguments.
+  @return Parsed argument namespace.
+  """
+  parser = cmdline_define()
+  args = parser.parse_args(argv)
+  if args.compare_nc_nco is not None:
+    values = args.compare_nc_nco
+    if len(values) not in (3, 4):
+      parser.error("--compare-nc-nco requires FILE_A FILE_B VARIABLE "
+                   "[FILE_CLEANUP]")
+    cleanup = values[3].lower() if len(values) == 4 else "true"
+    if cleanup not in ("true", "false"):
+      parser.error("FILE_CLEANUP must be true or false")
+    args.compare_nc_nco = (*values[:3], cleanup == "true")
+  return args
+
+
+def cmdline_run(args):
+  """! @brief Dispatch the selected NetCDF operation and report its outcome.
+  @param args Namespace returned by cmdline_parse().
+  @return 0 for a match, 1 for different values or masks, or 2 for an error.
+
+  Errors are printed to standard error so shell scripts can distinguish
+  invalid inputs or failed operations from a completed comparison.
+  """
+  try:
+    if args.compare_nc_python is not None:
+      fileA, fileB, varname = args.compare_nc_python
+      matches = compare_nc_with_python(fileA, fileB, varname)
+    elif args.compare_nc_nco is not None:
+      fileA, fileB, varname, file_cleanup = args.compare_nc_nco
+      matches = compare_nc_with_nco(
+        fileA, fileB, varname, file_cleanup=file_cleanup)
+    else:
+      raise ValueError("No NetCDF operation selected")
+  except (OSError, ValueError, RuntimeError) as error:
+    print("NetCDF operation failed: {}".format(error), file=sys.stderr)
+    return 2
+  print("{}: {}".format(varname, "match" if matches else "differ"))
+  return 0 if matches else 1
+
+
+def cmdline_entry(argv=None):
+  """! @brief Parse and execute a NetCDF utility command.
+  @param argv Argument strings, or None to read the shell arguments.
+  @return The selected operation's exit code.
+  """
+  return cmdline_run(cmdline_parse(argv))
+
+
+def main(argv=None):
+  """! @brief Entry point for the installed pyddt-netcdf command.
+  @param argv Argument strings, or None to read the shell arguments.
+  @return The selected operation's exit code.
+  """
+  return cmdline_entry(argv)
+
+
+if __name__ == '__main__':
+  sys.exit(main())
