@@ -7,6 +7,7 @@ import sys
 import errno
 import shutil
 import pathlib
+import re
 
 #import json
 import commentjson # need because we keep comments in our config file
@@ -24,7 +25,13 @@ def mkdir_p(path):
     else:
       raise
 
-def pick_input_file(search_dir, criteria_groups, default_filename, description):
+def input_ssp(filename):
+  match = re.search(r'(?<![a-z0-9])ssp[_-]?([1-5])[_.-]?([0-9])[_.-]?([0-9])(?![0-9])',
+                    pathlib.Path(filename).name, re.IGNORECASE)
+  return ''.join(match.groups()) if match else None
+
+
+def pick_input_file(search_dir, criteria_groups, default_filename, description, scenario=None):
   '''
   Scan search_dir for .nc files whose lowercased names contain all tokens in
   at least one criteria group (list of tuples). Returns the first match. If
@@ -40,6 +47,24 @@ def pick_input_file(search_dir, criteria_groups, default_filename, description):
       if all(t in name_lower for t in tokens):
         matches.append(candidate.name)
         break
+
+  if scenario:
+    scenario_matches = [name for name in matches if input_ssp(name) == scenario]
+    if scenario_matches:
+      matches = scenario_matches
+    else:
+      matches = [name for name in matches if input_ssp(name) is None]
+      if matches:
+        print(
+          f"WARNING: No {description} file labeled SSP{scenario} found in {search_dir}. "
+          "Using an unlabeled file; its scenario cannot be verified.",
+          file=sys.stderr,
+        )
+      else:
+        print(
+          f"WARNING: No {description} file matching SSP{scenario} found in {search_dir}.",
+          file=sys.stderr,
+        )
 
   if len(matches) > 1:
     print(
@@ -87,7 +112,7 @@ def cmdline_parse(argv=None):
       help=textwrap.dedent("""Force create new directory, overwriting existing 
         data."""))
 
-  parser.add_argument('--input-data-path', default="<placeholder>",
+  parser.add_argument('--input-data-path', required=True,
       help=textwrap.dedent("""Path to the input data"""))
 
   parser.add_argument('--seed-parameters',
@@ -192,6 +217,7 @@ def cmdline_run(args):
     input_data_path = os.path.join('inputs', os.path.basename(args.input_data_path))
     # leave run mask where it is, set path
     config['IO']['runmask_file']  = os.path.join(input_data_path,'run-mask.nc')
+    input_data_path = os.path.join(os.path.abspath(args.new_directory), input_data_path)
 
   else:
     input_data_path = os.path.join(os.path.abspath(args.input_data_path))
@@ -256,6 +282,7 @@ def cmdline_run(args):
     [('projected', 'co2'), ('proj', 'co2')],
     'projected-co2.nc',
     'projected CO2',
+    scenario=input_ssp(config['IO']['proj_climate_file']),
   )
 
   config['IO']['topo_file'] = pick_input_file(
@@ -285,6 +312,12 @@ def cmdline_run(args):
     'projected-explicit-fire.nc',
     'projected explicit fire',
   )
+
+  if args.copy_inputs:
+    for key in ('hist_climate_file', 'proj_climate_file', 'veg_class_file',
+                'drainage_file', 'soil_texture_file', 'co2_file', 'proj_co2_file',
+                'topo_file', 'fri_fire_file', 'hist_exp_fire_file', 'proj_exp_fire_file'):
+      config['IO'][key] = os.path.relpath(config['IO'][key], os.path.abspath(args.new_directory))
 
   # Make sure calibration data ends up in a directory that is named the same
   # as your new working directory.
