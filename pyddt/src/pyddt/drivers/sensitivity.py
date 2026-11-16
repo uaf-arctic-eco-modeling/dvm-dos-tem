@@ -18,6 +18,7 @@ import subprocess
 from contextlib import contextmanager
 
 import pyddt.drivers.basedriver
+import pyddt.util.config
 import pyddt.util.param
 import pyddt.util.runmask
 import pyddt.util.output
@@ -848,8 +849,7 @@ class Sensitivity(pyddt.drivers.basedriver.BaseDriver):
     # Adjust the config file
     CONFIG_FILE = os.path.join(sample_specific_folder, 'config/config.js')
     # Read the existing data into memory
-    with open(CONFIG_FILE, 'r') as f:
-      config = json.load(f)
+    config = pyddt.util.config.load_config(CONFIG_FILE)
 
     # we need netcdf outputs for eq stage
     config['IO']['output_nc_eq'] = 1 # Modify value...

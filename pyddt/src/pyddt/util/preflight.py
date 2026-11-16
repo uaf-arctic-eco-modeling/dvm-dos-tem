@@ -79,9 +79,9 @@ import argparse
 import textwrap
 from pathlib import Path
 
-import commentjson
 import xarray as xr
 
+from pyddt.util import config as pyddt_config
 from pyddt.util import outspec as pyddt_outspec
 from pyddt.util import param as pyddt_param
 from pyddt.util import runmonitor
@@ -148,31 +148,6 @@ def check_directory_layout(run_dir):
     issues.append(Issue(ERROR, 'run-mask.nc not present in the run directory.'))
 
   return issues
-
-
-def load_config(run_dir):
-  '''
-  Load `run_dir`/config/config.js.
-
-  Parameters
-  ----------
-  run_dir : pathlib.Path
-
-  Returns
-  -------
-  config : dict or None
-    None if the file is missing or unreadable.
-  issues : list of Issue
-  '''
-  config_path = run_dir / 'config' / 'config.js'
-  if not config_path.is_file():
-    return None, [Issue(ERROR, f'config/config.js not found at {config_path}; skipping remaining checks.')]
-  try:
-    with open(config_path) as f:
-      config = commentjson.load(f)
-  except (OSError, ValueError) as e:
-    return None, [Issue(ERROR, f'config/config.js could not be read/parsed ({e}); skipping remaining checks.')]
-  return config, []
 
 
 def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_dir=None):
@@ -350,9 +325,14 @@ def run_preflight(run_dir, input_catalog_dir=None, workflows_dir=None):
 
   issues += check_directory_layout(run_dir)
 
-  config, config_issues = load_config(run_dir)
-  issues += config_issues
-  if config is None:
+  config_path = run_dir / 'config' / 'config.js'
+  if not config_path.is_file():
+    issues.append(Issue(ERROR, f'config/config.js not found at {config_path}; skipping remaining checks.'))
+    return issues
+  try:
+    config = pyddt_config.load_config(config_path)
+  except (OSError, ValueError) as e:
+    issues.append(Issue(ERROR, f'config/config.js could not be read/parsed ({e}); skipping remaining checks.'))
     return issues
 
   issues += check_config_integrity(run_dir, config, input_catalog_dir, workflows_dir)

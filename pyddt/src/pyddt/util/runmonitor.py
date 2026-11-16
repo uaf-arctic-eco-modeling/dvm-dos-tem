@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
 import sys
 import textwrap
 from pathlib import Path
@@ -14,6 +13,8 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+
+from pyddt.util import config as pyddt_config
 
 '''
 Monitor the progress of a dvmdostem run (or several).
@@ -39,27 +40,6 @@ STATUS_MASKED = 0
 STATUS_TIMEOUT = -5
 STATUS_FAIL = -100
 MISSING_I = -9999
-
-
-def load_run_config(run_dir):
-  '''
-  Load a run's config/config.js file.
-
-  Parameters
-  ----------
-  run_dir : pathlib.Path
-    The dvmdostem run directory.
-
-  Returns
-  -------
-  config : dict or None
-    The parsed config.js contents, or None if the file doesn't exist.
-  '''
-  config_path = run_dir / 'config' / 'config.js'
-  if not config_path.is_file():
-    return None
-  with open(config_path) as f:
-    return json.load(f)
 
 
 def resolve_io_path(raw_path, run_dir, input_catalog_dir=None, workflows_dir=None):
@@ -360,7 +340,7 @@ def print_report(run_dir, input_catalog_dir=None, workflows_dir=None, plot=False
       print(f'  (given as {raw_run_dir!r}, resolved relative to cwd {Path.cwd()})')
     return
 
-  config = load_run_config(run_dir)
+  config = pyddt_config.load_config_from_dir(run_dir)
   if config is None:
     print('  ERROR: config/config.js not found - cannot locate inputs/outputs.')
     return

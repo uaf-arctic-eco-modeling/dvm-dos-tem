@@ -6,15 +6,62 @@ import argparse
 import textwrap
 import json
 import re
+from pathlib import Path
 
 import commentjson
+
+
+def load_config(config_file="config/config.js"):
+  '''
+  Read a model configuration file, allowing JSON comments.
+
+  Parameters
+  ----------
+  config_file : str or pathlib.Path, optional
+    Path to the configuration file. Relative paths are interpreted from the
+    current working directory.
+
+  Returns
+  -------
+  config : dict
+    Parsed configuration contents.
+
+  Raises
+  ------
+  OSError
+    If the file cannot be opened or read.
+  ValueError
+    If the contents cannot be parsed as configuration data.
+  '''
+  with open(config_file, encoding='utf-8') as config_fh:
+    return commentjson.load(config_fh)
+
+
+def load_config_from_dir(run_dir):
+  '''
+  Read a run directory's configuration, if present.
+
+  Parameters
+  ----------
+  run_dir : str or pathlib.Path
+    Run directory containing ``config/config.js``.
+
+  Returns
+  -------
+  config : dict or None
+    Parsed configuration, or None if the configuration file is missing.
+    Read and parse errors propagate to the caller.
+  '''
+  config_path = Path(run_dir) / 'config' / 'config.js'
+  if not config_path.is_file():
+    return None
+  return load_config(config_path)
 
 
 def get_input_paths(config_file="config/config.js", verbose=True):
   '''
   '''
-  with open(config_file) as config_fh:
-    config = commentjson.load(config_fh)
+  config = load_config(config_file)
 
   #Should this also handle parameter_dir and output_spec file location?
   #At least for now, no. The matching 'set_input_paths' method should likely
@@ -122,8 +169,7 @@ def list_config_keys(config_file, root_key_path=None):
   Return available key paths in dot notation.
   If root_key_path is provided, list only that key and its subkeys.
   '''
-  with open(config_file) as config_fh:
-    config = commentjson.load(config_fh)
+  config = load_config(config_file)
 
   start_node = config
   start_prefix = ''

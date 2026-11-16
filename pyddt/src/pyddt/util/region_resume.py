@@ -12,6 +12,7 @@ import netCDF4 as nc
 import numpy as np
 import xarray as xr
 
+from pyddt.util import config as pyddt_config
 from pyddt.util import runmonitor
 
 '''
@@ -154,7 +155,7 @@ def check_run(run_dir, input_catalog_dir=None, workflows_dir=None):
     `n_remaining`, and `stalled` (True if not running and cells remain).
   '''
   run_dir = Path(run_dir).resolve()
-  config = runmonitor.load_run_config(run_dir)
+  config = pyddt_config.load_config_from_dir(run_dir)
   if config is None:
     raise RuntimeError(f'{run_dir}: config/config.js not found.')
   io = config.get('IO', {})
@@ -237,7 +238,7 @@ def prepare_resume(run_dir, input_catalog_dir=None, workflows_dir=None, retry_fa
     raise RuntimeError(f'{run_dir}: a dvmdostem process is still running against this '
                         f'directory; pass force=True (--force) if this is wrong.')
 
-  config = runmonitor.load_run_config(run_dir)
+  config = pyddt_config.load_config_from_dir(run_dir)
   if config is None:
     raise RuntimeError(f'{run_dir}: config/config.js not found.')
   io = config.get('IO', {})
@@ -324,7 +325,7 @@ def merge_outputs(run_dir, backup_output_dir, input_catalog_dir=None, workflows_
   run_dir = Path(run_dir).resolve()
   backup_output_dir = Path(backup_output_dir).resolve()
 
-  config = runmonitor.load_run_config(run_dir)
+  config = pyddt_config.load_config_from_dir(run_dir)
   if config is None:
     raise RuntimeError(f'{run_dir}: config/config.js not found.')
   io = config.get('IO', {})

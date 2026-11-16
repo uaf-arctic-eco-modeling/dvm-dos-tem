@@ -15,6 +15,8 @@ import collections
 import argparse
 import textwrap
 
+from pyddt.util import config as pyddt_config
+
 def mkdir_p(path):
   '''Emulates the shell's `mkdir -p`.'''
   try:
@@ -202,8 +204,7 @@ def cmdline_run(args):
   mkdir_p(os.path.join(args.new_directory, 'output'))
 
   # Open the new config file
-  with open(os.path.join(args.new_directory, 'config/config.js'), encoding='utf-8') as fp:
-    config = commentjson.load(fp)
+  config = pyddt_config.load_config(os.path.join(args.new_directory, 'config/config.js'))
 
   ####  Set up the new config file appropriately... ####
 
