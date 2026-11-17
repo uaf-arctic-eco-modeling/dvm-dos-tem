@@ -13,6 +13,9 @@ import textwrap
 
 import subprocess
 
+from pyddt.util import config as pyddt_config
+from pyddt.util.setup_working_directory import pick_input_file
+
 def mkdir_p(path):
   '''Emulates the shell's `mkdir -p`.'''
   try:
@@ -57,10 +60,11 @@ def check_input_set_existence(in_folder):
   -------
   None
   '''
-  required_files = set(['co2.nc', 'drainage.nc', 'fri-fire.nc', 
-      'historic-climate.nc', 'historic-explicit-fire.nc',
-      'projected-climate.nc', 'projected-explicit-fire.nc', 'run-mask.nc',
-      'soil-texture.nc', 'topo.nc', 'vegetation.nc'])
+  # Keep the existing required set: projected CO2 is not required by this check.
+  required_files = {
+    filename for key, filename in pyddt_config.DEFAULT_INPUT_FILE_NAMES.items()
+    if key != 'proj_co2_file'
+  }
 
   files = set([f for f in os.listdir(in_folder) if os.path.isfile(os.path.join(in_folder, f))])
   dirs = [d for d in os.listdir(in_folder) if os.path.isdir(os.path.join(in_folder, d))]
@@ -249,16 +253,39 @@ def crop_wrapper(args):
     crop_file(infile, outfile, y, x, args.ysize, args.xsize)
 
 def climate_gap_count_plot(args):
-  '''
-  Creates plots showing how many missing datapoints exist for each pixel.
+  """Plot the number of missing climate values at each grid cell.
 
-  Creates 2 figures: first from the historic file and then from the projected
-  file.
+  Parameters
+  ----------
+  args : argparse.Namespace
+    Command-line arguments. ``args.input_folder`` specifies the directory
+    containing the historical and projected climate NetCDF files.
 
-  Each variable is shown in a different sub-plot. There are some idiosyncracies
-  surrouding the labeling of the colorbar, so use with caution! But this should
-  give a rough idea where there are bad pixels and how bad they are.
-  ''' 
+  Returns
+  -------
+  None
+
+  Notes
+  -----
+  Climate files are selected with ``pick_input_file`` using historical or
+  projected climate name tokens. If no file matches, the corresponding
+  ``DEFAULT_INPUT_FILE_NAMES`` entry is used as a fallback. Multiple matches
+  produce a warning and the first filename in sorted order is selected.
+
+  For each climate file, plots ``tair``, ``precip``, ``nirr``, and
+  ``vapor_press`` in a two-by-two grid. Variables are expected to have
+  dimensions ordered as time, y, and x. Missing values are identified from
+  the NetCDF variable's mask and counted along the time dimension.
+
+  Counts range from zero to the number of time steps and are displayed
+  using a reversed grayscale. Cells missing every time step are masked
+  from the displayed counts. No colorbar is drawn, so these plots provide
+  a visual overview rather than labelled numerical counts.
+
+  Saves each plot in ``args.input_folder`` as
+  ``<climate-filename>-gap-counts.png`` and displays it interactively.
+  Execution waits for the plot window to close before continuing.
+  """
 
   # Keep imports of graphic stuff here so that the rest of the script
   # is usable even w/o matplotlib installed.
@@ -266,7 +293,20 @@ def climate_gap_count_plot(args):
   import matplotlib.pyplot as plt
   import matplotlib.gridspec as gridspec
 
-  CLIMATE_FILES = ['crujra-downscaled-historic-climate.nc', 'cmip6-ssp245-downscaled-projected-climate.nc']
+  climate_paths = [
+    pick_input_file(
+      args.input_folder,
+      [('historic', 'climate'), ('hist', 'climate')],
+      pyddt_config.DEFAULT_INPUT_FILE_NAMES['hist_climate_file'],
+      'historic climate',
+    ),
+    pick_input_file(
+      args.input_folder,
+      [('projected', 'climate'), ('proj', 'climate')],
+      pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_climate_file'],
+      'projected climate',
+    ),
+  ]
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
 
   ROWS = 2
@@ -274,14 +314,15 @@ def climate_gap_count_plot(args):
 
   gs = gridspec.GridSpec(ROWS, COLS)
 
-  for cf in CLIMATE_FILES:
+  for climate_path in climate_paths:
+    cf = os.path.basename(climate_path)
     axtair = plt.subplot(gs[0,0])
     axprecip = plt.subplot(gs[0,1])
     axnirr = plt.subplot(gs[1,0])
     axvapo = plt.subplot(gs[1,1])
 
     for i, (ax, v) in enumerate(zip([axtair, axprecip, axnirr, axvapo], VARS)):
-      with nc.Dataset(os.path.join(args.input_folder, cf)) as hds:
+      with nc.Dataset(climate_path) as hds:
 
         dataset = hds.variables[v][:] # Should be a 3D numpy array (time, y, x)
         if type(dataset) != np.ma.core.MaskedArray:
@@ -305,7 +346,7 @@ def climate_gap_count_plot(args):
       #ax.set_title(v)
       #plt.colorbar(img, ax=ax)
 
-    plt.suptitle(os.path.join(args.input_folder, cf))
+    plt.suptitle(climate_path)
     plt.tight_layout()
     plt.savefig(os.path.join(args.input_folder, f'{cf}-gap-counts.png'))
     plt.show(block=True)
@@ -338,7 +379,8 @@ def climate_ts_plot(args):
   import matplotlib.ticker as ticker
   import pandas as pd
 
-  CLIMATE_FILES = ['historic-climate.nc', 'projected-climate.nc']
+  CLIMATE_FILES = [pyddt_config.DEFAULT_INPUT_FILE_NAMES[key]
+                   for key in ('hist_climate_file', 'proj_climate_file')]
   VARS = ['tair', 'precip', 'nirr', 'vapor_press']
   ROWS = 4
   COLS = 1

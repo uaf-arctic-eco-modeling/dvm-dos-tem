@@ -11,6 +11,25 @@ from pathlib import Path
 import commentjson
 
 
+# Map config.js IO keys to standard default input filenames. Configured
+# paths may use other filenames; these defaults are used when preparing
+# a new run.
+DEFAULT_INPUT_FILE_NAMES = {
+  'hist_climate_file': 'historic-climate.nc',
+  'proj_climate_file': 'projected-climate.nc',
+  'veg_class_file': 'vegetation.nc',
+  'drainage_file': 'drainage.nc',
+  'soil_texture_file': 'soil-texture.nc',
+  'co2_file': 'co2.nc',
+  'proj_co2_file': 'projected-co2.nc',
+  'runmask_file': 'run-mask.nc',
+  'topo_file': 'topo.nc',
+  'fri_fire_file': 'fri-fire.nc',
+  'hist_exp_fire_file': 'historic-explicit-fire.nc',
+  'proj_exp_fire_file': 'projected-explicit-fire.nc',
+}
+
+
 def load_config(config_file="config/config.js"):
   '''
   Read a model configuration file, allowing JSON comments.
@@ -66,16 +85,11 @@ def get_input_paths(config_file="config/config.js", verbose=True):
   #Should this also handle parameter_dir and output_spec file location?
   #At least for now, no. The matching 'set_input_paths' method should likely
   # only apply to this set of files.
-  input_filenames = ['hist_climate_file', 'proj_climate_file',
-                     'veg_class_file', 'drainage_file', 'soil_texture_file',
-                     'co2_file', 'proj_co2_file', 'runmask_file', 'topo_file',
-                     'fri_fire_file', 'hist_exp_fire_file',
-                     'proj_exp_fire_file']
   if verbose:
-    print("Fetching input paths for filenames:", *input_filenames, sep=', ')
+    print("Fetching input paths for filenames:", *DEFAULT_INPUT_FILE_NAMES, sep=', ')
 
   paths = []
-  for filename in input_filenames:
+  for filename in DEFAULT_INPUT_FILE_NAMES:
 #    path = os.path.dirname(config['IO'][filename])
     path = config['IO'][filename]
     if path not in paths:

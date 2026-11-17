@@ -89,16 +89,6 @@ from pyddt.util import runmonitor
 ERROR = 'ERROR'
 WARNING = 'WARNING'
 
-# Keys expected under config['IO'] that point at the "heavier" input files
-# (climate, vegetation, fire, etc), as opposed to the run's own
-# parameters/output_spec/run-mask, which are checked separately.
-INPUT_FILE_KEYS = [
-  'hist_climate_file', 'proj_climate_file', 'veg_class_file', 'drainage_file',
-  'soil_texture_file', 'co2_file', 'proj_co2_file', 'runmask_file', 'topo_file',
-  'fri_fire_file', 'hist_exp_fire_file', 'proj_exp_fire_file',
-]
-
-
 class Issue:
   '''A single preflight finding: a `level` (`ERROR` or `WARNING`) and message.'''
   def __init__(self, level, message):
@@ -190,7 +180,7 @@ def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_di
              standard_practice='common practice is to keep output/ in the run directory with a relative path.')
 
   # the heavier inputs may legitimately be shared/absolute; just check they exist
-  for key in INPUT_FILE_KEYS:
+  for key in pyddt_config.DEFAULT_INPUT_FILE_NAMES:
     if key == 'runmask_file':
       continue  # already checked above, with the relative-path warning
     raw = io.get(key)

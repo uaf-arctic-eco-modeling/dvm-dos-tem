@@ -198,7 +198,8 @@ def cmdline_run(args):
     shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs', os.path.basename(args.input_data_path)))
   else:
     # Copy the run mask from the source data directory into the new working directory
-    shutil.copy(os.path.join(args.input_data_path, 'run-mask.nc'), os.path.join(args.new_directory, 'run-mask.nc'))
+    mask_filename = pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file']
+    shutil.copy(os.path.join(args.input_data_path, mask_filename), os.path.join(args.new_directory, mask_filename))
 
   # Make sure an output directory exists
   mkdir_p(os.path.join(args.new_directory, 'output'))
@@ -212,12 +213,12 @@ def cmdline_run(args):
   config['IO']['parameter_dir'] = 'parameters/'  # <-- trailing slash is important!!
   config['IO']['output_dir']    = 'output/'      # <-- trailing slash is important!!
   config['IO']['restart_from']  = ''             # defaults to blank; not a restart run,
-  config['IO']['runmask_file']  = 'run-mask.nc'
+  config['IO']['runmask_file']  = pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file']
 
   if args.copy_inputs:
     input_data_path = os.path.join('inputs', os.path.basename(args.input_data_path))
     # leave run mask where it is, set path
-    config['IO']['runmask_file']  = os.path.join(input_data_path,'run-mask.nc')
+    config['IO']['runmask_file']  = os.path.join(input_data_path, pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file'])
     input_data_path = os.path.join(os.path.abspath(args.new_directory), input_data_path)
 
   else:
@@ -239,49 +240,49 @@ def cmdline_run(args):
   config['IO']['hist_climate_file'] = pick_input_file(
     input_data_path,
     [('historic', 'climate'), ('hist', 'climate')],
-    'historic-climate.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['hist_climate_file'],
     'historic climate',
   )
 
   config['IO']['proj_climate_file'] = pick_input_file(
     input_data_path,
     [('projected', 'climate'), ('proj', 'climate')],
-    'projected-climate.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_climate_file'],
     'projected climate',
   )
 
   config['IO']['veg_class_file'] = pick_input_file(
     input_data_path,
     [('vegetation',), ('veg_class',), ('vegclass',), ('veg',)],
-    'vegetation.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['veg_class_file'],
     'vegetation',
   )
 
   config['IO']['drainage_file'] = pick_input_file(
     input_data_path,
     [('drainage',), ('drain',)],
-    'drainage.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['drainage_file'],
     'drainage',
   )
 
   config['IO']['soil_texture_file'] = pick_input_file(
     input_data_path,
     [('soil', 'texture'), ('soil_texture',), ('soiltex',)],
-    'soil-texture.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['soil_texture_file'],
     'soil texture',
   )
 
   config['IO']['co2_file'] = pick_input_file(
     input_data_path,
     [('historic', 'co2'), ('hist', 'co2'), ('co2',)],
-    'co2.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['co2_file'],
     'historic CO2',
   )
 
   config['IO']['proj_co2_file'] = pick_input_file(
     input_data_path,
     [('projected', 'co2'), ('proj', 'co2')],
-    'projected-co2.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_co2_file'],
     'projected CO2',
     scenario=input_ssp(config['IO']['proj_climate_file']),
   )
@@ -289,35 +290,35 @@ def cmdline_run(args):
   config['IO']['topo_file'] = pick_input_file(
     input_data_path,
     [('topo',), ('topography',)],
-    'topo.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['topo_file'],
     'topography',
   )
 
   config['IO']['fri_fire_file'] = pick_input_file(
     input_data_path,
     [('fri', 'fire'), ('fri-fire',), ('frifire',)],
-    'fri-fire.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['fri_fire_file'],
     'FRI fire',
   )
 
   config['IO']['hist_exp_fire_file'] = pick_input_file(
     input_data_path,
     [('historic', 'explicit', 'fire'), ('hist', 'exp', 'fire')],
-    'historic-explicit-fire.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['hist_exp_fire_file'],
     'historic explicit fire',
   )
 
   config['IO']['proj_exp_fire_file'] = pick_input_file(
     input_data_path,
     [('projected', 'explicit', 'fire'), ('proj', 'exp', 'fire')],
-    'projected-explicit-fire.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_exp_fire_file'],
     'projected explicit fire',
   )
 
   if args.copy_inputs:
-    for key in ('hist_climate_file', 'proj_climate_file', 'veg_class_file',
-                'drainage_file', 'soil_texture_file', 'co2_file', 'proj_co2_file',
-                'topo_file', 'fri_fire_file', 'hist_exp_fire_file', 'proj_exp_fire_file'):
+    for key in pyddt_config.DEFAULT_INPUT_FILE_NAMES:
+      if key == 'runmask_file':
+        continue  # The copied run mask already has a relative path.
       config['IO'][key] = os.path.relpath(config['IO'][key], os.path.abspath(args.new_directory))
 
   # Make sure calibration data ends up in a directory that is named the same
@@ -332,18 +333,7 @@ def cmdline_run(args):
   sort_order = [
     "parameter_dir",
 
-    "hist_climate_file",
-    "proj_climate_file",
-    "veg_class_file",
-    "drainage_file",
-    "soil_texture_file",
-    "co2_file",
-    "proj_co2_file",
-    "topo_file",
-    "fri_fire_file",
-    "hist_exp_fire_file",
-    "proj_exp_fire_file",
-    "topo_file",
+    *(key for key in pyddt_config.DEFAULT_INPUT_FILE_NAMES if key != 'runmask_file'),
     "runmask_file",
 
     "output_dir",
