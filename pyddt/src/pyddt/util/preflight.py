@@ -197,6 +197,7 @@ def check_output_spec(output_spec_path):
   '''
   Check an output_spec.csv file for required columns/consistency, that
   CMTNUM is enabled, and that layer-resolution outputs have LAYERDZ enabled.
+  Warn when likely layer outputs are enabled without layer resolution.
 
   Parameters
   ----------
@@ -219,12 +220,14 @@ def check_output_spec(output_spec_path):
 
   by_name = {row['Name']: row for row in data}
 
+  # Does CMTNUM exist in the output_spec and is it enabled
   cmtnum_row = by_name.get('CMTNUM')
   if cmtnum_row is None:
     issues.append(Issue(ERROR, 'output_spec.csv has no CMTNUM row.'))
   elif not is_enabled(cmtnum_row):
     issues.append(Issue(ERROR, 'CMTNUM output is not enabled in output_spec.csv.'))
 
+  # Are layer outputs (by resolution) enabled without LAYERDZ
   layerdz_row = by_name.get('LAYERDZ')
   layerdz_enabled = layerdz_row is not None and is_enabled(layerdz_row)
 
@@ -234,11 +237,19 @@ def check_output_spec(output_spec_path):
     issues.append(Issue(ERROR, f'Layer-resolution output(s) enabled ({", ".join(forced_layer_vars)}) but '
                                f'LAYERDZ is not enabled; per-layer values cannot be matched to depths.'))
 
+  # Are layer outputs (by name match) enabled without LAYERDZ
   layer_named_vars = sorted(row['Name'] for row in data
                              if 'LAYER' in row['Name'] and row['Name'] != 'LAYERDZ' and is_enabled(row))
   if layer_named_vars and not layerdz_enabled:
     issues.append(Issue(WARNING, f'Layer-description output(s) enabled ({", ".join(layer_named_vars)}) without '
                                  f'LAYERDZ; depths will not be available when interpreting them.'))
+
+  # Are layer outputs (by name match) enabled by time but not layer
+  missing_layer_resolution = pyddt_outspec.warn_layer_resolution_disabled(data)
+  if missing_layer_resolution:
+    issues.append(Issue(WARNING, f'Output(s) likely to require layer resolution '
+                                 f'({", ".join(missing_layer_resolution)}) are enabled by time '
+                                 f'but have no Layers setting in output_spec.csv.'))
 
   return issues
 
