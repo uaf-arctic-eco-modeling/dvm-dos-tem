@@ -15,6 +15,7 @@ import numpy as np
 import xarray as xr
 
 from pyddt.util import config as pyddt_config
+from pyddt.util import input as pyddt_input
 
 '''
 Monitor the progress of a dvmdostem run (or several).
@@ -137,41 +138,6 @@ def summarize_run_mask(mask_path):
     'active_cells': int(np.count_nonzero(active)),
     'active_mask': active,
   }
-
-
-def value_counts(values):
-  '''Counts of each distinct value in `values`, as a dict.'''
-  unique, counts = np.unique(values, return_counts=True)
-  return dict(zip(unique.tolist(), counts.tolist()))
-
-
-def summarize_vegetation(veg_path, active_mask):
-  '''
-  Summarize the CMT (vegetation class) distribution of a vegetation.nc file.
-
-  Parameters
-  ----------
-  veg_path : str or pathlib.Path
-    Path to the vegetation.nc file.
-  active_mask : numpy.ndarray of bool
-    Active-cell mask from `summarize_run_mask`, used to report counts for
-    just the active cells.
-
-  Returns
-  -------
-  summary : dict
-    `counts_all` (dict of CMT -> count over the whole file) and
-    `counts_active` (same, restricted to active cells, or None if
-    `veg_path`'s shape doesn't match `active_mask`).
-  '''
-  with xr.open_dataset(veg_path) as ds:
-    veg_values = ds['veg_class'].values
-
-  counts_all = value_counts(veg_values)
-  counts_active = None
-  if veg_values.shape == active_mask.shape:
-    counts_active = value_counts(veg_values[active_mask])
-  return {'counts_all': counts_all, 'counts_active': counts_active}
 
 
 def directory_size_bytes(path):
@@ -366,13 +332,14 @@ def print_report(run_dir, input_catalog_dir=None, workflows_dir=None, plot=False
 
   # 2. vegetation / CMT distribution
   if veg_path.is_file():
-    veg_info = summarize_vegetation(veg_path, mask_info['active_mask'])
     print(f'\nVegetation / CMT distribution ({veg_path}):')
-    print(f'  whole file: {veg_info["counts_all"]}')
-    if veg_info['counts_active'] is not None:
-      print(f'  active cells only: {veg_info["counts_active"]}')
+    try:
+      veg_info = pyddt_input.count_cells_by_cmt(veg_path, mask_info['active_mask'])
+    except (OSError, ValueError, KeyError, TypeError) as e:
+      print(f'  ERROR: Could not count cells by CMT: {e}')
     else:
-      print('  active cells only: n/a (shape mismatch with run mask)')
+      print(f'  whole file: {veg_info["counts_all"]}')
+      print(f'  active cells only: {veg_info["counts_active"]}')
   else:
     print(f'\nVegetation file not found at {veg_path}')
 

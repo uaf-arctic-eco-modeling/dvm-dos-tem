@@ -79,9 +79,8 @@ import argparse
 import textwrap
 from pathlib import Path
 
-import xarray as xr
-
 from pyddt.util import config as pyddt_config
+from pyddt.util import input as pyddt_input
 from pyddt.util import outspec as pyddt_outspec
 from pyddt.util import param as pyddt_param
 from pyddt.util import runmonitor
@@ -262,15 +261,14 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
   mask_info = runmonitor.summarize_run_mask(run_mask_path)
   active_mask = mask_info['active_mask']
 
-  with xr.open_dataset(veg_class_path) as ds:
-    veg_values = ds['veg_class'].values
-
-  if veg_values.shape != active_mask.shape:
-    issues.append(Issue(ERROR, f'vegetation file shape {veg_values.shape} does not match '
-                               f'run mask shape {active_mask.shape}; cannot check CMT coverage.'))
+  try:
+    veg_info = pyddt_input.count_cells_by_cmt(veg_class_path, active_mask)
+  except (OSError, ValueError, KeyError, TypeError) as e:
+    issues.append(Issue(ERROR, f'Cannot check CMT coverage: {e}'))
     return issues
+  active_counts = veg_info['counts_active']
 
-  active_cmts = sorted(set(int(v) for v in veg_values[active_mask]))
+  active_cmts = sorted(set(int(v) for v in active_counts))
 
   file_cmts = {}
   for f in sorted(Path(parameters_dir).iterdir()):
