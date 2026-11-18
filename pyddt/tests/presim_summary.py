@@ -73,7 +73,7 @@ print("Input veg types:", *input_CMTs.keys(), sep=', ')
 print("input veg counts:", *input_CMTs.values(), sep=', ')
 print(input_CMTs)
 
-param_CMTs = util.param.get_available_CMTs(config['IO']['parameter_dir'])
+param_CMTs = util.param.get_CMTs_in_dir(config['IO']['parameter_dir'])
 print("Param CMTs:", param_CMTs)
 
 unparameterized_CMTs = [x for x in input_CMTs.keys() if x not in param_CMTs]

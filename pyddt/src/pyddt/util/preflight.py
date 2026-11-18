@@ -259,6 +259,10 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
   Confirm that every CMT present (in the vegetation file, at an active run
   mask cell) has a corresponding data block in every parameter file.
 
+  Parameter coverage is determined by ``pyddt.util.param.get_CMTs_in_dir``.
+  Unreadable files, malformed CMT headers, and repeated CMT definitions are
+  reported as errors because coverage cannot be confirmed.
+
   Parameters
   ----------
   run_mask_path, veg_class_path, parameters_dir : pathlib.Path
@@ -281,22 +285,17 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
 
   active_cmts = sorted(set(int(v) for v in active_counts))
 
-  file_cmts = {}
-  for f in sorted(Path(parameters_dir).iterdir()):
-    if not f.is_file():
-      continue
-    try:
-      cmts_in_file, _ = pyddt_param.get_CMTs_in_file(str(f))
-    except (OSError, UnicodeDecodeError) as e:
-      issues.append(Issue(WARNING, f'could not read parameter file {f.name} ({e}); skipped for CMT coverage check.'))
-      continue
-    file_cmts[f.name] = set(c['cmtnum'] for c in cmts_in_file)
+  try:
+    available_cmts = set(pyddt_param.get_CMTs_in_dir(parameters_dir))
+  except (OSError, UnicodeError, ValueError, AssertionError) as e:
+    issues.append(Issue(ERROR, f'Cannot check parameter CMT coverage in {parameters_dir}: {e}'))
+    return issues
 
+  # The directory helper returns only CMTs present in every parameter file.
   for cmtnum in active_cmts:
-    missing_from = sorted(fname for fname, cmts in file_cmts.items() if cmtnum not in cmts)
-    if missing_from:
-      issues.append(Issue(ERROR, f'CMT{cmtnum:02d} is used by active run mask cell(s) but has no data '
-                                 f'block in parameter file(s): {", ".join(missing_from)}'))
+    if cmtnum not in available_cmts:
+      issues.append(Issue(ERROR, f'CMT{cmtnum:02d} is used by active run mask cell(s) but is not '
+                                 f'defined in every parameter file in {parameters_dir}.'))
 
   return issues
 

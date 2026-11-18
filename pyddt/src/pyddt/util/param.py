@@ -185,7 +185,7 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
     # NOTE: currently there is no mechanism for storing reference data in the 
     # fixed width text files....
 
-    avail_cmts = get_available_CMTs(param_dir)
+    avail_cmts = get_CMTs_in_dir(param_dir)
 
     if req_cmts == 'all':
       cmts = avail_cmts
@@ -1936,40 +1936,48 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
   return is_contrib
 
 
-def get_available_CMTs(pdir):
+def get_CMTs_in_dir(pdir):
   '''
-  Return list of available CMT numbers in directory.
-
-  Only returns CMTs that are defined in all files.
-
-  Assumptions:
-   - nothing else in `pdir`
-   - parameter files in `pdir` are valid
-   - CMTs not defined twice in one file
+  Return CMT numbers defined in every parameter file in a directory.
 
   Parameters
   ----------
-  pdir : str
-    Path to directory of dvmdostem parameter files.
+  pdir : str or pathlib.Path
+    Directory containing only valid dvmdostem parameter files.
 
   Returns
   -------
-  x : list of ints
-    A list of all the CMTs available in `pdir`. 
+  cmts : list of int
+    Sorted CMT numbers present in all files. Returns an empty list if the
+    directory is empty or no CMT number is shared by every file.
+
+  Raises
+  ------
+  AssertionError
+    If a file contains repeated CMT numbers.
+
+  Notes
+  -----
+  Every directory entry is read as a parameter file, so the directory must
+  not contain subdirectories or unrelated files. Repeated CMT numbers also
+  produce a warning from ``get_CMTs_in_file`` before the assertion fails.
   '''
+  common_cmts = None
+  for filename in sorted(os.listdir(pdir)):
+    data, repeated_cmts = get_CMTs_in_file(os.path.join(pdir, filename))
+    # Consider replacing the assert with an approach that returns all
+    # CMTs in a directory, including duplicates and incomplete ones,
+    # labeled correctly.
+    assert not repeated_cmts, "Must not have redundant cmt definitions in a file!: {}".format(filename)
+    file_cmts = {cmt['cmtnum'] for cmt in data}
+    # Start with the first file's CMTs, then retain only numbers also found
+    # in each later file. Starting with an empty set would discard all CMTs.
+    if common_cmts is None:
+      common_cmts = file_cmts
+    else:
+      common_cmts.intersection_update(file_cmts)
 
-  all_cmts = set()
-  files = os.listdir(pdir)
-  for f in files:
-    file_cmts = []
-    data, repeated_cmts = get_CMTs_in_file(os.path.join(pdir, f))
-    for cmt in data:
-      file_cmts.append((cmt['cmtkey'], cmt['cmtnum'], cmt['cmtname'], f))
-    file_cmt_set = set([x[1] for x in file_cmts])
-    assert not repeated_cmts, "Must not have redundant cmt definitions in a file!: {}".format(f)
-    all_cmts = all_cmts.union(file_cmt_set)
-
-  return list(all_cmts)
+  return sorted(common_cmts) if common_cmts is not None else []
 
 
 def which_file(pdir, pname, lookup_struct=None):
