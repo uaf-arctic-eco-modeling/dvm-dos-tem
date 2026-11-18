@@ -81,6 +81,7 @@ from pathlib import Path
 
 from pyddt.util import config as pyddt_config
 from pyddt.util import input as pyddt_input
+from pyddt.util.layout import DEFAULT_RUN_LAYOUT
 from pyddt.util import outspec as pyddt_outspec
 from pyddt.util import param as pyddt_param
 from pyddt.util import runmonitor
@@ -111,30 +112,25 @@ def check_directory_layout(run_dir):
   issues : list of Issue
   '''
   issues = []
-
-  if not (run_dir / 'calibration').is_dir():
-    issues.append(Issue(WARNING, 'calibration/ directory not present.'))
-
-  config_dir = run_dir / 'config'
-  if not config_dir.is_dir():
-    issues.append(Issue(ERROR, 'config/ directory not present.'))
-  else:
-    if not (config_dir / 'config.js').is_file():
-      issues.append(Issue(ERROR, 'config/config.js not present.'))
-    if not (config_dir / 'output_spec.csv').is_file():
-      issues.append(Issue(ERROR, 'config/output_spec.csv not present.'))
-
-  if not (run_dir / 'parameters').is_dir():
-    issues.append(Issue(ERROR, 'parameters/ directory not present.'))
-
-  output_dir = run_dir / 'output'
-  if not output_dir.is_dir():
-    issues.append(Issue(ERROR, 'output/ directory not present.'))
-  elif any(output_dir.iterdir()):
-    issues.append(Issue(WARNING, 'output/ directory is not empty.'))
-
-  if not (run_dir / 'run-mask.nc').is_file():
-    issues.append(Issue(ERROR, 'run-mask.nc not present in the run directory.'))
+  missing_directories = set()
+  for relative_path, entry_type in DEFAULT_RUN_LAYOUT.items():
+    path = run_dir / relative_path
+    # A missing parent directory already explains why its files are absent.
+    if any(parent in missing_directories for parent in path.parents):
+      continue
+    exists = path.is_dir() if entry_type == 'directory' else path.is_file()
+    if not exists:
+      level = WARNING if relative_path == 'calibration' else ERROR
+      if entry_type == 'directory':
+        missing_directories.add(path)
+        message = f'{relative_path}/ directory not present.'
+      elif relative_path == 'run-mask.nc':
+        message = f'{relative_path} not present in the run directory.'
+      else:
+        message = f'{relative_path} not present.'
+      issues.append(Issue(level, message))
+    elif relative_path == 'output' and any(path.iterdir()):
+      issues.append(Issue(WARNING, 'output/ directory is not empty.'))
 
   return issues
 

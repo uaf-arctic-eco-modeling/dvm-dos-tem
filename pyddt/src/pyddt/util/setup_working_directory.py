@@ -14,8 +14,10 @@ import commentjson # need because we keep comments in our config file
 import collections
 import argparse
 import textwrap
+from pathlib import Path
 
 from pyddt.util import config as pyddt_config
+from pyddt.util.layout import DEFAULT_RUN_LAYOUT
 
 def mkdir_p(path):
   '''Emulates the shell's `mkdir -p`.'''
@@ -158,6 +160,9 @@ def cmdline_run(args):
   '''
     # Make the new main working directory
   mkdir_p(args.new_directory)
+  # Resolve the shared relative paths without creating directories that will
+  # be populated by copytree (which expects its destination not to exist).
+  run_paths = {name: Path(args.new_directory) / name for name in DEFAULT_RUN_LAYOUT}
 
   if args.force:
     shutil.rmtree(args.new_directory)
@@ -175,37 +180,37 @@ def cmdline_run(args):
   if args.no_cal_targets:
     pass
   else:
-    mkdir_p(os.path.join(args.new_directory, 'calibration'))
+    mkdir_p(run_paths['calibration'])
     if args.seed_targets:
       shutil.copy(args.seed_targets,
-                  os.path.join(args.new_directory, 'calibration'))
+                  run_paths['calibration'])
     else:
       shutil.copy(os.path.join(ddt_dir,'pyddt','src','pyddt', 'calibration', 'calibration_targets.py'),
-                  os.path.join(args.new_directory, 'calibration'))
+                  run_paths['calibration'])
 
   if args.seed_parameters:
     shutil.copytree(args.seed_parameters,
-                    os.path.join(args.new_directory, 'parameters'))
+                    run_paths['parameters'])
   else:
     shutil.copytree(os.path.join(ddt_dir, 'parameters'),
-                    os.path.join(args.new_directory, 'parameters'))
+                    run_paths['parameters'])
 
 
   # Copy over the config and parameters directories
-  shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
+  shutil.copytree(os.path.join(ddt_dir, 'config'), run_paths['config'])
 
   if args.copy_inputs:
     shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs', os.path.basename(args.input_data_path)))
   else:
     # Copy the run mask from the source data directory into the new working directory
     mask_filename = pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file']
-    shutil.copy(os.path.join(args.input_data_path, mask_filename), os.path.join(args.new_directory, mask_filename))
+    shutil.copy(os.path.join(args.input_data_path, mask_filename), run_paths['run-mask.nc'])
 
   # Make sure an output directory exists
-  mkdir_p(os.path.join(args.new_directory, 'output'))
+  mkdir_p(run_paths['output'])
 
   # Open the new config file
-  config = pyddt_config.load_config(os.path.join(args.new_directory, 'config/config.js'))
+  config = pyddt_config.load_config(run_paths['config/config.js'])
 
   ####  Set up the new config file appropriately... ####
 
@@ -350,7 +355,7 @@ def cmdline_run(args):
   # Sort the keys in the IO section.
   config['IO'] = collections.OrderedDict(sorted(iter(config['IO'].items()), key=lambda k_v: sort_order.index(k_v[0])))
 
-  with open(os.path.join(args.new_directory, 'config/config.js'), 'w', encoding='utf-8') as fp:
+  with open(run_paths['config/config.js'], 'w', encoding='utf-8') as fp:
     commentjson.dump(config, fp, indent=2, sort_keys=False) # sorting messes up previous sorting!
 
 
