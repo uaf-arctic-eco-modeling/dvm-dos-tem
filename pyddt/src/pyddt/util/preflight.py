@@ -286,7 +286,7 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
     if not f.is_file():
       continue
     try:
-      cmts_in_file = pyddt_param.get_CMTs_in_file(str(f))
+      cmts_in_file, _ = pyddt_param.get_CMTs_in_file(str(f))
     except (OSError, UnicodeDecodeError) as e:
       issues.append(Issue(WARNING, f'could not read parameter file {f.name} ({e}); skipped for CMT coverage check.'))
       continue

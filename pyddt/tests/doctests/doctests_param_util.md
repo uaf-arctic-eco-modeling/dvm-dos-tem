@@ -26,10 +26,10 @@ Load the library
 
     >>> import pyddt.util.param
 
-List all the CMTs found in a file. This returns a list of dictionaries, from
-which we can print the name and number of each CMT.
+List all the CMTs found in a file. This returns the CMT dictionaries and a
+list of repeated CMT numbers (empty when none are repeated).
 
-    >>> cmts = pyddt.util.param.get_CMTs_in_file("parameters/cmt_calparbgc.txt")
+    >>> cmts, repeats = pyddt.util.param.get_CMTs_in_file("parameters/cmt_calparbgc.txt")
     >>> for i in cmts:
     ...     print("{} {}".format(i["cmtnum"], i["cmtname"]))
     0 BARE GROUND OPEN WATER SNOW AND ICE
@@ -114,7 +114,7 @@ See that all the parameter files contain the same CMTs (by number):
 
     >>> import os
     >>> for f in os.listdir("parameters/"):
-    ...   print([i["cmtnum"] for i in pyddt.util.param.get_CMTs_in_file("parameters/" + f)])
+    ...   print([i["cmtnum"] for i in pyddt.util.param.get_CMTs_in_file("parameters/" + f)[0]])
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74, 75, 76, 82, 90, 92, 93]
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74, 75, 76, 82, 90, 92, 93]
     [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 31, 44, 50, 51, 52, 55, 56, 57, 60, 65, 66, 67, 69, 70, 71, 73, 74, 75, 76, 82, 90, 92, 93]

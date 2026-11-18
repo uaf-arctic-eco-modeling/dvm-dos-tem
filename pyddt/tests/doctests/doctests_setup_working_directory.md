@@ -71,5 +71,8 @@ Now if we look in the new directory, there should be only a single CMT of data
 in the parameters (whereas if we had not set the seed, there would be many
 CMTs of data):
 
-    >>> pyddt.util.param.get_CMTs_in_file("/tmp/test-setup_working_directory/parameters/cmt_calparbgc.txt")
+    >>> cmts, repeats = pyddt.util.param.get_CMTs_in_file("/tmp/test-setup_working_directory/parameters/cmt_calparbgc.txt")
+    >>> repeats
+    []
+    >>> cmts
     [{'cmtkey': 'CMT01', 'cmtnum': 1, 'cmtname': 'Boreal Black Spruce', 'cmtcomment': '6/29/20 boreal black spruce with Murphy Dome climate'}]
