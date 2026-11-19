@@ -12,6 +12,8 @@ import csv
 import itertools
 import subprocess
 import tempfile
+import warnings
+from collections import Counter
 
 # For command line interface
 import argparse
@@ -183,7 +185,7 @@ def fwt2csv_v1(param_dir, req_cmts='all', targets_path=None):
     # NOTE: currently there is no mechanism for storing reference data in the 
     # fixed width text files....
 
-    avail_cmts = get_available_CMTs(param_dir)
+    avail_cmts = get_CMTs_in_dir(param_dir)
 
     if req_cmts == 'all':
       cmts = avail_cmts
@@ -988,22 +990,32 @@ def format_section_csv_v0(section_data, full_data):
 
 def get_CMTs_in_file(aFile):
   '''
-  Gets a list of the CMTs found in a file.
-
-  Looks at all lines in the file and considers any commented line with the 
-  'CMT' as the first non-whitespace charachters after the initial comment
-  symbol to be a CMT definition line. Parses this line and sets the following
-  keys in a dict: cmtkey, cmtnum, cmtname, cmtcomments
+  Read CMT definitions and identify repeated CMT numbers in a file.
 
   Parameters
   ----------
-  aFile : string, required
-    The path to a file to read.
+  aFile : str or pathlib.Path
+    Path to the parameter file to read.
 
   Returns
   -------
-  list of dicts
-    A list of dicts with info about the CMTs found in a file.
+  cmt_list : list of dict
+    CMT definitions in file order, including repeated entries. Each dictionary
+    contains ``cmtkey``, ``cmtnum``, ``cmtname``, and ``cmtcomment``.
+  repeated_cmts : list of int
+    Sorted CMT numbers appearing more than once, each listed once. An empty
+    list indicates that no CMT numbers are repeated.
+
+  Warns
+  -----
+  UserWarning
+    If CMT numbers are repeated. The warning identifies the file and numbers.
+
+  Notes
+  -----
+  Lines beginning with ``CMT`` after leading whitespace and slash characters
+  are removed are interpreted as CMT headers. Repeated definitions are
+  identified by number, even when their names or comments differ.
   '''
   data = read_paramfile(aFile)
 
@@ -1025,7 +1037,13 @@ def get_CMTs_in_file(aFile):
       # Must be a comment line, and not the start of a valid CMT data block.
       pass
 
-  return cmt_list
+  counts = Counter(cmt['cmtnum'] for cmt in cmt_list)
+  repeated_cmts = sorted(number for number, count in counts.items() if count > 1)
+  if repeated_cmts:
+    labels = ', '.join(f'CMT{number:02d}' for number in repeated_cmts)
+    warnings.warn(f'Repeated CMT definitions in {aFile}: {labels}',
+                  UserWarning, stacklevel=2)
+  return cmt_list, repeated_cmts
 
 
 def find_cmt_start_idx(data, cmtkey):
@@ -1260,7 +1278,7 @@ def isParamFile(x):
   '''
   if os.path.isfile(x):
     try:
-      cmts = get_CMTs_in_file(x)
+      cmts, _ = get_CMTs_in_file(x)
     except UnicodeDecodeError:
       return False
 
@@ -1689,7 +1707,7 @@ def generate_reference_order(aFile):
     in the order they appear in the input file.
   '''
 
-  available_cmts = get_CMTs_in_file(aFile)
+  available_cmts, _ = get_CMTs_in_file(aFile)
   if not (len(available_cmts) > 0):
     raise RuntimeError("Invalid file! Can't find any CMT data blocks!")
   #print("Using CMT{} as reference...".format(available_cmts[0]['cmtnum']))
@@ -1918,40 +1936,48 @@ def is_ecosys_contributor(cmtstr, pftnum=None, compartment=None, ref_params_dir=
   return is_contrib
 
 
-def get_available_CMTs(pdir):
+def get_CMTs_in_dir(pdir):
   '''
-  Return list of available CMT numbers in directory.
-
-  Only returns CMTs that are defined in all files.
-
-  Assumptions:
-   - nothing else in `pdir`
-   - parameter files in `pdir` are valid
-   - CMTs not defined twice in one file
+  Return CMT numbers defined in every parameter file in a directory.
 
   Parameters
   ----------
-  pdir : str
-    Path to directory of dvmdostem parameter files.
+  pdir : str or pathlib.Path
+    Directory containing only valid dvmdostem parameter files.
 
   Returns
   -------
-  x : list of ints
-    A list of all the CMTs available in `pdir`. 
+  cmts : list of int
+    Sorted CMT numbers present in all files. Returns an empty list if the
+    directory is empty or no CMT number is shared by every file.
+
+  Raises
+  ------
+  AssertionError
+    If a file contains repeated CMT numbers.
+
+  Notes
+  -----
+  Every directory entry is read as a parameter file, so the directory must
+  not contain subdirectories or unrelated files. Repeated CMT numbers also
+  produce a warning from ``get_CMTs_in_file`` before the assertion fails.
   '''
+  common_cmts = None
+  for filename in sorted(os.listdir(pdir)):
+    data, repeated_cmts = get_CMTs_in_file(os.path.join(pdir, filename))
+    # Consider replacing the assert with an approach that returns all
+    # CMTs in a directory, including duplicates and incomplete ones,
+    # labeled correctly.
+    assert not repeated_cmts, "Must not have redundant cmt definitions in a file!: {}".format(filename)
+    file_cmts = {cmt['cmtnum'] for cmt in data}
+    # Start with the first file's CMTs, then retain only numbers also found
+    # in each later file. Starting with an empty set would discard all CMTs.
+    if common_cmts is None:
+      common_cmts = file_cmts
+    else:
+      common_cmts.intersection_update(file_cmts)
 
-  all_cmts = set()
-  files = os.listdir(pdir)
-  for f in files:
-    file_cmts = []
-    data = get_CMTs_in_file(os.path.join(pdir, f))
-    for cmt in data:
-      file_cmts.append((cmt['cmtkey'], cmt['cmtnum'], cmt['cmtname'], f))
-    file_cmt_set = set([x[1] for x in file_cmts])
-    assert len([x[1] for x in file_cmts]) == len(file_cmt_set), "Must not have redundant cmt definitions in a file!: {}".format(f)
-    all_cmts = all_cmts.union(file_cmt_set)
-
-  return list(all_cmts)
+  return sorted(common_cmts) if common_cmts is not None else []
 
 
 def which_file(pdir, pname, lookup_struct=None):
@@ -2021,7 +2047,7 @@ def build_param_lookup(pdir):
   lu = {}
   for f in os.listdir(pdir):
     f = os.path.join(pdir, f) # Maybe this should be abspath(..)?
-    cmts = get_CMTs_in_file(f)
+    cmts, _ = get_CMTs_in_file(f)
     #print(f, len(data))
     # Using a set here, otherwise we get duplicates (one per PFT).
     pft_params = set()
@@ -2162,7 +2188,7 @@ def build_cmt_colormap(pdir, neutral='#c8c8c8'):
   if not all_files:
     raise ValueError("No cmt_*.txt files found in {}".format(pdir))
 
-  file_cmts = {f: get_CMTs_in_file(f) for f in all_files}
+  file_cmts = {f: get_CMTs_in_file(f)[0] for f in all_files}
 
   ref_file = all_files[0]
   ref_keys = [c['cmtnum'] for c in file_cmts[ref_file]]
@@ -2237,7 +2263,7 @@ def export_qgis_color_map(pdir, dst, neutral='#c8c8c8'):
   cmap, norm = build_cmt_colormap(pdir, neutral=neutral)
 
   ref_file = sorted(glob.glob(os.path.join(pdir, 'cmt_*.txt')))[0]
-  cmt_names = {c['cmtnum']: c['cmtname'] for c in get_CMTs_in_file(ref_file)}
+  cmt_names = {c['cmtnum']: c['cmtname'] for c in get_CMTs_in_file(ref_file)[0]}
 
   lines = ['# QGIS Generated Color Map Export File', 'INTERPOLATION:EXACT']
   for i in range(100):
@@ -2691,7 +2717,7 @@ def cmdline_run(args):
     for f in required_param_files:
       f2 = os.path.join(infolder, f)
 
-      cmts_in_file = get_CMTs_in_file(f2)
+      cmts_in_file, _ = get_CMTs_in_file(f2)
       cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
       if cmtnum not in cmt_numbers:
         print("{:>45s} {}".format(f2, "n/a"))
@@ -2711,7 +2737,7 @@ def cmdline_run(args):
 
     file_cmts = {}
     for f in all_files:
-      file_cmts[f] = get_CMTs_in_file(f)
+      file_cmts[f], _ = get_CMTs_in_file(f)
 
     # Use the first file as the reference; compare all others against it.
     ref_file = all_files[0]
@@ -2753,7 +2779,7 @@ def cmdline_run(args):
       return 1
 
     # Re-read names for source-code comments (files already validated above)
-    ref_cmts = get_CMTs_in_file(sorted(glob.glob(os.path.join(infolder, 'cmt_*.txt')))[0])
+    ref_cmts, _ = get_CMTs_in_file(sorted(glob.glob(os.path.join(infolder, 'cmt_*.txt')))[0])
     cmt_names = {c['cmtnum']: c['cmtname'] for c in ref_cmts}
     cmt_nums = sorted(cmt_names.keys())
     colors = [mcolors.to_hex(c) for c in cmap.colors]
@@ -2801,7 +2827,7 @@ def cmdline_run(args):
     for f in required_param_files:
       f2 = os.path.join(infolder, f)
 
-      cmts_in_file = get_CMTs_in_file(f2)
+      cmts_in_file, _ = get_CMTs_in_file(f2)
       cmt_numbers = [cmt['cmtnum'] for cmt in cmts_in_file]
       if cmtnum not in cmt_numbers:
         print("{0:>45s} {1:>8s}   {1}".format(f2, "n/a"))

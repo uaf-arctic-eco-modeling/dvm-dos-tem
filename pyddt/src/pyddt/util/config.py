@@ -6,29 +6,90 @@ import argparse
 import textwrap
 import json
 import re
+from pathlib import Path
 
 import commentjson
+
+
+# Map config.js IO keys to standard default input filenames. Configured
+# paths may use other filenames; these defaults are used when preparing
+# a new run.
+DEFAULT_INPUT_FILE_NAMES = {
+  'hist_climate_file': 'historic-climate.nc',
+  'proj_climate_file': 'projected-climate.nc',
+  'veg_class_file': 'vegetation.nc',
+  'drainage_file': 'drainage.nc',
+  'soil_texture_file': 'soil-texture.nc',
+  'co2_file': 'co2.nc',
+  'proj_co2_file': 'projected-co2.nc',
+  'runmask_file': 'run-mask.nc',
+  'topo_file': 'topo.nc',
+  'fri_fire_file': 'fri-fire.nc',
+  'hist_exp_fire_file': 'historic-explicit-fire.nc',
+  'proj_exp_fire_file': 'projected-explicit-fire.nc',
+}
+
+
+def load_config(config_file="config/config.js"):
+  '''
+  Read a model configuration file, allowing JSON comments.
+
+  Parameters
+  ----------
+  config_file : str or pathlib.Path, optional
+    Path to the configuration file. Relative paths are interpreted from the
+    current working directory.
+
+  Returns
+  -------
+  config : dict
+    Parsed configuration contents.
+
+  Raises
+  ------
+  OSError
+    If the file cannot be opened or read.
+  ValueError
+    If the contents cannot be parsed as configuration data.
+  '''
+  with open(config_file, encoding='utf-8') as config_fh:
+    return commentjson.load(config_fh)
+
+
+def load_config_from_dir(run_dir):
+  '''
+  Read a run directory's configuration, if present.
+
+  Parameters
+  ----------
+  run_dir : str or pathlib.Path
+    Run directory containing ``config/config.js``.
+
+  Returns
+  -------
+  config : dict or None
+    Parsed configuration, or None if the configuration file is missing.
+    Read and parse errors propagate to the caller.
+  '''
+  config_path = Path(run_dir) / 'config' / 'config.js'
+  if not config_path.is_file():
+    return None
+  return load_config(config_path)
 
 
 def get_input_paths(config_file="config/config.js", verbose=True):
   '''
   '''
-  with open(config_file) as config_fh:
-    config = commentjson.load(config_fh)
+  config = load_config(config_file)
 
   #Should this also handle parameter_dir and output_spec file location?
   #At least for now, no. The matching 'set_input_paths' method should likely
   # only apply to this set of files.
-  input_filenames = ['hist_climate_file', 'proj_climate_file',
-                     'veg_class_file', 'drainage_file', 'soil_texture_file',
-                     'co2_file', 'proj_co2_file', 'runmask_file', 'topo_file',
-                     'fri_fire_file', 'hist_exp_fire_file',
-                     'proj_exp_fire_file']
   if verbose:
-    print("Fetching input paths for filenames:", *input_filenames, sep=', ')
+    print("Fetching input paths for filenames:", *DEFAULT_INPUT_FILE_NAMES, sep=', ')
 
   paths = []
-  for filename in input_filenames:
+  for filename in DEFAULT_INPUT_FILE_NAMES:
 #    path = os.path.dirname(config['IO'][filename])
     path = config['IO'][filename]
     if path not in paths:
@@ -122,8 +183,7 @@ def list_config_keys(config_file, root_key_path=None):
   Return available key paths in dot notation.
   If root_key_path is provided, list only that key and its subkeys.
   '''
-  with open(config_file) as config_fh:
-    config = commentjson.load(config_fh)
+  config = load_config(config_file)
 
   start_node = config
   start_prefix = ''

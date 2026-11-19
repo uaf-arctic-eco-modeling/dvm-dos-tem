@@ -6,6 +6,8 @@ import subprocess
 import shutil
 import pandas as pd
 
+from pyddt.util import config as pyddt_config
+
 from . import basedriver
 
 from ..util import param
@@ -186,8 +188,7 @@ class MadsTEMDriver(basedriver.BaseDriver):
     CONFIG_FILE = os.path.join(run_dir, 'config/config.js')
 
     # Read the existing data into memory
-    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-      config =   json.load(f) # hey there...
+    config = pyddt_config.load_config(CONFIG_FILE)
 
     config['IO']['output_nc_eq'] = 1 # Modify value...
 

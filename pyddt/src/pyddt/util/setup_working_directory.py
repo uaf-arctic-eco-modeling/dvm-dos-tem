@@ -14,6 +14,10 @@ import commentjson # need because we keep comments in our config file
 import collections
 import argparse
 import textwrap
+from pathlib import Path
+
+from pyddt.util import config as pyddt_config
+from pyddt.util.layout import DEFAULT_RUN_LAYOUT
 
 def mkdir_p(path):
   '''Emulates the shell's `mkdir -p`.'''
@@ -156,6 +160,9 @@ def cmdline_run(args):
   '''
     # Make the new main working directory
   mkdir_p(args.new_directory)
+  # Resolve the shared relative paths without creating directories that will
+  # be populated by copytree (which expects its destination not to exist).
+  run_paths = {name: Path(args.new_directory) / name for name in DEFAULT_RUN_LAYOUT}
 
   if args.force:
     shutil.rmtree(args.new_directory)
@@ -173,37 +180,37 @@ def cmdline_run(args):
   if args.no_cal_targets:
     pass
   else:
-    mkdir_p(os.path.join(args.new_directory, 'calibration'))
+    mkdir_p(run_paths['calibration'])
     if args.seed_targets:
       shutil.copy(args.seed_targets,
-                  os.path.join(args.new_directory, 'calibration'))
+                  run_paths['calibration'])
     else:
       shutil.copy(os.path.join(ddt_dir,'pyddt','src','pyddt', 'calibration', 'calibration_targets.py'),
-                  os.path.join(args.new_directory, 'calibration'))
+                  run_paths['calibration'])
 
   if args.seed_parameters:
     shutil.copytree(args.seed_parameters,
-                    os.path.join(args.new_directory, 'parameters'))
+                    run_paths['parameters'])
   else:
     shutil.copytree(os.path.join(ddt_dir, 'parameters'),
-                    os.path.join(args.new_directory, 'parameters'))
+                    run_paths['parameters'])
 
 
   # Copy over the config and parameters directories
-  shutil.copytree(os.path.join(ddt_dir, 'config'), os.path.join(args.new_directory, 'config'))
+  shutil.copytree(os.path.join(ddt_dir, 'config'), run_paths['config'])
 
   if args.copy_inputs:
     shutil.copytree(args.input_data_path, os.path.join(args.new_directory, 'inputs', os.path.basename(args.input_data_path)))
   else:
     # Copy the run mask from the source data directory into the new working directory
-    shutil.copy(os.path.join(args.input_data_path, 'run-mask.nc'), os.path.join(args.new_directory, 'run-mask.nc'))
+    mask_filename = pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file']
+    shutil.copy(os.path.join(args.input_data_path, mask_filename), run_paths['run-mask.nc'])
 
   # Make sure an output directory exists
-  mkdir_p(os.path.join(args.new_directory, 'output'))
+  mkdir_p(run_paths['output'])
 
   # Open the new config file
-  with open(os.path.join(args.new_directory, 'config/config.js'), encoding='utf-8') as fp:
-    config = commentjson.load(fp)
+  config = pyddt_config.load_config(run_paths['config/config.js'])
 
   ####  Set up the new config file appropriately... ####
 
@@ -211,12 +218,12 @@ def cmdline_run(args):
   config['IO']['parameter_dir'] = 'parameters/'  # <-- trailing slash is important!!
   config['IO']['output_dir']    = 'output/'      # <-- trailing slash is important!!
   config['IO']['restart_from']  = ''             # defaults to blank; not a restart run,
-  config['IO']['runmask_file']  = 'run-mask.nc'
+  config['IO']['runmask_file']  = pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file']
 
   if args.copy_inputs:
     input_data_path = os.path.join('inputs', os.path.basename(args.input_data_path))
     # leave run mask where it is, set path
-    config['IO']['runmask_file']  = os.path.join(input_data_path,'run-mask.nc')
+    config['IO']['runmask_file']  = os.path.join(input_data_path, pyddt_config.DEFAULT_INPUT_FILE_NAMES['runmask_file'])
     input_data_path = os.path.join(os.path.abspath(args.new_directory), input_data_path)
 
   else:
@@ -238,49 +245,49 @@ def cmdline_run(args):
   config['IO']['hist_climate_file'] = pick_input_file(
     input_data_path,
     [('historic', 'climate'), ('hist', 'climate')],
-    'historic-climate.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['hist_climate_file'],
     'historic climate',
   )
 
   config['IO']['proj_climate_file'] = pick_input_file(
     input_data_path,
     [('projected', 'climate'), ('proj', 'climate')],
-    'projected-climate.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_climate_file'],
     'projected climate',
   )
 
   config['IO']['veg_class_file'] = pick_input_file(
     input_data_path,
     [('vegetation',), ('veg_class',), ('vegclass',), ('veg',)],
-    'vegetation.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['veg_class_file'],
     'vegetation',
   )
 
   config['IO']['drainage_file'] = pick_input_file(
     input_data_path,
     [('drainage',), ('drain',)],
-    'drainage.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['drainage_file'],
     'drainage',
   )
 
   config['IO']['soil_texture_file'] = pick_input_file(
     input_data_path,
     [('soil', 'texture'), ('soil_texture',), ('soiltex',)],
-    'soil-texture.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['soil_texture_file'],
     'soil texture',
   )
 
   config['IO']['co2_file'] = pick_input_file(
     input_data_path,
     [('historic', 'co2'), ('hist', 'co2'), ('co2',)],
-    'co2.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['co2_file'],
     'historic CO2',
   )
 
   config['IO']['proj_co2_file'] = pick_input_file(
     input_data_path,
     [('projected', 'co2'), ('proj', 'co2')],
-    'projected-co2.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_co2_file'],
     'projected CO2',
     scenario=input_ssp(config['IO']['proj_climate_file']),
   )
@@ -288,35 +295,35 @@ def cmdline_run(args):
   config['IO']['topo_file'] = pick_input_file(
     input_data_path,
     [('topo',), ('topography',)],
-    'topo.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['topo_file'],
     'topography',
   )
 
   config['IO']['fri_fire_file'] = pick_input_file(
     input_data_path,
     [('fri', 'fire'), ('fri-fire',), ('frifire',)],
-    'fri-fire.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['fri_fire_file'],
     'FRI fire',
   )
 
   config['IO']['hist_exp_fire_file'] = pick_input_file(
     input_data_path,
     [('historic', 'explicit', 'fire'), ('hist', 'exp', 'fire')],
-    'historic-explicit-fire.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['hist_exp_fire_file'],
     'historic explicit fire',
   )
 
   config['IO']['proj_exp_fire_file'] = pick_input_file(
     input_data_path,
     [('projected', 'explicit', 'fire'), ('proj', 'exp', 'fire')],
-    'projected-explicit-fire.nc',
+    pyddt_config.DEFAULT_INPUT_FILE_NAMES['proj_exp_fire_file'],
     'projected explicit fire',
   )
 
   if args.copy_inputs:
-    for key in ('hist_climate_file', 'proj_climate_file', 'veg_class_file',
-                'drainage_file', 'soil_texture_file', 'co2_file', 'proj_co2_file',
-                'topo_file', 'fri_fire_file', 'hist_exp_fire_file', 'proj_exp_fire_file'):
+    for key in pyddt_config.DEFAULT_INPUT_FILE_NAMES:
+      if key == 'runmask_file':
+        continue  # The copied run mask already has a relative path.
       config['IO'][key] = os.path.relpath(config['IO'][key], os.path.abspath(args.new_directory))
 
   # Make sure calibration data ends up in a directory that is named the same
@@ -331,18 +338,7 @@ def cmdline_run(args):
   sort_order = [
     "parameter_dir",
 
-    "hist_climate_file",
-    "proj_climate_file",
-    "veg_class_file",
-    "drainage_file",
-    "soil_texture_file",
-    "co2_file",
-    "proj_co2_file",
-    "topo_file",
-    "fri_fire_file",
-    "hist_exp_fire_file",
-    "proj_exp_fire_file",
-    "topo_file",
+    *(key for key in pyddt_config.DEFAULT_INPUT_FILE_NAMES if key != 'runmask_file'),
     "runmask_file",
 
     "output_dir",
@@ -359,7 +355,7 @@ def cmdline_run(args):
   # Sort the keys in the IO section.
   config['IO'] = collections.OrderedDict(sorted(iter(config['IO'].items()), key=lambda k_v: sort_order.index(k_v[0])))
 
-  with open(os.path.join(args.new_directory, 'config/config.js'), 'w', encoding='utf-8') as fp:
+  with open(run_paths['config/config.js'], 'w', encoding='utf-8') as fp:
     commentjson.dump(config, fp, indent=2, sort_keys=False) # sorting messes up previous sorting!
 
 

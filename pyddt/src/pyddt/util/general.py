@@ -1,21 +1,48 @@
-#This module provides very general utility methods
+"""General utilities that do not clearly fit in the more specific
+modules, such as path or directory-related operations.
+"""
 
 import os
 
 
 def breakdown_outfile_name(outfilepath):
-  '''
-  Takes a TEM output file name, with or without full path,
-  and returns the path, variable name, time step, and stage.
+  """Split a model output filename into its directory, variable, and timing.
 
-  Example inputs:
-    /data/workflows/testing1/output/ALD_yearly_sc.nc
-    ALD_yearly_sc.nc
+  Parameters
+  ----------
+  outfilepath : str or os.PathLike
+    Path to an output file named ``VARIABLE_timeres_stage.nc``, such as
+    ``ALD_yearly_sc.nc``. Relative paths are resolved from the current
+    working directory; the file does not need to exist.
 
-  Example outputs:
-    /data/workflows/testing1/output, ALD, yearly, sc
-    [current dir], ALD, yearly, sc
-  '''
+  Returns
+  -------
+  path_prefix : str
+    Absolute directory path with symbolic links resolved.
+  varname : str
+    Output variable name, such as ``ALD``.
+  timeres : str
+    Time resolution text from the filename, such as ``yearly``.
+  stage : str
+    Model stage text from the filename, such as ``sc`` for scenario.
+
+  Raises
+  ------
+  ValueError
+    If the filename portion before the first period does not contain
+    exactly three underscore-separated fields.
+
+  Notes
+  -----
+  The fields are extracted as written; their values and the file extension
+  are not validated.
+
+  Examples
+  --------
+  >>> directory, variable, resolution, stage = breakdown_outfile_name('ALD_yearly_sc.nc')
+  >>> variable, resolution, stage
+  ('ALD', 'yearly', 'sc')
+  """
 
   #Resolve any symbolic links
   outputfile = os.path.realpath(outfilepath)
@@ -28,11 +55,6 @@ def breakdown_outfile_name(outfilepath):
   #Split filename: varname_timeres_stage.nc
   filename_base = filename.partition('.')[0]
   varname, timeres, stage = filename_base.split('_')
-
-#  print(path_prefix)
-#  print(varname)
-#  print(timeres)
-#  print(stage)
 
   return path_prefix, varname, timeres, stage
 
@@ -52,8 +74,14 @@ def merge_pngs_to_pdf(outdir, png_dir=None, pdf_name='result.pdf'):
     Filename for the final report inside ``outdir``. Defaults to
     ``result.pdf``. An existing report with this name is replaced.
 
+  Returns
+  -------
+  None
+
   Notes
   -----
+  Filenames containing ``.png`` are selected as images; filenames containing
+  ``.pdf`` are selected for merging. Matching is case-sensitive.
   Each PNG is converted to a temporary PDF in ``png_dir``. All PDF files in
   that directory, including any that already exist, are merged in filename
   order and deleted after being appended. Use a directory dedicated to the
@@ -90,50 +118,3 @@ def merge_pngs_to_pdf(outdir, png_dir=None, pdf_name='result.pdf'):
   writer.write(report_path)
 
   print("PNGs merged to PDF.")
-
-
-'''
-pyTEM
-pytem
-dvmdostem
-pydvmdostem
-dvmdostempy
-tempy
-TEMpy
-
-
-pyddt
-  README
-  pyproject.toml
-  
-  docs/
-
-  tests/
-    pull_request_test.py
-    doctests/
-      doctests_outspec_utils.md
-        
-  util.general.py
-  util.metrics.py
-  util.param.py
-  util.runmask.py
-  util.outspec.py
-    
-  util.drivers
-    BaseDriver.py
-    MadsTEMDriver.py
-    Sensitivity.py
-  
-  calibration
-    ca-config-demo.yaml
-    AC-MADS-TEM.jl
-    AC-SCIPY-TEM.py
-
-  sensitivity
-    SA_setup_and_run.py
-    SA_post_hoc_analysis.py
-    sa-demo-config.yaml
-  
-  
-
-'''

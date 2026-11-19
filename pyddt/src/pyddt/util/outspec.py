@@ -107,20 +107,50 @@ def write_data_to_csv(data, fname):
       writer.writerows(data)
 
 
-def check_layer_vars(data):
+def warn_layer_resolution_disabled(data):
+  '''
+  Warn when a likely layer output is enabled without layer resolution.
 
-  def warn_layers_not_set(dd):
-    if all([x == '' for x in [dd['Layers'],]]):
-      print("WARNING! output by Layers not set for {}".format(dd['Name']))
+  Parameters
+  ----------
+  data : list of dict
+    Output-specification rows, as returned by
+    ``csv_file_to_data_dict_list``. Each row supplies ``Name``, ``Layers``,
+    ``Yearly``, ``Monthly``, and ``Daily`` settings.
 
+  Returns
+  -------
+  names : list of str
+    Names of outputs with a recognized enabled time resolution that appear
+    to need layer resolution but have an empty ``Layers`` setting, in row
+    order. Returns an empty list if no rows need a warning. An empty list
+    evaluates to False in a condition.
+
+  Notes
+  -----
+  Names containing ``LAYER`` (ignoring case), such as ``TLAYER``, are
+  treated as likely to need a separate value for each layer. This is a
+  name-based heuristic, rather than a check of the variable's dimensions.
+  Each affected row produces one warning on standard output and one name
+  in the returned list, regardless of how many time resolutions are enabled.
+  The specification is not modified.
+  '''
+  names = []
+  # Consider replacing this to match any non-empty string other than 'invalid'
+  # as part of a larger decision on how to handle output specification.
+  enabled_values = {
+    'Yearly': ('y', 'year', 'yr', 'yearly'),
+    'Monthly': ('m', 'month', 'monthly'),
+    'Daily': ('d', 'day', 'daily'),
+  }
   for line in data:
-    if 'LAYER' in line['Name'].upper():
-      if any([line['Yearly'].lower() in ('y','year','yr','yearly')]):
-        warn_layers_not_set(line)
-      if any([line['Monthly'].lower() in ('m','month','monthly')]):
-        warn_layers_not_set(line)
-      if any([line['Daily'].lower() in ('d','day','daily',)]):
-        warn_layers_not_set(line)
+    if 'LAYER' not in line['Name'].upper() or line['Layers'] != '':
+      continue
+    if any(line[resolution].lower() in values
+           for resolution, values in enabled_values.items()):
+      print("WARNING! output by Layers not set for {}".format(line['Name']))
+      names.append(line['Name'])
+  return names
 
 
 
@@ -208,7 +238,7 @@ def toggle_on_variable(data, var, res_spec, verbose=False):
       if all([x == 'invalid' or x == '' for x in [line['Yearly'], line['Monthly'], line['Daily']]]):
         print("WARNING! Invalid TIME setting detected! You won't get output for {}".format(line['Name']))
 
-  check_layer_vars(data)
+  warn_layer_resolution_disabled(data)
 
   return data
 
@@ -373,7 +403,7 @@ def cmdline_run(args):
         pass # Nothing turned on...
       else:
         print_line_dict(line)
-    check_layer_vars(data)
+    warn_layer_resolution_disabled(data)
     return 0
 
   if args.enable_cal_vars:

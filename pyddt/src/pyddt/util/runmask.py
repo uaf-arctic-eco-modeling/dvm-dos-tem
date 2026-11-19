@@ -133,7 +133,7 @@ def conform_mask_to_available_params(param_folder, veg_file, mask_file, verbose=
   if 'run' not in mask.variables.keys():
     raise RuntimeError(f"Invalid mask.nc file...missing run variable {mask_file}")
 
-  available_CMTs = param.get_available_CMTs(param_folder)
+  available_CMTs = param.get_CMTs_in_dir(param_folder)
 
   if verbose:
     print("Available CMTs:", available_CMTs)
