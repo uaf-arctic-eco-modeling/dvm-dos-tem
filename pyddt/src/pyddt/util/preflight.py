@@ -85,18 +85,7 @@ from pyddt.util.layout import DEFAULT_RUN_LAYOUT
 from pyddt.util import outspec as pyddt_outspec
 from pyddt.util import param as pyddt_param
 from pyddt.util import runmonitor
-
-ERROR = 'ERROR'
-WARNING = 'WARNING'
-
-class Issue:
-  '''A single preflight finding: a `level` (`ERROR` or `WARNING`) and message.'''
-  def __init__(self, level, message):
-    self.level = level
-    self.message = message
-
-  def __repr__(self):
-    return f'{self.level}: {self.message}'
+from pyddt.util.test import ERROR, WARNING, Finding, report_findings
 
 
 def check_directory_layout(run_dir):
@@ -109,9 +98,9 @@ def check_directory_layout(run_dir):
 
   Returns
   -------
-  issues : list of Issue
+  findings : list of Finding
   '''
-  issues = []
+  findings = []
   missing_directories = set()
   for relative_path, entry_type in DEFAULT_RUN_LAYOUT.items():
     path = run_dir / relative_path
@@ -120,7 +109,7 @@ def check_directory_layout(run_dir):
       continue
     exists = path.is_dir() if entry_type == 'directory' else path.is_file()
     if not exists:
-      level = WARNING if relative_path == 'calibration' else ERROR
+      status = WARNING if relative_path == 'calibration' else ERROR
       if entry_type == 'directory':
         missing_directories.add(path)
         message = f'{relative_path}/ directory not present.'
@@ -128,11 +117,11 @@ def check_directory_layout(run_dir):
         message = f'{relative_path} not present in the run directory.'
       else:
         message = f'{relative_path} not present.'
-      issues.append(Issue(level, message))
+      findings.append(Finding(status, message, check_name='check_directory_layout'))
     elif relative_path == 'output' and any(path.iterdir()):
-      issues.append(Issue(WARNING, 'output/ directory is not empty.'))
+      findings.append(Finding(WARNING, 'output/ directory is not empty.', check_name='check_directory_layout'))
 
-  return issues
+  return findings
 
 
 def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_dir=None):
@@ -149,23 +138,23 @@ def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_di
 
   Returns
   -------
-  issues : list of Issue
+  findings : list of Finding
   '''
-  issues = []
+  findings = []
   io = config.get('IO', {})
 
   def check_path(key, default, is_dir, standard_practice):
     '''Resolve io[key] (or `default`), warn if absolute, error if missing.'''
     raw = io.get(key, default)
     if not raw:
-      issues.append(Issue(ERROR, f"config.js IO section is missing '{key}'"))
+      findings.append(Finding(ERROR, f"config.js IO section is missing '{key}'", check_name='check_config_integrity'))
       return
     if Path(raw).is_absolute():
-      issues.append(Issue(WARNING, f"IO.{key} ('{raw}') is an absolute path; {standard_practice}"))
+      findings.append(Finding(WARNING, f"IO.{key} ('{raw}') is an absolute path; {standard_practice}", check_name='check_config_integrity'))
     resolved = runmonitor.resolve_io_path(raw, run_dir, input_catalog_dir, workflows_dir)
     exists = resolved.is_dir() if is_dir else resolved.is_file()
     if not exists:
-      issues.append(Issue(ERROR, f'IO.{key} not found: {resolved}'))
+      findings.append(Finding(ERROR, f'IO.{key} not found: {resolved}', check_name='check_config_integrity'))
 
   check_path('runmask_file', None, is_dir=False,
              standard_practice='common practice is to keep run-mask.nc in the run directory with a relative path.')
@@ -180,13 +169,13 @@ def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_di
       continue  # already checked above, with the relative-path warning
     raw = io.get(key)
     if not raw:
-      issues.append(Issue(ERROR, f"config.js IO section is missing or empty '{key}'"))
+      findings.append(Finding(ERROR, f"config.js IO section is missing or empty '{key}'", check_name='check_config_integrity'))
       continue
     resolved = runmonitor.resolve_io_path(raw, run_dir, input_catalog_dir, workflows_dir)
     if not resolved.is_file():
-      issues.append(Issue(ERROR, f'IO.{key} not found: {resolved}'))
+      findings.append(Finding(ERROR, f'IO.{key} not found: {resolved}', check_name='check_config_integrity'))
 
-  return issues
+  return findings
 
 
 def check_output_spec(output_spec_path):
@@ -201,15 +190,15 @@ def check_output_spec(output_spec_path):
 
   Returns
   -------
-  issues : list of Issue
+  findings : list of Finding
   '''
-  issues = []
+  findings = []
 
   try:
     data = pyddt_outspec.csv_file_to_data_dict_list(str(output_spec_path))
   except (OSError, RuntimeError) as e:
-    issues.append(Issue(ERROR, f'output_spec.csv is malformed: {e}'))
-    return issues
+    findings.append(Finding(ERROR, f'output_spec.csv is malformed: {e}', check_name='check_output_spec'))
+    return findings
 
   def is_enabled(row):
     return any(row.get(res, '') not in ('', 'invalid') for res in ('Yearly', 'Monthly', 'Daily'))
@@ -219,9 +208,9 @@ def check_output_spec(output_spec_path):
   # Does CMTNUM exist in the output_spec and is it enabled
   cmtnum_row = by_name.get('CMTNUM')
   if cmtnum_row is None:
-    issues.append(Issue(ERROR, 'output_spec.csv has no CMTNUM row.'))
+    findings.append(Finding(ERROR, 'output_spec.csv has no CMTNUM row.', check_name='check_output_spec'))
   elif not is_enabled(cmtnum_row):
-    issues.append(Issue(ERROR, 'CMTNUM output is not enabled in output_spec.csv.'))
+    findings.append(Finding(ERROR, 'CMTNUM output is not enabled in output_spec.csv.', check_name='check_output_spec'))
 
   # Are layer outputs (by resolution) enabled without LAYERDZ
   layerdz_row = by_name.get('LAYERDZ')
@@ -230,24 +219,24 @@ def check_output_spec(output_spec_path):
   forced_layer_vars = sorted(row['Name'] for row in data
                               if row.get('Layers') == 'forced' and row['Name'] != 'LAYERDZ' and is_enabled(row))
   if forced_layer_vars and not layerdz_enabled:
-    issues.append(Issue(ERROR, f'Layer-resolution output(s) enabled ({", ".join(forced_layer_vars)}) but '
-                               f'LAYERDZ is not enabled; per-layer values cannot be matched to depths.'))
+    findings.append(Finding(ERROR, f'Layer-resolution output(s) enabled ({", ".join(forced_layer_vars)}) but '
+                               f'LAYERDZ is not enabled; per-layer values cannot be matched to depths.', check_name='check_output_spec'))
 
   # Are layer outputs (by name match) enabled without LAYERDZ
   layer_named_vars = sorted(row['Name'] for row in data
                              if 'LAYER' in row['Name'] and row['Name'] != 'LAYERDZ' and is_enabled(row))
   if layer_named_vars and not layerdz_enabled:
-    issues.append(Issue(WARNING, f'Layer-description output(s) enabled ({", ".join(layer_named_vars)}) without '
-                                 f'LAYERDZ; depths will not be available when interpreting them.'))
+    findings.append(Finding(WARNING, f'Layer-description output(s) enabled ({", ".join(layer_named_vars)}) without '
+                                 f'LAYERDZ; depths will not be available when interpreting them.', check_name='check_output_spec'))
 
   # Are layer outputs (by name match) enabled by time but not layer
   missing_layer_resolution = pyddt_outspec.warn_layer_resolution_disabled(data)
   if missing_layer_resolution:
-    issues.append(Issue(WARNING, f'Output(s) likely to require layer resolution '
+    findings.append(Finding(WARNING, f'Output(s) likely to require layer resolution '
                                  f'({", ".join(missing_layer_resolution)}) are enabled by time '
-                                 f'but have no Layers setting in output_spec.csv.'))
+                                 f'but have no Layers setting in output_spec.csv.', check_name='check_output_spec'))
 
-  return issues
+  return findings
 
 
 def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
@@ -265,9 +254,9 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
 
   Returns
   -------
-  issues : list of Issue
+  findings : list of Finding
   '''
-  issues = []
+  findings = []
 
   mask_info = runmonitor.summarize_run_mask(run_mask_path)
   active_mask = mask_info['active_mask']
@@ -275,8 +264,8 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
   try:
     veg_info = pyddt_input.count_cells_by_cmt(veg_class_path, active_mask)
   except (OSError, ValueError, KeyError, TypeError) as e:
-    issues.append(Issue(ERROR, f'Cannot check CMT coverage: {e}'))
-    return issues
+    findings.append(Finding(ERROR, f'Cannot check CMT coverage: {e}', check_name='check_cmt_coverage'))
+    return findings
   active_counts = veg_info['counts_active']
 
   active_cmts = sorted(set(int(v) for v in active_counts))
@@ -284,16 +273,16 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
   try:
     available_cmts = set(pyddt_param.get_CMTs_in_dir(parameters_dir))
   except (OSError, UnicodeError, ValueError, AssertionError) as e:
-    issues.append(Issue(ERROR, f'Cannot check parameter CMT coverage in {parameters_dir}: {e}'))
-    return issues
+    findings.append(Finding(ERROR, f'Cannot check parameter CMT coverage in {parameters_dir}: {e}', check_name='check_cmt_coverage'))
+    return findings
 
   # The directory helper returns only CMTs present in every parameter file.
   for cmtnum in active_cmts:
     if cmtnum not in available_cmts:
-      issues.append(Issue(ERROR, f'CMT{cmtnum:02d} is used by active run mask cell(s) but is not '
-                                 f'defined in every parameter file in {parameters_dir}.'))
+      findings.append(Finding(ERROR, f'CMT{cmtnum:02d} is used by active run mask cell(s) but is not '
+                                 f'defined in every parameter file in {parameters_dir}.', check_name='check_cmt_coverage'))
 
-  return issues
+  return findings
 
 
 def run_preflight(run_dir, input_catalog_dir=None, workflows_dir=None):
@@ -312,61 +301,40 @@ def run_preflight(run_dir, input_catalog_dir=None, workflows_dir=None):
 
   Returns
   -------
-  issues : list of Issue
+  findings : list of Finding
   '''
   run_dir = Path(run_dir).resolve()
-  issues = []
+  findings = []
 
-  issues += check_directory_layout(run_dir)
+  findings += check_directory_layout(run_dir)
 
   config_path = run_dir / 'config' / 'config.js'
   if not config_path.is_file():
-    issues.append(Issue(ERROR, f'config/config.js not found at {config_path}; skipping remaining checks.'))
-    return issues
+    findings.append(Finding(ERROR, f'config/config.js not found at {config_path}; skipping remaining checks.', check_name='load_config'))
+    return findings
   try:
     config = pyddt_config.load_config(config_path)
   except (OSError, ValueError) as e:
-    issues.append(Issue(ERROR, f'config/config.js could not be read/parsed ({e}); skipping remaining checks.'))
-    return issues
+    findings.append(Finding(ERROR, f'config/config.js could not be read/parsed ({e}); skipping remaining checks.', check_name='load_config'))
+    return findings
 
-  issues += check_config_integrity(run_dir, config, input_catalog_dir, workflows_dir)
+  findings += check_config_integrity(run_dir, config, input_catalog_dir, workflows_dir)
 
   io = config.get('IO', {})
   output_spec_path = runmonitor.resolve_io_path(
       io.get('output_spec_file', 'config/output_spec.csv'), run_dir, input_catalog_dir, workflows_dir)
   if output_spec_path.is_file():
-    issues += check_output_spec(output_spec_path)
+    findings += check_output_spec(output_spec_path)
   else:
-    issues.append(Issue(ERROR, f'output_spec.csv not found at {output_spec_path}'))
+    findings.append(Finding(ERROR, f'output_spec.csv not found at {output_spec_path}', check_name='check_output_spec'))
 
   run_mask_path = runmonitor.resolve_io_path(io.get('runmask_file', ''), run_dir, input_catalog_dir, workflows_dir)
   veg_class_path = runmonitor.resolve_io_path(io.get('veg_class_file', ''), run_dir, input_catalog_dir, workflows_dir)
   parameters_dir = runmonitor.resolve_io_path(io.get('parameter_dir', 'parameters/'), run_dir, input_catalog_dir, workflows_dir)
   if run_mask_path.is_file() and veg_class_path.is_file() and parameters_dir.is_dir():
-    issues += check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir)
+    findings += check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir)
 
-  return issues
-
-
-def print_report(run_dir, issues):
-  '''Print a human readable preflight report for `run_dir`.'''
-  print(f'{"=" * 60}')
-  print(f'Preflight: {run_dir}')
-  print(f'{"=" * 60}')
-
-  errors = [i for i in issues if i.level == ERROR]
-  warnings = [i for i in issues if i.level == WARNING]
-
-  if not issues:
-    print('  No issues found.')
-    return
-
-  for issue in errors:
-    print(f'  ERROR:   {issue.message}')
-  for issue in warnings:
-    print(f'  WARNING: {issue.message}')
-
-  print(f'\n{len(errors)} error(s), {len(warnings)} warning(s).')
+  return findings
 
 
 def cmdline_define():
@@ -426,15 +394,15 @@ def cmdline_run(args):
   Returns
   -------
   exit_code : int
-    Non-zero if any run directory has an ERROR level issue.
+    Non-zero if any run directory has an ERROR status finding.
   '''
   exit_code = 0
   for run_dir in args.run_dirs:
-    issues = run_preflight(run_dir, input_catalog_dir=args.input_catalog_dir,
+    findings = run_preflight(run_dir, input_catalog_dir=args.input_catalog_dir,
                             workflows_dir=args.workflows_dir)
-    print_report(run_dir, issues)
+    report_findings(findings, title=f'Preflight: {run_dir}')
     print()
-    if any(i.level == ERROR for i in issues):
+    if any(i.status == ERROR for i in findings):
       exit_code = 1
   return exit_code
 
