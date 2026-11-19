@@ -41,17 +41,20 @@ class Finding:
   check_name: str
 
 
-def report_findings(findings, title='Test findings'):
+def report_findings(findings, title='Test findings', verbose=False):
   """Print findings grouped by status, followed by error and warning counts.
 
   Parameters
   ----------
   findings : list of Finding
-    Observations produced by tests or checks. Only errors and warnings are
-    displayed; success and skipped findings are not printed.
+    Observations produced by tests or checks. Errors and warnings are always
+    displayed. Successes are displayed only in verbose mode; skipped findings
+    are not printed.
   title : str, optional
     Heading identifying the test suite or subject of the report. Defaults
     to ``Test findings``.
+  verbose : bool, optional
+    If True, print SUCCESS findings. Defaults to False.
 
   Returns
   -------
@@ -72,6 +75,11 @@ def report_findings(findings, title='Test findings'):
   if not findings:
     print('  No issues found.')
     return
+
+  if verbose:
+    for finding in findings:
+      if finding.status == SUCCESS:
+        print(f'  SUCCESS: {finding.message}')
 
   for finding in errors:
     print(f'  ERROR:   {finding.message}')

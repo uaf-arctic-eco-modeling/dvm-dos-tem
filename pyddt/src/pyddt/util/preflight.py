@@ -85,7 +85,7 @@ from pyddt.util.layout import DEFAULT_RUN_LAYOUT
 from pyddt.util import outspec as pyddt_outspec
 from pyddt.util import param as pyddt_param
 from pyddt.util import runmonitor
-from pyddt.util.test import ERROR, WARNING, Finding, report_findings
+from pyddt.util.test import ERROR, WARNING, SUCCESS, Finding, report_findings
 
 
 def check_directory_layout(run_dir):
@@ -99,6 +99,7 @@ def check_directory_layout(run_dir):
   Returns
   -------
   findings : list of Finding
+    Warnings and errors, or one SUCCESS finding if all checks pass.
   '''
   findings = []
   missing_directories = set()
@@ -121,6 +122,10 @@ def check_directory_layout(run_dir):
     elif relative_path == 'output' and any(path.iterdir()):
       findings.append(Finding(WARNING, 'output/ directory is not empty.', check_name='check_directory_layout'))
 
+  if not findings:
+    findings.append(Finding(SUCCESS, 'The run directory has the expected layout and its output directory is empty.',
+                            check_name='check_directory_layout'))
+
   return findings
 
 
@@ -139,6 +144,7 @@ def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_di
   Returns
   -------
   findings : list of Finding
+    Warnings and errors, or one SUCCESS finding if all checks pass.
   '''
   findings = []
   io = config.get('IO', {})
@@ -175,6 +181,10 @@ def check_config_integrity(run_dir, config, input_catalog_dir=None, workflows_di
     if not resolved.is_file():
       findings.append(Finding(ERROR, f'IO.{key} not found: {resolved}', check_name='check_config_integrity'))
 
+  if not findings:
+    findings.append(Finding(SUCCESS, 'Configured IO paths exist and satisfy the path checks.',
+                            check_name='check_config_integrity'))
+
   return findings
 
 
@@ -191,6 +201,7 @@ def check_output_spec(output_spec_path):
   Returns
   -------
   findings : list of Finding
+    Warnings and errors, or one SUCCESS finding if all checks pass.
   '''
   findings = []
 
@@ -236,6 +247,10 @@ def check_output_spec(output_spec_path):
                                  f'({", ".join(missing_layer_resolution)}) are enabled by time '
                                  f'but have no Layers setting in output_spec.csv.', check_name='check_output_spec'))
 
+  if not findings:
+    findings.append(Finding(SUCCESS, 'The output specification passes the format and output dependency checks.',
+                            check_name='check_output_spec'))
+
   return findings
 
 
@@ -255,6 +270,7 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
   Returns
   -------
   findings : list of Finding
+    Errors describing failed checks, or one SUCCESS finding if all checks pass.
   '''
   findings = []
 
@@ -281,6 +297,10 @@ def check_cmt_coverage(run_mask_path, veg_class_path, parameters_dir):
     if cmtnum not in available_cmts:
       findings.append(Finding(ERROR, f'CMT{cmtnum:02d} is used by active run mask cell(s) but is not '
                                  f'defined in every parameter file in {parameters_dir}.', check_name='check_cmt_coverage'))
+
+  if not findings:
+    findings.append(Finding(SUCCESS, 'All CMTs used by active run mask cells are defined '
+                                    'in every parameter file.', check_name='check_cmt_coverage'))
 
   return findings
 
@@ -351,6 +371,9 @@ def cmdline_define():
   parser.add_argument('run_dirs', nargs='+', metavar='RUN_DIR',
       help=textwrap.dedent('''One or more dvmdostem run directories to check.'''))
 
+  parser.add_argument('-v', '--verbose', action='store_true',
+      help='Include successful checks in the report.')
+
   parser.add_argument('--input-catalog-dir', metavar='DIR',
       help=textwrap.dedent('''Host directory to substitute for config.js
           paths starting with /data/input-catalog. Only needed when running
@@ -400,7 +423,7 @@ def cmdline_run(args):
   for run_dir in args.run_dirs:
     findings = run_preflight(run_dir, input_catalog_dir=args.input_catalog_dir,
                             workflows_dir=args.workflows_dir)
-    report_findings(findings, title=f'Preflight: {run_dir}')
+    report_findings(findings, title=f'Preflight: {run_dir}', verbose=args.verbose)
     print()
     if any(i.status == ERROR for i in findings):
       exit_code = 1
