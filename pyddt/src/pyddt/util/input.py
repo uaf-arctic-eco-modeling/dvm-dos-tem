@@ -47,7 +47,7 @@ class MustSupplyPixelCoordsError(ValueError):
 
 def check_input_set_existence(in_folder):
   '''
-  Raises various exceptions if there are problems with the files in the in_folder.
+  Check that all standard input files exist.
 
   Parameters
   ----------
@@ -55,18 +55,15 @@ def check_input_set_existence(in_folder):
     A path to a folder of dvmdostem inputs.
 
   Raises
-  ------  
-  BadInputFilesValueError
+  ------
+  MissingInputFilesValueError
+    If any file listed in ``DEFAULT_INPUT_FILE_NAMES`` is missing.
 
   Returns
   -------
   None
   '''
-  # Keep the existing required set: projected CO2 is not required by this check.
-  required_files = {
-    filename for key, filename in pyddt_config.DEFAULT_INPUT_FILE_NAMES.items()
-    if key != 'proj_co2_file'
-  }
+  required_files = set(pyddt_config.DEFAULT_INPUT_FILE_NAMES.values())
 
   files = set([f for f in os.listdir(in_folder) if os.path.isfile(os.path.join(in_folder, f))])
   dirs = [d for d in os.listdir(in_folder) if os.path.isdir(os.path.join(in_folder, d))]
