@@ -1150,10 +1150,14 @@ namespace temutil {
       }
       //std::cout << "Data: " << data << " Comment: " << comment << std::endl;
 
-      if (data.size() == 0) {
+      const size_t first_non_whitespace = data.find_first_not_of(" \t\r\n");
+      if (first_non_whitespace == std::string::npos) {
         // pass
       } else {
-        l.push_back(line);
+        const size_t last_non_whitespace = data.find_last_not_of(" \t\r\n");
+        l.push_back(data.substr(
+            first_non_whitespace,
+            last_non_whitespace - first_non_whitespace + 1));
       }
 
     }
