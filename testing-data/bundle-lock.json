@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "bundle": {
+    "id": "dvmdostem-standard",
+    "release": "v0.1.0",
+    "asset_name": "dvmdostem-standard-v0.1.0.tar.gz",
+    "url": "https://github.com/uaf-arctic-eco-modeling/dvmdostem-test-data/releases/download/v0.1.0/dvmdostem-standard-v0.1.0.tar.gz",
+    "sha256": "baf24a515e432f9eb6b9c133a04be893487f1018ab8272be056597d8f9628f64",
+    "size_bytes": 691707
+  }
+}
