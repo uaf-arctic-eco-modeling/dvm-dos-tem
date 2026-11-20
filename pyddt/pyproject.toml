@@ -49,5 +49,4 @@ pyddt-runmonitor = "pyddt.util.runmonitor:main"
 pyddt-region-resume = "pyddt.util.region_resume:main"
 pyddt-preflight = "pyddt.util.preflight:main"
 pyddt-config = "pyddt.util.config:main"
-
-
+pyddt-test-data = "pyddt.util.test_data:main"

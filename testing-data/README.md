@@ -18,6 +18,7 @@ enabling comprehensive testing, we use a three-tier approach:
 ```
 testing-data/
 ├── README.md                      # This file
+├── bundle-lock.json               # Immutable external bundle pin
 ├── minimal/                       # ✅ Committed to repository
 │   ├── inputs/                    # Small climate/soil datasets (1-2 years)
 │   └── parameters/                # Parameter files for testing
@@ -39,6 +40,28 @@ testing-data/
 - **Scalable Testing**: Developers/Modelers can access more data as needed
 - **CI/CD Friendly**: Automated systems can download appropriate test levels
 - **User-Friendly**: No complex version control tools required
+
+## Immutable Test-data Bundles
+
+Model-level integration tests use the external
+`uaf-arctic-eco-modeling/dvmdostem-test-data` release repository. The
+`bundle-lock.json` file pins both the release asset URL and its SHA-256 digest;
+a branch or mutable download cannot silently change test inputs.
+
+Fetch and verify the pinned bundle with the same command locally and in CI:
+
+```bash
+PYTHONPATH=pyddt/src python -m pyddt.util.test_data \
+  testing-data/bundle-lock.json
+```
+
+The command stores verified archives and extracted bundles in
+`~/.cache/dvmdostem/test-data` by default. Set
+`DVMDOSTEM_TEST_DATA_CACHE` or pass `--cache-dir` to use another location.
+Missing downloads, invalid cached archives, digest mismatches, and unsafe
+archive members fail with a non-zero status and an actionable diagnostic.
+The command prints the extracted bundle directory; the model input directory
+for the current release is its `data/apex_2km_buffer` child.
 
 ## Data Tiers Explained
 

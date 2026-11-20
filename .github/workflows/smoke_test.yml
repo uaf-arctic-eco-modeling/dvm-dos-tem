@@ -40,6 +40,13 @@ jobs:
         with:
           path: source
 
+      - name: Fetch and verify pinned test-data bundle
+        working-directory: source
+        run: |
+          PYTHONPATH=pyddt/src python3 -m pyddt.util.test_data \
+            testing-data/bundle-lock.json \
+            --cache-dir "$RUNNER_TEMP/dvmdostem-test-data"
+
       - run: git fetch --prune --unshallow
         working-directory: source
 
