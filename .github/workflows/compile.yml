@@ -41,7 +41,7 @@ jobs:
 
       - name: Check binary cache
         id: binary-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6.1.0
         with:
           path: source/dvmdostem
           key: dvmdostem-bin-${{ runner.os }}-${{ hashFiles('source/src/**', 'source/include/**', 'source/Makefile') }}
@@ -72,7 +72,7 @@ jobs:
         run: chmod +x source/dvmdostem
 
       - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: dvmdostem-binary
           path: source/dvmdostem
