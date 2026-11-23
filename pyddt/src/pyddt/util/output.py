@@ -16,6 +16,147 @@ import pandas as pd
 import xarray as xr
 from cftime import datetime
 import collections
+import argparse
+import sys
+import textwrap
+from dataclasses import dataclass
+from pathlib import Path
+
+from pyddt.util.general import breakdown_outfile_name
+from pyddt.util.netcdf import compare_nc_with_python
+from pyddt.util.test import ERROR, WARNING, SUCCESS, Finding, report_findings
+
+
+@dataclass
+class OutputSetComparison:
+  """Store variable lists and findings from comparing two model output sets.
+
+  Attributes
+  ----------
+  common_variables : list of str
+    Sorted variable names occurring in both directories, even if their time
+    resolutions or stages differ. Only matching file identities are compared.
+  only_in_a, only_in_b : list of str
+    Sorted variable names occurring exclusively in the respective directory.
+  different_variables : list of str
+    Sorted variable names with at least one completed comparison that differs.
+    Failed comparisons are reported in findings rather than included here.
+  findings : list of Finding
+    Per-file comparison results, missing counterparts, and scan problems.
+  """
+
+  common_variables: list
+  only_in_a: list
+  only_in_b: list
+  different_variables: list
+  findings: list
+
+
+def compare_output_sets(dirA, dirB):
+  """Compare matching dvmdostem output files in two directories.
+
+  Parameters
+  ----------
+  dirA, dirB : str or os.PathLike
+    Directories containing model output files. Subdirectories are not scanned.
+
+  Returns
+  -------
+  result : OutputSetComparison
+    Sorted variable-name lists and findings. A matching data pair produces
+    SUCCESS; differing data or a failed comparison produces ERROR. Outputs
+    missing a counterpart and ignored NetCDF filenames produce WARNING.
+
+  Raises
+  ------
+  OSError
+    If a directory cannot be listed or is not a directory.
+
+  Notes
+  -----
+  Uses ``breakdown_outfile_name`` to identify files by variable, time
+  resolution, and stage. Only ``.nc`` files with canonical names using daily,
+  monthly, or yearly resolution and pr, eq, sp, tr, or sc stage are included.
+  Other NetCDF files, such as restart and run-status files, are reported as
+  ignored. Duplicate identities produce errors and are not compared.
+
+  Each common identity is compared with ``compare_nc_with_python`` using the
+  variable named in the filename. This compares that variable's unmasked
+  values and mask exactly and validates root dimensions and variable
+  structures. It does not compare attributes, groups, or other variables'
+  data. A variable can be common while some of its file identities lack
+  counterparts; those missing files are reported individually in findings.
+  """
+  findings = []
+  check_name = 'compare_output_sets'
+
+  def collect(directory):
+    """Index canonical output names without reading their NetCDF contents.
+
+    Parameters
+    ----------
+    directory : str or os.PathLike
+      Directory to scan for model output files.
+
+    Returns
+    -------
+    files : dict
+      Output identities mapped to file paths.
+    duplicates : set
+      Identities encountered more than once and excluded from comparison.
+    """
+    directory = Path(directory)
+    files = {}
+    duplicates = set()
+    for path in sorted(directory.iterdir()):
+      if not path.is_file() or path.suffix != '.nc':
+        continue
+      try:
+        _, variable, resolution, stage = breakdown_outfile_name(path)
+        if (not variable or resolution not in ('daily', 'monthly', 'yearly')
+            or stage not in ('pr', 'eq', 'sp', 'tr', 'sc')
+            or path.name != f'{variable}_{resolution}_{stage}.nc'):
+          raise ValueError('not a canonical model output filename')
+      except ValueError as error:
+        findings.append(Finding(WARNING, f'Ignoring {path}: {error}', check_name))
+        continue
+      identity = (variable, resolution, stage)
+      if identity in files:
+        duplicates.add(identity)
+        findings.append(Finding(ERROR, f'Duplicate output identity in {directory}: {identity}', check_name))
+      else:
+        files[identity] = path
+    if not files:
+      findings.append(Finding(WARNING, f'No model output files found in {directory}.', check_name))
+    return files, duplicates
+
+  files_a, duplicates_a = collect(dirA)
+  files_b, duplicates_b = collect(dirB)
+  variables_a = {key[0] for key in files_a}
+  variables_b = {key[0] for key in files_b}
+  for files, other_files, other_dir in ((files_a, files_b, dirB), (files_b, files_a, dirA)):
+    for identity in sorted(files.keys() - other_files.keys()):
+      findings.append(Finding(WARNING, f'{files[identity]} has no counterpart in {other_dir}.', check_name))
+
+  different = set()
+  for identity in sorted(files_a.keys() & files_b.keys()):
+    if identity in duplicates_a or identity in duplicates_b:
+      continue
+    first, second = files_a[identity], files_b[identity]
+    try:
+      matches = compare_nc_with_python(first, second, identity[0])
+    except (OSError, ValueError, RuntimeError) as error:
+      findings.append(Finding(ERROR, f'Cannot compare {first} with {second}: {error}', check_name))
+      continue
+    if matches:
+      findings.append(Finding(SUCCESS, f'{first} matches {second}.', check_name))
+    else:
+      different.add(identity[0])
+      findings.append(Finding(ERROR, f'{first} differs from {second}.', check_name))
+
+  return OutputSetComparison(
+    sorted(variables_a & variables_b), sorted(variables_a - variables_b),
+    sorted(variables_b - variables_a), sorted(different), findings)
 
 
 def get_last_n_eq(var, timeres='yearly', fileprefix='', n=10):
@@ -1286,10 +1427,14 @@ def print_soil_table(outdir, stage, timeres, Y, X, timestep):
     print(row_fmt.format(*data))
 
 
-if __name__ == '__main__':
+def cmdline_define():
+  """Build the CLI parser for output comparisons and plots.
 
-  import argparse
-  import textwrap
+  Returns
+  -------
+  parser : argparse.ArgumentParser
+    Parser containing the supported output subcommands.
+  """
 
   parser = argparse.ArgumentParser(
     formatter_class = argparse.RawDescriptionHelpFormatter,
@@ -1324,7 +1469,14 @@ if __name__ == '__main__':
       choices=['pr', 'eq','sp','tr','sc'], help="The stage to plot")
 
 
-  subparsers = parser.add_subparsers(help='sub commands', dest='command')
+  subparsers = parser.add_subparsers(help='sub commands', dest='command', required=True)
+
+  compare_parser = subparsers.add_parser('compare-output-sets',
+      help='Compare matching model outputs in two directories.')
+  compare_parser.add_argument('dirA', help='First output directory.')
+  compare_parser.add_argument('dirB', help='Second output directory.')
+  compare_parser.add_argument('-v', '--verbose', action='store_true',
+      help='Show matching files as SUCCESS findings.')
 
   # EXAMPLES
   # ./input.py soil-profiles /some/path/to/some/outputs/
@@ -1399,7 +1551,54 @@ if __name__ == '__main__':
 
   #ss_parser.add_argument()
 
-  args = parser.parse_args()
+  return parser
+
+
+def cmdline_parse(argv=None):
+  """Parse output utility arguments.
+
+  Parameters
+  ----------
+  argv : list of str or None, optional
+    Arguments to parse, or None to use ``sys.argv[1:]``.
+
+  Returns
+  -------
+  args : argparse.Namespace
+    Parsed command and options.
+  """
+  return cmdline_define().parse_args(argv)
+
+
+def cmdline_run(args):
+  """Execute an output comparison or plotting command.
+
+  Parameters
+  ----------
+  args : argparse.Namespace
+    Arguments returned by ``cmdline_parse``.
+
+  Returns
+  -------
+  exit_code : int
+    Zero for a comparison without warnings or errors, or a completed plotting
+    command; one for comparison findings at WARNING or ERROR status; two if
+    an input directory cannot be read.
+  """
+  if args.command == 'compare-output-sets':
+    try:
+      result = compare_output_sets(args.dirA, args.dirB)
+    except OSError as error:
+      print(f'Cannot compare output sets: {error}', file=sys.stderr)
+      return 2
+    for label, names in (
+        ('Common variables', result.common_variables),
+        ('Only in A', result.only_in_a), ('Only in B', result.only_in_b),
+        ('Different data', result.different_variables)):
+      print(f'{label}: {", ".join(names) or "(none)"}')
+    report_findings(result.findings, title='Output set comparison', verbose=args.verbose)
+    return int(any(f.status in (ERROR, WARNING) for f in result.findings))
+
   print(args)
 
   if args.command == 'fronts':
@@ -1432,6 +1631,44 @@ if __name__ == '__main__':
 
     # Make the plots...
     plot_basic_timeseries(args.vars[0].split(','), args.yx[0], args.yx[1], args.timeres, args.stitch, args.output_folder[0]) 
+
+  return 0
+
+
+def cmdline_entry(argv=None):
+  """Parse and execute output utility arguments.
+
+  Parameters
+  ----------
+  argv : list of str or None, optional
+    Arguments to parse, or None to use ``sys.argv[1:]``.
+
+  Returns
+  -------
+  exit_code : int
+    Status returned by ``cmdline_run``.
+  """
+  return cmdline_run(cmdline_parse(argv))
+
+
+def main(argv=None):
+  """Run the pyddt-output command.
+
+  Parameters
+  ----------
+  argv : list of str or None, optional
+    Arguments to parse, or None to use ``sys.argv[1:]``.
+
+  Returns
+  -------
+  exit_code : int
+    Status returned by ``cmdline_run``.
+  """
+  return cmdline_entry(argv)
+
+
+if __name__ == '__main__':
+  sys.exit(main())
 
 
 

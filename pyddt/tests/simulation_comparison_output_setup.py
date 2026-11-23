@@ -7,7 +7,7 @@
 import subprocess
 import glob
 import util.run_util
-import tests.test_util as tests
+import pyddt.util.netcdf as tests
 
 enable_output_set = [
   "ALD y",
@@ -84,4 +84,3 @@ if __name__ == '__main__':
   for entry in enable_output_set:
     entry = entry.split()
     util.outspec.cmdline_entry([outspecs, "--on", *entry])
-
