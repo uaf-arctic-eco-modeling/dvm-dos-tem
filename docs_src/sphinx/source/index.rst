@@ -73,6 +73,7 @@ The code is available on Github: https://github.com/uaf-arctic-eco-modeling/dvm-
     CLI_tools/input
     CLI_tools/qcal
     CLI_tools/outspec
+    CLI_tools/output
     CLI_tools/netcdf
 
 

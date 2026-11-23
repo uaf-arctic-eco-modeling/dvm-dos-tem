@@ -12,6 +12,7 @@ def cmdline_define():
         epilog="""Available commands:
   pyddt-input     Validate, crop, and plot input NetCDF files.
   pyddt-netcdf    Work with NetCDF files, including numeric comparisons.
+  pyddt-output    Compare model output sets and plot outputs.
   pyddt-outspec   List and enable variables in output specification files.
   pyddt-param     Read, edit, and convert model parameter files.
   pyddt-runmask   Create, modify, and view grid-cell run masks.
