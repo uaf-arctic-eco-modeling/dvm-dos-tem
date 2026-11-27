@@ -15,13 +15,180 @@
 
 extern src::severity_logger< severity_level > glg;
 
+/** Initialize all member arrays to zero to prevent undefined behavior
+ * from accessing uninitialized memory. This is called from all constructors.
+ */
+void initializeMembers(CohortLookup* chtlu) {
+  // Initialize calibration related arrays
+  for (int i = 0; i < NUM_PFT; ++i) {
+    chtlu->cmax[i] = 0.0;
+    chtlu->nmax[i] = 0.0;
+    chtlu->kra[i] = 0.0;
+    chtlu->frg[i] = 0.0;
+    chtlu->sla[i] = 0.0;
+    chtlu->klai[i] = 0.0;
+    chtlu->vegcov[i] = 0.0;
+    chtlu->initial_lai[i] = 0.0;
+    chtlu->ifwoody[i] = 0;
+    chtlu->ifdeciwoody[i] = 0;
+    chtlu->ifperenial[i] = 0;
+    chtlu->nonvascular[i] = 0;
+    chtlu->albvisnir[i] = 0.0;
+    chtlu->er[i] = 0.0;
+    chtlu->ircoef[i] = 0.0;
+    chtlu->iscoef[i] = 0.0;
+    chtlu->glmax[i] = 0.0;
+    chtlu->gl_bl[i] = 0.0;
+    chtlu->gl_c[i] = 0.0;
+    chtlu->vpd_open[i] = 0.0;
+    chtlu->vpd_close[i] = 0.0;
+    chtlu->ppfd50[i] = 0.0;
+    chtlu->initvegwater[i] = 0.0;
+    chtlu->initvegsnow[i] = 0.0;
+    chtlu->minleaf[i] = 0.0;
+    chtlu->aleaf[i] = 0.0;
+    chtlu->bleaf[i] = 0.0;
+    chtlu->cleaf[i] = 0.0;
+    chtlu->kfoliage[i] = 0.0;
+    chtlu->cov[i] = 0.0;
+    chtlu->m1[i] = 0.0;
+    chtlu->m2[i] = 0.0;
+    chtlu->m3[i] = 0.0;
+    chtlu->m4[i] = 0.0;
+    chtlu->kc[i] = 0.0;
+    chtlu->ki[i] = 0.0;
+    chtlu->tmin[i] = 0.0;
+    chtlu->toptmin[i] = 0.0;
+    chtlu->toptmax[i] = 0.0;
+    chtlu->tmax[i] = 0.0;
+    chtlu->raq10a0[i] = 0.0;
+    chtlu->raq10a1[i] = 0.0;
+    chtlu->raq10a2[i] = 0.0;
+    chtlu->raq10a3[i] = 0.0;
+    chtlu->knuptake[i] = 0.0;
+    chtlu->c2na[i] = 0.0;
+    chtlu->labncon[i] = 0.0;
+    chtlu->initdeadc[i] = 0.0;
+    chtlu->initdeadn[i] = 0.0;
+  }
+
+  for (int i = 0; i < NUM_PFT_PART; ++i) {
+    for (int j = 0; j < NUM_PFT; ++j) {
+      chtlu->cfall[i][j] = 0.0;
+      chtlu->nfall[i][j] = 0.0;
+      chtlu->krb[i][j] = 0.0;
+      chtlu->cpart[i][j] = 0.0;
+      chtlu->initc2neven[i][j] = 0.0;
+      chtlu->c2nmin[i][j] = 0.0;
+      chtlu->c2nb[i][j] = 0.0;
+      chtlu->initvegc[i][j] = 0.0;
+      chtlu->initvegn[i][j] = 0.0;
+    }
+  }
+
+  for (int i = 0; i < MAX_ROT_LAY; ++i) {
+    for (int j = 0; j < NUM_PFT; ++j) {
+      chtlu->frootfrac[i][j] = 0.0;
+    }
+  }
+
+  for (int i = 0; i < 12; ++i) {
+    for (int j = 0; j < NUM_PFT; ++j) {
+      chtlu->static_lai[i][j] = 0.0;
+    }
+  }
+
+  for (int i = 0; i < NUM_FSEVR; ++i) {
+    chtlu->foslburn[i] = 0.0;
+    for (int j = 0; j < NUM_PFT; ++j) {
+      chtlu->fvcombust[i][j] = 0.0;
+      chtlu->fvslash[i][j] = 0.0;
+    }
+  }
+
+  // Initialize scalar members
+  chtlu->micbnup = 0.0;
+  chtlu->kdcrawc = 0.0;
+  chtlu->kdcsoma = 0.0;
+  chtlu->kdcsompr = 0.0;
+  chtlu->kdcsomcr = 0.0;
+  chtlu->snwdenmax = 0.0;
+  chtlu->snwdennew = 0.0;
+  chtlu->initsnwthick = 0.0;
+  chtlu->initsnwdense = 0.0;
+  chtlu->maxdmossthick = 0.0;
+  chtlu->initdmossthick = 0.0;
+  chtlu->mosstype = 0;
+  chtlu->initfibthick = 0.0;
+  chtlu->inithumthick = 0.0;
+  chtlu->coefshlwa = 0.0;
+  chtlu->coefshlwb = 0.0;
+  chtlu->coefdeepa = 0.0;
+  chtlu->coefdeepb = 0.0;
+  chtlu->coefminea = 0.0;
+  chtlu->coefmineb = 0.0;
+  chtlu->rtdp4gdd = 0.0;
+  chtlu->snwalbmax = 0.0;
+  chtlu->snwalbmin = 0.0;
+  chtlu->psimax = 0.0;
+  chtlu->evapmin = 0.0;
+  chtlu->drainmax = 0.0;
+  chtlu->tcsolid_moss = 0.0;
+  chtlu->tcsolid_f = 0.0;
+  chtlu->tcsolid_h = 0.0;
+  chtlu->nfactor_s = 0.0;
+  chtlu->nfactor_w = 0.0;
+  chtlu->poro_moss = 0.0;
+  chtlu->poro_f = 0.0;
+  chtlu->poro_h = 0.0;
+  chtlu->bulkden_moss = 0.0;
+  chtlu->bulkden_f = 0.0;
+  chtlu->bulkden_h = 0.0;
+  chtlu->hksat_moss = 0.0;
+  chtlu->hksat_f = 0.0;
+  chtlu->hksat_h = 0.0;
+  chtlu->initsnwtem = 0.0;
+  chtlu->rhq10 = 0.0;
+  chtlu->rhmoistfrozen = 0.0;
+  chtlu->moistmin = 0.0;
+  chtlu->moistopt = 0.0;
+  chtlu->moistmax = 0.0;
+  chtlu->lcclnc = 0.0;
+  chtlu->fsoma = 0.0;
+  chtlu->fsompr = 0.0;
+  chtlu->fsomcr = 0.0;
+  chtlu->som2co2 = 0.0;
+  chtlu->kn2 = 0.0;
+  chtlu->propftos = 0.0;
+  chtlu->nmincnsoil = 0.0;
+  chtlu->fnloss = 0.0;
+  chtlu->initdmossc = 0.0;
+  chtlu->initshlwc = 0.0;
+  chtlu->initdeepc = 0.0;
+  chtlu->initminec = 0.0;
+  chtlu->initsoln = 0.0;
+  chtlu->initavln = 0.0;
+  chtlu->vsmburn = 0.0;
+  chtlu->r_retain_c = 0.0;
+  chtlu->r_retain_n = 0.0;
+
+  for (int i = 0; i < 10; ++i) {
+    chtlu->initvwc[i] = 0.0;
+    chtlu->initts[i] = 0.0;
+  }
+}
+
 CohortLookup::CohortLookup() {
   cmtcode = "CMT00"; // the default community code (5 alphnumerics)
+  initializeMembers(this);
 };
 
 /** New constructor...*/
 CohortLookup::CohortLookup(std::string directory, std::string code) :
     dir(directory), cmtcode(code)  {
+
+  // Initialize all members to prevent undefined behavior
+  initializeMembers(this);
 
   BOOST_LOG_SEV(glg, info) << "Building a CohortLookup: set directory, "
                            << "community type, then read " << dir << "/* files "
