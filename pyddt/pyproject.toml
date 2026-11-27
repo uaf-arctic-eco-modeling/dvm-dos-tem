@@ -44,5 +44,7 @@ pyddt-param = "pyddt.util.param:main"
 pyddt-swd = "pyddt.util.setup_working_directory:main"
 pyddt-outspec = "pyddt.util.outspec:main"
 pyddt-qcal = "pyddt.util.qcal:main"
+pyddt-salvage = "pyddt.util.salvage_run:main"
+pyddt-merge = "pyddt.util.merge_runs:main"
 
 
